@@ -1,4 +1,4 @@
-name: Scene selected absence recovery candidate
+name: Scene text Pause Load candidate
 
 on:
   pull_request:
@@ -41,7 +41,7 @@ jobs:
           path: source
           fetch-depth: 0
 
-      - name: Apply reviewed resumable first-Reveal candidate
+      - name: Apply reviewed scene Pause Load candidate
         run: |
           $ErrorActionPreference = 'Stop'
           @'
@@ -52,13 +52,13 @@ jobs:
           assert git('rev-parse','HEAD') == base
           assert git('ls-remote','origin','refs/heads/codex/scene-runtime-integration-20261009').split()[0] == base
           patch = pathlib.Path('../controller/tools/cloud/scene-first-reveal-resumable.patch').read_bytes()
-          assert hashlib.sha256(patch).hexdigest() == 'ed3eb673cd285b4c67cba371844d2e5fdfa23399485ead68d06844bf8d9099f7'
+          assert hashlib.sha256(patch).hexdigest() == 'd6fe2cc619a1ed44c6ea03f88f2f839a441c2e6ca2eccb881ab6215a6a521b29'
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           (out/'candidate.patch').write_bytes(patch)
           subprocess.run(['git','apply','--index','--binary',str(out/'candidate.patch')], check=True)
           subprocess.run(['git','diff','--cached','--check'], check=True)
           paths = git('diff','--cached','--name-only').splitlines()
-          assert paths == ['autoload/DialogicBridge.gd', 'autoload/GameState.gd', 'scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd', 'scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd', 'scripts/application/run/DatingChallengeEnvelope.gd', 'scripts/application/run/DatingPhysicalOwner.gd', 'scripts/domain/minesweeper/MinesweeperBoardGenerator.gd', 'scripts/profile/DatingAttemptLedger.gd', 'tests/integration/scene_first_reveal_connected_child.gd', 'tests/integration/test_scene_first_reveal_connected_ahead.gd', 'tests/integration/test_scene_first_reveal_connected_create.gd', 'tests/integration/test_scene_first_reveal_connected_load.gd', 'tests/integration/test_scene_first_reveal_selected_create.gd', 'tests/support/SceneChallengeFixture.gd', 'tests/support/SceneFirstRevealConnectedFixture.gd', 'tests/unit/test_scene_absence.gd', 'tests/unit/test_scene_first_reveal.gd']
+          assert paths == ['autoload/DialogicBridge.gd', 'autoload/GameState.gd', 'autoload/SceneRouter.gd', 'scripts/application/backup/BackupPresentationPort.gd', 'scripts/application/lifecycle/ProductionPauseController.gd', 'scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd', 'scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd', 'scripts/application/restore/RouteRestoreParticipant.gd', 'scripts/application/run/DatingChallengeEnvelope.gd', 'scripts/application/run/DatingPhysicalOwner.gd', 'scripts/domain/minesweeper/MinesweeperBoardGenerator.gd', 'scripts/profile/DatingAttemptLedger.gd', 'tests/integration/scene_first_reveal_connected_child.gd', 'tests/integration/test_scene_first_reveal_connected_ahead.gd', 'tests/integration/test_scene_first_reveal_connected_create.gd', 'tests/integration/test_scene_first_reveal_connected_load.gd', 'tests/integration/test_scene_first_reveal_selected_create.gd', 'tests/integration/test_scene_pause_load.gd', 'tests/support/SceneChallengeFixture.gd', 'tests/support/SceneFirstRevealConnectedFixture.gd', 'tests/support/ScenePauseLoadFixture.gd', 'tests/unit/test_scene_absence.gd', 'tests/unit/test_scene_first_reveal.gd']
           receipt = {'base':base,'controller':os.environ['CONTROLLER_SHA'],'patch_sha256':hashlib.sha256(patch).hexdigest(),'paths':paths,'publication':'disabled diagnostic'}
           (out/'candidate-origin.json').write_text(json.dumps(receipt,indent=2),encoding='utf-8')
           '@ | python -
@@ -100,14 +100,20 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @{ source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); parent=(git rev-parse HEAD^) } | ConvertTo-Json | Set-Content .godot/ci/candidate-commit.json -Encoding utf8
 
-      - name: Focused owner Profile and persistence regressions
+      - name: Connected Pause Load and owner regressions
         timeout-minutes: 50
         run: |
           $ErrorActionPreference = 'Stop'
           $runner = './tools/testing/Invoke-IsolatedGodot.ps1'
           $failed = $false
           $tests = @(
-            ,@('absence','tests/unit/test_scene_absence.gd')
+            @('pause-load','tests/integration/test_scene_pause_load.gd'),
+            @('pause-coordinator','tests/unit/test_application_pause_coordinator.gd'),
+            @('pause-controller','tests/unit/test_production_pause_controller.gd'),
+            @('backup','tests/unit/test_backup_presentation.gd'),
+            @('scene-activation','tests/unit/test_scene_restore_activation_protocol.gd'),
+            @('pause-recovery','tests/unit/test_dialogic_pause_recovery.gd'),
+            @('pause-host','tests/integration/test_pause_backup_host.gd')
           )
           foreach ($entry in $tests) {
             $name = $entry[0]
@@ -118,7 +124,7 @@ jobs:
             if ($LASTEXITCODE -ne 0) { $failed = $true }
             Write-Host "DWM_LANE_END $name exit=$LASTEXITCODE $([DateTime]::UtcNow.ToString('o'))"
           }
-          foreach ($mode in @('normal','profile_ahead','selected_absence')) {
+          foreach ($mode in @('normal')) {
             $child = if ($mode -eq 'normal') { 'connected_create' } elseif ($mode -eq 'profile_ahead') { 'connected_ahead' } else { 'selected_create' }
             $create = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://tests/integration/test_scene_first_reveal_$child.gd",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/connected-$mode-create.xml")
             $load = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_first_reveal_connected_load.gd','-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/connected-$mode-load.xml")
@@ -139,8 +145,8 @@ jobs:
           import xml.etree.ElementTree as ET
 
           out = pathlib.Path('.godot/ci')
-          suites = {'absence':'tests/unit/test_scene_absence.gd'}
-          for mode in ['normal','profile_ahead','selected_absence']:
+          suites = {'pause-load': 'tests/integration/test_scene_pause_load.gd', 'pause-coordinator': 'tests/unit/test_application_pause_coordinator.gd', 'pause-controller': 'tests/unit/test_production_pause_controller.gd', 'backup': 'tests/unit/test_backup_presentation.gd', 'scene-activation': 'tests/unit/test_scene_restore_activation_protocol.gd', 'pause-recovery': 'tests/unit/test_dialogic_pause_recovery.gd', 'pause-host': 'tests/integration/test_pause_backup_host.gd'}
+          for mode in ['normal']:
               suites['connected-'+mode+'-create'] = 'tests/integration/test_scene_first_reveal_'+({'normal':'connected_create','profile_ahead':'connected_ahead','selected_absence':'selected_create'}[mode])+'.gd'
               suites['connected-'+mode+'-load'] = 'tests/integration/test_scene_first_reveal_connected_load.gd'
           counts = {}
@@ -163,7 +169,7 @@ jobs:
               'lanes':counts,
               'total_cases':sum(v['cases'] for v in counts.values()),
               'total_xml_assertions':sum(v['assertions'] for v in counts.values()),
-              'scope':'real selected pre-Reveal continuation after source-slot overwrite; Profile and Run refusal; same-process destination re-admission precedence; fresh-process selected unfinished Load; no rendered panel or same-branch OS crash claim',
+              'scope':'real native Text Pause ordinary and Quick selected Load; precommit write refusal and Continue; legacy owner regressions and fresh-process ordinary scene Load; diagnostic scene host, no Challenge control Pause or rendered E2E claim',
           }
           (out/'gate.json').write_text(json.dumps(result, indent=2), encoding='utf-8')
           print(json.dumps(result))

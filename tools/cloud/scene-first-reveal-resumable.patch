@@ -1,8 +1,55 @@
 diff --git a/autoload/DialogicBridge.gd b/autoload/DialogicBridge.gd
-index 3157477..594ebd4 100644
+index 3157477..0b5be5e 100644
 --- a/autoload/DialogicBridge.gd
 +++ b/autoload/DialogicBridge.gd
-@@ -4095,6 +4095,23 @@ func dispatch_scene_event(live_session: Dictionary, envelope: Dictionary) -> Dic
+@@ -2860,6 +2860,8 @@ func stage_scene_reading_restore(checkpoint: Dictionary, operation_id: String) -
+ 		"digest": _scene_digest(checkpoint), "candidate": checked.value.candidate,
+ 		"path": checked.value.path, "runtime": _runtime_adapter, "started": false,
+ 		"in_call": false, "native_started": false, "proof": false, "confirmed": false}
++	if is_pause_restore_pending():
++		_scene_restore["pause_handle"] = _pause_restore.handle.duplicate(true)
+ 	_reading_restore_pending = checkpoint.duplicate(true)
+ 	return {"ok": true}
+ 
+@@ -3336,6 +3338,20 @@ func is_pause_restore_pending() -> bool:
+ 	return not _pause_restore.is_empty() and not _pause_restore.get("applied", false)
+ 
+ 
++## Router may associate only the exact suspended source under restore custody.
++func validate_scene_pause_restore_handle(handle: Dictionary) -> Dictionary:
++	if _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore") \
++			or not is_pause_restore_pending() or _pause_restore.get("cancelled", false) \
++			or handle.is_empty() or handle != _pause_restore.handle or handle != _pause_handle or _pause_changing:
++		return _pause_failure(&"pause_source_changed")
++	var physical := _capture_presentation_frontier()
++	var expected := _pause_frontier.duplicate(true)
++	expected["paused"] = true
++	if not physical.get("ok", false) or physical.value != expected:
++		return _pause_failure(&"pause_source_changed")
++	return _pause_success({"suspended": true})
++
++
+ func stage_pause_restore(plan: Dictionary, semantic: bool) -> Dictionary:
+ 	if not is_pause_restore_pending() or _pause_restore.cancelled \
+ 			or _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore"):
+@@ -3371,6 +3387,16 @@ func cancel_pause_restore(handle: Dictionary) -> Dictionary:
+ 
+ 
+ func complete_pause_restore(handle: Dictionary) -> Dictionary:
++	# Scene activation already retired the source and proved the destination.
++	# Completion acknowledges that exact handoff; it must never resume it again.
++	if not handle.is_empty() and _scene_restore.get("pause_handle") == handle:
++		if _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore") \
++				or not _pause_handle.is_empty() or not _pause_restore.is_empty() \
++				or not _scene_restore.get("published", false):
++			return _pause_failure(&"pause_restore_unavailable")
++		var activated := validate_scene_activation(str(_scene_restore.operation_id))
++		if not activated.get("ok", false): return activated
++		return _pause_success({"restored": true})
+ 	if _pause_restore.get("handle") != handle or not _pause_restore.get("finalized", false) \
+ 			or _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore"):
+ 		return _pause_failure(&"pause_restore_unavailable")
+@@ -4095,6 +4121,23 @@ func dispatch_scene_event(live_session: Dictionary, envelope: Dictionary) -> Dic
  			"code": result.get("code", &"event_ack_interrupted"), "details": {"committed": true}})
  	return result
  
@@ -306,6 +353,243 @@ index 4346e8f..c93b7d3 100644
  func configure_scene_checkpoint_source(save_owner: Object) -> Dictionary:
  	if not is_instance_valid(save_owner) or not save_owner.has_method("get_latest_stable_checkpoint"):
  		return _transaction_failure(&"scene_checkpoint_owner_required", "")
+diff --git a/autoload/SceneRouter.gd b/autoload/SceneRouter.gd
+index a165c14..5871678 100644
+--- a/autoload/SceneRouter.gd
++++ b/autoload/SceneRouter.gd
+@@ -41,6 +41,28 @@ func begin_scene_publication_hold(operation_id: String) -> Dictionary:
+ 	if operation_id.is_empty(): return _startup_failure("scene_activation_unavailable")
+ 	var handle := {"scene_restore_operation_id": operation_id}
+ 	if _restore_publication_handle == handle: return {"ok": true}
++	if not _scene_pause_publication.is_empty():
++		return {"ok": true} if _scene_pause_publication.operation_id == operation_id \
++			and _scene_pause_publication.handle == _restore_publication_handle \
++			and _mutation_gate != null and _mutation_gate.is_internal_owner_active(&"restore") else _startup_failure("restore_publication_busy")
++	if is_restore_publication_held():
++		var bridge := get_node_or_null("/root/DialogicBridge")
++		var current := get_tree().current_scene
++		if _restore_publication_publishing or _restore_publication_published or current == null \
++				or not _restore_publication_scene_id.is_empty() \
++				or current.get_instance_id() != _restore_publication_source_id \
++				or _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore") \
++				or bridge == null or not bridge.has_method("validate_scene_pause_restore_handle"):
++			return _startup_failure("restore_publication_busy")
++		var retained := _restore_publication_handle.duplicate(true)
++		var suspended: Dictionary = bridge.validate_scene_pause_restore_handle(retained)
++		if not suspended.get("ok", false): return suspended
++		if retained != _restore_publication_handle or get_tree().current_scene != current \
++				or not _mutation_gate.is_internal_owner_active(&"restore"):
++			return _startup_failure("stale_restore_publication_hold")
++		_scene_pause_publication = {"operation_id": operation_id,
++			"handle": _restore_publication_handle.duplicate(true), "acknowledged": false}
++		return {"ok": true}
+ 	if is_restore_publication_held() or _restore_publication_publishing:
+ 		return _startup_failure("restore_publication_busy")
+ 	_restore_publication_handle = handle
+@@ -49,6 +71,44 @@ func begin_scene_publication_hold(operation_id: String) -> Dictionary:
+ 	_restore_publication_published = false
+ 	return {"ok": true}
+ 
++
++func capture_scene_host_projection(scene: Object) -> Dictionary:
++	if not is_instance_valid(scene) or not is_inside_tree() or scene != get_tree().current_scene \
++			or _current_scene_id != "scene" or _scene_host_path.is_empty() \
++			or scene.scene_file_path != _scene_host_path or not scene.is_node_ready() or scene.is_queued_for_deletion():
++		return _startup_failure("scene_host_unavailable")
++	return {"ok": true, "value": {"route_id": "scene", "scene_id": scene.get_instance_id()}}
++
++
++func cancel_scene_publication_hold(operation_id: String) -> Dictionary:
++	if _scene_pause_publication.is_empty():
++		return cancel_restore_publication_hold({"scene_restore_operation_id": operation_id})
++	if _scene_pause_publication.operation_id != operation_id or _scene_pause_publication.acknowledged \
++			or _scene_pause_publication.handle != _restore_publication_handle \
++			or _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore") \
++			or get_tree().current_scene == null \
++			or get_tree().current_scene.get_instance_id() != _restore_publication_source_id:
++		return _startup_failure("stale_restore_publication_hold")
++	_scene_pause_publication.clear()
++	_restore_publication_scene_id = ""
++	return {"ok": true}
++
++
++func publish_scene_activation(operation_id: String) -> Dictionary:
++	var checked := validate_scene_activation(operation_id)
++	if not checked.get("ok", false): return checked
++	if not _scene_pause_publication.is_empty():
++		if _scene_pause_publication.operation_id != operation_id \
++				or _scene_pause_publication.handle != _restore_publication_handle \
++				or _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore"):
++			return _startup_failure("stale_restore_publication_hold")
++		_scene_pause_publication.acknowledged = true
++		return {"ok": true}
++	var handle := {"scene_restore_operation_id": operation_id}
++	var published := publish_restore_publication_hold(handle)
++	if not published.get("ok", false): return published
++	return release_restore_publication_hold(handle)
++
+ func begin_scene_activation(operation_id: String) -> Dictionary:
+ 	if operation_id.is_empty() or _pending_restore_scene_id != "scene" or _scene_host_path.is_empty():
+ 		return _startup_failure("scene_activation_unavailable")
+@@ -103,6 +163,7 @@ var _restore_publication_scene_id := ""
+ var _restore_publication_source_id := 0
+ var _restore_publication_publishing := false
+ var _restore_publication_published := false
++var _scene_pause_publication: Dictionary = {}
+ var _production_pause: Node
+ 
+ ## Bootstrap retains the existing owners; Pause keeps no saved state or alternate route.
+@@ -183,6 +244,7 @@ func begin_restore_publication_hold(handle: Dictionary) -> Dictionary:
+ 
+ 
+ func cancel_restore_publication_hold(handle: Dictionary) -> Dictionary:
++	if not _scene_pause_publication.is_empty(): return _startup_failure("restore_publication_busy")
+ 	if handle.has("scene_restore_operation_id") and handle == _restore_publication_handle \
+ 			and not _restore_publication_published and _scene_activation.is_empty():
+ 		var current := get_tree().current_scene
+@@ -208,6 +270,9 @@ func publish_restore_publication_hold(handle: Dictionary) -> Dictionary:
+ 		return _startup_failure("stale_restore_publication_hold")
+ 	if _restore_publication_published: return {"ok": true, "value": {"already_published": true}}
+ 	if _restore_publication_scene_id == "scene":
++		if not _scene_pause_publication.is_empty() and (not _scene_pause_publication.acknowledged \
++				or _scene_pause_publication.handle != handle):
++			return _startup_failure("scene_activation_unproven")
+ 		var checked := validate_scene_activation(str(_scene_activation.get("operation_id", "")))
+ 		if not checked.get("ok", false): return checked
+ 		_restore_publication_published = true
+@@ -227,6 +292,7 @@ func release_restore_publication_hold(handle: Dictionary) -> Dictionary:
+ 	_restore_publication_scene_id = ""
+ 	_restore_publication_source_id = 0
+ 	_restore_publication_published = false
++	_scene_pause_publication.clear()
+ 	_pending_restore_scene_id = ""
+ 	restore_publication_released.emit()
+ 	return {"ok": true}
+diff --git a/scripts/application/backup/BackupPresentationPort.gd b/scripts/application/backup/BackupPresentationPort.gd
+index 6b48765..aae70e9 100644
+--- a/scripts/application/backup/BackupPresentationPort.gd
++++ b/scripts/application/backup/BackupPresentationPort.gd
+@@ -167,6 +167,11 @@ func commit_action(token: String) -> Dictionary:
+ 		_owner.cancel_backup_action(token)
+ 		return _quick_refusal({}) if pending.get("quick", false) else admitted
+ 	var result: Dictionary = _owner.commit_backup_action(token)
++	# A durable scene Load can still be activating. Preserve its operation and
++	# recovery custody; Quick's ordinary availability refusal must not erase them.
++	if not result.get("ok", false) and (result.get("code") == &"scene_activation_pending" or result.get("recovery_required", false) \
++			or result.get("committed", false) or result.get("fatal", false) or result.get("code") == &"APPLICATION_FATAL"):
++		return result
+ 	if pending.get("quick", false):
+ 		pending.erase("quick")
+ 		if not result.get("ok", false):
+diff --git a/scripts/application/lifecycle/ProductionPauseController.gd b/scripts/application/lifecycle/ProductionPauseController.gd
+index c20bdba..786efba 100644
+--- a/scripts/application/lifecycle/ProductionPauseController.gd
++++ b/scripts/application/lifecycle/ProductionPauseController.gd
+@@ -94,6 +94,8 @@ var _backup_port: RefCounted
+ var _busy := false
+ var _loading := false
+ var _witnessed_load := false
++var _pending_scene_load := ""
++var _scene_load_waiting := false
+ var _requested_caption: Node
+ var _history_caption: Node
+ var _direct_quick_load := false
+@@ -175,7 +177,7 @@ func _can_open_witnessed_surface(caption: Node) -> bool:
+ 	if not is_instance_valid(canvas) or not canvas.is_visible_in_tree() \
+ 			or scene == null or scene.is_queued_for_deletion() or not scene.is_visible_in_tree():
+ 		return false
+-	if _router.get_current_route_id() not in ["main", "dating", "hospital", "ending"] \
++	if _router.get_current_route_id() not in ["main", "dating", "hospital", "ending", "scene"] \
+ 			or not _services.bridge.has_active_playback() \
+ 			or not _services.input.is_source_input_admitted():
+ 		return false
+@@ -363,7 +365,7 @@ func capture_pause_source() -> Dictionary:
+ 	var scene := get_tree().current_scene as Control
+ 	if scene == null or scene.is_queued_for_deletion(): return _failure(&"pause_source_unavailable")
+ 	var route: String = _router.get_current_route_id()
+-	if route not in ["main", "dating", "hospital", "ending"]: return _failure(&"pause_source_unavailable")
++	if route not in ["main", "dating", "hospital", "ending", "scene"]: return _failure(&"pause_source_unavailable")
+ 	# Recovery owns its registered actions; refuse before capturing a session or frontier.
+ 	if _find_caption(get_tree().root, true) != null: return _failure(&"pause_recovery_active")
+ 	var guarded: Dictionary = _services.gate.guard_external(&"universal_pause")
+@@ -384,7 +386,7 @@ func capture_pause_source() -> Dictionary:
+ 		var frontier: Dictionary = _services.bridge.capture_pause_frontier(source.timeline_id if route == "hospital" else "")
+ 		if not frontier.get("ok", false): return frontier
+ 		source["frontier"] = frontier.value.duplicate(true)
+-	elif route in ["hospital", "ending"]:
++	elif route in ["hospital", "ending", "scene"]:
+ 		return _failure(&"pause_frontier_unavailable")
+ 	else:
+ 		source["frontier"] = {}
+@@ -409,7 +411,11 @@ func capture_scene_projection(scene: Object) -> Dictionary:
+ 	var route: String = _router.get_current_route_id()
+ 	var paths := {"main": "res://scenes/main/MainGameScene.tscn", "dating": "res://scenes/dating/DatingScene.tscn",
+ 		"hospital": "res://scenes/hospital/HospitalScene.tscn", "ending": "res://scenes/ending/EndingScene.tscn"}
+-	if scene.scene_file_path != paths.get(route, ""): return {}
++	if route == "scene":
++		if not _router.has_method("capture_scene_host_projection"): return {}
++		var host: Dictionary = _router.capture_scene_host_projection(scene)
++		if not host.get("ok", false): return {}
++	elif scene.scene_file_path != paths.get(route, ""): return {}
+ 	var command: Dictionary = scene.get_presentation_projection() if scene.has_method("get_presentation_projection") else {}
+ 	if route in ["dating", "hospital"] and command.is_empty(): return {}
+ 	return {"route_id": route, "scene_id": scene.get_instance_id(), "command": command,
+@@ -696,6 +702,14 @@ func release_for_backup_load() -> Dictionary:
+ 
+ func finish_backup_load(result: Dictionary) -> Dictionary:
+ 	if not _loading: return _failure(&"pause_load_unavailable")
++	if result.get("code") == &"scene_activation_pending":
++		result = await _await_scene_backup_load(result)
++	# Never compensate a committed/indeterminate Load back into its old source.
++	if not result.get("ok", false) and (result.get("recovery_required", false) \
++			or result.get("committed", false) or result.get("fatal", false) or result.get("code") == &"APPLICATION_FATAL"):
++		last_result = {"ok": false, "code": &"pause_load_recovery_required", "recovery_required": true,
++			"details": {"cause": result}}
++		return last_result
+ 	if _witnessed_load: return await _finish_witnessed_load(result)
+ 	_loading = false
+ 	var current_session: Dictionary = _services.game_state.capture_live_session()
+@@ -733,6 +747,40 @@ func finish_backup_load(result: Dictionary) -> Dictionary:
+ 	surface.set_interactive(true)
+ 	return result if not result.get("ok", false) else _failure(&"pause_load_not_activated")
+ 
++func _await_scene_backup_load(pending: Dictionary) -> Dictionary:
++	var operation_id := str(pending.get("transaction_id", ""))
++	if operation_id.is_empty() or _scene_load_waiting \
++			or (not _pending_scene_load.is_empty() and _pending_scene_load != operation_id) \
++			or not _services.saves.has_method("retry_scene_activation") \
++			or not _services.saves.has_method("capture_committed_scene_restore"):
++		return {"ok": false, "code": &"pause_scene_activation_unproven", "recovery_required": true,
++			"transaction_id": _pending_scene_load if not _pending_scene_load.is_empty() else operation_id}
++	var handle := _handle.duplicate(true)
++	var source := _captured_source.duplicate(true)
++	_pending_scene_load = operation_id
++	_scene_load_waiting = true
++	var result := pending.duplicate(true)
++	while result.get("code") == &"scene_activation_pending":
++		await get_tree().process_frame
++		if not _loading or _handle != handle or _captured_source != source or _pending_scene_load != operation_id:
++			_scene_load_waiting = false
++			return {"ok": false, "code": &"pause_source_changed", "recovery_required": true, "transaction_id": operation_id}
++		result = _services.saves.retry_scene_activation(operation_id)
++	_scene_load_waiting = false
++	if not result.get("ok", false):
++		result = result.duplicate(true)
++		result["recovery_required"] = true
++		result["transaction_id"] = operation_id
++		return result
++	var acknowledged: Dictionary = _services.saves.capture_committed_scene_restore(operation_id)
++	var live: Dictionary = _services.game_state.capture_run_snapshot_input()
++	var provenance: Variant = live.get("lifecycle", {}).get("restore_provenance")
++	if not acknowledged.get("ok", false) or not provenance is Dictionary \
++			or provenance.get("restore_transaction_id") != operation_id:
++		return {"ok": false, "code": &"pause_scene_activation_unproven", "recovery_required": true, "transaction_id": operation_id}
++	_pending_scene_load = ""
++	return result
++
+ func _finish_witnessed_load(result: Dictionary) -> Dictionary:
+ 	var destination: Dictionary = capture_restore_destination_session()
+ 	var changed: bool = destination.get("ok", false) and destination.value != _captured_source.session
 diff --git a/scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd b/scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd
 index 7b8c42c..8339551 100644
 --- a/scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd
@@ -474,6 +758,27 @@ index e78623c..1338951 100644
  	if authority == null or not validator.is_valid() or validator.get_object() != authority \
  			or (_marker_authority != null and (_marker_authority != authority or _marker_validator != validator)):
  		return _fail(&"event_handoff_authority_invalid", "")
+diff --git a/scripts/application/restore/RouteRestoreParticipant.gd b/scripts/application/restore/RouteRestoreParticipant.gd
+index 00eaa26..ae0549c 100644
+--- a/scripts/application/restore/RouteRestoreParticipant.gd
++++ b/scripts/application/restore/RouteRestoreParticipant.gd
+@@ -33,14 +33,12 @@ func begin_scene_publication_hold(operation_id: String) -> Dictionary:
+ 	return _owner.begin_scene_publication_hold(operation_id)
+ 
+ func cancel_scene_publication_hold(operation_id: String) -> Dictionary:
+-	return _owner.cancel_restore_publication_hold({"scene_restore_operation_id": operation_id})
++	return _owner.cancel_scene_publication_hold(operation_id)
+ 
+ func publish_scene_activation(operation_id: String) -> Dictionary:
+ 	var checked := validate_scene_activation(operation_id)
+ 	if not checked.get("ok", false): return checked
+-	var published: Dictionary = _owner.publish_restore_publication_hold({"scene_restore_operation_id": operation_id})
+-	if not published.get("ok", false): return published
+-	return _owner.release_restore_publication_hold({"scene_restore_operation_id": operation_id})
++	return _owner.publish_scene_activation(operation_id)
+ 
+ ## One Bootstrap-owned DesktopAppHostState. When configured, prepare() derives the desktop
+ ## subplan from the supplied active_app_id/day and apply/rollback rebuild the host state
 diff --git a/scripts/application/run/DatingChallengeEnvelope.gd b/scripts/application/run/DatingChallengeEnvelope.gd
 index 0a1b576..d04fbe3 100644
 --- a/scripts/application/run/DatingChallengeEnvelope.gd
@@ -1194,6 +1499,176 @@ index 0000000..c90732b
 +extends "res://tests/integration/scene_first_reveal_connected_child.gd"
 +func test_selected_absence_survives_source_overwrite_and_destination_retry() -> void:
 +	await create_selected_recovery()
+diff --git a/tests/integration/test_scene_pause_load.gd b/tests/integration/test_scene_pause_load.gd
+new file mode 100644
+index 0000000..64ba3dc
+--- /dev/null
++++ b/tests/integration/test_scene_pause_load.gd
+@@ -0,0 +1,164 @@
++extends "res://addons/gut/test.gd"
++## Connected Text Pause -> selected schema-5 Load. No fake positive native,
++## restore, route, suspension, Profile or Run acknowledgement is supplied.
++const FIXTURE := preload("res://tests/support/ScenePauseLoadFixture.gd")
++var fixture: RefCounted
++var fixture_ready := false
++var prior_root := ""
++var sequence := 0
++
++func before_each() -> void:
++	process_mode = Node.PROCESS_MODE_ALWAYS
++	prior_root = OS.get_environment("DWM_TEST_ROOT")
++	sequence += 1
++	if prior_root.is_empty():
++		assert_false(prior_root.is_empty(), "cloud wrapper must isolate test storage")
++		return
++	OS.set_environment("DWM_TEST_ROOT", prior_root.path_join("scene_pause_%d" % sequence))
++	fixture = FIXTURE.new()
++	var checked: Dictionary = await fixture.setup_pause(get_tree())
++	fixture_ready = checked.get("ok", false)
++	assert_true(fixture_ready, str(checked))
++
++func after_each() -> void:
++	if fixture != null: await fixture.close_restart()
++	fixture = null
++	fixture_ready = false
++	OS.set_environment("DWM_TEST_ROOT", prior_root)
++
++func _ok(result: Dictionary) -> bool:
++	assert_true(result.get("ok", false), str(result))
++	return result.get("ok", false)
++
++func test_real_text_pause_load_finishes_async_activation_once_and_releases_custody() -> void:
++	await _happy_load(false)
++
++func test_real_text_quick_load_retains_pending_identity_and_rejects_old_pause_completion() -> void:
++	await _happy_load(true)
++
++func _happy_load(quick: bool) -> void:
++	if not fixture_ready or not _ok(await fixture.start_text()): return
++	if quick and not _ok(fixture.manager.quick_save_latest()): return
++	var source: Dictionary = fixture.game.capture_run_snapshot_input().duplicate(true)
++	var profile_before: Dictionary = fixture.profile_bytes()
++	var selected: Dictionary = fixture.manager.get_latest_stable_checkpoint()
++	if not _ok(selected): return
++	var checkpoint: Dictionary = selected.value.bundle.snapshot.narrative_checkpoint.duplicate(true)
++	assert_eq(checkpoint.reading_session.schema_version, 5)
++	assert_eq(checkpoint.reading_session.boundary, "line")
++	if not _ok(await fixture.pause.request_pause()): return
++	assert_true(get_tree().paused)
++	assert_eq(fixture.pause.coordinator.get_state().value.state, &"Suspended")
++	assert_eq(fixture.input_owner.get_state().value.state, &"Suspended")
++	assert_eq(fixture.audio_owner.get_state().value.state, &"Suspended")
++	var old_handle: Dictionary = fixture.pause._handle.duplicate(true)
++	var prepared: Dictionary = fixture.pause._backup_port.prepare_quick_action("load") if quick \
++		else fixture.pause._backup_port.prepare_action("load", "slot:1")
++	if not _ok(prepared): return
++	var token: String = prepared.value.token
++	fixture.ready_count = 0
++	var routes: int = fixture.route_confirmations.size()
++	var narratives: int = fixture.narrative_confirmations.size()
++	fixture.call_deferred("observe_pending_load")
++	var committed: Dictionary = await fixture.pause._backup_port.commit_action(token)
++	if not _ok(committed): return
++	if not _ok(await fixture.settle_load()): return
++	assert_eq(fixture.ready_count, 1, "one real destination readiness publication")
++	assert_eq(fixture.route_confirmations.size(), routes + 1)
++	assert_eq(fixture.narrative_confirmations.size(), narratives + 1)
++	assert_eq(fixture.pause_closed_count, 1)
++	assert_false(fixture.pending_observation.is_empty(), "real asynchronous activation retains operation identity")
++	if not fixture.pending_observation.is_empty():
++		assert_true(fixture.pending_observation.tree_paused)
++		assert_eq(fixture.pending_observation.input_state, &"Suspended")
++		assert_eq(fixture.pending_observation.ready_count, 0)
++		assert_eq(fixture.pending_observation.closed_count, 0)
++		assert_false(fixture.pending_observation.foreign_retry.get("ok", false))
++	assert_false(get_tree().paused)
++	assert_eq(fixture.pause.coordinator.get_state().value.state, &"Active")
++	assert_eq(fixture.input_owner.get_state().value.state, &"Active")
++	assert_eq(fixture.audio_owner.get_state().value.state, &"Active")
++	assert_eq(fixture.bridge.get_state().value.state, &"Active")
++	assert_false(fixture.router.is_restore_publication_held())
++	assert_false(fixture.pause._loading)
++	assert_false(fixture.pause.surface.visible)
++	var destination: Dictionary = fixture.game.capture_run_snapshot_input()
++	assert_ne(destination.lifecycle.branch_id, source.lifecycle.branch_id)
++	assert_eq(fixture.bridge._reading_session.boundary, "line")
++	var restored_checkpoint: Dictionary = fixture.bridge.capture_reading_checkpoint(false)
++	if not _ok(restored_checkpoint): return
++	assert_eq(restored_checkpoint.value.reading_session.entry_id, checkpoint.reading_session.entry_id)
++	assert_eq(restored_checkpoint.value.reading_session.program_index, checkpoint.reading_session.program_index)
++	assert_eq(fixture.profile_bytes(), profile_before, "Load and publication never repeat Profile consequences")
++	assert_eq(fixture.native_markers, [], "no source challenge marker is replayed")
++	assert_eq(fixture.challenge_record(), {})
++	assert_eq(destination.command_receipts, source.command_receipts, "selected Load does not replay scene effects")
++	var after: Dictionary = destination.duplicate(true)
++	var duplicate: Dictionary = await fixture.pause._backup_port.commit_action(token)
++	assert_false(duplicate.get("ok", false), "consumed consent cannot Load twice")
++	for frame: int in 8: await get_tree().process_frame
++	assert_eq(fixture.ready_count, 1)
++	assert_eq(fixture.pause_closed_count, 1)
++	assert_eq(fixture.game.capture_run_snapshot_input(), after)
++	assert_eq(fixture.profile_bytes(), profile_before)
++	if not quick: return
++	# A completed old handle must never retire a newly suspended real native source,
++	# including when the caller legitimately owns a later restore lease.
++	if not _ok(await fixture.pause.request_pause()): return
++	var newer_handle: Dictionary = fixture.pause._handle.duplicate(true)
++	assert_ne(newer_handle, old_handle)
++	var frontier: Dictionary = fixture.bridge.capture_pause_frontier()
++	if not _ok(frontier): return
++	var lease: Dictionary = fixture.gate.acquire(&"restore")
++	if not _ok(lease): return
++	var stale: Dictionary = await fixture.bridge.complete_pause_restore(old_handle)
++	fixture.gate.release(&"restore", lease.value.token)
++	assert_false(stale.get("ok", false), "old completion cannot consume a new native pause")
++	assert_eq(fixture.pause._handle, newer_handle)
++	assert_eq(fixture.bridge.capture_pause_frontier(), frontier)
++	assert_eq(fixture.pause.coordinator.get_state().value.state, &"Suspended")
++	assert_true(get_tree().paused)
++	if not _ok(await fixture.pause.request_continue()): return
++	assert_false(get_tree().paused)
++	assert_eq(fixture.game.capture_run_snapshot_input(), after)
++	assert_eq(fixture.profile_bytes(), profile_before)
++
++func test_real_precommit_write_refusal_preserves_paused_text_and_continue() -> void:
++	if not fixture_ready or not _ok(await fixture.start_text()): return
++	if not _ok(await fixture.pause.request_pause()): return
++	var source: Dictionary = fixture.game.capture_run_snapshot_input().duplicate(true)
++	var session: Dictionary = fixture.game.capture_live_session().value.duplicate(true)
++	var profile_before: Dictionary = fixture.profile_bytes()
++	var frontier: Dictionary = fixture.bridge.capture_pause_frontier()
++	if not _ok(frontier): return
++	var handle: Dictionary = fixture.pause._handle.duplicate(true)
++	var prepared: Dictionary = fixture.pause._backup_port.prepare_action("load", "slot:1")
++	if not _ok(prepared): return
++	fixture.ready_count = 0
++	fixture.write_fault.armed = true
++	var refused: Dictionary = await fixture.pause._backup_port.commit_action(prepared.value.token)
++	assert_false(refused.get("ok", false), str(refused))
++	assert_eq(fixture.write_fault.refusal_count, 1, fixture.write_fault.refused_path)
++	assert_false(refused.get("committed", false), "failure precedes destination ownership")
++	assert_true(get_tree().paused)
++	assert_eq(fixture.pause.coordinator.get_state().value.state, &"Suspended")
++	assert_eq(fixture.pause._handle, handle)
++	assert_false(fixture.pause._loading)
++	assert_eq(fixture.ready_count, 0)
++	assert_eq(fixture.pause_closed_count, 0)
++	assert_eq(fixture.game.capture_live_session().value, session)
++	assert_eq(fixture.game.capture_run_snapshot_input(), source)
++	assert_eq(fixture.profile_bytes(), profile_before)
++	assert_eq(fixture.bridge.capture_pause_frontier(), frontier)
++	assert_eq(fixture.input_owner.get_state().value.state, &"Suspended")
++	assert_eq(fixture.audio_owner.get_state().value.state, &"Suspended")
++	assert_false(fixture.router.is_restore_publication_held())
++	if not _ok(await fixture.pause.request_continue()): return
++	assert_false(get_tree().paused)
++	assert_eq(fixture.pause_closed_count, 1)
++	assert_eq(fixture.input_owner.get_state().value.state, &"Active")
++	assert_eq(fixture.audio_owner.get_state().value.state, &"Active")
++	assert_eq(fixture.bridge.get_state().value.state, &"Active")
++	assert_eq(fixture.game.capture_run_snapshot_input(), source)
++	assert_eq(fixture.profile_bytes(), profile_before)
++	assert_eq(fixture.native_markers, [])
 diff --git a/tests/support/SceneChallengeFixture.gd b/tests/support/SceneChallengeFixture.gd
 index 8ebf2a7..2fcdf22 100644
 --- a/tests/support/SceneChallengeFixture.gd
@@ -1280,6 +1755,144 @@ index 0000000..9c8fb2f
 +func close_restart() -> void:
 +	await super.close_restart()
 +	physical = null
+diff --git a/tests/support/ScenePauseLoadFixture.gd b/tests/support/ScenePauseLoadFixture.gd
+new file mode 100644
+index 0000000..0e01900
+--- /dev/null
++++ b/tests/support/ScenePauseLoadFixture.gd
+@@ -0,0 +1,132 @@
++extends "res://tests/support/SceneFirstRevealConnectedFixture.gd"
++## Real Pause/Backup, input/audio, native Text, Run/Profile/Save and router owners.
++## TEST-authored scene content and empty configured host remain explicit; this is
++## connected integration, not shipped panel or rendered journey acceptance.
++const INPUT_OWNER := preload("res://autoload/InputManager.gd")
++const AUDIO_OWNER := preload("res://autoload/AudioManager.gd")
++const LOCALIZATION_OWNER := preload("res://autoload/LocalizationManager.gd")
++const AUDIO_PARTICIPANT := preload("res://scripts/application/restore/AudioRestoreParticipant.gd")
++
++class RefuseNextWrite extends ProfileWriteRefusal:
++	var armed := false
++	var refusal_count := 0
++	var refused_path := ""
++	func write_bytes(path: String, bytes: PackedByteArray) -> Dictionary:
++		if armed and path.ends_with(".next"):
++			armed = false
++			refusal_count += 1
++			refused_path = path
++			return {"ok": false, "code": &"TEST.pause_load_write_refused", "message": path}
++		return super.write_bytes(path, bytes)
++
++var input_owner: Node
++var audio_owner: Node
++var localization_owner: Node
++var pause: Node
++var write_fault: RefuseNextWrite
++var pause_closed_count := 0
++var input_backup: Dictionary = {}
++var pending_observation: Dictionary = {}
++
++func setup_pause(scene_tree: SceneTree) -> Dictionary:
++	var checked: Dictionary = await setup_connected(scene_tree)
++	if not checked.get("ok", false): return checked
++	for action: StringName in InputMap.get_actions():
++		input_backup[action] = {"deadzone": InputMap.action_get_deadzone(action),
++			"events": InputMap.action_get_events(action).duplicate(true)}
++	input_owner = INPUT_OWNER.new()
++	audio_owner = AUDIO_OWNER.new()
++	localization_owner = LOCALIZATION_OWNER.new()
++	_replace_owner("InputManager", input_owner)
++	_replace_owner("AudioManager", audio_owner)
++	_replace_owner("LocalizationManager", localization_owner)
++	checked = input_owner.initialize(profile)
++	if checked.get("ok", false): checked = input_owner.configure_mutation_gate(gate)
++	if checked.get("ok", false): checked = audio_owner.initialize(profile)
++	if checked.get("ok", false): checked = audio_owner.configure_mutation_gate(gate)
++	if checked.get("ok", false): checked = localization_owner.initialize(profile)
++	if not checked.get("ok", false): return checked
++	participants.audio = AUDIO_PARTICIPANT.new(audio_owner)
++	checked = manager.configure_scene_restore_participants(participants)
++	if not checked.get("ok", false): return checked
++	checked = router.configure_mutation_gate(gate)
++	if not checked.get("ok", false): return checked
++	# Production Pause intentionally rejects captions in foreign viewports.
++	# Mount the actual native style in the same viewport before any playback starts.
++	var layout: Node = runtime.Styles.load_style(STYLE, null, true, false)
++	if layout == null: return {"ok": false, "code": &"TEST.pause_style_missing"}
++	if not layout.is_node_ready(): await layout.ready
++	checked = router.configure_pause_services({"game_state": game, "saves": manager,
++		"bridge": bridge, "input": input_owner, "audio": audio_owner, "gate": gate,
++		"profile": profile, "localization": localization_owner,
++		"settings_services": {"tts": null, "window": null,
++			"profile_reset_admission": func() -> bool: return false}})
++	if not checked.get("ok", false): return checked
++	pause = router._production_pause
++	pause.coordinator.pause_closed.connect(func() -> void: pause_closed_count += 1)
++	write_fault = RefuseNextWrite.new()
++	files = write_fault
++	storage._file_ops = write_fault
++	return {"ok": true}
++
++func audio_context() -> Dictionary:
++	return audio_owner.get_semantic_audio_context()
++
++func start(nonce: Variant = null) -> Dictionary:
++	return manager.start_scene_new_run("target_b", {"audio_context": audio_context(),
++		"content_version": 1, "route_id": "scene"}, nonce)
++
++func start_text() -> Dictionary:
++	var started: Dictionary = start()
++	if started.get("code") != &"scene_activation_pending": return started
++	var activated: Dictionary = await await_activation()
++	if not activated.get("ok", false): return activated
++	return manager.save_latest_to_slot(1)
++
++func settle_load() -> Dictionary:
++	for frame: int in 240:
++		if not pause._loading and pause.coordinator.get_state().value.state == &"Active":
++			return {"ok": true}
++		if not manager._scene_restore_activation.get("failure", {}).is_empty():
++			return manager._scene_restore_activation.failure.duplicate(true)
++		await tree.process_frame
++	return {"ok": false, "code": &"TEST.pause_load_timeout", "pause": pause.coordinator.get_state()}
++
++func observe_pending_load() -> void:
++	for frame: int in 240:
++		if not is_instance_valid(pause): return
++		var operation_id: String = pause._pending_scene_load
++		if not operation_id.is_empty():
++			pending_observation = {"operation_id": operation_id, "tree_paused": tree.paused,
++				"input_state": input_owner.get_state().value.state,
++				"ready_count": ready_count, "closed_count": pause_closed_count,
++				"foreign_retry": manager.retry_scene_activation("TEST.foreign_scene_restore")}
++			return
++		if ready_count > 0: return
++		await tree.process_frame
++
++func close_restart() -> void:
++	if tree == null: return
++	tree.paused = false
++	if is_instance_valid(pause): pause.free()
++	pause = null
++	await super.close_restart()
++	var audio_runtime: Node = audio_owner._playback_port._root if is_instance_valid(audio_owner) \
++		and audio_owner._playback_port != null else null
++	for owner: Node in [input_owner, audio_owner, localization_owner]:
++		if is_instance_valid(owner): owner.free()
++	if is_instance_valid(audio_runtime): audio_runtime.free()
++	for name: String in ["InputManager", "AudioManager", "LocalizationManager"]:
++		if not original_owners.has(name): continue
++		var original: Node = original_owners[name].node
++		if is_instance_valid(original) and original.get_parent() == null:
++			tree.root.add_child(original)
++			tree.root.move_child(original, mini(original_owners[name].index, tree.root.get_child_count() - 1))
++	if not input_backup.is_empty():
++		for action: StringName in InputMap.get_actions():
++			if not input_backup.has(action): InputMap.erase_action(action)
++		for action: StringName in input_backup:
++			if not InputMap.has_action(action): InputMap.add_action(action, input_backup[action].deadzone)
++			InputMap.action_set_deadzone(action, input_backup[action].deadzone)
++			InputMap.action_erase_events(action)
++			for event: InputEvent in input_backup[action].events: InputMap.action_add_event(action, event)
 diff --git a/tests/unit/test_scene_absence.gd b/tests/unit/test_scene_absence.gd
 index b4248f8..e72f296 100644
 --- a/tests/unit/test_scene_absence.gd
