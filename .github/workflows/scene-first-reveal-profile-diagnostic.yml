@@ -52,13 +52,13 @@ jobs:
           assert git('rev-parse','HEAD') == base
           assert git('ls-remote','origin','refs/heads/codex/scene-runtime-integration-20261009').split()[0] == base
           patch = pathlib.Path('../controller/tools/cloud/scene-first-reveal-resumable.patch').read_bytes()
-          assert hashlib.sha256(patch).hexdigest() == 'dee2e339983300f3df258fbab74420e2ac604ee43e959f1b18392ec3b41daee2'
+          assert hashlib.sha256(patch).hexdigest() == 'b84e7e40a379abfe12f6f087f2263a92d4a88d141cbb8f6b80a19716d01a9118'
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           (out/'candidate.patch').write_bytes(patch)
           subprocess.run(['git','apply','--index','--binary',str(out/'candidate.patch')], check=True)
           subprocess.run(['git','diff','--cached','--check'], check=True)
           paths = git('diff','--cached','--name-only').splitlines()
-          assert paths == ['autoload/DialogicBridge.gd', 'autoload/GameState.gd', 'autoload/SceneRouter.gd', 'scripts/application/backup/BackupPresentationPort.gd', 'scripts/application/lifecycle/ProductionPauseController.gd', 'scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd', 'scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd', 'scripts/application/restore/RouteRestoreParticipant.gd', 'scripts/application/run/DatingChallengeEnvelope.gd', 'scripts/application/run/DatingPhysicalOwner.gd', 'scripts/domain/minesweeper/MinesweeperBoardGenerator.gd', 'scripts/profile/DatingAttemptLedger.gd', 'tests/integration/scene_first_reveal_connected_child.gd', 'tests/integration/test_pause_backup_host.gd', 'tests/integration/test_scene_caption_style_refusal.gd', 'tests/integration/test_scene_first_reveal_connected_ahead.gd', 'tests/integration/test_scene_first_reveal_connected_create.gd', 'tests/integration/test_scene_first_reveal_connected_load.gd', 'tests/integration/test_scene_first_reveal_selected_create.gd', 'tests/integration/test_scene_pause_load.gd', 'tests/integration/test_scene_pause_quick_load.gd', 'tests/integration/test_scene_pause_write_refusal.gd', 'tests/support/SceneChallengeFixture.gd', 'tests/support/SceneFirstRevealConnectedFixture.gd', 'tests/support/SceneNewRunFixture.gd', 'tests/support/ScenePauseLoadFixture.gd', 'tests/support/ScenePauseLoadTestBase.gd', 'tests/support/SceneRestartFixture.gd', 'tests/unit/test_scene_absence.gd', 'tests/unit/test_scene_first_reveal.gd']
+          assert paths == ['autoload/DialogicBridge.gd', 'autoload/GameState.gd', 'autoload/SceneRouter.gd', 'scripts/application/backup/BackupPresentationPort.gd', 'scripts/application/lifecycle/ProductionPauseController.gd', 'scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd', 'scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd', 'scripts/application/restore/RouteRestoreParticipant.gd', 'scripts/application/run/DatingChallengeEnvelope.gd', 'scripts/application/run/DatingPhysicalOwner.gd', 'scripts/domain/minesweeper/MinesweeperBoardGenerator.gd', 'scripts/profile/DatingAttemptLedger.gd', 'tests/integration/scene_first_reveal_connected_child.gd', 'tests/integration/test_pause_backup_host.gd', 'tests/integration/test_scene_caption_style_refusal.gd', 'tests/integration/test_scene_first_reveal_connected_ahead.gd', 'tests/integration/test_scene_first_reveal_connected_create.gd', 'tests/integration/test_scene_first_reveal_connected_load.gd', 'tests/integration/test_scene_first_reveal_selected_create.gd', 'tests/integration/test_scene_pause_load.gd', 'tests/integration/test_scene_pause_quick_load.gd', 'tests/integration/test_scene_pause_write_refusal.gd', 'tests/support/SceneCaptionStyleRefusalFixture.gd', 'tests/support/SceneChallengeFixture.gd', 'tests/support/SceneFirstRevealConnectedFixture.gd', 'tests/support/ScenePauseLoadFixture.gd', 'tests/support/ScenePauseLoadTestBase.gd', 'tests/unit/test_scene_absence.gd', 'tests/unit/test_scene_first_reveal.gd']
           receipt = {'base':base,'controller':os.environ['CONTROLLER_SHA'],'patch_sha256':hashlib.sha256(patch).hexdigest(),'paths':paths,'publication':'disabled diagnostic'}
           (out/'candidate-origin.json').write_text(json.dumps(receipt,indent=2),encoding='utf-8')
           '@ | python -
@@ -107,7 +107,12 @@ jobs:
           $runner = './tools/testing/Invoke-IsolatedGodot.ps1'
           $failed = $false
           $tests = @(
-            ,@('style-refusal','tests/integration/test_scene_caption_style_refusal.gd')
+            @('pause-load','tests/integration/test_scene_pause_load.gd'),
+            @('pause-quick-load','tests/integration/test_scene_pause_quick_load.gd'),
+            @('pause-write-refusal','tests/integration/test_scene_pause_write_refusal.gd'),
+            @('style-refusal','tests/integration/test_scene_caption_style_refusal.gd'),
+            @('scene-activation','tests/unit/test_scene_restore_activation_protocol.gd'),
+            @('pause-recovery','tests/unit/test_dialogic_pause_recovery.gd')
           )
           foreach ($entry in $tests) {
             $name = $entry[0]
@@ -118,6 +123,10 @@ jobs:
             if ($LASTEXITCODE -ne 0) { $failed = $true }
             Write-Host "DWM_LANE_END $name exit=$LASTEXITCODE $([DateTime]::UtcNow.ToString('o'))"
           }
+          $create = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_first_reveal_connected_create.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/connected-normal-create.xml')
+          $load = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_first_reveal_connected_load.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/connected-normal-load.xml')
+          & $runner -SuiteId 'connected-normal' -LogName 'connected-normal-create.log' -GodotArgs $create -NextLogName 'connected-normal-load.log' -NextGodotArgs $load -EvidenceLogPath '.godot/ci/connected-normal.jsonl' -TimeoutSeconds 180 -KeepRoot
+          if ($LASTEXITCODE -ne 0) { $failed = $true }
           if ($failed) { throw 'One or more focused engine children failed' }
 
       - name: Verify executed census and source identity
@@ -132,7 +141,7 @@ jobs:
           import xml.etree.ElementTree as ET
 
           out = pathlib.Path('.godot/ci')
-          suites = {'style-refusal': 'tests/integration/test_scene_caption_style_refusal.gd'}
+          suites = {'pause-load': 'tests/integration/test_scene_pause_load.gd', 'pause-quick-load': 'tests/integration/test_scene_pause_quick_load.gd', 'pause-write-refusal': 'tests/integration/test_scene_pause_write_refusal.gd', 'style-refusal': 'tests/integration/test_scene_caption_style_refusal.gd', 'scene-activation': 'tests/unit/test_scene_restore_activation_protocol.gd', 'pause-recovery': 'tests/unit/test_dialogic_pause_recovery.gd', 'connected-normal-create': 'tests/integration/test_scene_first_reveal_connected_create.gd', 'connected-normal-load': 'tests/integration/test_scene_first_reveal_connected_load.gd'}
           counts = {}
           for lane, script in suites.items():
               expected = re.findall(r'^func (test_\w+)\(', pathlib.Path(script).read_text(encoding='utf-8'), re.M)
