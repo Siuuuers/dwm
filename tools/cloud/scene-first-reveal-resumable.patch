@@ -1751,10 +1751,10 @@ index ab02683..5a8e15e 100644
  		var original: Node = original_owners[name].node
 diff --git a/tests/support/ScenePauseLoadFixture.gd b/tests/support/ScenePauseLoadFixture.gd
 new file mode 100644
-index 0000000..3ae150b
+index 0000000..86296d4
 --- /dev/null
 +++ b/tests/support/ScenePauseLoadFixture.gd
-@@ -0,0 +1,220 @@
+@@ -0,0 +1,226 @@
 +extends "res://tests/support/SceneFirstRevealConnectedFixture.gd"
 +## Real Pause/Backup, input/audio, native Text, Run/Profile/Save and router owners.
 +## TEST-authored scene content and empty configured host remain explicit; this is
@@ -1960,13 +1960,18 @@ index 0000000..3ae150b
 +	for owner: Node in [input_owner, audio_owner, localization_owner]:
 +		if is_instance_valid(owner): owner.free()
 +	if style_refusal_count > 0: print("DWM_STYLE_REFUSAL_TEARDOWN after_services_free")
++	if style_refusal_count > 0: print("DWM_STYLE_REFUSAL_TEARDOWN before_audio_runtime_free")
 +	if is_instance_valid(audio_runtime): audio_runtime.free()
++	if style_refusal_count > 0: print("DWM_STYLE_REFUSAL_TEARDOWN after_audio_runtime_free")
++	if style_refusal_count > 0: print("DWM_STYLE_REFUSAL_TEARDOWN before_restore_service_owners")
 +	for name: String in ["InputManager", "AudioManager", "LocalizationManager"]:
 +		if not original_owners.has(name): continue
 +		var original: Node = original_owners[name].node
 +		if is_instance_valid(original) and original.get_parent() == null:
 +			tree.root.add_child(original)
 +			tree.root.move_child(original, mini(original_owners[name].index, tree.root.get_child_count() - 1))
++	if style_refusal_count > 0: print("DWM_STYLE_REFUSAL_TEARDOWN after_restore_service_owners")
++	if style_refusal_count > 0: print("DWM_STYLE_REFUSAL_TEARDOWN before_restore_input_map")
 +	if not input_backup.is_empty():
 +		for action: StringName in InputMap.get_actions():
 +			if not input_backup.has(action): InputMap.erase_action(action)
@@ -1975,12 +1980,13 @@ index 0000000..3ae150b
 +			InputMap.action_set_deadzone(action, input_backup[action].deadzone)
 +			InputMap.action_erase_events(action)
 +			for event: InputEvent in input_backup[action].events: InputMap.action_add_event(action, event)
++	if style_refusal_count > 0: print("DWM_STYLE_REFUSAL_TEARDOWN fixture_close_finished")
 diff --git a/tests/support/ScenePauseLoadTestBase.gd b/tests/support/ScenePauseLoadTestBase.gd
 new file mode 100644
-index 0000000..3b7b51e
+index 0000000..c024d92
 --- /dev/null
 +++ b/tests/support/ScenePauseLoadTestBase.gd
-@@ -0,0 +1,253 @@
+@@ -0,0 +1,259 @@
 +extends "res://addons/gut/test.gd"
 +## One case per fresh Godot process: registration and issuer authority are immutable.
 +## Connected Text Pause -> selected schema-5 Load. No fake positive native,
@@ -2032,16 +2038,22 @@ index 0000000..3b7b51e
 +
 +func after_each() -> void:
 +	_test_stage = "cleanup"
++	var trace_style_refusal: bool = fixture != null and fixture.style_refusal_count > 0
 +	if fixture_ready: assert_eq(fixture.default_style_projection(), fixture.default_style_before,
 +		"scene activation must not change the global default style")
 +	if fixture != null: await fixture.close_restart()
++	if trace_style_refusal: print("DWM_STYLE_REFUSAL_TEARDOWN after_each_fixture_closed")
++	if trace_style_refusal: print("DWM_STYLE_REFUSAL_TEARDOWN before_fixture_null")
 +	fixture = null
++	if trace_style_refusal: print("DWM_STYLE_REFUSAL_TEARDOWN after_fixture_null")
 +	fixture_ready = false
 +	OS.set_environment("DWM_TEST_ROOT", prior_root)
++	if trace_style_refusal: print("DWM_STYLE_REFUSAL_TEARDOWN after_environment_reset")
 +	_watch_finished = true
 +	if is_instance_valid(_watchdog):
 +		_watchdog.stop()
 +		_watchdog.queue_free()
++	if trace_style_refusal: print("DWM_STYLE_REFUSAL_TEARDOWN after_each_finished")
 +
 +func _ok(result: Dictionary) -> bool:
 +	assert_true(result.get("ok", false), str(result))
