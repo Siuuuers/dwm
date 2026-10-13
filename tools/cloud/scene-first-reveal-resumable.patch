@@ -868,10 +868,10 @@ index dce0bc4..eb4af43 100644
  	attempt["generation"] = original.generation
 diff --git a/tests/integration/scene_first_reveal_connected_child.gd b/tests/integration/scene_first_reveal_connected_child.gd
 new file mode 100644
-index 0000000..698ff6a
+index 0000000..0ec476d
 --- /dev/null
 +++ b/tests/integration/scene_first_reveal_connected_child.gd
-@@ -0,0 +1,275 @@
+@@ -0,0 +1,286 @@
 +extends "res://addons/gut/test.gd"
 +## Cloud child shared body. A selected Load creates a branch; never claim same-branch restart.
 +const FIXTURE := preload("res://tests/support/SceneFirstRevealConnectedFixture.gd")
@@ -1049,6 +1049,17 @@ index 0000000..698ff6a
 +	# owner with the later source board before completing that selected restore.
 +	if not _ok(fixture.manager.save_latest_to_slot(1)): return
 +	assert_ne(fixture.storage.read_text("slot_1.json").value, selected_bytes.value)
++	# This persistence fixture cancels its source via the public Bridge API.
++	# It does not pretend to exercise the shipped Pause/Load UI handoff.
++	var source_input: Dictionary = fixture.game.capture_run_snapshot_input().duplicate(true)
++	var source_profile: Dictionary = fixture.profile_bytes()
++	if not _ok(fixture.bridge.abort_current_entry(&"TEST.selected_load")): return
++	for frame: int in 180:
++		if not fixture.bridge.has_active_playback(): break
++		await get_tree().process_frame
++	assert_false(fixture.bridge.has_active_playback())
++	assert_eq(fixture.game.capture_run_snapshot_input(), source_input)
++	assert_eq(fixture.profile_bytes(), source_profile)
 +	fixture.ready_count = 0
 +	var started: Dictionary = fixture.manager.commit_prepared_restore(prepared.value.prepared)
 +	assert_eq(started.get("code"), &"scene_activation_pending", str(started))

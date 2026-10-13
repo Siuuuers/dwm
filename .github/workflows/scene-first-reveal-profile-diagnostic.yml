@@ -52,7 +52,7 @@ jobs:
           assert git('rev-parse','HEAD') == base
           assert git('ls-remote','origin','refs/heads/codex/scene-runtime-integration-20261009').split()[0] == base
           patch = pathlib.Path('../controller/tools/cloud/scene-first-reveal-resumable.patch').read_bytes()
-          assert hashlib.sha256(patch).hexdigest() == '19ac6dd27ef568335c58cd4bc3951a524b6ad1a7747028cfdde06455fe6664d4'
+          assert hashlib.sha256(patch).hexdigest() == 'ed3eb673cd285b4c67cba371844d2e5fdfa23399485ead68d06844bf8d9099f7'
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           (out/'candidate.patch').write_bytes(patch)
           subprocess.run(['git','apply','--index','--binary',str(out/'candidate.patch')], check=True)
@@ -107,7 +107,7 @@ jobs:
           $runner = './tools/testing/Invoke-IsolatedGodot.ps1'
           $failed = $false
           $tests = @(
-            @('absence','tests/unit/test_scene_absence.gd')
+            ,@('absence','tests/unit/test_scene_absence.gd')
           )
           foreach ($entry in $tests) {
             $name = $entry[0]
