@@ -1666,10 +1666,10 @@ index 0000000..9c8fb2f
 +	physical = null
 diff --git a/tests/support/ScenePauseLoadFixture.gd b/tests/support/ScenePauseLoadFixture.gd
 new file mode 100644
-index 0000000..b88fb92
+index 0000000..6ccde0b
 --- /dev/null
 +++ b/tests/support/ScenePauseLoadFixture.gd
-@@ -0,0 +1,145 @@
+@@ -0,0 +1,191 @@
 +extends "res://tests/support/SceneFirstRevealConnectedFixture.gd"
 +## Real Pause/Backup, input/audio, native Text, Run/Profile/Save and router owners.
 +## TEST-authored scene content and empty configured host remain explicit; this is
@@ -1698,8 +1698,49 @@ index 0000000..b88fb92
 +var pause_closed_count := 0
 +var input_backup: Dictionary = {}
 +var pending_observation: Dictionary = {}
++var diagnostic_phase := "unstarted"
++
++static func _scalar_fields(value: Dictionary) -> Dictionary:
++	var result := {}
++	for key: Variant in value:
++		var item: Variant = value[key]
++		if typeof(item) in [TYPE_BOOL, TYPE_INT, TYPE_FLOAT, TYPE_STRING, TYPE_STRING_NAME, TYPE_NIL]:
++			result[str(key)] = item
++		elif item is Dictionary:
++			result[str(key) + "_keys"] = item.keys()
++	return result
++
++static func _transient_state(owner: Object) -> Dictionary:
++	var result := {}
++	if not is_instance_valid(owner): return {"valid": false}
++	for property: Dictionary in owner.get_property_list():
++		var key: String = str(property.name)
++		if not (key.begins_with("_scene_") or key.begins_with("_pause") or key.begins_with("_restore") \
++			or key in ["_activity_phase", "_caption_restore_queued", "_caption_restore_frontier", "_caption_seek_frontier",
++				"paused", "current_state", "current_event_idx"]): continue
++		var value: Variant = owner.get(key)
++		if value is Dictionary: result[key] = _scalar_fields(value)
++		elif typeof(value) in [TYPE_BOOL, TYPE_INT, TYPE_FLOAT, TYPE_STRING, TYPE_STRING_NAME]: result[key] = value
++	return result
++
++func diagnostic_state() -> Dictionary:
++	var result := {"fixture_phase": diagnostic_phase, "ready_count": ready_count,
++		"route_confirmations": route_confirmations.size(), "narrative_confirmations": narrative_confirmations.size(),
++		"pause_closed_count": pause_closed_count}
++	if is_instance_valid(pause):
++		result["pause"] = {"loading": pause._loading, "pending": pause._pending_scene_load,
++			"state": pause.coordinator.get_state().value.state}
++	if is_instance_valid(manager):
++		result["save_activation"] = _scalar_fields(manager._scene_restore_activation)
++		result["save_failure"] = _scalar_fields(manager._scene_restore_activation.get("failure", {}))
++	result["router"] = _transient_state(router)
++	result["bridge"] = _transient_state(bridge)
++	result["adapter"] = _transient_state(adapter)
++	result["native"] = _transient_state(runtime)
++	return result
 +
 +func setup_pause(scene_tree: SceneTree) -> Dictionary:
++	diagnostic_phase = "parent_setup"
 +	var checked: Dictionary = await setup_connected(scene_tree)
 +	if not checked.get("ok", false): return checked
 +	for action: StringName in InputMap.get_actions():
@@ -1728,6 +1769,7 @@ index 0000000..b88fb92
 +	# a new parent. Retire the unused inherited layout before creating this one.
 +	var inherited_layout: Node = runtime.Styles.get_layout_node()
 +	if is_instance_valid(inherited_layout):
++		diagnostic_phase = "retire_inherited_layout"
 +		inherited_layout.queue_free()
 +		# setup_restart resumes from this layout's ready signal; its emitter is
 +		# still locked until that callback unwinds. Await actual retirement.
@@ -1738,6 +1780,7 @@ index 0000000..b88fb92
 +			return {"ok": false, "code": &"TEST.pause_inherited_style_not_retired"}
 +	var layout: Node = runtime.Styles.load_style(STYLE, tree.root, true, false)
 +	if layout == null: return {"ok": false, "code": &"TEST.pause_style_missing"}
++	diagnostic_phase = "await_main_layout_ready"
 +	if not layout.is_node_ready(): await layout.ready
 +	if layout.get_viewport() != tree.root:
 +		return {"ok": false, "code": &"TEST.pause_style_foreign_viewport"}
@@ -1752,6 +1795,7 @@ index 0000000..b88fb92
 +	write_fault = RefuseNextWrite.new()
 +	files = write_fault
 +	storage._file_ops = write_fault
++	diagnostic_phase = "setup_complete"
 +	return {"ok": true}
 +
 +func audio_context() -> Dictionary:
@@ -1762,8 +1806,10 @@ index 0000000..b88fb92
 +		"content_version": 1, "route_id": "scene"}, nonce)
 +
 +func start_text() -> Dictionary:
++	diagnostic_phase = "start_scene"
 +	var started: Dictionary = start()
 +	if started.get("code") != &"scene_activation_pending": return started
++	diagnostic_phase = "await_initial_activation"
 +	var activated: Dictionary = await await_activation()
 +	if not activated.get("ok", false): return activated
 +	return manager.save_latest_to_slot(1)
@@ -1817,10 +1863,10 @@ index 0000000..b88fb92
 +			for event: InputEvent in input_backup[action].events: InputMap.action_add_event(action, event)
 diff --git a/tests/support/ScenePauseLoadTestBase.gd b/tests/support/ScenePauseLoadTestBase.gd
 new file mode 100644
-index 0000000..e2a80c8
+index 0000000..c93bfe2
 --- /dev/null
 +++ b/tests/support/ScenePauseLoadTestBase.gd
-@@ -0,0 +1,159 @@
+@@ -0,0 +1,198 @@
 +extends "res://addons/gut/test.gd"
 +## One case per fresh Godot process: registration and issuer authority are immutable.
 +## Connected Text Pause -> selected schema-5 Load. No fake positive native,
@@ -1830,9 +1876,31 @@ index 0000000..e2a80c8
 +var fixture_ready := false
 +var prior_root := ""
 +var sequence := 0
++var _watchdog: Timer
++var _watch_finished := false
++var _test_stage := "before_setup"
++var _watch_started := 0
++
++func _on_test_timeout() -> void:
++	if _watch_finished: return
++	var state := {"stage": _test_stage, "elapsed_ms": Time.get_ticks_msec() - _watch_started,
++		"tree_paused": get_tree().paused}
++	if fixture != null: state["owners"] = fixture.diagnostic_state()
++	print("DWM_PAUSE_TEST_TIMEOUT " + JSON.stringify(state))
++	get_tree().quit(1)
 +
 +func before_each() -> void:
 +	process_mode = Node.PROCESS_MODE_ALWAYS
++	_watch_finished = false
++	_watch_started = Time.get_ticks_msec()
++	_test_stage = "setup"
++	_watchdog = Timer.new()
++	_watchdog.process_mode = Node.PROCESS_MODE_ALWAYS
++	_watchdog.one_shot = true
++	_watchdog.wait_time = 30.0
++	add_child(_watchdog)
++	_watchdog.timeout.connect(_on_test_timeout)
++	_watchdog.start()
 +	prior_root = OS.get_environment("DWM_TEST_ROOT")
 +	sequence += 1
 +	if prior_root.is_empty():
@@ -1845,16 +1913,22 @@ index 0000000..e2a80c8
 +	assert_true(fixture_ready, str(checked))
 +
 +func after_each() -> void:
++	_test_stage = "cleanup"
 +	if fixture != null: await fixture.close_restart()
 +	fixture = null
 +	fixture_ready = false
 +	OS.set_environment("DWM_TEST_ROOT", prior_root)
++	_watch_finished = true
++	if is_instance_valid(_watchdog):
++		_watchdog.stop()
++		_watchdog.queue_free()
 +
 +func _ok(result: Dictionary) -> bool:
 +	assert_true(result.get("ok", false), str(result))
 +	return result.get("ok", false)
 +
 +func happy_load(quick: bool) -> void:
++	_test_stage = "start_text"
 +	if not fixture_ready or not _ok(await fixture.start_text()): return
 +	if quick and not _ok(fixture.manager.quick_save_latest()): return
 +	var source: Dictionary = fixture.game.capture_run_snapshot_input().duplicate(true)
@@ -1864,6 +1938,7 @@ index 0000000..e2a80c8
 +	var checkpoint: Dictionary = selected.value.bundle.snapshot.narrative_checkpoint.duplicate(true)
 +	assert_eq(checkpoint.reading_session.schema_version, 5)
 +	assert_eq(checkpoint.reading_session.boundary, "line")
++	_test_stage = "pause_source"
 +	if not _ok(await fixture.pause.request_pause()): return
 +	assert_true(get_tree().paused)
 +	assert_eq(fixture.pause.coordinator.get_state().value.state, &"Suspended")
@@ -1878,8 +1953,10 @@ index 0000000..e2a80c8
 +	var routes: int = fixture.route_confirmations.size()
 +	var narratives: int = fixture.narrative_confirmations.size()
 +	fixture.call_deferred("observe_pending_load")
++	_test_stage = "commit_quick_load" if quick else "commit_slot_load"
 +	var committed: Dictionary = await fixture.pause._backup_port.commit_action(token)
 +	if not _ok(committed): return
++	_test_stage = "settle_load"
 +	if not _ok(await fixture.settle_load()): return
 +	assert_eq(fixture.ready_count, 1, "one real destination readiness publication")
 +	assert_eq(fixture.route_confirmations.size(), routes + 1)
@@ -1912,6 +1989,7 @@ index 0000000..e2a80c8
 +	assert_eq(fixture.challenge_record(), {})
 +	assert_eq(destination.command_receipts, source.command_receipts, "selected Load does not replay scene effects")
 +	var after: Dictionary = destination.duplicate(true)
++	_test_stage = "duplicate_consent"
 +	var duplicate: Dictionary = await fixture.pause._backup_port.commit_action(token)
 +	assert_false(duplicate.get("ok", false), "consumed consent cannot Load twice")
 +	for frame: int in 8: await get_tree().process_frame
@@ -1922,6 +2000,7 @@ index 0000000..e2a80c8
 +	if not quick: return
 +	# A completed old handle must never retire a newly suspended real native source,
 +	# including when the caller legitimately owns a later restore lease.
++	_test_stage = "pause_destination"
 +	if not _ok(await fixture.pause.request_pause()): return
 +	var newer_handle: Dictionary = fixture.pause._handle.duplicate(true)
 +	assert_ne(newer_handle, old_handle)
@@ -1929,6 +2008,7 @@ index 0000000..e2a80c8
 +	if not _ok(frontier): return
 +	var lease: Dictionary = fixture.gate.acquire(&"restore")
 +	if not _ok(lease): return
++	_test_stage = "refuse_old_handle"
 +	var stale: Dictionary = await fixture.bridge.complete_pause_restore(old_handle)
 +	fixture.gate.release(&"restore", lease.value.token)
 +	assert_false(stale.get("ok", false), "old completion cannot consume a new native pause")
@@ -1936,13 +2016,16 @@ index 0000000..e2a80c8
 +	assert_eq(fixture.bridge.capture_pause_frontier(), frontier)
 +	assert_eq(fixture.pause.coordinator.get_state().value.state, &"Suspended")
 +	assert_true(get_tree().paused)
++	_test_stage = "continue_destination"
 +	if not _ok(await fixture.pause.request_continue()): return
 +	assert_false(get_tree().paused)
 +	assert_eq(fixture.game.capture_run_snapshot_input(), after)
 +	assert_eq(fixture.profile_bytes(), profile_before)
 +
 +func refused_load() -> void:
++	_test_stage = "start_text"
 +	if not fixture_ready or not _ok(await fixture.start_text()): return
++	_test_stage = "pause_source"
 +	if not _ok(await fixture.pause.request_pause()): return
 +	var source: Dictionary = fixture.game.capture_run_snapshot_input().duplicate(true)
 +	var session: Dictionary = fixture.game.capture_live_session().value.duplicate(true)
@@ -1954,6 +2037,7 @@ index 0000000..e2a80c8
 +	if not _ok(prepared): return
 +	fixture.ready_count = 0
 +	fixture.write_fault.armed = true
++	_test_stage = "commit_write_refusal"
 +	var refused: Dictionary = await fixture.pause._backup_port.commit_action(prepared.value.token)
 +	assert_false(refused.get("ok", false), str(refused))
 +	assert_eq(fixture.write_fault.refusal_count, 1, fixture.write_fault.refused_path)
@@ -1971,6 +2055,7 @@ index 0000000..e2a80c8
 +	assert_eq(fixture.input_owner.get_state().value.state, &"Suspended")
 +	assert_eq(fixture.audio_owner.get_state().value.state, &"Suspended")
 +	assert_false(fixture.router.is_restore_publication_held())
++	_test_stage = "continue_refused_source"
 +	if not _ok(await fixture.pause.request_continue()): return
 +	assert_false(get_tree().paused)
 +	assert_eq(fixture.pause_closed_count, 1)

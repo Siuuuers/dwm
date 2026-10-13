@@ -52,7 +52,7 @@ jobs:
           assert git('rev-parse','HEAD') == base
           assert git('ls-remote','origin','refs/heads/codex/scene-runtime-integration-20261009').split()[0] == base
           patch = pathlib.Path('../controller/tools/cloud/scene-first-reveal-resumable.patch').read_bytes()
-          assert hashlib.sha256(patch).hexdigest() == 'a9a9b6782b120b82f28e70f0d8a36797cc04b209db8658eb30e99cdc27bfe249'
+          assert hashlib.sha256(patch).hexdigest() == '06e11a09d40018ac9442714e3740816592eed4c3dbaea512c2708c808d62568f'
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           (out/'candidate.patch').write_bytes(patch)
           subprocess.run(['git','apply','--index','--binary',str(out/'candidate.patch')], check=True)
@@ -116,7 +116,7 @@ jobs:
             $script = $entry[1]
             Write-Host "DWM_LANE_BEGIN $name $([DateTime]::UtcNow.ToString('o'))"
             $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$script",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$name.xml")
-            & $runner -SuiteId "scene-$name" -LogName "$name.log" -GodotArgs $args -EvidenceLogPath ".godot/ci/$name.jsonl" -TimeoutSeconds 1200
+            & $runner -SuiteId "scene-$name" -LogName "$name.log" -GodotArgs $args -EvidenceLogPath ".godot/ci/$name.jsonl" -TimeoutSeconds 180
             if ($LASTEXITCODE -ne 0) { $failed = $true }
             Write-Host "DWM_LANE_END $name exit=$LASTEXITCODE $([DateTime]::UtcNow.ToString('o'))"
           }
