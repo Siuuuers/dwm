@@ -1666,10 +1666,10 @@ index 0000000..9c8fb2f
 +	physical = null
 diff --git a/tests/support/ScenePauseLoadFixture.gd b/tests/support/ScenePauseLoadFixture.gd
 new file mode 100644
-index 0000000..6ccde0b
+index 0000000..b18de8c
 --- /dev/null
 +++ b/tests/support/ScenePauseLoadFixture.gd
-@@ -0,0 +1,191 @@
+@@ -0,0 +1,197 @@
 +extends "res://tests/support/SceneFirstRevealConnectedFixture.gd"
 +## Real Pause/Backup, input/audio, native Text, Run/Profile/Save and router owners.
 +## TEST-authored scene content and empty configured host remain explicit; this is
@@ -1743,6 +1743,12 @@ index 0000000..6ccde0b
 +	diagnostic_phase = "parent_setup"
 +	var checked: Dictionary = await setup_connected(scene_tree)
 +	if not checked.get("ok", false): return checked
++	var default_style := "dialogic/layout/default_style"
++	settings[default_style] = {"exists": ProjectSettings.has_setting(default_style),
++		"value": ProjectSettings.get_setting(default_style)}
++	ProjectSettings.set_setting(default_style, STYLE)
++	if DialogicStylesUtil.get_style_path("") != STYLE:
++		return {"ok": false, "code": &"TEST.pause_default_style_not_selected"}
 +	for action: StringName in InputMap.get_actions():
 +		input_backup[action] = {"deadzone": InputMap.action_get_deadzone(action),
 +			"events": InputMap.action_get_events(action).duplicate(true)}
@@ -1863,15 +1869,16 @@ index 0000000..6ccde0b
 +			for event: InputEvent in input_backup[action].events: InputMap.action_add_event(action, event)
 diff --git a/tests/support/ScenePauseLoadTestBase.gd b/tests/support/ScenePauseLoadTestBase.gd
 new file mode 100644
-index 0000000..c93bfe2
+index 0000000..ff1b591
 --- /dev/null
 +++ b/tests/support/ScenePauseLoadTestBase.gd
-@@ -0,0 +1,198 @@
+@@ -0,0 +1,204 @@
 +extends "res://addons/gut/test.gd"
 +## One case per fresh Godot process: registration and issuer authority are immutable.
 +## Connected Text Pause -> selected schema-5 Load. No fake positive native,
 +## restore, route, suspension, Profile or Run acknowledgement is supplied.
 +const FIXTURE := preload("res://tests/support/ScenePauseLoadFixture.gd")
++const WITNESSED_CAPTION := preload("res://scripts/ui/witnessed/WitnessedCaptionLayer.gd")
 +var fixture: RefCounted
 +var fixture_ready := false
 +var prior_root := ""
@@ -1958,6 +1965,11 @@ index 0000000..c93bfe2
 +	if not _ok(committed): return
 +	_test_stage = "settle_load"
 +	if not _ok(await fixture.settle_load()): return
++	var destination_caption: Node = fixture.pause._find_caption(get_tree().root)
++	assert_true(is_instance_valid(destination_caption), "destination publishes the genuine witnessed caption")
++	if not is_instance_valid(destination_caption): return
++	assert_eq(destination_caption.get_script(), WITNESSED_CAPTION)
++	assert_eq(destination_caption.get_viewport(), get_tree().root)
 +	assert_eq(fixture.ready_count, 1, "one real destination readiness publication")
 +	assert_eq(fixture.route_confirmations.size(), routes + 1)
 +	assert_eq(fixture.narrative_confirmations.size(), narratives + 1)
