@@ -52,7 +52,7 @@ jobs:
           assert git('rev-parse','HEAD') == base
           assert git('ls-remote','origin','refs/heads/codex/scene-runtime-integration-20261009').split()[0] == base
           patch = pathlib.Path('../controller/tools/cloud/scene-first-reveal-resumable.patch').read_bytes()
-          assert hashlib.sha256(patch).hexdigest() == 'c2f89c7d48b7c4df14754b2d0a9f93b8081d9c02f5460a18e7afff194822a54d'
+          assert hashlib.sha256(patch).hexdigest() == '4b17a17d71bf985f31662d59476157932b3ec54c8dc55a471b8c2f0a2ed3a886'
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           (out/'candidate.patch').write_bytes(patch)
           subprocess.run(['git','apply','--index','--binary',str(out/'candidate.patch')], check=True)
@@ -108,6 +108,7 @@ jobs:
           $failed = $false
           $tests = @(
             @('challenge','tests/unit/test_scene_challenge.gd'),
+            @('absence','tests/unit/test_scene_absence.gd'),
             @('playable-preparation','tests/unit/test_scene_playable_preparation.gd'),
             @('checkpoint','tests/unit/test_scene_checkpoint_ack.gd'),
             @('legacy-checkpoint','tests/unit/test_save_manager_narrative_checkpoint_port.gd')
@@ -151,6 +152,7 @@ jobs:
           out = pathlib.Path('.godot/ci')
           suites = {
               'challenge':'tests/unit/test_scene_challenge.gd',
+              'absence':'tests/unit/test_scene_absence.gd',
               'playable-preparation':'tests/unit/test_scene_playable_preparation.gd',
               'checkpoint':'tests/unit/test_scene_checkpoint_ack.gd',
               'legacy-checkpoint':'tests/unit/test_save_manager_narrative_checkpoint_port.gd',

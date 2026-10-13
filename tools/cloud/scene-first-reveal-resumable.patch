@@ -392,7 +392,7 @@ index 0a1b576..d04fbe3 100644
  		and (old.forced_cell < 0 or old.forced_cell == current.forced_cell) \
  		and (old.special_cell < 0 or old.special_cell == current.special_cell)
 diff --git a/scripts/application/run/DatingPhysicalOwner.gd b/scripts/application/run/DatingPhysicalOwner.gd
-index 411e0b1..d5a92d1 100644
+index 411e0b1..6e05315 100644
 --- a/scripts/application/run/DatingPhysicalOwner.gd
 +++ b/scripts/application/run/DatingPhysicalOwner.gd
 @@ -181,6 +181,42 @@ func pull_physical(physical_token: String) -> Dictionary:
@@ -586,6 +586,15 @@ index 411e0b1..d5a92d1 100644
  	_scene_checkpoint_in_flight = false
  	if not saved.get("ok", false):
  		_retain_scene_failure_custody(saved)
+@@ -1772,7 +1870,7 @@ func _close_scene_locked() -> Dictionary:
+ 		var exact: Dictionary = _profile.get_dating_attempt(str(_attempt_identity().run_id), ATTEMPTS.semantic_slot(_record.context), str(_record.spec.board_token), str(_history_reference.branch_id))
+ 		if not exact.ok or exact.value.record != _record or exact.value.revision != _history_revision: return _fail(&"scene_attempt_proof_mismatch")
+ 		_scene_checkpoint_in_flight = true
+-		var source: Dictionary = _scene_authority.commit_scene_challenge_checkpoint(_record.duplicate(true), _history_reference.duplicate(true))
++		var source: Dictionary = _scene_authority.commit_scene_challenge_checkpoint(_record.duplicate(true), _history_reference.duplicate(true), _scene_lease)
+ 		_scene_checkpoint_in_flight = false
+ 		if not source.get("ok", false):
+ 			_retain_scene_failure_custody(source)
 @@ -1831,14 +1929,17 @@ func _flush_scene_pending() -> Dictionary:
  	if not closed.value.is_empty(): return _ok({"committed": false})
  	if _record.is_empty() or (_history_committed and not _routine_pending and _pending_checkpoint.is_empty()): return _ok({"committed": false})
@@ -1003,9 +1012,20 @@ index 0000000..f38e44b
 +	await super.close_restart()
 +	physical = null
 diff --git a/tests/unit/test_scene_absence.gd b/tests/unit/test_scene_absence.gd
-index b4248f8..5322cbd 100644
+index b4248f8..e72f296 100644
 --- a/tests/unit/test_scene_absence.gd
 +++ b/tests/unit/test_scene_absence.gd
+@@ -28,8 +28,8 @@ class AbsenceState extends FIXTURE.State:
+ 		return delegate.validate_scene_challenge_end(command)
+ 	func capture_scene_challenge_closure(context: Dictionary) -> Dictionary:
+ 		return delegate.capture_scene_challenge_closure(context)
+-	func commit_scene_challenge_checkpoint(record: Dictionary, reference: Dictionary) -> Dictionary:
+-		return delegate.commit_scene_challenge_checkpoint(record, reference)
++	func commit_scene_challenge_checkpoint(record: Dictionary, reference: Dictionary, lease: String = "") -> Dictionary:
++		return delegate.commit_scene_challenge_checkpoint(record, reference, lease)
+ 	func commit_scene_challenge_closure(command: Dictionary, result: Dictionary) -> Dictionary:
+ 		return delegate.commit_scene_challenge_closure(command, result)
+ 	func prepare_selected_scene_absence(command: Dictionary, bundle: Dictionary) -> Dictionary:
 @@ -276,3 +276,21 @@ func test_later_destination_progress_wins_over_selected_absence_after_missing_ru
  	assert_true(f.action("retry").ok)
  	assert_eq(f.attempt(state.lifecycle.branch_id).value, progressed)
@@ -1028,7 +1048,6 @@ index b4248f8..5322cbd 100644
 +	assert_eq(selected.revision, 1)
 +	assert_eq(f.attempt("TEST.scene.branch").value, future)
 +	assert_eq(state.effects, 0)
-\ No newline at end of file
 diff --git a/tests/unit/test_scene_first_reveal.gd b/tests/unit/test_scene_first_reveal.gd
 new file mode 100644
 index 0000000..164a431
