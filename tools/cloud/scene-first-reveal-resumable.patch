@@ -27,10 +27,10 @@ index 3157477..594ebd4 100644
  	if not _marker_context.is_empty():
  		if not _marker_source_valid(): return _command_failure(&"reading_marker_source_changed")
 diff --git a/autoload/GameState.gd b/autoload/GameState.gd
-index 4346e8f..2292116 100644
+index 4346e8f..c93b7d3 100644
 --- a/autoload/GameState.gd
 +++ b/autoload/GameState.gd
-@@ -4509,6 +4509,149 @@ func _accept_scene_runtime_event(event: Dictionary, digest: String, lease: Strin
+@@ -4509,6 +4509,275 @@ func _accept_scene_runtime_event(event: Dictionary, digest: String, lease: Strin
  var _scene_save_owner: Object
  var _scene_entry_operation: Dictionary = {}
  
@@ -41,8 +41,13 @@ index 4346e8f..2292116 100644
 +	if not is_instance_valid(_narrative_checkpoint_port) \
 +			or not _narrative_checkpoint_port.has_method("configure_scene_challenge_authority"):
 +		return _transaction_failure(&"scene_checkpoint_owner_required", "")
-+	return _narrative_checkpoint_port.configure_scene_challenge_authority(self,
++	var profile := get_node_or_null("/root/ProfileManager")
++	if profile == null or not profile.has_method("configure_scene_absence_validator"):
++		return _transaction_failure(&"scene_challenge_profile_unavailable", "")
++	var configured: Dictionary = _narrative_checkpoint_port.configure_scene_challenge_authority(self,
 +		Callable(self, "_validate_scene_challenge_checkpoint"))
++	if not configured.get("ok", false): return configured
++	return profile.configure_scene_absence_validator(Callable(self, "validate_selected_scene_absence"))
 +
 +## Derive the physical command from the current native control and admitted ledger.
 +## Merely asking for this projection never creates a physical attempt or a save.
@@ -84,6 +89,127 @@ index 4346e8f..2292116 100644
 +	if not _SCENE_EVENT._equal(detached, current.value.command) or not _SCENE_EVENT._equal(bundle, current.value.bundle):
 +		return _transaction_failure(&"scene_challenge_command_refused", "")
 +	return {"ok": true}
++
++# Selected absence is a live grant over SaveManager's retained selected document.
++# Current slot bytes and the source Profile's later board cannot grant this authority.
++var _selected_scene_absence: Dictionary = {}
++var _selected_scene_absence_busy := false
++var _selected_scene_absence_reentered := false
++
++func prepare_selected_scene_absence(command: Dictionary, bundle: Dictionary) -> Dictionary:
++	if _selected_scene_absence_busy:
++		_selected_scene_absence_reentered = true
++		return _transaction_failure(&"scene_absence_reentry", "")
++	_selected_scene_absence_busy = true
++	_selected_scene_absence_reentered = false
++	var material := _capture_selected_scene_absence(command.duplicate(true), bundle.duplicate(true))
++	_selected_scene_absence_busy = false
++	if _selected_scene_absence_reentered: return _transaction_failure(&"scene_absence_reentry", "")
++	if not material.get("ok", false): return material
++	_selected_scene_absence = material.value.duplicate(true)
++	return {"ok": true, "value": _selected_scene_absence.admission.duplicate(true)}
++
++func validate_selected_scene_absence(admission: Dictionary, command: Dictionary, bundle: Dictionary, lease: String) -> Dictionary:
++	if _selected_scene_absence_busy:
++		_selected_scene_absence_reentered = true
++		return _transaction_failure(&"scene_absence_reentry", "")
++	if _selected_scene_absence.is_empty() or not is_instance_valid(_mutation_gate) \
++			or not _mutation_gate.is_lease_active(&"causal_transaction", lease):
++		return _transaction_failure(&"scene_absence_custody_required", "")
++	var retained := _selected_scene_absence.duplicate(true)
++	if not _SCENE_EVENT._equal(admission, retained.admission) \
++			or not _SCENE_EVENT._equal(command, retained.command) or not _SCENE_EVENT._equal(bundle, retained.bundle):
++		return _transaction_failure(&"scene_absence_not_authorized", "")
++	_selected_scene_absence_busy = true
++	_selected_scene_absence_reentered = false
++	var current := _capture_selected_scene_absence(command.duplicate(true), bundle.duplicate(true))
++	_selected_scene_absence_busy = false
++	if _selected_scene_absence_reentered or not current.get("ok", false) \
++			or not _SCENE_EVENT._equal(current.get("value"), retained) \
++			or not _SCENE_EVENT._equal(_selected_scene_absence, retained) \
++			or not _SCENE_EVENT._equal(admission, retained.admission) \
++			or not _SCENE_EVENT._equal(command, retained.command) or not _SCENE_EVENT._equal(bundle, retained.bundle) \
++			or not _mutation_gate.is_lease_active(&"causal_transaction", lease):
++		return _transaction_failure(&"scene_absence_not_authorized", "")
++	return {"ok": true}
++
++func _capture_selected_scene_absence(command: Dictionary, bundle: Dictionary) -> Dictionary:
++	if not _live_session_active or not _run_configuration_installed or not is_instance_valid(_scene_save_owner) \
++			or not _scene_save_owner.has_method("capture_committed_scene_restore"):
++		return _transaction_failure(&"scene_absence_not_authorized", "")
++	var session := _live_session_fact().duplicate(true)
++	var live := capture_run_snapshot_input().duplicate(true)
++	var authorized := validate_scene_challenge_command(command, bundle)
++	if not authorized.get("ok", false): return authorized
++	var route: Dictionary = live.gameplay.route_context
++	if not route.get("active_dating_challenge", {}).is_empty() or not route.get("dating_active_attempt_ref", {}).is_empty():
++		return _transaction_failure(&"scene_absence_not_authorized", "live physical state already exists")
++	var provenance: Variant = live.lifecycle.get("restore_provenance")
++	if not provenance is Dictionary: return _transaction_failure(&"scene_absence_not_authorized", "selected restore required")
++	var restored: Dictionary = _scene_save_owner.capture_committed_scene_restore(str(provenance.restore_transaction_id))
++	if not restored.get("ok", false): return restored
++	var operation: Dictionary = restored.value.operation
++	var source: Dictionary = restored.value.selected_bundle.snapshot
++	var root: Dictionary = _identity_issuer.capture_root()
++	if not root.get("ok", false): return root
++	var allocation: Variant = root.value.get("allocation_receipts", {}).get(provenance.restore_transaction_id)
++	if not allocation is Dictionary or not _SCENE_EVENT._equal(allocation, operation.get("allocation_receipt")) \
++			or _SCENE_EVENT._sha(allocation) != operation.get("allocation_candidate_fingerprint"):
++		return _transaction_failure(&"scene_absence_not_authorized", "restore allocation is not in issuer root")
++	var transaction: Dictionary = _identity_issuer.verify_issued(operation.transaction_issuer_receipt, &"transaction_id")
++	var remap: Dictionary = _identity_issuer.validate_child(provenance.remap_receipt_provenance, &"continuation_operation")
++	if not transaction.get("ok", false) or not remap.get("ok", false) \
++			or operation.transaction_id != provenance.restore_transaction_id \
++			or operation.transaction_issuer_receipt.get("receipt_id") != provenance.identity_allocation_receipt_id \
++			or provenance.remap_receipt_provenance.get("child_id") != provenance.remap_receipt_id \
++			or _SCENE_EVENT._sha(allocation.get("transaction_remap")) != provenance.transaction_remap_sha256:
++		return _transaction_failure(&"scene_absence_not_authorized", "restore provenance mismatch")
++	if source.run_id != live.lifecycle.run_id or source.lifecycle.branch_id == live.lifecycle.branch_id \
++			or provenance.source_branch_id != source.lifecycle.branch_id \
++			or provenance.source_desktop_timeline_generation != source.lifecycle.desktop_timeline_generation \
++			or provenance.source_causal_day_instance != source.lifecycle.causal_day_instance \
++			or provenance.source_issuer_observed_counter != source.lifecycle.causal_day_instance_issuer_receipt.get("counter"):
++		return _transaction_failure(&"scene_absence_not_authorized", "selected source identity mismatch")
++	var destination := {"run_id": live.lifecycle.run_id}
++	var source_identity := {"run_id": source.run_id}
++	for field: String in ["branch_id", "desktop_timeline_generation", "causal_day_instance", "causal_day_instance_issuer_receipt"]:
++		if not _SCENE_EVENT._equal(allocation.get(field), live.lifecycle.get(field)):
++			return _transaction_failure(&"scene_absence_not_authorized", "allocated destination mismatch")
++		destination[field] = live.lifecycle[field]
++		source_identity[field] = source.lifecycle[field]
++	if allocation.get("run_id") != live.lifecycle.run_id:
++		return _transaction_failure(&"scene_absence_not_authorized", "allocated run mismatch")
++	var selected_route: Dictionary = source.gameplay.route_context
++	var slot: String = preload("res://scripts/profile/DatingAttemptLedger.gd").semantic_slot(command.context)
++	if not selected_route.get("active_dating_challenge", {}).is_empty() \
++			or not selected_route.get("dating_active_attempt_ref", {}).is_empty() \
++			or selected_route.get("dating_canonical_heads", {}).has(slot):
++		return _transaction_failure(&"scene_absence_not_authorized", "selected snapshot is not pre-Reveal")
++	var ledger := _SCENE_EVENT.validate_scene_receipts(source.command_receipts, bundle, _identity_issuer, _scene_save_owner)
++	if not ledger.get("ok", false): return ledger
++	var receipt: Variant = ledger.value.commands.get(command.context.playable_command_id)
++	if not receipt is Dictionary or not _SCENE_EVENT._equal(receipt, _command_receipts.get(command.context.playable_command_id)):
++		return _transaction_failure(&"scene_absence_not_authorized", "selected playable receipt mismatch")
++	for row: Dictionary in ledger.value.commands.values():
++		if row.get("kind") != "scene_event": continue
++		if row.scene_event.result.get("kind") == "challenge_closed" \
++				and row.scene_event.result.get("playable_command_id") == command.context.playable_command_id:
++			return _transaction_failure(&"scene_absence_not_authorized", "selected challenge is closed")
++	var current := capture_scene_challenge_command()
++	if not current.get("ok", false) or not _SCENE_EVENT._equal(current.value.checkpoint, source.narrative_checkpoint) \
++			or not _SCENE_EVENT._equal(source.scene, live.scene) \
++			or not _SCENE_EVENT._equal(capture_run_snapshot_input(), live) or not _live_session_active \
++			or not _SCENE_EVENT._equal(_live_session_fact(), session):
++		return _transaction_failure(&"scene_absence_not_authorized", "live selected control changed")
++	var admission := {"restore_transaction_id": operation.transaction_id, "source_locator": operation.source_locator.duplicate(true),
++		"source_identity": source_identity, "destination_identity": destination,
++		"allocation_receipt_id": provenance.identity_allocation_receipt_id, "remap_receipt_id": provenance.remap_receipt_id,
++		"transaction_remap_sha256": provenance.transaction_remap_sha256, "challenge_key": {
++			"run_id": live.lifecycle.run_id, "scene_occurrence": command.context.scene_occurrence,
++			"challenge_id": command.context.challenge_id, "playable_command_id": command.context.playable_command_id,
++			"registration_sha256": command.context.registration_sha256}}
++	return {"ok": true, "value": {"admission": admission, "session": session, "command": command.duplicate(true),
++		"bundle": bundle.duplicate(true), "selected_sha256": _SCENE_EVENT._sha(source)}}
 +
 +func capture_scene_challenge_closure(context: Dictionary) -> Dictionary:
 +	var current := capture_scene_challenge_command()
@@ -742,10 +868,10 @@ index dce0bc4..eb4af43 100644
  	attempt["generation"] = original.generation
 diff --git a/tests/integration/scene_first_reveal_connected_child.gd b/tests/integration/scene_first_reveal_connected_child.gd
 new file mode 100644
-index 0000000..6a116d3
+index 0000000..698ff6a
 --- /dev/null
 +++ b/tests/integration/scene_first_reveal_connected_child.gd
-@@ -0,0 +1,163 @@
+@@ -0,0 +1,275 @@
 +extends "res://addons/gut/test.gd"
 +## Cloud child shared body. A selected Load creates a branch; never claim same-branch restart.
 +const FIXTURE := preload("res://tests/support/SceneFirstRevealConnectedFixture.gd")
@@ -869,19 +995,22 @@ index 0000000..6a116d3
 +	if not _ok(native): return
 +	assert_eq(native.value, witness.checkpoint.reading_session)
 +	var admitted: Dictionary = fixture.admit_challenge()
-+	if witness.mode == "profile_ahead":
-+		# Selected Load is a new branch, not same-operation crash recovery. Until
-+		# real selected-absence authority exists it must refuse instead of importing
-+		# the source branch's later Profile record.
-+		assert_false(admitted.get("ok", false), str(admitted))
-+		assert_eq(admitted.get("code"), &"scene_attempt_recovery_required")
-+		if admitted.get("ok", false): return
-+	elif not _ok(admitted): return
++	if not _ok(admitted): return
++	if witness.mode == "profile_ahead": assert_eq(fixture.panel().value.phase, "never_started")
 +	assert_eq(fixture.challenge_record(), witness.saved_record, "selected snapshot imports no future progress")
 +	var source_attempt: Dictionary = fixture.challenge_attempt(witness.source_branch)
 +	if not _ok(source_attempt): return
 +	assert_eq(source_attempt.value, witness.attempt, "source Profile attempt remains exact")
-+	if witness.mode == "normal": assert_eq(fixture.panel().value.phase, "active")
++	if witness.mode != "profile_ahead": assert_eq(fixture.panel().value.phase, "active")
++	if witness.mode != "profile_ahead":
++		var held: Dictionary = fixture.game.capture_scene_challenge_command()
++		if not _ok(held): return
++		assert_false(fixture.game.prepare_selected_scene_absence(held.value.command, held.value.bundle).ok,
++			"saved physical progress cannot authorize selected absence")
++	if witness.has("original_source_branch"):
++		var original: Dictionary = fixture.challenge_attempt(witness.original_source_branch)
++		if not _ok(original): return
++		assert_eq(original.value, witness.original_source_attempt)
 +	assert_eq(fixture.profile_bytes(), witness.profile_files, "readmission is read-only")
 +	assert_eq(fixture.files.autosave_writes, 0)
 +	assert_eq(fixture.storage.read_text("autosave.json").value, bytes.value)
@@ -891,6 +1020,115 @@ index 0000000..6a116d3
 +	proof["creator_process_id"] = witness.process_id
 +	proof.process_id = OS.get_process_id()
 +	write_proof(proof, false)
++
++func create_selected_recovery() -> void:
++	if not fixture_ready: return
++	if not _ok(await fixture.begin_playable_source()): return
++	if not _ok(fixture.dispatch()): return
++	if not _ok(fixture.manager.save_latest_to_slot(1)): return
++	var selected_bytes: Dictionary = fixture.storage.read_text("slot_1.json")
++	if not _ok(selected_bytes): return
++	if not _ok(fixture.admit_challenge()): return
++	if not _ok(fixture.reveal()): return
++	var first: Dictionary = fixture.challenge_attempt().value.duplicate(true)
++	var flag_cell := -1
++	for cell: int in 324:
++		if not first.record.board.revealed_indices.has(cell):
++			flag_cell = cell
++			break
++	assert_gte(flag_cell, 0)
++	if flag_cell < 0: return
++	if not _ok(fixture.physical.dispatch_scene_panel_action(fixture.challenge_token,
++		"flag", flag_cell, int(fixture.panel().value.revision))): return
++	var source: Dictionary = fixture.challenge_attempt().value.duplicate(true)
++	assert_gt(source.revision, first.revision)
++	assert_true(source.record.board.flagged_indices.has(flag_cell))
++	var prepared: Dictionary = fixture.manager.prepare_restore_slot(1)
++	if not _ok(prepared): return
++	# Selection retains the old document. Replace its slot through the real save
++	# owner with the later source board before completing that selected restore.
++	if not _ok(fixture.manager.save_latest_to_slot(1)): return
++	assert_ne(fixture.storage.read_text("slot_1.json").value, selected_bytes.value)
++	fixture.ready_count = 0
++	var started: Dictionary = fixture.manager.commit_prepared_restore(prepared.value.prepared)
++	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
++	if started.get("code") != &"scene_activation_pending": return
++	if not _ok(await fixture.await_activation()): return
++	var identity: Dictionary = fixture.game.capture_run_snapshot_input().lifecycle
++	assert_ne(identity.branch_id, source.branch_id)
++	assert_eq(fixture.challenge_record(), {})
++	var profile_before: Dictionary = fixture.profile_bytes()
++	if not _ok(fixture.admit_challenge()): return
++	assert_eq(fixture.panel().value.phase, "never_started")
++	assert_eq(fixture.profile_bytes(), profile_before)
++	var captured: Dictionary = fixture.game.capture_scene_challenge_command()
++	if not _ok(captured): return
++	var admission: Dictionary = fixture.game.prepare_selected_scene_absence(captured.value.command, captured.value.bundle)
++	if not _ok(admission): return
++	assert_false(fixture.game.validate_selected_scene_absence(admission.value,
++		captured.value.command, captured.value.bundle, "").ok, "dictionary alone is not causal custody")
++	var lease: Dictionary = fixture.gate.acquire(&"causal_transaction")
++	if not _ok(lease): return
++	var valid: Dictionary = fixture.game.validate_selected_scene_absence(admission.value,
++		captured.value.command, captured.value.bundle, lease.value.token)
++	assert_true(valid.get("ok", false), str(valid))
++	var forged: Dictionary = admission.value.duplicate(true)
++	forged.destination_identity.branch_id = source.branch_id
++	assert_false(fixture.game.validate_selected_scene_absence(forged,
++		captured.value.command, captured.value.bundle, lease.value.token).ok)
++	if not _ok(fixture.gate.release(&"causal_transaction", lease.value.token)): return
++	var destination_backup: Dictionary = fixture.game.capture_restore_state()
++	if not _ok(destination_backup): return
++	# A real Profile filesystem refusal must leave selected absence retryable.
++	fixture.files.refuse_profile = true
++	var profile_refused: Dictionary = fixture.reveal()
++	assert_false(profile_refused.get("ok", false), str(profile_refused))
++	assert_eq(fixture.files.profile_refusals, 1)
++	if profile_refused.get("ok", false) or fixture.files.profile_refusals != 1: return
++	assert_eq(fixture.profile_bytes(), profile_before)
++	assert_eq(fixture.panel().value.phase, "never_started")
++	# Then commit Profile but refuse Run: destination progress must outrank absence.
++	fixture.files.refuse_on = fixture.files.autosave_writes + 1
++	var refused: Dictionary = fixture.reveal()
++	assert_false(refused.get("ok", false), str(refused))
++	assert_true(refused.get("rolled_back", false), str(refused))
++	assert_eq(fixture.files.refused, 1)
++	if refused.get("ok", false) or not refused.get("rolled_back", false): return
++	var destination_result: Dictionary = fixture.challenge_attempt(identity.branch_id)
++	if not _ok(destination_result): return
++	var destination: Dictionary = destination_result.value.duplicate(true)
++	assert_eq(destination.revision, 1)
++	assert_eq(destination.record.spec, source.record.spec)
++	assert_eq(destination.entry_receipt, source.entry_receipt)
++	assert_eq(destination.record.board, first.record.board, "reuse initial spec, never later source moves")
++	assert_false(destination.record.board.flagged_indices.has(flag_cell))
++	assert_eq(fixture.challenge_attempt(source.branch_id).value, source)
++	# Exercise the real Run owner's same-session rollback to its selected boardless
++	# state. The journal still has SOURCE identity; do not install that as destination.
++	if not _ok(fixture.game.rollback_restore_silent(destination_backup.value)): return
++	assert_eq(fixture.challenge_record(), {})
++	if not _ok(fixture.admit_challenge()): return
++	assert_eq(fixture.panel().value.phase, "checkpoint_retry")
++	assert_eq(fixture.challenge_attempt(identity.branch_id).value, destination)
++	if not _ok(fixture.physical.dispatch_scene_panel_action(fixture.challenge_token,
++		"retry", -1, int(fixture.panel().value.revision))): return
++	assert_eq(fixture.challenge_record(), destination.record)
++	assert_eq(fixture.challenge_attempt(identity.branch_id).value, destination)
++	assert_eq(fixture.game.capture_run_snapshot_input().lifecycle.branch_id, identity.branch_id)
++	assert_eq(fixture.challenge_attempt(source.branch_id).value, source)
++	var document: Dictionary = fixture.read_autosave()
++	if not _ok(document): return
++	if not _ok(SAVE_SCHEMA.validate(document.value)): return
++	var saved: Dictionary = document.value.current_snapshot.snapshot
++	assert_eq(saved.gameplay.route_context.active_dating_challenge, destination.record)
++	var proof := {"phase": "create", "mode": "selected_absence", "process_id": OS.get_process_id(),
++		"storage_root": fixture.storage.describe_root(),
++		"autosave_sha256": str(fixture.storage.read_text("autosave.json").value).sha256_text(),
++		"attempt": destination, "saved_record": destination.record, "checkpoint": saved.narrative_checkpoint,
++		"profile_files": fixture.profile_bytes(), "source_branch": identity.branch_id,
++		"original_source_branch": source.branch_id, "original_source_attempt": source,
++		"scope": "retained_selected_absence_after_slot_overwrite_Profile_and_Run_refusals_same_session_rollback_readmission_then_fresh_selected_Load"}
++	write_proof(proof, true)
 +
 +func _ok(result: Dictionary) -> bool:
 +	assert_true(result.get("ok", false), str(result))
@@ -936,6 +1174,15 @@ index 0000000..d5a16b3
 +extends "res://tests/integration/scene_first_reveal_connected_child.gd"
 +func test_first_reveal_selected_load_preserves_exact_saved_prefix() -> void:
 +	await load_connected()
+diff --git a/tests/integration/test_scene_first_reveal_selected_create.gd b/tests/integration/test_scene_first_reveal_selected_create.gd
+new file mode 100644
+index 0000000..c90732b
+--- /dev/null
++++ b/tests/integration/test_scene_first_reveal_selected_create.gd
+@@ -0,0 +1,3 @@
++extends "res://tests/integration/scene_first_reveal_connected_child.gd"
++func test_selected_absence_survives_source_overwrite_and_destination_retry() -> void:
++	await create_selected_recovery()
 diff --git a/tests/support/SceneChallengeFixture.gd b/tests/support/SceneChallengeFixture.gd
 index 8ebf2a7..2fcdf22 100644
 --- a/tests/support/SceneChallengeFixture.gd
@@ -960,16 +1207,25 @@ index 8ebf2a7..2fcdf22 100644
  var profile: Node
 diff --git a/tests/support/SceneFirstRevealConnectedFixture.gd b/tests/support/SceneFirstRevealConnectedFixture.gd
 new file mode 100644
-index 0000000..f38e44b
+index 0000000..9c8fb2f
 --- /dev/null
 +++ b/tests/support/SceneFirstRevealConnectedFixture.gd
-@@ -0,0 +1,47 @@
+@@ -0,0 +1,58 @@
 +extends "res://tests/support/ScenePlayableFixture.gd"
 +## Real Profile, generation, physical owner, GameState, native Bridge and Save owners.
 +## Parent supplies TEST-authored content and diagnostic ancillary restore participants.
 +const PHYSICAL := preload("res://scripts/application/run/DatingPhysicalOwner.gd")
 +const GENERATION := preload("res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd")
 +const ATTEMPTS := preload("res://scripts/profile/DatingAttemptLedger.gd")
++class ProfileWriteRefusal extends WriteRefusal:
++	var refuse_profile := false
++	var profile_refusals := 0
++	func write_bytes(path: String, bytes: PackedByteArray) -> Dictionary:
++		if refuse_profile and path.replace("\\", "/").ends_with("/profile.json.next"):
++			refuse_profile = false
++			profile_refusals += 1
++			return {"ok": false, "code": &"TEST.profile_write_refused", "message": path}
++		return super.write_bytes(path, bytes)
 +var physical: RefCounted
 +var challenge_command: Dictionary = {}
 +var challenge_token := ""
@@ -977,6 +1233,8 @@ index 0000000..f38e44b
 +func setup_connected(scene_tree: SceneTree) -> Dictionary:
 +	var checked: Dictionary = await setup_playable(scene_tree)
 +	if not checked.ok: return checked
++	files = ProfileWriteRefusal.new()
++	storage._file_ops = files
 +	checked = game.configure_scene_challenge_runtime()
 +	if not checked.ok: return checked
 +	physical = PHYSICAL.new()

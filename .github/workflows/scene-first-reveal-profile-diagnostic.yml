@@ -1,4 +1,4 @@
-name: Scene first Reveal connected save candidate
+name: Scene selected absence recovery candidate
 
 on:
   pull_request:
@@ -52,13 +52,13 @@ jobs:
           assert git('rev-parse','HEAD') == base
           assert git('ls-remote','origin','refs/heads/codex/scene-runtime-integration-20261009').split()[0] == base
           patch = pathlib.Path('../controller/tools/cloud/scene-first-reveal-resumable.patch').read_bytes()
-          assert hashlib.sha256(patch).hexdigest() == '4b17a17d71bf985f31662d59476157932b3ec54c8dc55a471b8c2f0a2ed3a886'
+          assert hashlib.sha256(patch).hexdigest() == '19ac6dd27ef568335c58cd4bc3951a524b6ad1a7747028cfdde06455fe6664d4'
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           (out/'candidate.patch').write_bytes(patch)
           subprocess.run(['git','apply','--index','--binary',str(out/'candidate.patch')], check=True)
           subprocess.run(['git','diff','--cached','--check'], check=True)
           paths = git('diff','--cached','--name-only').splitlines()
-          assert paths == ['autoload/DialogicBridge.gd', 'autoload/GameState.gd', 'scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd', 'scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd', 'scripts/application/run/DatingChallengeEnvelope.gd', 'scripts/application/run/DatingPhysicalOwner.gd', 'scripts/domain/minesweeper/MinesweeperBoardGenerator.gd', 'scripts/profile/DatingAttemptLedger.gd', 'tests/integration/scene_first_reveal_connected_child.gd', 'tests/integration/test_scene_first_reveal_connected_ahead.gd', 'tests/integration/test_scene_first_reveal_connected_create.gd', 'tests/integration/test_scene_first_reveal_connected_load.gd', 'tests/support/SceneChallengeFixture.gd', 'tests/support/SceneFirstRevealConnectedFixture.gd', 'tests/unit/test_scene_absence.gd', 'tests/unit/test_scene_first_reveal.gd']
+          assert paths == ['autoload/DialogicBridge.gd', 'autoload/GameState.gd', 'scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd', 'scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd', 'scripts/application/run/DatingChallengeEnvelope.gd', 'scripts/application/run/DatingPhysicalOwner.gd', 'scripts/domain/minesweeper/MinesweeperBoardGenerator.gd', 'scripts/profile/DatingAttemptLedger.gd', 'tests/integration/scene_first_reveal_connected_child.gd', 'tests/integration/test_scene_first_reveal_connected_ahead.gd', 'tests/integration/test_scene_first_reveal_connected_create.gd', 'tests/integration/test_scene_first_reveal_connected_load.gd', 'tests/integration/test_scene_first_reveal_selected_create.gd', 'tests/support/SceneChallengeFixture.gd', 'tests/support/SceneFirstRevealConnectedFixture.gd', 'tests/unit/test_scene_absence.gd', 'tests/unit/test_scene_first_reveal.gd']
           receipt = {'base':base,'controller':os.environ['CONTROLLER_SHA'],'patch_sha256':hashlib.sha256(patch).hexdigest(),'paths':paths,'publication':'disabled diagnostic'}
           (out/'candidate-origin.json').write_text(json.dumps(receipt,indent=2),encoding='utf-8')
           '@ | python -
@@ -107,11 +107,7 @@ jobs:
           $runner = './tools/testing/Invoke-IsolatedGodot.ps1'
           $failed = $false
           $tests = @(
-            @('challenge','tests/unit/test_scene_challenge.gd'),
-            @('absence','tests/unit/test_scene_absence.gd'),
-            @('playable-preparation','tests/unit/test_scene_playable_preparation.gd'),
-            @('checkpoint','tests/unit/test_scene_checkpoint_ack.gd'),
-            @('legacy-checkpoint','tests/unit/test_save_manager_narrative_checkpoint_port.gd')
+            @('absence','tests/unit/test_scene_absence.gd')
           )
           foreach ($entry in $tests) {
             $name = $entry[0]
@@ -122,16 +118,9 @@ jobs:
             if ($LASTEXITCODE -ne 0) { $failed = $true }
             Write-Host "DWM_LANE_END $name exit=$LASTEXITCODE $([DateTime]::UtcNow.ToString('o'))"
           }
-          foreach ($mode in @('normal','dropped_ack','native_refusal')) {
-            $child = if ($mode -eq 'normal') { 'create' } else { $mode }
-            $create = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://tests/integration/test_scene_playable_$child.gd",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$mode-create.xml")
-            $load = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_playable_load.gd','-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$mode-load.xml")
-            & $runner -SuiteId "playable-$mode" -LogName "$mode-create.log" -GodotArgs $create -NextLogName "$mode-load.log" -NextGodotArgs $load -EvidenceLogPath ".godot/ci/$mode.jsonl" -TimeoutSeconds 240 -KeepRoot
-            if ($LASTEXITCODE -ne 0) { $failed = $true }
-          }
-          foreach ($mode in @('normal','profile_ahead')) {
-            $child = if ($mode -eq 'normal') { 'create' } else { 'ahead' }
-            $create = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://tests/integration/test_scene_first_reveal_connected_$child.gd",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/connected-$mode-create.xml")
+          foreach ($mode in @('normal','profile_ahead','selected_absence')) {
+            $child = if ($mode -eq 'normal') { 'connected_create' } elseif ($mode -eq 'profile_ahead') { 'connected_ahead' } else { 'selected_create' }
+            $create = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://tests/integration/test_scene_first_reveal_$child.gd",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/connected-$mode-create.xml")
             $load = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_first_reveal_connected_load.gd','-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/connected-$mode-load.xml")
             & $runner -SuiteId "connected-$mode" -LogName "connected-$mode-create.log" -GodotArgs $create -NextLogName "connected-$mode-load.log" -NextGodotArgs $load -EvidenceLogPath ".godot/ci/connected-$mode.jsonl" -TimeoutSeconds 600 -KeepRoot
             if ($LASTEXITCODE -ne 0) { $failed = $true }
@@ -150,18 +139,9 @@ jobs:
           import xml.etree.ElementTree as ET
 
           out = pathlib.Path('.godot/ci')
-          suites = {
-              'challenge':'tests/unit/test_scene_challenge.gd',
-              'absence':'tests/unit/test_scene_absence.gd',
-              'playable-preparation':'tests/unit/test_scene_playable_preparation.gd',
-              'checkpoint':'tests/unit/test_scene_checkpoint_ack.gd',
-              'legacy-checkpoint':'tests/unit/test_save_manager_narrative_checkpoint_port.gd',
-          }
-          for mode in ['normal','dropped_ack','native_refusal']:
-              suites[mode+'-create'] = 'tests/integration/test_scene_playable_'+('create' if mode=='normal' else mode)+'.gd'
-              suites[mode+'-load'] = 'tests/integration/test_scene_playable_load.gd'
-          for mode in ['normal','profile_ahead']:
-              suites['connected-'+mode+'-create'] = 'tests/integration/test_scene_first_reveal_connected_'+('create' if mode=='normal' else 'ahead')+'.gd'
+          suites = {'absence':'tests/unit/test_scene_absence.gd'}
+          for mode in ['normal','profile_ahead','selected_absence']:
+              suites['connected-'+mode+'-create'] = 'tests/integration/test_scene_first_reveal_'+({'normal':'connected_create','profile_ahead':'connected_ahead','selected_absence':'selected_create'}[mode])+'.gd'
               suites['connected-'+mode+'-load'] = 'tests/integration/test_scene_first_reveal_connected_load.gd'
           counts = {}
           for lane, script in suites.items():
@@ -183,7 +163,7 @@ jobs:
               'lanes':counts,
               'total_cases':sum(v['cases'] for v in counts.values()),
               'total_xml_assertions':sum(v['assertions'] for v in counts.values()),
-              'scope':'connected real Profile/Run first-Reveal refusal/retry and selected unfinished Load; selected pre-Reveal negative no-future-import only; no rendered panel or full recovery acceptance',
+              'scope':'real selected pre-Reveal continuation after source-slot overwrite; Profile and Run refusal; same-process destination re-admission precedence; fresh-process selected unfinished Load; no rendered panel or same-branch OS crash claim',
           }
           (out/'gate.json').write_text(json.dumps(result, indent=2), encoding='utf-8')
           print(json.dumps(result))
