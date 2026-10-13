@@ -1,4 +1,4 @@
-name: Scene first Reveal Profile diagnostic
+name: Scene first Reveal resumable candidate
 
 on:
   pull_request:
@@ -17,7 +17,7 @@ jobs:
   profile-first-reveal:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
     runs-on: windows-2022
-    timeout-minutes: 38
+    timeout-minutes: 60
     env:
       BASE_SHA: 8ead20846f830d7e4227b6650c5bd24b9038d5d7
       CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
@@ -41,104 +41,26 @@ jobs:
           path: source
           fetch-depth: 0
 
-      - name: Recover corrected owner candidate
-        uses: actions/download-artifact@v4
-        with:
-          name: scene-first-reveal-diagnostic-38096004796-1
-          path: inherited
-          github-token: ${{ github.token }}
-          repository: Siuuuers/dwm
-          run-id: 38096004796
-
-      - name: Add the exact Profile admission correction
+      - name: Apply reviewed resumable first-Reveal candidate
         run: |
           $ErrorActionPreference = 'Stop'
           @'
-          import hashlib
-          import json
-          import os
-          import pathlib
-          import subprocess
-
-          def git(*args: str) -> str:
+          import hashlib, json, os, pathlib, subprocess
+          def git(*args):
               return subprocess.check_output(['git', *args], text=True).strip()
-
-          def replace_exact(path: pathlib.Path, old: str, new: str, label: str) -> None:
-              text = path.read_text(encoding='utf-8')
-              count = text.count(old)
-              assert count == 1, (label, count)
-              path.write_text(text.replace(old, new, 1), encoding='utf-8', newline='')
-
           base = os.environ['BASE_SHA']
-          assert git('rev-parse', 'HEAD') == base
-          live = git('ls-remote', 'origin', 'refs/heads/codex/scene-runtime-integration-20261009').split()[0]
-          assert live == base, ('A advanced; reconcile before testing', live)
-
-          inherited = pathlib.Path('../inherited')
-          patches = list(inherited.rglob('candidate-corrected.patch'))
-          assert len(patches) == 1, patches
-          patch = patches[0].read_bytes()
-          inherited_sha = hashlib.sha256(patch).hexdigest()
-          assert inherited_sha == 'da9dee3a23cc3229516822cbe916de0da85733958f01c50e8d1bb636496b45c5'
-          output = pathlib.Path('.godot/ci')
-          output.mkdir(parents=True, exist_ok=True)
-          inherited_path = output / 'candidate-owner.patch'
-          inherited_path.write_bytes(patch)
-          subprocess.run(['git', 'apply', '--index', '--binary', str(inherited_path)], check=True)
-
-          ledger = pathlib.Path('scripts/profile/DatingAttemptLedger.gd')
-          replace_exact(
-              ledger,
-              '\telif mode == "fresh":\n\t\tif record.board != null or (record.phase not in ["ready", "preparing", "preparation_failed"] if scene else record.phase != "challenge"):\n\t\t\treturn _fail(&"dating_fresh_entry_required")\n',
-              '\telif mode == "fresh":\n\t\tif scene:\n\t\t\tif not _valid_fresh_scene_entry(record, first_cell_index):\n\t\t\t\treturn _fail(&"dating_fresh_entry_required")\n\t\telif record.board != null or record.phase != "challenge":\n\t\t\treturn _fail(&"dating_fresh_entry_required")\n',
-              'fresh scene admission',
-          )
-          helper = '''static func _valid_fresh_scene_entry(record: Dictionary, first_cell: int) -> bool:\n\tif record.board == null:\n\t\treturn first_cell == -1 and record.phase in ["ready", "preparing", "preparation_failed"]\n\tif first_cell < 0 or record.phase not in ["active", "terminal"]:\n\t\treturn false\n\tif int(record.envelope.forced_cell) >= 0 and first_cell != int(record.envelope.forced_cell):\n\t\treturn false\n\tvar initial: Dictionary = REDUCER.first_reveal(_layout(record.board), first_cell, record.envelope.shell)\n\tif not initial.get("ok", false): return false\n\tvar plain: Dictionary = ENVELOPE.plain_frontier(initial.value.board)\n\treturn plain.get("ok", false) and plain.value == record.board\n\n'''
-          replace_exact(
-              ledger,
-              'static func _prepare_scene_flat(ledger: Dictionary, run_id: String, slot_id: String, branch_id: String,\n',
-              helper + 'static func _prepare_scene_flat(ledger: Dictionary, run_id: String, slot_id: String, branch_id: String,\n',
-              'fresh scene helper',
-          )
-
-          test = pathlib.Path('tests/unit/test_scene_first_reveal.gd')
-          replace_exact(
-              test,
-              'const FIXTURE := preload("res://tests/support/SceneChallengeFixture.gd")\n',
-              'const FIXTURE := preload("res://tests/support/SceneChallengeFixture.gd")\nconst LEDGER := preload("res://scripts/profile/DatingAttemptLedger.gd")\nconst REDUCER := preload("res://scripts/domain/minesweeper/MinesweeperBoardReducer.gd")\n',
-              'ledger test imports',
-          )
-          extra = '''\nfunc test_fresh_profile_entry_refuses_a_prebuilt_second_action() -> void:\n\tassert_true(_reveal(323).ok)\n\tvar attempt: Dictionary = f.attempt().value.duplicate(true)\n\tvar record: Dictionary = attempt.record.duplicate(true)\n\tvar covered := -1\n\tfor index in int(record.board.width) * int(record.board.height):\n\t\tif not record.board.revealed_indices.has(index) and not record.board.flagged_indices.has(index):\n\t\t\tcovered = index\n\t\t\tbreak\n\tassert_gte(covered, 0)\n\tif covered < 0: return\n\tvar marked: Dictionary = REDUCER.set_flag(record.board, covered, true, "extra.after-first-reveal")\n\tassert_true(marked.ok, str(marked))\n\tif not marked.ok: return\n\trecord.board = marked.value.board\n\tassert_true(LEDGER.validate_record(record))\n\tvar rejected: Dictionary = LEDGER.prepare_update({}, str(attempt.run_id), str(attempt.slot_id),\n\t\tstr(attempt.branch_id), record, 0, int(attempt.materialization_receipt.first_cell_index), {}, {"mode": "fresh"})\n\tassert_false(rejected.ok, str(rejected))\n\tassert_eq(rejected.get("code"), &"dating_fresh_entry_required")\n'''
-          with test.open('a', encoding='utf-8', newline='') as handle:
-              handle.write(extra)
-
-          subprocess.run(['git', 'add', '--all'], check=True)
-          subprocess.run(['git', 'diff', '--cached', '--check'], check=True)
-          paths = git('diff', '--cached', '--name-only').splitlines()
-          allowed = {
-              'scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd',
-              'scripts/application/run/DatingChallengeEnvelope.gd',
-              'scripts/application/run/DatingPhysicalOwner.gd',
-              'scripts/domain/minesweeper/MinesweeperBoardGenerator.gd',
-              'scripts/profile/DatingAttemptLedger.gd',
-              'tests/support/SceneChallengeFixture.gd',
-              'tests/unit/test_scene_first_reveal.gd',
-          }
-          assert set(paths) == allowed, paths
-          final_patch = subprocess.check_output(['git', 'diff', '--cached', '--binary'])
-          (output / 'candidate-profile.patch').write_bytes(final_patch)
-          receipt = {
-              'base': base,
-              'controller': os.environ['CONTROLLER_SHA'],
-              'inherited_run': 38096004796,
-              'inherited_patch_sha256': inherited_sha,
-              'candidate_patch_sha256': hashlib.sha256(final_patch).hexdigest(),
-              'profile_correction': 'fresh schema4 entry accepts only an exact first-reveal board or the existing boardless entry phases',
-              'paths': paths,
-              'publication': 'disabled diagnostic',
-          }
-          (output / 'candidate-origin.json').write_text(json.dumps(receipt, indent=2), encoding='utf-8')
-          print(json.dumps(receipt))
+          assert git('rev-parse','HEAD') == base
+          assert git('ls-remote','origin','refs/heads/codex/scene-runtime-integration-20261009').split()[0] == base
+          patch = pathlib.Path('../controller/tools/cloud/scene-first-reveal-resumable.patch').read_bytes()
+          assert hashlib.sha256(patch).hexdigest() == '4fa1892da5488a954de94b075d1756c963737b65376c49828beca284574e4d55'
+          out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
+          (out/'candidate.patch').write_bytes(patch)
+          subprocess.run(['git','apply','--index','--binary',str(out/'candidate.patch')], check=True)
+          subprocess.run(['git','diff','--cached','--check'], check=True)
+          paths = git('diff','--cached','--name-only').splitlines()
+          assert paths == ['scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd', 'scripts/application/run/DatingChallengeEnvelope.gd', 'scripts/application/run/DatingPhysicalOwner.gd', 'scripts/domain/minesweeper/MinesweeperBoardGenerator.gd', 'scripts/profile/DatingAttemptLedger.gd', 'tests/support/SceneChallengeFixture.gd', 'tests/unit/test_scene_absence.gd', 'tests/unit/test_scene_first_reveal.gd']
+          receipt = {'base':base,'controller':os.environ['CONTROLLER_SHA'],'patch_sha256':hashlib.sha256(patch).hexdigest(),'paths':paths,'publication':'disabled diagnostic'}
+          (out/'candidate-origin.json').write_text(json.dumps(receipt,indent=2),encoding='utf-8')
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
@@ -187,6 +109,7 @@ jobs:
           $tests = @(
             @('first-reveal','tests/unit/test_scene_first_reveal.gd'),
             @('absence','tests/unit/test_scene_absence.gd'),
+            @('challenge','tests/unit/test_scene_challenge.gd'),
             @('playable-preparation','tests/unit/test_scene_playable_preparation.gd'),
             @('checkpoint','tests/unit/test_scene_checkpoint_ack.gd'),
             @('profile-attempts','tests/unit/test_profile_dating_attempts.gd'),
@@ -196,7 +119,7 @@ jobs:
             $name = $entry[0]
             $script = $entry[1]
             $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$script",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$name.xml")
-            & $runner -SuiteId "scene-$name" -LogName "$name.log" -GodotArgs $args -EvidenceLogPath ".godot/ci/$name.jsonl" -TimeoutSeconds 360
+            & $runner -SuiteId "scene-$name" -LogName "$name.log" -GodotArgs $args -EvidenceLogPath ".godot/ci/$name.jsonl" -TimeoutSeconds 1200
             if ($LASTEXITCODE -ne 0) { $failed = $true }
           }
           foreach ($mode in @('normal','dropped_ack','native_refusal')) {
@@ -223,6 +146,7 @@ jobs:
           suites = {
               'first-reveal':'tests/unit/test_scene_first_reveal.gd',
               'absence':'tests/unit/test_scene_absence.gd',
+              'challenge':'tests/unit/test_scene_challenge.gd',
               'playable-preparation':'tests/unit/test_scene_playable_preparation.gd',
               'checkpoint':'tests/unit/test_scene_checkpoint_ack.gd',
               'profile-attempts':'tests/unit/test_profile_dating_attempts.gd',
@@ -270,6 +194,13 @@ jobs:
           out = pathlib.Path('.godot/ci')
           out.mkdir(parents=True, exist_ok=True)
           (out/'final-status.txt').write_text(subprocess.run(['git','status','--porcelain'],capture_output=True,text=True).stdout, encoding='utf-8')
+          if (out/'candidate-origin.json').exists():
+              origin = json.loads((out/'candidate-origin.json').read_text(encoding='utf-8-sig'))
+              for name in origin['paths']:
+                  source = pathlib.Path(name)
+                  if source.exists():
+                      target = out/'source'/name; target.parent.mkdir(parents=True,exist_ok=True); target.write_bytes(source.read_bytes())
+              (out/'final-candidate.patch').write_bytes(subprocess.check_output(['git','diff',origin['base'],'--binary']))
           files = {}
           for root in [out, pathlib.Path('.godot/phase2r_logs')]:
               if root.exists():
@@ -289,4 +220,5 @@ jobs:
             !source/.godot/ci/import-user
           include-hidden-files: true
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 30
+

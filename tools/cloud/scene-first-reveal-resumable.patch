@@ -1,0 +1,646 @@
+diff --git a/scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd b/scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd
+index 7b8c42c..8339551 100644
+--- a/scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd
++++ b/scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd
+@@ -26,6 +26,14 @@ func begin_search(spec: Dictionary) -> Dictionary:
+ 	return _ok({"frontier": preparation.duplicate(true)})
+ 
+ 
++func begin_search_at_cell(spec: Dictionary, first_cell: int) -> Dictionary:
++	var begun: Dictionary = _GENERATOR.begin_debug_at_cell(spec, first_cell)
++	if not begun.get("ok", false):
++		return begun
++	var preparation: Dictionary = begun["value"]["preparation"]
++	return _ok({"frontier": preparation.duplicate(true)})
++
++
+ func run_search_slice(frontier: Dictionary) -> Dictionary:
+ 	var advanced: Dictionary = _GENERATOR.run_debug_slice(frontier)
+ 	if not advanced.get("ok", false):
+diff --git a/scripts/application/run/DatingChallengeEnvelope.gd b/scripts/application/run/DatingChallengeEnvelope.gd
+index 0a1b576..d04fbe3 100644
+--- a/scripts/application/run/DatingChallengeEnvelope.gd
++++ b/scripts/application/run/DatingChallengeEnvelope.gd
+@@ -81,8 +81,17 @@ static func advances(before: Dictionary, after: Dictionary) -> bool:
+ ## Replay the existing bounded generator, including its reserved fallback, without
+ ## changing the algorithm or accepting a caller's asserted certificate.
+ static func _scene_preparation_matches(spec: Dictionary, envelope: Dictionary) -> bool:
++	var forced_cell: int = int(envelope.forced_cell)
++	if envelope.preparation is Dictionary:
++		forced_cell = int(envelope.preparation.get("forced_cell", -1))
++	if forced_cell < 0: return false
++	# Preserve byte-identical replay for historical random-forced entries. Only a
++	# genuinely different player-selected cell uses the explicit-cell constructor.
+ 	var begun: Dictionary = GENERATOR.begin_debug(spec)
+ 	if not begun.ok: return false
++	if int(begun.value.preparation.forced_cell) != forced_cell:
++		begun = GENERATOR.begin_debug_at_cell(spec, forced_cell)
++		if not begun.ok: return false
+ 	var current: Dictionary = begun.value.preparation
+ 	var sought: Variant = envelope.preparation
+ 	while true:
+@@ -121,7 +130,8 @@ static func _validate_scene(record: Dictionary) -> bool:
+ 		if not debug or record.board != null or not envelope.preparation is Dictionary \
+ 				or not PREPARATION.validate(envelope.preparation).ok \
+ 				or str(envelope.preparation.status) != ("searching" if record.phase == "preparing" else "exhausted") \
+-				or envelope.prepared_layout != null or envelope.forced_cell != -1 or envelope.special_cell != -1 \
++				or envelope.prepared_layout != null or envelope.special_cell != -1 \
++				or (envelope.forced_cell != -1 and envelope.forced_cell != int(envelope.preparation.forced_cell)) \
+ 				or envelope.shell != make().shell: return false
+ 		return _scene_preparation_matches(spec, envelope)
+ 	if record.phase not in ["ready", "active", "terminal"] or envelope.preparation != null: return false
+@@ -152,7 +162,9 @@ static func _scene_advances(before: Dictionary, after: Dictionary) -> bool:
+ 	if before.board != null and current.shell != old.shell: return false
+ 	if old.preparation != null and current.preparation != null:
+ 		# Both frontiers were independently replayed from the same immutable spec.
+-		return current.preparation.slice_sequence >= old.preparation.slice_sequence
++		return current.preparation.slice_sequence >= old.preparation.slice_sequence \
++			and current.forced_cell == old.forced_cell \
++			and current.preparation.forced_cell == old.preparation.forced_cell
+ 	return (old.prepared_layout == null or old.prepared_layout == current.prepared_layout) \
+ 		and (old.forced_cell < 0 or old.forced_cell == current.forced_cell) \
+ 		and (old.special_cell < 0 or old.special_cell == current.special_cell)
+diff --git a/scripts/application/run/DatingPhysicalOwner.gd b/scripts/application/run/DatingPhysicalOwner.gd
+index 411e0b1..744ad16 100644
+--- a/scripts/application/run/DatingPhysicalOwner.gd
++++ b/scripts/application/run/DatingPhysicalOwner.gd
+@@ -181,6 +181,42 @@ func pull_physical(physical_token: String) -> Dictionary:
+ 	if not _adopt(physical_token): return _fail(&"dating_challenge_unavailable")
+ 	return _ok(_view())
+ 
++
++## Presentation-facing Scene Challenge surface. The retained physical API still owns
++## legacy internal start/prepare tests, but the player surface has no Start command.
++func pull_scene_panel(physical_token: String) -> Dictionary:
++	if not _scene_command(): return _fail(&"scene_challenge_unadmitted")
++	var view: Dictionary = _pull_scene(physical_token)
++	if not view.get("ok", false): return view
++	var profile: Dictionary = _scene_board_profile()
++	if not profile.get("ok", false): return profile
++	var value: Dictionary = view.value.duplicate(true)
++	value.host = str(profile.value.difficulty_id)
++	if value.get("phase") != "never_started": return _ok(value)
++	var preview: Dictionary = _scene_unstarted_board()
++	if not preview.get("ok", false): return preview
++	value.actions = ["reveal"]
++	value.board = preview.value
++	value.revision = 0
++	return _ok(value)
++
++func dispatch_scene_panel_action(physical_token: String, action: String, cell_index: int,
++		expected_revision: int) -> Dictionary:
++	var view: Dictionary = pull_scene_panel(physical_token)
++	if not view.get("ok", false): return view
++	if view.value.get("phase") == "never_started":
++		if action != "reveal" or expected_revision != 0 or cell_index < 0 \
++				or cell_index >= int(view.value.board.width) * int(view.value.board.height):
++			return _fail(&"scene_challenge_command_refused")
++		return _dispatch_scene_first_reveal(physical_token, cell_index)
++	if action == "reveal" and expected_revision == 0 and _pending_checkpoint.is_empty() \
++			and _record.get("phase") == "preparing" and cell_index == int(_record.envelope.forced_cell):
++		return view
++	if action == "reveal":
++		var duplicate: Dictionary = _scene_duplicate_first_reveal(cell_index, expected_revision)
++		if duplicate.get("matched", false): return duplicate.result
++	return _dispatch_scene(physical_token, action, cell_index, expected_revision)
++
+ func dispatch_physical(physical_token: String, action: String, cell_index: int,
+ 		expected_revision: int) -> Dictionary:
+ 	if _scene_command(): return _dispatch_scene(physical_token, action, cell_index, expected_revision)
+@@ -1549,6 +1585,61 @@ func _pull_scene(token: String) -> Dictionary:
+ 	return _ok({"phase": "checkpoint_retry" if not _pending_checkpoint.is_empty() else _record.phase,
+ 		"state": _record.state, "actions": actions, "board": _project_board(), "revision": _revision(), "result": detail})
+ 
++
++func _scene_board_profile() -> Dictionary:
++	var challenge := {}
++	for row: Dictionary in _scene_bundle.challenges:
++		if row.challenge_id == _admitted_command.context.challenge_id: challenge = row
++	var selected := {}
++	for row: Dictionary in _scene_bundle.board_profiles:
++		if row.board_profile_id == challenge.get("board_profile_id"): selected = row
++	if selected.is_empty() or selected.difficulty_id not in ["canonical_solo", "canonical_pair"] \
++			or selected.capability_policy_id != "owned_inventory_v1":
++		return _fail(&"scene_board_profile_unsupported")
++	return _ok(selected.duplicate(true))
++
++func _scene_unstarted_board() -> Dictionary:
++	var profile: Dictionary = _scene_board_profile()
++	if not profile.get("ok", false): return profile
++	var selected: Dictionary = profile.value
++	var owned: Dictionary = CAPABILITIES.resolve_owned(_game_state.inventory)
++	if not owned.get("ok", false): return owned
++	var inputs: Dictionary = CAPABILITIES.build_spec_inputs(owned.value,
++		int(_game_state.get_stat("pressure")), int(_game_state.penalty_points_today))
++	if not inputs.get("ok", false): return inputs
++	var cells: Array = []
++	for index in int(selected.width) * int(selected.height):
++		cells.append({"index": index, "face": "covered", "mark": "none", "number": 0,
++			"bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal"]})
++	return _ok({"width": int(selected.width), "height": int(selected.height), "revision": 0,
++		"mine_estimate": int(selected.base_mine_count) + int(inputs.value.effective_extra_mines),
++		"terminal": false, "custody": false, "cells": cells})
++
++func _scene_duplicate_first_reveal(cell_index: int, expected_revision: int) -> Dictionary:
++	if expected_revision != 0 or not _pending_checkpoint.is_empty() or not _record.get("board") is Dictionary \
++			or not _history_committed or _history_reference.is_empty():
++		return {"matched": false}
++	var exact: Dictionary = _profile.get_dating_attempt(str(_attempt_identity().run_id),
++		ATTEMPTS.semantic_slot(_record.context), str(_history_reference.attempt_id), str(_history_reference.branch_id))
++	if not exact.get("ok", false) or exact.value.record != _record \
++			or not exact.value.get("materialization_receipt") is Dictionary \
++			or int(exact.value.materialization_receipt.get("first_cell_index", -1)) != cell_index:
++		return {"matched": false}
++	return {"matched": true, "result": _pull_scene(_record.physical_token)}
++
++func _dispatch_scene_first_reveal(token: String, index: int) -> Dictionary:
++	var current: Dictionary = _pull_scene(token)
++	if not current.get("ok", false) or current.value.get("phase") != "never_started":
++		return _fail(&"scene_challenge_command_refused")
++	var lease: Dictionary = _attempt_gate.acquire(&"causal_transaction")
++	if not lease.get("ok", false): return lease
++	_scene_lease = str(lease.value.token)
++	var result: Dictionary = _scene_action("first_reveal", index)
++	_scene_lease = ""
++	_scene_start_admission = {}
++	var released: Dictionary = _attempt_gate.release(&"causal_transaction", str(lease.value.token))
++	return result if released.get("ok", false) else released
++
+ func _dispatch_scene(token: String, action: String, index: int, revision: int) -> Dictionary:
+ 	if _scene_absence_busy:
+ 		_scene_absence_reentered = true
+@@ -1573,12 +1664,16 @@ func _scene_action(action: String, index: int) -> Dictionary:
+ 	_first_cell_index = -1
+ 	var changed: Dictionary
+ 	if action == "start": changed = _scene_start()
++	elif action == "first_reveal":
++		changed = _scene_start(index)
++		if changed.get("ok", false) and _record.phase == "ready":
++			changed = _board_action("reveal", index)
+ 	elif action == "prepare": changed = _scene_prepare()
+ 	else:
+ 		changed = _board_action(action, index)
+-		if changed.ok and _record.board != null:
+-			_record.phase = "terminal" if _record.board.terminal else "active"
+-			_record.state = ("lost" if str(_record.board.outcome) == "exploded" else "won") if _record.board.terminal else "in_progress"
++	if changed.ok and _record.board != null:
++		_record.phase = "terminal" if _record.board.terminal else "active"
++		_record.state = ("lost" if str(_record.board.outcome) == "exploded" else "won") if _record.board.terminal else "in_progress"
+ 	if changed.ok:
+ 		var plain: Dictionary = ENVELOPE.plain_frontier(_record)
+ 		if plain.ok: _record = plain.value
+@@ -1599,16 +1694,11 @@ func _scene_action(action: String, index: int) -> Dictionary:
+ 	_pending_checkpoint = _record.duplicate(true)
+ 	return _scene_checkpoint()
+ 
+-func _scene_start() -> Dictionary:
++func _scene_start(first_reveal_index: int = -1) -> Dictionary:
+ 	if not _record.is_empty(): return _fail(&"scene_challenge_already_started")
+-	var challenge := {}
+-	for row: Dictionary in _scene_bundle.challenges:
+-		if row.challenge_id == _admitted_command.context.challenge_id: challenge = row
+-	var selected := {}
+-	for row: Dictionary in _scene_bundle.board_profiles:
+-		if row.board_profile_id == challenge.get("board_profile_id"): selected = row
+-	if selected.is_empty() or selected.difficulty_id not in ["canonical_solo", "canonical_pair"] or selected.capability_policy_id != "owned_inventory_v1":
+-		return _fail(&"scene_board_profile_unsupported")
++	var selected_result: Dictionary = _scene_board_profile()
++	if not selected_result.get("ok", false): return selected_result
++	var selected: Dictionary = selected_result.value
+ 	var retained: Dictionary = _profile.get_dating_attempt(str(_attempt_identity().run_id), ATTEMPTS.semantic_slot(_admitted_command.context))
+ 	if not retained.ok: return retained
+ 	var absence_selection := {}
+@@ -1637,12 +1727,16 @@ func _scene_start() -> Dictionary:
+ 		"command_sha256": _admitted_command.command_sha256, "physical_token": _token(_admitted_command.completion_transaction_id, _admitted_command.command_sha256),
+ 		"context": _admitted_command.context.duplicate(true), "host": "scene_challenge", "spec": spec.value,
+ 		"board": null, "envelope": ENVELOPE.make(), "phase": "ready", "state": "in_progress", "applied_result": {}}
++
+ 	if _record.spec.capability_ids.has("forced_no_guess"):
+-		var begun: Dictionary = _generation.begin_search(_record.spec)
++		var begun: Dictionary = _generation.begin_search_at_cell(_record.spec, first_reveal_index) \
++			if first_reveal_index >= 0 and _generation.has_method("begin_search_at_cell") else _generation.begin_search(_record.spec)
+ 		if not begun.ok: return begun
+ 		var plain: Dictionary = ENVELOPE.plain_frontier(begun.value.frontier)
+ 		if not plain.ok: return plain
+ 		_record.envelope.preparation = plain.value
++		# A retained accepted Reveal is distinct from legacy internal Start.
++		_record.envelope.forced_cell = first_reveal_index
+ 		_record.phase = "preparing"
+ 	_clear_history_state()
+ 	_history_selection = absence_selection if not absence_selection.is_empty() else {"mode": "fresh"}
+@@ -1693,6 +1787,7 @@ func _validate_scene_start_absence() -> Dictionary:
+ 	return _ok({}) if result is Dictionary and result.get("ok", false) else _fail(&"scene_absence_not_authorized")
+ 
+ func _scene_prepare() -> Dictionary:
++	var accepted_reveal: int = int(_record.envelope.forced_cell)
+ 	# Use the existing domain preparation owner: the legacy generation-port adapter
+ 	# deliberately hides exhausted frontiers, which this family must retain.
+ 	var advanced: Dictionary = preload("res://scripts/domain/minesweeper/MinesweeperBoardGenerator.gd").run_debug_slice(_record.envelope.preparation)
+@@ -1711,6 +1806,9 @@ func _scene_prepare() -> Dictionary:
+ 		_record.envelope.special_cell = ENVELOPE.special_cell(_record.spec, layout)
+ 		_record.envelope.preparation = null
+ 		_record.phase = "ready"
++		if accepted_reveal >= 0:
++			var revealed: Dictionary = _board_action("reveal", accepted_reveal)
++			if not revealed.ok: return revealed
+ 	else: return _fail(&"scene_preparation_result_invalid")
+ 	return _ok({})
+ 
+diff --git a/scripts/domain/minesweeper/MinesweeperBoardGenerator.gd b/scripts/domain/minesweeper/MinesweeperBoardGenerator.gd
+index 9caf5c2..ec8d917 100644
+--- a/scripts/domain/minesweeper/MinesweeperBoardGenerator.gd
++++ b/scripts/domain/minesweeper/MinesweeperBoardGenerator.gd
+@@ -183,6 +183,52 @@ static func begin_debug(spec: Dictionary) -> Dictionary:
+ 	return _PREPARATION.validate((begun["value"] as Dictionary)["preparation"])
+ 
+ 
++## Scene Challenge first Reveal chooses the exact forced cell. Burn the same one
++## debug-stream draw as begin_debug(), then retain the player-selected cell while
++## leaving candidate search, budgets, fallback adoption and certification unchanged.
++static func begin_debug_at_cell(spec: Dictionary, first_cell: int) -> Dictionary:
++	var budget_loaded := _read_budget_manifest()
++	if not budget_loaded.get("ok", false):
++		return budget_loaded
++	var fallback_loaded := _read_fallback_manifest()
++	if not fallback_loaded.get("ok", false):
++		return fallback_loaded
++
++	var spec_check: Dictionary = _BOARD_SCHEMA.validate_spec(spec)
++	if not spec_check.get("ok", false):
++		return spec_check
++	var validated_spec: Dictionary = (spec_check["value"] as Dictionary)["spec"]
++	var total_cells: int = int(validated_spec["width"]) * int(validated_spec["height"])
++	if typeof(first_cell) != TYPE_INT or first_cell < 0 or first_cell >= total_cells:
++		return _fail(&"cell_index_out_of_range", "first_cell is out of range", {"first_cell": first_cell})
++
++	var debug_seeded := _seed(StringName(validated_spec["debug_stream_id"]), String(validated_spec["debug_nonce"]))
++	if not debug_seeded.get("ok", false):
++		return debug_seeded
++	var debug_rng: RefCounted = debug_seeded["value"]
++	var burned: Dictionary = debug_rng.sample_bounded(total_cells)
++	if not burned.get("ok", false):
++		return burned
++	var debug_state: Dictionary = debug_rng.capture()["value"]
++
++	var placement_seeded := _seed(StringName(validated_spec["placement_stream_id"]), String(validated_spec["placement_nonce"]))
++	if not placement_seeded.get("ok", false):
++		return placement_seeded
++	var placement_state: Dictionary = (placement_seeded["value"] as RefCounted).capture()["value"]
++
++	var explosion_seeded := _seed(StringName(validated_spec["explosion_stream_id"]), String(validated_spec["explosion_nonce"]))
++	if not explosion_seeded.get("ok", false):
++		return explosion_seeded
++	var explosion_state: Dictionary = (explosion_seeded["value"] as RefCounted).capture()["value"]
++
++	var kernel_spec := _project_kernel_spec(validated_spec)
++	var begun: Dictionary = _KERNEL.begin(kernel_spec, first_cell, _KERNEL.MODE_CANDIDATE_SEARCH,
++		placement_state, debug_state, explosion_state)
++	if not begun.get("ok", false):
++		return begun
++	return _PREPARATION.validate((begun["value"] as Dictionary)["preparation"])
++
++
+ ## Advances one bounded slice of an in-progress Debug preparation using slice_operation_budget,
+ ## enforcing cumulative search_operation_budget (the kernel is never offered more of the search
+ ## budget than remains, and is never offered a call so small it could only stall), then falling
+diff --git a/scripts/profile/DatingAttemptLedger.gd b/scripts/profile/DatingAttemptLedger.gd
+index dce0bc4..eb4af43 100644
+--- a/scripts/profile/DatingAttemptLedger.gd
++++ b/scripts/profile/DatingAttemptLedger.gd
+@@ -77,7 +77,10 @@ static func prepare_update(ledger: Dictionary, run_id: String, slot_id: String,
+ 			effective_branch = str(previous.branch_id)
+ 			generation = int(previous.generation)
+ 	elif mode == "fresh":
+-		if record.board != null or (record.phase not in ["ready", "preparing", "preparation_failed"] if scene else record.phase != "challenge"):
++		if scene:
++			if not _valid_fresh_scene_entry(record, first_cell_index):
++				return _fail(&"dating_fresh_entry_required")
++		elif record.board != null or record.phase != "challenge":
+ 			return _fail(&"dating_fresh_entry_required")
+ 		if not slot.is_empty() and slot.attempts.has(attempt_id):
+ 			var history: Dictionary = slot.attempts[attempt_id]
+@@ -557,6 +560,18 @@ static func _scene_terminal(record: Dictionary) -> Variant:
+ 	return {"state": record.state, "outcome": str(record.board.outcome),
+ 		"perfect_reasons": RULES.perfect_reasons(record.board, 4)}
+ 
++static func _valid_fresh_scene_entry(record: Dictionary, first_cell: int) -> bool:
++	if record.board == null:
++		return first_cell == -1 and record.phase in ["ready", "preparing", "preparation_failed"]
++	if first_cell < 0 or record.phase not in ["active", "terminal"]:
++		return false
++	if int(record.envelope.forced_cell) >= 0 and first_cell != int(record.envelope.forced_cell):
++		return false
++	var initial: Dictionary = REDUCER.first_reveal(_layout(record.board), first_cell, record.envelope.shell)
++	if not initial.get("ok", false): return false
++	var plain: Dictionary = ENVELOPE.plain_frontier(initial.value.board)
++	return plain.get("ok", false) and plain.value == record.board
++
+ static func _prepare_scene_flat(ledger: Dictionary, run_id: String, slot_id: String, branch_id: String,
+ 		record: Dictionary, expected_revision: int, first_cell: int, effect: Dictionary) -> Dictionary:
+ 	if not effect.is_empty(): return _fail(&"invalid_dating_effect_receipt")
+@@ -654,7 +669,7 @@ static func _valid_proof_shape(proof: Dictionary) -> bool:
+ ## live authority must authorize the selected absence before any durable write.
+ static func _prepare_absent_start(ledger: Dictionary, run_id: String, slot_id: String, branch_id: String,
+ 		record: Dictionary, expected_revision: int, first_cell: int, selection: Dictionary) -> Dictionary:
+-	if record.schema_version != 4 or not _scene_json(selection) or expected_revision != 0 or first_cell != -1 \
++	if record.schema_version != 4 or not _scene_json(selection) or expected_revision != 0 \
+ 			or not _valid_absence_admission(selection.get("admission"), run_id, branch_id, record.context) \
+ 			or not _id(selection.attempt_id) or typeof(selection.generation) != TYPE_INT \
+ 			or not _hash(selection.entry_sha256): return _fail(&"invalid_scene_absence_selection")
+@@ -671,15 +686,18 @@ static func _prepare_absent_start(ledger: Dictionary, run_id: String, slot_id: S
+ 	if current.ok:
+ 		# Profile-before-Run retry must never replace progress with a new revision1.
+ 		return _ok({"ledger": ledger.duplicate(true), "attempt": current.value, "changed": false})
+-	if branch_id == original.branch_id or record.board != null or record.state != "in_progress" \
+-			or record.envelope.shell != ENVELOPE.make().shell or record.envelope.prepared_layout != null \
+-			or record.envelope.forced_cell != -1 or record.envelope.special_cell != -1:
++	if branch_id == original.branch_id or record.envelope.shell != ENVELOPE.make().shell \
++			or not _valid_fresh_scene_entry(record, first_cell):
+ 		return _fail(&"invalid_scene_absence_start")
++	# A selected absence may create exactly its own first Reveal, never copy the
++	# source branch's later moves. Debug entry retains only its initial frontier.
+ 	if record.spec.capability_ids.has("forced_no_guess"):
+-		if record.phase != "preparing" or record.envelope.preparation == null \
+-				or record.envelope.preparation.slice_sequence != 0: return _fail(&"invalid_scene_absence_start")
+-	elif record.phase != "ready" or record.envelope.preparation != null: return _fail(&"invalid_scene_absence_start")
+-	var prepared: Dictionary = _prepare_flat({}, run_id, slot_id, branch_id, record, 0)
++		if record.board != null or record.phase != "preparing" or record.envelope.preparation == null \
++				or record.envelope.preparation.slice_sequence != 0:
++			return _fail(&"invalid_scene_absence_start")
++	elif record.board == null and (record.phase != "ready" or record.envelope.preparation != null):
++		return _fail(&"invalid_scene_absence_start")
++	var prepared: Dictionary = _prepare_flat({}, run_id, slot_id, branch_id, record, 0, first_cell)
+ 	if not prepared.ok: return prepared
+ 	var attempt: Dictionary = prepared.value.attempt
+ 	attempt["generation"] = original.generation
+diff --git a/tests/support/SceneChallengeFixture.gd b/tests/support/SceneChallengeFixture.gd
+index 8ebf2a7..a3c6ab8 100644
+--- a/tests/support/SceneChallengeFixture.gd
++++ b/tests/support/SceneChallengeFixture.gd
+@@ -87,6 +87,8 @@ class Authority extends RefCounted:
+ class Generation extends "res://tests/support/FakeMinesweeperGenerationPort.gd":
+ 	func begin_search(spec: Dictionary) -> Dictionary:
+ 		return preload("res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd").new().begin_search(spec)
++	func begin_search_at_cell(spec: Dictionary, first_cell: int) -> Dictionary:
++		return preload("res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd").new().begin_search_at_cell(spec, first_cell)
+ 
+ var state := State.new()
+ var profile: Node
+diff --git a/tests/unit/test_scene_absence.gd b/tests/unit/test_scene_absence.gd
+index b4248f8..5322cbd 100644
+--- a/tests/unit/test_scene_absence.gd
++++ b/tests/unit/test_scene_absence.gd
+@@ -276,3 +276,21 @@ func test_later_destination_progress_wins_over_selected_absence_after_missing_ru
+ 	assert_true(f.action("retry").ok)
+ 	assert_eq(f.attempt(state.lifecycle.branch_id).value, progressed)
+ 	assert_eq(f.record(), progressed.record)
++
++
++func test_selected_absence_first_reveal_starts_its_own_board_without_future_progress() -> void:
++	var original := _first_attempt()
++	assert_true(f.action("reveal", 323).ok)
++	var future: Dictionary = f.attempt().value.duplicate(true)
++	_select_absence("TEST.selected.first_reveal")
++	assert_true(f.begin().ok)
++	var revealed: Dictionary = f.owner.dispatch_scene_panel_action(f.token, "reveal", 36, 0)
++	assert_true(revealed.ok, str(revealed))
++	if not revealed.ok: return
++	var selected: Dictionary = f.attempt(state.lifecycle.branch_id).value
++	assert_eq(selected.entry_receipt, original.entry_receipt)
++	assert_eq(selected.materialization_receipt.first_cell_index, 36)
++	assert_eq(selected.record.phase, "active")
++	assert_eq(selected.revision, 1)
++	assert_eq(f.attempt("TEST.scene.branch").value, future)
++	assert_eq(state.effects, 0)
+\ No newline at end of file
+diff --git a/tests/unit/test_scene_first_reveal.gd b/tests/unit/test_scene_first_reveal.gd
+new file mode 100644
+index 0000000..375e853
+--- /dev/null
++++ b/tests/unit/test_scene_first_reveal.gd
+@@ -0,0 +1,225 @@
++extends "res://addons/gut/test.gd"
++## Presentation-facing first-Reveal contract over the real physical owner, Profile
++## ledger, reducer and generator. Checkpoint authority remains an injected seam.
++const FIXTURE := preload("res://tests/support/SceneChallengeFixture.gd")
++const LEDGER := preload("res://scripts/profile/DatingAttemptLedger.gd")
++const ENVELOPE := preload("res://scripts/application/run/DatingChallengeEnvelope.gd")
++const REDUCER := preload("res://scripts/domain/minesweeper/MinesweeperBoardReducer.gd")
++
++var f: RefCounted
++
++func before_each() -> void:
++	f = FIXTURE.new()
++	assert_true(f.setup("TEST.scene.first_reveal").ok)
++	_arm_unfinished_layout()
++	assert_true(f.begin().ok)
++
++func _arm_unfinished_layout() -> void:
++	var mines: Array = []
++	for index in 33: mines.append(index)
++	mines.append_array([288, 289, 307])
++	f.generation.arm_materialize({"schema_version": 1, "width": 18, "height": 18, "mine_indices": mines, "mine_count": 36})
++
++func after_each() -> void:
++	f.dispose()
++
++func _pull() -> Dictionary:
++	return f.owner.pull_scene_panel(f.token)
++
++func _reveal(index: int, revision: int = 0) -> Dictionary:
++	return f.owner.dispatch_scene_panel_action(f.token, "reveal", index, revision)
++
++func test_unstarted_panel_is_a_fixed_covered_board_without_start_mutation() -> void:
++	var view: Dictionary = _pull()
++	assert_true(view.ok, str(view))
++	if not view.ok: return
++	assert_eq(view.value.phase, "never_started")
++	assert_eq(view.value.host, "canonical_solo")
++	assert_eq(view.value.state, "never_started")
++	assert_eq(view.value.actions, ["reveal"])
++	assert_eq(view.value.revision, 0)
++	assert_eq(view.value.board.width, 18)
++	assert_eq(view.value.board.height, 18)
++	assert_eq(view.value.board.cells.size(), 324)
++	assert_eq(view.value.board.cells[323].actions, ["reveal"])
++	assert_eq(f.record(), {})
++	assert_true(f.attempt().ok)
++	assert_eq(f.attempt().value, {})
++	assert_eq(f.authority.checkpoints.size(), 0)
++
++func test_first_reveal_materializes_commits_and_checkpoints_once() -> void:
++	var revealed: Dictionary = _reveal(323)
++	assert_true(revealed.ok, str(revealed))
++	if not revealed.ok: return
++	var record: Dictionary = f.record()
++	assert_eq(record.phase, "active")
++	assert_eq(record.state, "in_progress")
++	assert_true(record.board is Dictionary)
++	assert_true(record.board.revealed_indices.has(323))
++	var attempt: Dictionary = f.attempt().value
++	assert_eq(attempt.materialization_receipt.first_cell_index, 323)
++	assert_eq(attempt.record, record)
++	assert_eq(attempt.revision, 1)
++	assert_eq(f.authority.checkpoints.size(), 1)
++
++func test_duplicate_first_reveal_reuses_exact_profile_result() -> void:
++	assert_true(_reveal(323).ok)
++	var record: Dictionary = f.record().duplicate(true)
++	var attempt: Dictionary = f.attempt().value.duplicate(true)
++	var checkpoints: int = f.authority.checkpoints.size()
++	var duplicate: Dictionary = _reveal(323, 0)
++	assert_true(duplicate.ok, str(duplicate))
++	assert_eq(f.record(), record)
++	assert_eq(f.attempt().value, attempt)
++	assert_eq(f.authority.checkpoints.size(), checkpoints)
++
++func test_non_reveal_bad_cell_and_stale_revision_refuse_before_start() -> void:
++	assert_false(f.owner.dispatch_scene_panel_action(f.token, "flag", 323, 0).ok)
++	assert_false(_reveal(-1).ok)
++	assert_false(_reveal(324).ok)
++	assert_false(_reveal(323, 1).ok)
++	assert_eq(f.record(), {})
++	assert_eq(f.attempt().value, {})
++	assert_eq(f.authority.checkpoints.size(), 0)
++
++func test_debug_first_reveal_checkpoints_exact_initial_frontier_and_survives_owner_restart() -> void:
++	f.dispose()
++	f = FIXTURE.new()
++	f.state.inventory = {"debug_key": 1}
++	assert_true(f.setup("TEST.scene.first_reveal.debug").ok)
++	assert_true(f.begin().ok)
++	var revealed: Dictionary = _reveal(323)
++	assert_true(revealed.ok, str(revealed))
++	if not revealed.ok: return
++	var record: Dictionary = f.record().duplicate(true)
++	var attempt: Dictionary = f.attempt().value.duplicate(true)
++	assert_eq(record.phase, "preparing")
++	assert_null(record.board)
++	assert_eq(record.envelope.preparation.forced_cell, 323)
++	assert_eq(record.envelope.preparation.slice_sequence, 0)
++	assert_eq(attempt.record, record)
++	assert_eq(attempt.revision, 1)
++	assert_eq(f.authority.checkpoints.size(), 1)
++	assert_true(f.recreate_owner().ok)
++	assert_true(f.begin().ok)
++	assert_eq(_pull().value.phase, "preparing")
++	assert_eq(f.record(), record)
++	var duplicate: Dictionary = _reveal(323, 0)
++	assert_true(duplicate.ok, str(duplicate))
++	assert_eq(f.record(), record)
++	assert_eq(f.attempt().value, attempt)
++	assert_eq(f.authority.checkpoints.size(), 1)
++
++func test_profile_refusal_leaves_first_reveal_absent_and_retry_commits_once() -> void:
++	f.storage.refuse = true
++	var refused: Dictionary = _reveal(323)
++	assert_false(refused.ok, str(refused))
++	assert_eq(f.record(), {})
++	assert_eq(f.attempt().value, {})
++	assert_eq(f.authority.checkpoints.size(), 0)
++	f.storage.refuse = false
++	var retried: Dictionary = _reveal(323)
++	assert_true(retried.ok, str(retried))
++	if not retried.ok: return
++	assert_eq(f.attempt().value.revision, 1)
++	assert_eq(f.attempt().value.materialization_receipt.first_cell_index, 323)
++	assert_eq(f.attempt().value.record, f.record())
++	assert_eq(f.authority.checkpoints.size(), 1)
++
++func test_profile_ahead_first_reveal_recovers_exact_attempt_after_cold_owner_retry() -> void:
++	f.authority.reject_checkpoint = true
++	var refused: Dictionary = _reveal(323)
++	assert_false(refused.ok, str(refused))
++	var retained: Dictionary = f.attempt().value.duplicate(true)
++	assert_eq(retained.revision, 1)
++	assert_eq(retained.materialization_receipt.first_cell_index, 323)
++	assert_eq(f.authority.checkpoints.size(), 0)
++	f.state.route_context = {}
++	assert_true(f.recreate_owner().ok)
++	assert_true(f.begin().ok)
++	assert_eq(_pull().value.phase, "checkpoint_retry")
++	f.authority.reject_checkpoint = false
++	var retried: Dictionary = f.action("retry")
++	assert_true(retried.ok, str(retried))
++	assert_eq(f.attempt().value, retained)
++	assert_eq(f.record(), retained.record)
++	assert_eq(f.authority.checkpoints.size(), 1)
++
++func test_immediately_winning_first_reveal_duplicate_is_write_free() -> void:
++	var mines: Array = []
++	for index in 36: mines.append(index)
++	f.generation.arm_materialize({"schema_version": 1, "width": 18, "height": 18, "mine_indices": mines, "mine_count": 36})
++	var revealed: Dictionary = _reveal(323)
++	assert_true(revealed.ok, str(revealed))
++	if not revealed.ok: return
++	var record: Dictionary = f.record().duplicate(true)
++	var attempt: Dictionary = f.attempt().value.duplicate(true)
++	assert_eq(record.phase, "terminal")
++	assert_eq(record.state, "won")
++	assert_eq(f.authority.checkpoints.size(), 1)
++	var duplicate: Dictionary = _reveal(323, 0)
++	assert_true(duplicate.ok, str(duplicate))
++	assert_eq(f.record(), record)
++	assert_eq(f.attempt().value, attempt)
++	assert_eq(f.authority.checkpoints.size(), 1)
++
++func test_fresh_profile_entry_refuses_a_prebuilt_second_action() -> void:
++	assert_true(_reveal(323).ok)
++	var attempt: Dictionary = f.attempt().value.duplicate(true)
++	var record: Dictionary = attempt.record.duplicate(true)
++	var covered := -1
++	for index in int(record.board.width) * int(record.board.height):
++		if not record.board.revealed_indices.has(index) and not record.board.flagged_indices.has(index):
++			covered = index
++			break
++	assert_gte(covered, 0)
++	if covered < 0: return
++	var marked: Dictionary = REDUCER.set_flag(record.board, covered, true, "extra.after-first-reveal")
++	assert_true(marked.ok, str(marked))
++	if not marked.ok: return
++	var plain: Dictionary = ENVELOPE.plain_frontier(marked.value.board)
++	assert_true(plain.ok, str(plain))
++	if not plain.ok: return
++	record.board = plain.value
++	assert_true(LEDGER.validate_record(record))
++	var rejected: Dictionary = LEDGER.prepare_update({}, str(attempt.run_id), str(attempt.slot_id),
++		str(attempt.branch_id), record, 0, int(attempt.materialization_receipt.first_cell_index), {}, {"mode": "fresh"})
++	assert_false(rejected.ok, str(rejected))
++	assert_eq(rejected.get("code"), &"dating_fresh_entry_required")
++
++func test_debug_certification_applies_retained_reveal_and_recovers_checkpoint_refusal() -> void:
++	f.dispose()
++	f = FIXTURE.new()
++	f.state.inventory = {"debug_key": 1}
++	assert_true(f.setup("TEST.scene.first_reveal.certification").ok)
++	assert_true(f.begin().ok)
++	var started: Dictionary = _reveal(323)
++	assert_true(started.ok, str(started))
++	if not started.ok: return
++	var slices := 0
++	while f.record().phase == "preparing" and slices < 4096:
++		# Every slice is Profile-durable before the intentionally refused Run write.
++		f.authority.reject_checkpoint = true
++		var prepared: Dictionary = f.action("prepare")
++		assert_false(prepared.ok)
++		var retained: Dictionary = f.attempt().value.duplicate(true)
++		assert_eq(retained.record.envelope.forced_cell, 323)
++		assert_true(f.recreate_owner().ok)
++		assert_true(f.begin().ok)
++		assert_eq(_pull().value.phase, "checkpoint_retry")
++		f.authority.reject_checkpoint = false
++		var retried: Dictionary = f.action("retry")
++		assert_true(retried.ok, str(retried))
++		if not retried.ok: return
++		assert_eq(f.attempt().value, retained)
++		assert_eq(f.record(), retained.record)
++		slices += 1
++	assert_lt(slices, 4096)
++	var record: Dictionary = f.record()
++	assert_true(record.board is Dictionary)
++	if not record.board is Dictionary: return
++	assert_true(record.board.revealed_indices.has(323))
++	assert_eq(f.attempt().value.materialization_receipt.first_cell_index, 323)
++	assert_null(record.envelope.preparation)
++	assert_eq(record.envelope.forced_cell, 323)
++	assert_eq(f.state.effects, 0)

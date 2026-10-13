@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   first-reveal-smoke:
-    if: github.event.pull_request.number == 30 && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
+    if: false # Superseded by the reviewed resumable candidate workflow.
     runs-on: windows-2022
     timeout-minutes: 12
     defaults:

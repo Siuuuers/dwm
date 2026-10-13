@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   first-reveal-diagnostic:
-    if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
+    if: false # Superseded by the reviewed resumable candidate workflow.
     runs-on: windows-2022
     timeout-minutes: 38
     env:
@@ -323,3 +323,4 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 7
+
