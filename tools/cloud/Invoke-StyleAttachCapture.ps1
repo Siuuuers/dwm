@@ -89,7 +89,28 @@ try {
     $deadline = [DateTime]::UtcNow.AddSeconds(90)
     while (-not (Test-Path -LiteralPath $readyPath)) {
         if ($launcher.process.HasExited) { throw 'TARGET_EXITED_BEFORE_READY' }
-        if ([DateTime]::UtcNow -ge $deadline) { throw 'ATTACH_READY_TIMEOUT' }
+        if ([DateTime]::UtcNow -ge $deadline) {
+            # Diagnose the observed startup stall before cleanup. Never release the probe
+            # or treat this debugger-induced snapshot as a captured original exception.
+            $receipt['startup_snapshot'] = $true
+            try {
+                $imageName = [IO.Path]::GetFileName($enginePath)
+                $children = @(Get-CimInstance Win32_Process -Filter "Name='$imageName'" | Where-Object { $_.ParentProcessId -eq $launcher.process.Id })
+                if ($children.Count -ne 1) { throw 'STARTUP_TARGET_AMBIGUOUS' }
+                $target = [Diagnostics.Process]::GetProcessById([int]$children[0].ProcessId)
+                $targetStart = $target.StartTime.ToUniversalTime()
+                if ($target.HasExited -or $target.MainModule.FileName -ine $enginePath -or $targetStart -lt $launchTime.AddSeconds(-1)) { throw 'STARTUP_TARGET_IDENTITY_MISMATCH' }
+                $receipt['target_pid'] = $target.Id
+                $receipt['target_parent_pid'] = $launcher.process.Id
+                $receipt['target_started_utc'] = $targetStart.ToString('o')
+                $snapshotCommands = '.echo DWM_STARTUP_TIMEOUT_SNAPSHOT; ~* kv 40; lmv m godot*; .dump /m ' + $dumpRelative + '; q'
+                $snapshotArguments = @('-p', [string]$target.Id, '-c', $snapshotCommands, '-logo', $debuggerLog, '-sins', '-y', ([IO.Path]::GetDirectoryName($enginePath)))
+                $debugger = Start-CapturedProcess $cdbPath $snapshotArguments @{} (Join-Path $outputRoot 'debugger')
+                if (-not $debugger.process.WaitForExit(30000)) { throw 'STARTUP_SNAPSHOT_TIMEOUT' }
+                $receipt.debugger_exit_code = $debugger.process.ExitCode
+            } catch { $receipt['startup_snapshot_failure'] = $_.Exception.Message }
+            throw 'ATTACH_READY_TIMEOUT'
+        }
         Start-Sleep -Milliseconds 100
     }
     $ready = [IO.File]::ReadAllText($readyPath) | ConvertFrom-Json
