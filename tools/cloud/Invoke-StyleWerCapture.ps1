@@ -14,7 +14,7 @@ function Invoke-BoundedNative {
     $start.FileName = $Executable
     $start.WorkingDirectory = $WorkingDirectory
     $start.UseShellExecute = $false
-    $start.CreateNoWindow = $false
+    $start.CreateNoWindow = $true
     $start.RedirectStandardOutput = $true
     $start.RedirectStandardError = $true
     foreach ($argument in $Arguments) { $start.ArgumentList.Add($argument) }
@@ -73,7 +73,9 @@ foreach ($path in @($enginePath, $cdbPath, $testPath)) {
 }
 $outputRoot = Join-Path $projectRoot '.godot/ci/native-wer'
 $dumpRoot = Join-Path $projectRoot ('.godot/native-crashes/wer-' + [Guid]::NewGuid().ToString('N'))
-$isolationRoot = Join-Path $env:RUNNER_TEMP ('dwm-style-wer-' + [Guid]::NewGuid().ToString('N'))
+# Match Invoke-IsolatedGodot's proven test-root convention: Bootstrap uses it
+# to select test_manual before autoload consumers freeze registration.
+$isolationRoot = Join-Path $projectRoot ('.godot/phase2r_tests/wer-' + [Guid]::NewGuid().ToString('N'))
 $isolation = @{ APPDATA = (Join-Path $isolationRoot 'roaming'); LOCALAPPDATA = (Join-Path $isolationRoot 'local'); DWM_TEST_ROOT = (Join-Path $isolationRoot 'tests') }
 foreach ($directory in @($outputRoot, $dumpRoot) + @($isolation.Values)) { [void][IO.Directory]::CreateDirectory($directory) }
 $receiptPath = Join-Path $projectRoot '.godot/ci/native-wer.json'
