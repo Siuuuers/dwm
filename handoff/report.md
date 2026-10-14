@@ -18,97 +18,99 @@ own the bounded scope. This document is neither a new behavior contract nor Bead
 ## Accepted and published
 
 A integration branch: `codex/scene-runtime-integration-20261009`.
-Published runtime/test commit:
-`f0379d5091d8453583aef5c0e495901fb6ab7936`, parent
-`8ead20846f830d7e4227b6650c5bd24b9038d5d7`, complete tree
-`4508b1f0682fd591fab297dd780855c966fb5d6e`.
+Runtime/test commit `150774a7d1e2d8c326bc03259cc4805130d79009`, parent
+`969d4c42ac24cd24717a69038c638e2be99cccfb`, complete tree
+`8f6c94d162a54c1232c9c8b1f30604ee8fdc63f0`.
+This exactly matches cloud candidate `6d41b7dbc77b23c9108546126f882dbd02cf9d80`.
+A reconstructed the retained final patch and matched the full tree, including
+four generated test UIDs, then published through a guarded non-force update.
+The following handoff-only commit changes no runtime/test bytes.
+Master is untouched; draft PRs remain unmerged. Director acceptance of this new
+increment is not claimed.
 
-That tree exactly matches tested candidate
-`d03bb7e22ef926536f5156ee1662924c6e87a85b`, reconstructed from the retained
-`ci/final-candidate.patch` in the successful cloud evidence archive.
-Publication used a guarded non-force update after checking the live base.
-The controller branch/PR30 was not merged into product. Master remains untouched.
+Evidence: [run 38614129246](https://github.com/Siuuuers/dwm/actions/runs/38614129246),
+job `116024712442`, controller `59c7d57651e5f03aeaa6dae8b9408176b0986a63`.
+Official Godot 4.6.3 standard and PowerShell executed only in GitHub Actions.
+Import and all four test processes exited cleanly; strict log, XML, source and
+rendered-capture gates passed. Counts are 15 executed cases / 545 assertions:
 
-Evidence: [run 38606913934](https://github.com/Siuuuers/dwm/actions/runs/38606913934),
-job `116000046760`, 15 executions / 248 assertions and five clean process exits.
-Do not add counts from superseded overlapping runs. Controller inspected at
-`f4d019a53686ee70992cf6f1a9b6fb93a17cfa82`.
-Director accepted the scoped B/C reviews and this execution.
-The subsequent handoff-only update changes no runtime/test bytes; reuse this evidence.
+| Suite | Cases | Assertions |
+| --- | ---: | ---: |
+| Control continuation plan | 4 | 52 |
+| Existing native playable control | 9 | 255 |
+| Rendered completed Challenge/create | 1 | 184 |
+| Fresh-process Load then Save | 1 | 54 |
 
-Accepted behavior: real scene board input; direct Settings/Backup/Save/Load
-controls; computer-owned caption hold; close/reopen retains the same board;
-real-file Save and fresh-process Load with continued board input.
-Enabled Auto preference survives the tested control-boundary journey.
-Scene controls do not expose the old Pause menu; legacy non-scene Pause code remains.
+Evidence archive: 566034 bytes, SHA256
+`21ddca35e68a8537559f340477980ff86472d7b6e0c0bc9b739e13982e65de2e`.
+Candidate patch SHA256
+`614124f26228dcb0cbc465ac71ad765d3bfa3c89c90552a734a924c14ff04eab`;
+final imported patch SHA256
+`2442d95192a7d6d8442d43a32cc1605e065058e462140db00903e4fd9a59986b`.
+All retained manifest hashes were independently verified after extraction from
+the completed job's timestamped DWM_EVIDENCE_CHUNK log records. The artifact
+and original log archive preserve XML, logs, source, proof JSON and PNGs.
 
-Not established: timed caption progression after close; terminal Challenge
-continuation; authored End execution; complete pointer-driven Save/Load
-confirmations; approved production prose; exhaustive recovery; release readiness.
+## Implemented ordinary outcome
 
-## Next observable outcome
+The TEST route B first -> Playable -> B second -> authored End -> target_a now
+completes through the existing owners. Actual Viewport board input wins the
+Challenge; the terminal publication closes the computer and resumes the immediate
+caption without a Continue/Done popup. Physical completion does not itself create
+End. Acknowledged registered-marker handling creates the End closure at its authored
+boundary and admits only its registered target through the existing receipt ledger.
 
-A player completes the active Challenge, reaches its registered dialogue
-continuation without a Continue/Done popup, and the registered Challenge End
-is handled once at its authored boundary. Physical completion and authored
-End are distinct. Use a clearly labelled TEST-authored entry while no approved
-production content is selected; do not invent a production target.
+Bridge/runtime and SaveManager retain the existing source/destination checkpoint
+custody. SoloReadingSession exposes a detached one-edge control-to-caption plan;
+ordinary Next still cannot traverse a held control. GameState authenticates the
+retained playable receipt separately from the current End marker. DatingPhysicalOwner
+reuses the event's causal lease and exact persisted attempt proof. Closed fresh-load
+Save permits only an authenticated unchanged terminal attempt no-op; it does not
+reopen physical mutation authority. No parallel completion store was introduced.
 
-In that same journey prove Auto-enabled hold while the computer is open and
-actual progression after close when the authored boundary permits it. Exercise
-an ordinary completed-boundary save/restart where supported.
+The journey proves Auto-enabled hold while the computer is open, visible B second
+after terminal completion, Auto progression through the separately authored End,
+exactly one closure, target_a, real-file Save, fresh-process Load, then another Save
+with unchanged closure and terminal attempt proof. Prior accepted computer open,
+close/reopen and unfinished Save/Load evidence remains at run 38606913934 and runtime
+`f0379d5091d8453583aef5c0e495901fb6ab7936`; do not add its counts to this run.
 
-## Completed source audit — implementation still pending
+A inspected all three original PNGs: B second and A first are visible with Auto On;
+the restored capture also shows A first, with the test runner overlay present.
+These are TEST captions on the existing host, not a production art/content seal.
 
-B and C performed read-only focused audits after publication. No new completion
-runtime implementation or engine test is claimed.
+## Reviews, diagnostic and limits
 
-- Terminal board actions currently publish the terminal board and refresh
-  SceneChallengePanel. They do not advance dialogue.
-- Closing the computer releases the presentation hold only. Native playable
-  control retains the completed predecessor caption and its held continuation.
-- SoloReadingSession.prepare_scene_next and ReadingTraversalOperation currently
-  require a caption source; ordinary Next intentionally cannot cross a held
-  scene control. Add a narrowly authenticated control-to-caption handoff through
-  the existing Bridge/runtime and checkpoint owners. Do not bypass the control
-  by calling a raw native advance.
-- Authored TEST markers are DTL labels. The fixture manually constructs and
-  dispatches Playable; there is no automatic registered-marker event producer.
-  Resolve markers through the compiled registered programme and acknowledged
-  SceneEventCommandPort, not arbitrary timeline signals or UI-made envelopes.
-- GameState.validate_scene_challenge_end and commit_scene_challenge_closure are
-  explicit unavailable stubs. Physical close_scene_challenge already implements
-  exact Profile/checkpoint proof and registered outcome selection.
-- capture_scene_challenge_command and closure lookup currently require the
-  current playable marker. Authenticate the retained playable receipt separately
-  from the current authored End boundary; do not weaken physical mutation gates
-  to make a moved caption resemble the playable control.
-- Reuse SceneEventCommandPort's authenticated digest lookup and GameState's
-  receipt ledger for duplicate-effect prevention. The existing closure receipt
-  contract binds End to the earlier playable command, same source/challenge,
-  ordinal, attempt proof and registered outcome target. Do not add a parallel
-  completion flag or receipt map.
-- If closure admits another scene, the target-admission owner and receipt
-  validator currently accept only scene_transition_accepted. Extend them only
-  for the authenticated challenge_closed trigger and its registered target.
-- Physical closure already owns a causal lease. Reuse the owned-handoff
-  discipline; do not nest ordinary event dispatch acquisition inside it.
+B completed the read-only persistence/caller audit; C authored only the four allocated
+test scripts. Corrections included control nodes having no next property, exact
+candidate line frontier capture, retained command identity after leaving Playable,
+and closed fresh-load Save without dependence on a native held boundary.
+A integrated the changes and reviewed the cloud evidence.
 
-Current TEST route: B first -> Playable -> B second -> End; all registered
-Challenge outcomes target target_a. This is test registration, not production
-story approval. Preserve the authored boundary ordering.
+First run 38613087333 failed the rendered creator's 180-second timeout after 27
+accepted board revisions, before completion. Its passing focused checks do not make
+that run accepted. Archive SHA256
+`0629ba80a4497fe9ea54106f45fb563b991dec4e1d9563d046373dbba78adf5d`.
+The final test chooses safe zero cells first, avoids dumping a full record on every
+successful solver step, and uses a bounded 600-second rendered timeout. It still
+uses real Viewport reveal input, preserves assertions, and fails on timeout.
+No performance improvement claim is made.
 
-Relevant checks already present:
-`test_scene_playable_native_control.gd` tests incoming held-control adoption;
-`test_scene_day_reading.gd` explicitly retains the ordinary Next boundary;
-`scene_computer_child.gd` tests open/play/save/load. Extend focused coverage
-without redoing accepted foundations.
+Not established: losing or never-started routes, full manual-marker journey,
+intermediate suspended-caption Save, pointer-driven Save/Load confirmations,
+native OS input, approved production prose/art, exhaustive recovery or release
+readiness. Fixture admission still constructs Playable as in the accepted base;
+terminal continuation and authored End are exercised through runtime owners.
+Existing guarantees were retained, but this focused run is not a full regression seal.
 
-Failure cases to cover within this slice: terminal publication must not apply
-authored End early; duplicate End must not repeat consequences; a refused
-checkpoint must not expose an uncommitted continuation; ordinary completed
-save/restart must retain its board/receipt identity. No new exhaustive fault
-matrix or speculative crash campaign is authorized by this scope.
+## Next coordination checkpoint
+
+Do not redo this completed slice. Review live Director guidance and integration/master
+refs before choosing the next ordinary gameplay outcome. Keep production-content
+selection explicit and use existing registered owners. Rebase the next controller
+candidate on the published integration descendant; do not replay this cumulative
+patch over the now-integrated implementation. No additional architecture choice is
+required to preserve this verified increment.
 
 ## Ownership and execution
 
