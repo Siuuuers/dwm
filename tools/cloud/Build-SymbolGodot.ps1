@@ -20,26 +20,69 @@ $receipt = [ordered]@{
 }
 $receiptPath = Join-Path $out 'build.json'
 function Save-Receipt { $receipt | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $receiptPath -Encoding utf8 }
+function Set-BuildStage([string]$Stage) {
+    $receipt.build_status = $Stage
+    Save-Receipt
+    Write-Host "DWM_SYMBOL_BUILD stage=$Stage utc=$([DateTime]::UtcNow.ToString('o'))"
+}
+function Invoke-PreparationProgram([string]$Executable, [string[]]$Arguments, [string]$Name, [int]$Seconds) {
+    $info = [Diagnostics.ProcessStartInfo]::new()
+    $info.FileName = $Executable
+    $info.UseShellExecute = $false
+    $info.CreateNoWindow = $true
+    $info.RedirectStandardOutput = $true
+    $info.RedirectStandardError = $true
+    foreach ($argument in $Arguments) { $info.ArgumentList.Add($argument) }
+    $process = [Diagnostics.Process]::new()
+    $process.StartInfo = $info
+    $stdout = $null; $stderr = $null
+    try {
+        if (-not $process.Start()) { throw "PREPARATION_START_FAILED: $Name" }
+        $stdout = $process.StandardOutput.ReadToEndAsync()
+        $stderr = $process.StandardError.ReadToEndAsync()
+        if (-not $process.WaitForExit($Seconds * 1000)) {
+            $process.Kill($true)
+            [void]$process.WaitForExit(10000)
+            throw "PREPARATION_TIMEOUT: $Name after $Seconds seconds"
+        }
+        $receipt[$Name + '_exit_code'] = $process.ExitCode
+        if ($process.ExitCode -ne 0) { throw "PREPARATION_FAILED: $Name exit $($process.ExitCode)" }
+    } finally {
+        foreach ($stream in @(@{ name = 'stdout'; task = $stdout }, @{ name = 'stderr'; task = $stderr })) {
+            if ($null -ne $stream.task) {
+                [void]$stream.task.Wait(10000)
+                $text = if ($stream.task.IsCompletedSuccessfully) { $stream.task.GetAwaiter().GetResult() } else { 'Output drain incomplete.' }
+                [IO.File]::WriteAllText((Join-Path $out "$Name.$($stream.name).log"), $text, [Text.UTF8Encoding]::new($false))
+            }
+        }
+        $process.Dispose()
+    }
+}
 Save-Receipt
 try {
-    Invoke-WebRequest -Uri $sourceUrl -OutFile $archive
-    if ((Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $sourceDigest) { throw 'SOURCE_ARCHIVE_HASH_MISMATCH' }
-    & tar -xf $archive -C $sourceRoot
-    if ($LASTEXITCODE -ne 0) { throw 'SOURCE_EXTRACT_FAILED' }
+    Set-BuildStage 'downloading_source'
+    Invoke-PreparationProgram 'curl.exe' @('--fail', '--location', '--silent', '--show-error',
+        '--connect-timeout', '30', '--max-time', '240', '--retry', '1', '--retry-max-time', '300',
+        '--output', $archive, '--write-out', 'http=%{http_code} bytes=%{size_download} seconds=%{time_total}', $sourceUrl) 'source_download' 540
+    Set-BuildStage 'verifying_source'
+    $receipt['downloaded_bytes'] = (Get-Item -LiteralPath $archive).Length
+    $receipt['downloaded_sha256'] = (Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+    if ($receipt.downloaded_sha256 -ne $sourceDigest) { throw 'SOURCE_ARCHIVE_HASH_MISMATCH' }
+    Set-BuildStage 'extracting_source'
+    Invoke-PreparationProgram 'tar.exe' @('-xf', $archive, '-C', $sourceRoot) 'source_extract' 300
     $roots = @(Get-ChildItem -LiteralPath $sourceRoot -Directory | Where-Object { Test-Path (Join-Path $_.FullName 'SConstruct') })
     if ($roots.Count -ne 1) { throw 'SOURCE_ROOT_AMBIGUOUS' }
     $engineSource = $roots[0].FullName
     Copy-Item (Join-Path $engineSource 'version.py') (Join-Path $out 'source-version.py')
     if (Test-Path (Join-Path $engineSource '.git')) { throw 'UNEXPECTED_SOURCE_GIT_METADATA' }
     $receipt['python_version'] = (& python --version | Out-String).Trim()
-    & python -m pip install 'scons==4.8.1'
-    if ($LASTEXITCODE -ne 0) { throw 'SCONS_INSTALL_FAILED' }
+    Set-BuildStage 'installing_scons'
+    Invoke-PreparationProgram 'python' @('-m', 'pip', 'install', '--disable-pip-version-check', 'scons==4.8.1') 'scons_install' 240
     $receipt['scons_version'] = (& python -m SCons --version | Out-String).Trim()
     $arguments = @('-j4', 'platform=windows', 'target=editor', 'arch=x86_64', 'use_mingw=no',
         'module_mono_enabled=no', 'debug_symbols=yes', 'dev_build=no', 'lto=none', 'd3d12=no')
     $receipt['arguments'] = $arguments
-    $receipt.build_status = 'compiling'
-    Save-Receipt
+    Set-BuildStage 'compiling'
     Push-Location $engineSource
     try {
         & python -m SCons @arguments 2>&1 | Tee-Object -FilePath (Join-Path $out 'compile.log')
@@ -70,6 +113,7 @@ try {
     "GODOT_CONSOLE_PATH=$console" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
     $receipt.build_status = 'built_not_accepted'
 } catch {
+    $receipt['failed_stage'] = $receipt.build_status
     $receipt.failure = $_.Exception.Message
     $receipt.build_status = 'failed'
     throw

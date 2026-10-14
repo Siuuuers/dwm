@@ -1,4 +1,4 @@
-name: Scene caption style ownership candidate
+name: Scene caption style ownership diagnostic (bounded preparation)
 
 on:
   pull_request:
