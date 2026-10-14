@@ -1,11 +1,20 @@
 extends Control
 ## Scene chrome only. Bootstrap owns admission, persistence, and panel mounting.
 
+const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
+const CONTROL_KEYS := {
+	"Settings": "ui.pause.settings", "Backup": "ui.pause.backup",
+	"Save": "button.save", "Load": "button.load",
+}
+
 var _actions: Dictionary = {}
 var _computer_open := false
 var _busy := false
+var _localization: Node
+var _profile: Node
 
 func _ready() -> void:
+	_bind_presentation()
 	$SceneControlsLayer/Surface/Controls/CheckComputer.pressed.connect(_toggle_computer)
 	for action: String in ["settings", "backup", "save", "load"]:
 		get_node("SceneControlsLayer/Surface/Controls/" + action.capitalize()).pressed.connect(_invoke.bind(action))
@@ -28,8 +37,49 @@ func is_computer_open() -> bool:
 func set_computer_open(open: bool) -> void:
 	_computer_open = open
 	$SceneControlsLayer/Surface/ChallengeMount.visible = open
-	$SceneControlsLayer/Surface/Controls/CheckComputer.text = "Close Computer" if open else "Check Computer"
+	_refresh_presentation()
 	_update_controls()
+
+func _bind_presentation() -> void:
+	if _localization == null:
+		_localization = get_node_or_null("/root/LocalizationManager")
+	if _profile == null:
+		_profile = get_node_or_null("/root/ProfileManager")
+	if _localization != null:
+		_localization.locale_changed.connect(_refresh_presentation)
+	if _profile != null:
+		_profile.preference_changed.connect(_on_presentation_preference_changed)
+		_profile.profile_restored.connect(_on_presentation_profile_restored)
+	var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
+	if bootstrap != null:
+		bootstrap.application_ready.connect(_refresh_presentation)
+	_refresh_presentation()
+
+func _on_presentation_preference_changed(path: StringName, _value: Variant) -> void:
+	if path in [&"preferences.accessibility.text_size", &"preferences.accessibility.font_style"]:
+		_refresh_presentation()
+
+func _on_presentation_profile_restored(_snapshot: Dictionary) -> void:
+	_refresh_presentation()
+
+func _refresh_presentation(_locale_id: String = "") -> void:
+	if not is_inside_tree() or _localization == null or _localization.get_readiness() != &"ready": return
+	var locale: String = _localization.get_locale()
+	var percent := int(_profile.get_preference(&"preferences.accessibility.text_size", 100)) if _profile != null else 100
+	var font_style := str(_profile.get_preference(&"preferences.accessibility.font_style", "pixel")) if _profile != null else "pixel"
+	var presentation := Theme.new()
+	presentation.default_font = TYPOGRAPHY.font(locale, percent, font_style)
+	presentation.default_font_size = TYPOGRAPHY.font_size(locale, percent, 24, font_style)
+	# Keep scene chrome typography out of the independently owned Challenge mount.
+	var controls: VBoxContainer = $SceneControlsLayer/Surface/Controls
+	controls.theme = presentation
+	for control_name: String in CONTROL_KEYS:
+		var button: Button = controls.get_node(control_name)
+		button.text = _localization.t(CONTROL_KEYS[control_name])
+		button.accessibility_name = button.text
+	var computer: Button = controls.get_node("CheckComputer")
+	computer.text = _localization.t("scene.controls.close_computer" if _computer_open else "scene.controls.check_computer")
+	computer.accessibility_name = computer.text
 
 func _toggle_computer() -> void:
 	# Consume before awaiting: closing must not forward this click into dialogue.
