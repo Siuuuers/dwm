@@ -30,10 +30,9 @@ diff --git a/addons/dialogic/Modules/Style/subsystem_styles.gd b/addons/dialogic
  
  ## When changing to a different layout scene,
 diff --git a/autoload/DialogicBridge.gd b/autoload/DialogicBridge.gd
-index 3157477..31aeebe 100644
 --- a/autoload/DialogicBridge.gd
 +++ b/autoload/DialogicBridge.gd
-@@ -788,14 +788,38 @@ func _prepare_scene_art() -> void:
+@@ -788,14 +788,38 @@
  	var dating := str(source.entry_id).begins_with("dating.")
  	if not hospital and not dating and (str(source.entry_id).is_empty() or (str(art.get("background", "")).is_empty() \
  		and art.get("portraits", []).is_empty() and str(art.get("cg", "")).is_empty())): return
@@ -75,7 +74,34 @@ index 3157477..31aeebe 100644
  
  
  func _start_at_path(timeline_id: String, path: String, context: Dictionary, label: String = "") -> Dictionary:
-@@ -2860,6 +2884,8 @@ func stage_scene_reading_restore(checkpoint: Dictionary, operation_id: String) -
+@@ -1847,13 +1871,15 @@
+ 		var checked := _ENTRY_MANIFEST.validate_ids_document(ids.value)
+ 		if not checked.get("ok", false): return checked
+ 		var owners := {}
+-		for line: Dictionary in ids.value.reply_lines:
++		var scene_registry: bool = ids.value.get("kind") == "scene_ids_registry"
++		var registered_lines: Array = ids.value.lines if scene_registry else ids.value.reply_lines
++		for line: Dictionary in registered_lines:
+ 			owners[line.line_id] = line.owning_entry_id
+ 		for entry: Dictionary in entries.value.entries:
+ 			for atom: Dictionary in entry.get("observer_atoms", []):
+ 				owners[atom.line_id] = entry.entry_id
+ 		for signal_record: Dictionary in ids.value.signals:
+-			if signal_record.signal_id == "history.line.witness":
++			if not scene_registry and signal_record.signal_id == "history.line.witness":
+ 				_line_witness_stages = signal_record.allowed_source_stages.duplicate()
+ 		_skip_line_owners = owners
+ 	if _skip_profile != profile:
+@@ -2167,6 +2193,8 @@
+ 		return stage == "hospital" and can_capture_hospital_reading_checkpoint(_hospital_reading_command)
+ 	if _has_exact_caption_source() and _reading_session.family == "ending":
+ 		return stage == "PRIMARY_PENDING" and can_capture_reading_checkpoint()
++	if _has_exact_caption_source() and _reading_session.family == "scene":
++		return stage == "scene" and can_capture_reading_checkpoint()
+ 	# Solo's admitted phase frames do not use the legacy current_entry signal stage.
+ 	return stage == str(_active_entry.get("entry_id", "")).get_slice(".", 4) \
+ 		if _has_exact_caption_source() else stage in _line_witness_stages
+@@ -2860,6 +2888,8 @@
  		"digest": _scene_digest(checkpoint), "candidate": checked.value.candidate,
  		"path": checked.value.path, "runtime": _runtime_adapter, "started": false,
  		"in_call": false, "native_started": false, "proof": false, "confirmed": false}
@@ -84,10 +110,11 @@ index 3157477..31aeebe 100644
  	_reading_restore_pending = checkpoint.duplicate(true)
  	return {"ok": true}
  
-@@ -2892,6 +2918,16 @@ func _start_scene_restore_native(operation_id: String) -> void:
+@@ -2891,6 +2921,16 @@
+ 		if _runtime_adapter.has_active_playback() and is_inside_tree(): await get_tree().process_frame
  	if _scene_restore.is_empty() or _scene_restore.operation_id != operation_id or not _scene_restore_current():
  		_fail_scene_activation(_command_failure(&"scene_activation_changed"))
- 		return
++		return
 +	var styled := _prepare_witnessed_style()
 +	if not styled.get("ok", false):
 +		if not _scene_restore.is_empty() and _scene_restore.operation_id == operation_id:
@@ -97,11 +124,10 @@ index 3157477..31aeebe 100644
 +			or _scene_restore.has("failure"):
 +		if not _scene_restore.is_empty() and _scene_restore.operation_id == operation_id:
 +			_fail_scene_activation(_command_failure(&"scene_activation_changed"))
-+		return
+ 		return
  	_scene_restore.native_started = true
  	_scene_restore.in_call = true
- 	var installed: Dictionary = _runtime_adapter.restore_scene_frontier(_scene_restore.candidate,
-@@ -3336,6 +3372,20 @@ func is_pause_restore_pending() -> bool:
+@@ -3336,6 +3376,20 @@
  	return not _pause_restore.is_empty() and not _pause_restore.get("applied", false)
  
  
@@ -122,7 +148,7 @@ index 3157477..31aeebe 100644
  func stage_pause_restore(plan: Dictionary, semantic: bool) -> Dictionary:
  	if not is_pause_restore_pending() or _pause_restore.cancelled \
  			or _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore"):
-@@ -3371,6 +3421,16 @@ func cancel_pause_restore(handle: Dictionary) -> Dictionary:
+@@ -3371,6 +3425,16 @@
  
  
  func complete_pause_restore(handle: Dictionary) -> Dictionary:
@@ -139,7 +165,7 @@ index 3157477..31aeebe 100644
  	if _pause_restore.get("handle") != handle or not _pause_restore.get("finalized", false) \
  			or _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore"):
  		return _pause_failure(&"pause_restore_unavailable")
-@@ -4095,6 +4155,23 @@ func dispatch_scene_event(live_session: Dictionary, envelope: Dictionary) -> Dic
+@@ -4095,6 +4159,23 @@
  			"code": result.get("code", &"event_ack_interrupted"), "details": {"committed": true}})
  	return result
  
@@ -2929,7 +2955,7 @@ diff --git a/tests/integration/test_scene_bootstrap_host.gd b/tests/integration/
 new file mode 100644
 --- /dev/null
 +++ b/tests/integration/test_scene_bootstrap_host.gd
-@@ -0,0 +1,106 @@
+@@ -0,0 +1,111 @@
 +extends "res://addons/gut/test.gd"
 +## Full FINAL startup stages and actual autoload owners. Only authored content is
 +## TEST-selected. No diagnostic restore participants or fabricated acknowledgments.
@@ -3008,6 +3034,11 @@ new file mode 100644
 +	assert_false(router.is_restore_publication_held())
 +	var pause: Node = router._production_pause
 +	assert_true(is_instance_valid(pause._find_caption(get_tree().root)))
++	assert_true(bridge.requires_line_presentation_acknowledgement(), "scene Text uses exact native caption proof")
++	var presented: Dictionary = bridge.capture_current_line_presentation_frontier()
++	if not _ok(presented): return
++	if not _ok(bridge.acknowledge_current_line_presentation(presented.value)): return
++	assert_true(bridge.is_current_line_presentation_acknowledged())
 +	if not _ok(saves.save_latest_to_slot(1)): return
 +	var selected: Dictionary = saves.get_latest_stable_checkpoint()
 +	if not _ok(selected): return
