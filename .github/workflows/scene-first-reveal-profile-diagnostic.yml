@@ -1,4 +1,4 @@
-name: Scene caption style ownership diagnostic (record source metadata)
+name: Scene caption style ownership diagnostic (matched pageheap)
 
 on:
   pull_request:
@@ -17,7 +17,7 @@ jobs:
   profile-first-reveal:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
     runs-on: windows-2022
-    timeout-minutes: 145
+    timeout-minutes: 25
     env:
       BASE_SHA: 8ead20846f830d7e4227b6650c5bd24b9038d5d7
       CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
@@ -64,17 +64,32 @@ jobs:
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-      - name: Prepare verified symbol source with 7-Zip
-        timeout-minutes: 25
-        run: |
-          & '../controller/tools/cloud/Build-SymbolGodot.ps1' -Mode Prepare
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Reuse matched diagnostic engine and symbols
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: '11883600461'
+          run-id: '38536170283'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: source/.godot/symbol-engine
+          merge-multiple: true
 
-      - name: Build separate symbol-enabled diagnostic engine
-        timeout-minutes: 90
+      - name: Verify reused engine identity
         run: |
-          & '../controller/tools/cloud/Build-SymbolGodot.ps1' -Mode Compile
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $ErrorActionPreference = 'Stop'
+          $root = Join-Path (Get-Location) '.godot/symbol-engine'
+          $files = @(
+            @{ name = 'godot.windows.editor.x86_64.console.exe'; bytes = 301056; sha256 = '1a9e89e41fc708d51b177726daf30e2eaff5f6f1fc8d8d34ef6ef1d9f2315345' }
+            @{ name = 'godot.windows.editor.x86_64.console.pdb'; bytes = 3911680; sha256 = 'be1eb213c6d74496f0289100f7533c1b5b9fa9151d0fbb13b6b4145b9e20edaa' }
+            @{ name = 'godot.windows.editor.x86_64.exe'; bytes = 157432832; sha256 = '4adf96729883710855e3da3716667cc92bea3d5da4abdbe2dbd0247dc7a3398e' }
+            @{ name = 'godot.windows.editor.x86_64.pdb'; bytes = 525225984; sha256 = 'ad5ff8ea3d57ace74f0d560515cf50df932397300e328dbf4cd75ebbd6bffd59' }
+          )
+          foreach ($file in $files) {
+            $path = Join-Path $root $file.name
+            if ((Get-Item -LiteralPath $path).Length -ne $file.bytes -or (Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $file.sha256) { throw "ENGINE_ARTIFACT_IDENTITY_MISMATCH: $($file.name)" }
+          }
+          @{ diagnostic_only=$true; source_run=38536170283; artifact_id=11883600461; files=$files } | ConvertTo-Json -Depth 5 | Set-Content .godot/ci/reused-engine.json -Encoding utf8
+          "GODOT_ENGINE_PATH=$(Join-Path $root 'godot.windows.editor.x86_64.exe')" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "GODOT_CONSOLE_PATH=$(Join-Path $root 'godot.windows.editor.x86_64.console.exe')" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Import and freeze exact candidate
         timeout-minutes: 8
@@ -101,7 +116,7 @@ jobs:
         timeout-minutes: 6
         run: |
           $ErrorActionPreference = 'Stop'
-          & '../controller/tools/cloud/Invoke-StyleAttachCapture.ps1'
+          & '../controller/tools/cloud/Invoke-StylePageHeap.ps1'
           throw 'Diagnostic capture only; candidate acceptance remains blocked pending native failure analysis'
 
       - name: Verify executed census and source identity
@@ -205,13 +220,3 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      - name: Retain matched diagnostic executable and PDB
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: godot-symbol-engine-${{ github.run_id }}
-          path: source/.godot/symbol-engine
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 30
-          compression-level: 1

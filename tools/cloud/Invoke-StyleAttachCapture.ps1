@@ -69,7 +69,7 @@ $dumpPath = Join-Path $projectRoot $dumpRelative
 $debuggerLog = Join-Path $outputRoot "cdb-$nonce.log"
 $commandPath = Join-Path $outputRoot "commands-$nonce.txt"
 $marker = "DWM_ATTACH_FILTERS_READY_$nonce"
-$capture = '.exr -1; r; kv 50; lmv m godot*; .dump /m ' + $dumpRelative + '; q'
+$capture = '.exr -1; r; kv 50; lmv m godot*; .dump /m ' + $dumpRelative + '; !heap -p -a @rcx; !heap -p -a @rdx; !analyze -v; q'
 $commands = @(
     ('sxe -c ".echo DWM_ATTACH_AV; ' + $capture + '" av'),
     ('sxe -c ".echo DWM_ATTACH_HEAP; ' + $capture + '" 0xc0000374'),
