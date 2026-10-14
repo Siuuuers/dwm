@@ -2420,7 +2420,7 @@ static func capture_scene_definitions(registration_sha256: String) -> Dictionary
 	var loaded: Dictionary = _SCENE_MANIFEST.scene_registration()
 	if not loaded.get("ok", false): return loaded
 	var bundle: Variant = loaded.get("value")
-	if not bundle is Dictionary or typeof(bundle.get("schema_version")) != TYPE_INT or bundle.schema_version != 2 \
+	if not bundle is Dictionary or typeof(bundle.get("schema_version")) != TYPE_INT or bundle.schema_version not in [2, 3] \
 			or not bundle.has("contact_definitions") or not _s_digest(registration_sha256) \
 			or _s_hash(bundle) != registration_sha256: return _s_fail("scene_contact_registration_unbound")
 	# scene_registration is the existing frozen/validated owner. Its full B binds

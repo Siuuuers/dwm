@@ -712,6 +712,8 @@ static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_ca
 		"active_occurrence_id": transaction_id, "active_admission_receipt_id": transaction_id}
 	if not _scene_exact_value(candidate.scene, expected_scene) or not candidate.audio_context is Dictionary:
 		return _fail(&"scene_initial_state_invalid", "initial scene reference or audio context is invalid")
+	var audio := _validate_scene_audio(candidate, bundle)
+	if not audio.ok: return audio
 	var gameplay_error := _validate_scene_gameplay(candidate.gameplay)
 	if not gameplay_error.is_empty(): return _fail(&"invalid_gameplay", gameplay_error)
 	var game_owner: Script = load("res://autoload/GameState.gd")
@@ -844,6 +846,8 @@ static func validate_scene(snapshot: Dictionary, bundle: Dictionary) -> Dictiona
 	if not receipts_error.is_empty(): return _fail(&"invalid_command_receipts", receipts_error)
 	var scene_receipts: Dictionary = SCENE_EVENT_CONTRACT.validate_scene_receipts(candidate.command_receipts, bundle, _scene_issuer, _scene_creation_owner)
 	if not scene_receipts.ok: return scene_receipts
+	var audio := _validate_scene_audio(candidate, bundle)
+	if not audio.ok: return audio
 	var reading := _validate_scene_reading(candidate)
 	if not reading.ok: return reading
 	# The real live owner authenticates historical/current admissions, issuer
@@ -994,6 +998,26 @@ static func _validate_scene_receipt_shapes(snapshot: Dictionary) -> String:
 		return "active admission receipt is absent"
 	return _validate_receipt_partition(snapshot.command_receipts,
 		snapshot.applied_effect_transaction_ids, snapshot.applied_variable_transaction_ids)
+
+## Audio definitions come only from the installed registration. The validated
+## admission ledger, not a saved audio ID, selects this entry's exact binding.
+static func _validate_scene_audio(snapshot: Dictionary, bundle: Dictionary) -> Dictionary:
+	if bundle.get("schema_version") != 3: return {"ok": true}
+	var admission_id: String = snapshot.scene.active_admission_receipt_id
+	var receipt: Variant = snapshot.command_receipts.get(admission_id)
+	if not receipt is Dictionary or not receipt.get("scene_admission") is Dictionary:
+		return _fail(&"scene_audio_admission_invalid", "active admission required")
+	var result: Variant = receipt.scene_admission.get("result")
+	if not result is Dictionary or not result.get("entry_id") is String:
+		return _fail(&"scene_audio_admission_invalid", "admitted entry required")
+	var owner: Script = load("res://scripts/data/AudioManifest.gd")
+	if owner == null or not owner.has_method("make_scene_context"):
+		return _fail(&"scene_audio_owner_unavailable", "canonical audio owner required")
+	var expected: Dictionary = owner.call("make_scene_context", bundle, result.entry_id, admission_id)
+	if not expected.get("ok", false): return expected
+	if not _scene_exact_value(snapshot.audio_context, expected.value):
+		return _fail(&"scene_audio_binding_mismatch", "audio must match the active admitted entry")
+	return {"ok": true}
 
 static func _validate_scene_gameplay(gameplay: Variant) -> String:
 	if not _scene_keys(gameplay, SCENE_GAMEPLAY_KEYS): return "unexpected scene gameplay members"

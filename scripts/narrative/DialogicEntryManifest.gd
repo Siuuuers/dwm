@@ -332,8 +332,9 @@ static func validate_scene_bundle_header(bundle: Variant) -> Dictionary:
 		return _scene_fail("bundle shape")
 	var keys := ["kind", "schema_version", "entry_manifest", "context_registry",
 		"ids_registry", "caption_registry", "scene_programme", "targets", "board_profiles", "challenges", "contacts"]
-	if bundle.schema_version == 2: keys.append("contact_definitions")
+	if bundle.schema_version in [2, 3]: keys.append("contact_definitions")
 	elif bundle.schema_version != 1: return _scene_fail("bundle version")
+	if bundle.schema_version == 3: keys.append("audio_catalogue")
 	if not _scene_exact(bundle, keys) or bundle.kind != "scene_reading_registration":
 		return _scene_fail("bundle shape")
 	if bundle.schema_version == 1: return {"ok": true}
@@ -353,6 +354,19 @@ static func validate_scene_bundle_header(bundle: Variant) -> Dictionary:
 			return _scene_fail("contact facts")
 		for fact: Variant in row.source_fact_ids:
 			if not _scene_id(fact) or not facts.has(fact): return _scene_fail("unregistered contact fact")
+	if bundle.schema_version == 3:
+		if not bundle.entry_manifest is Dictionary or not bundle.entry_manifest.get("entries") is Array:
+			return _scene_fail("audio entry coverage")
+		var entry_ids: Array = []
+		for row: Variant in bundle.entry_manifest.entries:
+			if not row is Dictionary or not _scene_id(row.get("entry_id")):
+				return _scene_fail("audio entry coverage")
+			entry_ids.append(row.entry_id)
+		var audio_owner: Script = load("res://scripts/data/AudioManifest.gd")
+		if audio_owner == null or not audio_owner.has_method("validate_scene_catalogue"):
+			return _scene_fail("audio catalogue owner unavailable")
+		var audio: Dictionary = audio_owner.call("validate_scene_catalogue", bundle.audio_catalogue, entry_ids)
+		if not audio.get("ok", false): return audio
 	return {"ok": true}
 
 static func _validate_scene_tables(bundle: Dictionary, entries: Dictionary, programmes: Dictionary,

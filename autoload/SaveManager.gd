@@ -570,8 +570,17 @@ func _prepare_scene_new_run_decision(target_id: String, initial_context: Diction
 	var input: Dictionary = _restore_participants.run.prepare_scene_new_run_snapshot_input(
 		allocation, profile, reading.value.receipt, _scene_new_run_bundle)
 	if not input.get("ok", false): return input
+	var audio_context: Dictionary = initial_context.audio_context.duplicate(true)
+	if _scene_new_run_bundle.get("schema_version") == 3:
+		var audio_owner: Script = load("res://scripts/data/AudioManifest.gd")
+		if audio_owner == null or not audio_owner.has_method("make_scene_context"):
+			return _fail(&"scene_audio_owner_unavailable", "")
+		var selected: Dictionary = audio_owner.call("make_scene_context", _scene_new_run_bundle,
+			reading.value.receipt.scene_admission.result.entry_id, transaction_id)
+		if not selected.get("ok", false): return selected
+		audio_context = selected.value.duplicate(true)
 	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build_scene_new_run_candidate(input.value.snapshot_input,
-		reading.value.checkpoint, initial_context.audio_context, initial_context.content_version,
+		reading.value.checkpoint, audio_context, initial_context.content_version,
 		allocation, profile, _scene_new_run_bundle, _identity_issuer)
 	if not built.get("ok", false): return built
 	var snapshot: Dictionary = built.value.snapshot
@@ -589,6 +598,7 @@ func _prepare_scene_new_run_decision(target_id: String, initial_context: Diction
 	var materials := {"allocation_candidate": allocation, "profile": profile, "autosave": {
 		"source_revision": source.value.revision, "outgoing_text": outgoing, "outgoing_hash": outgoing.sha256_text()}}
 	var context := initial_context.duplicate(true)
+	context["audio_context"] = audio_context.duplicate(true)
 	context["active_app_id"] = null
 	context["dialogic_checkpoint"] = reading.value.checkpoint.duplicate(true)
 	var fingerprint := _canonical_sha256({"kind": "scene_new_run", "transaction_id": transaction_id,
@@ -616,6 +626,8 @@ func _prepare_scene_new_run_plans(snapshot: Dictionary, allocation: Dictionary, 
 		"route": {"route_id": "scene", "route_context": {"run_id": snapshot.run_id,
 			"lifecycle_state": snapshot.lifecycle.state, "active_app_id": null,
 			"scene": snapshot.scene.duplicate(true), "contacts": snapshot.contacts.duplicate(true)}}}
+	if _scene_new_run_bundle.get("schema_version") == 3:
+		inputs.audio["scene_audio_mode"] = "entry"
 	var names := {"desktop_consequence": "consequence_plan", "desktop_board": "board_plan",
 		"localization": "localization_plan", "audio": "audio_plan", "route": "route_plan"}
 	for key: String in inputs:

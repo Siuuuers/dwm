@@ -327,6 +327,20 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 	# physical presentation. Preserve it; the bridge admits the actual Solo host.
 	var audio := _call_provider("audio_context", [])
 	if not audio.ok: return audio
+	if scene_route and not _scene_entry.is_empty() and _scene_audio_source.is_valid():
+		if not _scene_validate(_scene_entry, "commit"):
+			return _fail(&"scene_entry_custody_invalid", "audio capture requires retained entry")
+		_scene_callback_busy = true
+		var captured_audio: Variant = _scene_audio_source.call(_scene_entry.binding.duplicate(true))
+		_scene_callback_busy = false
+		if not captured_audio is Dictionary or not captured_audio.get("ok", false):
+			return _fail(&"scene_entry_audio_unavailable", "Run owner refused target audio capture")
+		if not _scene_validate(_scene_entry, "commit"):
+			return _fail(&"scene_entry_custody_invalid", "source changed during audio capture")
+		if captured_audio.get("value") != null:
+			if not captured_audio.value is Dictionary:
+				return _fail(&"scene_entry_audio_invalid", "target context must be an object")
+			audio = {"ok": true, "value": captured_audio.value.duplicate(true)}
 	var content := _call_provider("content_version", [])
 	if not content.ok: return content
 	var inputs := _checkpoint_inputs(active.value, audio.value, content.value, checkpoint, route.value, snapshot_input)
@@ -465,6 +479,16 @@ var _scene_validator: Callable
 var _scene_entry: Dictionary = {}
 var _scene_used: Dictionary = {}
 var _scene_callback_busy := false
+var _scene_audio_source: Callable
+
+func configure_scene_audio_source(source: Callable) -> Dictionary:
+	if not _configured or _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy \
+			or not _scene_entry.is_empty() or not source.is_valid() or source.get_argument_count() != 1:
+		return _fail(&"scene_audio_source_invalid", "configure retained Run source while idle")
+	if _scene_audio_source.is_valid() and _scene_audio_source != source:
+		return _fail(&"scene_audio_source_conflict", "source replacement refused")
+	_scene_audio_source = source
+	return {"ok": true}
 
 func configure_scene_entry_authority(authority: Object, validator: Callable) -> Dictionary:
 	if not _configured or _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy \

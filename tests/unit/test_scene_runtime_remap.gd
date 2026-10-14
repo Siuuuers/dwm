@@ -38,6 +38,11 @@ func _bundle() -> Dictionary:
 
 func test_scene_without_live_commands_preserves_all_historical_and_logical_references() -> void:
 	var source := _source()
+	source["audio_context"] = {"kind": "scene_audio", "schema_version": 1,
+		"registration_sha256": source.scene.registration_sha256,
+		"admission_receipt_id": source.scene.active_admission_receipt_id,
+		"selection": {"plan_id": "TEST.audio.01", "plan_revision": 1,
+			"variant_id": "base", "anchor_id": "load.01"}}
 	var before := source.duplicate(true)
 	var bundle := _bundle()
 	var census := REMAPPER.collect_rewindable_transaction_ids(source)
@@ -48,9 +53,10 @@ func test_scene_without_live_commands_preserves_all_historical_and_logical_refer
 	assert_true(result.ok, str(result))
 	if not result.ok: return
 	var candidate: Dictionary = result.value.snapshot
-	for key: String in ["scene", "command_receipts", "contacts", "narrative_checkpoint", "gameplay",
+	for key: String in ["scene", "command_receipts", "contacts", "narrative_checkpoint", "gameplay", "audio_context",
 			"applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
 		assert_eq(candidate[key], source[key], key)
+	assert_eq(candidate.audio_context.admission_receipt_id, candidate.scene.active_admission_receipt_id)
 	assert_eq(candidate.lifecycle.scene_assignment, source.lifecycle.scene_assignment, "Load preserves assigned form and creation receipt")
 	assert_eq(candidate.lifecycle.branch_id, "TEST.new.branch")
 	assert_eq(candidate.lifecycle.causal_day_instance, "TEST.new.causal")

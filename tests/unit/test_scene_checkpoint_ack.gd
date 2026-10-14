@@ -27,6 +27,7 @@ class CheckpointSeam extends "res://tests/support/FakeNarrativeCheckpointContext
 		if not prepare_ok: return {"ok": false, "code": &"prepare_failed"}
 		var snapshot := {"checkpoint_id": "run:2", "checkpoint_sequence": 2,
 			"narrative_checkpoint": inputs.dialogic_checkpoint.duplicate(true), "payload": inputs.snapshot_input.duplicate(true)}
+		snapshot["audio_context"] = inputs.audio_context.duplicate(true)
 		if scene_family:
 			snapshot.erase("payload")
 			snapshot.merge(inputs.snapshot_input.duplicate(true))
@@ -59,6 +60,15 @@ class BridgeSeam extends RefCounted:
 		if callback.is_valid(): callback.call()
 		return {"ok": allow and capability == "cap:1" and binding.recursive_equal(expected_binding, 32)
 			and checkpoint.recursive_equal(expected_checkpoint, 32)}
+
+class AudioSource extends RefCounted:
+	var context: Variant = null
+	var expected_binding: Dictionary = {}
+	var callback := Callable()
+	var allow := true
+	func capture(binding: Dictionary) -> Dictionary:
+		if callback.is_valid(): callback.call()
+		return {"ok": allow and binding == expected_binding, "value": context}
 
 func _hash(value: Variant) -> String:
 	return str(JSON_WRITER.stringify(value).value).sha256_text()
@@ -368,6 +378,40 @@ func test_scene_route_keeps_real_candidate_identity_and_exact_checkpoint_ack() -
 		var ack: Dictionary = f.port.consume_scene_entry_ack("cap:1")
 		assert_eq(ack.ok, entry)
 		if entry: assert_eq(ack.value.narrative_checkpoint_sha256, _hash(f.real.current.narrative_checkpoint))
+
+func test_scene_entry_captures_target_audio_without_changing_live_provider() -> void:
+	for legacy: bool in [false, true]:
+		var f := _fixture(false)
+		f.real.route_id_value = "scene"
+		f.real.scene_family = true
+		f.real.audio_context_value = {"TEST": "old live audio"}
+		var audio := AudioSource.new()
+		audio.expected_binding = f.binding.duplicate(true)
+		audio.context = null if legacy else {"TEST": "frozen destination"}
+		assert_true(f.port.configure_scene_audio_source(audio.capture).ok)
+		assert_true(f.port.retain_scene_entry(f.authority, "cap:1", f.binding, f.checkpoint).ok)
+		var result: Dictionary = f.port.commit_scene_event(_scene_input(f), f.checkpoint)
+		assert_true(result.ok, str(result))
+		assert_eq(f.real.current.audio_context, f.real.audio_context_value if legacy else audio.context)
+		assert_eq(f.real.audio_context_value, {"TEST": "old live audio"}, "capture never adopts playback")
+		assert_true(f.port.consume_scene_entry_ack("cap:1").ok)
+
+func test_scene_entry_audio_refusal_or_lost_custody_never_reaches_prepare() -> void:
+	for revoke: bool in [false, true]:
+		var f := _fixture(false)
+		f.real.route_id_value = "scene"
+		f.real.scene_family = true
+		var audio := AudioSource.new()
+		audio.expected_binding = f.binding.duplicate(true)
+		audio.context = {"TEST": "destination"}
+		if revoke: audio.callback = func() -> void: f.authority.allow = false
+		else: audio.allow = false
+		assert_true(f.port.configure_scene_audio_source(audio.capture).ok)
+		assert_true(f.port.retain_scene_entry(f.authority, "cap:1", f.binding, f.checkpoint).ok)
+		assert_false(f.port.commit_scene_event(_scene_input(f), f.checkpoint).ok)
+		assert_false(f.real.calls.has("prepare"))
+		assert_false(f.real.calls.has("commit"))
+		audio.callback = Callable()
 
 func test_scene_route_rejects_unbound_input_or_legacy_prepared_family_before_write() -> void:
 	for mode: String in ["input", "registration", "occurrence", "admission", "legacy_candidate", "save_version", "run_version", "legacy_route", "authority"]:
