@@ -2691,16 +2691,19 @@ index 00000000..1226b2fc
 +	assert_eq(FileAccess.get_sha256("user://profile.json"), witness.profile_sha256)
 diff --git a/tests/integration/scene_computer_child.gd b/tests/integration/scene_computer_child.gd
 new file mode 100644
-index 00000000..42619241
+index 00000000..937ec34c
 --- /dev/null
 +++ b/tests/integration/scene_computer_child.gd
-@@ -0,0 +1,156 @@
+@@ -0,0 +1,159 @@
 +extends "res://tests/integration/scene_bootstrap_restart_child.gd"
 +## FINAL Bootstrap and actual mounted host; only the authored registration is TEST.
 +## Creator and loader run in distinct OS processes sharing real Save/Profile files.
 +const CAPTION := preload("res://scripts/ui/witnessed/WitnessedCaptionLayer.gd")
 +
 +func _click(control: Control) -> void:
++	# GUT's layer 128 otherwise intercepts the production board's mouse packets.
++	var test_overlay := get_tree().root.find_child("GutLayer", true, false)
++	if test_overlay is CanvasLayer: test_overlay.hide()
 +	var point := control.get_global_transform_with_canvas() * (control.size / 2.0)
 +	for pressed: bool in [true, false]:
 +		var event := InputEventMouseButton.new()
