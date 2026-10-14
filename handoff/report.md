@@ -1,227 +1,135 @@
 ---
-document_role: worker_handoff
+document_role: coordinator_handoff
 execution_authority: false
 status_authority: false
 behavior_authority: false
 verification_authority: false
 ---
 
-# Worker A handoff: ending-replay History exit
+# Coordinator A — scene Challenge continuation
 
-## Current candidate — Work continuation
+Updated 14 October 2026. This replaces the obsolete 5 October worker report as
+the current handoff. The old report remains in Git history. Director continuation
+[6174542759](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6174542759)
+and priority amendment
+[6172959568](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6172959568)
+own the bounded scope. This document is neither a new behavior contract nor Beads.
 
-Implementation source: [`1cafd00f32b93c48d539ca0970b19e86cfb0404e`](https://github.com/Siuuuers/dwm/commit/1cafd00f32b93c48d539ca0970b19e86cfb0404e).
-This supersedes the incomplete implementation/source-access status below. The
-remaining pre-implementation report is retained as historical context, not the
-current execution instruction.
+## Accepted and published
 
-The coherent source candidate changes the seven originally allocated runtime/test
-paths, the five catalogues (only the fifteen delegated messages), and the existing
-`tests/unit/test_gallery_replay_owner.gd` under [extension 5993054418](https://github.com/Siuuuers/dwm/pull/1#issuecomment-5993054418).
-Ending replay merges eligible presented captions through Profile on clean exit,
-retains exact custody on refusal/uncertainty, revalidates synchronous callbacks,
-and restores Gallery context with action-bounded neutral success feedback.
-Menu destination guards preserve retained exit custody. The legacy dating-card
-close contract remains unchanged.
+A integration branch: `codex/scene-runtime-integration-20261009`.
+Published runtime/test commit:
+`f0379d5091d8453583aef5c0e495901fb6ab7936`, parent
+`8ead20846f830d7e4227b6650c5bd24b9038d5d7`, complete tree
+`4508b1f0682fd591fab297dd780855c966fb5d6e`.
 
-Integration fixture coverage increases from 11 to 20 test functions, with no
-removed tests. The existing rendered fixture now mounts the real Menu and covers
-explicit/natural exit, real storage faults, context/focus, destination refusal,
-and 90 projection tuples (five locales, two font styles, three sizes, three
-statuses). Projection tuples are not owner-outcome or native-input proof.
+That tree exactly matches tested candidate
+`d03bb7e22ef926536f5156ee1662924c6e87a85b`, reconstructed from the retained
+`ci/final-candidate.patch` in the successful cloud evidence archive.
+Publication used a guarded non-force update after checking the live base.
+The controller branch/PR30 was not merged into product. Master remains untouched.
 
-**Actually checked:** complete Git checkout/connectivity; focused independent
-source review; exact 13-path implementation scope; whitespace/UTF-8 checks;
-semantic preservation of every existing catalogue entry and schema; existing
-Japanese/Korean catalogue validator; all thirteen remote blob identities and the
-entire remote tree matching local reviewed bytes. This is not GDScript parsing.
+Evidence: [run 38606913934](https://github.com/Siuuuers/dwm/actions/runs/38606913934),
+job `116000046760`, 15 executions / 248 assertions and five clean process exits.
+Do not add counts from superseded overlapping runs. Controller inspected at
+`f4d019a53686ee70992cf6f1a9b6fb93a17cfa82`.
+Director accepted the scoped B/C reviews and this execution.
+The subsequent handoff-only update changes no runtime/test bytes; reuse this evidence.
 
-**Pending:** cloud-generated public inventories and any literal/test mapping
-reconciliation; Godot/PowerShell import and tests; rendered captures/visual fit;
-strict and combined acceptance. No child PR or run was created. The full strict
-workflow, inventories, Profile/Save/schema owners, Beads, integration and master
-remain unchanged. This report-only descendant does not add engine evidence.
+Accepted behavior: real scene board input; direct Settings/Backup/Save/Load
+controls; computer-owned caption hold; close/reopen retains the same board;
+real-file Save and fresh-process Load with continued board input.
+Enabled Auto preference survives the tested control-boundary journey.
+Scene controls do not expose the old Pause menu; legacy non-scene Pause code remains.
 
-The A writer has stopped and released ownership to coordinator review. Resume
-from the live A branch and newer PR1 comments; do not redo source-access or apply
-the old optional partial draft. The Director must select the supported cloud
-route and exact source before execution. B's dispatch-capability handoff
-5992989075 and D's pause remain separate.
+Not established: timed caption progression after close; terminal Challenge
+continuation; authored End execution; complete pointer-driven Save/Load
+confirmations; approved production prose; exhaustive recovery; release readiness.
 
-## Historical pre-implementation report
+## Next observable outcome
 
-Snapshot: 5 October 2026. Repository: `Siuuuers/dwm`, PR #1.
-Lead: `dwm-7wj`; companion: touched `dwm-sx8` contracts.
+A player completes the active Challenge, reaches its registered dialogue
+continuation without a Continue/Done popup, and the registered Challenge End
+is handled once at its authored boundary. Physical completion and authored
+End are distinct. Use a clearly labelled TEST-authored entry while no approved
+production content is selected; do not invent a production target.
 
-## Director decision
+In that same journey prove Auto-enabled hold while the computer is open and
+actual progression after close when the authored boundary permits it. Exercise
+an ordinary completed-boundary save/restart where supported.
 
-**Resume one A implementation session with complete source-file access and a safe
-branch-editing route. Do not open a child PR or release CI yet: no coherent runtime
-candidate exists.** The existing allocation is sufficient. There is no unresolved
-player-facing architecture question or outstanding file-extension request.
+## Completed source audit — implementation still pending
 
-This is an owner-requested, branch-local report, not a second backlog or acceptance
-receipt. Beads owns status/dependencies; approved design owns behavior; the
-coordinator owns scheduling, shared publication and integration. This report does
-not reacquire the runtime slot released in [A's handoff][handoff].
+B and C performed read-only focused audits after publication. No new completion
+runtime implementation or engine test is claimed.
 
-| Decision field | Actual state at this snapshot |
-|---|---|
-| Implementation | Incomplete; no A runtime, test or catalogue changes committed. |
-| Reusable work | Completed boundary audit and an optional, uncommitted partial draft. |
-| Prior blocker | The previous session did not obtain a complete source checkout in its editing workspace. This was an execution limitation, not a design or allocation blocker. |
-| Next deliverable | One coherent implementation and fixture diff, committed on the existing A branch, for coordinator review. |
-| Acceptance | No new Godot/PowerShell execution, rendered-fit evidence, tested merge, run or attempt. |
-| This publication | Only `handoff/report.md`; its enclosing commit is documentation-only, not an implementation candidate. |
+- Terminal board actions currently publish the terminal board and refresh
+  SceneChallengePanel. They do not advance dialogue.
+- Closing the computer releases the presentation hold only. Native playable
+  control retains the completed predecessor caption and its held continuation.
+- SoloReadingSession.prepare_scene_next and ReadingTraversalOperation currently
+  require a caption source; ordinary Next intentionally cannot cross a held
+  scene control. Add a narrowly authenticated control-to-caption handoff through
+  the existing Bridge/runtime and checkpoint owners. Do not bypass the control
+  by calling a raw native advance.
+- Authored TEST markers are DTL labels. The fixture manually constructs and
+  dispatches Playable; there is no automatic registered-marker event producer.
+  Resolve markers through the compiled registered programme and acknowledged
+  SceneEventCommandPort, not arbitrary timeline signals or UI-made envelopes.
+- GameState.validate_scene_challenge_end and commit_scene_challenge_closure are
+  explicit unavailable stubs. Physical close_scene_challenge already implements
+  exact Profile/checkpoint proof and registered outcome selection.
+- capture_scene_challenge_command and closure lookup currently require the
+  current playable marker. Authenticate the retained playable receipt separately
+  from the current authored End boundary; do not weaken physical mutation gates
+  to make a moved caption resemble the playable control.
+- Reuse SceneEventCommandPort's authenticated digest lookup and GameState's
+  receipt ledger for duplicate-effect prevention. The existing closure receipt
+  contract binds End to the earlier playable command, same source/challenge,
+  ordinal, attempt proof and registered outcome target. Do not add a parallel
+  completion flag or receipt map.
+- If closure admits another scene, the target-admission owner and receipt
+  validator currently accept only scene_transition_accepted. Extend them only
+  for the authenticated challenge_closed trigger and its registered target.
+- Physical closure already owns a causal lease. Reuse the owned-handoff
+  discipline; do not nest ordinary event dispatch acquisition inside it.
 
-## Source identities and authority
+Current TEST route: B first -> Playable -> B second -> End; all registered
+Challenge outcomes target target_a. This is test registration, not production
+story approval. Preserve the authored boundary ordering.
 
-Before publishing this report, live refs were:
+Relevant checks already present:
+`test_scene_playable_native_control.gd` tests incoming held-control adoption;
+`test_scene_day_reading.gd` explicitly retains the ordinary Next boundary;
+`scene_computer_child.gd` tests open/play/save/load. Extend focused coverage
+without redoing accepted foundations.
 
-| Ref | Observed SHA |
-|---|---|
-| A: `codex/parallel-history-exit` | `a6decec3693ee4d57df9f879b90ace3e118c9d1d` |
-| Integration: `codex/windows-cloud-ux` | `a6decec3693ee4d57df9f879b90ace3e118c9d1d` |
-| Actual `master` | `dded76aee2e85aeea94f65218de043b1f4fdce7b` |
+Failure cases to cover within this slice: terminal publication must not apply
+authored End early; duplicate End must not repeat consequences; a refused
+checkpoint must not expose an uncommitted continuation; ordinary completed
+save/restart must retain its board/receipt identity. No new exhaustive fault
+matrix or speculative crash campaign is authorized by this scope.
 
-The report advances only A's branch with documentation. These are pre-publication
-anchors, never reset targets. Its exact publication commit is recorded on PR #1;
-resume from the actual live worker head, including this documentation descendant.
-PR #1 was inspected open, draft and unmerged. No metadata change is requested.
-The newer-comments check found B's separate candidate handoff and no competing A
-claim; a query after 08:51:52 UTC returned no comments before this publication.
+## Ownership and execution
 
-Read [README](../README.md), the [current handoff](../docs/agent/2026-09-23-next-session-handoff.md),
-the [execution map](../docs/agent/execution-map.md), and current Bead/design authority.
-The [coordinator release][release] expands the map's older initial five-file scope.
-[A's completed audit][audit] resolves the caller/notice-host boundary; do not repeat
-it as a prerequisite. [A's partial-work handoff][handoff] closes resume claim
-5990745662. [This documentation reservation][publication] authorizes no runtime work.
+A owns shared implementation, integration/controller publication, cloud runs
+and Beads synchronization. B reviews touched completion/End persistence and
+duplicate-effect prevention read-only. C reviews rendered results or edits
+only exact disjoint paths allocated by A. Director reviews the resulting
+ordinary outcome and its evidence limits.
 
-## Observable outcome and preserved owners
+Use official Godot 4.6.3 standard GDScript and PowerShell in GitHub Actions only.
+Do not run local Godot/PowerShell. Complete independent focused reviews before
+final acceptance testing. Test the actual candidate and retain strict exit,
+error, source and rendered evidence. A new controller patch must use the current
+published integration base, not blindly reapply the old cumulative patch to it.
+Recheck live refs before every guarded publication; never reset newer work.
+Keep draft PRs unmerged and master untouched.
 
-Leaving an admitted ending replay merges only eligible, actually-presented
-captions through existing `ProfileManager.merge_caption_history()`. Bridge keeps
-exact batch/session custody; GalleryReplayOwner coordinates lifetime; Profile
-remains the sole durable History owner. Safe release restores the exact Gallery
-record, witnessed version, scroll anchors and Replay focus.
+## Beads limitation
 
-Only confirmed newly durable base-line visits produce the neutral Gallery notice
-`New dialogue added to History`. Empty/duplicate-only batches and exact-variant-only
-additions must not produce that notice. Clear it on the next record/version
-command, Replay admission or Gallery exit, not focus restoration or a timer.
-Proven refusal and uncertain durability retain required custody and receive
-truthful, distinct feedback. Revalidate the exact session after synchronous
-publication before cleanup or notification. No Title toast, new History store,
-repair/restart architecture or canonical gameplay consequences.
-
-Reuse Runs 166/168/171 for the accepted register, atomic Profile union and temporary
-collection. Their receipts remain historical evidence, not acceptance of this
-report or the unfinished exit integration. No prerequisite rebuild or reseal.
-
-## Completed versus unfinished
-
-The following reflects [the prior handoff][handoff], not a new engine/source audit.
-
-| Area | Available work | Still required |
-|---|---|---|
-| Bridge and GalleryReplayOwner | Optional anchored source drafts for retained exit custody and exact-session revalidation. | Review against full current files; finish, apply and verify as part of the coherent candidate. No Godot parsing has occurred. |
-| GalleryScene, GalleryCanvas, MenuScene | Completed boundary findings only. | Implement exact context restoration, neutral action-bounded status, truthful retained failure states and blocked destination/same-Gallery transitions. |
-| Two allocated fixtures | Existing fixtures unchanged. | Evolve successful-exit discard expectations without weakening playback/exact-visible protections; implement the real Menu-host journey and failure matrix. |
-| Five locale catalogues | Fifteen proposed additions recorded in the prior handoff. | Apply only the delegated entries; preserve all existing values/structure; provide the exact diff and rendered-fit evidence for review. |
-| Shared contracts and acceptance | Publication boundaries identified. | Return final callable/return/caller and literal/test changes for coordinator-owned inventory regeneration and run release. |
-
-## Existing implementation allocation
-
-[Release 5990254368][release] permits only these seven runtime/test paths:
-
-```text
-autoload/DialogicBridge.gd
-scripts/application/ending/GalleryReplayOwner.gd
-scripts/ui/GalleryScene.gd
-tests/integration/test_gallery_caption_collection.gd
-tests/ui/render_gallery_caption_collection.gd
-scripts/ui/gallery/GalleryCanvas.gd
-scripts/ui/MenuScene.gd
-```
-
-It also delegates only `gallery.history.added`, `gallery.history.failed` and
-`gallery.history.uncertain` in `localization/ui/{en,zh_CN,zh_HK,ja,ko}.json`.
-Exact English values, in that order:
-
-```text
-New dialogue added to History
-History could not be updated
-History update could not be confirmed
-```
-
-The fifteen proposed values are preserved in [the partial-work handoff][handoff].
-They are drafts, not accepted translations or committed catalogue changes.
-No Profile/Save/schema/semantic-ledger/shared CaptionLayer/input, other fixtures,
-localization framework, registration, workflow, inventory, Beads or consolidated
-navigation edits are authorized here. Any newly necessary path requires an exact
-coordinator request. Audio, production inputs/registration/prose/exhaustive
-variants and future Rehearsal/Scenes/Full Dates remain outside this outcome.
-
-## Required evidence before acceptance
-
-Use the full [release matrix][release], including natural completion and explicit
-close; empty/duplicate/variant-only batches; real proven refusal and uncertainty;
-repeated exits; stale/replaced sessions, including replacement during synchronous
-Profile publication; separate Profile-restoration refresh; and no unrelated
-Profile/run/variables/canonical consequences. Preserve no writes during playback,
-publication-before-ack, exact-token and unseen/ineligible exclusion checks.
-
-The existing rendered fixture must exercise Menu -> Gallery -> Replay -> exit,
-exact selection/scroll/Replay-focus restoration, action-bounded notice lifetime,
-blocked destinations and same-Gallery transitions. Check the new statuses in all
-five locales under the existing typography/scale conditions. No captures or
-rendered-fit acceptance exist for these changes yet.
-
-Godot 4.6.3 standard GDScript and PowerShell run only in GitHub Actions. Preserve
-registered commands, strict gates and isolated-root final bootstrap:
-
-```text
--- --phase2r-bootstrap-mode=final
-```
-
-Finish compatible caller/test-body reviews before the stable candidate gate.
-Return the exact committed head, base, changed paths and concrete shared-inventory
-needs before opening a child PR or dispatching CI. The coordinator owns publication
-and run release. A later child PR targets `codex/windows-cloud-ux`, never master;
-record its actual tested merge/run/attempt and limits. No self-merge.
-
-## Optional draft and evidence limits
-
-Conversation attachment: `worker-a-history-exit-PARTIAL-DRAFT.zip`.
-SHA-256 recorded in [the prior handoff][handoff]:
-
-```text
-5cd25bdd90bed3d94d6c83684361332abdf0ae8ed22f1848530d6a7d79ae8e66
-```
-
-The ZIP is not stored in this branch. A repository checkout alone does not contain
-it. Obtain the attachment from the owner only when useful; it is optional and must
-not become another prerequisite. Do not apply its core draft alone: the three UI
-files and both fixtures are unfinished. The prior nine passing Python checks were
-synthetic text/JSON packaging checks only, not game acceptance. This report does
-not rerun those checks or claim that its diff previewer ran against a real checkout.
-The previous workspace limitation is not retested by this small-document publication.
-
-## Ownership handoff and next action
-
-The director retains scheduling control. This documentation publication does not
-start a background worker or reacquire A's runtime ownership. Resume exactly one A
-writer after checking live refs and newer claims, then record that implementation
-claim. First establish complete source access and a safe editing route; finish the
-coherent seven-file/limited-localization outcome rather than restarting the audit.
-
-All exit-integration acceptance, translation/visual review and broader production
-or native clauses remain pending. No Bead status/dependency or shared navigation
-is changed by this report. The publication comment records the actual report
-commit and closes the documentation-only reservation.
-
-[release]: https://github.com/Siuuuers/dwm/pull/1#issuecomment-5990254368
-[audit]: https://github.com/Siuuuers/dwm/pull/1#issuecomment-5989585021
-[handoff]: https://github.com/Siuuuers/dwm/pull/1#issuecomment-5991152244
-[publication]: https://github.com/Siuuuers/dwm/pull/1#issuecomment-5991354129
+Neither bd nor dolt is available in this environment, and no live Beads database
+was reconciled. The retained 5 October export (191 records: 168 closed,
+23 unfinished) is stale historical data, not current status. Do not overwrite
+live state from that export, claim synchronized counts, or close an umbrella
+task on the basis of this increment.
