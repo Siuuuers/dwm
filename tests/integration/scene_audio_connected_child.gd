@@ -172,11 +172,15 @@ func _finish_to_silent_target(source: Dictionary) -> Dictionary:
 	await _click(panel.worksheet.grid.cell_nodes[mine])
 	var arrived := false
 	var deadline := Time.get_ticks_msec() + 15000
-	while Time.get_ticks_msec() < deadline:
+	# A synchronous durable transition can finish in the last awaited frame.
+	# Inspect that completed frame before declaring timeout; this is not a
+	# performance deadline or permission to retry the game operation.
+	while true:
 		var reading: Dictionary = bridge.capture_reading_checkpoint(false)
 		if reading.get("ok", false) and reading.value.entry_id == "scene.test.a":
 			arrived = true
 			break
+		if Time.get_ticks_msec() >= deadline: break
 		await get_tree().process_frame
 	var diagnostic := {"arrived": arrived, "terminal_observed": terminal[0], "failures": failures,
 		"paused": get_tree().paused, "computer_open": host.is_computer_open(),
