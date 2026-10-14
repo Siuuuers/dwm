@@ -1,5 +1,6 @@
 #requires -Version 7.2
 # Diagnostic only. Launch normally, attach after fixture setup, then release refusal.
+param([ValidateRange(90, 600)][int]$StartupTimeoutSeconds = 90)
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 function Start-CapturedProcess([string]$Executable, [string[]]$Arguments, [hashtable]$Environment, [string]$Prefix) {
@@ -86,7 +87,8 @@ try {
     $launchTime = [DateTime]::UtcNow
     $arguments = @('--headless', '--path', $projectRoot, '--log-file', (Join-Path $outputRoot 'godot.log'), '-s', 'res://tests/diagnostics/style_refusal_shutdown_probe.gd')
     $launcher = Start-CapturedProcess $consolePath $arguments $environment (Join-Path $outputRoot 'target')
-    $deadline = [DateTime]::UtcNow.AddSeconds(90)
+    $receipt['startup_timeout_seconds'] = $StartupTimeoutSeconds
+    $deadline = [DateTime]::UtcNow.AddSeconds($StartupTimeoutSeconds)
     while (-not (Test-Path -LiteralPath $readyPath)) {
         if ($launcher.process.HasExited) { throw 'TARGET_EXITED_BEFORE_READY' }
         if ([DateTime]::UtcNow -ge $deadline) {
@@ -120,6 +122,7 @@ try {
     if ($target.HasExited -or $target.MainModule.FileName -ine $enginePath -or $targetStart -lt $launchTime.AddSeconds(-1)) { throw 'TARGET_IDENTITY_MISMATCH' }
     $receipt['target_pid'] = $target.Id
     $receipt['target_started_utc'] = $targetStart.ToString('o')
+    $deadline = [DateTime]::UtcNow.AddSeconds(90)
     $debuggerArguments = @('-p', [string]$target.Id, '-cf', $commandPath, '-logo', $debuggerLog, '-G', '-sins', '-y', ([IO.Path]::GetDirectoryName($enginePath)))
     $debugger = Start-CapturedProcess $cdbPath $debuggerArguments @{} (Join-Path $outputRoot 'debugger')
     while ($true) {

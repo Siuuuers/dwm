@@ -1,4 +1,4 @@
-name: Scene caption style ownership diagnostic (startup snapshot)
+name: Scene caption style ownership diagnostic (bounded heap startup)
 
 on:
   pull_request:
@@ -17,7 +17,7 @@ jobs:
   profile-first-reveal:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
     runs-on: windows-2022
-    timeout-minutes: 25
+    timeout-minutes: 35
     env:
       BASE_SHA: 8ead20846f830d7e4227b6650c5bd24b9038d5d7
       CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
@@ -113,7 +113,7 @@ jobs:
           @{ source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); parent=(git rev-parse HEAD^) } | ConvertTo-Json | Set-Content .godot/ci/candidate-commit.json -Encoding utf8
 
       - name: Attach after native fixture setup
-        timeout-minutes: 6
+        timeout-minutes: 15
         run: |
           $ErrorActionPreference = 'Stop'
           & '../controller/tools/cloud/Invoke-StylePageHeap.ps1'

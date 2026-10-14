@@ -27,7 +27,7 @@ try {
     if ($receipt.enable_exit -ne 0) { throw 'PAGEHEAP_ENABLE_FAILED' }
     $receipt['query_exit'] = Invoke-GFlags @('/p') 'query'
     if ($receipt.query_exit -ne 0) { throw 'PAGEHEAP_QUERY_FAILED' }
-    & (Join-Path $PSScriptRoot 'Invoke-StyleAttachCapture.ps1')
+    & (Join-Path $PSScriptRoot 'Invoke-StyleAttachCapture.ps1') -StartupTimeoutSeconds 600
     $result = $LASTEXITCODE
 } catch {
     $receipt.failure = $_.Exception.Message
