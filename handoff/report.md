@@ -6,16 +6,21 @@ behavior_authority: false
 verification_authority: false
 ---
 
-# Coordinator A — localization cloud evidence; visual disposition pending
+# Coordinator A — localization integrated; audio interface released
 
 Updated 15 October 2026 (Hong Kong). Current allocation is
-[Director6176060458](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6176060458).
+[Director6176804775](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6176804775).
 This report records work, not new behavior or live Beads status.
 
 ## Product and candidate identities
 
-Integration runtime remains at `73298dd3b493e1abac7a8cd869b8a7ce685f27fe`.
-This handoff-only descendant adds no gameplay or test changes.
+Localization is integrated at `f66db40dfd7395ec821220ade2f67d76f50b1aab`,
+parent b32cab3, tree a0a8c0703fdfbbc0be856ae14e694f765ea8c280.
+Its only difference from tested candidate092865ca is handoff/report.md.
+All runtime, catalogs, tests and UIDs are byte-identical to that candidate.
+Guarded non-force publication checked expected integration head b32cab3.
+This following documentation update also installs the accepted audio interface;
+it adds no further runtime changes.
 Do not mistake PR30's controller/base metadata for the current product source.
 
 External C delivered localization candidate
@@ -28,8 +33,9 @@ Runtime/action bodies and catalog values are unchanged from C's candidate.
 The tested cloud commit `d6f1762faac15e27e8c8f72c9226c745572fe7cf`
 and corrected candidate share complete tree
 `739f51d2561927e6464e266cc3f536ac1ba9c820`.
-Candidate is NOT yet applied to product integration. Preserve its exact diff
-when composing with any newer A changes; do not rerun unrelated accepted journeys.
+Candidate's exact eleven-path diff is now applied to product integration.
+No action/composition edit conflicted; no new engine run was needed for unchanged
+tested bytes. Do not rerun unrelated accepted journeys.
 
 ## Completed cloud verification
 
@@ -61,7 +67,7 @@ The fixtures use real SceneHost/Profile/Localization with isolated storage and
 synthetic action callbacks. They do not mount a real board/narrative or establish
 native OS input, production content, complete runtime or release acceptance.
 
-## External C visual checkpoint
+## External C visual acceptance
 
 [A evidence packet6176718907](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6176718907)
 returns exact identities and screenshots to C.
@@ -72,11 +78,12 @@ Korean labels also wrap. No clipped glyph/offscreen/overlapping control was
 found in this fixture. Existing Chinese button.save/button.load catalog values
 remain English, intentionally outside this lane's value changes.
 
-C should inspect the original PNGs and supply its scoped visual disposition or
-a precise amendment. Do not claim C accepted the pictures. No broad redesign,
-unrelated catalog rewrite or new architecture interview is required.
-A has withheld runtime integration pending that disposition. Other lanes can
-continue independently; this is not a project-wide stop.
+C completed independent original archive/source/PNG verification in
+[6176869942](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6176869942).
+C accepted the exact corrected candidate: no blocking clipping, unreadable
+label or obstructed control. Awkward wrapping is deferred polish; no corrective
+diff or extra matrix requested. A published it as recorded above. This closes
+the bounded localization lane, not whole-game or production-art acceptance.
 
 ## Failed diagnostics retained honestly
 
@@ -118,19 +125,40 @@ External B and C own their distinct deliverables; do not duplicate them with
 internal implementation workers. Internal distinct read-only review is allowed.
 Recheck live refs and new comments before claiming implementation paths.
 
-## External B audio dependency
+## External B audio interface released; implementation pending
 
 [B6176418670](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6176418670)
 provides documentation-only proposal at
 `67defeec2f7ffe21fa9965c945c778ffe279cca0`,
 `handoff/b-scene-audio-interface.md`.
-A has read it but has not accepted a new schema/API or implemented shared hooks.
+A resolved the interface in handoff/a-scene-audio-interface.md, first published
+at d340ae08177f243879e4cda436eef09e2f06f7c6 and released to B in
+[6176921937](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6176921937).
+That comment's pending-C sentence was superseded by C6176869942, received in
+the next refresh. Independent read-only review found no blocking interface gap.
 
-B awaits A's exact canonical registration/binding, durable representation/version,
-fingerprint, admission/restore hooks and method signatures before implementing
-audio-owned files. Existing authored-anchor behavior is settled; no production
-soundtrack choice is needed for a TEST synthetic bed. Computer-open must not
-stop audio or revive Pause. Preparation is not runtime acceptance.
+Registration3 extends2 with exact audio_catalogue; versioned scene_audio1
+subdocument carries immutable selection and current admission. Keep Run9/Save9
+and journal envelopes, preserve registration1/2 and their exact old contexts.
+No cross-registration save migration or source-hash rewrite. Whole-registration
+fingerprint covers the catalogue. B has exact owner method signatures/reservations
+and may implement now; A's shared hooks remain unimplemented.
+
+Critical A seam: checkpoint port currently captures LIVE audio during destination
+admission. Freeze target semantics in authenticated staging, pass them through
+the separate audio_context argument, commit, then activate audio before captions.
+Do not change playback before commit or add a field to exact snapshot_input.
+Both initial and ordinary admission, both Run validators, and Contacts' exact
+registration2 gate need the documented changes. AudioManager obtains canonical
+registration itself, preserving existing restore signatures.
+
+B separately published synthetic fixture148404035ff96730f752e33c0bf0545ca40897df
+on codex/b-scene-audio-fixture-20261015, two files only, not yet integrated.
+Resource hash f85a90530be2a8f0dad87f80844e6b79d5bdf171975f4c9044a770dc4c2d32aa;
+B reports independent source/regeneration checks, not Godot playback acceptance.
+Combine fixture/owner/shared changes in the focused future audio cloud lane.
+Computer-open must not stop audio or revive Pause. No production soundtrack or
+listening-quality claim. Interface/asset preparation is not runtime completion.
 
 ## Retained earlier acceptance and limits
 
