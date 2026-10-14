@@ -1342,15 +1342,16 @@ index 0000000..64c2c49
 +	quit(0 if _failures == 0 else 1)
 diff --git a/tests/diagnostics/style_shutdown_probe.gd b/tests/diagnostics/style_shutdown_probe.gd
 new file mode 100644
-index 0000000..4d54fcf
+index 0000000..eed1cd7
 --- /dev/null
 +++ b/tests/diagnostics/style_shutdown_probe.gd
-@@ -0,0 +1,76 @@
+@@ -0,0 +1,111 @@
 +extends SceneTree
 +## Diagnostic only: real Dialogic Styles with no Save/Bridge fixture or GUT owner.
 +## Run with -- --retire-style for the synchronous style_changed retirement case.
 +const STYLE := "res://dialogic/styles/witnessed_caption_style.tres"
 +var _retire_style := false
++var _inherited_cycle := false
 +var _style_events := 0
 +var _selected_before_mount := false
 +var _selected_layout: Node
@@ -1360,6 +1361,7 @@ index 0000000..4d54fcf
 +
 +func _initialize() -> void:
 +	_retire_style = OS.get_cmdline_user_args().has("--retire-style")
++	_inherited_cycle = OS.get_cmdline_user_args().has("--inherited-cycle")
 +	call_deferred("_run_probe")
 +
 +func _timeout() -> void:
@@ -1402,6 +1404,11 @@ index 0000000..4d54fcf
 +			print("DWM_STYLE_PROBE previous layout not retired")
 +			quit(1)
 +			return
++	if _inherited_cycle:
++		var cycle_ok: bool = await _run_inherited_cycle()
++		if not cycle_ok:
++			quit(1)
++			return
 +	_styles.style_changed.connect(_selected, CONNECT_ONE_SHOT)
 +	_styles.load_style(STYLE, root, true, false)
 +	for frame: int in 8: await process_frame
@@ -1420,8 +1427,36 @@ index 0000000..4d54fcf
 +	for frame: int in 4: await process_frame
 +	_finished = true
 +	print("DWM_STYLE_PROBE completed valid=", valid, " retire=", _retire_style,
-+		" events=", _style_events)
++		" events=", _style_events, " inherited_cycle=", _inherited_cycle)
 +	quit(0 if valid else 1)
++
++func _run_inherited_cycle() -> bool:
++	print("DWM_STYLE_PROBE inherited_cycle begin")
++	var viewport := SubViewport.new()
++	viewport.size = Vector2i(1280, 720)
++	root.add_child(viewport)
++	var layout: Node = _styles.load_style(STYLE, viewport)
++	if not is_instance_valid(layout):
++		print("DWM_STYLE_PROBE inherited_cycle missing_layout")
++		return false
++	if not layout.is_node_ready(): await layout.ready
++	# Resume within the actual ready callback stack, exactly as the fixture does.
++	print("DWM_STYLE_PROBE inherited_cycle ready_then_queue")
++	layout.queue_free()
++	for frame: int in 4:
++		await process_frame
++		if not is_instance_valid(layout): break
++	if is_instance_valid(layout):
++		print("DWM_STYLE_PROBE inherited_cycle layout_not_retired")
++		return false
++	print("DWM_STYLE_PROBE inherited_cycle layout_retired")
++	viewport.queue_free()
++	await process_frame
++	if is_instance_valid(viewport):
++		print("DWM_STYLE_PROBE inherited_cycle viewport_not_retired")
++		return false
++	print("DWM_STYLE_PROBE inherited_cycle viewport_retired")
++	return true
 diff --git a/tests/integration/scene_first_reveal_connected_child.gd b/tests/integration/scene_first_reveal_connected_child.gd
 new file mode 100644
 index 0000000..0ec476d

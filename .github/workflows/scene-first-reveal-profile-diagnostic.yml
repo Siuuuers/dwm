@@ -52,7 +52,7 @@ jobs:
           assert git('rev-parse','HEAD') == base
           assert git('ls-remote','origin','refs/heads/codex/scene-runtime-integration-20261009').split()[0] == base
           patch = pathlib.Path('../controller/tools/cloud/scene-first-reveal-resumable.patch').read_bytes()
-          assert hashlib.sha256(patch).hexdigest() == '9cf774fda8cc46cd2680acb458acc3f88fea599a4cec5f7e7c155d06860cf7f7'
+          assert hashlib.sha256(patch).hexdigest() == '65e3aab517f64ac6b5ef95bd9c645ec7016793ee1e71c2fa987e49b052debb65'
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           (out/'candidate.patch').write_bytes(patch)
           subprocess.run(['git','apply','--index','--binary',str(out/'candidate.patch')], check=True)
@@ -106,9 +106,14 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $runner = './tools/testing/Invoke-IsolatedGodot.ps1'
           $failed = $false
-          foreach ($mode in @('explicit','natural')) {
-            $args = @('-s','res://tests/diagnostics/style_refusal_shutdown_probe.gd')
-            if ($mode -eq 'natural') { $args += @('--','--natural-shutdown') }
+          $debuggerRoot = Join-Path ${env:ProgramFiles(x86)} 'Windows Kits/10/Debuggers/x64'
+          if (Test-Path $debuggerRoot) { Get-ChildItem $debuggerRoot -Filter '*.exe' | Select-Object -ExpandProperty FullName | Out-File '.godot/ci/debugger-tools.txt' }
+          foreach ($command in @('cdb.exe','gdb.exe','lldb.exe','procdump.exe')) {
+            Get-Command $command -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source | Out-File '.godot/ci/debugger-tools.txt' -Append
+          }
+          foreach ($mode in @('normal','retire')) {
+            $args = @('-s','res://tests/diagnostics/style_shutdown_probe.gd','--','--inherited-cycle')
+            if ($mode -eq 'retire') { $args += '--retire-style' }
             & $runner -SuiteId "style-probe-$mode" -LogName "style-probe-$mode.log" -GodotArgs $args -EvidenceLogPath ".godot/ci/style-probe-$mode.jsonl" -TimeoutSeconds 60
             if ($LASTEXITCODE -ne 0) { $failed = $true }
             Write-Host "DWM_PROBE_END $mode exit=$LASTEXITCODE"
