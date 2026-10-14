@@ -618,7 +618,7 @@ static func validate_scene_receipts(receipts: Dictionary, bundle: Dictionary, is
 		if admission.return_to != null:
 			# Contact entry needs the actual authored fact/entry owner, not a guessed result.
 			return _fail(&"scene_contact_entry_unavailable")
-		if trigger.result.kind != "scene_transition_accepted" or trigger.result.target_id != admission.target_id:
+		if trigger.result.kind not in ["scene_transition_accepted", "challenge_closed"] or trigger.result.target_id != admission.target_id:
 			return _fail(&"scene_admission_trigger_mismatch")
 		var source_admission: Dictionary = admission_receipts.get(trigger.semantic.source.scene_occurrence, {})
 		if source_admission.is_empty() or source_admission.scene_admission.issuer_receipt.counter >= admission_receipts[admission_id].scene_admission.issuer_receipt.counter:

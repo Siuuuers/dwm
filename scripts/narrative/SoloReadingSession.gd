@@ -143,6 +143,34 @@ func _validate_scene_saved(saved: Dictionary, entry_id: String) -> Dictionary:
 		if not endpoint.ok: return endpoint
 	return checked
 
+## Pure plan only; the Run owner must authorize departure from the Challenge.
+## Ordinary Next deliberately remains unable to leave a control boundary.
+func prepare_scene_control_continuation() -> Dictionary:
+	if family != "scene" or boundary != "control": return _fail(&"reading_next_unavailable")
+	var source := _capture_scene({})
+	if not source.ok: return source
+	var nodes: Array = _scene_nodes[latest_entry]
+	var node: Dictionary = nodes[scene_index]
+	var target: int = scene_index + 1
+	if node.kind != "control" or target >= nodes.size() or nodes[target].kind != "caption": return _fail(&"reading_next_path_invalid")
+	var reading: Dictionary = TRAVERSAL.without_operation(source.value)
+	var candidate := LEDGER.new()
+	var retained: Dictionary = reading.ledger
+	var copied := candidate.restore_snapshot(command_id, retained.frozen_context, manifest, registry,
+		retained, retained.entry_contexts, true, true)
+	if not copied.ok: return copied
+	var beat: Dictionary = _caption_variants_by_line[nodes[target].line_id]
+	var allocation := candidate.allocate_publication(command_id, latest_entry, scene_occurrence)
+	if not allocation.ok: return allocation
+	var published := candidate.publish_caption(command_id, allocation.value, beat, scene_occurrence)
+	if not published.ok: return published
+	var plan := {"schema_version": 3, "entry_id": latest_entry, "source_reading": reading,
+		"path": [{"from": scene_index, "to": target}], "traversed_captions": [],
+		"destination": {"kind": "line", "program_index": target, "caption": {
+			"publication_id": allocation.value, "occurrence_id": scene_occurrence, "beat": beat.duplicate(true)}}}
+	var checked := TRAVERSAL.validate_scene_path(plan, nodes)
+	return {"ok": true, "value": plan} if checked.ok else checked
+
 func prepare_scene_next(frontier: Dictionary, is_witnessed: Callable) -> Dictionary:
 	if family != "scene" or boundary != "line" or not is_witnessed.is_valid(): return _fail(&"reading_next_unavailable")
 	var source := _capture_scene(frontier)

@@ -2731,6 +2731,7 @@ func open_scene_computer(host: Control) -> Dictionary:
 			return _failure(&"scene_panel_unbound", "")
 		panel.bind_view_preferences(_target(&"ProfileManager"))
 		panel.configure_input(_target(&"InputManager"))
+		panel.presentation_changed.connect(_scene_challenge_published.bind(host, panel))
 	var held: Dictionary = _target(&"DialogicBridge").hold_computer_captions(host)
 	if not held.get("ok", false): return held
 	host.set_computer_open(true)
@@ -2738,6 +2739,25 @@ func open_scene_computer(host: Control) -> Dictionary:
 		close_scene_computer(host)
 		return _failure(&"scene_panel_unavailable", "")
 	return {"ok": true}
+
+func _scene_challenge_published(host: Control, panel: Control) -> void:
+	if panel.public_view.get("phase") == "terminal":
+		# Leave the board's input dispatch before replacing its background caption.
+		_complete_scene_challenge.call_deferred(host, panel)
+
+func _complete_scene_challenge(host: Control, panel: Control) -> void:
+	if not is_instance_valid(panel) or not _scene_host_admitted(host) or not host.is_computer_open() \
+			or panel.public_view.get("phase") != "terminal": return
+	var released: Dictionary = close_scene_computer(host)
+	if not released.get("ok", false):
+		panel.presentation_failed.emit(StringName(released.get("code", "scene_continuation_refused")))
+		return
+	var continued: Dictionary = _target(&"GameState").continue_completed_scene_challenge()
+	if not continued.get("ok", false):
+		_target(&"DialogicBridge").hold_computer_captions(host)
+		host.set_computer_open(true)
+		panel.show()
+		panel.presentation_failed.emit(StringName(continued.get("code", "scene_continuation_refused")))
 
 func close_scene_computer(host: Control) -> Dictionary:
 	if not is_instance_valid(host): return _failure(&"scene_host_unavailable", "")

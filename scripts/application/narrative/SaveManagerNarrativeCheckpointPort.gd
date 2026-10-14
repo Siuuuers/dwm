@@ -268,7 +268,7 @@ func commit_scene_challenge(snapshot_input: Dictionary, checkpoint: Dictionary) 
 	checkpoint = checkpoint.duplicate(true)
 	if checkpoint.get("stage") != "scene" or not checkpoint.get("reading_session") is Dictionary \
 			or typeof(checkpoint.reading_session.get("schema_version")) != TYPE_INT \
-			or checkpoint.reading_session.schema_version != 5 or checkpoint.reading_session.get("boundary") != "control":
+			or checkpoint.reading_session.schema_version != 5 or checkpoint.reading_session.get("boundary") not in ["control", "line"]:
 		return {"ok": false, "code": &"scene_challenge_checkpoint_invalid", "committed": false}
 	_next_commit_in_progress = true
 	_scene_challenge = {"input": snapshot_input, "checkpoint": checkpoint,
@@ -573,7 +573,7 @@ func retain_scene_control(authority: Object, token: RefCounted, material: Dictio
 	var plan: Dictionary = material.plan
 	if source.get("stage") != "scene" or not source.get("reading_session") is Dictionary \
 			or not target.get("reading_session") is Dictionary \
-			or source.reading_session.get("boundary") != "line" or target.reading_session.get("boundary") != "control":
+			or [source.reading_session.get("boundary"), target.reading_session.get("boundary")] not in [["line", "control"], ["control", "line"]]:
 		return _fail(&"scene_control_material_invalid", "exact scene endpoints required")
 	var source_header := source.duplicate(true)
 	var target_header := target.duplicate(true)
@@ -586,7 +586,7 @@ func retain_scene_control(authority: Object, token: RefCounted, material: Dictio
 		if not projected.ok or not READING_NEXT._same(projected.value, endpoint.reading_session):
 			return _fail(&"scene_control_material_invalid", "projection changed")
 	if plan.path.size() != 1 or not plan.traversed_captions.is_empty() \
-			or plan.destination.kind != "control" or plan.destination.caption != null:
+			or plan.destination.kind != target.reading_session.boundary:
 		return _fail(&"scene_control_material_invalid", "immediate control required")
 	_scene_control = {"token": token, "material": material, "state": "prepared"}
 	if not _scene_control_validate("retain"):

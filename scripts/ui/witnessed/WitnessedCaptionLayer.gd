@@ -327,7 +327,14 @@ func _before_normal_accept() -> bool:
 	if _review_offset > 0:
 		_set_review_offset(0)
 		return false
-	return _acknowledge_visible_line()
+	if not _acknowledge_visible_line(): return false
+	if is_instance_valid(_transport_bridge) and _transport_bridge.has_method("capture_scene_pending_marker") \
+			and _transport_bridge.capture_scene_pending_marker().get("ok", false):
+		_transport_bridge.request_scene_marker_step(_presented_line)
+		# The acknowledged marker owner handles this accept; native labels/Return
+		# must never run independently of its saved receipt.
+		return false
+	return true
 
 func _acknowledge_visible_line() -> bool:
 	if _review_offset > 0 or is_next_transport_active(): return false

@@ -641,7 +641,17 @@ func _commit_attempt() -> Dictionary:
 ## Profile behind the board it saves (dwm-634.2). Runs inside the caller's causal lease when one
 ## is active, otherwise takes and releases its own; a foreign lease refuses pending progress.
 func flush_pending_attempt() -> Dictionary:
-	if _record.get("schema_version") == 4 and not _scene_command(): return _fail(&"scene_challenge_readmission_required")
+	if _record.get("schema_version") == 4 and not _scene_command():
+		# A selected completed save keeps its historical closure. There is no
+		# playable input to re-admit and no new physical progress to flush.
+		if _record.get("phase") == "terminal" and not _routine_pending and _pending_checkpoint.is_empty() \
+				and is_instance_valid(_game_state) and _game_state.has_method("capture_scene_challenge_closure"):
+			var closed: Dictionary = _game_state.capture_scene_challenge_closure(_record.context)
+			var digest: Dictionary = CANONICAL.canonical_sha256(_record)
+			if closed.get("ok", false) and digest.get("ok", false) \
+					and closed.value.get("attempt_proof", {}).get("record_sha256") == digest.value.sha256:
+				return _ok({"committed": false})
+		return _fail(&"scene_challenge_readmission_required")
 	if _scene_command(): return _flush_scene_pending()
 	if not _routine_pending or _attempt_gate == null or not _pending_checkpoint.is_empty(): return _ok({"committed": false})
 	var lease := {}
@@ -1850,6 +1860,17 @@ func close_scene_challenge(token: String) -> Dictionary:
 	_scene_start_admission = {}
 	var released: Dictionary = _attempt_gate.release(&"causal_transaction", str(lease.value.token))
 	return result if released.ok else released
+
+## GameState's authenticated End event owns this lease; never acquire a second one.
+func close_scene_challenge_owned(lease: String) -> Dictionary:
+	if _scene_authority != _game_state or not _attempt_gate.is_lease_active(&"causal_transaction", lease) \
+			or not _scene_lease.is_empty(): return _fail(&"scene_challenge_lease_required")
+	var admitted := _scene_authorize(_admitted_command)
+	if not admitted.ok: return admitted
+	_scene_lease = lease
+	var result := _close_scene_locked()
+	_scene_lease = ""
+	return result
 
 func _close_scene_locked() -> Dictionary:
 	var end: Dictionary = _scene_authority.validate_scene_challenge_end(_admitted_command.duplicate(true))

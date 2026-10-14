@@ -2124,7 +2124,12 @@ func request_auto_step(expected_frontier: Dictionary) -> Dictionary:
 	if not admitted.get("ok", false):
 		_auto_step_in_progress = false
 		return admitted
-	var result: Dictionary = _runtime_adapter.advance_one_event()
+	var result: Dictionary
+	var marker := capture_scene_pending_marker()
+	if marker.get("ok", false):
+		result = _scene_event_context_provider.get_object().advance_scene_registered_marker()
+	else:
+		result = _runtime_adapter.advance_one_event()
 	_auto_step_in_progress = false
 	return result
 
@@ -2142,7 +2147,7 @@ func _auto_line_context(expected_frontier: Dictionary = {}) -> Dictionary:
 	if not _runtime_adapter.has_method("is_current_line_complete") \
 			or not _runtime_adapter.is_current_line_complete():
 		return _command_failure(&"auto_line_revealing")
-	if _runtime_adapter.classify_next_event() != &"text":
+	if _runtime_adapter.classify_next_event() != &"text" and not capture_scene_pending_marker().get("ok", false):
 		return _command_failure(&"auto_boundary")
 	return _line_presentation_context(current)
 
@@ -4018,8 +4023,9 @@ func commit_scene_playable(event: Dictionary, prepared: Dictionary, lease: Strin
 	return result
 
 func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease: String, owner: Object) -> Dictionary:
+	var departing: bool = event.is_empty()
 	if _scene_playable.is_empty():
-		if not has_reading_session() or _reading_session.family != "scene" or _reading_session.boundary != "line" \
+		if not has_reading_session() or _reading_session.family != "scene" or _reading_session.boundary != ("control" if departing else "line") \
 				or not prepared.get("source_context") is Dictionary or not prepared.get("source_input") is Dictionary \
 				or not prepared.get("snapshot_input") is Dictionary:
 			return _command_failure(&"scene_playable_source_invalid")
@@ -4031,16 +4037,16 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 		if not held.ok: return held
 		var native: Dictionary = _runtime_adapter.retain_scene_source(_reading_session)
 		if not native.ok: return native
-		var planned: Dictionary = _reading_session.prepare_scene_next(source.reading_session.frontier,
-			func(_beat: Dictionary) -> bool: return false)
+		var planned: Dictionary = _reading_session.prepare_scene_control_continuation() if departing else \
+			_reading_session.prepare_scene_next(source.reading_session.frontier, func(_beat: Dictionary) -> bool: return false)
 		if not planned.ok: return planned
 		var plan: Dictionary = planned.value
 		if plan.path.size() != 1 or not plan.traversed_captions.is_empty() \
-				or plan.destination.kind != "control" or plan.destination.caption != null \
+				or plan.destination.kind != ("line" if departing else "control") \
 				or plan.destination.program_index != source.reading_session.program_index + 1:
 			return _command_failure(&"scene_playable_edge_invalid")
 		var node: Dictionary = _reading_session._scene_nodes[_reading_session.latest_entry][plan.destination.program_index]
-		if node.get("marker_id") != event.get("event_id") or event.get("kind") != "challenge.playable":
+		if not departing and (node.get("marker_id") != event.get("event_id") or event.get("kind") != "challenge.playable"):
 			return _command_failure(&"scene_playable_edge_invalid")
 		var source_projection := _READING_TRAVERSAL.project(plan, "source")
 		var destination := _READING_TRAVERSAL.project(plan, "destination")
@@ -4081,6 +4087,15 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 			or value.material_sha256 != _scene_digest(_scene_playable.material) or not _scene_playable_current():
 		return {"ok": false, "code": &"scene_playable_ack_invalid", "committed": true}
 	var checkpoint: Dictionary = _scene_playable.material.checkpoint.duplicate(true)
+	if departing:
+		var candidate: RefCounted = _scene_playable.candidate
+		var source_token: RefCounted = _scene_playable.native_token
+		_reading_session = candidate
+		var continued: Dictionary = _runtime_adapter.install_scene_continuation(candidate, checkpoint, source_token)
+		if not continued.get("ok", false):
+			return {"ok": false, "code": continued.get("code", &"scene_continuation_native_refused"), "committed": true}
+		_scene_playable = {}
+		return {"ok": true, "value": {"checkpoint": checkpoint, "checkpoint_reference": value.target_checkpoint}}
 	var installed: Dictionary = _runtime_adapter.install_scene_control(_scene_playable.candidate,
 		checkpoint.reading_session.duplicate(true), _scene_playable.native_token)
 	if not installed.get("ok", false):
@@ -4113,7 +4128,7 @@ func _scene_playable_current() -> bool:
 	var native: Dictionary = _runtime_adapter.validate_scene_source(_scene_playable.native_token, _reading_session)
 	if not native.ok: return false
 	var source: Dictionary = _reading_session.capture(_scene_playable.source_reading.frontier)
-	var candidate: Dictionary = _scene_playable.candidate.capture({})
+	var candidate: Dictionary = _scene_playable.candidate.capture(_scene_playable.material.checkpoint.reading_session.frontier)
 	return source.ok and candidate.ok \
 		and _READING_TRAVERSAL._same(source.value, _scene_playable.source_reading) \
 		and _READING_TRAVERSAL._same(candidate.value, _scene_playable.material.checkpoint.reading_session)
@@ -4149,7 +4164,7 @@ func dispatch_scene_event(live_session: Dictionary, envelope: Dictionary) -> Dic
 		return _command_failure(&"event_dependency_invalid")
 	_scene_event_dispatching = true
 	var result: Dictionary
-	if typeof(envelope.get("schema_version")) == TYPE_INT and envelope.schema_version == 2 and envelope.get("kind") == "challenge.playable":
+	if typeof(envelope.get("schema_version")) == TYPE_INT and envelope.schema_version == 2 and envelope.get("kind") in ["challenge.playable", "challenge.end"]:
 		# This path holds the actual native caption instead of pausing/resuming it.
 		result = _scene_event_port.dispatch(envelope.duplicate(true))
 	else:
@@ -4162,6 +4177,23 @@ func dispatch_scene_event(live_session: Dictionary, envelope: Dictionary) -> Dic
 	return result
 
 ## Expose only a currently authenticated held marker, never a guessed UI command.
+func request_scene_marker_step(expected: Dictionary) -> Dictionary:
+	var current := _line_presentation_context(expected)
+	if not current.get("ok", false): return current
+	var marker := capture_scene_pending_marker()
+	if not marker.get("ok", false): return marker
+	return _scene_event_context_provider.get_object().advance_scene_registered_marker()
+
+func capture_scene_pending_marker() -> Dictionary:
+	if not has_reading_session() or _reading_session.family != "scene" or _reading_session.boundary != "line" \
+			or is_computer_caption_held() or not _runtime_adapter.is_current_line_complete():
+		return _command_failure(&"scene_marker_unavailable")
+	var source: Dictionary = _runtime_adapter._scene_source_boundary(_reading_session)
+	if not source.get("ok", false): return source
+	if source.value.marker.kind not in ["challenge.playable", "challenge.end"]:
+		return _command_failure(&"scene_marker_unavailable")
+	return {"ok": true, "value": source.value.marker.duplicate(true)}
+
 func capture_scene_challenge_control() -> Dictionary:
 	var boundary := capture_scene_event_boundary()
 	if not boundary.get("ok", false): return boundary
