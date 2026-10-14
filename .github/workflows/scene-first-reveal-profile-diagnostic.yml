@@ -96,7 +96,7 @@ jobs:
       - name: Focused scene controls integration
         run: |
           $ErrorActionPreference = 'Stop'
-          $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/scene/test_scene_host_controls.gd,res://tests/integration/test_scene_controls_localization.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/localization.xml','--','--phase2r-bootstrap-mode=final')
+          $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/scene/test_scene_host_controls.gd,res://tests/integration/test_scene_controls_localization.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/localization.xml')
           & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'scene-controls-localization' -LogName 'localization.log' -GodotArgs $args -EvidenceLogPath '.godot/ci/localization.jsonl' -TimeoutSeconds 180
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
