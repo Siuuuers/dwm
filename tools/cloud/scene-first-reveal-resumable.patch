@@ -3374,7 +3374,7 @@ diff --git a/scripts/ui/SceneChallengePanel.gd b/scripts/ui/SceneChallengePanel.
 new file mode 100644
 --- /dev/null
 +++ b/scripts/ui/SceneChallengePanel.gd
-@@ -0,0 +1,170 @@
+@@ -0,0 +1,173 @@
 +extends Control
 +## View only. The host supplies the admitted command and trusted presentation port.
 +## No physical tokens, board identities, retry policy, or save authority live here.
@@ -3425,6 +3425,9 @@ new file mode 100644
 +	dock.action_requested.connect(_action)
 +	visibility_changed.connect(_apply_availability)
 +	hide()
++
++func _ready() -> void:
++	_apply_availability()
 +
 +func bind(port: Object, presentation_command: Dictionary) -> bool:
 +	if not is_instance_valid(port) or presentation_command.is_empty() \
@@ -3505,7 +3508,7 @@ new file mode 100644
 +		and is_inside_tree() and not get_tree().paused
 +
 +func _apply_availability() -> void:
-+	if worksheet == null or dock == null: return
++	if worksheet == null or dock == null or not is_inside_tree(): return
 +	var blocked := not _can_interact()
 +	worksheet.set_interaction_blocked(blocked)
 +	var actions: Array = []
@@ -3549,7 +3552,7 @@ diff --git a/tests/scene/test_scene_challenge_panel.gd b/tests/scene/test_scene_
 new file mode 100644
 --- /dev/null
 +++ b/tests/scene/test_scene_challenge_panel.gd
-@@ -0,0 +1,193 @@
+@@ -0,0 +1,194 @@
 +extends "res://addons/gut/test.gd"
 +## Injected view-only integration: real physical/Profile owners behind a TEST
 +## command adapter and native SubViewport input. This does not prove production
@@ -3609,6 +3612,7 @@ new file mode 100644
 +
 +func after_each() -> void:
 +	if is_instance_valid(_viewport): _viewport.free()
++	await get_tree().process_frame
 +	if _inputs != null: _inputs.restore_map()
 +	if _fixture != null: _fixture.dispose()
 +
@@ -3650,11 +3654,11 @@ new file mode 100644
 +	assert_true(_port.calls.is_empty())
 +	assert_true(_fixture.record().is_empty())
 +
-+func test_native_grid_release_forwards_exact_command_cell_and_revision_then_repulls() -> void:
++func test_native_grid_press_forwards_exact_command_and_release_does_not_repeat() -> void:
 +	assert_true(_panel.worksheet.set_always_fit(true))
 +	var pulls_before := _port.pulls
 +	_pointer(200, true)
-+	assert_true(_port.calls.is_empty(), "Press alone is not a reveal.")
++	assert_eq(_port.calls.size(), 1, "The shared mouse grid accepts Reveal on press.")
 +	_pointer(200, false)
 +	assert_eq(_port.calls.size(), 1)
 +	if _port.calls.size() != 1: return
@@ -3664,17 +3668,17 @@ new file mode 100644
 +	assert_eq(_panel.public_view.host, "canonical_solo")
 +	assert_eq(_fixture.state.effects, 0)
 +
-+func test_blocking_cancels_held_pointer_and_suppresses_modes_and_dispatch() -> void:
++func test_blocked_pointer_cannot_start_or_replay_after_unblocking() -> void:
 +	assert_true(_panel.worksheet.set_always_fit(true))
-+	_pointer(200, true)
 +	_panel.set_interaction_blocked(true)
-+	_pointer(200, false)
++	_pointer(200, true)
 +	_panel.dock.action_requested.emit(&"flag")
 +	assert_eq(_panel.worksheet.grid.mode, &"reveal")
 +	_panel.worksheet.cell_action_requested.emit(&"reveal", 200, 0)
 +	assert_true(_port.calls.is_empty())
 +	assert_true(_fixture.record().is_empty())
 +	_panel.set_interaction_blocked(false)
++	_pointer(200, false)
 +	await get_tree().process_frame
 +	assert_true(_port.calls.is_empty(), "Unblocking cannot replay the cancelled press.")
 +

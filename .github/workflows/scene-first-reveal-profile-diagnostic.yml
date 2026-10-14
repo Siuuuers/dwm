@@ -52,7 +52,7 @@ jobs:
           assert git('rev-parse','HEAD') == base
           assert git('ls-remote','origin','refs/heads/codex/scene-runtime-integration-20261009').split()[0] == base
           patch = pathlib.Path('../controller/tools/cloud/scene-first-reveal-resumable.patch').read_bytes()
-          assert hashlib.sha256(patch).hexdigest() == 'b0b3bf80e5b81a4692f8967fb376bbd5b8ac2377d111c5b3a43cca7a96f173a8'
+          assert hashlib.sha256(patch).hexdigest() == 'b1b4f570151a468bb1103973891b6380ad82ca71bbba8d3d6da21884d28b91cd'
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           (out/'candidate.patch').write_bytes(patch)
           subprocess.run(['git','apply','--index','--binary',str(out/'candidate.patch')], check=True)
@@ -135,7 +135,7 @@ jobs:
               assert not any(list(root.iter(tag)) for tag in ['failure','error','skipped']), lane
               log = pathlib.Path('.godot/phase2r_logs')/(lane+'.log')
               text = log.read_text(encoding='utf-8-sig')
-              assert not re.search(r'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character', text), lane
+              assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character', text), lane
               counts[lane] = {'cases':len(rows), 'assertions':sum(int(r.attrib['assertions']) for r in rows)}
           for lane in suites:
               records = [json.loads(line) for line in (out/(lane+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if line.strip()]
