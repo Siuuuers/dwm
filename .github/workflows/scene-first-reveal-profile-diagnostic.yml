@@ -52,13 +52,13 @@ jobs:
           assert git('rev-parse','HEAD') == base
           assert git('ls-remote','origin','refs/heads/codex/scene-runtime-integration-20261009').split()[0] == base
           patch = pathlib.Path('../controller/tools/cloud/scene-first-reveal-resumable.patch').read_bytes()
-          assert hashlib.sha256(patch).hexdigest() == 'dc273bcf9efd7a5b88e6146e70e483b4e05d952de10fb84cef0bcfbdf64c5397'
+          assert hashlib.sha256(patch).hexdigest() == '9cf774fda8cc46cd2680acb458acc3f88fea599a4cec5f7e7c155d06860cf7f7'
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           (out/'candidate.patch').write_bytes(patch)
           subprocess.run(['git','apply','--index','--binary',str(out/'candidate.patch')], check=True)
           subprocess.run(['git','diff','--cached','--check'], check=True)
           paths = git('diff','--cached','--name-only').splitlines()
-          assert paths == ['autoload/DialogicBridge.gd', 'autoload/GameState.gd', 'autoload/SceneRouter.gd', 'scripts/application/backup/BackupPresentationPort.gd', 'scripts/application/lifecycle/ProductionPauseController.gd', 'scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd', 'scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd', 'scripts/application/restore/RouteRestoreParticipant.gd', 'scripts/application/run/DatingChallengeEnvelope.gd', 'scripts/application/run/DatingPhysicalOwner.gd', 'scripts/domain/minesweeper/MinesweeperBoardGenerator.gd', 'scripts/profile/DatingAttemptLedger.gd', 'tests/diagnostics/style_shutdown_probe.gd', 'tests/integration/scene_first_reveal_connected_child.gd', 'tests/integration/test_pause_backup_host.gd', 'tests/integration/test_scene_caption_style_refusal.gd', 'tests/integration/test_scene_first_reveal_connected_ahead.gd', 'tests/integration/test_scene_first_reveal_connected_create.gd', 'tests/integration/test_scene_first_reveal_connected_load.gd', 'tests/integration/test_scene_first_reveal_selected_create.gd', 'tests/integration/test_scene_pause_load.gd', 'tests/integration/test_scene_pause_quick_load.gd', 'tests/integration/test_scene_pause_write_refusal.gd', 'tests/support/SceneCaptionStyleRefusalFixture.gd', 'tests/support/SceneChallengeFixture.gd', 'tests/support/SceneFirstRevealConnectedFixture.gd', 'tests/support/ScenePauseLoadFixture.gd', 'tests/support/ScenePauseLoadTestBase.gd', 'tests/unit/test_scene_absence.gd', 'tests/unit/test_scene_first_reveal.gd']
+          assert paths == ['autoload/DialogicBridge.gd', 'autoload/GameState.gd', 'autoload/SceneRouter.gd', 'scripts/application/backup/BackupPresentationPort.gd', 'scripts/application/lifecycle/ProductionPauseController.gd', 'scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd', 'scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd', 'scripts/application/restore/RouteRestoreParticipant.gd', 'scripts/application/run/DatingChallengeEnvelope.gd', 'scripts/application/run/DatingPhysicalOwner.gd', 'scripts/domain/minesweeper/MinesweeperBoardGenerator.gd', 'scripts/profile/DatingAttemptLedger.gd', 'tests/diagnostics/style_refusal_shutdown_probe.gd', 'tests/diagnostics/style_shutdown_probe.gd', 'tests/integration/scene_first_reveal_connected_child.gd', 'tests/integration/test_pause_backup_host.gd', 'tests/integration/test_scene_caption_style_refusal.gd', 'tests/integration/test_scene_first_reveal_connected_ahead.gd', 'tests/integration/test_scene_first_reveal_connected_create.gd', 'tests/integration/test_scene_first_reveal_connected_load.gd', 'tests/integration/test_scene_first_reveal_selected_create.gd', 'tests/integration/test_scene_pause_load.gd', 'tests/integration/test_scene_pause_quick_load.gd', 'tests/integration/test_scene_pause_write_refusal.gd', 'tests/support/SceneCaptionStyleRefusalFixture.gd', 'tests/support/SceneChallengeFixture.gd', 'tests/support/SceneFirstRevealConnectedFixture.gd', 'tests/support/ScenePauseLoadFixture.gd', 'tests/support/ScenePauseLoadTestBase.gd', 'tests/unit/test_scene_absence.gd', 'tests/unit/test_scene_first_reveal.gd']
           receipt = {'base':base,'controller':os.environ['CONTROLLER_SHA'],'patch_sha256':hashlib.sha256(patch).hexdigest(),'paths':paths,'publication':'disabled diagnostic'}
           (out/'candidate-origin.json').write_text(json.dumps(receipt,indent=2),encoding='utf-8')
           '@ | python -
@@ -106,9 +106,9 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $runner = './tools/testing/Invoke-IsolatedGodot.ps1'
           $failed = $false
-          foreach ($mode in @('normal','retire')) {
-            $args = @('-s','res://tests/diagnostics/style_shutdown_probe.gd')
-            if ($mode -eq 'retire') { $args += @('--','--retire-style') }
+          foreach ($mode in @('explicit','natural')) {
+            $args = @('-s','res://tests/diagnostics/style_refusal_shutdown_probe.gd')
+            if ($mode -eq 'natural') { $args += @('--','--natural-shutdown') }
             & $runner -SuiteId "style-probe-$mode" -LogName "style-probe-$mode.log" -GodotArgs $args -EvidenceLogPath ".godot/ci/style-probe-$mode.jsonl" -TimeoutSeconds 60
             if ($LASTEXITCODE -ne 0) { $failed = $true }
             Write-Host "DWM_PROBE_END $mode exit=$LASTEXITCODE"
