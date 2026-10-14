@@ -3037,7 +3037,7 @@ new file mode 100644
 +	assert_true(bridge.requires_line_presentation_acknowledgement(), "scene Text uses exact native caption proof")
 +	var presented: Dictionary = bridge.capture_current_line_presentation_frontier()
 +	if not _ok(presented): return
-+	if not _ok(bridge.acknowledge_current_line_presentation(presented.value)): return
++	if not _ok(bridge.acknowledge_current_line_presentation(presented)): return
 +	assert_true(bridge.is_current_line_presentation_acknowledged())
 +	if not _ok(saves.save_latest_to_slot(1)): return
 +	var selected: Dictionary = saves.get_latest_stable_checkpoint()
