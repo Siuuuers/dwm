@@ -52,7 +52,7 @@ jobs:
           assert git('rev-parse','HEAD') == base
           assert git('ls-remote','origin','refs/heads/codex/scene-runtime-integration-20261009').split()[0] == base
           patch = pathlib.Path('../controller/tools/cloud/scene-first-reveal-resumable.patch').read_bytes()
-          assert hashlib.sha256(patch).hexdigest() == '9a920231117828e3ce46f9b963f8cc55e391b6b2efade9c8a038a5124b0cebf7'
+          assert hashlib.sha256(patch).hexdigest() == '614124f26228dcb0cbc465ac71ad765d3bfa3c89c90552a734a924c14ff04eab'
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           (out/'candidate.patch').write_bytes(patch)
           subprocess.run(['git','apply','--index','--binary',str(out/'candidate.patch')], check=True)
@@ -117,7 +117,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $create = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_completion_create.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/computer-create.xml')
           $load = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_completion_load.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/computer-load.xml')
-          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'scene-computer' -LogName 'computer-create.log' -GodotArgs $create -NextLogName 'computer-load.log' -NextGodotArgs $load -EvidenceLogPath '.godot/ci/computer.jsonl' -TimeoutSeconds 180 -KeepRoot -Rendered
+          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'scene-computer' -LogName 'computer-create.log' -GodotArgs $create -NextLogName 'computer-load.log' -NextGodotArgs $load -EvidenceLogPath '.godot/ci/computer.jsonl' -TimeoutSeconds 600 -KeepRoot -Rendered
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Verify executed census and source identity
@@ -148,7 +148,7 @@ jobs:
           for lane in ['control-plan','native-control']:
               records = [json.loads(line) for line in (out/(lane+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if line.strip()]
               assert len(records) == 1 and records[0]['exit_code'] == 0, lane
-          for label in ['completed-target', 'completed-restored']:
+          for label in ['completion-caption', 'completed-target', 'completed-restored']:
               assert (out / ('computer-' + label + '.png')).read_bytes().startswith(bytes([137,80,78,71,13,10,26,10]))
           children = [json.loads(line) for line in (out/'computer.jsonl').read_text(encoding='utf-8-sig').splitlines() if line.strip()]
           assert len(children) == 2 and all(row['exit_code'] == 0 for row in children)

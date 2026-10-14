@@ -154,7 +154,7 @@ index 86a7e642..46a32dfd 100644
  	var boundary := capture_scene_event_boundary()
  	if not boundary.get("ok", false): return boundary
 diff --git a/autoload/GameState.gd b/autoload/GameState.gd
-index c93b7d39..393b2e9e 100644
+index c93b7d39..103e7c44 100644
 --- a/autoload/GameState.gd
 +++ b/autoload/GameState.gd
 @@ -4459,8 +4459,49 @@ func _accept_scene_playable_event(event: Dictionary, digest: String, lease: Stri
@@ -238,15 +238,15 @@ index c93b7d39..393b2e9e 100644
 +	for row: Dictionary in ledger.value.commands.values():
 +		var result: Dictionary = row.scene_event.result
 +		if result.get("kind") == "challenge_closed" and result.playable_command_id == event.command_id: closed = true
-+	var boundary: Dictionary = _scene_event_bridge.capture_scene_event_boundary()
-+	if not boundary.get("ok", false): return boundary
++	var checkpoint := {}
 +	if not closed:
 +		var current := _scene_runtime_event_context()
 +		if not current.get("ok", false) or not _SCENE_EVENT._equal(current.value.source, event.source):
 +			return held
++		checkpoint = current.value.checkpoint.duplicate(true)
 +	return {"ok": true, "value": {"command": {"completion_transaction_id": event.command_id,
 +		"command_sha256": receipt.request_fingerprint, "context": expected}, "bundle": registered.value,
-+		"checkpoint": boundary.value.checkpoint}}
++		"checkpoint": checkpoint}}
 +
  func validate_scene_challenge_command(command: Dictionary, bundle: Dictionary) -> Dictionary:
 -	var current := capture_scene_challenge_command()
@@ -270,7 +270,9 @@ index c93b7d39..393b2e9e 100644
 -func validate_scene_challenge_end(_command: Dictionary) -> Dictionary:
 -	return _transaction_failure(&"scene_challenge_end_unavailable", "held End integration required")
 +var _scene_end_operation: Dictionary = {}
-+
+ 
+-func commit_scene_challenge_closure(_command: Dictionary, _result: Dictionary) -> Dictionary:
+-	return _transaction_failure(&"scene_challenge_end_unavailable", "held End integration required")
 +func advance_scene_registered_marker() -> Dictionary:
 +	var marker: Dictionary = _scene_event_bridge.capture_scene_pending_marker()
 +	if not marker.get("ok", false): return marker
@@ -322,9 +324,7 @@ index c93b7d39..393b2e9e 100644
 +			or marker.value.kind != "challenge.end" or marker.value.payload != _scene_end_operation.event.payload:
 +		return _transaction_failure(&"scene_challenge_end_refused", "")
 +	return {"ok": true}
- 
--func commit_scene_challenge_closure(_command: Dictionary, _result: Dictionary) -> Dictionary:
--	return _transaction_failure(&"scene_challenge_end_unavailable", "held End integration required")
++
 +func commit_scene_challenge_closure(command: Dictionary, result: Dictionary) -> Dictionary:
 +	var checked := validate_scene_challenge_end(command)
 +	if not checked.ok: return checked
@@ -627,10 +627,10 @@ index 092219c3..96833002 100644
  	if _review_offset > 0 or is_next_transport_active(): return false
 diff --git a/tests/integration/scene_completion_child.gd b/tests/integration/scene_completion_child.gd
 new file mode 100644
-index 00000000..928152a4
+index 00000000..7d428346
 --- /dev/null
 +++ b/tests/integration/scene_completion_child.gd
-@@ -0,0 +1,177 @@
+@@ -0,0 +1,184 @@
 +extends "res://tests/integration/scene_computer_child.gd"
 +## Actual viewport reveals and Auto; layout inspection is TEST solver knowledge only.
 +const ATTEMPTS := preload("res://scripts/profile/DatingAttemptLedger.gd")
@@ -704,15 +704,18 @@ index 00000000..928152a4
 +		_observe_second()
 +		if not _terminal_record.is_empty(): break
 +		var captured: Dictionary = game.capture_dating_challenge_state()
-+		if not _ok(captured): return
++		assert_true(captured.get("ok", false), str(captured.get("code", "")))
++		if not captured.get("ok", false): return
 +		var record: Dictionary = captured.value
 +		assert_false(record.is_empty())
 +		if record.is_empty(): return
 +		var safe := -1
 +		for index: int in panel.public_view.board.cells.size():
 +			if not record.board.mine_indices.has(index) and "reveal" in panel.public_view.board.cells[index].actions:
-+				safe = index
-+				break
++				if safe < 0: safe = index
++				if record.board.adjacency_counts[index] == 0:
++					safe = index
++					break
 +		assert_gte(safe, 0, "Active board has a remaining safe reveal.")
 +		if safe < 0: return
 +		assert_true(panel.worksheet.grid.focus_cell(safe))
@@ -722,9 +725,13 @@ index 00000000..928152a4
 +	if _terminal_record.is_empty(): return
 +	assert_eq(_terminal_record.state, "won")
 +	var arrived := false
++	var caption_captured := false
 +	var deadline := Time.get_ticks_msec() + 15000
 +	while Time.get_ticks_msec() < deadline:
 +		_observe_second()
++		if _second_visible and not caption_captured:
++			await _screenshot("completion-caption")
++			caption_captured = true
 +		var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
 +		if checkpoint.get("ok", false) and checkpoint.value.entry_id == "scene.test.a":
 +			arrived = true
