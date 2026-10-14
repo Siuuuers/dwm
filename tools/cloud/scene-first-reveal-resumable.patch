@@ -3149,7 +3149,7 @@ diff --git a/tests/integration/scene_bootstrap_restart_child.gd b/tests/integrat
 new file mode 100644
 --- /dev/null
 +++ b/tests/integration/scene_bootstrap_restart_child.gd
-@@ -0,0 +1,146 @@
+@@ -0,0 +1,150 @@
 +extends "res://addons/gut/test.gd"
 +## Real FINAL services in separate OS processes sharing the wrapper-owned user directory.
 +## Content registration is TEST-authored; no diagnostic restore participants are installed.
@@ -3257,9 +3257,13 @@ new file mode 100644
 +	if not _start_services(): return
 +	_assert_physical_bytes(witness)
 +	assert_eq(profile.get_profile_snapshot(), witness.profile)
-+	var prepared: Dictionary = saves.prepare_restore_slot(1)
++	# Title Backup owns revision inspection, reconciliation and selected-Load consent.
++	var backup: RefCounted = preload("res://scripts/application/backup/BackupPresentationPort.gd").new()
++	if not _ok(backup.configure(saves, "title")): return
++	var prepared: Dictionary = backup.prepare_action("load", "slot:1")
 +	if not _ok(prepared): return
-+	var restored: Dictionary = saves.commit_prepared_restore(prepared.value.prepared)
++	assert_false(prepared.value.confirmation_required)
++	var restored: Dictionary = backup.commit_action(prepared.value.token)
 +	assert_eq(restored.get("code"), &"scene_activation_pending", str(restored))
 +	if restored.get("code") != &"scene_activation_pending": return
 +	assert_eq(ready_count, 0)
