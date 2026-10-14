@@ -1,4 +1,4 @@
-name: Scene caption style ownership candidate
+name: Scene Bootstrap host composition candidate
 
 on:
   pull_request:
@@ -52,13 +52,13 @@ jobs:
           assert git('rev-parse','HEAD') == base
           assert git('ls-remote','origin','refs/heads/codex/scene-runtime-integration-20261009').split()[0] == base
           patch = pathlib.Path('../controller/tools/cloud/scene-first-reveal-resumable.patch').read_bytes()
-          assert hashlib.sha256(patch).hexdigest() == '30c74b2a21c2d6952cc5d4ace315273b86e41300dae28cef94d9c341c4e6f2c2'
+          assert hashlib.sha256(patch).hexdigest() == '0db87ddf02ad4eac87863270babf25a848d56ab106ea5139b8e2e575088940cb'
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           (out/'candidate.patch').write_bytes(patch)
           subprocess.run(['git','apply','--index','--binary',str(out/'candidate.patch')], check=True)
           subprocess.run(['git','diff','--cached','--check'], check=True)
           paths = git('diff','--cached','--name-only').splitlines()
-          assert paths == ['addons/dialogic/Modules/Style/subsystem_styles.gd', 'autoload/DialogicBridge.gd', 'autoload/GameState.gd', 'autoload/SceneRouter.gd', 'scripts/application/backup/BackupPresentationPort.gd', 'scripts/application/lifecycle/ProductionPauseController.gd', 'scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd', 'scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd', 'scripts/application/restore/RouteRestoreParticipant.gd', 'scripts/application/run/DatingChallengeEnvelope.gd', 'scripts/application/run/DatingPhysicalOwner.gd', 'scripts/domain/minesweeper/MinesweeperBoardGenerator.gd', 'scripts/profile/DatingAttemptLedger.gd', 'tests/diagnostics/style_refusal_shutdown_probe.gd', 'tests/diagnostics/style_shutdown_probe.gd', 'tests/integration/scene_first_reveal_connected_child.gd', 'tests/integration/test_pause_backup_host.gd', 'tests/integration/test_scene_caption_style_refusal.gd', 'tests/integration/test_scene_first_reveal_connected_ahead.gd', 'tests/integration/test_scene_first_reveal_connected_create.gd', 'tests/integration/test_scene_first_reveal_connected_load.gd', 'tests/integration/test_scene_first_reveal_selected_create.gd', 'tests/integration/test_scene_pause_load.gd', 'tests/integration/test_scene_pause_quick_load.gd', 'tests/integration/test_scene_pause_write_refusal.gd', 'tests/support/SceneCaptionStyleRefusalFixture.gd', 'tests/support/SceneChallengeFixture.gd', 'tests/support/SceneFirstRevealConnectedFixture.gd', 'tests/support/ScenePauseLoadFixture.gd', 'tests/support/ScenePauseLoadTestBase.gd', 'tests/unit/test_scene_absence.gd', 'tests/unit/test_scene_first_reveal.gd']
+          assert paths == ['addons/dialogic/Modules/Style/subsystem_styles.gd', 'autoload/ApplicationBootstrap.gd', 'autoload/DialogicBridge.gd', 'autoload/GameState.gd', 'autoload/SceneRouter.gd', 'scenes/narrative/SceneHost.tscn', 'scripts/application/backup/BackupPresentationPort.gd', 'scripts/application/lifecycle/ProductionPauseController.gd', 'scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd', 'scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd', 'scripts/application/restore/RouteRestoreParticipant.gd', 'scripts/application/run/DatingChallengeEnvelope.gd', 'scripts/application/run/DatingPhysicalOwner.gd', 'scripts/domain/minesweeper/MinesweeperBoardGenerator.gd', 'scripts/profile/DatingAttemptLedger.gd', 'tests/diagnostics/style_refusal_shutdown_probe.gd', 'tests/diagnostics/style_shutdown_probe.gd', 'tests/integration/scene_first_reveal_connected_child.gd', 'tests/integration/test_pause_backup_host.gd', 'tests/integration/test_scene_bootstrap_host.gd', 'tests/integration/test_scene_caption_style_refusal.gd', 'tests/integration/test_scene_first_reveal_connected_ahead.gd', 'tests/integration/test_scene_first_reveal_connected_create.gd', 'tests/integration/test_scene_first_reveal_connected_load.gd', 'tests/integration/test_scene_first_reveal_selected_create.gd', 'tests/integration/test_scene_pause_load.gd', 'tests/integration/test_scene_pause_quick_load.gd', 'tests/integration/test_scene_pause_write_refusal.gd', 'tests/support/SceneCaptionStyleRefusalFixture.gd', 'tests/support/SceneChallengeFixture.gd', 'tests/support/SceneFirstRevealConnectedFixture.gd', 'tests/support/ScenePauseLoadFixture.gd', 'tests/support/ScenePauseLoadTestBase.gd', 'tests/unit/test_scene_absence.gd', 'tests/unit/test_scene_first_reveal.gd']
           receipt = {'base':base,'controller':os.environ['CONTROLLER_SHA'],'patch_sha256':hashlib.sha256(patch).hexdigest(),'paths':paths,'publication':'disabled diagnostic'}
           (out/'candidate-origin.json').write_text(json.dumps(receipt,indent=2),encoding='utf-8')
           '@ | python -
@@ -100,34 +100,19 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @{ source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); parent=(git rev-parse HEAD^) } | ConvertTo-Json | Set-Content .godot/ci/candidate-commit.json -Encoding utf8
 
-      - name: Native caption ownership and activation regressions
-        timeout-minutes: 50
+      - name: Real Bootstrap and historical startup regressions
+        timeout-minutes: 15
         run: |
           $ErrorActionPreference = 'Stop'
-          $runner = './tools/testing/Invoke-IsolatedGodot.ps1'
           $failed = $false
-          $tests = @(
-            @('pause-load','tests/integration/test_scene_pause_load.gd'),
-            @('pause-quick-load','tests/integration/test_scene_pause_quick_load.gd'),
-            @('pause-write-refusal','tests/integration/test_scene_pause_write_refusal.gd'),
-            @('style-refusal','tests/integration/test_scene_caption_style_refusal.gd'),
-            @('scene-activation','tests/unit/test_scene_restore_activation_protocol.gd'),
-            @('pause-recovery','tests/unit/test_dialogic_pause_recovery.gd')
-          )
-          foreach ($entry in $tests) {
+          foreach ($entry in @(@('scene-bootstrap','tests/integration/test_scene_bootstrap_host.gd'), @('legacy-bootstrap','tests/unit/test_application_bootstrap.gd'))) {
             $name = $entry[0]
             $script = $entry[1]
-            Write-Host "DWM_LANE_BEGIN $name $([DateTime]::UtcNow.ToString('o'))"
             $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$script",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$name.xml")
-            & $runner -SuiteId "scene-$name" -LogName "$name.log" -GodotArgs $args -EvidenceLogPath ".godot/ci/$name.jsonl" -TimeoutSeconds 180
+            & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId $name -LogName "$name.log" -GodotArgs $args -EvidenceLogPath ".godot/ci/$name.jsonl" -TimeoutSeconds 180
             if ($LASTEXITCODE -ne 0) { $failed = $true }
-            Write-Host "DWM_LANE_END $name exit=$LASTEXITCODE $([DateTime]::UtcNow.ToString('o'))"
           }
-          $create = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_first_reveal_connected_create.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/connected-normal-create.xml')
-          $load = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_first_reveal_connected_load.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/connected-normal-load.xml')
-          & $runner -SuiteId 'connected-normal' -LogName 'connected-normal-create.log' -GodotArgs $create -NextLogName 'connected-normal-load.log' -NextGodotArgs $load -EvidenceLogPath '.godot/ci/connected-normal.jsonl' -TimeoutSeconds 180 -KeepRoot
-          if ($LASTEXITCODE -ne 0) { $failed = $true }
-          if ($failed) { throw 'One or more focused engine children failed' }
+          if ($failed) { throw 'Focused Bootstrap child failed' }
 
       - name: Verify executed census and source identity
         run: |
@@ -141,7 +126,7 @@ jobs:
           import xml.etree.ElementTree as ET
 
           out = pathlib.Path('.godot/ci')
-          suites = {'pause-load': 'tests/integration/test_scene_pause_load.gd', 'pause-quick-load': 'tests/integration/test_scene_pause_quick_load.gd', 'pause-write-refusal': 'tests/integration/test_scene_pause_write_refusal.gd', 'style-refusal': 'tests/integration/test_scene_caption_style_refusal.gd', 'scene-activation': 'tests/unit/test_scene_restore_activation_protocol.gd', 'pause-recovery': 'tests/unit/test_dialogic_pause_recovery.gd', 'connected-normal-create': 'tests/integration/test_scene_first_reveal_connected_create.gd', 'connected-normal-load': 'tests/integration/test_scene_first_reveal_connected_load.gd'}
+          suites = {'scene-bootstrap': 'tests/integration/test_scene_bootstrap_host.gd', 'legacy-bootstrap': 'tests/unit/test_application_bootstrap.gd'}
           counts = {}
           for lane, script in suites.items():
               expected = re.findall(r'^func (test_\w+)\(', pathlib.Path(script).read_text(encoding='utf-8'), re.M)
@@ -162,7 +147,7 @@ jobs:
               'lanes':counts,
               'total_cases':sum(v['cases'] for v in counts.values()),
               'total_xml_assertions':sum(v['assertions'] for v in counts.values()),
-              'scope':'Bridge-owned real Witnessed style initial activation and Pause selected Load without global default mutation; callback retirement refusal; scene activation and legacy Pause regressions; connected first-Reveal fresh-process Load; TEST scene host, no production registration or rendered E2E claim',
+              'scope':'Full FINAL Bootstrap stages with actual autoload owners and TEST registration; minimal generic visual shell; native Text and Pause selected Load; historical startup regressions. No authored production content or rendered E2E claim.',
           }
           (out/'gate.json').write_text(json.dumps(result, indent=2), encoding='utf-8')
           print(json.dumps(result))
