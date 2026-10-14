@@ -52,7 +52,7 @@ jobs:
           assert git('rev-parse','HEAD') == base
           assert git('ls-remote','origin','refs/heads/codex/scene-runtime-integration-20261009').split()[0] == base
           patch = pathlib.Path('../controller/tools/cloud/scene-first-reveal-resumable.patch').read_bytes()
-          assert hashlib.sha256(patch).hexdigest() == '4c99e378e0d04b4fb9610877294603b5719a9d88b1d6a04a7944e063424d5178'
+          assert hashlib.sha256(patch).hexdigest() == 'e2ff0f9d4699fd5331bbd8dafda36e5eb2e130fad835281ac7e3143318714c5f'
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           (out/'candidate.patch').write_bytes(patch)
           subprocess.run(['git','apply','--index','--binary',str(out/'candidate.patch')], check=True)

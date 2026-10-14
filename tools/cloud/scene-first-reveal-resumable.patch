@@ -693,10 +693,40 @@ index b8f5c90c..df09421e 100644
  		return _command_failure(&"invalid_line_registry")
  	var index: Dictionary = {}
 diff --git a/autoload/SaveManager.gd b/autoload/SaveManager.gd
-index be8d28e1..f73d4b9f 100644
+index be8d28e1..c0800cfc 100644
 --- a/autoload/SaveManager.gd
 +++ b/autoload/SaveManager.gd
-@@ -2871,10 +2871,29 @@ func _validate_scene_restore_preparation(prepared: Dictionary) -> Dictionary:
+@@ -1874,7 +1874,11 @@ func _capture_backup_inputs() -> Dictionary:
+ 	var ending: bool = inputs["route_id"] == "ending" and narrative.get("reading_session") is Dictionary \
+ 		and narrative.reading_session.get("schema_version") == 3 and narrative.reading_session.get("family") == "ending" \
+ 		and narrative.reading_session.get("boundary") == "line"
+-	if not (desktop or dating or hospital or ending) or (not narrative.is_empty() and (not (dating or hospital or ending) or not narrative.has("reading_session"))) \
++	var scene: bool = inputs["route_id"] == "scene" and inputs["active_app_id"] == null \
++		and narrative.get("reading_session") is Dictionary \
++		and narrative.reading_session.get("schema_version") == 5 \
++		and narrative.reading_session.get("boundary") in ["line", "control"]
++	if not (desktop or dating or hospital or ending or scene) or (not narrative.is_empty() and (not (dating or hospital or ending or scene) or not narrative.has("reading_session"))) \
+ 			or inputs["snapshot_input"]["lifecycle"].get("state") != ("ENDING" if ending else "PLAYING"):
+ 		return _fail(&"backup_capture_unavailable", "A qualified desktop or admitted reading capture is required")
+ 	if not narrative.is_empty():
+@@ -1884,6 +1888,16 @@ func _capture_backup_inputs() -> Dictionary:
+ 		var snapshot: Dictionary = inputs["snapshot_input"].duplicate(true)
+ 		snapshot["route_id"] = inputs["route_id"]
+ 		snapshot["narrative_checkpoint"] = narrative
++		if scene:
++			# Run9 authority is validated against its real schema-built document,
++			# never a live input dictionary with a fabricated version field.
++			var sequence: Dictionary = _journal.peek_next_sequence(str(inputs.snapshot_input.lifecycle.get("run_id", "")))
++			if not sequence.get("ok", false): return sequence
++			var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(_compose_live_checkpoint_input(inputs.snapshot_input),
++				narrative, inputs.route_id, inputs.active_app_id, inputs.audio_context,
++				inputs.content_version, sequence.value.checkpoint_sequence)
++			if not built.get("ok", false): return built
++			snapshot = built.value.snapshot
+ 		var reading: Dictionary = preload("res://scripts/narrative/FrozenRunContext.gd").validate_reading_checkpoint(narrative, snapshot)
+ 		if not reading.get("ok", false): return reading
+ 	return {"ok": true, "value": inputs}
+@@ -2871,10 +2885,29 @@ func _validate_scene_restore_preparation(prepared: Dictionary) -> Dictionary:
  	if not token is String or not _scene_restore_preparations.has(token):
  		return _fail(&"invalid_scene_restore_preparation", "private prepared scene source required")
  	var retained: Dictionary = _scene_restore_preparations[token]
@@ -959,7 +989,7 @@ index 6b487655..aae70e9b 100644
  		pending.erase("quick")
  		if not result.get("ok", false):
 diff --git a/scripts/application/lifecycle/ProductionPauseController.gd b/scripts/application/lifecycle/ProductionPauseController.gd
-index c20bdbab..7221dd5f 100644
+index c20bdbab..7120fa93 100644
 --- a/scripts/application/lifecycle/ProductionPauseController.gd
 +++ b/scripts/application/lifecycle/ProductionPauseController.gd
 @@ -94,6 +94,8 @@ var _backup_port: RefCounted
@@ -1114,7 +1144,7 @@ index c20bdbab..7221dd5f 100644
  	if _captured_source.route_id == "ending": return _capture_ending_reading_backup_inputs()
  	var command: Dictionary = _captured_source.command
  	var physical: Dictionary = _services.dating_presentation.pull_physical(command)
-@@ -638,6 +685,32 @@ func _capture_reading_backup_inputs() -> Dictionary:
+@@ -638,6 +685,30 @@ func _capture_reading_backup_inputs() -> Dictionary:
  		return _failure(&"pause_source_changed")
  	return {"ok": true, "value": inputs.duplicate(true)}
  
@@ -1138,16 +1168,14 @@ index c20bdbab..7221dd5f 100644
 +			or inputs.get("snapshot_input", {}).get("gameplay", {}).get("route_context", {}).get("active_dating_challenge", {}) != prior.value \
 +			or not _backup_admission().get("ok", false):
 +		return _failure(&"pause_source_changed")
-+	var snapshot: Dictionary = inputs.snapshot_input.duplicate(true)
-+	snapshot["route_id"] = "scene"
-+	var authority := preload("res://scripts/narrative/FrozenRunContext.gd").validate_reading_checkpoint(checkpoint.value, snapshot)
-+	if not authority.get("ok", false): return authority
++	# These are live producer inputs, not a serialized Run9 document. SaveManager
++	# builds and validates the complete versioned candidate before issuing consent.
 +	return {"ok": true, "value": inputs.duplicate(true)}
 +
  ## Ending reuses the same live Run producer and immutable reading checkpoint.
  ## Scene command, session custody and saved authority must all stay unchanged.
  func _capture_ending_reading_backup_inputs() -> Dictionary:
-@@ -696,6 +769,14 @@ func release_for_backup_load() -> Dictionary:
+@@ -696,6 +767,14 @@ func release_for_backup_load() -> Dictionary:
  
  func finish_backup_load(result: Dictionary) -> Dictionary:
  	if not _loading: return _failure(&"pause_load_unavailable")
@@ -1162,7 +1190,7 @@ index c20bdbab..7221dd5f 100644
  	if _witnessed_load: return await _finish_witnessed_load(result)
  	_loading = false
  	var current_session: Dictionary = _services.game_state.capture_live_session()
-@@ -733,6 +814,40 @@ func finish_backup_load(result: Dictionary) -> Dictionary:
+@@ -733,6 +812,40 @@ func finish_backup_load(result: Dictionary) -> Dictionary:
  	surface.set_interactive(true)
  	return result if not result.get("ok", false) else _failure(&"pause_load_not_activated")
  
@@ -2631,10 +2659,10 @@ index 00000000..1226b2fc
 +	assert_eq(FileAccess.get_sha256("user://profile.json"), witness.profile_sha256)
 diff --git a/tests/integration/scene_computer_child.gd b/tests/integration/scene_computer_child.gd
 new file mode 100644
-index 00000000..75639d64
+index 00000000..52a3641d
 --- /dev/null
 +++ b/tests/integration/scene_computer_child.gd
-@@ -0,0 +1,146 @@
+@@ -0,0 +1,148 @@
 +extends "res://tests/integration/scene_bootstrap_restart_child.gd"
 +## FINAL Bootstrap and actual mounted host; only the authored registration is TEST.
 +## Creator and loader run in distinct OS processes sharing real Save/Profile files.
@@ -2769,13 +2797,15 @@ index 00000000..75639d64
 +	assert_eq(bridge.capture_reading_checkpoint(false).value, proof.checkpoint)
 +	var hidden := -1
 +	for index: int in panel.public_view.board.cells.size():
-+		if panel.public_view.board.cells[index].get("face") == "covered":
++		if "flag" in panel.public_view.board.cells[index].get("actions", []):
 +			hidden = index
 +			break
 +	assert_gte(hidden, 0)
 +	if hidden < 0: return
 +	panel.worksheet.set_mode(&"flag")
-+	panel.worksheet.cell_action_requested.emit(&"flag", hidden, int(panel.public_view.board.revision))
++	assert_true(panel.worksheet.grid.focus_cell(hidden))
++	await get_tree().process_frame
++	await _click(panel.worksheet.grid.cell_nodes[hidden])
 +	assert_gt(int(panel.public_view.board.revision), int(proof.board.revision), "restored board remains playable")
 +	assert_false(get_tree().paused)
 +	proof["loader_process_id"] = OS.get_process_id()
