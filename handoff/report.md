@@ -6,129 +6,146 @@ behavior_authority: false
 verification_authority: false
 ---
 
-# Coordinator A — manual Challenge entry and losing continuation
+# Coordinator A — localization cloud evidence; visual disposition pending
 
-Updated 15 October 2026 (Hong Kong). Director assignment
-[6175596553](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6175596553)
-and priority amendment6172959568 own this bounded increment. This report is not
-a new behavior contract or live Beads state.
+Updated 15 October 2026 (Hong Kong). Current allocation is
+[Director6176060458](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6176060458).
+This report records work, not new behavior or live Beads status.
 
-## Published candidate and evidence
+## Product and candidate identities
 
-Integration: `codex/scene-runtime-integration-20261009`.
-Test-only commit `f1bf1a06773a05697167d3b07f10dfe4327fcc0a`, parent
-`30d8641a1f113507a5f12c88d83cd6afddc0f9c3`, complete tree
-`172854f1731fa645180eaa8650da598ce53fa491`. The complete published tree matches
-cloud candidate `025d28997beddbc09200709d6813af74a9771d47`, including four engine
-generated test UIDs. Publication used an expected-head, non-force update.
-The subsequent handoff commit changes no runtime/test bytes.
+Integration runtime remains at `73298dd3b493e1abac7a8cd869b8a7ce685f27fe`.
+This handoff-only descendant adds no gameplay or test changes.
+Do not mistake PR30's controller/base metadata for the current product source.
 
-[Run38618090300](https://github.com/Siuuuers/dwm/actions/runs/38618090300),
-job116038249345, controller `24ff49a20ae20820369b1e1fa1f58858612d65a4`.
-Official Godot4.6.3 standard and PowerShell ran in GitHub Actions only.
-Import, rendered creator/loader, exact test census, strict error checks and
-evidence retention all passed. Two cases /128 XML assertions:
+External C delivered localization candidate
+`35a7e1fee3d5e90a2d8f91852e01c919c8504c6a`.
+A corrected three fixture counters to explicit int and retained two cloud-generated
+UIDs, producing `092865cab9a03ece939ef8620ec53f5777fca9c3` on
+`codex/a-scene-localization-acceptance-20261015`.
+Runtime/action bodies and catalog values are unchanged from C's candidate.
 
-| Lane | Cases | Assertions |
-| --- | ---: | ---: |
-| Manual entry, losing board, continuation, End, Save | 1 | 74 |
-| Fresh-process Load then Save | 1 | 54 |
+The tested cloud commit `d6f1762faac15e27e8c8f72c9226c745572fe7cf`
+and corrected candidate share complete tree
+`739f51d2561927e6464e266cc3f536ac1ba9c820`.
+Candidate is NOT yet applied to product integration. Preserve its exact diff
+when composing with any newer A changes; do not rerun unrelated accepted journeys.
 
-Original log-embedded evidence archive:423534 bytes, SHA256
-`f275fbbb034c731f58430b4089d33182e04f79b59e43050178fc4b229d6fb10a`.
-All25 retained manifest members independently rehashed after extraction.
-Input patch SHA256 `c3daa9cb6df85baa15cc09e6ded28618a0c516adff1acb839f6bb7b5c9463bf5`;
-final imported patch SHA256
-`9ed47f1b48a71191fd7157c8064b85b0a0e7121fecce7f5b9618a924db10a9d8`.
-Original logs, XML, proofs, patches and five PNGs are retained in this run's
-artifact and bounded DWM_EVIDENCE_CHUNK job-log archive. This hash identifies
-the log archive, not GitHub's separately packaged artifact.
+## Completed cloud verification
 
-## What changed and what passed
+[Run38623578426](https://github.com/Siuuuers/dwm/actions/runs/38623578426),
+job116056973307, controller`1b094daf01dcd2cf7361968f525a6e4872333481`,
+completed successfully using official Godot4.6.3 standard and PowerShell in
+Windows Actions only.
 
-No runtime defect was found; no runtime source changed. The existing normal
-caption route already connects WitnessedCaptionLayer._before_normal_accept to
-DialogicBridge.request_scene_marker_step and GameState.advance_scene_registered_marker.
-New tests exercise this path instead of constructing a Playable event envelope.
+- 7 tests /142 XML assertions: retained routing3/16 plus new localization4/126.
+- Exact test census, strict script-error/exit/source checks passed.
+- 60 locale/style/size/open-state samples and20 nonempty PNGs passed geometry,
+  full font-size, glyph, label and accessibility-name checks.
+- All prior catalog messages/metadata preserved; only two new keys per locale.
+  Japanese/Korean validator passes310 messages each.
+- Original log archive283225 bytes, SHA256
+  `566018b627d2ce37f877a8b8db7a572beff9a0cd8df5216f18f9bbe5e2f0afad`;
+  all44 retained manifest members rehashed.
+- GitHub artifact11924116395, `scene-controls-localization-38623578426-1`.
+  Its packaging differs from the log archive; do not reuse the log ZIP hash
+  as the GitHub artifact ZIP hash.
 
-The TEST B first caption completes its natural reveal. Actual Viewport click on
-the mounted caption admits exactly one registered Playable receipt/control while
-retaining B first, without creating a board or changing Profile. Opening the
-computer likewise leaves physical state empty until the first cell Reveal.
-Actual grid clicks reveal323 then a mine selected using TEST-only layout knowledge.
-The real board reducer commits lost; no terminal outcome is injected.
+Independent read-only source review preceded execution. A inspected the20
+original-backed control crops plus full English-readable and Japanese-pixel
+original PNGs. Test logs contain no script errors; rendered log reports
+OpenGL-to-ANGLE fallback, and import reports an ObjectDB exit warning.
+This is not warning-free execution.
 
-Completion closes the computer without Continue/Done, displays B second once,
-and releases the caption hold. Enabled Auto then reaches the separate authored
-End, creating exactly one lost closure referencing the Playable receipt and
-validated physical attempt proof, and admits registered target_a. The TEST
-registration already maps lost to target_a; no target/penalty was invented.
-Creator PID1320 saves slot1. Loader PID1836 checks its hash before startup,
-restores target_a and the same closure/terminal attempt, then saves slot2 without
-another closure, changed Profile snapshot or changed retained attempt.
-Both process records exit0 and strict engine-log checks pass. Both rendered
-processes report the runner GPU OpenGL-to-ANGLE fallback warning; this is not a
-warning-free execution claim.
+The fixtures use real SceneHost/Profile/Localization with isolated storage and
+synthetic action callbacks. They do not mount a real board/narrative or establish
+native OS input, production content, complete runtime or release acceptance.
 
-Five rendered captures inspected by A: B first before and after Playable, B second
-with Auto On, A first at the target, and restored A first. The first/restored
-captures have a GUT test overlay partly covering the caption; the other three
-are unobscured. These are TEST captions on the existing host, not production
-art/content acceptance.
+## External C visual checkpoint
 
-## Review and scope
+[A evidence packet6176718907](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6176718907)
+returns exact identities and screenshots to C.
 
-A published exact path reservations in comment6175713108 before parallel work.
-Internal C authored only scene_loss_child.gd and its two test wrappers. Internal
-B reviewed the entry/result/End contract and actual candidate read-only before
-cloud acceptance testing; no blocking finding. A owned the manual-entry helper,
-small reusable completion-test hooks, controller, cloud run and integration.
-B subsequently independently checked the two XML reports, exits, distinct PIDs,
-shared user directory, exact retained closure/proof and strict logs; no blocker.
+Automated fit is not typographic polish: at150%, the fixed144px column wraps
+English Computer as Compute/r (pixel) or Comput/er (readable). Japanese and some
+Korean labels also wrap. No clipped glyph/offscreen/overlapping control was
+found in this fixture. Existing Chinese button.save/button.load catalog values
+remain English, intentionally outside this lane's value changes.
 
-Manual input proves initial caption-to-Playable admission. Auto still handles
-B second through End: this is not an entirely manual-marker journey. Save-sheet
-entry uses Viewport input; Save commit and selected Load use actual application
-ports, not pointer-driven confirmations. No native OS input/device matrix,
-intermediate suspended-caption Save, never-started result, approved production
-story, exhaustive recovery, performance improvement or release-readiness claim.
-Existing save/recovery/history safeguards are unchanged. Do not broaden this
-accepted ordinary increment into another speculative fault campaign.
+C should inspect the original PNGs and supply its scoped visual disposition or
+a precise amendment. Do not claim C accepted the pictures. No broad redesign,
+unrelated catalog rewrite or new architecture interview is required.
+A has withheld runtime integration pending that disposition. Other lanes can
+continue independently; this is not a project-wide stop.
 
-## Retained earlier acceptance
+## Failed diagnostics retained honestly
 
-Winning runtime `150774a7d1e2d8c326bc03259cc4805130d79009`, tree
-`8f6c94d162a54c1232c9c8b1f30604ee8fdc63f0`, was accepted for proceeding by
-Director6175596553 and reviewed by B6175524573. Run38614129246/job116024712442
-passed15 cases/545 XML assertions, with original log ZIP SHA256
-`21ddca35e68a8537559f340477980ff86472d7b6e0c0bc9b739e13982e65de2e`.
-It proved winning continuation, Auto-authored End and completed Save/fresh Load.
-Do not rerun or add overlapping counts merely to increase a total.
-Prior ordinary unfinished computer Save/Load and Auto preference preservation
-remain at run38606913934/runtime f0379d5091d8453583aef5c0e495901fb6ab7936.
-Detailed historical reports remain in Git history.
+- Run38622739296/job116054105796, controller98a9f0e2: GUT rejected the proposed
+  custom bootstrap argument before executing either requested suite.
+  Original ZIP79529 bytes, SHA256
+  `bb605a39a6cdb87eaec05fb4f483193019f731ea6076e6e6a08272c4d1500dd1`;
+  17 manifest members verified.
+- Run38623135523/job116055467278, controller5c0b7291: three new test counters
+  failed GDScript type inference. Only retained routing3/16 ran; new tests did
+  not execute. Original ZIP81061 bytes, SHA256
+  `958be4e18b63a44d61815919f9fa22238e9a2d3ea73ef598532aadd19748e8f6`;
+  18 manifest members verified.
 
-## Next coordination checkpoint
+Final GUT command omits the unsupported custom argument and uses the proven
+isolated test root/manual bootstrap with fake action owners. The standalone
+render retains explicit final bootstrap. No assertions or strict gates were
+weakened. Do not add overlapping diagnostic counts to final counts.
 
-The requested manual-entry plus losing journey now has passing scoped evidence.
-Director/C may reconcile product/visual acceptance using this packet. No next
-feature is silently chosen: inspect live assignments and current contracts before
-selecting the next independent ordinary deliverable. Contacts, Gallery, audio,
-translation and broad seven-day wiring were excluded from this increment.
-Do not invent an architectural change or repeat this journey merely to stay busy.
+## A Contacts — next implementation, not completed
 
-A retains shared runtime/integration/controller/cloud ownership. B is read-only
-on persistence boundaries; C edits only explicitly reserved disjoint paths.
-This increment's reservations are complete; any new allocation must state paths
-and current base. Master stayed `0c8b2384415d71bd3de4ff7408640bbf60b63740` and
-PR30 remains a draft controller, not a product merge target. No merge/release.
-Rebase future controller payloads on the current integration descendant rather
-than replaying the now-integrated cumulative patch. Preserve honest failures,
-strict exit reporting and exact candidate identities. No local Godot/PowerShell.
+Readiness audit only; no Contacts runtime changes or new Contacts test execution.
+Existing SceneContactFixture binds contact_test to TEST.fact.read. The supported
+TEST read supplies eligibility; presentation enters after computer Close at a
+registered safe boundary. This does not authorize a universal production
+read-to-scene rule or guessed message facts.
 
-## Beads limitation
+Existing scene domain/command/presentation owners should be reused. Missing seams:
+real GameState context/fact/read delegates and durable checkpoint connection;
+Bridge/GameState registered contact.enter/contact.return producer;
+authenticated parent/enter/fact linkage where SceneEventContract currently refuses
+non-null return_to; and a labelled TEST parent entry marker.
+Preserve parent occurrence, reading and Challenge, no nested call or allocating
+exit while a Contact call is outstanding. Verify one real Save/fresh Load.
+Use docs/design/2026-10-09-scene-runtime-integration-seam.md sections3 onward.
 
-Live Beads remains unreconciled. The October5 export (191 records:168 closed,
-23 unfinished) is stale history, not a current count. Do not reconstruct a live
-database from it, claim synchronized counts or close umbrella work from this
-bounded increment.
+A owns shared runtime/composition/controller/inventories/publication.
+External B and C own their distinct deliverables; do not duplicate them with
+internal implementation workers. Internal distinct read-only review is allowed.
+Recheck live refs and new comments before claiming implementation paths.
+
+## External B audio dependency
+
+[B6176418670](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6176418670)
+provides documentation-only proposal at
+`67defeec2f7ffe21fa9965c945c778ffe279cca0`,
+`handoff/b-scene-audio-interface.md`.
+A has read it but has not accepted a new schema/API or implemented shared hooks.
+
+B awaits A's exact canonical registration/binding, durable representation/version,
+fingerprint, admission/restore hooks and method signatures before implementing
+audio-owned files. Existing authored-anchor behavior is settled; no production
+soundtrack choice is needed for a TEST synthetic bed. Computer-open must not
+stop audio or revive Pause. Preparation is not runtime acceptance.
+
+## Retained earlier acceptance and limits
+
+Manual-entry/loss source`f1bf1a06773a05697167d3b07f10dfe4327fcc0a`,
+run38618090300/job116038249345,2 tests/128 XML assertions remains accepted in its
+recorded scope; [previous complete handoff](https://github.com/Siuuuers/dwm/blob/73298dd3b493e1abac7a8cd869b8a7ce685f27fe/handoff/report.md).
+Winning source150774a7, run38614129246/job116024712442,15/545 and unfinished
+computer Save/Load sourcef0379d50/run38606913934 remain retained separately.
+Do not repeat these merely to accumulate counts.
+
+No new GameState/SaveManager public API was added by this localization candidate.
+Static inspection found inherited unclassified scene public APIs in their required
+inventories; this increment does not claim broad inventory/literal-audit or
+full-suite acceptance. Keep that pre-existing debt explicit, not silently waived
+or relabeled as localization failure.
+
+Master untouched; PR30 remains draft/unmerged. No release or Beads closure.
+Live Beads remains unavailable; the October5 23-unfinished export is stale.
