@@ -149,6 +149,14 @@ func _finish_to_silent_target(source: Dictionary) -> Dictionary:
 	var host: Node = get_tree().current_scene
 	assert_true(host.is_computer_open())
 	var panel: Control = host.get_challenge_mount().get_node("SceneChallengePanel")
+	var failures: Array = []
+	panel.presentation_failed.connect(func(code: StringName): failures.append(String(code)))
+	bridge.next_request_finished.connect(func(_frontier: Dictionary, result: Dictionary):
+		if not result.get("ok", false): failures.append(str(result)))
+	bridge.scene_activation_failed.connect(func(_operation: String, result: Dictionary): failures.append(str(result)))
+	var terminal := [false]
+	panel.presentation_changed.connect(func():
+		if panel.public_view.get("phase") == "terminal": terminal[0] = true)
 	var record: Dictionary = game.capture_dating_challenge_state().value
 	var mine := -1
 	for index: int in record.board.mine_indices:
@@ -160,6 +168,7 @@ func _finish_to_silent_target(source: Dictionary) -> Dictionary:
 	assert_true(panel.worksheet.set_mode(&"reveal"))
 	assert_true(panel.worksheet.grid.focus_cell(mine))
 	await get_tree().process_frame
+	assert_true(panel._can_interact())
 	await _click(panel.worksheet.grid.cell_nodes[mine])
 	var arrived := false
 	var deadline := Time.get_ticks_msec() + 15000
@@ -169,7 +178,15 @@ func _finish_to_silent_target(source: Dictionary) -> Dictionary:
 			arrived = true
 			break
 		await get_tree().process_frame
-	assert_true(arrived, "registered Challenge completion reaches explicit silent target")
+	var diagnostic := {"arrived": arrived, "terminal_observed": terminal[0], "failures": failures,
+		"paused": get_tree().paused, "computer_open": host.is_computer_open(),
+		"panel_phase": str(panel.public_view.get("phase", "")),
+		"reading": str(bridge.capture_reading_checkpoint(false)),
+		"entry_operation_keys": game._scene_entry_operation.keys(),
+		"live_audio": get_node("/root/AudioManager").get_semantic_audio_context()}
+	_write_json("res://.godot/ci/audio-forward-diagnostic.json", diagnostic)
+	assert_true(terminal[0], "real mine input produced terminal publication")
+	assert_true(arrived, "registered Challenge completion reaches explicit silent target: " + str(failures))
 	if not arrived: return {}
 	var destination: Dictionary = _audio_checkpoint()
 	assert_null(destination.selection)
