@@ -57,11 +57,13 @@ func set_player_db(player_id: StringName, value_db: float) -> Dictionary:
 	return _record(&"set_player_db", {"player_id": player_id, "value_db": value_db}, {})
 
 
-func play(player_id: StringName) -> Dictionary:
+func play(player_id: StringName, from_position: float = 0.0) -> Dictionary:
+	if not is_finite(from_position) or from_position < 0.0:
+		return _output_failure()
 	if players.has(player_id):
 		players[player_id]["playing"] = true
-		players[player_id]["playback_position"] = 0.0
-	return _record(&"play", {"player_id": player_id}, {})
+		players[player_id]["playback_position"] = from_position
+	return _record(&"play", {"player_id": player_id, "from_position": from_position}, {})
 
 
 func stop(player_id: StringName) -> Dictionary:
