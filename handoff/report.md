@@ -6,174 +6,157 @@ behavior_authority: false
 verification_authority: false
 ---
 
-# Coordinator A — localization integrated; audio interface released
+# Coordinator A — shared audio implemented and owner-tested; pointer Save/Load passed
 
-Updated 15 October 2026 (Hong Kong). Current allocation is
-[Director6176804775](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6176804775).
-This report records work, not new behavior or live Beads status.
+Updated 15 October 2026 (Hong Kong), under
+[Director6177016339](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6177016339).
+This is an evidence/continuation record, not new product authority or live Beads.
 
-## Product and candidate identities
+## Integration and next action
 
-Localization is integrated at `f66db40dfd7395ec821220ade2f67d76f50b1aab`,
-parent b32cab3, tree a0a8c0703fdfbbc0be856ae14e694f765ea8c280.
-Its only difference from tested candidate092865ca is handoff/report.md.
-All runtime, catalogs, tests and UIDs are byte-identical to that candidate.
-Guarded non-force publication checked expected integration head b32cab3.
-This following documentation update also installs the accepted audio interface;
-it adds no further runtime changes.
-Do not mistake PR30's controller/base metadata for the current product source.
+Product integration before this documentation update is84b1424fbd7c12053f2d07a7f01cec8c909e4927.
+Runtime remains the accepted localization atf66db40dfd7395ec821220ade2f67d76f50b1aab.
+Neither new audio runtime nor pointer test candidate below is product-integrated.
+PR30's head/controller is not the product source. Master remains untouched.
 
-External C delivered localization candidate
-`35a7e1fee3d5e90a2d8f91852e01c919c8504c6a`.
-A corrected three fixture counters to explicit int and retained two cloud-generated
-UIDs, producing `092865cab9a03ece939ef8620ec53f5777fca9c3` on
-`codex/a-scene-localization-acceptance-20261015`.
-Runtime/action bodies and catalog values are unchanged from C's candidate.
+A's next concrete milestone: take tested composed audio candidate4ba2802e,
+install a canonical TEST registration3 and prove one real creator/fresh-loader
+scene journey. Cover destination audio in its checkpoint, entrance0/Load1,
+same stream advancing through computer open/close, no readiness restart and
+retained reading/Challenge/Profile/history. Owner tests are not that acceptance.
+Then continue the already assigned ordinary TEST Contacts entry/return journey.
 
-The tested cloud commit `d6f1762faac15e27e8c8f72c9226c745572fe7cf`
-and corrected candidate share complete tree
-`739f51d2561927e6464e266cc3f536ac1ba9c820`.
-Candidate's exact eleven-path diff is now applied to product integration.
-No action/composition edit conflicted; no new engine run was needed for unchanged
-tested bytes. Do not rerun unrelated accepted journeys.
+C's pointer candidate is independently ready for its visual disposition. Do not
+park it behind audio/Contacts once C responds. External B/C retain distinct
+ownership; no duplicate internal implementers. A owns shared integration,
+controller, inventories and publication. Read live refs/comments before writes.
 
-## Completed cloud verification
+## A shared audio hooks
 
-[Run38623578426](https://github.com/Siuuuers/dwm/actions/runs/38623578426),
-job116056973307, controller`1b094daf01dcd2cf7361968f525a6e4872333481`,
-completed successfully using official Godot4.6.3 standard and PowerShell in
-Windows Actions only.
+Candidate99cb4e75fa8e49634cc25418854cb1a1af09cac9,
+branch codex/a-scene-audio-hooks-20261015, parent84b1424f,
+tree52beef702d214708106c2cd4aba5ef54cc525cba.
 
-- 7 tests /142 XML assertions: retained routing3/16 plus new localization4/126.
-- Exact test census, strict script-error/exit/source checks passed.
-- 60 locale/style/size/open-state samples and20 nonempty PNGs passed geometry,
-  full font-size, glyph, label and accessibility-name checks.
-- All prior catalog messages/metadata preserved; only two new keys per locale.
-  Japanese/Korean validator passes310 messages each.
-- Original log archive283225 bytes, SHA256
-  `566018b627d2ce37f877a8b8db7a572beff9a0cd8df5216f18f9bbe5e2f0afad`;
-  all44 retained manifest members rehashed.
-- GitHub artifact11924116395, `scene-controls-localization-38623578426-1`.
-  Its packaging differs from the log archive; do not reuse the log ZIP hash
-  as the GitHub artifact ZIP hash.
+Implemented registration3 delegation, Contacts' version gate, both Run audio
+binding checks, authenticated staged target-audio capture, post-durable playback
+adoption before native captions, initial NewRun selection, and transient entry
+mode through the existing restore participant. Twelve changed paths including
+three focused existing test suites and interface clarification.
+Existing registration1/2 behavior and journal hashes are preserved. No implicit
+cross-registration save migration. Run9/Save9 envelopes remain unchanged;
+the delegated audio subdocument has its own exact kind/schema version.
 
-Independent read-only source review preceded execution. A inspected the20
-original-backed control crops plus full English-readable and Japanese-pixel
-original PNGs. Test logs contain no script errors; rendered log reports
-OpenGL-to-ANGLE fallback, and import reports an ObjectDB exit warning.
-This is not warning-free execution.
+Read-only review found no blocking source/test issue. Load/remap review confirmed
+scene admission IDs are deliberately retained; do not remap audio to the restore
+transaction ID or expand the live transaction census.
 
-The fixtures use real SceneHost/Profile/Localization with isolated storage and
-synthetic action callbacks. They do not mount a real board/narrative or establish
-native OS input, production content, complete runtime or release acceptance.
+[Run38628274246](https://github.com/Siuuuers/dwm/actions/runs/38628274246),
+job116072971983, controllerdbce96fcb94ea156e69d3971313c71bf36697625:
+36 tests/465 XML assertions passed; import, census, strict logs/source gates.
+Cloud freeze9823c03dd3cf11b56f7e782955a8e79013d111de has the identical source tree.
+No import/test warnings or script errors. Original ZIP258764 bytes SHA256
+a4661f860cba29b0a0fa3b9edbbbd268c85f5d3d4ca7f287919f00a5fe1ac64f;
+22 manifest members rehashed, all12 retained source files compared byte-exact.
+Scope: shared checkpoint/restore protocol and legacy checks using explicit
+doubles; no canonical audio playback or connected scene acceptance.
 
-## External C visual acceptance
+## Composed A+B audio candidate
 
-[A evidence packet6176718907](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6176718907)
-returns exact identities and screenshots to C.
+B delivered2609e9f98515257254145347e36f8c09f265883a,
+branch codex/b-scene-audio-runtime-20261015, ten audio-owned source/test/fixture
+paths; see its handoff/b-scene-audio-runtime.md for owner behavior.
+Synthetic fixture source hash:
+f85a90530be2a8f0dad87f80844e6b79d5bdf171975f4c9044a770dc4c2d32aa.
 
-Automated fit is not typographic polish: at150%, the fixed144px column wraps
-English Computer as Compute/r (pixel) or Comput/er (readable). Japanese and some
-Korean labels also wrap. No clipped glyph/offscreen/overlapping control was
-found in this fixture. Existing Chinese button.save/button.load catalog values
-remain English, intentionally outside this lane's value changes.
+Independent A review found one material interface mismatch: B ignored NewRun's
+transient scene_audio_mode, selecting Load1 instead of entrance0. A corrected
+prepare/apply mode validation and selection, retaining legacy plan shape, and
+added two owner tests. Explicit Load of the SAME initial admission still uses1.
+The mode never enters durable audio context or saved preferences.
 
-C completed independent original archive/source/PNG verification in
-[6176869942](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6176869942).
-C accepted the exact corrected candidate: no blocking clipping, unreadable
-label or obstructed control. Awkward wrapping is deferred polish; no corrective
-diff or extra matrix requested. A published it as recorded above. This closes
-the bounded localization lane, not whole-game or production-art acceptance.
+Composedec17298ace3bf70a2522d9acc2028315f75d7467 combines A99cb+B2609
+plus that correction. Tested/preserved candidate:
+4ba2802e9f9b4181d8b30b911cf4305fd6dfa28a,
+branch codex/a-scene-audio-composed-20261015,
+tree30b0fdace637c9a295db3646ef5905e7a619974d.
+Only three cloud-generated test UIDs were added afterec17298a; its complete tree
+equals tested cloud freeze349ede3e551ecf8dc62151e6e3df640f6822dbc6.
 
-## Failed diagnostics retained honestly
+[Run38629834675](https://github.com/Siuuuers/dwm/actions/runs/38629834675),
+job116078528772, controller37e3008c7f0454a0f694653ad674df74b4aab9b5:
+62 tests/624 XML assertions passed. Exact six-suite census13+12+4+23+4+6;
+import, strict log/source/evidence gates passed; no import/test warnings/errors.
+Original ZIP311748 bytes SHA256
+c297a5dea611f90457838f73525e8af22bd902e58107d824058e0402986b7d55;
+all35 manifest members rehashed. Artifact11925447763,
+scene-scene-audio-owners-38629834675-1, separately packaged312105 bytes.
+Superseded controller attempt38629790344 was cancelled after an ancestor-guard
+typo was corrected; it contributes no acceptance/counts.
 
-- Run38622739296/job116054105796, controller98a9f0e2: GUT rejected the proposed
-  custom bootstrap argument before executing either requested suite.
-  Original ZIP79529 bytes, SHA256
-  `bb605a39a6cdb87eaec05fb4f483193019f731ea6076e6e6a08272c4d1500dd1`;
-  17 manifest members verified.
-- Run38623135523/job116055467278, controller5c0b7291: three new test counters
-  failed GDScript type inference. Only retained routing3/16 ran; new tests did
-  not execute. Original ZIP81061 bytes, SHA256
-  `958be4e18b63a44d61815919f9fa22238e9a2d3ea73ef598532aadd19748e8f6`;
-  18 manifest members verified.
+Scope: immutable-plan owner tests (registration override/fake manager playback),
+real native port seek checks and retained legacy/physical compensation.
+NOT canonical scene registration/admission/checkpoint/Save/fresh Load proof.
+Do not sum these assertions with A's distinct protocol run as a whole-game score.
 
-Final GUT command omits the unsupported custom argument and uses the proven
-isolated test root/manual bootstrap with fake action owners. The standalone
-render retains explicit final bootstrap. No assertions or strict gates were
-weakened. Do not add overlapping diagnostic counts to final counts.
+New GameState capture_scene_entry_audio classification and final composed
+source gates remain pending. Existing broader facade inventory gaps were already
+recorded at84b1424f; no broad inventory cleanup or acceptance is claimed.
 
-## A Contacts — next implementation, not completed
+## C pointer Save/Load — cloud passed, visual disposition pending
 
-Readiness audit only; no Contacts runtime changes or new Contacts test execution.
-Existing SceneContactFixture binds contact_test to TEST.fact.read. The supported
-TEST read supplies eligibility; presentation enters after computer Close at a
-registered safe boundary. This does not authorize a universal production
-read-to-scene rule or guessed message facts.
+C sourcefb739f300be1ce2aff5d75e33cabffbf3e426774, parent84b1424f;
+two new integration test files, no runtime changes. Independent read-only
+review confirmed actual Viewport selection/consent and nonvacuous restoration.
+Retained candidate729510597b3e9f5b232ef05979611bc95573244d on
+codex/a-pointer-save-load-acceptance-20261015 adds only two generated UIDs.
+Tree3419907c546bbf94ade65246749f0a1fecfd68a6 exactly matches tested cloud
+freeze042e53762d080a504062e3624419783a96f0fa3e.
 
-Existing scene domain/command/presentation owners should be reused. Missing seams:
-real GameState context/fact/read delegates and durable checkpoint connection;
-Bridge/GameState registered contact.enter/contact.return producer;
-authenticated parent/enter/fact linkage where SceneEventContract currently refuses
-non-null return_to; and a labelled TEST parent entry marker.
-Preserve parent occurrence, reading and Challenge, no nested call or allocating
-exit while a Contact call is outstanding. Verify one real Save/fresh Load.
-Use docs/design/2026-10-09-scene-runtime-integration-seam.md sections3 onward.
+[Run38628693997](https://github.com/Siuuuers/dwm/actions/runs/38628693997),
+job116074396909, controllerdfc1e65bc0bad4474b9f8ed1a404a291d30d4293:
+1 connected test/201 XML assertions,9 original992x558 PNGs; import, exact census,
+strict test/source/evidence gates passed. No source fix needed.
+Original ZIP295300 bytes SHA256
+3a5a050f010ace658475a36fd51fde031e3c4e6607d7a4b12c05dd62d21a4705;
+all24 manifest members rehashed. Artifact11924528458,
+scene-pointer-save-load-38628693997-1, separate packaging301273 bytes.
+Import is clean; test log has OpenGL-to-ANGLE fallback warning, no script errors.
 
-A owns shared runtime/composition/controller/inventories/publication.
-External B and C own their distinct deliverables; do not duplicate them with
-internal implementation workers. Internal distinct read-only review is allowed.
-Recheck live refs and new comments before claiming implementation paths.
+PID4736 proof records18 pointer button activations. Empty slot Save, then changed
+board overwrite waits for visible confirmation. Unflagging afterward produces an
+observable difference; pointer-confirmed Load restores exact saved flagged board,
+physical record and reading, preserves slot bytes/Profile/History, changes branch,
+emits Ready once and admits input. Same-process real disk/services and Viewport
+input; NOT fresh-process or native OS-input proof.
 
-## External B audio interface released; implementation pending
+A inspected a nine-image sheet and full original overwrite/Load confirmations
+and restored board. Consent controls and restored flag are visible. The initial
+manual-before-playable image includes the GUT overlay. Sheet Back shares the
+top-left area with dimmed underlying Check Computer text; C is asked to assess
+actual readability impact, not launch a redesign. Pointer Back succeeded.
+[Evidence packet6177296943](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6177296943)
+asks C for scoped visual disposition. Do not claim it has arrived.
 
-[B6176418670](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6176418670)
-provides documentation-only proposal at
-`67defeec2f7ffe21fa9965c945c778ffe279cca0`,
-`handoff/b-scene-audio-interface.md`.
-A resolved the interface in handoff/a-scene-audio-interface.md, first published
-at d340ae08177f243879e4cda436eef09e2f06f7c6 and released to B in
-[6176921937](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6176921937).
-That comment's pending-C sentence was superseded by C6176869942, received in
-the next refresh. Independent read-only review found no blocking interface gap.
+## Contacts and retained acceptance
 
-Registration3 extends2 with exact audio_catalogue; versioned scene_audio1
-subdocument carries immutable selection and current admission. Keep Run9/Save9
-and journal envelopes, preserve registration1/2 and their exact old contexts.
-No cross-registration save migration or source-hash rewrite. Whole-registration
-fingerprint covers the catalogue. B has exact owner method signatures/reservations
-and may implement now; A's shared hooks remain unimplemented.
+Contacts remains readiness audit only. Existing TEST.fact.read binding is the
+engineering trigger; no universal production read-to-scene rule, new reply
+choice, device ownership or story prose is approved. Missing real GameState
+context/fact/read delegates/checkpoint connection, registered enter/return
+producers and authenticated parent linkage remain. Preserve parent reading and
+Challenge, no nested call/allocating exit while outstanding, and verify a real
+Save/fresh Load. Reuse existing domain/command/presentation owners and
+docs/design/2026-10-09-scene-runtime-integration-seam.md.
 
-Critical A seam: checkpoint port currently captures LIVE audio during destination
-admission. Freeze target semantics in authenticated staging, pass them through
-the separate audio_context argument, commit, then activate audio before captions.
-Do not change playback before commit or add a field to exact snapshot_input.
-Both initial and ordinary admission, both Run validators, and Contacts' exact
-registration2 gate need the documented changes. AudioManager obtains canonical
-registration itself, preserving existing restore signatures.
+Localization remains integrated and accepted:7/142,60 samples/20 PNGs in
+run38623578426, C visual disposition6176869942, sourcef66db40.
+Deferred150% word wrapping remains legible; no redesign or matrix repeat.
+Manual/lossf1bf1a0/run38618090300 retained2/128; winning150774a7/
+run38614129246 retained15/545; unfinished computer Save/Loadf0379d50/
+run38606913934 retained. Full prior evidence:
+[handoff84b1424f](https://github.com/Siuuuers/dwm/blob/84b1424fbd7c12053f2d07a7f01cec8c909e4927/handoff/report.md).
 
-B separately published synthetic fixture148404035ff96730f752e33c0bf0545ca40897df
-on codex/b-scene-audio-fixture-20261015, two files only, not yet integrated.
-Resource hash f85a90530be2a8f0dad87f80844e6b79d5bdf171975f4c9044a770dc4c2d32aa;
-B reports independent source/regeneration checks, not Godot playback acceptance.
-Combine fixture/owner/shared changes in the focused future audio cloud lane.
-Computer-open must not stop audio or revive Pause. No production soundtrack or
-listening-quality claim. Interface/asset preparation is not runtime completion.
-
-## Retained earlier acceptance and limits
-
-Manual-entry/loss source`f1bf1a06773a05697167d3b07f10dfe4327fcc0a`,
-run38618090300/job116038249345,2 tests/128 XML assertions remains accepted in its
-recorded scope; [previous complete handoff](https://github.com/Siuuuers/dwm/blob/73298dd3b493e1abac7a8cd869b8a7ce685f27fe/handoff/report.md).
-Winning source150774a7, run38614129246/job116024712442,15/545 and unfinished
-computer Save/Load sourcef0379d50/run38606913934 remain retained separately.
-Do not repeat these merely to accumulate counts.
-
-No new GameState/SaveManager public API was added by this localization candidate.
-Static inspection found inherited unclassified scene public APIs in their required
-inventories; this increment does not claim broad inventory/literal-audit or
-full-suite acceptance. Keep that pre-existing debt explicit, not silently waived
-or relabeled as localization failure.
-
-Master untouched; PR30 remains draft/unmerged. No release or Beads closure.
-Live Beads remains unavailable; the October5 23-unfinished export is stale.
+All Godot4.6.3 standard/PowerShell execution remains cloud-only. This turn's
+controller batches are complete; check live refs before the next dispatch.
+No master merge, release, Beads closure or current task-count claim.
+Live Beads is unavailable; October5's23-unfinished export is stale.

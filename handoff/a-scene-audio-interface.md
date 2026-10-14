@@ -150,6 +150,12 @@ AudioManager:
   restore always uses load_seconds, never entrance/current playhead. Existing
   physical compensation capsules must cover the new semantics and streams.
   No separate saved mirror of selection in GameState or Profile.
+  Implementation clarification6177063256: prepared_profile may carry transient
+  scene_audio_mode with exact values entry/load, default load. A supplies entry
+  only through NewRun's restore-participant path; apply_restore_silent then
+  uses entrance_seconds without an intermediate Load-anchor start. Ordinary
+  Load, including Load of the initial admission, uses load_seconds. Reject
+  other modes. Never save this mode or take it from save data/preferences.
 
 AudioPlaybackPort:
 - play(player_id: StringName, from_position: float = 0.0) -> Dictionary.
