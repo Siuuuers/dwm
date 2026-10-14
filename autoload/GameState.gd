@@ -4947,6 +4947,13 @@ func scene_entry_staging_context(entry_id: String, frame: Dictionary) -> Diction
 	if not checked.ok: return checked
 	return {"ok": true, "value": _scene_entry_operation.binding.duplicate(true)}
 
+func capture_scene_entry_audio(binding: Dictionary) -> Dictionary:
+	var checked := validate_scene_entry_staging_source(binding)
+	if not checked.ok: return checked
+	# Older registrations retain the existing live-audio provider unchanged.
+	var context: Variant = _scene_entry_operation.get("audio_context")
+	return {"ok": true, "value": context.duplicate(true) if context is Dictionary else null}
+
 func validate_scene_entry_staging_source(binding: Dictionary) -> Dictionary:
 	if _scene_entry_operation.is_empty() or not _SCENE_EVENT._equal(binding, _scene_entry_operation.binding) \
 			or not _mutation_gate.is_lease_active(&"causal_transaction", _scene_entry_operation.lease) \
@@ -5020,9 +5027,27 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 		"trigger_command_id": trigger_command_id, "target_id": target_id,
 		"target_occurrence_id": admitted.occurrence_id, "admission_receipt_id": admission.value.transaction_id,
 		"registration_sha256": _SCENE_MANIFEST.scene_registration_fingerprint()}
+	var audio_context: Dictionary = {}
+	var audio_plan: Dictionary = {}
+	if registration.value.get("schema_version") == 3:
+		var audio_owner: Script = load("res://scripts/data/AudioManifest.gd")
+		var audio := get_node_or_null("/root/AudioManager")
+		if audio_owner == null or not audio_owner.has_method("make_scene_context") \
+				or audio == null or not audio.has_method("prepare_scene_admission"):
+			return _transaction_failure(&"scene_audio_owner_unavailable", "")
+		var selected: Dictionary = audio_owner.call("make_scene_context", registration.value,
+			admitted.entry_id, admission.value.transaction_id)
+		if not selected.get("ok", false): return selected
+		var prepared_audio: Dictionary = audio.call("prepare_scene_admission", selected.value)
+		if not prepared_audio.get("ok", false): return prepared_audio
+		audio_context = selected.value.duplicate(true)
+		audio_plan = prepared_audio.value.duplicate(true)
 	_scene_entry_operation = {"lease": lease, "live_session": session.value,
 		"entry_id": admitted.entry_id, "frame": frame, "binding": binding,
 		"prior_receipts": _command_receipts.duplicate(true)}
+	if registration.value.get("schema_version") == 3:
+		_scene_entry_operation["audio_context"] = audio_context
+		_scene_entry_operation["audio_plan"] = audio_plan
 	var held: Dictionary = _scene_event_bridge.hold_scene_entry_source()
 	if not held.get("ok", false): return held
 	var staged: Dictionary = _scene_event_bridge.prepare_day_entry(admitted.entry_id, frame)
@@ -5049,6 +5074,12 @@ func _commit_scene_target_owned() -> Dictionary:
 	_scene_entry_operation["durably_committed"] = true
 	_command_receipts = candidate.command_receipts.duplicate(true)
 	_scene_snapshot_references = candidate.scene.duplicate(true)
+	if _scene_entry_operation.has("audio_plan"):
+		var audio := get_node_or_null("/root/AudioManager")
+		if audio == null or not audio.has_method("apply_scene_admission"):
+			return _scene_event_fatal(&"scene_audio_activation_unavailable")
+		var adopted: Dictionary = audio.call("apply_scene_admission", _scene_entry_operation.audio_plan)
+		if not adopted.get("ok", false): return _scene_event_fatal(&"scene_audio_activation_failed")
 	var activated: Dictionary = _scene_event_bridge.commit_day_entry(staged)
 	if not activated.get("ok", false): return _scene_event_fatal(&"scene_entry_activation_failed")
 	_scene_entry_operation.clear()

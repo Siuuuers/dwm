@@ -2677,6 +2677,9 @@ func _wire_scene_event_owner(game_state: Node, bridge: Node) -> Dictionary:
 	if not _scene_staging_wired:
 		var source: Dictionary = game_state.configure_scene_checkpoint_source(_target(&"SaveManager"))
 		if not source.get("ok", false): return source
+		var audio_source: Dictionary = _narrative_checkpoint_adapter.configure_scene_audio_source(
+			Callable(game_state, "capture_scene_entry_audio"))
+		if not audio_source.get("ok", false): return audio_source
 		var staged: Dictionary = bridge.configure_scene_staging(_narrative_checkpoint_adapter,
 			Callable(game_state, "validate_scene_entry_staging_source"), Callable(game_state, "scene_entry_staging_context"))
 		if not staged.get("ok", false): return staged
