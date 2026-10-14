@@ -886,10 +886,10 @@ index 00000000..2eda9e79
 +script = ExtResource("1")
 diff --git a/scenes/narrative/SceneHost.tscn b/scenes/narrative/SceneHost.tscn
 new file mode 100644
-index 00000000..3c46d235
+index 00000000..98a1edfc
 --- /dev/null
 +++ b/scenes/narrative/SceneHost.tscn
-@@ -0,0 +1,82 @@
+@@ -0,0 +1,81 @@
 +[gd_scene load_steps=2 format=3]
 +
 +[ext_resource type="Script" path="res://scripts/ui/SceneHost.gd" id="1_host"]
@@ -938,39 +938,38 @@ index 00000000..3c46d235
 +grow_horizontal = 2
 +mouse_filter = 0
 +
-+[node name="Controls" type="HBoxContainer" parent="SceneControlsLayer/Surface"]
++[node name="Controls" type="VBoxContainer" parent="SceneControlsLayer/Surface"]
 +layout_mode = 1
-+anchor_top = 1.0
-+anchor_right = 1.0
-+anchor_bottom = 1.0
-+offset_left = 16.0
-+offset_top = -48.0
-+offset_right = -16.0
-+offset_bottom = -8.0
-+grow_horizontal = 2
-+grow_vertical = 0
++offset_left = 8.0
++offset_top = 8.0
++offset_right = 152.0
++offset_bottom = 248.0
 +mouse_filter = 0
 +theme_override_constants/separation = 12
-+alignment = 1
 +
 +[node name="CheckComputer" type="Button" parent="SceneControlsLayer/Surface/Controls"]
 +layout_mode = 2
++custom_minimum_size = Vector2(0, 38)
 +text = "Check Computer"
 +
 +[node name="Settings" type="Button" parent="SceneControlsLayer/Surface/Controls"]
 +layout_mode = 2
++custom_minimum_size = Vector2(0, 38)
 +text = "Settings"
 +
 +[node name="Backup" type="Button" parent="SceneControlsLayer/Surface/Controls"]
 +layout_mode = 2
++custom_minimum_size = Vector2(0, 38)
 +text = "Backup"
 +
 +[node name="Save" type="Button" parent="SceneControlsLayer/Surface/Controls"]
 +layout_mode = 2
++custom_minimum_size = Vector2(0, 38)
 +text = "Save"
 +
 +[node name="Load" type="Button" parent="SceneControlsLayer/Surface/Controls"]
 +layout_mode = 2
++custom_minimum_size = Vector2(0, 38)
 +text = "Load"
 diff --git a/scripts/application/backup/BackupPresentationPort.gd b/scripts/application/backup/BackupPresentationPort.gd
 index 6b487655..aae70e9b 100644
@@ -2272,7 +2271,7 @@ index 6bad8da6..5b034237 100644
  func _draw_confirmation() -> void:
  	confirmation.draw_rect(Rect2(0,0,800,656),get_theme_color(&"face",&"Pause"))
 diff --git a/scripts/ui/witnessed/WitnessedCaptionLayer.gd b/scripts/ui/witnessed/WitnessedCaptionLayer.gd
-index 180cde76..26b683aa 100644
+index 180cde76..092219c3 100644
 --- a/scripts/ui/witnessed/WitnessedCaptionLayer.gd
 +++ b/scripts/ui/witnessed/WitnessedCaptionLayer.gd
 @@ -166,6 +166,8 @@ func _ready() -> void:
@@ -2293,6 +2292,15 @@ index 180cde76..26b683aa 100644
  		and not is_next_transport_active()
  
  func is_next_transport_active() -> bool:
+@@ -641,7 +643,7 @@ func _sync_transport() -> void:
+ 	var rehearsal := is_instance_valid(_transport_bridge) \
+ 		and _transport_bridge.has_method("is_rehearsal_playback") \
+ 		and bool(_transport_bridge.call("is_rehearsal_playback"))
+-	transport_rail.visible = not rehearsal
++	transport_rail.visible = not rehearsal and not _computer_caption_held()
+ 	if _ending_caption_handoff or not _timed_hold_frontier.is_empty():
+ 		transport_rail.project(false, false, skip_controller.is_auto_enabled(), false, false, false, false, false)
+ 	else:
 @@ -1282,6 +1284,9 @@ func _on_caption_visibility_changed() -> void:
  	_request_layout()
  
@@ -2732,10 +2740,10 @@ index 00000000..1226b2fc
 +	assert_eq(FileAccess.get_sha256("user://profile.json"), witness.profile_sha256)
 diff --git a/tests/integration/scene_computer_child.gd b/tests/integration/scene_computer_child.gd
 new file mode 100644
-index 00000000..1b8f96f7
+index 00000000..2ec7cf0e
 --- /dev/null
 +++ b/tests/integration/scene_computer_child.gd
-@@ -0,0 +1,170 @@
+@@ -0,0 +1,172 @@
 +extends "res://tests/integration/scene_bootstrap_restart_child.gd"
 +## FINAL Bootstrap and actual mounted host; only the authored registration is TEST.
 +## Creator and loader run in distinct OS processes sharing real Save/Profile files.
@@ -2805,6 +2813,7 @@ index 00000000..1b8f96f7
 +	assert_not_null(caption)
 +	if caption == null: return
 +	assert_false(caption._reading_source_admitted())
++	assert_false(caption.transport_rail.visible, "computer owns foreground controls")
 +	assert_false(caption.caption_text.is_processing())
 +	assert_false(bridge.can_auto_advance_current_line())
 +	assert_eq(bridge.capture_reading_checkpoint(false), checkpoint)
@@ -2836,6 +2845,7 @@ index 00000000..1b8f96f7
 +	await _click(_controls(host, "CheckComputer"))
 +	assert_false(host.is_computer_open())
 +	assert_false(bridge.is_computer_caption_held())
++	assert_true(caption.transport_rail.visible, "closing restores dialogue controls")
 +	assert_eq(profile.get_preference(&"preferences.reading.auto_enabled", false), auto_before)
 +	assert_eq(bridge.capture_reading_checkpoint(false), checkpoint)
 +	await _click(_controls(host, "CheckComputer"))
