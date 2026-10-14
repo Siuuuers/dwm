@@ -1,4 +1,4 @@
-name: Scene control localization acceptance
+name: Scene audio shared-hook protocol checks
 
 on:
   pull_request:
@@ -19,7 +19,7 @@ jobs:
     runs-on: windows-2022
     timeout-minutes: 20
     env:
-      BASE_SHA: 73298dd3b493e1abac7a8cd869b8a7ce685f27fe
+      BASE_SHA: 84b1424fbd7c12053f2d07a7f01cec8c909e4927
       CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
     defaults:
       run:
@@ -37,22 +37,22 @@ jobs:
 
       - uses: actions/checkout@v7
         with:
-          ref: 092865cab9a03ece939ef8620ec53f5777fca9c3
+          ref: 99cb4e75fa8e49634cc25418854cb1a1af09cac9
           path: source
           fetch-depth: 0
 
-      - name: Verify exact localization candidate
+      - name: Verify exact audio-hooks candidate
         run: |
           $ErrorActionPreference = 'Stop'
           @'
           import json, os, pathlib, subprocess
           def git(*args): return subprocess.check_output(['git',*args],text=True).strip()
-          assert git('rev-parse','HEAD') == '092865cab9a03ece939ef8620ec53f5777fca9c3'
-          assert git('rev-parse','HEAD^{tree}') == '739f51d2561927e6464e266cc3f536ac1ba9c820'
-          assert git('rev-parse','HEAD^^') == os.environ['BASE_SHA']
+          assert git('rev-parse','HEAD') == '99cb4e75fa8e49634cc25418854cb1a1af09cac9'
+          assert git('rev-parse','HEAD^{tree}') == '52beef702d214708106c2cd4aba5ef54cc525cba'
+          assert git('rev-parse','HEAD^') == os.environ['BASE_SHA']
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           paths = git('diff','--name-only',os.environ['BASE_SHA'],'HEAD').splitlines()
-          assert len(paths) == 11
+          assert len(paths) == 12
           (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':git('rev-parse','HEAD'),'controller':os.environ['CONTROLLER_SHA'],'paths':paths},indent=2),encoding='utf-8')
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -89,53 +89,39 @@ jobs:
           git diff --cached --check
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit --allow-empty -m 'Freeze scene localization candidate with imported UIDs'
+          git commit --allow-empty -m 'Freeze shared audio hooks candidate'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @{ source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); parent=(git rev-parse HEAD^) } | ConvertTo-Json | Set-Content .godot/ci/candidate-commit.json -Encoding utf8
 
-      - name: Focused scene controls integration
+      - name: Focused shared audio boundaries
         run: |
           $ErrorActionPreference = 'Stop'
-          $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/scene/test_scene_host_controls.gd,res://tests/integration/test_scene_controls_localization.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/localization.xml')
-          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'scene-controls-localization' -LogName 'localization.log' -GodotArgs $args -EvidenceLogPath '.godot/ci/localization.jsonl' -TimeoutSeconds 180
+          $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/unit/test_scene_checkpoint_ack.gd,res://tests/unit/test_restore_participants.gd,res://tests/unit/test_scene_runtime_remap.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/audio-hooks.xml')
+          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'scene-audio-hooks' -LogName 'audio-hooks.log' -GodotArgs $args -EvidenceLogPath '.godot/ci/audio-hooks.jsonl' -TimeoutSeconds 180
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-      - name: Render all localized controls
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $env:DWM_RENDER_OUTPUT = Join-Path $PWD '.godot/ci/scene-controls-localization-render'
-          $args = @('--script','res://tests/ui/render_scene_controls_localization.gd','--','--phase2r-bootstrap-mode=final')
-          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'scene-controls-localization-render' -LogName 'localization-render.log' -GodotArgs $args -EvidenceLogPath '.godot/ci/localization-render.jsonl' -TimeoutSeconds 180 -Rendered
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-      - name: Verify executed census and rendered evidence
+      - name: Verify executed census and protocol evidence
         run: |
           $ErrorActionPreference = 'Stop'
           @'
           import collections, json, pathlib, re, subprocess, xml.etree.ElementTree as ET
           out = pathlib.Path('.godot/ci')
-          scripts = ['tests/scene/test_scene_host_controls.gd','tests/integration/test_scene_controls_localization.gd']
+          scripts = ['tests/unit/test_scene_checkpoint_ack.gd','tests/unit/test_restore_participants.gd','tests/unit/test_scene_runtime_remap.gd']
           expected = [(s,n) for s in scripts for n in re.findall(r'^func (test_\w+)\(',pathlib.Path(s).read_text(),re.M)]
-          root = ET.parse(out/'localization.xml').getroot()
+          root = ET.parse(out/'audio-hooks.xml').getroot()
           rows = list(root.iter('testcase'))
-          assert len(expected) == 7
+          assert len(expected) == 36
           assert collections.Counter((r.attrib['classname'],r.attrib['name']) for r in rows) == collections.Counter(expected)
           assert all(r.attrib.get('status') == 'pass' and int(r.attrib.get('assertions','0')) > 0 for r in rows)
           assert not any(list(root.iter(tag)) for tag in ['failure','error','skipped'])
-          for lane in ['localization','localization-render']:
+          for lane in ['audio-hooks']:
               text = (pathlib.Path('.godot/phase2r_logs')/(lane+'.log')).read_text(encoding='utf-8-sig')
               assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',text), lane
               children = [json.loads(line) for line in (out/(lane+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if line.strip()]
               assert len(children) == 1 and children[0]['exit_code'] == 0
-          folder = out/'scene-controls-localization-render'
-          report = json.loads((folder/'results.json').read_text(encoding='utf-8-sig'))
-          assert report['ok'] and report['failures'] == [] and report['renderer'] != 'headless'
-          assert len(report['samples']) == 60 and report['captures'] == 20
-          pictures = list(folder.glob('*.png'))
-          assert len(pictures) == 20 and all(p.read_bytes().startswith(bytes([137,80,78,71,13,10,26,10])) for p in pictures)
           assert not subprocess.check_output(['git','diff','--name-only'],text=True).strip()
           assert not subprocess.check_output(['git','diff','--cached','--name-only'],text=True).strip()
-          result = {'status':'passed','source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'cases':len(rows),'xml_assertions':sum(int(r.attrib['assertions']) for r in rows),'samples':60,'captures':20,'scope':'SceneHost localized chrome, isolated real Profile/Localization; synthetic action callbacks. No mounted board/narrative/native OS input or whole-game acceptance.'}
+          result = {'status':'passed','source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'cases':len(rows),'xml_assertions':sum(int(r.attrib['assertions']) for r in rows),'scope':'Shared admission/checkpoint/restore protocol and legacy regressions with explicit doubles; no composed v3 audio or connected playback acceptance.'}
           (out/'gate.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
           print(json.dumps(result))
           '@ | python -
@@ -192,7 +178,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: scene-controls-localization-${{ github.run_id }}-${{ github.run_attempt }}
+          name: scene-audio-hooks-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             source/.godot/ci
             source/.godot/phase2r_logs
