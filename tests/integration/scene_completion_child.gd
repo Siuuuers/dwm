@@ -27,7 +27,7 @@ func _closure() -> Dictionary:
 	assert_true(receipts.has(result.playable_command_id))
 	if not receipts.has(result.playable_command_id): return {}
 	assert_eq(receipts[result.playable_command_id].scene_event.result.kind, "challenge_playable")
-	assert_eq(result.outcome, "won")
+	assert_eq(result.outcome, _expected_outcome())
 	assert_eq(result.target_id, "target_a")
 	assert_true(result.attempt_proof is Dictionary)
 	if not result.attempt_proof is Dictionary: return {}
@@ -35,7 +35,7 @@ func _closure() -> Dictionary:
 	var retained: Dictionary = profile.get_dating_attempt(proof.run_id, proof.slot_id, proof.attempt_id, proof.branch_id)
 	if not _ok(retained): return {}
 	if not _ok(ATTEMPTS.validate_attempt_proof(retained.value, proof)): return {}
-	assert_eq(retained.value.record.state, "won")
+	assert_eq(retained.value.record.state, _expected_outcome())
 	assert_true(retained.value.record.board.terminal)
 	return result
 
@@ -76,28 +76,22 @@ func create_completed_scene() -> void:
 		var record: Dictionary = captured.value
 		assert_false(record.is_empty())
 		if record.is_empty(): return
-		var safe := -1
-		for index: int in panel.public_view.board.cells.size():
-			if not record.board.mine_indices.has(index) and "reveal" in panel.public_view.board.cells[index].actions:
-				if safe < 0: safe = index
-				if record.board.adjacency_counts[index] == 0:
-					safe = index
-					break
-		assert_gte(safe, 0, "Active board has a remaining safe reveal.")
+		var safe: int = _next_terminal_cell(record, panel)
+		assert_gte(safe, 0, "Active board has a reveal for the expected terminal outcome.")
 		if safe < 0: return
 		assert_true(panel.worksheet.grid.focus_cell(safe))
 		await get_tree().process_frame
 		await _click(panel.worksheet.grid.cell_nodes[safe])
 	assert_false(_terminal_record.is_empty(), "Native cell inputs reach terminal.")
 	if _terminal_record.is_empty(): return
-	assert_eq(_terminal_record.state, "won")
+	assert_eq(_terminal_record.state, _expected_outcome())
 	var arrived := false
 	var caption_captured := false
 	var deadline := Time.get_ticks_msec() + 15000
 	while Time.get_ticks_msec() < deadline:
 		_observe_second()
 		if _second_visible and not caption_captured:
-			await _screenshot("completion-caption")
+			await _screenshot(_capture_label("completion-caption"))
 			caption_captured = true
 		var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
 		if checkpoint.get("ok", false) and checkpoint.value.entry_id == "scene.test.a":
@@ -113,7 +107,7 @@ func create_completed_scene() -> void:
 	assert_true(profile.get_preference(&"preferences.reading.auto_enabled", false))
 	var closure: Dictionary = _closure()
 	if closure.is_empty(): return
-	await _screenshot("completed-target")
+	await _screenshot(_capture_label("completed-target"))
 	# Use the ordinary direct Save surface; its API is the existing backup owner.
 	await _click(_controls(get_tree().current_scene, "Save"))
 	var sheet: Node = get_node("/root/SceneRouter")._production_pause
@@ -129,11 +123,11 @@ func create_completed_scene() -> void:
 		"second_visible": _second_visible, "slot_sha256": FileAccess.get_sha256("user://saves/slot_1.json"),
 		"auto": profile.get_preference(&"preferences.reading.auto_enabled", false)}
 	assert_eq(str(proof.slot_sha256).length(), 64)
-	if not _write_json("user://scene-completion-proof.json", proof): return
-	_write_json("res://.godot/ci/scene-completion-create-proof.json", proof)
+	if not _write_json("user://" + _proof_prefix() + "-proof.json", proof): return
+	_write_json("res://.godot/ci/" + _proof_prefix() + "-create-proof.json", proof)
 
 func load_completed_scene() -> void:
-	var parsed: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://scene-completion-proof.json"))
+	var parsed: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://" + _proof_prefix() + "-proof.json"))
 	if not _ok(parsed): return
 	var proof: Dictionary = parsed.value
 	assert_ne(OS.get_process_id(), proof.process_id)
@@ -159,7 +153,7 @@ func load_completed_scene() -> void:
 	assert_eq(profile.get_preference(&"preferences.reading.auto_enabled", false), proof.auto)
 	assert_true(proof.auto)
 	assert_false(get_tree().paused)
-	await _screenshot("completed-restored")
+	await _screenshot(_capture_label("completed-restored"))
 	# A restored completed scene can be saved again through the normal host.
 	var before_profile: Dictionary = profile.get_profile_snapshot().duplicate(true)
 	await _click(_controls(get_tree().current_scene, "Save"))
@@ -181,4 +175,23 @@ func load_completed_scene() -> void:
 	proof["second_save_sha256"] = second_hash
 	proof["loader_process_id"] = OS.get_process_id()
 	proof["loaded_closure"] = closure
-	_write_json("res://.godot/ci/scene-completion-load-proof.json", proof)
+	_write_json("res://.godot/ci/" + _proof_prefix() + "-load-proof.json", proof)
+
+# The loss journey shares completion/Save assertions and changes only its board input.
+func _expected_outcome() -> String:
+	return "won"
+
+func _proof_prefix() -> String:
+	return "scene-completion"
+
+func _capture_label(label: String) -> String:
+	return label
+
+func _next_terminal_cell(record: Dictionary, panel: Control) -> int:
+	var safe := -1
+	for index: int in panel.public_view.board.cells.size():
+		if not record.board.mine_indices.has(index) and "reveal" in panel.public_view.board.cells[index].actions:
+			if safe < 0: safe = index
+			if record.board.adjacency_counts[index] == 0:
+				return index
+	return safe
