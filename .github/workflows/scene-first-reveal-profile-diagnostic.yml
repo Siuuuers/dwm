@@ -100,11 +100,11 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @{ source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); parent=(git rev-parse HEAD^) } | ConvertTo-Json | Set-Content .godot/ci/candidate-commit.json -Encoding utf8
 
-      - name: Capture ordinary-launch shutdown dump
+      - name: Capture test-mode native exception
         timeout-minutes: 6
         run: |
           $ErrorActionPreference = 'Stop'
-          & '../controller/tools/cloud/Invoke-StyleWerCapture.ps1'
+          & '../controller/tools/cloud/Invoke-StyleCrashDebugger.ps1' -Mode plain
           throw 'Diagnostic capture only; candidate acceptance remains blocked pending native failure analysis'
 
       - name: Verify executed census and source identity

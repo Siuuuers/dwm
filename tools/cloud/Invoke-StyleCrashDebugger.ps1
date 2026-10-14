@@ -22,7 +22,7 @@ function Invoke-BoundedNative {
     $start.FileName = $Executable
     $start.WorkingDirectory = $WorkingDirectory
     $start.UseShellExecute = $false
-    $start.CreateNoWindow = $false
+    $start.CreateNoWindow = $true
     $start.RedirectStandardOutput = $true
     $start.RedirectStandardError = $true
     foreach ($argument in $Arguments) { $start.ArgumentList.Add($argument) }
@@ -85,7 +85,7 @@ foreach ($requiredPath in @($enginePath, $cdbPath, $gflagsPath, $testPath)) {
 $ciRoot = Join-Path $projectRoot '.godot/ci'
 $outputRoot = Join-Path $ciRoot "native-$Mode"
 $dumpRoot = Join-Path $projectRoot '.godot/native-crashes'
-$isolationRoot = Join-Path $env:RUNNER_TEMP ('dwm-style-cdb-' + [Guid]::NewGuid().ToString('N'))
+$isolationRoot = Join-Path $projectRoot ('.godot/phase2r_tests/cdb-' + [Guid]::NewGuid().ToString('N'))
 foreach ($directory in @($ciRoot, $outputRoot, $dumpRoot, $isolationRoot)) {
     [void][IO.Directory]::CreateDirectory($directory)
 }
