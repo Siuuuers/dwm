@@ -48,7 +48,9 @@ function Read-LiveDebuggerLog([string]$Path) {
 $projectRoot = [IO.Path]::GetFullPath((Get-Location).ProviderPath)
 if (-not $IsWindows -or -not (Test-Path (Join-Path $projectRoot 'project.godot'))) { throw 'Requires cloud Windows candidate root.' }
 $consolePath = (Resolve-Path -LiteralPath $env:GODOT_CONSOLE_PATH).ProviderPath
-$enginePath = Join-Path ([IO.Path]::GetDirectoryName($consolePath)) 'Godot_v4.6.3-stable_win64.exe'
+$enginePath = if ([string]::IsNullOrWhiteSpace($env:GODOT_ENGINE_PATH)) {
+    Join-Path ([IO.Path]::GetDirectoryName($consolePath)) 'Godot_v4.6.3-stable_win64.exe'
+} else { (Resolve-Path -LiteralPath $env:GODOT_ENGINE_PATH).ProviderPath }
 $cdbPath = Join-Path ${env:ProgramFiles(x86)} 'Windows Kits/10/Debuggers/x64/cdb.exe'
 foreach ($path in @($enginePath, $cdbPath, (Join-Path $projectRoot 'tests/diagnostics/style_refusal_shutdown_probe.gd'))) {
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing dependency: $path" }
@@ -67,7 +69,7 @@ $dumpPath = Join-Path $projectRoot $dumpRelative
 $debuggerLog = Join-Path $outputRoot "cdb-$nonce.log"
 $commandPath = Join-Path $outputRoot "commands-$nonce.txt"
 $marker = "DWM_ATTACH_FILTERS_READY_$nonce"
-$capture = '.exr -1; .ecxr; r; kv 50; lm; .dump /m ' + $dumpRelative + '; q'
+$capture = '.exr -1; r; kv 50; lmv m godot*; .dump /m ' + $dumpRelative + '; q'
 $commands = @(
     ('sxe -c ".echo DWM_ATTACH_AV; ' + $capture + '" av'),
     ('sxe -c ".echo DWM_ATTACH_HEAP; ' + $capture + '" 0xc0000374'),
