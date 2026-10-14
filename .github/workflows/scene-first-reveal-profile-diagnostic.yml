@@ -1,4 +1,4 @@
-name: Scene caption style ownership diagnostic (bounded preparation)
+name: Scene caption style ownership diagnostic (separate preparation)
 
 on:
   pull_request:
@@ -17,7 +17,7 @@ jobs:
   profile-first-reveal:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
     runs-on: windows-2022
-    timeout-minutes: 110
+    timeout-minutes: 145
     env:
       BASE_SHA: 8ead20846f830d7e4227b6650c5bd24b9038d5d7
       CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
@@ -64,10 +64,16 @@ jobs:
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
+      - name: Prepare verified symbol source with 7-Zip
+        timeout-minutes: 25
+        run: |
+          & '../controller/tools/cloud/Build-SymbolGodot.ps1' -Mode Prepare
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
       - name: Build separate symbol-enabled diagnostic engine
         timeout-minutes: 90
         run: |
-          & '../controller/tools/cloud/Build-SymbolGodot.ps1'
+          & '../controller/tools/cloud/Build-SymbolGodot.ps1' -Mode Compile
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Import and freeze exact candidate

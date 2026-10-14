@@ -1,5 +1,6 @@
 #requires -Version 7.2
 # Diagnostic build only: never substitute its results for official-engine acceptance.
+param([Parameter(Mandatory)][ValidateSet('Prepare', 'Compile')][string]$Mode)
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $projectRoot = [IO.Path]::GetFullPath((Get-Location).ProviderPath)
@@ -19,6 +20,10 @@ $receipt = [ordered]@{
     build_status = 'preparing'; files = @(); failure = $null
 }
 $receiptPath = Join-Path $out 'build.json'
+if ($Mode -eq 'Compile') {
+    $receipt = Get-Content -LiteralPath $receiptPath -Raw | ConvertFrom-Json -AsHashtable
+    if ($receipt.build_status -ne 'prepared' -or $receipt.downloaded_sha256 -ne $sourceDigest) { throw 'SOURCE_PREPARATION_NOT_PROVEN' }
+}
 function Save-Receipt { $receipt | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $receiptPath -Encoding utf8 }
 function Set-BuildStage([string]$Stage) {
     $receipt.build_status = $Stage
@@ -60,25 +65,39 @@ function Invoke-PreparationProgram([string]$Executable, [string[]]$Arguments, [s
 }
 Save-Receipt
 try {
-    Set-BuildStage 'downloading_source'
-    Invoke-PreparationProgram 'curl.exe' @('--fail', '--location', '--silent', '--show-error',
-        '--connect-timeout', '30', '--max-time', '240', '--retry', '1', '--retry-max-time', '300',
-        '--output', $archive, '--write-out', 'http=%{http_code} bytes=%{size_download} seconds=%{time_total}', $sourceUrl) 'source_download' 540
-    Set-BuildStage 'verifying_source'
-    $receipt['downloaded_bytes'] = (Get-Item -LiteralPath $archive).Length
-    $receipt['downloaded_sha256'] = (Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant()
-    if ($receipt.downloaded_sha256 -ne $sourceDigest) { throw 'SOURCE_ARCHIVE_HASH_MISMATCH' }
-    Set-BuildStage 'extracting_source'
-    Invoke-PreparationProgram 'tar.exe' @('-xf', $archive, '-C', $sourceRoot) 'source_extract' 300
+    if ($Mode -eq 'Prepare') {
+        Set-BuildStage 'downloading_source'
+        Invoke-PreparationProgram 'curl.exe' @('--fail', '--location', '--silent', '--show-error',
+            '--connect-timeout', '30', '--max-time', '240', '--retry', '1', '--retry-max-time', '300',
+            '--output', $archive, '--write-out', 'http=%{http_code} bytes=%{size_download} seconds=%{time_total}', $sourceUrl) 'source_download' 540
+        Set-BuildStage 'verifying_source'
+        $receipt['downloaded_bytes'] = (Get-Item -LiteralPath $archive).Length
+        $receipt['downloaded_sha256'] = (Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+        if ($receipt.downloaded_sha256 -ne $sourceDigest) { throw 'SOURCE_ARCHIVE_HASH_MISMATCH' }
+        $sevenZip = Join-Path $env:ProgramFiles '7-Zip/7z.exe'
+        if (-not (Test-Path -LiteralPath $sevenZip -PathType Leaf)) { throw 'SEVEN_ZIP_UNAVAILABLE' }
+        $receipt['extractor_version'] = (Get-Item -LiteralPath $sevenZip).VersionInfo.FileVersion
+        Set-BuildStage 'decompressing_source'
+        Invoke-PreparationProgram $sevenZip @('x', $archive, "-o$sourceRoot", '-y') 'source_decompress' 300
+        $tarArchive = Join-Path $sourceRoot 'godot-4.6.3-stable.tar'
+        if (-not (Test-Path -LiteralPath $tarArchive -PathType Leaf)) { throw 'DECOMPRESSED_ARCHIVE_MISSING' }
+        Set-BuildStage 'extracting_source'
+        Invoke-PreparationProgram $sevenZip @('x', $tarArchive, "-o$sourceRoot", '-y') 'source_extract' 300
+        $roots = @(Get-ChildItem -LiteralPath $sourceRoot -Directory | Where-Object { Test-Path (Join-Path $_.FullName 'SConstruct') })
+        if ($roots.Count -ne 1) { throw 'SOURCE_ROOT_AMBIGUOUS' }
+        $engineSource = $roots[0].FullName
+        Copy-Item (Join-Path $engineSource 'version.py') (Join-Path $out 'source-version.py')
+        if (Test-Path (Join-Path $engineSource '.git')) { throw 'UNEXPECTED_SOURCE_GIT_METADATA' }
+        $receipt['python_version'] = (& python --version | Out-String).Trim()
+        Set-BuildStage 'installing_scons'
+        Invoke-PreparationProgram 'python' @('-m', 'pip', 'install', '--disable-pip-version-check', 'scons==4.8.1') 'scons_install' 240
+        $receipt['scons_version'] = (& python -m SCons --version | Out-String).Trim()
+        Set-BuildStage 'prepared'
+        return
+    }
     $roots = @(Get-ChildItem -LiteralPath $sourceRoot -Directory | Where-Object { Test-Path (Join-Path $_.FullName 'SConstruct') })
     if ($roots.Count -ne 1) { throw 'SOURCE_ROOT_AMBIGUOUS' }
     $engineSource = $roots[0].FullName
-    Copy-Item (Join-Path $engineSource 'version.py') (Join-Path $out 'source-version.py')
-    if (Test-Path (Join-Path $engineSource '.git')) { throw 'UNEXPECTED_SOURCE_GIT_METADATA' }
-    $receipt['python_version'] = (& python --version | Out-String).Trim()
-    Set-BuildStage 'installing_scons'
-    Invoke-PreparationProgram 'python' @('-m', 'pip', 'install', '--disable-pip-version-check', 'scons==4.8.1') 'scons_install' 240
-    $receipt['scons_version'] = (& python -m SCons --version | Out-String).Trim()
     $arguments = @('-j4', 'platform=windows', 'target=editor', 'arch=x86_64', 'use_mingw=no',
         'module_mono_enabled=no', 'debug_symbols=yes', 'dev_build=no', 'lto=none', 'd3d12=no')
     $receipt['arguments'] = $arguments
