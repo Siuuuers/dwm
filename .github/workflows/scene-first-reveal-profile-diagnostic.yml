@@ -52,7 +52,7 @@ jobs:
           assert git('rev-parse','HEAD') == base
           assert git('ls-remote','origin','refs/heads/codex/scene-runtime-integration-20261009').split()[0] == base
           patch = pathlib.Path('../controller/tools/cloud/scene-first-reveal-resumable.patch').read_bytes()
-          assert hashlib.sha256(patch).hexdigest() == '9e106c475eeae39bad794d6973351c4a24264c0fb66c4cd08b27f4a1f0d6ef38'
+          assert hashlib.sha256(patch).hexdigest() == '1357835862bfe2b02401bd091c393d83c8975c136c41441809331edad55248bb'
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           (out/'candidate.patch').write_bytes(patch)
           subprocess.run(['git','apply','--index','--binary',str(out/'candidate.patch')], check=True)
@@ -160,7 +160,7 @@ jobs:
               'lanes':counts,
               'total_cases':sum(v['cases'] for v in counts.values()),
               'total_xml_assertions':sum(v['assertions'] for v in counts.values()),
-              'scope':'Ordinary FINAL Bootstrap computer panel, caption input hold, direct sheets and physical Save/fresh-process Load using TEST-authored registration. Rendered Viewport input and retained PNGs; no OS input acceptance. Broader recovery combinations deferred.',
+              'scope':'Ordinary FINAL Bootstrap computer panel, caption input hold, direct sheets and physical Save/fresh-process Load using TEST-authored registration. Rendered Viewport input and retained PNGs; no OS input acceptance. Auto enabled at authored control checkpoint; line-timer resumption unverified. Broader recovery combinations deferred.',
           }
           (out/'gate.json').write_text(json.dumps(result, indent=2), encoding='utf-8')
           print(json.dumps(result))
