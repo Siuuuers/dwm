@@ -104,7 +104,7 @@ jobs:
         timeout-minutes: 12
         run: |
           $ErrorActionPreference = 'Continue'
-          foreach ($mode in @('plain','pageheap')) {
+          foreach ($mode in @('plain')) {
             & '../controller/tools/cloud/Invoke-StyleCrashDebugger.ps1' -Mode $mode
             Write-Host "DWM_NATIVE_DEBUGGER_END $mode exit=$LASTEXITCODE"
           }

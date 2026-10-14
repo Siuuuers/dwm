@@ -22,7 +22,7 @@ function Invoke-BoundedNative {
     $start.FileName = $Executable
     $start.WorkingDirectory = $WorkingDirectory
     $start.UseShellExecute = $false
-    $start.CreateNoWindow = $true
+    $start.CreateNoWindow = $false
     $start.RedirectStandardOutput = $true
     $start.RedirectStandardError = $true
     foreach ($argument in $Arguments) { $start.ArgumentList.Add($argument) }
@@ -103,7 +103,7 @@ if (Test-Path -LiteralPath $dumpPath) { throw "Refusing a stale diagnostic dump:
 
 # Relative debugger dump paths contain neither spaces nor quotes. The CDB
 # working directory is the candidate root. /m deliberately excludes full memory.
-$capture = '.exr -1; r; kv 50; lm; .dump /m .godot\native-crashes\' + $Mode + '.dmp; q'
+$capture = '.exr -1; r; kv 50; lm; .dump /m .godot/native-crashes/' + $Mode + '.dmp; q'
 $commands = @(
     '.echo DWM_CDB_INITIAL_SETUP',
     ('sxe -c ".echo DWM_NATIVE_EXCEPTION_AV; ' + $capture + '" av'),
@@ -111,6 +111,7 @@ $commands = @(
     ('sxe -c ".echo DWM_NATIVE_EXCEPTION_HEAP; ' + $capture + '" 0xc0000374'),
     # Installed at the initial debugger prompt, so subsequent verifier int3s are trapped.
     ('sxe -c ".echo DWM_NATIVE_EXCEPTION_BREAKPOINT; ' + $capture + '" bpe'),
+    'sxi ibp',
     '.echo DWM_CDB_FILTERS_READY',
     'sx',
     'g'
@@ -123,8 +124,8 @@ $godotArguments = @(
     '-gtest=res://tests/integration/test_scene_caption_style_refusal.gd',
     '-gexit', '-glog=2', "-gjunit_xml_file=res://.godot/ci/native-$Mode/gut.xml"
 )
-$debuggerArguments = @('-cf', $commandPath, '-logo', $debuggerLog, '-G', '-sins',
-    '-y', ([IO.Path]::GetDirectoryName($enginePath)), $enginePath) + $godotArguments
+$debuggerArguments = @('-o', '-cf', $commandPath, '-logo', $debuggerLog, '-G', '-sins',
+    '-y', ([IO.Path]::GetDirectoryName($enginePath)), $consolePath) + $godotArguments
 $receipt = [ordered]@{
     schema_version = 1
     diagnostic_only = $true
@@ -138,7 +139,7 @@ $receipt = [ordered]@{
     arguments = $debuggerArguments
     isolation = $isolation
     symbol_scope = 'Local engine directory and module identities; official Windows Godot PDB unavailable.'
-    limits = @{ debugger_seconds = 180; output_drain_seconds = 10; test_watchdog_seconds = 30 }
+    limits = @{ debugger_seconds = 90; output_drain_seconds = 10; test_watchdog_seconds = 30 }
     acceptance = 'Not evaluated: debugger exit and GUT assertions do not establish clean native termination.'
     pageheap_enable = $null
     pageheap_disable = $null
@@ -163,7 +164,7 @@ try {
     }
     $captureCall = @{
         Executable = $cdbPath; Arguments = $debuggerArguments
-        WorkingDirectory = $projectRoot; Environment = $isolation; TimeoutSeconds = 180
+        WorkingDirectory = $projectRoot; Environment = $isolation; TimeoutSeconds = 90
         StdoutPath = (Join-Path $outputRoot 'stdout.log')
         StderrPath = (Join-Path $outputRoot 'stderr.log')
     }
