@@ -30,6 +30,21 @@ function Close-CapturedProcess($Capture) {
         }
     } finally { $process.Dispose() }
 }
+function Read-LiveDebuggerLog([string]$Path) {
+    $stream = $null
+    $reader = $null
+    try {
+        $stream = [IO.FileStream]::new($Path, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::ReadWrite)
+        $reader = [IO.StreamReader]::new($stream)
+        return $reader.ReadToEnd()
+    } catch [IO.IOException] {
+        # Creation and writer flush races are retried under the outer deadline.
+        return ''
+    } finally {
+        if ($null -ne $reader) { $reader.Dispose() }
+        elseif ($null -ne $stream) { $stream.Dispose() }
+    }
+}
 $projectRoot = [IO.Path]::GetFullPath((Get-Location).ProviderPath)
 if (-not $IsWindows -or -not (Test-Path (Join-Path $projectRoot 'project.godot'))) { throw 'Requires cloud Windows candidate root.' }
 $consolePath = (Resolve-Path -LiteralPath $env:GODOT_CONSOLE_PATH).ProviderPath
@@ -86,7 +101,7 @@ try {
     $debugger = Start-CapturedProcess $cdbPath $debuggerArguments @{} (Join-Path $outputRoot 'debugger')
     while ($true) {
         if ($target.HasExited -or $debugger.process.HasExited) { throw 'PROCESS_EXITED_BEFORE_FILTERS_READY' }
-        $log = if (Test-Path -LiteralPath $debuggerLog) { [IO.File]::ReadAllText($debuggerLog) } else { '' }
+        $log = Read-LiveDebuggerLog $debuggerLog
         if ($log -match ('(?m)^' + [regex]::Escape($marker) + '\s*$')) { break }
         if ([DateTime]::UtcNow -ge $deadline) { throw 'ATTACH_FILTERS_TIMEOUT' }
         Start-Sleep -Milliseconds 100
