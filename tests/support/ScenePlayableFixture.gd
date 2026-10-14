@@ -54,6 +54,11 @@ var before_reading: Dictionary = {}
 var before_publications := 0
 
 func _install_registration() -> Dictionary:
+	var built: Dictionary = _registration_bundle()
+	if not built.ok: return built
+	return BASE_READING.MANIFEST.configure_test_scene_registration(built.value)
+
+func _registration_bundle() -> Dictionary:
 	var parsed: Dictionary = BASE_READING.JSON_READER.parse_object(FileAccess.get_file_as_string(BASE_READING.REGISTRATION))
 	if not parsed.ok: return parsed
 	var bundle: Dictionary = parsed.value
@@ -87,7 +92,7 @@ func _install_registration() -> Dictionary:
 	bundle.challenges = [{"challenge_id": "TEST.challenge", "entry_id": BASE_READING.B,
 		"playable_marker_id": "scene.test.b.playable", "end_marker_id": "scene.test.b.end", "board_profile_id": "TEST.profile",
 		"targets": {"never_started": "target_a", "unfinished": "target_a", "lost": "target_a", "won": "target_a"}}]
-	return BASE_READING.MANIFEST.configure_test_scene_registration(bundle)
+	return {"ok": true, "value": bundle}
 
 func setup_playable(scene_tree: SceneTree) -> Dictionary:
 	var checked: Dictionary = await setup_restart(scene_tree)

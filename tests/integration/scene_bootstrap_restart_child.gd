@@ -17,12 +17,15 @@ func _ok(result: Dictionary) -> bool:
 	assert_true(result.get("ok", false), str(result))
 	return result.get("ok", false)
 
+func _install_content_registration() -> Dictionary:
+	var content: RefCounted = CONTENT.new()
+	return content._install_registration()
+
 func _start_services() -> bool:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	assert_false(OS.get_environment("DWM_TEST_ROOT").is_empty())
 	if OS.get_environment("DWM_TEST_ROOT").is_empty(): return false
-	var content: RefCounted = CONTENT.new()
-	if not _ok(content._install_registration()): return false
+	if not _ok(_install_content_registration()): return false
 	var old: Node = get_node("/root/ApplicationBootstrap")
 	assert_eq(old.get_startup_state().mode, &"test_manual")
 	assert_false(old.get_startup_state().ready)
