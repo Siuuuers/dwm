@@ -97,9 +97,9 @@ func test_committed_typography_refresh_is_scoped_and_keeps_controls_live() -> vo
 	assert_eq(_calls, ["save"], "action routing still works")
 
 func test_freed_host_drops_subscriptions_and_replacement_projects_current_preferences() -> void:
-	var locale_connections := _locale.locale_changed.get_connections().size()
-	var profile_connections := _profile.preference_changed.get_connections().size()
-	var restore_connections := _profile.profile_restored.get_connections().size()
+	var locale_connections: int = _locale.locale_changed.get_connections().size()
+	var profile_connections: int = _profile.preference_changed.get_connections().size()
+	var restore_connections: int = _profile.profile_restored.get_connections().size()
 	_host.free()
 	assert_eq(_locale.locale_changed.get_connections().size(), locale_connections - 1)
 	assert_eq(_profile.preference_changed.get_connections().size(), profile_connections - 1)
