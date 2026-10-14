@@ -1,4 +1,4 @@
-name: Scene caption style ownership diagnostic (bounded heap startup)
+name: Scene caption style ownership candidate
 
 on:
   pull_request:
@@ -17,7 +17,7 @@ jobs:
   profile-first-reveal:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
     runs-on: windows-2022
-    timeout-minutes: 35
+    timeout-minutes: 60
     env:
       BASE_SHA: 8ead20846f830d7e4227b6650c5bd24b9038d5d7
       CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
@@ -52,44 +52,32 @@ jobs:
           assert git('rev-parse','HEAD') == base
           assert git('ls-remote','origin','refs/heads/codex/scene-runtime-integration-20261009').split()[0] == base
           patch = pathlib.Path('../controller/tools/cloud/scene-first-reveal-resumable.patch').read_bytes()
-          assert hashlib.sha256(patch).hexdigest() == '784f09890b271f9d96f7c680b6de558022f8f158284b6dbb99ab2957b3bf76db'
+          assert hashlib.sha256(patch).hexdigest() == '30c74b2a21c2d6952cc5d4ace315273b86e41300dae28cef94d9c341c4e6f2c2'
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           (out/'candidate.patch').write_bytes(patch)
           subprocess.run(['git','apply','--index','--binary',str(out/'candidate.patch')], check=True)
           subprocess.run(['git','diff','--cached','--check'], check=True)
           paths = git('diff','--cached','--name-only').splitlines()
-          assert paths == ['autoload/DialogicBridge.gd', 'autoload/GameState.gd', 'autoload/SceneRouter.gd', 'scripts/application/backup/BackupPresentationPort.gd', 'scripts/application/lifecycle/ProductionPauseController.gd', 'scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd', 'scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd', 'scripts/application/restore/RouteRestoreParticipant.gd', 'scripts/application/run/DatingChallengeEnvelope.gd', 'scripts/application/run/DatingPhysicalOwner.gd', 'scripts/domain/minesweeper/MinesweeperBoardGenerator.gd', 'scripts/profile/DatingAttemptLedger.gd', 'tests/diagnostics/style_refusal_shutdown_probe.gd', 'tests/diagnostics/style_shutdown_probe.gd', 'tests/integration/scene_first_reveal_connected_child.gd', 'tests/integration/test_pause_backup_host.gd', 'tests/integration/test_scene_caption_style_refusal.gd', 'tests/integration/test_scene_first_reveal_connected_ahead.gd', 'tests/integration/test_scene_first_reveal_connected_create.gd', 'tests/integration/test_scene_first_reveal_connected_load.gd', 'tests/integration/test_scene_first_reveal_selected_create.gd', 'tests/integration/test_scene_pause_load.gd', 'tests/integration/test_scene_pause_quick_load.gd', 'tests/integration/test_scene_pause_write_refusal.gd', 'tests/support/SceneCaptionStyleRefusalFixture.gd', 'tests/support/SceneChallengeFixture.gd', 'tests/support/SceneFirstRevealConnectedFixture.gd', 'tests/support/ScenePauseLoadFixture.gd', 'tests/support/ScenePauseLoadTestBase.gd', 'tests/unit/test_scene_absence.gd', 'tests/unit/test_scene_first_reveal.gd']
+          assert paths == ['addons/dialogic/Modules/Style/subsystem_styles.gd', 'autoload/DialogicBridge.gd', 'autoload/GameState.gd', 'autoload/SceneRouter.gd', 'scripts/application/backup/BackupPresentationPort.gd', 'scripts/application/lifecycle/ProductionPauseController.gd', 'scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd', 'scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd', 'scripts/application/restore/RouteRestoreParticipant.gd', 'scripts/application/run/DatingChallengeEnvelope.gd', 'scripts/application/run/DatingPhysicalOwner.gd', 'scripts/domain/minesweeper/MinesweeperBoardGenerator.gd', 'scripts/profile/DatingAttemptLedger.gd', 'tests/diagnostics/style_refusal_shutdown_probe.gd', 'tests/diagnostics/style_shutdown_probe.gd', 'tests/integration/scene_first_reveal_connected_child.gd', 'tests/integration/test_pause_backup_host.gd', 'tests/integration/test_scene_caption_style_refusal.gd', 'tests/integration/test_scene_first_reveal_connected_ahead.gd', 'tests/integration/test_scene_first_reveal_connected_create.gd', 'tests/integration/test_scene_first_reveal_connected_load.gd', 'tests/integration/test_scene_first_reveal_selected_create.gd', 'tests/integration/test_scene_pause_load.gd', 'tests/integration/test_scene_pause_quick_load.gd', 'tests/integration/test_scene_pause_write_refusal.gd', 'tests/support/SceneCaptionStyleRefusalFixture.gd', 'tests/support/SceneChallengeFixture.gd', 'tests/support/SceneFirstRevealConnectedFixture.gd', 'tests/support/ScenePauseLoadFixture.gd', 'tests/support/ScenePauseLoadTestBase.gd', 'tests/unit/test_scene_absence.gd', 'tests/unit/test_scene_first_reveal.gd']
           receipt = {'base':base,'controller':os.environ['CONTROLLER_SHA'],'patch_sha256':hashlib.sha256(patch).hexdigest(),'paths':paths,'publication':'disabled diagnostic'}
           (out/'candidate-origin.json').write_text(json.dumps(receipt,indent=2),encoding='utf-8')
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-      - name: Reuse matched diagnostic engine and symbols
-        uses: actions/download-artifact@v4
-        with:
-          artifact-ids: '11883600461'
-          run-id: '38536170283'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path: source/.godot/symbol-engine
-          merge-multiple: true
-
-      - name: Verify reused engine identity
+      - name: Install exact Godot standard engine
         run: |
           $ErrorActionPreference = 'Stop'
-          $root = Join-Path (Get-Location) '.godot/symbol-engine'
-          $files = @(
-            @{ name = 'godot.windows.editor.x86_64.console.exe'; bytes = 301056; sha256 = '1a9e89e41fc708d51b177726daf30e2eaff5f6f1fc8d8d34ef6ef1d9f2315345' }
-            @{ name = 'godot.windows.editor.x86_64.console.pdb'; bytes = 3911680; sha256 = 'be1eb213c6d74496f0289100f7533c1b5b9fa9151d0fbb13b6b4145b9e20edaa' }
-            @{ name = 'godot.windows.editor.x86_64.exe'; bytes = 157432832; sha256 = '4adf96729883710855e3da3716667cc92bea3d5da4abdbe2dbd0247dc7a3398e' }
-            @{ name = 'godot.windows.editor.x86_64.pdb'; bytes = 525225984; sha256 = 'ad5ff8ea3d57ace74f0d560515cf50df932397300e328dbf4cd75ebbd6bffd59' }
-          )
-          foreach ($file in $files) {
-            $path = Join-Path $root $file.name
-            if ((Get-Item -LiteralPath $path).Length -ne $file.bytes -or (Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $file.sha256) { throw "ENGINE_ARTIFACT_IDENTITY_MISMATCH: $($file.name)" }
-          }
-          @{ diagnostic_only=$true; source_run=38536170283; artifact_id=11883600461; files=$files } | ConvertTo-Json -Depth 5 | Set-Content .godot/ci/reused-engine.json -Encoding utf8
-          "GODOT_ENGINE_PATH=$(Join-Path $root 'godot.windows.editor.x86_64.exe')" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
-          "GODOT_CONSOLE_PATH=$(Join-Path $root 'godot.windows.editor.x86_64.console.exe')" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
+          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
+          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
+          if ((Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) { throw 'Engine archive hash mismatch' }
+          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
+          Expand-Archive $archive $editor
+          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
+          $version = (& $console --version | Out-String).Trim()
+          if ($LASTEXITCODE -ne 0 -or $version -cne '4.6.3.stable.official.7d41c59c4') { throw "Unexpected engine: $version" }
+          "GODOT_CONSOLE_PATH=$console" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          @{ version=$version; archive_sha256=$expected; console_sha256=(Get-FileHash $console -Algorithm SHA256).Hash.ToLowerInvariant() } | ConvertTo-Json | Set-Content .godot/ci/engine.json -Encoding utf8
 
       - name: Import and freeze exact candidate
         timeout-minutes: 8
@@ -112,12 +100,34 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @{ source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); parent=(git rev-parse HEAD^) } | ConvertTo-Json | Set-Content .godot/ci/candidate-commit.json -Encoding utf8
 
-      - name: Attach after native fixture setup
-        timeout-minutes: 15
+      - name: Native caption ownership and activation regressions
+        timeout-minutes: 50
         run: |
           $ErrorActionPreference = 'Stop'
-          & '../controller/tools/cloud/Invoke-StylePageHeap.ps1'
-          throw 'Diagnostic capture only; candidate acceptance remains blocked pending native failure analysis'
+          $runner = './tools/testing/Invoke-IsolatedGodot.ps1'
+          $failed = $false
+          $tests = @(
+            @('pause-load','tests/integration/test_scene_pause_load.gd'),
+            @('pause-quick-load','tests/integration/test_scene_pause_quick_load.gd'),
+            @('pause-write-refusal','tests/integration/test_scene_pause_write_refusal.gd'),
+            @('style-refusal','tests/integration/test_scene_caption_style_refusal.gd'),
+            @('scene-activation','tests/unit/test_scene_restore_activation_protocol.gd'),
+            @('pause-recovery','tests/unit/test_dialogic_pause_recovery.gd')
+          )
+          foreach ($entry in $tests) {
+            $name = $entry[0]
+            $script = $entry[1]
+            Write-Host "DWM_LANE_BEGIN $name $([DateTime]::UtcNow.ToString('o'))"
+            $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$script",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$name.xml")
+            & $runner -SuiteId "scene-$name" -LogName "$name.log" -GodotArgs $args -EvidenceLogPath ".godot/ci/$name.jsonl" -TimeoutSeconds 180
+            if ($LASTEXITCODE -ne 0) { $failed = $true }
+            Write-Host "DWM_LANE_END $name exit=$LASTEXITCODE $([DateTime]::UtcNow.ToString('o'))"
+          }
+          $create = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_first_reveal_connected_create.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/connected-normal-create.xml')
+          $load = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_first_reveal_connected_load.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/connected-normal-load.xml')
+          & $runner -SuiteId 'connected-normal' -LogName 'connected-normal-create.log' -GodotArgs $create -NextLogName 'connected-normal-load.log' -NextGodotArgs $load -EvidenceLogPath '.godot/ci/connected-normal.jsonl' -TimeoutSeconds 180 -KeepRoot
+          if ($LASTEXITCODE -ne 0) { $failed = $true }
+          if ($failed) { throw 'One or more focused engine children failed' }
 
       - name: Verify executed census and source identity
         run: |
@@ -131,7 +141,7 @@ jobs:
           import xml.etree.ElementTree as ET
 
           out = pathlib.Path('.godot/ci')
-          suites = {'style-refusal': 'tests/integration/test_scene_caption_style_refusal.gd'}
+          suites = {'pause-load': 'tests/integration/test_scene_pause_load.gd', 'pause-quick-load': 'tests/integration/test_scene_pause_quick_load.gd', 'pause-write-refusal': 'tests/integration/test_scene_pause_write_refusal.gd', 'style-refusal': 'tests/integration/test_scene_caption_style_refusal.gd', 'scene-activation': 'tests/unit/test_scene_restore_activation_protocol.gd', 'pause-recovery': 'tests/unit/test_dialogic_pause_recovery.gd', 'connected-normal-create': 'tests/integration/test_scene_first_reveal_connected_create.gd', 'connected-normal-load': 'tests/integration/test_scene_first_reveal_connected_load.gd'}
           counts = {}
           for lane, script in suites.items():
               expected = re.findall(r'^func (test_\w+)\(', pathlib.Path(script).read_text(encoding='utf-8'), re.M)
@@ -214,7 +224,6 @@ jobs:
           path: |
             source/.godot/ci
             source/.godot/phase2r_logs
-            source/.godot/native-crashes
             !source/.godot/ci/import-user
           include-hidden-files: true
           if-no-files-found: error
