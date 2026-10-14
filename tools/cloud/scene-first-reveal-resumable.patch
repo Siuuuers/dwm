@@ -1230,6 +1230,88 @@ index dce0bc4..eb4af43 100644
  	if not prepared.ok: return prepared
  	var attempt: Dictionary = prepared.value.attempt
  	attempt["generation"] = original.generation
+diff --git a/tests/diagnostics/style_shutdown_probe.gd b/tests/diagnostics/style_shutdown_probe.gd
+new file mode 100644
+index 0000000..4d54fcf
+--- /dev/null
++++ b/tests/diagnostics/style_shutdown_probe.gd
+@@ -0,0 +1,76 @@
++extends SceneTree
++## Diagnostic only: real Dialogic Styles with no Save/Bridge fixture or GUT owner.
++## Run with -- --retire-style for the synchronous style_changed retirement case.
++const STYLE := "res://dialogic/styles/witnessed_caption_style.tres"
++var _retire_style := false
++var _style_events := 0
++var _selected_before_mount := false
++var _selected_layout: Node
++var _styles: Node
++var _watchdog: Timer
++var _finished := false
++
++func _initialize() -> void:
++	_retire_style = OS.get_cmdline_user_args().has("--retire-style")
++	call_deferred("_run_probe")
++
++func _timeout() -> void:
++	if _finished: return
++	print("DWM_STYLE_PROBE timeout retire=", _retire_style)
++	quit(1)
++
++func _selected(_info: Dictionary) -> void:
++	_style_events += 1
++	_selected_layout = _styles.get_layout_node()
++	if not is_instance_valid(_selected_layout): return
++	_selected_before_mount = not _selected_layout.is_inside_tree()
++	print("DWM_STYLE_PROBE selected before_mount=", _selected_before_mount,
++		" retire=", _retire_style)
++	if _retire_style: _selected_layout.queue_free()
++
++func _run_probe() -> void:
++	_watchdog = Timer.new()
++	_watchdog.process_mode = Node.PROCESS_MODE_ALWAYS
++	_watchdog.one_shot = true
++	_watchdog.wait_time = 10.0
++	root.add_child(_watchdog)
++	_watchdog.timeout.connect(_timeout)
++	_watchdog.start()
++	var runtime: Node = root.get_node_or_null("Dialogic")
++	if runtime == null:
++		print("DWM_STYLE_PROBE missing Dialogic autoload")
++		quit(1)
++		return
++	_styles = runtime.get_subsystem("Styles")
++	if _styles == null:
++		print("DWM_STYLE_PROBE missing Styles subsystem")
++		quit(1)
++		return
++	var previous: Node = _styles.get_layout_node()
++	if is_instance_valid(previous):
++		previous.queue_free()
++		await process_frame
++		if is_instance_valid(previous):
++			print("DWM_STYLE_PROBE previous layout not retired")
++			quit(1)
++			return
++	_styles.style_changed.connect(_selected, CONNECT_ONE_SHOT)
++	_styles.load_style(STYLE, root, true, false)
++	for frame: int in 8: await process_frame
++	var valid := _style_events == 1 and _selected_before_mount
++	if _retire_style:
++		valid = valid and not is_instance_valid(_selected_layout)
++	else:
++		valid = valid and is_instance_valid(_selected_layout)
++		if is_instance_valid(_selected_layout):
++			valid = valid and _selected_layout.is_inside_tree() and _selected_layout.is_node_ready()
++			_selected_layout.queue_free()
++			await process_frame
++			valid = valid and not is_instance_valid(_selected_layout)
++	_watchdog.stop()
++	_watchdog.queue_free()
++	for frame: int in 4: await process_frame
++	_finished = true
++	print("DWM_STYLE_PROBE completed valid=", valid, " retire=", _retire_style,
++		" events=", _style_events)
++	quit(0 if valid else 1)
 diff --git a/tests/integration/scene_first_reveal_connected_child.gd b/tests/integration/scene_first_reveal_connected_child.gd
 new file mode 100644
 index 0000000..0ec476d
@@ -1725,16 +1807,17 @@ index 0000000..87770d9
 +	await refused_load()
 diff --git a/tests/support/SceneCaptionStyleRefusalFixture.gd b/tests/support/SceneCaptionStyleRefusalFixture.gd
 new file mode 100644
-index 0000000..9aed13a
+index 0000000..d30d15f
 --- /dev/null
 +++ b/tests/support/SceneCaptionStyleRefusalFixture.gd
-@@ -0,0 +1,41 @@
+@@ -0,0 +1,65 @@
 +extends "res://tests/support/ScenePlayableFixture.gd"
 +## Initial activation refusal uses real Profile/Run/Save, router and native Bridge.
 +## Inherited TEST content/host and diagnostic ancillary restore participants are
 +## explicit. No Pause or replacement input/audio/localization services are needed.
 +var default_style_before: Dictionary = {}
 +var style_refusal_count := 0
++var _prior_caption_handoff_guard := Callable()
 +
 +func default_style_projection() -> Dictionary:
 +	var key := "dialogic/layout/default_style"
@@ -1742,6 +1825,9 @@ index 0000000..9aed13a
 +
 +func setup_refusal(scene_tree: SceneTree) -> Dictionary:
 +	default_style_before = default_style_projection()
++	var native_runtime: Node = scene_tree.root.get_node_or_null("Dialogic")
++	if is_instance_valid(native_runtime):
++		_prior_caption_handoff_guard = native_runtime._caption_handoff_guard
 +	var checked: Dictionary = await setup_playable(scene_tree)
 +	if not checked.get("ok", false): return checked
 +	var inherited_layout: Node = runtime.Styles.get_layout_node()
@@ -1770,6 +1856,26 @@ index 0000000..9aed13a
 +	if is_instance_valid(layout):
 +		style_refusal_count += 1
 +		layout.queue_free()
++
++func close_restart() -> void:
++	# Diagnostic ablation: retire only this fixture adapter's native bindings,
++	# after refusal assertions and before any replacement owner is destroyed.
++	if is_instance_valid(runtime) and is_instance_valid(adapter):
++		var current_guard: Callable = runtime._caption_handoff_guard
++		if current_guard.get_object() == adapter:
++			runtime.set_caption_handoff_guard(_prior_caption_handoff_guard)
++		_disconnect_adapter_bindings(runtime)
++	await super.close_restart()
++
++func _disconnect_adapter_bindings(owner: Node) -> void:
++	for signal_info: Dictionary in owner.get_signal_list():
++		var signal_name: StringName = signal_info.name
++		for connection: Dictionary in owner.get_signal_connection_list(signal_name):
++			var callback: Callable = connection.callable
++			if callback.get_object() == adapter:
++				owner.disconnect(signal_name, callback)
++	for child: Node in owner.get_children():
++		_disconnect_adapter_bindings(child)
 diff --git a/tests/support/SceneChallengeFixture.gd b/tests/support/SceneChallengeFixture.gd
 index 8ebf2a7..2fcdf22 100644
 --- a/tests/support/SceneChallengeFixture.gd
