@@ -12,7 +12,7 @@ class ObservedNativePort extends "res://scripts/audio/AudioPlaybackPort.gd":
 	func play(player_id: StringName, from_position: float = 0.0) -> Dictionary:
 		var result: Dictionary = super.play(player_id, from_position)
 		if player_id == &"AmbienceA":
-			starts.append({"position": from_position, "ok": result.get("ok", false)})
+			starts.append({"position_ms": int(round(from_position * 1000.0)), "ok": result.get("ok", false)})
 		return result
 	func stop_and_clear(player_id: StringName) -> Dictionary:
 		if player_id == &"AmbienceA": clears += 1
@@ -41,7 +41,7 @@ func _start_services() -> bool:
 
 func _await_ready() -> bool:
 	if not await super._await_ready(): return false
-	assert_eq(native.starts, [{"position": expected_start, "ok": true}], "one actual native start at authored offset")
+	assert_eq(native.starts, [{"position_ms": int(round(expected_start * 1000.0)), "ok": true}], "one actual native start at authored offset")
 	var player: AudioStreamPlayer = native._players[&"AmbienceA"]
 	assert_true(player.playing)
 	assert_false(player.stream_paused)
@@ -82,7 +82,7 @@ func _click(control: Control) -> void:
 	assert_gt(advance, 0.02, "audio advances while computer owns only captions")
 	assert_lt(advance, 1.0, "bounded observation excludes an unexplained seek")
 	continuity.append({"computer_open": get_tree().current_scene.is_computer_open(),
-		"before": before, "after": after, "advance": advance,
+		"before_ms": int(round(before * 1000.0)), "after_ms": int(round(after * 1000.0)), "advance_ms": int(round(advance * 1000.0)),
 		"playback_id": playback.get_instance_id(), "starts": starts, "clears": clears})
 
 func _audio_checkpoint() -> Dictionary:
