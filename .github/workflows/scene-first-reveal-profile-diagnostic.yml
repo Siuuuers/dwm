@@ -1,4 +1,4 @@
-name: Scene pointer Save Load journey
+name: Scene audio owners and shared hooks composition
 
 on:
   pull_request:
@@ -37,22 +37,22 @@ jobs:
 
       - uses: actions/checkout@v7
         with:
-          ref: fb739f300be1ce2aff5d75e33cabffbf3e426774
+          ref: ec17298ace3bf70a2522d9acc2028315f75d7467
           path: source
           fetch-depth: 0
 
-      - name: Verify exact pointer-save-load candidate
+      - name: Verify exact scene-audio-owners candidate
         run: |
           $ErrorActionPreference = 'Stop'
           @'
           import json, os, pathlib, subprocess
           def git(*args): return subprocess.check_output(['git',*args],text=True).strip()
-          assert git('rev-parse','HEAD') == 'fb739f300be1ce2aff5d75e33cabffbf3e426774'
-          assert git('rev-parse','HEAD^{tree}') == '971b32fa69eb5d34b9f3e5389ce7ff4a60a606b1'
+          assert git('rev-parse','HEAD') == 'ec17298ace3bf70a2522d9acc2028315f75d7467'
+          assert git('rev-parse','HEAD^^{tree}') == '7a99f3266540ef83f02a94af84dfb28c3ff33b6a'
           assert git('rev-parse','HEAD^') == os.environ['BASE_SHA']
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           paths = git('diff','--name-only',os.environ['BASE_SHA'],'HEAD').splitlines()
-          assert len(paths) == 2
+          assert len(paths) == 22
           (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':git('rev-parse','HEAD'),'controller':os.environ['CONTROLLER_SHA'],'paths':paths},indent=2),encoding='utf-8')
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -93,44 +93,35 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @{ source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); parent=(git rev-parse HEAD^) } | ConvertTo-Json | Set-Content .godot/ci/candidate-commit.json -Encoding utf8
 
-      - name: Pointer Save overwrite and selected Load
+      - name: Focused audio owners and retained compensation
         run: |
           $ErrorActionPreference = 'Stop'
-          $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_pointer_save_load.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/pointer-save-load.xml')
-          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'scene-pointer-save-load' -LogName 'pointer-save-load.log' -GodotArgs $args -EvidenceLogPath '.godot/ci/pointer-save-load.jsonl' -TimeoutSeconds 180 -Rendered
+          $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/unit/test_scene_audio_manifest.gd,res://tests/unit/test_scene_audio_manager.gd,res://tests/unit/test_scene_audio_playback_port.gd,res://tests/unit/test_audio_manager.gd,res://tests/unit/test_save_manager_desktop_board_audio.gd,res://tests/unit/test_audio_pause_suspension.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/scene-audio-owners.xml')
+          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'scene-scene-audio-owners' -LogName 'scene-audio-owners.log' -GodotArgs $args -EvidenceLogPath '.godot/ci/scene-audio-owners.jsonl' -TimeoutSeconds 240
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-      - name: Verify pointer journey and rendered evidence
+      - name: Verify executed census and protocol evidence
         run: |
           $ErrorActionPreference = 'Stop'
           @'
           import collections, json, pathlib, re, subprocess, xml.etree.ElementTree as ET
           out = pathlib.Path('.godot/ci')
-          scripts = ['tests/integration/test_scene_pointer_save_load.gd']
+          scripts = ['tests/unit/test_scene_audio_manifest.gd','tests/unit/test_scene_audio_manager.gd','tests/unit/test_scene_audio_playback_port.gd','tests/unit/test_audio_manager.gd','tests/unit/test_save_manager_desktop_board_audio.gd','tests/unit/test_audio_pause_suspension.gd']
           expected = [(s,n) for s in scripts for n in re.findall(r'^func (test_\w+)\(',pathlib.Path(s).read_text(),re.M)]
-          root = ET.parse(out/'pointer-save-load.xml').getroot()
+          root = ET.parse(out/'scene-audio-owners.xml').getroot()
           rows = list(root.iter('testcase'))
-          assert len(expected) == 1
+          assert len(expected) == 62
           assert collections.Counter((r.attrib['classname'],r.attrib['name']) for r in rows) == collections.Counter(expected)
           assert all(r.attrib.get('status') == 'pass' and int(r.attrib.get('assertions','0')) > 0 for r in rows)
           assert not any(list(root.iter(tag)) for tag in ['failure','error','skipped'])
-          for lane in ['pointer-save-load']:
+          for lane in ['scene-audio-owners']:
               text = (pathlib.Path('.godot/phase2r_logs')/(lane+'.log')).read_text(encoding='utf-8-sig')
               assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',text), lane
               children = [json.loads(line) for line in (out/(lane+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if line.strip()]
               assert len(children) == 1 and children[0]['exit_code'] == 0
-          proof = json.loads((out/'pointer-save-load-proof.json').read_text(encoding='utf-8-sig'))
-          assert proof['renderer'] != 'headless' and proof['ready_count'] == 1
-          assert proof['saved_board'] == proof['restored_board'] != proof['unsaved_board']
-          assert proof['initial_slot_sha256'] != proof['saved_slot_sha256']
-          assert proof['source_branch'] != proof['restored_branch']
-          for action in ['save empty slot','confirm overwrite','confirm selected Load','restored CheckComputer']:
-              assert action in proof['pointer_actions'], action
-          pictures = list(out.glob('pointer-save-load-*.png'))
-          assert len(pictures) == 9 and all(p.read_bytes().startswith(bytes([137,80,78,71,13,10,26,10])) for p in pictures)
           assert not subprocess.check_output(['git','diff','--name-only'],text=True).strip()
           assert not subprocess.check_output(['git','diff','--cached','--name-only'],text=True).strip()
-          result = {'status':'passed','source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'cases':len(rows),'xml_assertions':sum(int(r.attrib['assertions']) for r in rows),'scope':'Same-process TEST scene with actual Viewport Save/Load selection and consent; real disk/services; no fresh-process or native OS claim.'}
+          result = {'status':'passed','source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'cases':len(rows),'xml_assertions':sum(int(r.attrib['assertions']) for r in rows),'scope':'Audio owner tests with registration override and fake playback plus real port seek checks and retained legacy compensation; no canonical scene Save/fresh Load acceptance.'}
           (out/'gate.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
           print(json.dumps(result))
           '@ | python -
@@ -187,7 +178,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: scene-pointer-save-load-${{ github.run_id }}-${{ github.run_attempt }}
+          name: scene-scene-audio-owners-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             source/.godot/ci
             source/.godot/phase2r_logs
