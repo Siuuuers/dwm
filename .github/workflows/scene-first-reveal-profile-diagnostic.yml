@@ -52,7 +52,7 @@ jobs:
           assert git('rev-parse','HEAD') == base
           assert git('ls-remote','origin','refs/heads/codex/scene-runtime-integration-20261009').split()[0] == base
           patch = pathlib.Path('../controller/tools/cloud/scene-first-reveal-resumable.patch').read_bytes()
-          assert hashlib.sha256(patch).hexdigest() == '65e3aab517f64ac6b5ef95bd9c645ec7016793ee1e71c2fa987e49b052debb65'
+          assert hashlib.sha256(patch).hexdigest() == '784f09890b271f9d96f7c680b6de558022f8f158284b6dbb99ab2957b3bf76db'
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           (out/'candidate.patch').write_bytes(patch)
           subprocess.run(['git','apply','--index','--binary',str(out/'candidate.patch')], check=True)
@@ -100,11 +100,11 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @{ source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); parent=(git rev-parse HEAD^) } | ConvertTo-Json | Set-Content .godot/ci/candidate-commit.json -Encoding utf8
 
-      - name: Capture test-mode native exception
+      - name: Attach after native fixture setup
         timeout-minutes: 6
         run: |
           $ErrorActionPreference = 'Stop'
-          & '../controller/tools/cloud/Invoke-StyleCrashDebugger.ps1' -Mode plain
+          & '../controller/tools/cloud/Invoke-StyleAttachCapture.ps1'
           throw 'Diagnostic capture only; candidate acceptance remains blocked pending native failure analysis'
 
       - name: Verify executed census and source identity

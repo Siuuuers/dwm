@@ -1232,10 +1232,10 @@ index dce0bc4..eb4af43 100644
  	attempt["generation"] = original.generation
 diff --git a/tests/diagnostics/style_refusal_shutdown_probe.gd b/tests/diagnostics/style_refusal_shutdown_probe.gd
 new file mode 100644
-index 0000000..64c2c49
+index 0000000..5f37e3b
 --- /dev/null
 +++ b/tests/diagnostics/style_refusal_shutdown_probe.gd
-@@ -0,0 +1,104 @@
+@@ -0,0 +1,134 @@
 +extends SceneTree
 +## Diagnostic only: identical real refusal fixture/checks without GUT.
 +## --natural-shutdown leaves actual owners to SceneTree destruction; never acceptance.
@@ -1279,8 +1279,38 @@ index 0000000..64c2c49
 +		return
 +	_check(not fixture.runtime.Styles.has_active_layout_node(), "no_preinstalled_layout")
 +	_check(fixture.default_style_projection() == fixture.default_style_before, "default_unchanged_before")
++	var attached: bool = await _await_native_attach()
++	if not attached:
++		quit(1)
++		return
 +	await _exercise_refusal()
 +	await _finish_probe()
++
++func _await_native_attach() -> bool:
++	var nonce := OS.get_environment("DWM_NATIVE_ATTACH_NONCE")
++	if nonce.is_empty(): return true
++	_stage = "native_attach"
++	_watchdog.stop()
++	var base := OS.get_environment("DWM_TEST_ROOT")
++	var ready := base.path_join("attach-ready.json")
++	var proceed := base.path_join("attach-continue.json")
++	if FileAccess.file_exists(ready) or FileAccess.file_exists(proceed): return false
++	var file := FileAccess.open(ready + ".next", FileAccess.WRITE)
++	if file == null: return false
++	file.store_string(JSON.stringify({"nonce": nonce, "pid": OS.get_process_id(),
++		"mode": "natural" if _natural_shutdown else "explicit"}))
++	file.close()
++	if DirAccess.rename_absolute(ready + ".next", ready) != OK: return false
++	var deadline := Time.get_ticks_msec() + 60000
++	while Time.get_ticks_msec() < deadline:
++		if FileAccess.file_exists(proceed):
++			var receipt: Variant = JSON.parse_string(FileAccess.get_file_as_string(proceed))
++			if not receipt is Dictionary or receipt.get("nonce") != nonce: return false
++			_watchdog.start()
++			return true
++		await process_frame
++	print("DWM_REFUSAL_PROBE attach_timeout")
++	return false
 +
 +func _exercise_refusal() -> void:
 +	fixture.runtime.Styles.style_changed.connect(fixture.refuse_selected_style, CONNECT_ONE_SHOT)
