@@ -1,7 +1,8 @@
 diff --git a/addons/dialogic/Modules/Style/subsystem_styles.gd b/addons/dialogic/Modules/Style/subsystem_styles.gd
+index 64acfd21..9efa486b 100644
 --- a/addons/dialogic/Modules/Style/subsystem_styles.gd
 +++ b/addons/dialogic/Modules/Style/subsystem_styles.gd
-@@ -128,11 +128,26 @@
+@@ -128,13 +128,28 @@ func create_layout(style: DialogicStyle, parent: Node = null) -> DialogicLayoutB
  
  	if parent == null:
  		parent = dialogic.get_parent()
@@ -11,8 +12,8 @@ diff --git a/addons/dialogic/Modules/Style/subsystem_styles.gd b/addons/dialogic
  	dialogic.get_tree().set_meta('dialogic_layout_node', base_scene)
  
  	return base_scene
-+
-+
+ 
+ 
 +# style_changed callbacks may retire or reparent a layout before deferred mounting.
 +# Keep weak references so the call queue never converts a freed Node argument.
 +func _attach_layout(parent_ref: WeakRef, layout_ref: WeakRef) -> void:
@@ -26,13 +27,177 @@ diff --git a/addons/dialogic/Modules/Style/subsystem_styles.gd b/addons/dialogic
 +		layout.queue_free()
 +		return
 +	parent.add_child(layout)
- 
- 
++
++
  ## When changing to a different layout scene,
+ ## we have to load all the info from the current_state_info (basically
+ func reload_current_info_into_new_style() -> void:
+diff --git a/autoload/ApplicationBootstrap.gd b/autoload/ApplicationBootstrap.gd
+index 3062280f..6f000a99 100644
+--- a/autoload/ApplicationBootstrap.gd
++++ b/autoload/ApplicationBootstrap.gd
+@@ -569,6 +569,10 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
+ 			if not profile_bound.get("ok", false): return profile_bound
+ 			var recovery_bound: Dictionary = save_manager.call(&"configure_new_run_profile_owner", profile)
+ 			if not recovery_bound.get("ok", false): return recovery_bound
++			# Journal loading validates retained scene creations, including completed ones,
++			# before Profile initialization. Bind their immutable validation inputs first.
++			var scene_creation := _configure_registered_scene_creation()
++			if not scene_creation.get("ok", false): return scene_creation
+ 			return save_manager.call(&"reconcile_new_run_storage")
+ 		&"initialize_dialogic_bridge":
+ 			var bridge := _target(&"DialogicBridge")
+@@ -947,8 +951,15 @@ func _capture_paused_checkpoint_inputs() -> Dictionary:
+ 			or game == null or bridge == null or router == null:
+ 		return _failure(&"backup_capture_unavailable", "Paused gameplay owners are unavailable")
+ 	var route: String = router.get_current_route_id()
+-	if route not in ["main", "dating", "hospital", "ending"]:
++	if route not in ["main", "dating", "hospital", "ending", "scene"]:
+ 		return _failure(&"backup_capture_unavailable", "The paused source has no qualified gameplay capture")
++	if route == "scene":
++		var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
++		if not checkpoint.get("ok", false): return checkpoint
++		return {"ok": true, "value": {"snapshot_input": game.capture_run_snapshot_input(),
++			"dialogic_checkpoint": checkpoint.value, "route_id": "scene", "active_app_id": null,
++			"audio_context": _target(&"AudioManager").get_semantic_audio_context(),
++			"content_version": NARRATIVE_CONTENT_VERSION}}
+ 	var narrative := _capture_dating_reading_checkpoint(bridge, route)
+ 	if not narrative.get("ok", false): return narrative
+ 	var inputs: Dictionary = _retained_day_resolution_state_port._checkpoint_inputs(game._run_lifecycle.to_dict())
+@@ -1507,9 +1518,34 @@ func _configure_restore_participants() -> Dictionary:
+ 	var configured: Dictionary = save_manager.call(&"configure_restore_participants", participants)
+ 	if configured.get("ok", false):
+ 		_retained_restore_participants = participants.duplicate()
++		var scene_runtime := _configure_registered_scene_runtime()
++		if not scene_runtime.get("ok", false): return scene_runtime
+ 	return configured
+ 
+ 
++## Bind creation validation before storage recovery; no live playback starts here.
++func _configure_registered_scene_creation() -> Dictionary:
++	var selected: Dictionary = DIALOGIC_ENTRY_MANIFEST.scene_registration()
++	if not selected.get("ok", false):
++		return {"ok": true} if selected.get("code") == &"scene_registration_absent" else selected
++	return _target(&"SaveManager").configure_scene_new_run(_target(&"DialogicBridge"))
++
++## Complete existing scene owners only for an explicitly installed registration.
++## The retained participant map still serves historical saves; scene transactions
++## select their own eight-member order and never execute Schedule restoration.
++func _configure_registered_scene_runtime() -> Dictionary:
++	var selected: Dictionary = DIALOGIC_ENTRY_MANIFEST.scene_registration()
++	if not selected.get("ok", false):
++		return {"ok": true} if selected.get("code") == &"scene_registration_absent" else selected
++	var saves := _target(&"SaveManager")
++	var game := _target(&"GameState")
++	var router := _target(&"SceneRouter")
++	var proof: Dictionary = RUN_SNAPSHOT_SCHEMA_FOR_PROBE.configure_scene_validation(
++		_desktop_identity_nonce_issuer, game, saves)
++	if not proof.get("ok", false): return proof
++	return router.configure_scene_host("res://scenes/narrative/SceneHost.tscn")
++
++
+ ## Composes the retained board, consequence, Schedule, and checkpoint owners.
+ ## Only the application coordinator is mounted into the desktop. The earlier
+ ## simulator facade remains unexposed while its remaining callers are reconciled.
+@@ -2482,9 +2518,14 @@ func _resume_live_continuation() -> void:
+ 	# Native scene changes mount at frame end. Keep the exact pending session until
+ 	# scene_changed wakes us; publishing now would be overwritten by that mount.
+ 	if get_tree().current_scene == null: return
++	var lifecycle: Dictionary = game_state._run_lifecycle.to_dict()
++	# Scene activation is already acknowledged by SaveManager/Bridge/Router.
++	# It has no legacy calendar continuation to resume.
++	if lifecycle.has("scene_assignment"):
++		_pending_live_continuation = {}
++		return
+ 	if _present_pending_day7_prelude(game_state, router): return
+ 	_pending_live_continuation = {}
+-	var lifecycle: Dictionary = game_state._run_lifecycle.to_dict()
+ 	if str(lifecycle.state) == "COMPLETED":
+ 		# A compatible completed save may name main/menu instead of the ending scene. Retire
+ 		# through the same validated owner seam after restore activation and lease release.
+@@ -2650,3 +2691,69 @@ func _wire_scene_event_owner(game_state: Node, bridge: Node) -> Dictionary:
+ 	return bridge.configure_scene_event_port(_scene_event_command_port, Callable(game_state, "validate_live_session"),
+ 		Callable(game_state, "scene_event_context"))
+ 
++
++
++## SceneHost owns only chrome. All commands pass through the retained application owners.
++func configure_scene_host_view(host: Control) -> void:
++	host.configure_scene_controls({
++		"computer_open": open_scene_computer.bind(host),
++		"computer_close": close_scene_computer.bind(host),
++		"settings": open_scene_settings.bind(host),
++		"backup": open_scene_backup.bind(host, "backup"),
++		"save": open_scene_backup.bind(host, "save"),
++		"load": open_scene_backup.bind(host, "load")})
++
++func _scene_host_admitted(host: Control) -> bool:
++	return is_instance_valid(host) and host == get_tree().current_scene \
++		and _state.get("ready", false) and _target(&"SceneRouter").get_current_route_id() == "scene" \
++		and not _target(&"SceneRouter").is_restore_publication_held()
++
++func open_scene_computer(host: Control) -> Dictionary:
++	if not _scene_host_admitted(host): return _failure(&"scene_host_unavailable", "")
++	var guarded: Dictionary = _application_gate.guard_external(&"scene_computer")
++	if not guarded.get("ok", false): return guarded
++	var game := _target(&"GameState")
++	var configured: Dictionary = game.configure_scene_challenge_runtime()
++	if not configured.get("ok", false): return configured
++	var captured: Dictionary = game.capture_scene_challenge_command()
++	if not captured.get("ok", false): return captured
++	configured = _retained_dating_physical_owner.configure_scene_challenges(captured.value.bundle, game)
++	if not configured.get("ok", false): return configured
++	var admitted: Dictionary = _retained_dating_presentation_port.begin(captured.value.command)
++	if not admitted.get("ok", false): return admitted
++	var mount: Control = host.get_challenge_mount()
++	var panel: Control = mount.get_node_or_null("SceneChallengePanel")
++	if panel == null:
++		panel = preload("res://scripts/ui/SceneChallengePanel.gd").new()
++		mount.add_child(panel)
++		if not panel.bind(_retained_dating_presentation_port, admitted.value.presentation_command):
++			panel.queue_free()
++			return _failure(&"scene_panel_unbound", "")
++		panel.bind_view_preferences(_target(&"ProfileManager"))
++		panel.configure_input(_target(&"InputManager"))
++	var held: Dictionary = _target(&"DialogicBridge").hold_computer_captions(host)
++	if not held.get("ok", false): return held
++	host.set_computer_open(true)
++	if not panel.open_panel():
++		close_scene_computer(host)
++		return _failure(&"scene_panel_unavailable", "")
++	return {"ok": true}
++
++func close_scene_computer(host: Control) -> Dictionary:
++	if not is_instance_valid(host): return _failure(&"scene_host_unavailable", "")
++	var panel: Control = host.get_challenge_mount().get_node_or_null("SceneChallengePanel")
++	if panel != null: panel.close_panel()
++	host.set_computer_open(false)
++	return _target(&"DialogicBridge").release_computer_captions(host)
++
++func open_scene_settings(host: Control) -> Dictionary:
++	if not _scene_host_admitted(host): return _failure(&"scene_host_unavailable", "")
++	var closed: Dictionary = close_scene_computer(host)
++	if not closed.get("ok", false): return closed
++	return await _target(&"SceneRouter")._production_pause.open_scene_settings()
++
++func open_scene_backup(host: Control, mode: String) -> Dictionary:
++	if not _scene_host_admitted(host): return _failure(&"scene_host_unavailable", "")
++	var closed: Dictionary = close_scene_computer(host)
++	if not closed.get("ok", false): return closed
++	return await _target(&"SceneRouter")._production_pause.open_scene_backup(mode)
 diff --git a/autoload/DialogicBridge.gd b/autoload/DialogicBridge.gd
+index 31574775..86a7e642 100644
 --- a/autoload/DialogicBridge.gd
 +++ b/autoload/DialogicBridge.gd
-@@ -788,14 +788,38 @@
+@@ -21,6 +21,7 @@ signal ending_playback_finished(playback_token: String, ending_id: String, recei
+ signal ending_playback_failed(playback_token: String, ending_id: String, result: Dictionary)
+ signal ending_playback_retired(playback_token: String, ending_id: String)
+ signal scene_art_changed
++signal computer_hold_changed
+ signal reading_session_changed
+ signal scene_activation_confirmed(operation_id: String)
+ signal scene_activation_failed(operation_id: String, result: Dictionary)
+@@ -788,14 +789,38 @@ func _prepare_scene_art() -> void:
  	var dating := str(source.entry_id).begins_with("dating.")
  	if not hospital and not dating and (str(source.entry_id).is_empty() or (str(art.get("background", "")).is_empty() \
  		and art.get("portraits", []).is_empty() and str(art.get("cg", "")).is_empty())): return
@@ -74,7 +239,7 @@ diff --git a/autoload/DialogicBridge.gd b/autoload/DialogicBridge.gd
  
  
  func _start_at_path(timeline_id: String, path: String, context: Dictionary, label: String = "") -> Dictionary:
-@@ -1847,13 +1871,15 @@
+@@ -1847,13 +1872,15 @@ func configure_skip_context(profile: Object, mode: StringName) -> Dictionary:
  		var checked := _ENTRY_MANIFEST.validate_ids_document(ids.value)
  		if not checked.get("ok", false): return checked
  		var owners := {}
@@ -92,7 +257,7 @@ diff --git a/autoload/DialogicBridge.gd b/autoload/DialogicBridge.gd
  				_line_witness_stages = signal_record.allowed_source_stages.duplicate()
  		_skip_line_owners = owners
  	if _skip_profile != profile:
-@@ -2167,6 +2193,8 @@
+@@ -2167,6 +2194,8 @@ func _line_witness_stage_allowed() -> bool:
  		return stage == "hospital" and can_capture_hospital_reading_checkpoint(_hospital_reading_command)
  	if _has_exact_caption_source() and _reading_session.family == "ending":
  		return stage == "PRIMARY_PENDING" and can_capture_reading_checkpoint()
@@ -101,7 +266,15 @@ diff --git a/autoload/DialogicBridge.gd b/autoload/DialogicBridge.gd
  	# Solo's admitted phase frames do not use the legacy current_entry signal stage.
  	return stage == str(_active_entry.get("entry_id", "")).get_slice(".", 4) \
  		if _has_exact_caption_source() else stage in _line_witness_stages
-@@ -2860,6 +2888,8 @@
+@@ -2186,6 +2215,7 @@ func _retain_line_presentation(identity: Dictionary) -> void:
+ 
+ 
+ func _line_presentation_context(expected_frontier: Dictionary = {}, guard_mutation: bool = true) -> Dictionary:
++	if guard_mutation and is_computer_caption_held(): return _command_failure(&"computer_caption_held")
+ 	if is_rehearsal_playback(): return _command_failure(&"rehearsal_commit_denied")
+ 	if _active_entry.is_empty(): return _command_failure(&"no_active_entry")
+ 	if guard_mutation and not _line_ack_fatal_failure.is_empty(): return _line_ack_fatal_failure.duplicate(true)
+@@ -2860,6 +2890,8 @@ func stage_scene_reading_restore(checkpoint: Dictionary, operation_id: String) -
  		"digest": _scene_digest(checkpoint), "candidate": checked.value.candidate,
  		"path": checked.value.path, "runtime": _runtime_adapter, "started": false,
  		"in_call": false, "native_started": false, "proof": false, "confirmed": false}
@@ -110,11 +283,10 @@ diff --git a/autoload/DialogicBridge.gd b/autoload/DialogicBridge.gd
  	_reading_restore_pending = checkpoint.duplicate(true)
  	return {"ok": true}
  
-@@ -2891,6 +2921,16 @@
- 		if _runtime_adapter.has_active_playback() and is_inside_tree(): await get_tree().process_frame
+@@ -2892,6 +2924,16 @@ func _start_scene_restore_native(operation_id: String) -> void:
  	if _scene_restore.is_empty() or _scene_restore.operation_id != operation_id or not _scene_restore_current():
  		_fail_scene_activation(_command_failure(&"scene_activation_changed"))
-+		return
+ 		return
 +	var styled := _prepare_witnessed_style()
 +	if not styled.get("ok", false):
 +		if not _scene_restore.is_empty() and _scene_restore.operation_id == operation_id:
@@ -124,10 +296,11 @@ diff --git a/autoload/DialogicBridge.gd b/autoload/DialogicBridge.gd
 +			or _scene_restore.has("failure"):
 +		if not _scene_restore.is_empty() and _scene_restore.operation_id == operation_id:
 +			_fail_scene_activation(_command_failure(&"scene_activation_changed"))
- 		return
++		return
  	_scene_restore.native_started = true
  	_scene_restore.in_call = true
-@@ -3336,6 +3376,20 @@
+ 	var installed: Dictionary = _runtime_adapter.restore_scene_frontier(_scene_restore.candidate,
+@@ -3336,6 +3378,20 @@ func is_pause_restore_pending() -> bool:
  	return not _pause_restore.is_empty() and not _pause_restore.get("applied", false)
  
  
@@ -148,7 +321,7 @@ diff --git a/autoload/DialogicBridge.gd b/autoload/DialogicBridge.gd
  func stage_pause_restore(plan: Dictionary, semantic: bool) -> Dictionary:
  	if not is_pause_restore_pending() or _pause_restore.cancelled \
  			or _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore"):
-@@ -3371,6 +3425,16 @@
+@@ -3371,6 +3427,16 @@ func cancel_pause_restore(handle: Dictionary) -> Dictionary:
  
  
  func complete_pause_restore(handle: Dictionary) -> Dictionary:
@@ -165,7 +338,7 @@ diff --git a/autoload/DialogicBridge.gd b/autoload/DialogicBridge.gd
  	if _pause_restore.get("handle") != handle or not _pause_restore.get("finalized", false) \
  			or _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore"):
  		return _pause_failure(&"pause_restore_unavailable")
-@@ -4095,6 +4159,23 @@
+@@ -4095,6 +4161,23 @@ func dispatch_scene_event(live_session: Dictionary, envelope: Dictionary) -> Dic
  			"code": result.get("code", &"event_ack_interrupted"), "details": {"committed": true}})
  	return result
  
@@ -189,8 +362,41 @@ diff --git a/autoload/DialogicBridge.gd b/autoload/DialogicBridge.gd
  func capture_scene_event_boundary() -> Dictionary:
  	if not _marker_context.is_empty():
  		if not _marker_source_valid(): return _command_failure(&"reading_marker_source_changed")
+@@ -4462,3 +4545,32 @@ func _marker_reading_identity() -> Dictionary:
+ 		"catalogue": _reading_session.fingerprint, "markers": _reading_session.marker_fingerprint}
+ 
+ 
++
++
++## Presentation-only hold. Native control/checkpoint authority remains available to
++## the board; this never changes SceneTree pause, Auto preference, or Load custody.
++var _computer_hold_host: WeakRef
++var _computer_hold_session: RefCounted
++
++func is_computer_caption_held() -> bool:
++	return _computer_hold_host != null and is_instance_valid(_computer_hold_host.get_ref()) \
++		and _computer_hold_session != null and _computer_hold_session == _reading_session
++
++func hold_computer_captions(host: Node) -> Dictionary:
++	if not is_instance_valid(host) or not has_reading_session() or _reading_session.family != "scene":
++		return _command_failure(&"computer_source_unavailable")
++	if is_computer_caption_held() and _computer_hold_host.get_ref() != host:
++		return _command_failure(&"computer_source_changed")
++	_computer_hold_host = weakref(host)
++	_computer_hold_session = _reading_session
++	computer_hold_changed.emit()
++	return {"ok": true}
++
++func release_computer_captions(host: Node) -> Dictionary:
++	if _computer_hold_host == null: return {"ok": true}
++	if _computer_hold_host.get_ref() != host: return _command_failure(&"computer_source_changed")
++	_computer_hold_host = null
++	_computer_hold_session = null
++	# The caption reconciles its other holds; no runtime resume is performed here.
++	computer_hold_changed.emit()
++	return {"ok": true}
 diff --git a/autoload/GameState.gd b/autoload/GameState.gd
-index 4346e8f..c93b7d3 100644
+index 4346e8f2..c93b7d39 100644
 --- a/autoload/GameState.gd
 +++ b/autoload/GameState.gd
 @@ -4509,6 +4509,275 @@ func _accept_scene_runtime_event(event: Dictionary, digest: String, lease: Strin
@@ -469,8 +675,60 @@ index 4346e8f..c93b7d3 100644
  func configure_scene_checkpoint_source(save_owner: Object) -> Dictionary:
  	if not is_instance_valid(save_owner) or not save_owner.has_method("get_latest_stable_checkpoint"):
  		return _transaction_failure(&"scene_checkpoint_owner_required", "")
+diff --git a/autoload/ProfileManager.gd b/autoload/ProfileManager.gd
+index b8f5c90c..df09421e 100644
+--- a/autoload/ProfileManager.gd
++++ b/autoload/ProfileManager.gd
+@@ -1685,6 +1685,12 @@ var _line_registry_fingerprint := ""
+ 
+ func configure_line_registry(registry: Dictionary) -> Dictionary:
+ 	var block: Variant = registry.get("reply_lines")
++	if registry.get("kind") == "scene_ids_registry":
++		# Scene lines belong to the complete immutable installed registration.
++		# Never accept a caller-created list by projecting it into legacy replies.
++		var checked: Dictionary = preload("res://scripts/narrative/DialogicEntryManifest.gd").validate_ids_document(registry)
++		if not checked.get("ok", false): return _command_failure(&"invalid_line_registry")
++		block = registry.get("lines")
+ 	if not (block is Array):
+ 		return _command_failure(&"invalid_line_registry")
+ 	var index: Dictionary = {}
+diff --git a/autoload/SaveManager.gd b/autoload/SaveManager.gd
+index be8d28e1..f73d4b9f 100644
+--- a/autoload/SaveManager.gd
++++ b/autoload/SaveManager.gd
+@@ -2871,10 +2871,29 @@ func _validate_scene_restore_preparation(prepared: Dictionary) -> Dictionary:
+ 	if not token is String or not _scene_restore_preparations.has(token):
+ 		return _fail(&"invalid_scene_restore_preparation", "private prepared scene source required")
+ 	var retained: Dictionary = _scene_restore_preparations[token]
+-	if not CANONICAL_JSON._deep_same(retained.prepared, prepared):
++	if not _same_scene_preparation(retained.prepared, prepared):
+ 		return _fail(&"invalid_scene_restore_preparation", "prepared scene source changed")
+ 	return {"ok": true, "value": retained.duplicate(true)}
+ 
++## Prepared participant plans are process-local, not JSON round-trip values.
++## Preserve Variant types and runtime object identity while comparing detached containers.
++static func _same_scene_preparation(left: Variant, right: Variant) -> bool:
++	if typeof(left) != typeof(right): return false
++	if left is Dictionary:
++		if left.size() != right.size(): return false
++		var right_keys: Array = right.keys()
++		for key: Variant in left:
++			var index: int = right_keys.find(key)
++			if index < 0 or typeof(key) != typeof(right_keys[index]): return false
++			if not _same_scene_preparation(left[key], right[key]): return false
++		return true
++	if left is Array:
++		if left.size() != right.size(): return false
++		for index: int in left.size():
++			if not _same_scene_preparation(left[index], right[index]): return false
++		return true
++	return left == right
++
+ func _scene_activation_pending(operation: Dictionary) -> bool:
+ 	return operation.get("kind") in ["scene_restore", "scene_new_run"] and operation.get("stage") == CONTINUATION_JOURNAL.STAGE_COMPLETED \
+ 		and operation.get("activation_state") == "pending"
 diff --git a/autoload/SceneRouter.gd b/autoload/SceneRouter.gd
-index a165c14..5871678 100644
+index a165c148..58716785 100644
 --- a/autoload/SceneRouter.gd
 +++ b/autoload/SceneRouter.gd
 @@ -41,6 +41,28 @@ func begin_scene_publication_hold(operation_id: String) -> Dictionary:
@@ -581,8 +839,111 @@ index a165c14..5871678 100644
  	_pending_restore_scene_id = ""
  	restore_publication_released.emit()
  	return {"ok": true}
+diff --git a/scenes/narrative/SceneChallengePanel.tscn b/scenes/narrative/SceneChallengePanel.tscn
+new file mode 100644
+index 00000000..2eda9e79
+--- /dev/null
++++ b/scenes/narrative/SceneChallengePanel.tscn
+@@ -0,0 +1,9 @@
++[gd_scene load_steps=2 format=3]
++
++[ext_resource type="Script" path="res://scripts/ui/SceneChallengePanel.gd" id="1"]
++
++[node name="SceneChallengePanel" type="Control"]
++layout_mode = 0
++offset_right = 960.0
++offset_bottom = 656.0
++script = ExtResource("1")
+diff --git a/scenes/narrative/SceneHost.tscn b/scenes/narrative/SceneHost.tscn
+new file mode 100644
+index 00000000..3c46d235
+--- /dev/null
++++ b/scenes/narrative/SceneHost.tscn
+@@ -0,0 +1,82 @@
++[gd_scene load_steps=2 format=3]
++
++[ext_resource type="Script" path="res://scripts/ui/SceneHost.gd" id="1_host"]
++
++[node name="SceneHost" type="Control"]
++layout_mode = 3
++anchors_preset = 15
++anchor_right = 1.0
++anchor_bottom = 1.0
++grow_horizontal = 2
++grow_vertical = 2
++mouse_filter = 2
++script = ExtResource("1_host")
++
++[node name="Background" type="ColorRect" parent="."]
++layout_mode = 1
++anchors_preset = 15
++anchor_right = 1.0
++anchor_bottom = 1.0
++grow_horizontal = 2
++grow_vertical = 2
++mouse_filter = 2
++color = Color(0.035, 0.035, 0.045, 1)
++
++[node name="SceneControlsLayer" type="CanvasLayer" parent="."]
++layer = 20
++
++[node name="Surface" type="Control" parent="SceneControlsLayer"]
++layout_mode = 3
++anchors_preset = 15
++anchor_right = 1.0
++anchor_bottom = 1.0
++grow_horizontal = 2
++grow_vertical = 2
++mouse_filter = 2
++
++[node name="ChallengeMount" type="Control" parent="SceneControlsLayer/Surface"]
++visible = false
++layout_mode = 1
++anchor_left = 0.5
++anchor_right = 0.5
++offset_left = -480.0
++offset_top = 8.0
++offset_right = 480.0
++offset_bottom = 664.0
++grow_horizontal = 2
++mouse_filter = 0
++
++[node name="Controls" type="HBoxContainer" parent="SceneControlsLayer/Surface"]
++layout_mode = 1
++anchor_top = 1.0
++anchor_right = 1.0
++anchor_bottom = 1.0
++offset_left = 16.0
++offset_top = -48.0
++offset_right = -16.0
++offset_bottom = -8.0
++grow_horizontal = 2
++grow_vertical = 0
++mouse_filter = 0
++theme_override_constants/separation = 12
++alignment = 1
++
++[node name="CheckComputer" type="Button" parent="SceneControlsLayer/Surface/Controls"]
++layout_mode = 2
++text = "Check Computer"
++
++[node name="Settings" type="Button" parent="SceneControlsLayer/Surface/Controls"]
++layout_mode = 2
++text = "Settings"
++
++[node name="Backup" type="Button" parent="SceneControlsLayer/Surface/Controls"]
++layout_mode = 2
++text = "Backup"
++
++[node name="Save" type="Button" parent="SceneControlsLayer/Surface/Controls"]
++layout_mode = 2
++text = "Save"
++
++[node name="Load" type="Button" parent="SceneControlsLayer/Surface/Controls"]
++layout_mode = 2
++text = "Load"
 diff --git a/scripts/application/backup/BackupPresentationPort.gd b/scripts/application/backup/BackupPresentationPort.gd
-index 6b48765..aae70e9 100644
+index 6b487655..aae70e9b 100644
 --- a/scripts/application/backup/BackupPresentationPort.gd
 +++ b/scripts/application/backup/BackupPresentationPort.gd
 @@ -167,6 +167,11 @@ func commit_action(token: String) -> Dictionary:
@@ -598,7 +959,7 @@ index 6b48765..aae70e9 100644
  		pending.erase("quick")
  		if not result.get("ok", false):
 diff --git a/scripts/application/lifecycle/ProductionPauseController.gd b/scripts/application/lifecycle/ProductionPauseController.gd
-index c20bdba..786efba 100644
+index c20bdbab..7221dd5f 100644
 --- a/scripts/application/lifecycle/ProductionPauseController.gd
 +++ b/scripts/application/lifecycle/ProductionPauseController.gd
 @@ -94,6 +94,8 @@ var _backup_port: RefCounted
@@ -610,7 +971,48 @@ index c20bdba..786efba 100644
  var _requested_caption: Node
  var _history_caption: Node
  var _direct_quick_load := false
-@@ -175,7 +177,7 @@ func _can_open_witnessed_surface(caption: Node) -> bool:
+@@ -134,6 +136,7 @@ func _unhandled_input(event: InputEvent) -> void:
+ 		if is_instance_valid(_quick_commands) and _quick_commands.handle_input(event):
+ 			get_viewport().set_input_as_handled()
+ 		return
++	if _router != null and _router.get_current_route_id() == "scene": return
+ 	if _busy or not _handle.is_empty() or not event.is_action_pressed(&"ui_cancel", false): return
+ 	var focused := get_viewport().gui_get_focus_owner()
+ 	if focused is LineEdit or focused is TextEdit: return
+@@ -143,6 +146,32 @@ func _unhandled_input(event: InputEvent) -> void:
+ 	get_viewport().set_input_as_handled()
+ 	request_pause()
+ 
++## Scene sheets use the existing suspension/restore custody without a Pause menu.
++func open_scene_settings() -> Dictionary:
++	return await _open_scene_sheet(&"settings", &"")
++
++func open_scene_backup(mode: String) -> Dictionary:
++	if mode not in ["save", "load", "backup"]: return _failure(&"scene_sheet_mode_invalid")
++	return await _open_scene_sheet(&"backup", StringName(mode))
++
++func _open_scene_sheet(host: StringName, mode: StringName) -> Dictionary:
++	if _router == null or _router.get_current_route_id() != "scene":
++		return _failure(&"scene_sheet_unavailable")
++	var opened: Dictionary = await request_pause(false)
++	if not opened.get("ok", false): return opened
++	if mode == &"save":
++		if not can_save_backup():
++			await request_continue()
++			return _failure(&"pause_save_unavailable")
++		var prepared: Dictionary = prepare_backup_save()
++		if not prepared.get("ok", false):
++			await request_continue()
++			return prepared
++	if not surface.open_direct_host(host, mode):
++		await request_continue()
++		return _failure(&"scene_sheet_unavailable")
++	return {"ok": true, "value": {"opened": true}}
++
+ func _input(event: InputEvent) -> void:
+ 	if is_instance_valid(_quick_commands): _quick_commands.observe_input(event)
+ 
+@@ -175,7 +204,7 @@ func _can_open_witnessed_surface(caption: Node) -> bool:
  	if not is_instance_valid(canvas) or not canvas.is_visible_in_tree() \
  			or scene == null or scene.is_queued_for_deletion() or not scene.is_visible_in_tree():
  		return false
@@ -619,7 +1021,50 @@ index c20bdba..786efba 100644
  			or not _services.bridge.has_active_playback() \
  			or not _services.input.is_source_input_admitted():
  		return false
-@@ -363,7 +365,7 @@ func capture_pause_source() -> Dictionary:
+@@ -185,6 +214,7 @@ func _can_open_witnessed_surface(caption: Node) -> bool:
+ ## leaves its ordinary Continue surface available instead of abandoning suspension.
+ func open_witnessed_backup_load(caption: Node) -> Dictionary:
+ 	if not can_open_witnessed_backup_load(caption): return _failure(&"pause_backup_unavailable")
++	if _router.get_current_route_id() == "scene": return await open_scene_backup("load")
+ 	if _find_caption(get_tree().root) != caption: return _failure(&"pause_source_changed")
+ 	_requested_caption = caption
+ 	var opened: Dictionary = await request_pause()
+@@ -199,11 +229,15 @@ func open_witnessed_quick_load(caption: Node) -> Dictionary:
+ 	if not can_open_witnessed_backup_load(caption): return _failure(&"pause_load_unavailable")
+ 	if _find_caption(get_tree().root) != caption: return _failure(&"pause_source_changed")
+ 	_requested_caption = caption
+-	var opened: Dictionary = await request_pause()
++	var scene_sheet: bool = _router.get_current_route_id() == "scene"
++	var opened: Dictionary = await request_pause(not scene_sheet)
+ 	_requested_caption = null
+ 	if not opened.get("ok", false): return opened
+ 	if not is_instance_valid(caption) or _caption != caption or not can_load_backup() \
+ 			or not is_instance_valid(_quick_commands): return _failure(&"pause_source_changed")
++	if scene_sheet and not surface.open_direct_host(&"backup", &"load"):
++		await request_continue()
++		return _failure(&"scene_sheet_unavailable")
+ 	var requested: Dictionary = _quick_commands.request_load()
+ 	if not requested.get("ok", false):
+ 		# No consent was exposed. Release only this proven unchanged source.
+@@ -229,6 +263,9 @@ func can_open_witnessed_backup_save(caption: Node) -> bool:
+ 
+ ## Family admission is a pure retained-owner query; it never serializes or reveals a caption.
+ func _reading_save_owner_available(route: String) -> bool:
++	if route == "scene":
++		return _router.has_method("capture_scene_host_projection") \
++			and _router.capture_scene_host_projection(get_tree().current_scene).get("ok", false)
+ 	if route == "ending":
+ 		var scene := get_tree().current_scene
+ 		return scene != null and scene.scene_file_path == "res://scenes/ending/EndingScene.tscn" \
+@@ -239,6 +276,7 @@ func _reading_save_owner_available(route: String) -> bool:
+ 
+ func open_witnessed_backup_save(caption: Node) -> Dictionary:
+ 	if not can_open_witnessed_backup_save(caption): return _failure(&"pause_save_unavailable")
++	if _router.get_current_route_id() == "scene": return await open_scene_backup("save")
+ 	if _find_caption(get_tree().root) != caption: return _failure(&"pause_source_changed")
+ 	# Reveal belongs to this admitted Save command, before literal Pause custody.
+ 	# Once suspended, the native source must stay byte-for-byte resumable.
+@@ -363,7 +401,7 @@ func capture_pause_source() -> Dictionary:
  	var scene := get_tree().current_scene as Control
  	if scene == null or scene.is_queued_for_deletion(): return _failure(&"pause_source_unavailable")
  	var route: String = _router.get_current_route_id()
@@ -628,7 +1073,7 @@ index c20bdba..786efba 100644
  	# Recovery owns its registered actions; refuse before capturing a session or frontier.
  	if _find_caption(get_tree().root, true) != null: return _failure(&"pause_recovery_active")
  	var guarded: Dictionary = _services.gate.guard_external(&"universal_pause")
-@@ -384,7 +386,7 @@ func capture_pause_source() -> Dictionary:
+@@ -384,7 +422,7 @@ func capture_pause_source() -> Dictionary:
  		var frontier: Dictionary = _services.bridge.capture_pause_frontier(source.timeline_id if route == "hospital" else "")
  		if not frontier.get("ok", false): return frontier
  		source["frontier"] = frontier.value.duplicate(true)
@@ -637,7 +1082,7 @@ index c20bdba..786efba 100644
  		return _failure(&"pause_frontier_unavailable")
  	else:
  		source["frontier"] = {}
-@@ -409,7 +411,11 @@ func capture_scene_projection(scene: Object) -> Dictionary:
+@@ -409,7 +447,11 @@ func capture_scene_projection(scene: Object) -> Dictionary:
  	var route: String = _router.get_current_route_id()
  	var paths := {"main": "res://scenes/main/MainGameScene.tscn", "dating": "res://scenes/dating/DatingScene.tscn",
  		"hospital": "res://scenes/hospital/HospitalScene.tscn", "ending": "res://scenes/ending/EndingScene.tscn"}
@@ -650,7 +1095,59 @@ index c20bdba..786efba 100644
  	var command: Dictionary = scene.get_presentation_projection() if scene.has_method("get_presentation_projection") else {}
  	if route in ["dating", "hospital"] and command.is_empty(): return {}
  	return {"route_id": route, "scene_id": scene.get_instance_id(), "command": command,
-@@ -696,6 +702,14 @@ func release_for_backup_load() -> Dictionary:
+@@ -543,6 +585,10 @@ func prepare_backup_save() -> Dictionary:
+ 	if _captured_source.get("frontier", {}).is_empty(): return {"ok": true}
+ 	# Inspection/Delete remain available when saving is disabled; Load has its own gate.
+ 	if not can_save_backup(): return {"ok": true}
++	if _captured_source.get("route_id") == "scene":
++		var checkpoint: Dictionary = _services.bridge.capture_reading_checkpoint(false)
++		if not checkpoint.get("ok", false): return checkpoint
++		if checkpoint.value.get("reading_session", {}).get("boundary") == "control": return {"ok": true}
+ 	var completed: Dictionary = _caption.complete_pause_reading_reveal(
+ 		_caption_anchor, _services.bridge, _handle)
+ 	if not completed.get("ok", false): return completed
+@@ -608,6 +654,7 @@ func _capture_between_entry_reading_checkpoint() -> Dictionary:
+ 
+ 
+ func _capture_reading_backup_inputs() -> Dictionary:
++	if _captured_source.route_id == "scene": return _capture_scene_reading_backup_inputs()
+ 	if _captured_source.route_id == "ending": return _capture_ending_reading_backup_inputs()
+ 	var command: Dictionary = _captured_source.command
+ 	var physical: Dictionary = _services.dating_presentation.pull_physical(command)
+@@ -638,6 +685,32 @@ func _capture_reading_backup_inputs() -> Dictionary:
+ 		return _failure(&"pause_source_changed")
+ 	return {"ok": true, "value": inputs.duplicate(true)}
+ 
++func _capture_scene_reading_backup_inputs() -> Dictionary:
++	if not _reading_save_owner_available("scene"): return _failure(&"pause_save_unavailable")
++	var checkpoint: Dictionary = _services.bridge.capture_reading_checkpoint(false)
++	if not checkpoint.get("ok", false): return checkpoint
++	var prior: Dictionary = _services.game_state.capture_dating_challenge_state()
++	if not prior.get("ok", false): return prior
++	var captured: Variant = (_services.backup_capture as Callable).call()
++	if not captured is Dictionary or not captured.get("ok", false):
++		return captured if captured is Dictionary else _failure(&"invalid_backup_capture")
++	var inputs: Dictionary = captured.get("value", {})
++	var after: Dictionary = _services.bridge.capture_reading_checkpoint(false)
++	var current: Dictionary = _services.game_state.capture_dating_challenge_state()
++	if inputs.get("route_id") != "scene" \
++			or inputs.get("snapshot_input", {}).get("lifecycle", {}).get("run_id") != _captured_source.session.get("run_id") \
++			or inputs.get("dialogic_checkpoint") != checkpoint.value \
++			or not after.get("ok", false) or after.value != checkpoint.value \
++			or not current.get("ok", false) or current.value != prior.value \
++			or inputs.get("snapshot_input", {}).get("gameplay", {}).get("route_context", {}).get("active_dating_challenge", {}) != prior.value \
++			or not _backup_admission().get("ok", false):
++		return _failure(&"pause_source_changed")
++	var snapshot: Dictionary = inputs.snapshot_input.duplicate(true)
++	snapshot["route_id"] = "scene"
++	var authority := preload("res://scripts/narrative/FrozenRunContext.gd").validate_reading_checkpoint(checkpoint.value, snapshot)
++	if not authority.get("ok", false): return authority
++	return {"ok": true, "value": inputs.duplicate(true)}
++
+ ## Ending reuses the same live Run producer and immutable reading checkpoint.
+ ## Scene command, session custody and saved authority must all stay unchanged.
+ func _capture_ending_reading_backup_inputs() -> Dictionary:
+@@ -696,6 +769,14 @@ func release_for_backup_load() -> Dictionary:
  
  func finish_backup_load(result: Dictionary) -> Dictionary:
  	if not _loading: return _failure(&"pause_load_unavailable")
@@ -665,7 +1162,7 @@ index c20bdba..786efba 100644
  	if _witnessed_load: return await _finish_witnessed_load(result)
  	_loading = false
  	var current_session: Dictionary = _services.game_state.capture_live_session()
-@@ -733,6 +747,40 @@ func finish_backup_load(result: Dictionary) -> Dictionary:
+@@ -733,6 +814,40 @@ func finish_backup_load(result: Dictionary) -> Dictionary:
  	surface.set_interactive(true)
  	return result if not result.get("ok", false) else _failure(&"pause_load_not_activated")
  
@@ -707,7 +1204,7 @@ index c20bdba..786efba 100644
  	var destination: Dictionary = capture_restore_destination_session()
  	var changed: bool = destination.get("ok", false) and destination.value != _captured_source.session
 diff --git a/scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd b/scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd
-index 7b8c42c..8339551 100644
+index 7b8c42cf..83395519 100644
 --- a/scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd
 +++ b/scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd
 @@ -26,6 +26,14 @@ func begin_search(spec: Dictionary) -> Dictionary:
@@ -726,7 +1223,7 @@ index 7b8c42c..8339551 100644
  	var advanced: Dictionary = _GENERATOR.run_debug_slice(frontier)
  	if not advanced.get("ok", false):
 diff --git a/scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd b/scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd
-index e78623c..1338951 100644
+index e78623c2..13389517 100644
 --- a/scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd
 +++ b/scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd
 @@ -34,6 +34,7 @@ var _next_source: Dictionary = {}
@@ -875,7 +1372,7 @@ index e78623c..1338951 100644
  			or (_marker_authority != null and (_marker_authority != authority or _marker_validator != validator)):
  		return _fail(&"event_handoff_authority_invalid", "")
 diff --git a/scripts/application/restore/RouteRestoreParticipant.gd b/scripts/application/restore/RouteRestoreParticipant.gd
-index 00eaa26..ae0549c 100644
+index 00eaa263..ae0549cc 100644
 --- a/scripts/application/restore/RouteRestoreParticipant.gd
 +++ b/scripts/application/restore/RouteRestoreParticipant.gd
 @@ -33,14 +33,12 @@ func begin_scene_publication_hold(operation_id: String) -> Dictionary:
@@ -896,7 +1393,7 @@ index 00eaa26..ae0549c 100644
  ## One Bootstrap-owned DesktopAppHostState. When configured, prepare() derives the desktop
  ## subplan from the supplied active_app_id/day and apply/rollback rebuild the host state
 diff --git a/scripts/application/run/DatingChallengeEnvelope.gd b/scripts/application/run/DatingChallengeEnvelope.gd
-index 0a1b576..d04fbe3 100644
+index 0a1b576c..d04fbe3c 100644
 --- a/scripts/application/run/DatingChallengeEnvelope.gd
 +++ b/scripts/application/run/DatingChallengeEnvelope.gd
 @@ -81,8 +81,17 @@ static func advances(before: Dictionary, after: Dictionary) -> bool:
@@ -939,7 +1436,7 @@ index 0a1b576..d04fbe3 100644
  		and (old.forced_cell < 0 or old.forced_cell == current.forced_cell) \
  		and (old.special_cell < 0 or old.special_cell == current.special_cell)
 diff --git a/scripts/application/run/DatingPhysicalOwner.gd b/scripts/application/run/DatingPhysicalOwner.gd
-index 411e0b1..6e05315 100644
+index 411e0b13..6e053155 100644
 --- a/scripts/application/run/DatingPhysicalOwner.gd
 +++ b/scripts/application/run/DatingPhysicalOwner.gd
 @@ -181,6 +181,42 @@ func pull_physical(physical_token: String) -> Dictionary:
@@ -1160,8 +1657,49 @@ index 411e0b1..6e05315 100644
  	if not lease.is_empty():
  		var released: Dictionary = _attempt_gate.release(&"causal_transaction", str(lease.value.token))
  		if not released.ok: return released
+diff --git a/scripts/application/run/DatingPresentationPort.gd b/scripts/application/run/DatingPresentationPort.gd
+index aa240be8..64c58a1a 100644
+--- a/scripts/application/run/DatingPresentationPort.gd
++++ b/scripts/application/run/DatingPresentationPort.gd
+@@ -343,6 +343,36 @@ func dispatch_physical(presentation_command: Dictionary, action: String, cell_in
+ 		"the owner returned no physical command result", {})
+ 
+ 
++## The fixed Challenge view can only use a command admitted by this port.
++## The physical owner retains first-Reveal validation and all durable mutations.
++func pull_scene_panel(presentation_command: Dictionary) -> Dictionary:
++	var trusted := _trusted_scene_panel_command(presentation_command)
++	if not trusted.get("ok", false): return trusted
++	if not _physical_owner.has_method("pull_scene_panel"):
++		return _fail(&"physical_presentation_unavailable", "the owner exposes no scene panel", {})
++	var result: Variant = _physical_owner.call("pull_scene_panel", str(trusted.value.physical_token))
++	return result if result is Dictionary else _fail(
++		&"physical_presentation_unavailable", "the owner returned no scene panel", {})
++
++func dispatch_scene_panel_action(presentation_command: Dictionary, action: String,
++		cell_index: int, expected_revision: int) -> Dictionary:
++	var trusted := _trusted_scene_panel_command(presentation_command)
++	if not trusted.get("ok", false): return trusted
++	if not _physical_owner.has_method("dispatch_scene_panel_action"):
++		return _fail(&"physical_presentation_unavailable", "the owner exposes no scene panel actions", {})
++	var result: Variant = _physical_owner.call("dispatch_scene_panel_action",
++		str(trusted.value.physical_token), action, cell_index, expected_revision)
++	return result if result is Dictionary else _fail(
++		&"physical_presentation_unavailable", "the owner returned no scene panel action result", {})
++
++func _trusted_scene_panel_command(candidate: Dictionary) -> Dictionary:
++	var trusted := _trusted_physical_command(candidate)
++	if not trusted.get("ok", false): return trusted
++	if not trusted.value.get("context") is Dictionary \
++			or trusted.value.context.get("kind") != "scene_challenge":
++		return _fail(&"scene_challenge_family_mismatch", "", {})
++	return trusted
++
+ func _trusted_physical_command(candidate: Dictionary) -> Dictionary:
+ 	if _physical_owner == null:
+ 		return _fail(&"dating_physical_owner_unconfigured",
 diff --git a/scripts/domain/minesweeper/MinesweeperBoardGenerator.gd b/scripts/domain/minesweeper/MinesweeperBoardGenerator.gd
-index 9caf5c2..ec8d917 100644
+index 9caf5c21..ec8d9174 100644
 --- a/scripts/domain/minesweeper/MinesweeperBoardGenerator.gd
 +++ b/scripts/domain/minesweeper/MinesweeperBoardGenerator.gd
 @@ -183,6 +183,52 @@ static func begin_debug(spec: Dictionary) -> Dictionary:
@@ -1218,7 +1756,7 @@ index 9caf5c2..ec8d917 100644
  ## enforcing cumulative search_operation_budget (the kernel is never offered more of the search
  ## budget than remains, and is never offered a call so small it could only stall), then falling
 diff --git a/scripts/profile/DatingAttemptLedger.gd b/scripts/profile/DatingAttemptLedger.gd
-index dce0bc4..eb4af43 100644
+index dce0bc49..eb4af436 100644
 --- a/scripts/profile/DatingAttemptLedger.gd
 +++ b/scripts/profile/DatingAttemptLedger.gd
 @@ -77,7 +77,10 @@ static func prepare_update(ledger: Dictionary, run_id: String, slot_id: String,
@@ -1287,9 +1825,400 @@ index dce0bc4..eb4af43 100644
  	if not prepared.ok: return prepared
  	var attempt: Dictionary = prepared.value.attempt
  	attempt["generation"] = original.generation
+diff --git a/scripts/ui/SceneChallengePanel.gd b/scripts/ui/SceneChallengePanel.gd
+new file mode 100644
+index 00000000..2018f9a2
+--- /dev/null
++++ b/scripts/ui/SceneChallengePanel.gd
+@@ -0,0 +1,171 @@
++extends Control
++## View only. The host supplies the admitted command and trusted presentation port.
++## No physical tokens, board identities, retry policy, or save authority live here.
++
++signal presentation_failed(code: StringName)
++signal presentation_changed()
++signal closed()
++
++const WORKSHEET := preload("res://scripts/ui/minesweeper/MinesweeperWorksheet.gd")
++const DOCK := preload("res://scripts/ui/minesweeper/MinesweeperDock.gd")
++const PANEL_SIZE := Vector2(960, 656)
++const CELL_ACTIONS := [&"reveal", &"flag", &"unflag", &"chord"]
++
++var worksheet: Control
++var dock: Control
++var public_view: Dictionary = {}
++var _port: Object
++var _command: Dictionary = {}
++var _blocked := false
++var _failed := true
++var _dispatching := false
++var _host := ""
++var _locale := "en"
++var _percent := 100
++var _large := false
++var _palette: StringName = &"after_hours"
++var _high_contrast := false
++var _colour_preset := "standard"
++var _font_style := "pixel"
++
++func _init() -> void:
++	name = "SceneChallengePanel"
++	mouse_filter = Control.MOUSE_FILTER_STOP
++	focus_mode = Control.FOCUS_NONE
++	clip_contents = true
++	custom_minimum_size = PANEL_SIZE
++	size = PANEL_SIZE
++	worksheet = WORKSHEET.new()
++	worksheet.name = "Worksheet"
++	add_child(worksheet)
++	dock = DOCK.new()
++	dock.name = "Dock"
++	add_child(dock)
++	worksheet.cell_action_requested.connect(_dispatch)
++	worksheet.grid.mode_changed.connect(func(_mode: StringName): _apply_availability())
++	worksheet.information_closed.connect(_apply_availability)
++	dock.action_requested.connect(_action)
++	visibility_changed.connect(_apply_availability)
++	hide()
++
++func _ready() -> void:
++	_apply_availability()
++
++func bind(port: Object, presentation_command: Dictionary) -> bool:
++	if not is_instance_valid(port) or presentation_command.is_empty() \
++			or not port.has_method("pull_scene_panel") or not port.has_method("dispatch_scene_panel_action"):
++		return false
++	if _port != null:
++		return _port == port and _command == presentation_command
++	_port = port
++	_command = presentation_command.duplicate(true)
++	return true
++
++func bind_view_preferences(profile: Object) -> bool:
++	return worksheet.bind_view_preferences(profile, "challenge")
++
++func configure_input(input_owner: Object) -> bool:
++	return worksheet.grid.configure_input(input_owner)
++
++func configure_scene(locale: String = "en", percent: int = 100, large: bool = false,
++		palette: StringName = &"after_hours", high_contrast: bool = false,
++		colour_preset: String = "standard", font_style: String = "pixel") -> bool:
++	_locale = locale
++	_percent = percent
++	_large = large
++	_palette = palette
++	_high_contrast = high_contrast
++	_colour_preset = colour_preset
++	_font_style = font_style
++	_host = ""
++	return refresh() if _port != null else true
++
++func open_panel() -> bool:
++	if not refresh(): return false
++	show()
++	_apply_availability()
++	return true
++
++func close_panel() -> void:
++	worksheet.grid.cancel_input()
++	worksheet.close_information()
++	hide()
++	closed.emit()
++
++func set_interaction_blocked(blocked: bool) -> void:
++	_blocked = blocked
++	_apply_availability()
++
++func refresh() -> bool:
++	if not is_instance_valid(_port): return _fail(&"scene_panel_unbound")
++	var response: Variant = _port.call("pull_scene_panel", _command.duplicate(true))
++	if not response is Dictionary or not response.get("ok", false):
++		return _fail(StringName(response.get("code", "scene_panel_unavailable")) if response is Dictionary else &"scene_panel_unavailable")
++	var value: Variant = response.get("value")
++	if not value is Dictionary or value.get("host") not in ["canonical_solo", "canonical_pair"] \
++			or not value.get("board") is Dictionary or not value.get("actions") is Array:
++		return _fail(&"scene_panel_invalid_view")
++	if not worksheet.grid.can_present(value.board): return _fail(&"scene_panel_invalid_view")
++	if _host != value.host:
++		if not dock.configure_scene(value.host, _locale, _percent, _large, _palette,
++				_high_contrast, _colour_preset, _font_style): return _fail(&"scene_panel_invalid_view")
++		# The scene host provides direct controls; no Pause surface here.
++		dock.buttons.pause.hide()
++		var reclaimed_width: float = dock.buttons.pause.size.x + DOCK.GAP
++		for key: String in ["flag", "drag", "rules"]:
++			dock.buttons[key].position.x += reclaimed_width / 2.0
++		var view_height: int = WORKSHEET.view_controls_height(_locale, dock.theme, _large)
++		var band := Vector2i(480, (int(PANEL_SIZE.y) - int(dock.size.y) - view_height) / 2)
++		if not worksheet.configure_scene(value.host, _locale, _percent, _large, _palette, band,
++				_high_contrast, _colour_preset, _font_style):
++			return _fail(&"scene_panel_invalid_view")
++		_host = value.host
++		dock.position = Vector2(0, worksheet.size.y)
++	# Detach the publication once; never derive a substitute board after refusal.
++	var publication: Dictionary = value.duplicate(true)
++	if not worksheet.present(publication.board): return _fail(&"scene_panel_invalid_view")
++	public_view = publication
++	_failed = false
++	_apply_availability()
++	presentation_changed.emit()
++	return true
++
++func _can_interact() -> bool:
++	return not _blocked and not _failed and not _dispatching and is_visible_in_tree() \
++		and is_inside_tree() and not get_tree().paused
++
++func _apply_availability() -> void:
++	if worksheet == null or dock == null or not is_inside_tree(): return
++	var blocked := not _can_interact()
++	worksheet.set_interaction_blocked(blocked)
++	var actions: Array = []
++	if not blocked and not public_view.get("board", {}).get("custody", true):
++		actions = ["reveal", "flag", "drag", "rules"]
++		if worksheet.information_sheet != null: actions = ["rules"]
++	dock.present(worksheet.grid.mode, actions, false,
++		"rules" if worksheet.information_sheet != null else "board")
++
++func _action(action: StringName) -> void:
++	if not _can_interact(): return
++	match action:
++		&"reveal", &"flag", &"drag": worksheet.set_mode(action)
++		&"rules": worksheet.open_rules(dock.buttons.get("rules"))
++	_apply_availability()
++
++func _dispatch(action: StringName, index: int, revision: int) -> void:
++	if not _can_interact() or worksheet.information_sheet != null or action not in CELL_ACTIONS: return
++	if String(action) not in public_view.get("actions", []): return
++	_dispatching = true
++	var result: Variant = _port.call("dispatch_scene_panel_action", _command.duplicate(true), String(action), index, revision)
++	_dispatching = false
++	if not result is Dictionary or not result.get("ok", false):
++		_fail(StringName(result.get("code", "scene_panel_action_refused")) if result is Dictionary else &"scene_panel_action_refused")
++		return
++	# Dispatch envelopes need not contain the panel host. Pull the authoritative view.
++	refresh()
++
++func _fail(code: StringName) -> bool:
++	_failed = true
++	_apply_availability()
++	presentation_failed.emit(code)
++	return false
+diff --git a/scripts/ui/SceneHost.gd b/scripts/ui/SceneHost.gd
+new file mode 100644
+index 00000000..9c07c68e
+--- /dev/null
++++ b/scripts/ui/SceneHost.gd
+@@ -0,0 +1,69 @@
++extends Control
++## Scene chrome only. Bootstrap owns admission, persistence, and panel mounting.
++
++var _actions: Dictionary = {}
++var _computer_open := false
++var _busy := false
++
++func _ready() -> void:
++	$SceneControlsLayer/Surface/Controls/CheckComputer.pressed.connect(_toggle_computer)
++	for action: String in ["settings", "backup", "save", "load"]:
++		get_node("SceneControlsLayer/Surface/Controls/" + action.capitalize()).pressed.connect(_invoke.bind(action))
++	if _actions.is_empty():
++		var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
++		if bootstrap != null and bootstrap.has_method("configure_scene_host_view"):
++			bootstrap.configure_scene_host_view(self)
++	_update_controls()
++
++func configure_scene_controls(actions: Dictionary) -> void:
++	_actions = actions.duplicate()
++	if is_node_ready(): _update_controls()
++
++func get_challenge_mount() -> Control:
++	return $SceneControlsLayer/Surface/ChallengeMount
++
++func is_computer_open() -> bool:
++	return _computer_open
++
++func set_computer_open(open: bool) -> void:
++	_computer_open = open
++	$SceneControlsLayer/Surface/ChallengeMount.visible = open
++	$SceneControlsLayer/Surface/Controls/CheckComputer.text = "Close Computer" if open else "Check Computer"
++	_update_controls()
++
++func _toggle_computer() -> void:
++	# Consume before awaiting: closing must not forward this click into dialogue.
++	get_viewport().set_input_as_handled()
++	if _busy: return
++	var opening := not _computer_open
++	var action := "computer_open" if opening else "computer_close"
++	var callback: Callable = _actions.get(action, Callable())
++	if not callback.is_valid(): return
++	_busy = true
++	_update_controls()
++	var result: Variant = await callback.call()
++	if not is_inside_tree(): return
++	if result is Dictionary and result.get("ok", false):
++		set_computer_open(opening)
++	_busy = false
++	_update_controls()
++
++func _invoke(action: String) -> void:
++	get_viewport().set_input_as_handled()
++	if _busy: return
++	var callback: Callable = _actions.get(action, Callable())
++	if not callback.is_valid(): return
++	_busy = true
++	_update_controls()
++	await callback.call()
++	if not is_inside_tree(): return
++	_busy = false
++	_update_controls()
++
++func _update_controls() -> void:
++	if not is_inside_tree(): return
++	var computer: Callable = _actions.get("computer_close" if _computer_open else "computer_open", Callable())
++	$SceneControlsLayer/Surface/Controls/CheckComputer.disabled = _busy or not computer.is_valid()
++	for action: String in ["settings", "backup", "save", "load"]:
++		var callback: Callable = _actions.get(action, Callable())
++		get_node("SceneControlsLayer/Surface/Controls/" + action.capitalize()).disabled = _busy or not callback.is_valid()
+diff --git a/scripts/ui/pause/PauseSurface.gd b/scripts/ui/pause/PauseSurface.gd
+index 6bad8da6..5b034237 100644
+--- a/scripts/ui/pause/PauseSurface.gd
++++ b/scripts/ui/pause/PauseSurface.gd
+@@ -28,6 +28,8 @@ var _host_confirmation: Control
+ var _quick_confirmation := false
+ var _suspended_inputs: Dictionary = {}
+ var _opened := false
++var _direct_host := false
++var _sheet_back: Button
+ var _return_retry := false
+ var _interactive := true
+ var entry_admission := Callable()
+@@ -83,6 +85,12 @@ func _ready() -> void:
+ 	workfield.position = Vector2(480,64)
+ 	workfield.size = Vector2(800,656)
+ 	add_child(workfield)
++	_sheet_back = Button.new()
++	_sheet_back.text = "Back"
++	_sheet_back.position = Vector2(16, 12)
++	_sheet_back.size = Vector2(96, 40)
++	_sheet_back.pressed.connect(handle_back)
++	add_child(_sheet_back)
+ 	_build_confirmation()
+ 	for id: StringName in _hosts: _mount_host(id)
+ 	_apply_copy()
+@@ -248,9 +256,31 @@ func _open_backup_mode(mode: StringName) -> bool:
+ 		prior_focus.grab_focus()
+ 	return false
+ 
++## A Scene opens the requested application directly; closing it resumes its source.
++func open_direct_host(id: StringName, mode: StringName = &"") -> bool:
++	if not is_node_ready() or _opened or not _interactive or id not in [&"settings", &"backup"]:
++		return false
++	var host: Control = _hosts.get(id)
++	if not is_instance_valid(host): return false
++	_direct_host = true
++	_opened = true
++	selected_action = id
++	entered_action = id
++	show()
++	_sync_custody()
++	if id == &"backup" and host.has_method("focus_entry"):
++		if not host.call("focus_entry", mode if mode in [&"save", &"load"] else &""):
++			close_surface()
++			return false
++	elif host.has_method("focus_entry"): host.call("focus_entry")
++	elif host.has_method("show_window"): host.call("show_window")
++	else: _focus_first(host)
++	return true
++
+ func close_surface() -> void:
+ 	if is_instance_valid(_host_confirmation): _host_confirmation._finish(false)
+ 	_opened = false
++	_direct_host = false
+ 	_return_retry = false
+ 	cancel_button.disabled = false
+ 	entered_action = &""
+@@ -415,6 +445,9 @@ func leave_host() -> void:
+ 		return
+ 	var host: Control = _hosts.get(entered_action)
+ 	if host != null and host.has_method("can_return_home") and not host.can_return_home(): return
++	if _direct_host:
++		continue_requested.emit()
++		return
+ 	var source := entered_action
+ 	entered_action = &""
+ 	_sync_custody()
+@@ -433,7 +466,12 @@ func _sync_custody() -> void:
+ 		if not is_instance_valid(_hosts[id]):
+ 			_hosts.erase(id)
+ 			if entered_action == id: entered_action = &""
+-	var root_active := _opened and _interactive and entered_action == &"" and not is_instance_valid(_host_confirmation)
++	_left.visible = not _direct_host
++	_sheet_back.visible = _opened and _direct_host
++	_sheet_back.disabled = not _interactive or is_instance_valid(_host_confirmation)
++	context_strip.position.x = 240 if _direct_host else 480
++	workfield.position.x = 240 if _direct_host else 480
++	var root_active := not _direct_host and _opened and _interactive and entered_action == &"" and not is_instance_valid(_host_confirmation)
+ 	_set_custody(_left,root_active)
+ 	for id: StringName in ACTIONS:
+ 		rows[id].selected = id == selected_action
+@@ -493,8 +531,8 @@ func _draw() -> void:
+ 	var veil := get_theme_color(&"habitat",&"Pause")
+ 	veil.a = 1.0 if _high_contrast else 0.7
+ 	draw_rect(Rect2(0,0,1280,720),veil)
+-	draw_rect(Rect2(0,0,480,720),get_theme_color(&"face",&"Pause"))
+-	if _opened and selected_action != &"continue": draw_rect(Rect2(480,0,800,64),get_theme_color(&"face",&"Pause"))
++	if not _direct_host: draw_rect(Rect2(0,0,480,720),get_theme_color(&"face",&"Pause"))
++	if _opened and selected_action != &"continue": draw_rect(Rect2(240 if _direct_host else 480,0,800,64),get_theme_color(&"face",&"Pause"))
+ 
+ func _draw_confirmation() -> void:
+ 	confirmation.draw_rect(Rect2(0,0,800,656),get_theme_color(&"face",&"Pause"))
+diff --git a/scripts/ui/witnessed/WitnessedCaptionLayer.gd b/scripts/ui/witnessed/WitnessedCaptionLayer.gd
+index 180cde76..26b683aa 100644
+--- a/scripts/ui/witnessed/WitnessedCaptionLayer.gd
++++ b/scripts/ui/witnessed/WitnessedCaptionLayer.gd
+@@ -166,6 +166,8 @@ func _ready() -> void:
+ 	skip_controller.state_changed.connect(_sync_transport)
+ 	auto_controller.state_changed.connect(_on_auto_state_changed)
+ 	configure_reading_transport(_profile, get_node_or_null("/root/DialogicBridge"))
++	if is_instance_valid(_transport_bridge) and _transport_bridge.has_signal("computer_hold_changed"):
++		_transport_bridge.connect("computer_hold_changed", _on_computer_hold_changed)
+ 	configure_speech(_profile, get_node_or_null("/root/DialogicBridge"), get_node_or_null("/root/SystemTtsCoordinator"))
+ 	auto_controller.bind_completion_barrier(_speech_allows_auto)
+ 	var input_owner := get_node_or_null("/root/InputManager")
+@@ -372,7 +374,7 @@ func _transport_admitted() -> bool:
+ 		and bool(_transport_bridge.call("can_skip_current_line"))
+ 
+ func _reading_source_admitted() -> bool:
+-	return not _ending_caption_handoff and _timed_hold_frontier.is_empty() and _reading_recovery.is_empty() and not _load_pending and not _history_pending and not _history_open \
++	return not _computer_caption_held() and not _ending_caption_handoff and _timed_hold_frontier.is_empty() and _reading_recovery.is_empty() and not _load_pending and not _history_pending and not _history_open \
+ 		and not is_next_transport_active()
+ 
+ func is_next_transport_active() -> bool:
+@@ -1282,6 +1284,9 @@ func _on_caption_visibility_changed() -> void:
+ 	_request_layout()
+ 
+ func _sync_native_processing() -> void:
++	if _computer_caption_held():
++		caption_text.set_process(false)
++		return
+ 	if _ending_caption_handoff:
+ 		caption_text.set_process(false)
+ 		return
+@@ -1560,3 +1565,13 @@ func _draw_canvas() -> void:
+ 
+ func _color(role: StringName) -> Color:
+ 	return _caption_theme.get_color(role, &"WitnessedCaption")
++
++
++func _computer_caption_held() -> bool:
++	return is_instance_valid(_transport_bridge) and _transport_bridge.has_method("is_computer_caption_held") \
++		and _transport_bridge.is_computer_caption_held()
++
++func _on_computer_hold_changed() -> void:
++	accept_input.retire_input()
++	_sync_native_processing()
++	_sync_transport()
 diff --git a/tests/diagnostics/style_refusal_shutdown_probe.gd b/tests/diagnostics/style_refusal_shutdown_probe.gd
 new file mode 100644
-index 0000000..5f37e3b
+index 00000000..5f37e3ba
 --- /dev/null
 +++ b/tests/diagnostics/style_refusal_shutdown_probe.gd
 @@ -0,0 +1,134 @@
@@ -1429,7 +2358,7 @@ index 0000000..5f37e3b
 +	quit(0 if _failures == 0 else 1)
 diff --git a/tests/diagnostics/style_shutdown_probe.gd b/tests/diagnostics/style_shutdown_probe.gd
 new file mode 100644
-index 0000000..eed1cd7
+index 00000000..eed1cd73
 --- /dev/null
 +++ b/tests/diagnostics/style_shutdown_probe.gd
 @@ -0,0 +1,111 @@
@@ -1544,9 +2473,317 @@ index 0000000..eed1cd7
 +		return false
 +	print("DWM_STYLE_PROBE inherited_cycle viewport_retired")
 +	return true
+diff --git a/tests/integration/scene_bootstrap_restart_child.gd b/tests/integration/scene_bootstrap_restart_child.gd
+new file mode 100644
+index 00000000..1226b2fc
+--- /dev/null
++++ b/tests/integration/scene_bootstrap_restart_child.gd
+@@ -0,0 +1,150 @@
++extends "res://addons/gut/test.gd"
++## Real FINAL services in separate OS processes sharing the wrapper-owned user directory.
++## Content registration is TEST-authored; no diagnostic restore participants are installed.
++const BOOTSTRAP := preload("res://autoload/ApplicationBootstrap.gd")
++const CONTENT := preload("res://tests/support/ScenePlayableFixture.gd")
++const PARSER := preload("res://scripts/validation/StrictJson.gd")
++const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
++const HOST := "res://scenes/narrative/SceneHost.tscn"
++var bootstrap: Node
++var saves: Node
++var bridge: Node
++var game: Node
++var profile: Node
++var ready_count := 0
++
++func _ok(result: Dictionary) -> bool:
++	assert_true(result.get("ok", false), str(result))
++	return result.get("ok", false)
++
++func _start_services() -> bool:
++	process_mode = Node.PROCESS_MODE_ALWAYS
++	assert_false(OS.get_environment("DWM_TEST_ROOT").is_empty())
++	if OS.get_environment("DWM_TEST_ROOT").is_empty(): return false
++	var content: RefCounted = CONTENT.new()
++	if not _ok(content._install_registration()): return false
++	var old: Node = get_node("/root/ApplicationBootstrap")
++	assert_eq(old.get_startup_state().mode, &"test_manual")
++	assert_false(old.get_startup_state().ready)
++	old.free()
++	saves = get_node("/root/SaveManager")
++	bridge = get_node("/root/DialogicBridge")
++	game = get_node("/root/GameState")
++	profile = get_node("/root/ProfileManager")
++	saves.live_session_ready.connect(func() -> void: ready_count += 1)
++	bootstrap = BOOTSTRAP.new()
++	bootstrap.name = "ApplicationBootstrap"
++	get_tree().root.add_child(bootstrap)
++	get_tree().current_scene = null
++	if not _ok(bootstrap.start(&"final")): return false
++	assert_eq(bootstrap.get_startup_state().completed_stages, BOOTSTRAP.STAGE_ORDER)
++	assert_true(bootstrap.get_startup_state().ready)
++	assert_eq(saves._restore_participants.size(), 9)
++	assert_eq(ready_count, 0, "completed prior operations do not fabricate a live Ready")
++	return true
++
++func _await_ready() -> bool:
++	for frame: int in 240:
++		if ready_count == 1: return true
++		var failure: Dictionary = saves._scene_restore_activation.get("failure", {})
++		if not failure.is_empty(): return _ok(failure)
++		await get_tree().process_frame
++	return _ok({"ok": false, "code": &"TEST.bootstrap_restart_timeout"})
++
++func _write_json(path: String, value: Dictionary) -> bool:
++	var encoded: Dictionary = WRITER.stringify(value)
++	if not _ok(encoded): return false
++	var file := FileAccess.open(path, FileAccess.WRITE)
++	assert_not_null(file)
++	if file == null: return false
++	file.store_string(encoded.value)
++	file.close()
++	return true
++
++func create_saved_text() -> void:
++	if not _start_services(): return
++	assert_false(FileAccess.file_exists("user://saves/slot_1.json"))
++	var audio: Node = get_node("/root/AudioManager")
++	var started: Dictionary = saves.start_scene_new_run("target_b", {
++		"route_id": "scene", "content_version": 1, "audio_context": audio.get_semantic_audio_context()})
++	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
++	if started.get("code") != &"scene_activation_pending": return
++	assert_eq(ready_count, 0)
++	if not await _await_ready(): return
++	var frontier: Dictionary = bridge.capture_current_line_presentation_frontier()
++	if not _ok(frontier): return
++	if not _ok(bridge.acknowledge_current_line_presentation(frontier)): return
++	if not _ok(saves.save_latest_to_slot(1)): return
++	var selected: Dictionary = saves.get_latest_stable_checkpoint()
++	if not _ok(selected): return
++	var snapshot: Dictionary = selected.value.bundle.snapshot
++	var proof := {"phase": "create", "process_id": OS.get_process_id(),
++		"user_dir": ProjectSettings.globalize_path("user://"),
++		"slot_sha256": FileAccess.get_sha256("user://saves/slot_1.json"),
++		"autosave_sha256": FileAccess.get_sha256("user://saves/autosave.json"),
++		"profile_sha256": FileAccess.get_sha256("user://profile.json"),
++		"profile": profile.get_profile_snapshot(),
++		"reading_session": snapshot.narrative_checkpoint.reading_session,
++		"command_receipts": game.capture_run_snapshot_input().command_receipts,
++		"source_branch": snapshot.lifecycle.branch_id,
++		"source_run": snapshot.run_id, "ready_count": ready_count}
++	for key: String in ["slot_sha256", "autosave_sha256", "profile_sha256"]:
++		assert_eq(str(proof[key]).length(), 64, "physical file exists: " + key)
++	if not _write_json("user://bootstrap-restart-proof.json", proof): return
++	_write_json("res://.godot/ci/bootstrap-create-proof.json", proof)
++
++func load_saved_text() -> void:
++	# Read the creator's physical witness before FINAL startup can reconcile any storage.
++	assert_true(FileAccess.file_exists("user://bootstrap-restart-proof.json"))
++	var parsed: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://bootstrap-restart-proof.json"))
++	if not _ok(parsed): return
++	var witness: Dictionary = parsed.value
++	assert_ne(OS.get_process_id(), witness.process_id)
++	assert_eq(ProjectSettings.globalize_path("user://"), witness.user_dir)
++	_assert_physical_bytes(witness)
++	if not _start_services(): return
++	_assert_physical_bytes(witness)
++	assert_eq(profile.get_profile_snapshot(), witness.profile)
++	# Title Backup owns revision inspection, reconciliation and selected-Load consent.
++	var backup: RefCounted = preload("res://scripts/application/backup/BackupPresentationPort.gd").new()
++	if not _ok(backup.configure(saves, "title")): return
++	var prepared: Dictionary = backup.prepare_action("load", "slot:1")
++	if not _ok(prepared): return
++	assert_false(prepared.value.confirmation_required)
++	var restored: Dictionary = backup.commit_action(prepared.value.token)
++	assert_eq(restored.get("code"), &"scene_activation_pending", str(restored))
++	if restored.get("code") != &"scene_activation_pending": return
++	assert_eq(ready_count, 0)
++	if not await _await_ready(): return
++	for frame: int in 4: await get_tree().process_frame
++	assert_eq(ready_count, 1)
++	assert_eq(get_tree().current_scene.scene_file_path, HOST)
++	assert_true(get_tree().current_scene.is_node_ready())
++	var reading: Dictionary = bridge.capture_reading_checkpoint(false)
++	if not _ok(reading): return
++	assert_eq(reading.value.reading_session.entry_id, witness.reading_session.entry_id)
++	assert_eq(reading.value.reading_session.program_index, witness.reading_session.program_index)
++	var current: Dictionary = game.capture_run_snapshot_input()
++	assert_eq(current.lifecycle.run_id, witness.source_run)
++	assert_ne(current.lifecycle.branch_id, witness.source_branch, "selected Load creates a fresh branch")
++	assert_eq(current.command_receipts, witness.command_receipts)
++	assert_eq(profile.get_profile_snapshot(), witness.profile, "no Profile/history consequences replay")
++	_assert_physical_bytes(witness)
++	var frontier: Dictionary = bridge.capture_current_line_presentation_frontier()
++	if not _ok(frontier): return
++	if not _ok(bridge.acknowledge_current_line_presentation(frontier)): return
++	assert_true(bridge.is_current_line_presentation_acknowledged())
++	assert_eq(profile.get_profile_snapshot(), witness.profile)
++	_assert_physical_bytes(witness)
++	var proof: Dictionary = witness.duplicate(true)
++	proof.phase = "load"
++	proof["creator_process_id"] = witness.process_id
++	proof.process_id = OS.get_process_id()
++	proof["destination_branch"] = current.lifecycle.branch_id
++	proof.ready_count = ready_count
++	_write_json("res://.godot/ci/bootstrap-load-proof.json", proof)
++
++func _assert_physical_bytes(witness: Dictionary) -> void:
++	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), witness.slot_sha256)
++	assert_eq(FileAccess.get_sha256("user://saves/autosave.json"), witness.autosave_sha256)
++	assert_eq(FileAccess.get_sha256("user://profile.json"), witness.profile_sha256)
+diff --git a/tests/integration/scene_computer_child.gd b/tests/integration/scene_computer_child.gd
+new file mode 100644
+index 00000000..75639d64
+--- /dev/null
++++ b/tests/integration/scene_computer_child.gd
+@@ -0,0 +1,146 @@
++extends "res://tests/integration/scene_bootstrap_restart_child.gd"
++## FINAL Bootstrap and actual mounted host; only the authored registration is TEST.
++## Creator and loader run in distinct OS processes sharing real Save/Profile files.
++const CAPTION := preload("res://scripts/ui/witnessed/WitnessedCaptionLayer.gd")
++
++func _click(control: Control) -> void:
++	var point := control.get_global_rect().get_center()
++	for pressed: bool in [true, false]:
++		var event := InputEventMouseButton.new()
++		event.position = point
++		event.global_position = point
++		event.button_index = MOUSE_BUTTON_LEFT
++		event.pressed = pressed
++		get_viewport().push_input(event, true)
++		await get_tree().process_frame
++	for frame: int in 3: await get_tree().process_frame
++
++func _caption() -> Node:
++	return get_node("/root/SceneRouter")._production_pause._find_caption(get_tree().root)
++
++func _controls(host: Node, name: String) -> Control:
++	return host.get_node("SceneControlsLayer/Surface/Controls/" + name)
++
++func _start_playable() -> bool:
++	if not _start_services(): return false
++	var started: Dictionary = saves.start_scene_new_run("target_b", {"route_id": "scene",
++		"content_version": 1, "audio_context": get_node("/root/AudioManager").get_semantic_audio_context()})
++	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
++	if started.get("code") != &"scene_activation_pending" or not await _await_ready(): return false
++	if not _ok(bridge._runtime_adapter.reveal_current_line(true)): return false
++	for frame: int in 4: await get_tree().process_frame
++	var context: Dictionary = game.scene_event_context()
++	if not _ok(context): return false
++	var issued: Dictionary = bootstrap._desktop_identity_nonce_issuer.issue(&"transaction_id")
++	if not _ok(issued): return false
++	var event := {"schema_version": 2, "source": context.value.source.duplicate(true),
++		"event_id": "scene.test.b.playable", "kind": "challenge.playable", "payload": {"challenge_id": "TEST.challenge"},
++		"ordinal": context.value.next_ordinal, "predecessor": context.value.predecessor,
++		"command_id": issued.value.token, "issuer_receipt": issued.value.issuer_receipt.duplicate(true),
++		"playback_token": context.value.playback_token}
++	var live: Dictionary = game.capture_live_session()
++	return _ok(bridge.dispatch_scene_event(live.value, event))
++
++func create_computer_board() -> void:
++	if not await _start_playable(): return
++	var host: Control = get_tree().current_scene
++	var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
++	if not _ok(checkpoint): return
++	var auto_before: bool = profile.get_preference(&"preferences.reading.auto_enabled", false)
++	var profile_before: Dictionary = profile.get_profile_snapshot().duplicate(true)
++	await _click(_controls(host, "CheckComputer"))
++	assert_true(host.is_computer_open())
++	if not host.is_computer_open(): return
++	assert_false(get_tree().paused)
++	assert_true(bridge.is_computer_caption_held())
++	var caption: Node = _caption()
++	assert_not_null(caption)
++	if caption == null: return
++	assert_false(caption._reading_source_admitted())
++	assert_false(caption.caption_text.is_processing())
++	assert_false(bridge.can_auto_advance_current_line())
++	assert_eq(bridge.capture_reading_checkpoint(false), checkpoint)
++	assert_eq(profile.get_profile_snapshot(), profile_before, "opening grants no History or attempt")
++	var panel: Control = host.get_challenge_mount().get_node("SceneChallengePanel")
++	assert_eq(panel.public_view.phase, "never_started")
++	assert_true(game.capture_dating_challenge_state().value.is_empty())
++	assert_false(panel.dock.buttons.pause.visible)
++	var grid: Control = panel.worksheet.grid
++	# Real grid GUI press/release, after scrolling its owner to the selected cell.
++	assert_true(grid.focus_cell(323))
++	await get_tree().process_frame
++	await _click(grid.cell_nodes[323])
++	assert_eq(panel.public_view.phase, "active", str(panel.public_view))
++	if panel.public_view.phase != "active": return
++	var saved_board: Dictionary = panel.public_view.board.duplicate(true)
++	assert_eq(bridge.capture_reading_checkpoint(false), checkpoint, "board click cannot advance captions")
++	var record: Dictionary = game.capture_dating_challenge_state().value.duplicate(true)
++	assert_false(record.is_empty())
++	await _click(_controls(host, "CheckComputer"))
++	assert_false(host.is_computer_open())
++	assert_false(bridge.is_computer_caption_held())
++	assert_eq(profile.get_preference(&"preferences.reading.auto_enabled", false), auto_before)
++	assert_eq(bridge.capture_reading_checkpoint(false), checkpoint)
++	await _click(_controls(host, "CheckComputer"))
++	assert_eq(panel.public_view.board, saved_board)
++	assert_eq(game.capture_dating_challenge_state().value, record)
++	# Enter the actual direct Save sheet from the open computer.
++	await _click(_controls(host, "Save"))
++	var sheet: Node = get_node("/root/SceneRouter")._production_pause
++	assert_false(host.is_computer_open())
++	assert_true(sheet.can_save_backup(), str(sheet.last_result))
++	assert_false(sheet.surface.get_node("Actions").visible)
++	if not sheet.can_save_backup(): return
++	var prepared: Dictionary = sheet._backup_port.prepare_action("save", "slot:1")
++	if not _ok(prepared): return
++	if not _ok(await sheet._backup_port.commit_action(prepared.value.token)): return
++	sheet.surface.leave_host()
++	for frame: int in 5: await get_tree().process_frame
++	assert_false(get_tree().paused)
++	var proof := {"process_id": OS.get_process_id(), "user_dir": ProjectSettings.globalize_path("user://"),
++		"record": record, "board": saved_board, "checkpoint": checkpoint.value,
++		"slot_sha256": FileAccess.get_sha256("user://saves/slot_1.json"),
++		"auto": auto_before, "profile": profile.get_profile_snapshot(),
++		"source_branch": game.capture_run_snapshot_input().lifecycle.branch_id}
++	assert_eq(str(proof.slot_sha256).length(), 64)
++	if not _write_json("user://computer-board-proof.json", proof): return
++	_write_json("res://.godot/ci/computer-create-proof.json", proof)
++
++func load_computer_board() -> void:
++	var parsed: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://computer-board-proof.json"))
++	if not _ok(parsed): return
++	var proof: Dictionary = parsed.value
++	assert_ne(OS.get_process_id(), proof.process_id)
++	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.slot_sha256)
++	if not _start_services(): return
++	var backup: RefCounted = preload("res://scripts/application/backup/BackupPresentationPort.gd").new()
++	if not _ok(backup.configure(saves, "title")): return
++	var prepared: Dictionary = backup.prepare_action("load", "slot:1")
++	if not _ok(prepared): return
++	var loaded: Dictionary = backup.commit_action(prepared.value.token)
++	assert_eq(loaded.get("code"), &"scene_activation_pending", str(loaded))
++	if loaded.get("code") != &"scene_activation_pending" or not await _await_ready(): return
++	var host: Control = get_tree().current_scene
++	await _click(_controls(host, "CheckComputer"))
++	assert_true(host.is_computer_open())
++	if not host.is_computer_open(): return
++	var panel: Control = host.get_challenge_mount().get_node("SceneChallengePanel")
++	assert_eq(panel.public_view.board, proof.board)
++	assert_eq(game.capture_dating_challenge_state().value, proof.record)
++	assert_eq(profile.get_profile_snapshot(), proof.profile, "opening restored board is read-only")
++	assert_ne(game.capture_run_snapshot_input().lifecycle.branch_id, proof.source_branch)
++	assert_eq(bridge.capture_reading_checkpoint(false).value, proof.checkpoint)
++	var hidden := -1
++	for index: int in panel.public_view.board.cells.size():
++		if panel.public_view.board.cells[index].get("face") == "covered":
++			hidden = index
++			break
++	assert_gte(hidden, 0)
++	if hidden < 0: return
++	panel.worksheet.set_mode(&"flag")
++	panel.worksheet.cell_action_requested.emit(&"flag", hidden, int(panel.public_view.board.revision))
++	assert_gt(int(panel.public_view.board.revision), int(proof.board.revision), "restored board remains playable")
++	assert_false(get_tree().paused)
++	proof["loader_process_id"] = OS.get_process_id()
++	proof["continued_board"] = panel.public_view.board
++	_write_json("res://.godot/ci/computer-load-proof.json", proof)
 diff --git a/tests/integration/scene_first_reveal_connected_child.gd b/tests/integration/scene_first_reveal_connected_child.gd
 new file mode 100644
-index 0000000..0ec476d
+index 00000000..0ec476d9
 --- /dev/null
 +++ b/tests/integration/scene_first_reveal_connected_child.gd
 @@ -0,0 +1,286 @@
@@ -1837,7 +3074,7 @@ index 0000000..0ec476d
 +		file.flush()
 +		file.close()
 diff --git a/tests/integration/test_pause_backup_host.gd b/tests/integration/test_pause_backup_host.gd
-index 5f61aa1..8b9db30 100644
+index 5f61aa16..8b9db30f 100644
 --- a/tests/integration/test_pause_backup_host.gd
 +++ b/tests/integration/test_pause_backup_host.gd
 @@ -11,6 +11,14 @@ const FILES := preload("res://tests/support/FakeFileOps.gd")
@@ -1888,9 +3125,174 @@ index 5f61aa1..8b9db30 100644
  
  func test_direct_load_entry_refuses_missing_busy_and_retired_pause_custody() -> void:
  	assert_true(_surface.has_method("open_backup_load"))
+diff --git a/tests/integration/test_scene_bootstrap_host.gd b/tests/integration/test_scene_bootstrap_host.gd
+new file mode 100644
+index 00000000..05f9fb60
+--- /dev/null
++++ b/tests/integration/test_scene_bootstrap_host.gd
+@@ -0,0 +1,141 @@
++extends "res://addons/gut/test.gd"
++## Full FINAL startup stages and actual autoload owners. Only authored content is
++## TEST-selected. No diagnostic restore participants or fabricated acknowledgments.
++const BOOTSTRAP := preload("res://autoload/ApplicationBootstrap.gd")
++const CONTENT := preload("res://tests/support/ScenePlayableFixture.gd")
++const HOST := "res://scenes/narrative/SceneHost.tscn"
++var ready_count := 0
++var bootstrap: Node
++var saves: Node
++var bridge: Node
++var router: Node
++var game: Node
++
++func _ok(result: Dictionary) -> bool:
++	assert_true(result.get("ok", false), str(result))
++	return result.get("ok", false)
++
++func _await_ready(count: int) -> Dictionary:
++	for frame: int in 240:
++		if ready_count >= count: return {"ok": true}
++		var failure: Dictionary = saves._scene_restore_activation.get("failure", {})
++		if not failure.is_empty(): return failure
++		await get_tree().process_frame
++	return {"ok": false, "code": &"TEST.bootstrap_activation_timeout"}
++
++func test_real_bootstrap_scene_text_and_selected_load_keep_owner_authority() -> void:
++	process_mode = Node.PROCESS_MODE_ALWAYS
++	assert_false(OS.get_environment("DWM_TEST_ROOT").is_empty())
++	if OS.get_environment("DWM_TEST_ROOT").is_empty(): return
++	var content: RefCounted = CONTENT.new()
++	if not _ok(content._install_registration()): return
++	var old: Node = get_node("/root/ApplicationBootstrap")
++	assert_eq(old.get_startup_state().mode, &"test_manual")
++	assert_false(old.get_startup_state().ready)
++	old.free()
++	bootstrap = BOOTSTRAP.new()
++	bootstrap.name = "ApplicationBootstrap"
++	get_tree().root.add_child(bootstrap)
++	# Explicitly execute every FINAL stage before the automatic deferred start.
++	# Its later duplicate is refused by the production once-only start guard.
++	get_tree().current_scene = null # The mounted route must not delete GUT.
++	if not _ok(bootstrap.start(&"final")): return
++	assert_eq(bootstrap.get_startup_state().completed_stages, BOOTSTRAP.STAGE_ORDER)
++	assert_true(bootstrap.get_startup_state().ready)
++	saves = get_node("/root/SaveManager")
++	bridge = get_node("/root/DialogicBridge")
++	router = get_node("/root/SceneRouter")
++	game = get_node("/root/GameState")
++	assert_eq(router._scene_host_path, HOST)
++	assert_eq(saves._restore_participants.size(), 9, "retain historical Schedule participant")
++	assert_same(saves._restore_participants.run, bootstrap._retained_restore_participants.run)
++	assert_same(saves._restore_participants.desktop_board, bootstrap._retained_restore_participants.desktop_board)
++	assert_same(saves._restore_participants.narrative, bootstrap._retained_restore_participants.narrative)
++	var profile_registry: Node = get_node("/root/ProfileManager")
++	var installed: Dictionary = preload("res://scripts/narrative/DialogicEntryManifest.gd").load_ids_default()
++	if not _ok(installed): return
++	assert_true(profile_registry._line_registry_admits(installed.value.lines[0].line_id))
++	assert_false(profile_registry._line_registry_admits("TEST.unregistered.line"))
++	var fingerprint: String = profile_registry._line_registry_fingerprint
++	var forged: Dictionary = installed.value.duplicate(true)
++	forged.lines[0].line_id = "TEST.unregistered.line"
++	assert_false(profile_registry.configure_line_registry(forged).get("ok", false))
++	assert_eq(profile_registry._line_registry_fingerprint, fingerprint)
++
++	saves.live_session_ready.connect(func() -> void: ready_count += 1)
++	var audio: Node = get_node("/root/AudioManager")
++	var started: Dictionary = saves.start_scene_new_run("target_b", {
++		"route_id": "scene", "content_version": 1, "audio_context": audio.get_semantic_audio_context()})
++	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
++	if started.get("code") != &"scene_activation_pending": return
++	assert_eq(ready_count, 0, "queued route/native work is not Ready")
++	if not _ok(await _await_ready(1)): return
++	assert_eq(get_tree().current_scene.scene_file_path, HOST)
++	assert_true(get_tree().current_scene.is_node_ready())
++	assert_eq(ready_count, 1)
++	assert_false(router.is_restore_publication_held())
++	var pause: Node = router._production_pause
++	assert_true(is_instance_valid(pause._find_caption(get_tree().root)))
++	assert_true(bridge.requires_line_presentation_acknowledgement(), "scene Text uses exact native caption proof")
++	var presented: Dictionary = bridge.capture_current_line_presentation_frontier()
++	if not _ok(presented): return
++	if not _ok(bridge.acknowledge_current_line_presentation(presented)): return
++	assert_true(bridge.is_current_line_presentation_acknowledged())
++	if not _ok(saves.save_latest_to_slot(1)): return
++	var selected: Dictionary = saves.get_latest_stable_checkpoint()
++	if not _ok(selected): return
++	var reading: Dictionary = selected.value.bundle.snapshot.narrative_checkpoint.reading_session.duplicate(true)
++	var source: Dictionary = game.capture_run_snapshot_input().duplicate(true)
++	var profile: Node = get_node("/root/ProfileManager")
++	var profile_before: Dictionary = profile.get_profile_snapshot().duplicate(true)
++	if not _ok(await pause.request_pause()): return
++	assert_true(get_tree().paused)
++	var prepared: Dictionary = pause._backup_port.prepare_action("load", "slot:1")
++	if not _ok(prepared): return
++	var opaque: Dictionary = saves._backup_actions[prepared.value.token].prepared_restore
++	assert_true(saves._same_scene_preparation(opaque, opaque.duplicate(true)))
++	assert_eq(typeof(opaque.participant_plans.desktop_board.candidate.kind), TYPE_STRING_NAME)
++	var altered: Dictionary = opaque.duplicate(true)
++	altered.participant_plans.desktop_board.candidate.kind = "restore"
++	assert_eq(saves.commit_prepared_restore(altered).get("code"), &"invalid_scene_restore_preparation", "same text with a changed Variant type is not the retained plan")
++	altered = opaque.duplicate(true)
++	altered.participant_plans.desktop_board.candidate.kind = &"changed"
++	assert_eq(saves.commit_prepared_restore(altered).get("code"), &"invalid_scene_restore_preparation", "changed plan is refused before identity allocation")
++	assert_eq(game.capture_run_snapshot_input(), source)
++	assert_eq(profile.get_profile_snapshot(), profile_before)
++	if not _ok(await pause._backup_port.commit_action(prepared.value.token)): return
++	if not _ok(await _await_ready(2)): return
++	for frame: int in 4: await get_tree().process_frame
++	assert_false(get_tree().paused)
++	assert_eq(pause.coordinator.get_state().value.state, &"Active")
++	assert_eq(ready_count, 2)
++	assert_eq(get_tree().current_scene.scene_file_path, HOST)
++	var restored: Dictionary = bridge.capture_reading_checkpoint(false)
++	if not _ok(restored): return
++	assert_eq(restored.value.reading_session.entry_id, reading.entry_id)
++	assert_eq(restored.value.reading_session.program_index, reading.program_index)
++	assert_eq(game.capture_run_snapshot_input().command_receipts, source.command_receipts)
++	assert_eq(profile.get_profile_snapshot(), profile_before, "selected Load does not replay Profile/history consequences")
++	assert_true(is_instance_valid(pause._find_caption(get_tree().root)))
++
++func after_all() -> void:
++	get_tree().paused = false
++
++func test_scene_preparation_comparison_preserves_runtime_types_and_identity() -> void:
++	var owner := RefCounted.new()
++	var other := RefCounted.new()
++	var plan := {"nested": [{"kind": &"restore", "count": 1, "owner": owner}]}
++	assert_true(preload("res://autoload/SaveManager.gd")._same_scene_preparation(plan, plan.duplicate(true)))
++	for replacement: Variant in ["restore", &"changed"]:
++		var changed: Dictionary = plan.duplicate(true)
++		changed.nested[0].kind = replacement
++		assert_false(preload("res://autoload/SaveManager.gd")._same_scene_preparation(plan, changed))
++	var changed: Dictionary = plan.duplicate(true)
++	changed.nested[0].count = 1.0
++	assert_false(preload("res://autoload/SaveManager.gd")._same_scene_preparation(plan, changed))
++	changed = plan.duplicate(true)
++	changed.nested[0].owner = other
++	assert_false(preload("res://autoload/SaveManager.gd")._same_scene_preparation(plan, changed))
++	assert_false(preload("res://autoload/SaveManager.gd")._same_scene_preparation({"key": 1}, {&"key": 1}))
++	assert_false(preload("res://autoload/SaveManager.gd")._same_scene_preparation(plan, {}))
++	assert_false(preload("res://autoload/SaveManager.gd")._same_scene_preparation([1], [1, 2]))
+diff --git a/tests/integration/test_scene_bootstrap_restart_create.gd b/tests/integration/test_scene_bootstrap_restart_create.gd
+new file mode 100644
+index 00000000..45e89258
+--- /dev/null
++++ b/tests/integration/test_scene_bootstrap_restart_create.gd
+@@ -0,0 +1,3 @@
++extends "res://tests/integration/scene_bootstrap_restart_child.gd"
++func test_real_bootstrap_writes_physical_text_save() -> void:
++	await create_saved_text()
+diff --git a/tests/integration/test_scene_bootstrap_restart_load.gd b/tests/integration/test_scene_bootstrap_restart_load.gd
+new file mode 100644
+index 00000000..c09538d2
+--- /dev/null
++++ b/tests/integration/test_scene_bootstrap_restart_load.gd
+@@ -0,0 +1,3 @@
++extends "res://tests/integration/scene_bootstrap_restart_child.gd"
++func test_fresh_bootstrap_loads_same_files_without_replay() -> void:
++	await load_saved_text()
 diff --git a/tests/integration/test_scene_caption_style_refusal.gd b/tests/integration/test_scene_caption_style_refusal.gd
 new file mode 100644
-index 0000000..db70dc6
+index 00000000..db70dc61
 --- /dev/null
 +++ b/tests/integration/test_scene_caption_style_refusal.gd
 @@ -0,0 +1,80 @@
@@ -1974,9 +3376,74 @@ index 0000000..db70dc6
 +	assert_eq(fixture.native_publications, [])
 +	assert_eq(fixture.manager._scene_restore_activation.operation_id, operation_id)
 +	assert_eq(fixture.default_style_projection(), fixture.default_style_before)
+diff --git a/tests/integration/test_scene_computer_create.gd b/tests/integration/test_scene_computer_create.gd
+new file mode 100644
+index 00000000..010e562b
+--- /dev/null
++++ b/tests/integration/test_scene_computer_create.gd
+@@ -0,0 +1,3 @@
++extends "res://tests/integration/scene_computer_child.gd"
++func test_real_computer_reveal_save() -> void:
++	await create_computer_board()
+diff --git a/tests/integration/test_scene_computer_load.gd b/tests/integration/test_scene_computer_load.gd
+new file mode 100644
+index 00000000..97dfc42a
+--- /dev/null
++++ b/tests/integration/test_scene_computer_load.gd
+@@ -0,0 +1,3 @@
++extends "res://tests/integration/scene_computer_child.gd"
++func test_fresh_process_board_load_and_continue() -> void:
++	await load_computer_board()
+diff --git a/tests/integration/test_scene_direct_controls.gd b/tests/integration/test_scene_direct_controls.gd
+new file mode 100644
+index 00000000..e644155c
+--- /dev/null
++++ b/tests/integration/test_scene_direct_controls.gd
+@@ -0,0 +1,41 @@
++extends "res://tests/support/ScenePauseLoadTestBase.gd"
++## Real native source and retained sheet/save owners. The capture callback supplies
++## the fixture's canonical owners; no successful Save/Load acknowledgement is faked.
++func _capture_scene_inputs() -> Dictionary:
++	var checkpoint: Dictionary = fixture.bridge.capture_reading_checkpoint(false)
++	if not checkpoint.get("ok", false): return checkpoint
++	return {"ok": true, "value": {"snapshot_input": fixture.game.capture_run_snapshot_input(),
++		"route_id": "scene", "active_app_id": null, "audio_context": fixture.audio_context(),
++		"content_version": 1, "dialogic_checkpoint": checkpoint.value}}
++
++func test_direct_scene_sheets_save_and_load_without_pause_menu() -> void:
++	if not fixture_ready or not _ok(await fixture.start_text()): return
++	fixture.pause._services["backup_capture"] = Callable(self, "_capture_scene_inputs")
++	if not _ok(fixture.manager.configure_backup_capture_provider(
++		Callable(fixture.pause, "capture_backup_checkpoint_inputs"))): return
++	if not _ok(await fixture.pause.open_scene_settings()): return
++	assert_eq(fixture.pause.surface.entered_action, &"settings")
++	assert_false(fixture.pause.surface.get_node("Actions").visible)
++	fixture.pause.surface.leave_host()
++	for frame: int in 4: await get_tree().process_frame
++	assert_false(get_tree().paused)
++	assert_false(fixture.pause.surface.visible)
++	if not _ok(await fixture.pause.open_scene_backup("save")): return
++	assert_eq(fixture.pause.surface.entered_action, &"backup")
++	assert_false(fixture.pause.surface.get_node("Actions").visible)
++	assert_true(fixture.pause.can_save_backup())
++	var prepared: Dictionary = fixture.pause._backup_port.prepare_action("save", "slot:2")
++	if not _ok(prepared): return
++	if not _ok(await fixture.pause._backup_port.commit_action(prepared.value.token)): return
++	fixture.pause.surface.leave_host()
++	for frame: int in 4: await get_tree().process_frame
++	assert_false(get_tree().paused)
++	if not _ok(await fixture.pause.open_scene_backup("load")): return
++	assert_false(fixture.pause.surface.get_node("Actions").visible)
++	prepared = fixture.pause._backup_port.prepare_action("load", "slot:2")
++	if not _ok(prepared): return
++	if not _ok(await fixture.pause._backup_port.commit_action(prepared.value.token)): return
++	if not _ok(await fixture.settle_load()): return
++	assert_false(get_tree().paused)
++	assert_false(fixture.pause.surface.visible)
++	assert_eq(fixture.bridge._reading_session.boundary, "line")
 diff --git a/tests/integration/test_scene_first_reveal_connected_ahead.gd b/tests/integration/test_scene_first_reveal_connected_ahead.gd
 new file mode 100644
-index 0000000..a3ae18d
+index 00000000..a3ae18d2
 --- /dev/null
 +++ b/tests/integration/test_scene_first_reveal_connected_ahead.gd
 @@ -0,0 +1,3 @@
@@ -1985,7 +3452,7 @@ index 0000000..a3ae18d
 +	await create_connected("profile_ahead")
 diff --git a/tests/integration/test_scene_first_reveal_connected_create.gd b/tests/integration/test_scene_first_reveal_connected_create.gd
 new file mode 100644
-index 0000000..dc5df28
+index 00000000..dc5df281
 --- /dev/null
 +++ b/tests/integration/test_scene_first_reveal_connected_create.gd
 @@ -0,0 +1,3 @@
@@ -1994,7 +3461,7 @@ index 0000000..dc5df28
 +	await create_connected("normal")
 diff --git a/tests/integration/test_scene_first_reveal_connected_load.gd b/tests/integration/test_scene_first_reveal_connected_load.gd
 new file mode 100644
-index 0000000..d5a16b3
+index 00000000..d5a16b39
 --- /dev/null
 +++ b/tests/integration/test_scene_first_reveal_connected_load.gd
 @@ -0,0 +1,3 @@
@@ -2003,16 +3470,98 @@ index 0000000..d5a16b3
 +	await load_connected()
 diff --git a/tests/integration/test_scene_first_reveal_selected_create.gd b/tests/integration/test_scene_first_reveal_selected_create.gd
 new file mode 100644
-index 0000000..c90732b
+index 00000000..c90732b2
 --- /dev/null
 +++ b/tests/integration/test_scene_first_reveal_selected_create.gd
 @@ -0,0 +1,3 @@
 +extends "res://tests/integration/scene_first_reveal_connected_child.gd"
 +func test_selected_absence_survives_source_overwrite_and_destination_retry() -> void:
 +	await create_selected_recovery()
+diff --git a/tests/integration/test_scene_panel_presentation_port.gd b/tests/integration/test_scene_panel_presentation_port.gd
+new file mode 100644
+index 00000000..78e7c9af
+--- /dev/null
++++ b/tests/integration/test_scene_panel_presentation_port.gd
+@@ -0,0 +1,76 @@
++extends "res://addons/gut/test.gd"
++## Real presentation/physical/Profile owners with injected scene authority and
++## checkpoint storage. This is adapter integration, not Bootstrap or disk proof.
++const FIXTURE := preload("res://tests/support/SceneChallengeFixture.gd")
++const PORT := preload("res://scripts/application/run/DatingPresentationPort.gd")
++const PANEL := preload("res://scripts/ui/SceneChallengePanel.gd")
++
++var _fixture: RefCounted
++var _port: RefCounted
++var _command: Dictionary
++
++func before_each() -> void:
++	_fixture = FIXTURE.new()
++	assert_true(_fixture.setup("TEST.scene.panel.port").ok)
++	_port = PORT.new()
++	assert_true(_port.configure(_fixture.issuer, _fixture.owner).ok)
++	var admitted: Dictionary = _port.begin(_fixture.command)
++	assert_true(admitted.ok)
++	_command = admitted.value.presentation_command
++
++func after_each() -> void:
++	_fixture.dispose()
++
++func test_admission_and_preview_are_write_free_and_start_is_refused() -> void:
++	var view: Dictionary = _port.pull_scene_panel(_command)
++	assert_true(view.ok)
++	assert_eq(view.value.actions, ["reveal"])
++	assert_eq(view.value.host, "canonical_solo")
++	assert_false(_port.dispatch_scene_panel_action(_command, "start", -1, 0).ok)
++	assert_false(_port.dispatch_scene_panel_action(_command, "flag", 323, 0).ok)
++	assert_false(_port.dispatch_scene_panel_action(_command, "reveal", 324, 0).ok)
++	assert_true(_fixture.record().is_empty())
++	assert_true(_fixture.authority.checkpoints.is_empty())
++
++func test_unissued_and_altered_commands_cannot_reach_first_reveal() -> void:
++	assert_false(_port.pull_scene_panel(_fixture.command).ok)
++	var altered := _command.duplicate(true)
++	altered.physical_token += ".altered"
++	assert_false(_port.dispatch_scene_panel_action(altered, "reveal", 323, 0).ok)
++	altered = _command.duplicate(true)
++	altered.context.scene_occurrence += ".altered"
++	assert_false(_port.pull_scene_panel(altered).ok)
++	assert_false(_port.dispatch_scene_panel_action(altered, "reveal", 323, 0).ok)
++	assert_true(_fixture.record().is_empty())
++	assert_true(_fixture.authority.checkpoints.is_empty())
++
++func test_first_reveal_duplicate_and_reopen_preserve_authoritative_board() -> void:
++	var started: Dictionary = _port.dispatch_scene_panel_action(_command, "reveal", 323, 0)
++	assert_true(started.ok)
++	var before: Dictionary = _fixture.record().duplicate(true)
++	var checkpoints: int = _fixture.authority.checkpoints.size()
++	assert_false(before.is_empty())
++	assert_true(_port.dispatch_scene_panel_action(_command, "reveal", 323, 0).ok)
++	assert_eq(_fixture.record(), before)
++	assert_eq(_fixture.authority.checkpoints.size(), checkpoints)
++	assert_true(_port.begin(_fixture.command).ok)
++	assert_true(_port.pull_scene_panel(_command).ok)
++	assert_eq(_fixture.record(), before)
++	assert_eq(_fixture.authority.checkpoints.size(), checkpoints)
++	assert_eq(_fixture.state.effects, 0)
++
++func test_panel_uses_real_trusted_port_and_reopens_without_repeating_reveal() -> void:
++	var panel := PANEL.new()
++	add_child(panel)
++	assert_true(panel.bind(_port, _command))
++	assert_true(panel.open_panel())
++	assert_true(_fixture.record().is_empty())
++	panel.worksheet.cell_action_requested.emit(&"reveal", 323, 0)
++	assert_false(_fixture.record().is_empty())
++	var before: Dictionary = panel.public_view.duplicate(true)
++	var checkpoints: int = _fixture.authority.checkpoints.size()
++	panel.close_panel()
++	assert_true(panel.open_panel())
++	assert_eq(panel.public_view, before)
++	assert_eq(_fixture.authority.checkpoints.size(), checkpoints)
++	panel.free()
 diff --git a/tests/integration/test_scene_pause_load.gd b/tests/integration/test_scene_pause_load.gd
 new file mode 100644
-index 0000000..aa0d8eb
+index 00000000..aa0d8eb5
 --- /dev/null
 +++ b/tests/integration/test_scene_pause_load.gd
 @@ -0,0 +1,3 @@
@@ -2021,7 +3570,7 @@ index 0000000..aa0d8eb
 +	await happy_load(false)
 diff --git a/tests/integration/test_scene_pause_quick_load.gd b/tests/integration/test_scene_pause_quick_load.gd
 new file mode 100644
-index 0000000..1cac4c4
+index 00000000..1cac4c44
 --- /dev/null
 +++ b/tests/integration/test_scene_pause_quick_load.gd
 @@ -0,0 +1,3 @@
@@ -2030,16 +3579,272 @@ index 0000000..1cac4c4
 +	await happy_load(true)
 diff --git a/tests/integration/test_scene_pause_write_refusal.gd b/tests/integration/test_scene_pause_write_refusal.gd
 new file mode 100644
-index 0000000..87770d9
+index 00000000..87770d9a
 --- /dev/null
 +++ b/tests/integration/test_scene_pause_write_refusal.gd
 @@ -0,0 +1,3 @@
 +extends "res://tests/support/ScenePauseLoadTestBase.gd"
 +func test_real_precommit_write_refusal_preserves_paused_text_and_continue() -> void:
 +	await refused_load()
+diff --git a/tests/scene/test_scene_challenge_panel.gd b/tests/scene/test_scene_challenge_panel.gd
+new file mode 100644
+index 00000000..5cdc3f2c
+--- /dev/null
++++ b/tests/scene/test_scene_challenge_panel.gd
+@@ -0,0 +1,191 @@
++extends "res://addons/gut/test.gd"
++## Injected view-only integration: real physical/Profile owners behind a TEST
++## command adapter and native SubViewport input. This does not prove production
++## Bridge binding, captions, computer custody, durable Save9, or rendered acceptance.
++
++const PANEL := preload("res://scripts/ui/SceneChallengePanel.gd")
++const FIXTURE := preload("res://tests/support/SceneChallengeFixture.gd")
++const INPUT_FIXTURE := preload("res://tests/support/MinesweeperInputFixture.gd")
++
++class InjectedPort extends RefCounted:
++	var fixture: RefCounted
++	var calls: Array[Dictionary] = []
++	var pulls := 0
++	var refuse_pull := false
++	var refuse_action := false
++	var malformed := false
++	func pull_scene_panel(command: Dictionary) -> Dictionary:
++		pulls += 1
++		if command != fixture.command: return {"ok": false, "code": &"TEST.command_mismatch"}
++		if refuse_pull: return {"ok": false, "code": &"TEST.pull_refused"}
++		if malformed: return {"ok": true, "value": {"host": "canonical_solo", "board": {}, "actions": []}}
++		return fixture.owner.pull_scene_panel(fixture.token)
++	func dispatch_scene_panel_action(command: Dictionary, action: String, index: int, revision: int) -> Dictionary:
++		calls.append({"command": command.duplicate(true), "action": action, "index": index, "revision": revision})
++		if command != fixture.command: return {"ok": false, "code": &"TEST.command_mismatch"}
++		if refuse_action: return {"ok": false, "code": &"TEST.action_refused"}
++		return fixture.owner.dispatch_scene_panel_action(fixture.token, action, index, revision)
++
++var _fixture: RefCounted
++var _inputs: RefCounted
++var _port: InjectedPort
++var _panel: Control
++var _viewport: SubViewport
++
++func before_each() -> void:
++	_fixture = FIXTURE.new()
++	assert_true(_fixture.setup("TEST.scene.panel").ok)
++	var mines: Array = []
++	for index in 33: mines.append(index)
++	mines.append_array([288, 289, 307])
++	_fixture.generation.arm_materialize({"schema_version": 1, "width": 18, "height": 18,
++		"mine_indices": mines, "mine_count": 36})
++	assert_true(_fixture.begin().ok)
++	_inputs = INPUT_FIXTURE.new()
++	_port = InjectedPort.new()
++	_port.fixture = _fixture
++	_viewport = SubViewport.new()
++	_viewport.size = Vector2i(1280, 720)
++	_viewport.handle_input_locally = true
++	add_child(_viewport)
++	_panel = PANEL.new()
++	_viewport.add_child(_panel)
++	assert_true(_inputs.bind_grid(_panel.worksheet.grid, _viewport))
++	assert_true(_panel.bind(_port, _fixture.command))
++	assert_true(_panel.open_panel())
++	await get_tree().process_frame
++
++func after_each() -> void:
++	if is_instance_valid(_viewport): _viewport.free()
++	await get_tree().process_frame
++	if _inputs != null: _inputs.restore_map()
++	if _fixture != null: _fixture.dispose()
++
++func _pointer(index: int, pressed: bool) -> void:
++	var cell: Control = _panel.worksheet.grid.cell_nodes[index]
++	var event := InputEventMouseButton.new()
++	event.button_index = MOUSE_BUTTON_LEFT
++	event.position = cell.get_global_transform_with_canvas() * (cell.size / 2.0)
++	event.pressed = pressed
++	_viewport.push_input(event, true)
++
++func _click(index: int) -> void:
++	_pointer(index, true)
++	_pointer(index, false)
++
++func test_opening_and_refreshing_present_unstarted_owner_board_without_start() -> void:
++	assert_eq(_panel.public_view.phase, "never_started")
++	assert_eq(_panel.public_view.actions, ["reveal"])
++	assert_eq(_panel.worksheet.grid.projection.revision, 0)
++	assert_eq(_panel.worksheet.grid.cell_nodes.size(), 18 * 18)
++	assert_eq(_panel.public_view.host, "canonical_solo")
++	assert_true(_panel.refresh())
++	assert_true(_fixture.record().is_empty())
++	assert_true(_port.calls.is_empty())
++	assert_true(_fixture.authority.checkpoints.is_empty())
++	assert_eq(_fixture.state.effects, 0)
++
++func test_modes_rules_and_view_preferences_do_not_start_or_dispatch() -> void:
++	_panel.dock.action_requested.emit(&"flag")
++	assert_eq(_panel.worksheet.grid.mode, &"flag")
++	_panel.dock.action_requested.emit(&"drag")
++	assert_eq(_panel.worksheet.grid.mode, &"drag")
++	assert_true(_panel.worksheet.set_always_fit(true))
++	_panel.dock.action_requested.emit(&"rules")
++	assert_not_null(_panel.worksheet.information_sheet)
++	_panel.worksheet.information_sheet.return_button.pressed.emit()
++	assert_null(_panel.worksheet.information_sheet)
++	assert_eq(_panel.worksheet.grid.mode, &"drag")
++	assert_true(_port.calls.is_empty())
++	assert_true(_fixture.record().is_empty())
++
++func test_native_grid_press_forwards_exact_command_and_release_does_not_repeat() -> void:
++	assert_true(_panel.worksheet.set_always_fit(true))
++	var pulls_before := _port.pulls
++	_pointer(200, true)
++	assert_eq(_port.calls.size(), 1, "The shared mouse grid accepts Reveal on press.")
++	_pointer(200, false)
++	assert_eq(_port.calls.size(), 1)
++	if _port.calls.size() != 1: return
++	assert_eq(_port.calls[0], {"command": _fixture.command, "action": "reveal", "index": 200, "revision": 0})
++	assert_gt(_port.pulls, pulls_before, "Dispatch response has no panel host; refresh uses the public pull.")
++	assert_false(_fixture.record().is_empty())
++	assert_eq(_panel.public_view.host, "canonical_solo")
++	assert_eq(_fixture.state.effects, 0)
++
++func test_blocked_pointer_cannot_start_or_replay_after_unblocking() -> void:
++	assert_true(_panel.worksheet.set_always_fit(true))
++	_panel.set_interaction_blocked(true)
++	_pointer(200, true)
++	_panel.dock.action_requested.emit(&"flag")
++	assert_eq(_panel.worksheet.grid.mode, &"reveal")
++	_panel.worksheet.cell_action_requested.emit(&"reveal", 200, 0)
++	assert_true(_port.calls.is_empty())
++	assert_true(_fixture.record().is_empty())
++	_panel.set_interaction_blocked(false)
++	_pointer(200, false)
++	await get_tree().process_frame
++	assert_true(_port.calls.is_empty(), "Unblocking cannot replay the cancelled press.")
++
++func test_refused_pull_retains_display_but_removes_input_until_successful_refresh() -> void:
++	var before: Dictionary = _panel.worksheet.grid.projection.duplicate(true)
++	_port.refuse_pull = true
++	watch_signals(_panel)
++	assert_false(_panel.refresh())
++	assert_signal_emitted_with_parameters(_panel, "presentation_failed", [&"TEST.pull_refused"])
++	_panel.worksheet.cell_action_requested.emit(&"reveal", 200, 0)
++	assert_true(_port.calls.is_empty())
++	assert_eq(_panel.worksheet.grid.projection, before)
++	_port.refuse_pull = false
++	assert_true(_panel.refresh())
++	assert_true(_fixture.record().is_empty())
++
++func test_malformed_pull_and_refused_action_fail_closed_without_starting() -> void:
++	_port.malformed = true
++	assert_false(_panel.refresh())
++	_panel.worksheet.cell_action_requested.emit(&"reveal", 200, 0)
++	assert_true(_port.calls.is_empty())
++	_port.malformed = false
++	assert_true(_panel.refresh())
++	_port.refuse_action = true
++	_panel.worksheet.cell_action_requested.emit(&"reveal", 200, 0)
++	assert_eq(_port.calls.size(), 1)
++	_panel.worksheet.cell_action_requested.emit(&"reveal", 201, 0)
++	assert_eq(_port.calls.size(), 1, "Failure disables later actions.")
++	assert_true(_fixture.record().is_empty())
++
++func test_close_and_reopen_preserve_projection_mode_and_absence_without_dispatch() -> void:
++	_panel.dock.action_requested.emit(&"drag")
++	var before: Dictionary = _panel.worksheet.grid.projection.duplicate(true)
++	_panel.close_panel()
++	assert_false(_panel.is_visible_in_tree())
++	_panel.worksheet.cell_action_requested.emit(&"reveal", 200, 0)
++	assert_true(_port.calls.is_empty())
++	assert_true(_panel.open_panel())
++	assert_eq(_panel.worksheet.grid.projection, before)
++	assert_eq(_panel.worksheet.grid.mode, &"drag")
++	assert_true(_fixture.record().is_empty())
++	assert_true(_port.calls.is_empty())
++
++func test_started_board_reopens_from_owner_and_fixed_chrome_has_no_start_or_new_board() -> void:
++	_panel.worksheet.cell_action_requested.emit(&"reveal", 323, 0)
++	assert_eq(_port.calls.size(), 1)
++	assert_eq(_fixture.record().phase, "active")
++	var before: Dictionary = _panel.worksheet.grid.projection.duplicate(true)
++	_panel.close_panel()
++	assert_true(_panel.open_panel())
++	assert_eq(_panel.worksheet.grid.projection, before)
++	assert_eq(_port.calls.size(), 1)
++	assert_eq(_panel.size, Vector2(960, 656))
++	assert_eq(_panel.dock.position.y + _panel.dock.size.y, 656.0)
++	assert_false(_panel.dock.buttons.has("start"))
++	assert_false(_panel.dock.buttons.has("new_board"))
++
++func test_pause_is_retired_even_after_pull_refusal() -> void:
++	assert_false(_panel.has_signal("pause_requested"))
++	assert_false(_panel.dock.buttons.pause.visible)
++	_port.refuse_pull = true
++	assert_false(_panel.refresh())
++	assert_false(_panel.dock.buttons.pause.visible)
++	_panel.dock.action_requested.emit(&"pause")
++	assert_true(_port.calls.is_empty())
+diff --git a/tests/scene/test_scene_host_controls.gd b/tests/scene/test_scene_host_controls.gd
+new file mode 100644
+index 00000000..4e5fa50a
+--- /dev/null
++++ b/tests/scene/test_scene_host_controls.gd
+@@ -0,0 +1,53 @@
++extends GutTest
++## Host routing contract; production save/restart is covered by the cloud journey.
++const SCENE := preload("res://scenes/narrative/SceneHost.tscn")
++
++class Actions extends RefCounted:
++	var calls: Array[String] = []
++	var allow := true
++	func dispatch(action: String) -> Dictionary:
++		calls.append(action)
++		return {"ok": allow}
++
++var _host: Control
++var _actions: Actions
++
++func before_each() -> void:
++	_actions = Actions.new()
++	_host = SCENE.instantiate()
++	var actions := {}
++	for action: String in ["computer_open", "computer_close", "settings", "backup", "save", "load"]:
++		actions[action] = _actions.dispatch.bind(action)
++	_host.configure_scene_controls(actions)
++	add_child_autofree(_host)
++
++func test_open_close_only_changes_view_after_admitted_callback() -> void:
++	assert_false(_host.is_computer_open())
++	assert_false(_host.get_challenge_mount().visible)
++	_host.get_node("SceneControlsLayer/Surface/Controls/CheckComputer").pressed.emit()
++	assert_eq(_actions.calls, ["computer_open"])
++	assert_true(_host.is_computer_open())
++	assert_true(_host.get_challenge_mount().visible)
++	assert_false(get_tree().paused, "Computer UI never pauses the scene tree or board.")
++	_actions.allow = false
++	_host.get_node("SceneControlsLayer/Surface/Controls/CheckComputer").pressed.emit()
++	assert_true(_host.is_computer_open(), "Refused close retains the admitted view.")
++	_actions.allow = true
++	_host.get_node("SceneControlsLayer/Surface/Controls/CheckComputer").pressed.emit()
++	assert_false(_host.is_computer_open())
++	assert_eq(_actions.calls, ["computer_open", "computer_close", "computer_close"])
++
++func test_refused_open_does_not_display_an_unadmitted_panel() -> void:
++	_actions.allow = false
++	_host.get_node("SceneControlsLayer/Surface/Controls/CheckComputer").pressed.emit()
++	assert_false(_host.is_computer_open())
++	assert_false(_host.get_challenge_mount().visible)
++
++func test_direct_controls_route_without_pause_or_start() -> void:
++	for action: String in ["settings", "backup", "save", "load"]:
++		_host.get_node("SceneControlsLayer/Surface/Controls/" + action.capitalize()).pressed.emit()
++	assert_eq(_actions.calls, ["settings", "backup", "save", "load"])
++	assert_null(_host.find_child("Pause", true, false))
++	assert_null(_host.find_child("Start", true, false))
++	assert_false(_host.is_computer_open())
++	assert_false(get_tree().paused)
 diff --git a/tests/support/SceneCaptionStyleRefusalFixture.gd b/tests/support/SceneCaptionStyleRefusalFixture.gd
 new file mode 100644
-index 0000000..9aed13a
+index 00000000..9aed13ad
 --- /dev/null
 +++ b/tests/support/SceneCaptionStyleRefusalFixture.gd
 @@ -0,0 +1,41 @@
@@ -2085,7 +3890,7 @@ index 0000000..9aed13a
 +		style_refusal_count += 1
 +		layout.queue_free()
 diff --git a/tests/support/SceneChallengeFixture.gd b/tests/support/SceneChallengeFixture.gd
-index 8ebf2a7..2fcdf22 100644
+index 8ebf2a72..2fcdf22c 100644
 --- a/tests/support/SceneChallengeFixture.gd
 +++ b/tests/support/SceneChallengeFixture.gd
 @@ -63,7 +63,7 @@ class Authority extends RefCounted:
@@ -2108,7 +3913,7 @@ index 8ebf2a7..2fcdf22 100644
  var profile: Node
 diff --git a/tests/support/SceneFirstRevealConnectedFixture.gd b/tests/support/SceneFirstRevealConnectedFixture.gd
 new file mode 100644
-index 0000000..9c8fb2f
+index 00000000..9c8fb2f4
 --- /dev/null
 +++ b/tests/support/SceneFirstRevealConnectedFixture.gd
 @@ -0,0 +1,58 @@
@@ -2172,7 +3977,7 @@ index 0000000..9c8fb2f
 +	physical = null
 diff --git a/tests/support/ScenePauseLoadFixture.gd b/tests/support/ScenePauseLoadFixture.gd
 new file mode 100644
-index 0000000..60fdfef
+index 00000000..60fdfeff
 --- /dev/null
 +++ b/tests/support/ScenePauseLoadFixture.gd
 @@ -0,0 +1,194 @@
@@ -2372,7 +4177,7 @@ index 0000000..60fdfef
 +			for event: InputEvent in input_backup[action].events: InputMap.action_add_event(action, event)
 diff --git a/tests/support/ScenePauseLoadTestBase.gd b/tests/support/ScenePauseLoadTestBase.gd
 new file mode 100644
-index 0000000..062ee9d
+index 00000000..062ee9d0
 --- /dev/null
 +++ b/tests/support/ScenePauseLoadTestBase.gd
 @@ -0,0 +1,216 @@
@@ -2593,7 +4398,7 @@ index 0000000..062ee9d
 +	assert_eq(fixture.profile_bytes(), profile_before)
 +	assert_eq(fixture.native_markers, [])
 diff --git a/tests/unit/test_scene_absence.gd b/tests/unit/test_scene_absence.gd
-index b4248f8..e72f296 100644
+index b4248f8b..e72f296b 100644
 --- a/tests/unit/test_scene_absence.gd
 +++ b/tests/unit/test_scene_absence.gd
 @@ -28,8 +28,8 @@ class AbsenceState extends FIXTURE.State:
@@ -2631,7 +4436,7 @@ index b4248f8..e72f296 100644
 +	assert_eq(state.effects, 0)
 diff --git a/tests/unit/test_scene_first_reveal.gd b/tests/unit/test_scene_first_reveal.gd
 new file mode 100644
-index 0000000..164a431
+index 00000000..164a431e
 --- /dev/null
 +++ b/tests/unit/test_scene_first_reveal.gd
 @@ -0,0 +1,227 @@
@@ -2862,969 +4667,3 @@ index 0000000..164a431
 +	assert_null(record.envelope.preparation)
 +	assert_eq(record.envelope.forced_cell, 323)
 +	assert_eq(f.state.effects, 0)
-diff --git a/autoload/ApplicationBootstrap.gd b/autoload/ApplicationBootstrap.gd
---- a/autoload/ApplicationBootstrap.gd
-+++ b/autoload/ApplicationBootstrap.gd
-@@ -569,6 +569,10 @@
- 			if not profile_bound.get("ok", false): return profile_bound
- 			var recovery_bound: Dictionary = save_manager.call(&"configure_new_run_profile_owner", profile)
- 			if not recovery_bound.get("ok", false): return recovery_bound
-+			# Journal loading validates retained scene creations, including completed ones,
-+			# before Profile initialization. Bind their immutable validation inputs first.
-+			var scene_creation := _configure_registered_scene_creation()
-+			if not scene_creation.get("ok", false): return scene_creation
- 			return save_manager.call(&"reconcile_new_run_storage")
- 		&"initialize_dialogic_bridge":
- 			var bridge := _target(&"DialogicBridge")
-@@ -1507,7 +1511,32 @@
- 	var configured: Dictionary = save_manager.call(&"configure_restore_participants", participants)
- 	if configured.get("ok", false):
- 		_retained_restore_participants = participants.duplicate()
-+		var scene_runtime := _configure_registered_scene_runtime()
-+		if not scene_runtime.get("ok", false): return scene_runtime
- 	return configured
-+
-+
-+## Bind creation validation before storage recovery; no live playback starts here.
-+func _configure_registered_scene_creation() -> Dictionary:
-+	var selected: Dictionary = DIALOGIC_ENTRY_MANIFEST.scene_registration()
-+	if not selected.get("ok", false):
-+		return {"ok": true} if selected.get("code") == &"scene_registration_absent" else selected
-+	return _target(&"SaveManager").configure_scene_new_run(_target(&"DialogicBridge"))
-+
-+## Complete existing scene owners only for an explicitly installed registration.
-+## The retained participant map still serves historical saves; scene transactions
-+## select their own eight-member order and never execute Schedule restoration.
-+func _configure_registered_scene_runtime() -> Dictionary:
-+	var selected: Dictionary = DIALOGIC_ENTRY_MANIFEST.scene_registration()
-+	if not selected.get("ok", false):
-+		return {"ok": true} if selected.get("code") == &"scene_registration_absent" else selected
-+	var saves := _target(&"SaveManager")
-+	var game := _target(&"GameState")
-+	var router := _target(&"SceneRouter")
-+	var proof: Dictionary = RUN_SNAPSHOT_SCHEMA_FOR_PROBE.configure_scene_validation(
-+		_desktop_identity_nonce_issuer, game, saves)
-+	if not proof.get("ok", false): return proof
-+	return router.configure_scene_host("res://scenes/narrative/SceneHost.tscn")
- 
- 
- ## Composes the retained board, consequence, Schedule, and checkpoint owners.
-@@ -2482,9 +2511,14 @@
- 	# Native scene changes mount at frame end. Keep the exact pending session until
- 	# scene_changed wakes us; publishing now would be overwritten by that mount.
- 	if get_tree().current_scene == null: return
-+	var lifecycle: Dictionary = game_state._run_lifecycle.to_dict()
-+	# Scene activation is already acknowledged by SaveManager/Bridge/Router.
-+	# It has no legacy calendar continuation to resume.
-+	if lifecycle.has("scene_assignment"):
-+		_pending_live_continuation = {}
-+		return
- 	if _present_pending_day7_prelude(game_state, router): return
- 	_pending_live_continuation = {}
--	var lifecycle: Dictionary = game_state._run_lifecycle.to_dict()
- 	if str(lifecycle.state) == "COMPLETED":
- 		# A compatible completed save may name main/menu instead of the ending scene. Retire
- 		# through the same validated owner seam after restore activation and lease release.
-diff --git a/autoload/ProfileManager.gd b/autoload/ProfileManager.gd
---- a/autoload/ProfileManager.gd
-+++ b/autoload/ProfileManager.gd
-@@ -1685,6 +1685,12 @@
- 
- func configure_line_registry(registry: Dictionary) -> Dictionary:
- 	var block: Variant = registry.get("reply_lines")
-+	if registry.get("kind") == "scene_ids_registry":
-+		# Scene lines belong to the complete immutable installed registration.
-+		# Never accept a caller-created list by projecting it into legacy replies.
-+		var checked: Dictionary = preload("res://scripts/narrative/DialogicEntryManifest.gd").validate_ids_document(registry)
-+		if not checked.get("ok", false): return _command_failure(&"invalid_line_registry")
-+		block = registry.get("lines")
- 	if not (block is Array):
- 		return _command_failure(&"invalid_line_registry")
- 	var index: Dictionary = {}
-diff --git a/autoload/SaveManager.gd b/autoload/SaveManager.gd
---- a/autoload/SaveManager.gd
-+++ b/autoload/SaveManager.gd
-@@ -2871,9 +2871,28 @@
- 	if not token is String or not _scene_restore_preparations.has(token):
- 		return _fail(&"invalid_scene_restore_preparation", "private prepared scene source required")
- 	var retained: Dictionary = _scene_restore_preparations[token]
--	if not CANONICAL_JSON._deep_same(retained.prepared, prepared):
-+	if not _same_scene_preparation(retained.prepared, prepared):
- 		return _fail(&"invalid_scene_restore_preparation", "prepared scene source changed")
- 	return {"ok": true, "value": retained.duplicate(true)}
-+
-+## Prepared participant plans are process-local, not JSON round-trip values.
-+## Preserve Variant types and runtime object identity while comparing detached containers.
-+static func _same_scene_preparation(left: Variant, right: Variant) -> bool:
-+	if typeof(left) != typeof(right): return false
-+	if left is Dictionary:
-+		if left.size() != right.size(): return false
-+		var right_keys: Array = right.keys()
-+		for key: Variant in left:
-+			var index: int = right_keys.find(key)
-+			if index < 0 or typeof(key) != typeof(right_keys[index]): return false
-+			if not _same_scene_preparation(left[key], right[key]): return false
-+		return true
-+	if left is Array:
-+		if left.size() != right.size(): return false
-+		for index: int in left.size():
-+			if not _same_scene_preparation(left[index], right[index]): return false
-+		return true
-+	return left == right
- 
- func _scene_activation_pending(operation: Dictionary) -> bool:
- 	return operation.get("kind") in ["scene_restore", "scene_new_run"] and operation.get("stage") == CONTINUATION_JOURNAL.STAGE_COMPLETED \
-diff --git a/scripts/application/run/DatingPresentationPort.gd b/scripts/application/run/DatingPresentationPort.gd
---- a/scripts/application/run/DatingPresentationPort.gd
-+++ b/scripts/application/run/DatingPresentationPort.gd
-@@ -343,6 +343,36 @@
- 		"the owner returned no physical command result", {})
- 
- 
-+## The fixed Challenge view can only use a command admitted by this port.
-+## The physical owner retains first-Reveal validation and all durable mutations.
-+func pull_scene_panel(presentation_command: Dictionary) -> Dictionary:
-+	var trusted := _trusted_scene_panel_command(presentation_command)
-+	if not trusted.get("ok", false): return trusted
-+	if not _physical_owner.has_method("pull_scene_panel"):
-+		return _fail(&"physical_presentation_unavailable", "the owner exposes no scene panel", {})
-+	var result: Variant = _physical_owner.call("pull_scene_panel", str(trusted.value.physical_token))
-+	return result if result is Dictionary else _fail(
-+		&"physical_presentation_unavailable", "the owner returned no scene panel", {})
-+
-+func dispatch_scene_panel_action(presentation_command: Dictionary, action: String,
-+		cell_index: int, expected_revision: int) -> Dictionary:
-+	var trusted := _trusted_scene_panel_command(presentation_command)
-+	if not trusted.get("ok", false): return trusted
-+	if not _physical_owner.has_method("dispatch_scene_panel_action"):
-+		return _fail(&"physical_presentation_unavailable", "the owner exposes no scene panel actions", {})
-+	var result: Variant = _physical_owner.call("dispatch_scene_panel_action",
-+		str(trusted.value.physical_token), action, cell_index, expected_revision)
-+	return result if result is Dictionary else _fail(
-+		&"physical_presentation_unavailable", "the owner returned no scene panel action result", {})
-+
-+func _trusted_scene_panel_command(candidate: Dictionary) -> Dictionary:
-+	var trusted := _trusted_physical_command(candidate)
-+	if not trusted.get("ok", false): return trusted
-+	if not trusted.value.get("context") is Dictionary \
-+			or trusted.value.context.get("kind") != "scene_challenge":
-+		return _fail(&"scene_challenge_family_mismatch", "", {})
-+	return trusted
-+
- func _trusted_physical_command(candidate: Dictionary) -> Dictionary:
- 	if _physical_owner == null:
- 		return _fail(&"dating_physical_owner_unconfigured",
-diff --git a/scenes/narrative/SceneHost.tscn b/scenes/narrative/SceneHost.tscn
-new file mode 100644
---- /dev/null
-+++ b/scenes/narrative/SceneHost.tscn
-@@ -0,0 +1,20 @@
-+[gd_scene format=3]
-+
-+[node name="SceneHost" type="Control"]
-+layout_mode = 3
-+anchors_preset = 15
-+anchor_right = 1.0
-+anchor_bottom = 1.0
-+grow_horizontal = 2
-+grow_vertical = 2
-+mouse_filter = 2
-+
-+[node name="Background" type="ColorRect" parent="."]
-+layout_mode = 1
-+anchors_preset = 15
-+anchor_right = 1.0
-+anchor_bottom = 1.0
-+grow_horizontal = 2
-+grow_vertical = 2
-+mouse_filter = 2
-+color = Color(0.035, 0.035, 0.045, 1)
-diff --git a/tests/integration/test_scene_bootstrap_host.gd b/tests/integration/test_scene_bootstrap_host.gd
-new file mode 100644
---- /dev/null
-+++ b/tests/integration/test_scene_bootstrap_host.gd
-@@ -0,0 +1,141 @@
-+extends "res://addons/gut/test.gd"
-+## Full FINAL startup stages and actual autoload owners. Only authored content is
-+## TEST-selected. No diagnostic restore participants or fabricated acknowledgments.
-+const BOOTSTRAP := preload("res://autoload/ApplicationBootstrap.gd")
-+const CONTENT := preload("res://tests/support/ScenePlayableFixture.gd")
-+const HOST := "res://scenes/narrative/SceneHost.tscn"
-+var ready_count := 0
-+var bootstrap: Node
-+var saves: Node
-+var bridge: Node
-+var router: Node
-+var game: Node
-+
-+func _ok(result: Dictionary) -> bool:
-+	assert_true(result.get("ok", false), str(result))
-+	return result.get("ok", false)
-+
-+func _await_ready(count: int) -> Dictionary:
-+	for frame: int in 240:
-+		if ready_count >= count: return {"ok": true}
-+		var failure: Dictionary = saves._scene_restore_activation.get("failure", {})
-+		if not failure.is_empty(): return failure
-+		await get_tree().process_frame
-+	return {"ok": false, "code": &"TEST.bootstrap_activation_timeout"}
-+
-+func test_real_bootstrap_scene_text_and_selected_load_keep_owner_authority() -> void:
-+	process_mode = Node.PROCESS_MODE_ALWAYS
-+	assert_false(OS.get_environment("DWM_TEST_ROOT").is_empty())
-+	if OS.get_environment("DWM_TEST_ROOT").is_empty(): return
-+	var content: RefCounted = CONTENT.new()
-+	if not _ok(content._install_registration()): return
-+	var old: Node = get_node("/root/ApplicationBootstrap")
-+	assert_eq(old.get_startup_state().mode, &"test_manual")
-+	assert_false(old.get_startup_state().ready)
-+	old.free()
-+	bootstrap = BOOTSTRAP.new()
-+	bootstrap.name = "ApplicationBootstrap"
-+	get_tree().root.add_child(bootstrap)
-+	# Explicitly execute every FINAL stage before the automatic deferred start.
-+	# Its later duplicate is refused by the production once-only start guard.
-+	get_tree().current_scene = null # The mounted route must not delete GUT.
-+	if not _ok(bootstrap.start(&"final")): return
-+	assert_eq(bootstrap.get_startup_state().completed_stages, BOOTSTRAP.STAGE_ORDER)
-+	assert_true(bootstrap.get_startup_state().ready)
-+	saves = get_node("/root/SaveManager")
-+	bridge = get_node("/root/DialogicBridge")
-+	router = get_node("/root/SceneRouter")
-+	game = get_node("/root/GameState")
-+	assert_eq(router._scene_host_path, HOST)
-+	assert_eq(saves._restore_participants.size(), 9, "retain historical Schedule participant")
-+	assert_same(saves._restore_participants.run, bootstrap._retained_restore_participants.run)
-+	assert_same(saves._restore_participants.desktop_board, bootstrap._retained_restore_participants.desktop_board)
-+	assert_same(saves._restore_participants.narrative, bootstrap._retained_restore_participants.narrative)
-+	var profile_registry: Node = get_node("/root/ProfileManager")
-+	var installed: Dictionary = preload("res://scripts/narrative/DialogicEntryManifest.gd").load_ids_default()
-+	if not _ok(installed): return
-+	assert_true(profile_registry._line_registry_admits(installed.value.lines[0].line_id))
-+	assert_false(profile_registry._line_registry_admits("TEST.unregistered.line"))
-+	var fingerprint: String = profile_registry._line_registry_fingerprint
-+	var forged: Dictionary = installed.value.duplicate(true)
-+	forged.lines[0].line_id = "TEST.unregistered.line"
-+	assert_false(profile_registry.configure_line_registry(forged).get("ok", false))
-+	assert_eq(profile_registry._line_registry_fingerprint, fingerprint)
-+
-+	saves.live_session_ready.connect(func() -> void: ready_count += 1)
-+	var audio: Node = get_node("/root/AudioManager")
-+	var started: Dictionary = saves.start_scene_new_run("target_b", {
-+		"route_id": "scene", "content_version": 1, "audio_context": audio.get_semantic_audio_context()})
-+	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
-+	if started.get("code") != &"scene_activation_pending": return
-+	assert_eq(ready_count, 0, "queued route/native work is not Ready")
-+	if not _ok(await _await_ready(1)): return
-+	assert_eq(get_tree().current_scene.scene_file_path, HOST)
-+	assert_true(get_tree().current_scene.is_node_ready())
-+	assert_eq(ready_count, 1)
-+	assert_false(router.is_restore_publication_held())
-+	var pause: Node = router._production_pause
-+	assert_true(is_instance_valid(pause._find_caption(get_tree().root)))
-+	assert_true(bridge.requires_line_presentation_acknowledgement(), "scene Text uses exact native caption proof")
-+	var presented: Dictionary = bridge.capture_current_line_presentation_frontier()
-+	if not _ok(presented): return
-+	if not _ok(bridge.acknowledge_current_line_presentation(presented)): return
-+	assert_true(bridge.is_current_line_presentation_acknowledged())
-+	if not _ok(saves.save_latest_to_slot(1)): return
-+	var selected: Dictionary = saves.get_latest_stable_checkpoint()
-+	if not _ok(selected): return
-+	var reading: Dictionary = selected.value.bundle.snapshot.narrative_checkpoint.reading_session.duplicate(true)
-+	var source: Dictionary = game.capture_run_snapshot_input().duplicate(true)
-+	var profile: Node = get_node("/root/ProfileManager")
-+	var profile_before: Dictionary = profile.get_profile_snapshot().duplicate(true)
-+	if not _ok(await pause.request_pause()): return
-+	assert_true(get_tree().paused)
-+	var prepared: Dictionary = pause._backup_port.prepare_action("load", "slot:1")
-+	if not _ok(prepared): return
-+	var opaque: Dictionary = saves._backup_actions[prepared.value.token].prepared_restore
-+	assert_true(saves._same_scene_preparation(opaque, opaque.duplicate(true)))
-+	assert_eq(typeof(opaque.participant_plans.desktop_board.candidate.kind), TYPE_STRING_NAME)
-+	var altered: Dictionary = opaque.duplicate(true)
-+	altered.participant_plans.desktop_board.candidate.kind = "restore"
-+	assert_eq(saves.commit_prepared_restore(altered).get("code"), &"invalid_scene_restore_preparation", "same text with a changed Variant type is not the retained plan")
-+	altered = opaque.duplicate(true)
-+	altered.participant_plans.desktop_board.candidate.kind = &"changed"
-+	assert_eq(saves.commit_prepared_restore(altered).get("code"), &"invalid_scene_restore_preparation", "changed plan is refused before identity allocation")
-+	assert_eq(game.capture_run_snapshot_input(), source)
-+	assert_eq(profile.get_profile_snapshot(), profile_before)
-+	if not _ok(await pause._backup_port.commit_action(prepared.value.token)): return
-+	if not _ok(await _await_ready(2)): return
-+	for frame: int in 4: await get_tree().process_frame
-+	assert_false(get_tree().paused)
-+	assert_eq(pause.coordinator.get_state().value.state, &"Active")
-+	assert_eq(ready_count, 2)
-+	assert_eq(get_tree().current_scene.scene_file_path, HOST)
-+	var restored: Dictionary = bridge.capture_reading_checkpoint(false)
-+	if not _ok(restored): return
-+	assert_eq(restored.value.reading_session.entry_id, reading.entry_id)
-+	assert_eq(restored.value.reading_session.program_index, reading.program_index)
-+	assert_eq(game.capture_run_snapshot_input().command_receipts, source.command_receipts)
-+	assert_eq(profile.get_profile_snapshot(), profile_before, "selected Load does not replay Profile/history consequences")
-+	assert_true(is_instance_valid(pause._find_caption(get_tree().root)))
-+
-+func after_all() -> void:
-+	get_tree().paused = false
-+
-+func test_scene_preparation_comparison_preserves_runtime_types_and_identity() -> void:
-+	var owner := RefCounted.new()
-+	var other := RefCounted.new()
-+	var plan := {"nested": [{"kind": &"restore", "count": 1, "owner": owner}]}
-+	assert_true(preload("res://autoload/SaveManager.gd")._same_scene_preparation(plan, plan.duplicate(true)))
-+	for replacement: Variant in ["restore", &"changed"]:
-+		var changed: Dictionary = plan.duplicate(true)
-+		changed.nested[0].kind = replacement
-+		assert_false(preload("res://autoload/SaveManager.gd")._same_scene_preparation(plan, changed))
-+	var changed: Dictionary = plan.duplicate(true)
-+	changed.nested[0].count = 1.0
-+	assert_false(preload("res://autoload/SaveManager.gd")._same_scene_preparation(plan, changed))
-+	changed = plan.duplicate(true)
-+	changed.nested[0].owner = other
-+	assert_false(preload("res://autoload/SaveManager.gd")._same_scene_preparation(plan, changed))
-+	assert_false(preload("res://autoload/SaveManager.gd")._same_scene_preparation({"key": 1}, {&"key": 1}))
-+	assert_false(preload("res://autoload/SaveManager.gd")._same_scene_preparation(plan, {}))
-+	assert_false(preload("res://autoload/SaveManager.gd")._same_scene_preparation([1], [1, 2]))
-diff --git a/tests/integration/scene_bootstrap_restart_child.gd b/tests/integration/scene_bootstrap_restart_child.gd
-new file mode 100644
---- /dev/null
-+++ b/tests/integration/scene_bootstrap_restart_child.gd
-@@ -0,0 +1,150 @@
-+extends "res://addons/gut/test.gd"
-+## Real FINAL services in separate OS processes sharing the wrapper-owned user directory.
-+## Content registration is TEST-authored; no diagnostic restore participants are installed.
-+const BOOTSTRAP := preload("res://autoload/ApplicationBootstrap.gd")
-+const CONTENT := preload("res://tests/support/ScenePlayableFixture.gd")
-+const PARSER := preload("res://scripts/validation/StrictJson.gd")
-+const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
-+const HOST := "res://scenes/narrative/SceneHost.tscn"
-+var bootstrap: Node
-+var saves: Node
-+var bridge: Node
-+var game: Node
-+var profile: Node
-+var ready_count := 0
-+
-+func _ok(result: Dictionary) -> bool:
-+	assert_true(result.get("ok", false), str(result))
-+	return result.get("ok", false)
-+
-+func _start_services() -> bool:
-+	process_mode = Node.PROCESS_MODE_ALWAYS
-+	assert_false(OS.get_environment("DWM_TEST_ROOT").is_empty())
-+	if OS.get_environment("DWM_TEST_ROOT").is_empty(): return false
-+	var content: RefCounted = CONTENT.new()
-+	if not _ok(content._install_registration()): return false
-+	var old: Node = get_node("/root/ApplicationBootstrap")
-+	assert_eq(old.get_startup_state().mode, &"test_manual")
-+	assert_false(old.get_startup_state().ready)
-+	old.free()
-+	saves = get_node("/root/SaveManager")
-+	bridge = get_node("/root/DialogicBridge")
-+	game = get_node("/root/GameState")
-+	profile = get_node("/root/ProfileManager")
-+	saves.live_session_ready.connect(func() -> void: ready_count += 1)
-+	bootstrap = BOOTSTRAP.new()
-+	bootstrap.name = "ApplicationBootstrap"
-+	get_tree().root.add_child(bootstrap)
-+	get_tree().current_scene = null
-+	if not _ok(bootstrap.start(&"final")): return false
-+	assert_eq(bootstrap.get_startup_state().completed_stages, BOOTSTRAP.STAGE_ORDER)
-+	assert_true(bootstrap.get_startup_state().ready)
-+	assert_eq(saves._restore_participants.size(), 9)
-+	assert_eq(ready_count, 0, "completed prior operations do not fabricate a live Ready")
-+	return true
-+
-+func _await_ready() -> bool:
-+	for frame: int in 240:
-+		if ready_count == 1: return true
-+		var failure: Dictionary = saves._scene_restore_activation.get("failure", {})
-+		if not failure.is_empty(): return _ok(failure)
-+		await get_tree().process_frame
-+	return _ok({"ok": false, "code": &"TEST.bootstrap_restart_timeout"})
-+
-+func _write_json(path: String, value: Dictionary) -> bool:
-+	var encoded: Dictionary = WRITER.stringify(value)
-+	if not _ok(encoded): return false
-+	var file := FileAccess.open(path, FileAccess.WRITE)
-+	assert_not_null(file)
-+	if file == null: return false
-+	file.store_string(encoded.value)
-+	file.close()
-+	return true
-+
-+func create_saved_text() -> void:
-+	if not _start_services(): return
-+	assert_false(FileAccess.file_exists("user://saves/slot_1.json"))
-+	var audio: Node = get_node("/root/AudioManager")
-+	var started: Dictionary = saves.start_scene_new_run("target_b", {
-+		"route_id": "scene", "content_version": 1, "audio_context": audio.get_semantic_audio_context()})
-+	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
-+	if started.get("code") != &"scene_activation_pending": return
-+	assert_eq(ready_count, 0)
-+	if not await _await_ready(): return
-+	var frontier: Dictionary = bridge.capture_current_line_presentation_frontier()
-+	if not _ok(frontier): return
-+	if not _ok(bridge.acknowledge_current_line_presentation(frontier)): return
-+	if not _ok(saves.save_latest_to_slot(1)): return
-+	var selected: Dictionary = saves.get_latest_stable_checkpoint()
-+	if not _ok(selected): return
-+	var snapshot: Dictionary = selected.value.bundle.snapshot
-+	var proof := {"phase": "create", "process_id": OS.get_process_id(),
-+		"user_dir": ProjectSettings.globalize_path("user://"),
-+		"slot_sha256": FileAccess.get_sha256("user://saves/slot_1.json"),
-+		"autosave_sha256": FileAccess.get_sha256("user://saves/autosave.json"),
-+		"profile_sha256": FileAccess.get_sha256("user://profile.json"),
-+		"profile": profile.get_profile_snapshot(),
-+		"reading_session": snapshot.narrative_checkpoint.reading_session,
-+		"command_receipts": game.capture_run_snapshot_input().command_receipts,
-+		"source_branch": snapshot.lifecycle.branch_id,
-+		"source_run": snapshot.run_id, "ready_count": ready_count}
-+	for key: String in ["slot_sha256", "autosave_sha256", "profile_sha256"]:
-+		assert_eq(str(proof[key]).length(), 64, "physical file exists: " + key)
-+	if not _write_json("user://bootstrap-restart-proof.json", proof): return
-+	_write_json("res://.godot/ci/bootstrap-create-proof.json", proof)
-+
-+func load_saved_text() -> void:
-+	# Read the creator's physical witness before FINAL startup can reconcile any storage.
-+	assert_true(FileAccess.file_exists("user://bootstrap-restart-proof.json"))
-+	var parsed: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://bootstrap-restart-proof.json"))
-+	if not _ok(parsed): return
-+	var witness: Dictionary = parsed.value
-+	assert_ne(OS.get_process_id(), witness.process_id)
-+	assert_eq(ProjectSettings.globalize_path("user://"), witness.user_dir)
-+	_assert_physical_bytes(witness)
-+	if not _start_services(): return
-+	_assert_physical_bytes(witness)
-+	assert_eq(profile.get_profile_snapshot(), witness.profile)
-+	# Title Backup owns revision inspection, reconciliation and selected-Load consent.
-+	var backup: RefCounted = preload("res://scripts/application/backup/BackupPresentationPort.gd").new()
-+	if not _ok(backup.configure(saves, "title")): return
-+	var prepared: Dictionary = backup.prepare_action("load", "slot:1")
-+	if not _ok(prepared): return
-+	assert_false(prepared.value.confirmation_required)
-+	var restored: Dictionary = backup.commit_action(prepared.value.token)
-+	assert_eq(restored.get("code"), &"scene_activation_pending", str(restored))
-+	if restored.get("code") != &"scene_activation_pending": return
-+	assert_eq(ready_count, 0)
-+	if not await _await_ready(): return
-+	for frame: int in 4: await get_tree().process_frame
-+	assert_eq(ready_count, 1)
-+	assert_eq(get_tree().current_scene.scene_file_path, HOST)
-+	assert_true(get_tree().current_scene.is_node_ready())
-+	var reading: Dictionary = bridge.capture_reading_checkpoint(false)
-+	if not _ok(reading): return
-+	assert_eq(reading.value.reading_session.entry_id, witness.reading_session.entry_id)
-+	assert_eq(reading.value.reading_session.program_index, witness.reading_session.program_index)
-+	var current: Dictionary = game.capture_run_snapshot_input()
-+	assert_eq(current.lifecycle.run_id, witness.source_run)
-+	assert_ne(current.lifecycle.branch_id, witness.source_branch, "selected Load creates a fresh branch")
-+	assert_eq(current.command_receipts, witness.command_receipts)
-+	assert_eq(profile.get_profile_snapshot(), witness.profile, "no Profile/history consequences replay")
-+	_assert_physical_bytes(witness)
-+	var frontier: Dictionary = bridge.capture_current_line_presentation_frontier()
-+	if not _ok(frontier): return
-+	if not _ok(bridge.acknowledge_current_line_presentation(frontier)): return
-+	assert_true(bridge.is_current_line_presentation_acknowledged())
-+	assert_eq(profile.get_profile_snapshot(), witness.profile)
-+	_assert_physical_bytes(witness)
-+	var proof: Dictionary = witness.duplicate(true)
-+	proof.phase = "load"
-+	proof["creator_process_id"] = witness.process_id
-+	proof.process_id = OS.get_process_id()
-+	proof["destination_branch"] = current.lifecycle.branch_id
-+	proof.ready_count = ready_count
-+	_write_json("res://.godot/ci/bootstrap-load-proof.json", proof)
-+
-+func _assert_physical_bytes(witness: Dictionary) -> void:
-+	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), witness.slot_sha256)
-+	assert_eq(FileAccess.get_sha256("user://saves/autosave.json"), witness.autosave_sha256)
-+	assert_eq(FileAccess.get_sha256("user://profile.json"), witness.profile_sha256)
-diff --git a/tests/integration/test_scene_bootstrap_restart_create.gd b/tests/integration/test_scene_bootstrap_restart_create.gd
-new file mode 100644
---- /dev/null
-+++ b/tests/integration/test_scene_bootstrap_restart_create.gd
-@@ -0,0 +1,3 @@
-+extends "res://tests/integration/scene_bootstrap_restart_child.gd"
-+func test_real_bootstrap_writes_physical_text_save() -> void:
-+	await create_saved_text()
-diff --git a/tests/integration/test_scene_bootstrap_restart_load.gd b/tests/integration/test_scene_bootstrap_restart_load.gd
-new file mode 100644
---- /dev/null
-+++ b/tests/integration/test_scene_bootstrap_restart_load.gd
-@@ -0,0 +1,3 @@
-+extends "res://tests/integration/scene_bootstrap_restart_child.gd"
-+func test_fresh_bootstrap_loads_same_files_without_replay() -> void:
-+	await load_saved_text()
-diff --git a/scenes/narrative/SceneChallengePanel.tscn b/scenes/narrative/SceneChallengePanel.tscn
-new file mode 100644
---- /dev/null
-+++ b/scenes/narrative/SceneChallengePanel.tscn
-@@ -0,0 +1,9 @@
-+[gd_scene load_steps=2 format=3]
-+
-+[ext_resource type="Script" path="res://scripts/ui/SceneChallengePanel.gd" id="1"]
-+
-+[node name="SceneChallengePanel" type="Control"]
-+layout_mode = 0
-+offset_right = 960.0
-+offset_bottom = 656.0
-+script = ExtResource("1")
-diff --git a/scripts/ui/SceneChallengePanel.gd b/scripts/ui/SceneChallengePanel.gd
-new file mode 100644
---- /dev/null
-+++ b/scripts/ui/SceneChallengePanel.gd
-@@ -0,0 +1,173 @@
-+extends Control
-+## View only. The host supplies the admitted command and trusted presentation port.
-+## No physical tokens, board identities, retry policy, or save authority live here.
-+
-+signal presentation_failed(code: StringName)
-+signal presentation_changed()
-+signal pause_requested()
-+signal closed()
-+
-+const WORKSHEET := preload("res://scripts/ui/minesweeper/MinesweeperWorksheet.gd")
-+const DOCK := preload("res://scripts/ui/minesweeper/MinesweeperDock.gd")
-+const PANEL_SIZE := Vector2(960, 656)
-+const CELL_ACTIONS := [&"reveal", &"flag", &"unflag", &"chord"]
-+
-+var worksheet: Control
-+var dock: Control
-+var public_view: Dictionary = {}
-+var _port: Object
-+var _command: Dictionary = {}
-+var _blocked := false
-+var _failed := true
-+var _dispatching := false
-+var _host := ""
-+var _locale := "en"
-+var _percent := 100
-+var _large := false
-+var _palette: StringName = &"after_hours"
-+var _high_contrast := false
-+var _colour_preset := "standard"
-+var _font_style := "pixel"
-+
-+func _init() -> void:
-+	name = "SceneChallengePanel"
-+	mouse_filter = Control.MOUSE_FILTER_STOP
-+	focus_mode = Control.FOCUS_NONE
-+	clip_contents = true
-+	custom_minimum_size = PANEL_SIZE
-+	size = PANEL_SIZE
-+	worksheet = WORKSHEET.new()
-+	worksheet.name = "Worksheet"
-+	add_child(worksheet)
-+	dock = DOCK.new()
-+	dock.name = "Dock"
-+	add_child(dock)
-+	worksheet.cell_action_requested.connect(_dispatch)
-+	worksheet.grid.mode_changed.connect(func(_mode: StringName): _apply_availability())
-+	worksheet.information_closed.connect(_apply_availability)
-+	dock.action_requested.connect(_action)
-+	visibility_changed.connect(_apply_availability)
-+	hide()
-+
-+func _ready() -> void:
-+	_apply_availability()
-+
-+func bind(port: Object, presentation_command: Dictionary) -> bool:
-+	if not is_instance_valid(port) or presentation_command.is_empty() \
-+			or not port.has_method("pull_scene_panel") or not port.has_method("dispatch_scene_panel_action"):
-+		return false
-+	if _port != null:
-+		return _port == port and _command == presentation_command
-+	_port = port
-+	_command = presentation_command.duplicate(true)
-+	return true
-+
-+func bind_view_preferences(profile: Object) -> bool:
-+	return worksheet.bind_view_preferences(profile, "challenge")
-+
-+func configure_input(input_owner: Object) -> bool:
-+	return worksheet.grid.configure_input(input_owner)
-+
-+func configure_scene(locale: String = "en", percent: int = 100, large: bool = false,
-+		palette: StringName = &"after_hours", high_contrast: bool = false,
-+		colour_preset: String = "standard", font_style: String = "pixel") -> bool:
-+	_locale = locale
-+	_percent = percent
-+	_large = large
-+	_palette = palette
-+	_high_contrast = high_contrast
-+	_colour_preset = colour_preset
-+	_font_style = font_style
-+	_host = ""
-+	return refresh() if _port != null else true
-+
-+func open_panel() -> bool:
-+	if not refresh(): return false
-+	show()
-+	_apply_availability()
-+	return true
-+
-+func close_panel() -> void:
-+	worksheet.grid.cancel_input()
-+	worksheet.close_information()
-+	hide()
-+	closed.emit()
-+
-+func set_interaction_blocked(blocked: bool) -> void:
-+	_blocked = blocked
-+	_apply_availability()
-+
-+func refresh() -> bool:
-+	if not is_instance_valid(_port): return _fail(&"scene_panel_unbound")
-+	var response: Variant = _port.call("pull_scene_panel", _command.duplicate(true))
-+	if not response is Dictionary or not response.get("ok", false):
-+		return _fail(StringName(response.get("code", "scene_panel_unavailable")) if response is Dictionary else &"scene_panel_unavailable")
-+	var value: Variant = response.get("value")
-+	if not value is Dictionary or value.get("host") not in ["canonical_solo", "canonical_pair"] \
-+			or not value.get("board") is Dictionary or not value.get("actions") is Array:
-+		return _fail(&"scene_panel_invalid_view")
-+	if not worksheet.grid.can_present(value.board): return _fail(&"scene_panel_invalid_view")
-+	if _host != value.host:
-+		if not dock.configure_scene(value.host, _locale, _percent, _large, _palette,
-+				_high_contrast, _colour_preset, _font_style): return _fail(&"scene_panel_invalid_view")
-+		var view_height: int = WORKSHEET.view_controls_height(_locale, dock.theme, _large)
-+		var band := Vector2i(480, (int(PANEL_SIZE.y) - int(dock.size.y) - view_height) / 2)
-+		if not worksheet.configure_scene(value.host, _locale, _percent, _large, _palette, band,
-+				_high_contrast, _colour_preset, _font_style):
-+			return _fail(&"scene_panel_invalid_view")
-+		_host = value.host
-+		dock.position = Vector2(0, worksheet.size.y)
-+	# Detach the publication once; never derive a substitute board after refusal.
-+	var publication: Dictionary = value.duplicate(true)
-+	if not worksheet.present(publication.board): return _fail(&"scene_panel_invalid_view")
-+	public_view = publication
-+	_failed = false
-+	_apply_availability()
-+	presentation_changed.emit()
-+	return true
-+
-+func _can_interact() -> bool:
-+	return not _blocked and not _failed and not _dispatching and is_visible_in_tree() \
-+		and is_inside_tree() and not get_tree().paused
-+
-+func _apply_availability() -> void:
-+	if worksheet == null or dock == null or not is_inside_tree(): return
-+	var blocked := not _can_interact()
-+	worksheet.set_interaction_blocked(blocked)
-+	var actions: Array = []
-+	if is_visible_in_tree() and not _blocked and is_inside_tree() and not get_tree().paused:
-+		actions = ["pause"]
-+	if not blocked and not public_view.get("board", {}).get("custody", true):
-+		actions = ["reveal", "flag", "drag", "rules", "pause"]
-+		if worksheet.information_sheet != null: actions = ["rules", "pause"]
-+	dock.present(worksheet.grid.mode, actions, false,
-+		"rules" if worksheet.information_sheet != null else "board")
-+
-+func _action(action: StringName) -> void:
-+	if action == &"pause":
-+		if is_visible_in_tree() and not _blocked and is_inside_tree() and not get_tree().paused:
-+			pause_requested.emit()
-+		return
-+	if not _can_interact(): return
-+	match action:
-+		&"reveal", &"flag", &"drag": worksheet.set_mode(action)
-+		&"rules": worksheet.open_rules(dock.buttons.get("rules"))
-+	_apply_availability()
-+
-+func _dispatch(action: StringName, index: int, revision: int) -> void:
-+	if not _can_interact() or worksheet.information_sheet != null or action not in CELL_ACTIONS: return
-+	if String(action) not in public_view.get("actions", []): return
-+	_dispatching = true
-+	var result: Variant = _port.call("dispatch_scene_panel_action", _command.duplicate(true), String(action), index, revision)
-+	_dispatching = false
-+	if not result is Dictionary or not result.get("ok", false):
-+		_fail(StringName(result.get("code", "scene_panel_action_refused")) if result is Dictionary else &"scene_panel_action_refused")
-+		return
-+	# Dispatch envelopes need not contain the panel host. Pull the authoritative view.
-+	refresh()
-+
-+func _fail(code: StringName) -> bool:
-+	_failed = true
-+	_apply_availability()
-+	presentation_failed.emit(code)
-+	return false
-diff --git a/tests/scene/test_scene_challenge_panel.gd b/tests/scene/test_scene_challenge_panel.gd
-new file mode 100644
---- /dev/null
-+++ b/tests/scene/test_scene_challenge_panel.gd
-@@ -0,0 +1,194 @@
-+extends "res://addons/gut/test.gd"
-+## Injected view-only integration: real physical/Profile owners behind a TEST
-+## command adapter and native SubViewport input. This does not prove production
-+## Bridge binding, captions, pause custody, durable Save9, or rendered acceptance.
-+
-+const PANEL := preload("res://scripts/ui/SceneChallengePanel.gd")
-+const FIXTURE := preload("res://tests/support/SceneChallengeFixture.gd")
-+const INPUT_FIXTURE := preload("res://tests/support/MinesweeperInputFixture.gd")
-+
-+class InjectedPort extends RefCounted:
-+	var fixture: RefCounted
-+	var calls: Array[Dictionary] = []
-+	var pulls := 0
-+	var refuse_pull := false
-+	var refuse_action := false
-+	var malformed := false
-+	func pull_scene_panel(command: Dictionary) -> Dictionary:
-+		pulls += 1
-+		if command != fixture.command: return {"ok": false, "code": &"TEST.command_mismatch"}
-+		if refuse_pull: return {"ok": false, "code": &"TEST.pull_refused"}
-+		if malformed: return {"ok": true, "value": {"host": "canonical_solo", "board": {}, "actions": []}}
-+		return fixture.owner.pull_scene_panel(fixture.token)
-+	func dispatch_scene_panel_action(command: Dictionary, action: String, index: int, revision: int) -> Dictionary:
-+		calls.append({"command": command.duplicate(true), "action": action, "index": index, "revision": revision})
-+		if command != fixture.command: return {"ok": false, "code": &"TEST.command_mismatch"}
-+		if refuse_action: return {"ok": false, "code": &"TEST.action_refused"}
-+		return fixture.owner.dispatch_scene_panel_action(fixture.token, action, index, revision)
-+
-+var _fixture: RefCounted
-+var _inputs: RefCounted
-+var _port: InjectedPort
-+var _panel: Control
-+var _viewport: SubViewport
-+
-+func before_each() -> void:
-+	_fixture = FIXTURE.new()
-+	assert_true(_fixture.setup("TEST.scene.panel").ok)
-+	var mines: Array = []
-+	for index in 33: mines.append(index)
-+	mines.append_array([288, 289, 307])
-+	_fixture.generation.arm_materialize({"schema_version": 1, "width": 18, "height": 18,
-+		"mine_indices": mines, "mine_count": 36})
-+	assert_true(_fixture.begin().ok)
-+	_inputs = INPUT_FIXTURE.new()
-+	_port = InjectedPort.new()
-+	_port.fixture = _fixture
-+	_viewport = SubViewport.new()
-+	_viewport.size = Vector2i(1280, 720)
-+	_viewport.handle_input_locally = true
-+	add_child(_viewport)
-+	_panel = PANEL.new()
-+	_viewport.add_child(_panel)
-+	assert_true(_inputs.bind_grid(_panel.worksheet.grid, _viewport))
-+	assert_true(_panel.bind(_port, _fixture.command))
-+	assert_true(_panel.open_panel())
-+	await get_tree().process_frame
-+
-+func after_each() -> void:
-+	if is_instance_valid(_viewport): _viewport.free()
-+	await get_tree().process_frame
-+	if _inputs != null: _inputs.restore_map()
-+	if _fixture != null: _fixture.dispose()
-+
-+func _pointer(index: int, pressed: bool) -> void:
-+	var cell: Control = _panel.worksheet.grid.cell_nodes[index]
-+	var event := InputEventMouseButton.new()
-+	event.button_index = MOUSE_BUTTON_LEFT
-+	event.position = cell.get_global_transform_with_canvas() * (cell.size / 2.0)
-+	event.pressed = pressed
-+	_viewport.push_input(event, true)
-+
-+func _click(index: int) -> void:
-+	_pointer(index, true)
-+	_pointer(index, false)
-+
-+func test_opening_and_refreshing_present_unstarted_owner_board_without_start() -> void:
-+	assert_eq(_panel.public_view.phase, "never_started")
-+	assert_eq(_panel.public_view.actions, ["reveal"])
-+	assert_eq(_panel.worksheet.grid.projection.revision, 0)
-+	assert_eq(_panel.worksheet.grid.cell_nodes.size(), 18 * 18)
-+	assert_eq(_panel.public_view.host, "canonical_solo")
-+	assert_true(_panel.refresh())
-+	assert_true(_fixture.record().is_empty())
-+	assert_true(_port.calls.is_empty())
-+	assert_true(_fixture.authority.checkpoints.is_empty())
-+	assert_eq(_fixture.state.effects, 0)
-+
-+func test_modes_rules_and_view_preferences_do_not_start_or_dispatch() -> void:
-+	_panel.dock.action_requested.emit(&"flag")
-+	assert_eq(_panel.worksheet.grid.mode, &"flag")
-+	_panel.dock.action_requested.emit(&"drag")
-+	assert_eq(_panel.worksheet.grid.mode, &"drag")
-+	assert_true(_panel.worksheet.set_always_fit(true))
-+	_panel.dock.action_requested.emit(&"rules")
-+	assert_not_null(_panel.worksheet.information_sheet)
-+	_panel.worksheet.information_sheet.return_button.pressed.emit()
-+	assert_null(_panel.worksheet.information_sheet)
-+	assert_eq(_panel.worksheet.grid.mode, &"drag")
-+	assert_true(_port.calls.is_empty())
-+	assert_true(_fixture.record().is_empty())
-+
-+func test_native_grid_press_forwards_exact_command_and_release_does_not_repeat() -> void:
-+	assert_true(_panel.worksheet.set_always_fit(true))
-+	var pulls_before := _port.pulls
-+	_pointer(200, true)
-+	assert_eq(_port.calls.size(), 1, "The shared mouse grid accepts Reveal on press.")
-+	_pointer(200, false)
-+	assert_eq(_port.calls.size(), 1)
-+	if _port.calls.size() != 1: return
-+	assert_eq(_port.calls[0], {"command": _fixture.command, "action": "reveal", "index": 200, "revision": 0})
-+	assert_gt(_port.pulls, pulls_before, "Dispatch response has no panel host; refresh uses the public pull.")
-+	assert_false(_fixture.record().is_empty())
-+	assert_eq(_panel.public_view.host, "canonical_solo")
-+	assert_eq(_fixture.state.effects, 0)
-+
-+func test_blocked_pointer_cannot_start_or_replay_after_unblocking() -> void:
-+	assert_true(_panel.worksheet.set_always_fit(true))
-+	_panel.set_interaction_blocked(true)
-+	_pointer(200, true)
-+	_panel.dock.action_requested.emit(&"flag")
-+	assert_eq(_panel.worksheet.grid.mode, &"reveal")
-+	_panel.worksheet.cell_action_requested.emit(&"reveal", 200, 0)
-+	assert_true(_port.calls.is_empty())
-+	assert_true(_fixture.record().is_empty())
-+	_panel.set_interaction_blocked(false)
-+	_pointer(200, false)
-+	await get_tree().process_frame
-+	assert_true(_port.calls.is_empty(), "Unblocking cannot replay the cancelled press.")
-+
-+func test_refused_pull_retains_display_but_removes_input_until_successful_refresh() -> void:
-+	var before: Dictionary = _panel.worksheet.grid.projection.duplicate(true)
-+	_port.refuse_pull = true
-+	watch_signals(_panel)
-+	assert_false(_panel.refresh())
-+	assert_signal_emitted_with_parameters(_panel, "presentation_failed", [&"TEST.pull_refused"])
-+	_panel.worksheet.cell_action_requested.emit(&"reveal", 200, 0)
-+	assert_true(_port.calls.is_empty())
-+	assert_eq(_panel.worksheet.grid.projection, before)
-+	_port.refuse_pull = false
-+	assert_true(_panel.refresh())
-+	assert_true(_fixture.record().is_empty())
-+
-+func test_malformed_pull_and_refused_action_fail_closed_without_starting() -> void:
-+	_port.malformed = true
-+	assert_false(_panel.refresh())
-+	_panel.worksheet.cell_action_requested.emit(&"reveal", 200, 0)
-+	assert_true(_port.calls.is_empty())
-+	_port.malformed = false
-+	assert_true(_panel.refresh())
-+	_port.refuse_action = true
-+	_panel.worksheet.cell_action_requested.emit(&"reveal", 200, 0)
-+	assert_eq(_port.calls.size(), 1)
-+	_panel.worksheet.cell_action_requested.emit(&"reveal", 201, 0)
-+	assert_eq(_port.calls.size(), 1, "Failure disables later actions.")
-+	assert_true(_fixture.record().is_empty())
-+
-+func test_close_and_reopen_preserve_projection_mode_and_absence_without_dispatch() -> void:
-+	_panel.dock.action_requested.emit(&"drag")
-+	var before: Dictionary = _panel.worksheet.grid.projection.duplicate(true)
-+	_panel.close_panel()
-+	assert_false(_panel.is_visible_in_tree())
-+	_panel.worksheet.cell_action_requested.emit(&"reveal", 200, 0)
-+	assert_true(_port.calls.is_empty())
-+	assert_true(_panel.open_panel())
-+	assert_eq(_panel.worksheet.grid.projection, before)
-+	assert_eq(_panel.worksheet.grid.mode, &"drag")
-+	assert_true(_fixture.record().is_empty())
-+	assert_true(_port.calls.is_empty())
-+
-+func test_started_board_reopens_from_owner_and_fixed_chrome_has_no_start_or_new_board() -> void:
-+	_panel.worksheet.cell_action_requested.emit(&"reveal", 323, 0)
-+	assert_eq(_port.calls.size(), 1)
-+	assert_eq(_fixture.record().phase, "active")
-+	var before: Dictionary = _panel.worksheet.grid.projection.duplicate(true)
-+	_panel.close_panel()
-+	assert_true(_panel.open_panel())
-+	assert_eq(_panel.worksheet.grid.projection, before)
-+	assert_eq(_port.calls.size(), 1)
-+	assert_eq(_panel.size, Vector2(960, 656))
-+	assert_eq(_panel.dock.position.y + _panel.dock.size.y, 656.0)
-+	assert_false(_panel.dock.buttons.has("start"))
-+	assert_false(_panel.dock.buttons.has("new_board"))
-+
-+func test_pause_stays_available_after_pull_refusal_but_obeys_host_blocking() -> void:
-+	_port.refuse_pull = true
-+	assert_false(_panel.refresh())
-+	watch_signals(_panel)
-+	assert_false(_panel.dock.buttons.pause.disabled)
-+	_panel.dock.buttons.pause.pressed.emit()
-+	assert_signal_emit_count(_panel, "pause_requested", 1)
-+	_panel.set_interaction_blocked(true)
-+	assert_true(_panel.dock.buttons.pause.disabled)
-+	_panel.dock.action_requested.emit(&"pause")
-+	assert_signal_emit_count(_panel, "pause_requested", 1)
-diff --git a/tests/integration/test_scene_panel_presentation_port.gd b/tests/integration/test_scene_panel_presentation_port.gd
-new file mode 100644
---- /dev/null
-+++ b/tests/integration/test_scene_panel_presentation_port.gd
-@@ -0,0 +1,76 @@
-+extends "res://addons/gut/test.gd"
-+## Real presentation/physical/Profile owners with injected scene authority and
-+## checkpoint storage. This is adapter integration, not Bootstrap or disk proof.
-+const FIXTURE := preload("res://tests/support/SceneChallengeFixture.gd")
-+const PORT := preload("res://scripts/application/run/DatingPresentationPort.gd")
-+const PANEL := preload("res://scripts/ui/SceneChallengePanel.gd")
-+
-+var _fixture: RefCounted
-+var _port: RefCounted
-+var _command: Dictionary
-+
-+func before_each() -> void:
-+	_fixture = FIXTURE.new()
-+	assert_true(_fixture.setup("TEST.scene.panel.port").ok)
-+	_port = PORT.new()
-+	assert_true(_port.configure(_fixture.issuer, _fixture.owner).ok)
-+	var admitted: Dictionary = _port.begin(_fixture.command)
-+	assert_true(admitted.ok)
-+	_command = admitted.value.presentation_command
-+
-+func after_each() -> void:
-+	_fixture.dispose()
-+
-+func test_admission_and_preview_are_write_free_and_start_is_refused() -> void:
-+	var view: Dictionary = _port.pull_scene_panel(_command)
-+	assert_true(view.ok)
-+	assert_eq(view.value.actions, ["reveal"])
-+	assert_eq(view.value.host, "canonical_solo")
-+	assert_false(_port.dispatch_scene_panel_action(_command, "start", -1, 0).ok)
-+	assert_false(_port.dispatch_scene_panel_action(_command, "flag", 323, 0).ok)
-+	assert_false(_port.dispatch_scene_panel_action(_command, "reveal", 324, 0).ok)
-+	assert_true(_fixture.record().is_empty())
-+	assert_true(_fixture.authority.checkpoints.is_empty())
-+
-+func test_unissued_and_altered_commands_cannot_reach_first_reveal() -> void:
-+	assert_false(_port.pull_scene_panel(_fixture.command).ok)
-+	var altered := _command.duplicate(true)
-+	altered.physical_token += ".altered"
-+	assert_false(_port.dispatch_scene_panel_action(altered, "reveal", 323, 0).ok)
-+	altered = _command.duplicate(true)
-+	altered.context.scene_occurrence += ".altered"
-+	assert_false(_port.pull_scene_panel(altered).ok)
-+	assert_false(_port.dispatch_scene_panel_action(altered, "reveal", 323, 0).ok)
-+	assert_true(_fixture.record().is_empty())
-+	assert_true(_fixture.authority.checkpoints.is_empty())
-+
-+func test_first_reveal_duplicate_and_reopen_preserve_authoritative_board() -> void:
-+	var started: Dictionary = _port.dispatch_scene_panel_action(_command, "reveal", 323, 0)
-+	assert_true(started.ok)
-+	var before: Dictionary = _fixture.record().duplicate(true)
-+	var checkpoints: int = _fixture.authority.checkpoints.size()
-+	assert_false(before.is_empty())
-+	assert_true(_port.dispatch_scene_panel_action(_command, "reveal", 323, 0).ok)
-+	assert_eq(_fixture.record(), before)
-+	assert_eq(_fixture.authority.checkpoints.size(), checkpoints)
-+	assert_true(_port.begin(_fixture.command).ok)
-+	assert_true(_port.pull_scene_panel(_command).ok)
-+	assert_eq(_fixture.record(), before)
-+	assert_eq(_fixture.authority.checkpoints.size(), checkpoints)
-+	assert_eq(_fixture.state.effects, 0)
-+
-+func test_panel_uses_real_trusted_port_and_reopens_without_repeating_reveal() -> void:
-+	var panel := PANEL.new()
-+	add_child(panel)
-+	assert_true(panel.bind(_port, _command))
-+	assert_true(panel.open_panel())
-+	assert_true(_fixture.record().is_empty())
-+	panel.worksheet.cell_action_requested.emit(&"reveal", 323, 0)
-+	assert_false(_fixture.record().is_empty())
-+	var before: Dictionary = panel.public_view.duplicate(true)
-+	var checkpoints: int = _fixture.authority.checkpoints.size()
-+	panel.close_panel()
-+	assert_true(panel.open_panel())
-+	assert_eq(panel.public_view, before)
-+	assert_eq(_fixture.authority.checkpoints.size(), checkpoints)
-+	panel.free()

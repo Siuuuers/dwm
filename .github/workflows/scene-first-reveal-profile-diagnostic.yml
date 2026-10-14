@@ -1,4 +1,4 @@
-name: Scene Challenge panel and trusted adapter candidate
+name: Scene computer ordinary Save Load journey
 
 on:
   pull_request:
@@ -52,13 +52,13 @@ jobs:
           assert git('rev-parse','HEAD') == base
           assert git('ls-remote','origin','refs/heads/codex/scene-runtime-integration-20261009').split()[0] == base
           patch = pathlib.Path('../controller/tools/cloud/scene-first-reveal-resumable.patch').read_bytes()
-          assert hashlib.sha256(patch).hexdigest() == 'b1b4f570151a468bb1103973891b6380ad82ca71bbba8d3d6da21884d28b91cd'
+          assert hashlib.sha256(patch).hexdigest() == '4c99e378e0d04b4fb9610877294603b5719a9d88b1d6a04a7944e063424d5178'
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           (out/'candidate.patch').write_bytes(patch)
           subprocess.run(['git','apply','--index','--binary',str(out/'candidate.patch')], check=True)
           subprocess.run(['git','diff','--cached','--check'], check=True)
           paths = git('diff','--cached','--name-only').splitlines()
-          assert paths == ['addons/dialogic/Modules/Style/subsystem_styles.gd', 'autoload/ApplicationBootstrap.gd', 'autoload/DialogicBridge.gd', 'autoload/GameState.gd', 'autoload/ProfileManager.gd', 'autoload/SaveManager.gd', 'autoload/SceneRouter.gd', 'scenes/narrative/SceneChallengePanel.tscn', 'scenes/narrative/SceneHost.tscn', 'scripts/application/backup/BackupPresentationPort.gd', 'scripts/application/lifecycle/ProductionPauseController.gd', 'scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd', 'scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd', 'scripts/application/restore/RouteRestoreParticipant.gd', 'scripts/application/run/DatingChallengeEnvelope.gd', 'scripts/application/run/DatingPhysicalOwner.gd', 'scripts/application/run/DatingPresentationPort.gd', 'scripts/domain/minesweeper/MinesweeperBoardGenerator.gd', 'scripts/profile/DatingAttemptLedger.gd', 'scripts/ui/SceneChallengePanel.gd', 'tests/diagnostics/style_refusal_shutdown_probe.gd', 'tests/diagnostics/style_shutdown_probe.gd', 'tests/integration/scene_bootstrap_restart_child.gd', 'tests/integration/scene_first_reveal_connected_child.gd', 'tests/integration/test_pause_backup_host.gd', 'tests/integration/test_scene_bootstrap_host.gd', 'tests/integration/test_scene_bootstrap_restart_create.gd', 'tests/integration/test_scene_bootstrap_restart_load.gd', 'tests/integration/test_scene_caption_style_refusal.gd', 'tests/integration/test_scene_first_reveal_connected_ahead.gd', 'tests/integration/test_scene_first_reveal_connected_create.gd', 'tests/integration/test_scene_first_reveal_connected_load.gd', 'tests/integration/test_scene_first_reveal_selected_create.gd', 'tests/integration/test_scene_panel_presentation_port.gd', 'tests/integration/test_scene_pause_load.gd', 'tests/integration/test_scene_pause_quick_load.gd', 'tests/integration/test_scene_pause_write_refusal.gd', 'tests/scene/test_scene_challenge_panel.gd', 'tests/support/SceneCaptionStyleRefusalFixture.gd', 'tests/support/SceneChallengeFixture.gd', 'tests/support/SceneFirstRevealConnectedFixture.gd', 'tests/support/ScenePauseLoadFixture.gd', 'tests/support/ScenePauseLoadTestBase.gd', 'tests/unit/test_scene_absence.gd', 'tests/unit/test_scene_first_reveal.gd']
+          assert paths == ['addons/dialogic/Modules/Style/subsystem_styles.gd', 'autoload/ApplicationBootstrap.gd', 'autoload/DialogicBridge.gd', 'autoload/GameState.gd', 'autoload/ProfileManager.gd', 'autoload/SaveManager.gd', 'autoload/SceneRouter.gd', 'scenes/narrative/SceneChallengePanel.tscn', 'scenes/narrative/SceneHost.tscn', 'scripts/application/backup/BackupPresentationPort.gd', 'scripts/application/lifecycle/ProductionPauseController.gd', 'scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd', 'scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd', 'scripts/application/restore/RouteRestoreParticipant.gd', 'scripts/application/run/DatingChallengeEnvelope.gd', 'scripts/application/run/DatingPhysicalOwner.gd', 'scripts/application/run/DatingPresentationPort.gd', 'scripts/domain/minesweeper/MinesweeperBoardGenerator.gd', 'scripts/profile/DatingAttemptLedger.gd', 'scripts/ui/SceneChallengePanel.gd', 'scripts/ui/SceneHost.gd', 'scripts/ui/pause/PauseSurface.gd', 'scripts/ui/witnessed/WitnessedCaptionLayer.gd', 'tests/diagnostics/style_refusal_shutdown_probe.gd', 'tests/diagnostics/style_shutdown_probe.gd', 'tests/integration/scene_bootstrap_restart_child.gd', 'tests/integration/scene_computer_child.gd', 'tests/integration/scene_first_reveal_connected_child.gd', 'tests/integration/test_pause_backup_host.gd', 'tests/integration/test_scene_bootstrap_host.gd', 'tests/integration/test_scene_bootstrap_restart_create.gd', 'tests/integration/test_scene_bootstrap_restart_load.gd', 'tests/integration/test_scene_caption_style_refusal.gd', 'tests/integration/test_scene_computer_create.gd', 'tests/integration/test_scene_computer_load.gd', 'tests/integration/test_scene_direct_controls.gd', 'tests/integration/test_scene_first_reveal_connected_ahead.gd', 'tests/integration/test_scene_first_reveal_connected_create.gd', 'tests/integration/test_scene_first_reveal_connected_load.gd', 'tests/integration/test_scene_first_reveal_selected_create.gd', 'tests/integration/test_scene_panel_presentation_port.gd', 'tests/integration/test_scene_pause_load.gd', 'tests/integration/test_scene_pause_quick_load.gd', 'tests/integration/test_scene_pause_write_refusal.gd', 'tests/scene/test_scene_challenge_panel.gd', 'tests/scene/test_scene_host_controls.gd', 'tests/support/SceneCaptionStyleRefusalFixture.gd', 'tests/support/SceneChallengeFixture.gd', 'tests/support/SceneFirstRevealConnectedFixture.gd', 'tests/support/ScenePauseLoadFixture.gd', 'tests/support/ScenePauseLoadTestBase.gd', 'tests/unit/test_scene_absence.gd', 'tests/unit/test_scene_first_reveal.gd']
           receipt = {'base':base,'controller':os.environ['CONTROLLER_SHA'],'patch_sha256':hashlib.sha256(patch).hexdigest(),'paths':paths,'publication':'disabled diagnostic'}
           (out/'candidate-origin.json').write_text(json.dumps(receipt,indent=2),encoding='utf-8')
           '@ | python -
@@ -104,13 +104,21 @@ jobs:
         timeout-minutes: 15
         run: |
           $ErrorActionPreference = 'Stop'
-          foreach ($entry in @(@('challenge-panel','tests/scene/test_scene_challenge_panel.gd'), @('challenge-port','tests/integration/test_scene_panel_presentation_port.gd'))) {
+          foreach ($entry in @(@('challenge-panel','tests/scene/test_scene_challenge_panel.gd'), @('host-controls','tests/scene/test_scene_host_controls.gd'), @('direct-controls','tests/integration/test_scene_direct_controls.gd'))) {
             $name = $entry[0]
             $script = $entry[1]
             $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$script",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$name.xml")
             & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId $name -LogName "$name.log" -GodotArgs $args -EvidenceLogPath ".godot/ci/$name.jsonl" -TimeoutSeconds 180
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
+
+      - name: Real computer Save and fresh-process Load
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $create = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_computer_create.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/computer-create.xml')
+          $load = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_computer_load.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/computer-load.xml')
+          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'scene-computer' -LogName 'computer-create.log' -GodotArgs $create -NextLogName 'computer-load.log' -NextGodotArgs $load -EvidenceLogPath '.godot/ci/computer.jsonl' -TimeoutSeconds 180 -KeepRoot
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Verify executed census and source identity
         run: |
@@ -124,7 +132,7 @@ jobs:
           import xml.etree.ElementTree as ET
 
           out = pathlib.Path('.godot/ci')
-          suites = {'challenge-panel':'tests/scene/test_scene_challenge_panel.gd', 'challenge-port':'tests/integration/test_scene_panel_presentation_port.gd'}
+          suites = {'challenge-panel':'tests/scene/test_scene_challenge_panel.gd', 'host-controls':'tests/scene/test_scene_host_controls.gd', 'direct-controls':'tests/integration/test_scene_direct_controls.gd', 'computer-create':'tests/integration/test_scene_computer_create.gd', 'computer-load':'tests/integration/test_scene_computer_load.gd'}
           counts = {}
           for lane, script in suites.items():
               expected = re.findall(r'^func (test_\w+)\(', pathlib.Path(script).read_text(encoding='utf-8'), re.M)
@@ -137,9 +145,11 @@ jobs:
               text = log.read_text(encoding='utf-8-sig')
               assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character', text), lane
               counts[lane] = {'cases':len(rows), 'assertions':sum(int(r.attrib['assertions']) for r in rows)}
-          for lane in suites:
+          for lane in ['challenge-panel','host-controls','direct-controls']:
               records = [json.loads(line) for line in (out/(lane+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if line.strip()]
               assert len(records) == 1 and records[0]['exit_code'] == 0, lane
+          children = [json.loads(line) for line in (out/'computer.jsonl').read_text(encoding='utf-8-sig').splitlines() if line.strip()]
+          assert len(children) == 2 and all(row['exit_code'] == 0 for row in children)
           assert not subprocess.check_output(['git','diff','--name-only'], text=True).strip()
           assert not subprocess.check_output(['git','diff','--cached','--name-only'], text=True).strip()
           result = {
@@ -148,7 +158,7 @@ jobs:
               'lanes':counts,
               'total_cases':sum(v['cases'] for v in counts.values()),
               'total_xml_assertions':sum(v['assertions'] for v in counts.values()),
-              'scope':'C view tests plus real trusted port/physical/Profile adapter tests with injected scene authority/checkpoint seams. No Bootstrap, disk save/restart, caption coexistence or rendered E2E acceptance.',
+              'scope':'Ordinary FINAL Bootstrap computer panel, caption input hold, direct sheets and physical Save/fresh-process Load using TEST-authored registration. Headless Viewport input; no rendered or OS input acceptance. Broader recovery combinations deferred.',
           }
           (out/'gate.json').write_text(json.dumps(result, indent=2), encoding='utf-8')
           print(json.dumps(result))
