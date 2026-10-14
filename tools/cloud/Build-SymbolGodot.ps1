@@ -87,7 +87,19 @@ try {
         if ($roots.Count -ne 1) { throw 'SOURCE_ROOT_AMBIGUOUS' }
         $engineSource = $roots[0].FullName
         Copy-Item (Join-Path $engineSource 'version.py') (Join-Path $out 'source-version.py')
-        if (Test-Path (Join-Path $engineSource '.git')) { throw 'UNEXPECTED_SOURCE_GIT_METADATA' }
+        # The checksum-pinned release archive includes version metadata used by Godot.
+        # Record it without rewriting it or assuming it is a complete Git checkout.
+        $gitMetadata = Join-Path $engineSource '.git'
+        $receipt['source_git_metadata_present'] = Test-Path -LiteralPath $gitMetadata
+        foreach ($relative in @('.git', '.git/HEAD', '.git/packed-refs', '.git/commondir')) {
+            $metadataPath = Join-Path $engineSource $relative
+            if (Test-Path -LiteralPath $metadataPath -PathType Leaf) {
+                $metadataFile = Get-Item -LiteralPath $metadataPath
+                if ($metadataFile.Length -gt 65536) { throw "SOURCE_METADATA_TOO_LARGE: $relative" }
+                $targetName = 'source-' + $relative.Replace('/', '-').Replace('.', '_') + '.txt'
+                Copy-Item -LiteralPath $metadataPath -Destination (Join-Path $out $targetName)
+            }
+        }
         $receipt['python_version'] = (& python --version | Out-String).Trim()
         Set-BuildStage 'installing_scons'
         Invoke-PreparationProgram 'python' @('-m', 'pip', 'install', '--disable-pip-version-check', 'scons==4.8.1') 'scons_install' 240

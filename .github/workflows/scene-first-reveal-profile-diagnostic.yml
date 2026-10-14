@@ -1,4 +1,4 @@
-name: Scene caption style ownership diagnostic (separate preparation)
+name: Scene caption style ownership diagnostic (record source metadata)
 
 on:
   pull_request:
