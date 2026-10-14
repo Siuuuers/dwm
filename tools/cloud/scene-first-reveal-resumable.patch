@@ -2732,14 +2732,21 @@ index 00000000..1226b2fc
 +	assert_eq(FileAccess.get_sha256("user://profile.json"), witness.profile_sha256)
 diff --git a/tests/integration/scene_computer_child.gd b/tests/integration/scene_computer_child.gd
 new file mode 100644
-index 00000000..937ec34c
+index 00000000..1b8f96f7
 --- /dev/null
 +++ b/tests/integration/scene_computer_child.gd
-@@ -0,0 +1,159 @@
+@@ -0,0 +1,170 @@
 +extends "res://tests/integration/scene_bootstrap_restart_child.gd"
 +## FINAL Bootstrap and actual mounted host; only the authored registration is TEST.
 +## Creator and loader run in distinct OS processes sharing real Save/Profile files.
 +const CAPTION := preload("res://scripts/ui/witnessed/WitnessedCaptionLayer.gd")
++
++func _screenshot(label: String) -> void:
++	if DisplayServer.get_name() == "headless": return
++	await RenderingServer.frame_post_draw
++	var pixels := get_viewport().get_texture().get_image()
++	assert_false(pixels.is_empty())
++	assert_eq(pixels.save_png("res://.godot/ci/computer-" + label + ".png"), OK)
 +
 +func _click(control: Control) -> void:
 +	# GUT's layer 128 otherwise intercepts the production board's mouse packets.
@@ -2822,6 +2829,7 @@ index 00000000..937ec34c
 +		"panel_rect": panel.get_global_rect(), "viewport": get_viewport().get_visible_rect()}))
 +	if panel.public_view.phase != "active": return
 +	var saved_board: Dictionary = panel.public_view.board.duplicate(true)
++	await _screenshot("active")
 +	assert_eq(bridge.capture_reading_checkpoint(false), checkpoint, "board click cannot advance captions")
 +	var record: Dictionary = game.capture_dating_challenge_state().value.duplicate(true)
 +	assert_false(record.is_empty())
@@ -2840,6 +2848,7 @@ index 00000000..937ec34c
 +	assert_true(sheet.can_save_backup(), str(sheet.last_result))
 +	assert_false(sheet.surface.get_node("Actions").visible)
 +	if not sheet.can_save_backup(): return
++	await _screenshot("save-sheet")
 +	var prepared: Dictionary = sheet._backup_port.prepare_action("save", "slot:1")
 +	if not _ok(prepared): return
 +	if not _ok(await sheet._backup_port.commit_action(prepared.value.token)): return
@@ -2879,6 +2888,7 @@ index 00000000..937ec34c
 +	assert_eq(profile.get_profile_snapshot(), proof.profile, "opening restored board is read-only")
 +	assert_ne(game.capture_run_snapshot_input().lifecycle.branch_id, proof.source_branch)
 +	assert_eq(bridge.capture_reading_checkpoint(false).value, proof.checkpoint)
++	await _screenshot("restored")
 +	var hidden := -1
 +	for index: int in panel.public_view.board.cells.size():
 +		if "flag" in panel.public_view.board.cells[index].get("actions", []):
@@ -2893,6 +2903,7 @@ index 00000000..937ec34c
 +	assert_gt(int(panel.public_view.board.revision), int(proof.board.revision), "restored board remains playable")
 +	assert_false(get_tree().paused)
 +	proof["loader_process_id"] = OS.get_process_id()
++	await _screenshot("continued")
 +	proof["continued_board"] = panel.public_view.board
 +	_write_json("res://.godot/ci/computer-load-proof.json", proof)
 diff --git a/tests/integration/scene_first_reveal_connected_child.gd b/tests/integration/scene_first_reveal_connected_child.gd
@@ -4781,3 +4792,29 @@ index 00000000..164a431e
 +	assert_null(record.envelope.preparation)
 +	assert_eq(record.envelope.forced_cell, 323)
 +	assert_eq(f.state.effects, 0)
+diff --git a/tools/testing/Invoke-IsolatedGodot.ps1 b/tools/testing/Invoke-IsolatedGodot.ps1
+index db6b27e3..466e1a6e 100644
+--- a/tools/testing/Invoke-IsolatedGodot.ps1
++++ b/tools/testing/Invoke-IsolatedGodot.ps1
+@@ -19,7 +19,10 @@ param(
+     [ValidateRange(0, 86400)]
+     [int]$TimeoutSeconds = 0,
+ 
+-    [switch]$KeepRoot
++    [switch]$KeepRoot,
++
++    # Opt-in real window/renderer; isolation and exit-code checks stay identical.
++    [switch]$Rendered
+ )
+ 
+ Set-StrictMode -Version Latest
+@@ -308,7 +311,8 @@ try {
+         # A prior child must not redirect the retained storage or user directory
+         # through a junction before the next process consumes those paths.
+         Assert-TreeHasNoReparsePoints -Root $guidRoot
+-        $argv = @('--headless','--path',$repositoryRoot,'--log-file',$logPath) + @($childPlan.Arguments)
++        $displayArgs = if ($Rendered) { @('--rendering-method','gl_compatibility','--audio-driver','Dummy') } else { @('--headless') }
++        $argv = $displayArgs + @('--path',$repositoryRoot,'--log-file',$logPath) + @($childPlan.Arguments)
+         $startedAt = [DateTime]::UtcNow.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
+         $requested = Invoke-GodotChild -Executable $godotExecutable -Arguments $argv -AppData $childAppData -LocalAppData $childLocalAppData -DwmTestRoot $childDwmRoot -TimeoutSeconds $TimeoutSeconds -TimeoutLogPath $timeoutLog
+         $endedAt = [DateTime]::UtcNow.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
