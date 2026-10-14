@@ -21,6 +21,7 @@ signal ending_playback_finished(playback_token: String, ending_id: String, recei
 signal ending_playback_failed(playback_token: String, ending_id: String, result: Dictionary)
 signal ending_playback_retired(playback_token: String, ending_id: String)
 signal scene_art_changed
+signal computer_hold_changed
 signal reading_session_changed
 signal scene_activation_confirmed(operation_id: String)
 signal scene_activation_failed(operation_id: String, result: Dictionary)
@@ -788,14 +789,38 @@ func _prepare_scene_art() -> void:
 	var dating := str(source.entry_id).begins_with("dating.")
 	if not hospital and not dating and (str(source.entry_id).is_empty() or (str(art.get("background", "")).is_empty() \
 		and art.get("portraits", []).is_empty() and str(art.get("cg", "")).is_empty())): return
+	_prepare_witnessed_style()
+
+
+## Native scene reconstruction needs the same caption owner as ordinary starts,
+## even when its entry has no artwork. Style selection grants no frontier proof.
+func _prepare_witnessed_style() -> Dictionary:
 	var runtime := get_node_or_null("/root/Dialogic") if is_inside_tree() else null
 	# Isolated adapters never borrow the autoload's physical layout.
 	if runtime == null or _runtime_adapter == null \
 			or not _runtime_adapter.has_method("is_bound_to_runtime") \
-			or not _runtime_adapter.is_bound_to_runtime(runtime): return
+			or not _runtime_adapter.is_bound_to_runtime(runtime): return {"ok": true, "value": {"isolated": true}}
+	var adapter := _runtime_adapter
+	if not runtime.has_method("get_subsystem"):
+		return _command_failure(&"scene_caption_style_unavailable")
 	var styles: Object = runtime.get_subsystem("Styles")
-	if styles != null and styles.has_method("load_style"):
-		styles.load_style("res://dialogic/styles/witnessed_caption_style.tres", null, true, false)
+	if not is_instance_valid(styles) or not styles.has_method("load_style") or not styles.has_method("get_layout_node"):
+		return _command_failure(&"scene_caption_style_unavailable")
+	const STYLE := preload("res://dialogic/styles/witnessed_caption_style.tres")
+	styles.load_style(STYLE.resource_path, get_tree().root, true, false)
+	# style_changed is synchronous and may replace or retire owners/layouts.
+	if not is_instance_valid(runtime) or not is_instance_valid(styles) or _runtime_adapter != adapter \
+			or get_node_or_null("/root/Dialogic") != runtime or not adapter.is_bound_to_runtime(runtime):
+		return _command_failure(&"scene_caption_style_changed")
+	var layout: Variant = styles.get_layout_node()
+	if not layout is Node or not is_instance_valid(layout) or layout.is_queued_for_deletion() \
+			or layout.get_meta("style", null) != STYLE:
+		return _command_failure(&"scene_caption_style_unavailable")
+	var ancestor: Node = layout.get_parent()
+	while ancestor != null:
+		if ancestor.is_queued_for_deletion(): return _command_failure(&"scene_caption_style_changed")
+		ancestor = ancestor.get_parent()
+	return {"ok": true}
 
 
 func _start_at_path(timeline_id: String, path: String, context: Dictionary, label: String = "") -> Dictionary:
@@ -1847,13 +1872,15 @@ func configure_skip_context(profile: Object, mode: StringName) -> Dictionary:
 		var checked := _ENTRY_MANIFEST.validate_ids_document(ids.value)
 		if not checked.get("ok", false): return checked
 		var owners := {}
-		for line: Dictionary in ids.value.reply_lines:
+		var scene_registry: bool = ids.value.get("kind") == "scene_ids_registry"
+		var registered_lines: Array = ids.value.lines if scene_registry else ids.value.reply_lines
+		for line: Dictionary in registered_lines:
 			owners[line.line_id] = line.owning_entry_id
 		for entry: Dictionary in entries.value.entries:
 			for atom: Dictionary in entry.get("observer_atoms", []):
 				owners[atom.line_id] = entry.entry_id
 		for signal_record: Dictionary in ids.value.signals:
-			if signal_record.signal_id == "history.line.witness":
+			if not scene_registry and signal_record.signal_id == "history.line.witness":
 				_line_witness_stages = signal_record.allowed_source_stages.duplicate()
 		_skip_line_owners = owners
 	if _skip_profile != profile:
@@ -2167,6 +2194,8 @@ func _line_witness_stage_allowed() -> bool:
 		return stage == "hospital" and can_capture_hospital_reading_checkpoint(_hospital_reading_command)
 	if _has_exact_caption_source() and _reading_session.family == "ending":
 		return stage == "PRIMARY_PENDING" and can_capture_reading_checkpoint()
+	if _has_exact_caption_source() and _reading_session.family == "scene":
+		return stage == "scene" and can_capture_reading_checkpoint()
 	# Solo's admitted phase frames do not use the legacy current_entry signal stage.
 	return stage == str(_active_entry.get("entry_id", "")).get_slice(".", 4) \
 		if _has_exact_caption_source() else stage in _line_witness_stages
@@ -2186,6 +2215,7 @@ func _retain_line_presentation(identity: Dictionary) -> void:
 
 
 func _line_presentation_context(expected_frontier: Dictionary = {}, guard_mutation: bool = true) -> Dictionary:
+	if guard_mutation and is_computer_caption_held(): return _command_failure(&"computer_caption_held")
 	if is_rehearsal_playback(): return _command_failure(&"rehearsal_commit_denied")
 	if _active_entry.is_empty(): return _command_failure(&"no_active_entry")
 	if guard_mutation and not _line_ack_fatal_failure.is_empty(): return _line_ack_fatal_failure.duplicate(true)
@@ -2860,6 +2890,8 @@ func stage_scene_reading_restore(checkpoint: Dictionary, operation_id: String) -
 		"digest": _scene_digest(checkpoint), "candidate": checked.value.candidate,
 		"path": checked.value.path, "runtime": _runtime_adapter, "started": false,
 		"in_call": false, "native_started": false, "proof": false, "confirmed": false}
+	if is_pause_restore_pending():
+		_scene_restore["pause_handle"] = _pause_restore.handle.duplicate(true)
 	_reading_restore_pending = checkpoint.duplicate(true)
 	return {"ok": true}
 
@@ -2891,6 +2923,16 @@ func _start_scene_restore_native(operation_id: String) -> void:
 		if _runtime_adapter.has_active_playback() and is_inside_tree(): await get_tree().process_frame
 	if _scene_restore.is_empty() or _scene_restore.operation_id != operation_id or not _scene_restore_current():
 		_fail_scene_activation(_command_failure(&"scene_activation_changed"))
+		return
+	var styled := _prepare_witnessed_style()
+	if not styled.get("ok", false):
+		if not _scene_restore.is_empty() and _scene_restore.operation_id == operation_id:
+			_fail_scene_activation(styled)
+		return
+	if _scene_restore.is_empty() or _scene_restore.operation_id != operation_id or not _scene_restore_current() \
+			or _scene_restore.has("failure"):
+		if not _scene_restore.is_empty() and _scene_restore.operation_id == operation_id:
+			_fail_scene_activation(_command_failure(&"scene_activation_changed"))
 		return
 	_scene_restore.native_started = true
 	_scene_restore.in_call = true
@@ -3336,6 +3378,20 @@ func is_pause_restore_pending() -> bool:
 	return not _pause_restore.is_empty() and not _pause_restore.get("applied", false)
 
 
+## Router may associate only the exact suspended source under restore custody.
+func validate_scene_pause_restore_handle(handle: Dictionary) -> Dictionary:
+	if _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore") \
+			or not is_pause_restore_pending() or _pause_restore.get("cancelled", false) \
+			or handle.is_empty() or handle != _pause_restore.handle or handle != _pause_handle or _pause_changing:
+		return _pause_failure(&"pause_source_changed")
+	var physical := _capture_presentation_frontier()
+	var expected := _pause_frontier.duplicate(true)
+	expected["paused"] = true
+	if not physical.get("ok", false) or physical.value != expected:
+		return _pause_failure(&"pause_source_changed")
+	return _pause_success({"suspended": true})
+
+
 func stage_pause_restore(plan: Dictionary, semantic: bool) -> Dictionary:
 	if not is_pause_restore_pending() or _pause_restore.cancelled \
 			or _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore"):
@@ -3371,6 +3427,16 @@ func cancel_pause_restore(handle: Dictionary) -> Dictionary:
 
 
 func complete_pause_restore(handle: Dictionary) -> Dictionary:
+	# Scene activation already retired the source and proved the destination.
+	# Completion acknowledges that exact handoff; it must never resume it again.
+	if not handle.is_empty() and _scene_restore.get("pause_handle") == handle:
+		if _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore") \
+				or not _pause_handle.is_empty() or not _pause_restore.is_empty() \
+				or not _scene_restore.get("published", false):
+			return _pause_failure(&"pause_restore_unavailable")
+		var activated := validate_scene_activation(str(_scene_restore.operation_id))
+		if not activated.get("ok", false): return activated
+		return _pause_success({"restored": true})
 	if _pause_restore.get("handle") != handle or not _pause_restore.get("finalized", false) \
 			or _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore"):
 		return _pause_failure(&"pause_restore_unavailable")
@@ -4095,6 +4161,23 @@ func dispatch_scene_event(live_session: Dictionary, envelope: Dictionary) -> Dic
 			"code": result.get("code", &"event_ack_interrupted"), "details": {"committed": true}})
 	return result
 
+## Expose only a currently authenticated held marker, never a guessed UI command.
+func capture_scene_challenge_control() -> Dictionary:
+	var boundary := capture_scene_event_boundary()
+	if not boundary.get("ok", false): return boundary
+	var reading: Dictionary = boundary.value.checkpoint.get("reading_session", {})
+	if reading.get("schema_version") != 5 or reading.get("boundary") != "control":
+		return _command_failure(&"scene_challenge_control_required")
+	var native: Dictionary = _runtime_adapter.capture_scene_control_position(_reading_session)
+	if not native.get("ok", false) or not _READING_TRAVERSAL._same(native.value, reading):
+		return _command_failure(&"scene_challenge_control_required")
+	var nodes: Array = _reading_session._scene_nodes.get(reading.entry_id, [])
+	var index: int = int(reading.get("program_index", -1))
+	if index < 0 or index >= nodes.size() or not nodes[index].get("marker_id") is String:
+		return _command_failure(&"scene_challenge_control_required")
+	return {"ok": true, "value": {"marker_id": nodes[index].marker_id,
+		"checkpoint": boundary.value.checkpoint.duplicate(true)}}
+
 func capture_scene_event_boundary() -> Dictionary:
 	if not _marker_context.is_empty():
 		if not _marker_source_valid(): return _command_failure(&"reading_marker_source_changed")
@@ -4462,3 +4545,32 @@ func _marker_reading_identity() -> Dictionary:
 		"catalogue": _reading_session.fingerprint, "markers": _reading_session.marker_fingerprint}
 
 
+
+
+## Presentation-only hold. Native control/checkpoint authority remains available to
+## the board; this never changes SceneTree pause, Auto preference, or Load custody.
+var _computer_hold_host: WeakRef
+var _computer_hold_session: RefCounted
+
+func is_computer_caption_held() -> bool:
+	return _computer_hold_host != null and is_instance_valid(_computer_hold_host.get_ref()) \
+		and _computer_hold_session != null and _computer_hold_session == _reading_session
+
+func hold_computer_captions(host: Node) -> Dictionary:
+	if not is_instance_valid(host) or not has_reading_session() or _reading_session.family != "scene":
+		return _command_failure(&"computer_source_unavailable")
+	if is_computer_caption_held() and _computer_hold_host.get_ref() != host:
+		return _command_failure(&"computer_source_changed")
+	_computer_hold_host = weakref(host)
+	_computer_hold_session = _reading_session
+	computer_hold_changed.emit()
+	return {"ok": true}
+
+func release_computer_captions(host: Node) -> Dictionary:
+	if _computer_hold_host == null: return {"ok": true}
+	if _computer_hold_host.get_ref() != host: return _command_failure(&"computer_source_changed")
+	_computer_hold_host = null
+	_computer_hold_session = null
+	# The caption reconciles its other holds; no runtime resume is performed here.
+	computer_hold_changed.emit()
+	return {"ok": true}

@@ -34,6 +34,7 @@ var _next_source: Dictionary = {}
 
 
 func configure(checkpoint_port: Object, providers: Dictionary) -> Dictionary:
+	if not _scene_challenge.is_empty(): return _fail(&"transaction_in_progress", "Challenge owns checkpoint publication")
 	if checkpoint_port == null:
 		return _fail(&"invalid_checkpoint_port", "checkpoint port is null")
 	for method in REAL_PORT_METHODS:
@@ -240,6 +241,75 @@ func commit_scene_event(snapshot_input: Dictionary, checkpoint: Dictionary) -> D
 	return result
 
 
+# Same held-control persistence has a separate live GameState authority. It never
+# authorizes a line-to-control transition or changes the native reading position.
+var _scene_challenge_authority: Object
+var _scene_challenge_validator: Callable
+var _scene_challenge: Dictionary = {}
+
+func configure_scene_challenge_authority(authority: Object, validator: Callable) -> Dictionary:
+	if not _configured or _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy \
+			or not _scene_entry.is_empty() or not _scene_control.is_empty() \
+			or not is_instance_valid(authority) or not validator.is_valid() \
+			or validator.get_object() != authority or validator.get_argument_count() != 3:
+		return _fail(&"scene_challenge_authority_invalid", "configure the Run owner while idle")
+	if _scene_challenge_authority != null:
+		if _scene_challenge_authority == authority and _scene_challenge_validator == validator: return {"ok": true}
+		return _fail(&"scene_challenge_authority_invalid", "authority replacement refused")
+	_scene_challenge_authority = authority
+	_scene_challenge_validator = validator
+	return {"ok": true}
+
+func commit_scene_challenge(snapshot_input: Dictionary, checkpoint: Dictionary) -> Dictionary:
+	if not _configured or _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy \
+			or not _scene_entry.is_empty() or not _scene_control.is_empty() or not _scene_challenge.is_empty():
+		return {"ok": false, "code": &"scene_challenge_checkpoint_busy", "committed": false}
+	snapshot_input = snapshot_input.duplicate(true)
+	checkpoint = checkpoint.duplicate(true)
+	if checkpoint.get("stage") != "scene" or not checkpoint.get("reading_session") is Dictionary \
+			or typeof(checkpoint.reading_session.get("schema_version")) != TYPE_INT \
+			or checkpoint.reading_session.schema_version != 5 or checkpoint.reading_session.get("boundary") != "control":
+		return {"ok": false, "code": &"scene_challenge_checkpoint_invalid", "committed": false}
+	_next_commit_in_progress = true
+	_scene_challenge = {"input": snapshot_input, "checkpoint": checkpoint,
+		"input_hash": _fingerprint(snapshot_input), "checkpoint_hash": _fingerprint(checkpoint)}
+	var result: Dictionary
+	var captured: Dictionary = _real_port.capture()
+	if not captured.get("ok", false) or not captured.get("value", {}).get("backup") is Dictionary:
+		result = _fail(&"scene_challenge_source_unavailable", "real journal capture required")
+	elif not _scene_reference_valid(_scene_snapshot_reference(_scene_bundle_snapshot(captured.value.backup.get("current")))):
+		result = _fail(&"scene_challenge_source_unavailable", "stable journal source required")
+	else:
+		_scene_challenge["source_hash"] = _fingerprint(captured.value.backup)
+		if _scene_challenge.source_hash.is_empty() or not _scene_challenge_validate("before_prepare"):
+			result = _fail(&"scene_challenge_custody_invalid", "Run owner refused preparation")
+		else:
+			result = _commit_scene_event_autosave(snapshot_input, checkpoint)
+			if result.get("ok", false) and not _scene_challenge_validate("after_commit"):
+				result = {"ok": false, "code": &"scene_challenge_commit_uncertain", "committed": true}
+	_scene_challenge = {}
+	_next_commit_in_progress = false
+	if not result.get("ok", false) and not result.has("committed") and not result.get("rolled_back", false):
+		result["committed"] = false
+	return result
+
+func _scene_challenge_validate(phase: String) -> bool:
+	if _scene_callback_busy or _scene_challenge.is_empty() or not _next_commit_in_progress \
+			or not is_instance_valid(_scene_challenge_authority) or not _scene_challenge_validator.is_valid(): return false
+	_scene_callback_busy = true
+	var checked: Variant = _scene_challenge_validator.call(_scene_challenge.input.duplicate(true),
+		_scene_challenge.checkpoint.duplicate(true), phase)
+	_scene_callback_busy = false
+	return typeof(checked) == TYPE_BOOL and checked == true \
+		and not _scene_challenge.input_hash.is_empty() and not _scene_challenge.checkpoint_hash.is_empty() \
+		and _fingerprint(_scene_challenge.input) == _scene_challenge.input_hash \
+		and _fingerprint(_scene_challenge.checkpoint) == _scene_challenge.checkpoint_hash
+
+func _scene_challenge_source_matches(captured: Dictionary) -> bool:
+	return captured.get("ok", false) and captured.get("value", {}).get("backup") is Dictionary \
+		and _fingerprint(captured.value.backup) == _scene_challenge.get("source_hash", "")
+
+
 func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictionary) -> Dictionary:
 	if not _scene_control.is_empty() and not _scene_control_validate("commit"):
 		return _fail(&"scene_control_custody_invalid", "source changed before preparation")
@@ -262,6 +332,8 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 	var inputs := _checkpoint_inputs(active.value, audio.value, content.value, checkpoint, route.value, snapshot_input)
 	var captured: Dictionary = _real_port.capture()
 	if not captured.get("ok", false): return captured
+	if not _scene_challenge.is_empty() and not _scene_challenge_source_matches(captured):
+		return _fail(&"scene_challenge_source_changed", "journal changed before preparation")
 	if not _scene_control_source_matches(captured):
 		return _fail(&"scene_control_source_changed", "the saved source was replaced")
 	if not _scene_entry.is_empty():
@@ -306,6 +378,18 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 		if not _scene_control_validate("commit") or _fingerprint(candidate) != candidate_hash \
 				or not _scene_route_candidate_valid(candidate, snapshot_input, checkpoint):
 			return _fail(&"scene_control_custody_invalid", "candidate changed before commit")
+	if not _scene_challenge.is_empty():
+		if not _scene_challenge_validate("before_commit"):
+			return _fail(&"scene_challenge_custody_invalid", "Run owner refused commit")
+		var challenge_source: Dictionary = _real_port.capture()
+		if not _scene_challenge_source_matches(challenge_source):
+			return _fail(&"scene_challenge_source_changed", "journal changed before commit")
+		# Final callbacks may not change either the admitted bytes or lower candidate.
+		if _fingerprint(snapshot_input) != _scene_challenge.input_hash \
+				or _fingerprint(checkpoint) != _scene_challenge.checkpoint_hash \
+				or _fingerprint(candidate) != candidate_hash \
+				or not _scene_route_candidate_valid(candidate, snapshot_input, checkpoint):
+			return _fail(&"scene_challenge_candidate_changed", "candidate changed before commit")
 	var committed: Dictionary = _real_port.commit(candidate)
 	if guarded_candidate and _fingerprint(candidate) != candidate_hash:
 		return {"ok": false, "code": &"scene_entry_commit_uncertain", "committed": true}
@@ -320,7 +404,7 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 		var rolled: Dictionary = _real_port.rollback({"journal_backup": captured.value.backup,
 			"storage_backup": candidate.storage_backup})
 		if not rolled.get("ok", false):
-			if _scene_entry.is_empty() and _scene_control.is_empty(): return rolled
+			if _scene_entry.is_empty() and _scene_control.is_empty() and _scene_challenge.is_empty(): return rolled
 			var uncertain := rolled.duplicate(true)
 			uncertain["committed"] = true
 			return uncertain
@@ -684,6 +768,7 @@ func prepare_candidate(owner_id: StringName, snapshot_input: Dictionary, transac
 
 
 func commit(owner_id: StringName, candidate: Dictionary) -> Dictionary:
+	if not _scene_challenge.is_empty(): return _fail(&"transaction_in_progress", "Challenge owns checkpoint publication")
 	if _active_owner == &"" or owner_id != _active_owner:
 		return _fail(&"invalid_owner", str(owner_id))
 	if _fingerprint(candidate) != str(_active_candidate.get("hash", "")):
@@ -697,6 +782,7 @@ func commit(owner_id: StringName, candidate: Dictionary) -> Dictionary:
 
 
 func rollback(owner_id: StringName, backup: Dictionary) -> Dictionary:
+	if not _scene_challenge.is_empty(): return _fail(&"transaction_in_progress", "Challenge owns checkpoint publication")
 	if _active_owner == &"" or owner_id != _active_owner:
 		return _fail(&"invalid_owner", str(owner_id))
 	var rolled: Dictionary = _real_port.rollback(backup)
@@ -808,6 +894,7 @@ var _marker_authority: Object
 var _marker_validator: Callable
 
 func configure_marker_handoff(authority: Object, validator: Callable) -> Dictionary:
+	if not _scene_challenge.is_empty(): return _fail(&"transaction_in_progress", "Challenge owns checkpoint publication")
 	if authority == null or not validator.is_valid() or validator.get_object() != authority \
 			or (_marker_authority != null and (_marker_authority != authority or _marker_validator != validator)):
 		return _fail(&"event_handoff_authority_invalid", "")

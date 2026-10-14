@@ -41,6 +41,28 @@ func begin_scene_publication_hold(operation_id: String) -> Dictionary:
 	if operation_id.is_empty(): return _startup_failure("scene_activation_unavailable")
 	var handle := {"scene_restore_operation_id": operation_id}
 	if _restore_publication_handle == handle: return {"ok": true}
+	if not _scene_pause_publication.is_empty():
+		return {"ok": true} if _scene_pause_publication.operation_id == operation_id \
+			and _scene_pause_publication.handle == _restore_publication_handle \
+			and _mutation_gate != null and _mutation_gate.is_internal_owner_active(&"restore") else _startup_failure("restore_publication_busy")
+	if is_restore_publication_held():
+		var bridge := get_node_or_null("/root/DialogicBridge")
+		var current := get_tree().current_scene
+		if _restore_publication_publishing or _restore_publication_published or current == null \
+				or not _restore_publication_scene_id.is_empty() \
+				or current.get_instance_id() != _restore_publication_source_id \
+				or _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore") \
+				or bridge == null or not bridge.has_method("validate_scene_pause_restore_handle"):
+			return _startup_failure("restore_publication_busy")
+		var retained := _restore_publication_handle.duplicate(true)
+		var suspended: Dictionary = bridge.validate_scene_pause_restore_handle(retained)
+		if not suspended.get("ok", false): return suspended
+		if retained != _restore_publication_handle or get_tree().current_scene != current \
+				or not _mutation_gate.is_internal_owner_active(&"restore"):
+			return _startup_failure("stale_restore_publication_hold")
+		_scene_pause_publication = {"operation_id": operation_id,
+			"handle": _restore_publication_handle.duplicate(true), "acknowledged": false}
+		return {"ok": true}
 	if is_restore_publication_held() or _restore_publication_publishing:
 		return _startup_failure("restore_publication_busy")
 	_restore_publication_handle = handle
@@ -48,6 +70,44 @@ func begin_scene_publication_hold(operation_id: String) -> Dictionary:
 	_restore_publication_scene_id = "scene"
 	_restore_publication_published = false
 	return {"ok": true}
+
+
+func capture_scene_host_projection(scene: Object) -> Dictionary:
+	if not is_instance_valid(scene) or not is_inside_tree() or scene != get_tree().current_scene \
+			or _current_scene_id != "scene" or _scene_host_path.is_empty() \
+			or scene.scene_file_path != _scene_host_path or not scene.is_node_ready() or scene.is_queued_for_deletion():
+		return _startup_failure("scene_host_unavailable")
+	return {"ok": true, "value": {"route_id": "scene", "scene_id": scene.get_instance_id()}}
+
+
+func cancel_scene_publication_hold(operation_id: String) -> Dictionary:
+	if _scene_pause_publication.is_empty():
+		return cancel_restore_publication_hold({"scene_restore_operation_id": operation_id})
+	if _scene_pause_publication.operation_id != operation_id or _scene_pause_publication.acknowledged \
+			or _scene_pause_publication.handle != _restore_publication_handle \
+			or _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore") \
+			or get_tree().current_scene == null \
+			or get_tree().current_scene.get_instance_id() != _restore_publication_source_id:
+		return _startup_failure("stale_restore_publication_hold")
+	_scene_pause_publication.clear()
+	_restore_publication_scene_id = ""
+	return {"ok": true}
+
+
+func publish_scene_activation(operation_id: String) -> Dictionary:
+	var checked := validate_scene_activation(operation_id)
+	if not checked.get("ok", false): return checked
+	if not _scene_pause_publication.is_empty():
+		if _scene_pause_publication.operation_id != operation_id \
+				or _scene_pause_publication.handle != _restore_publication_handle \
+				or _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore"):
+			return _startup_failure("stale_restore_publication_hold")
+		_scene_pause_publication.acknowledged = true
+		return {"ok": true}
+	var handle := {"scene_restore_operation_id": operation_id}
+	var published := publish_restore_publication_hold(handle)
+	if not published.get("ok", false): return published
+	return release_restore_publication_hold(handle)
 
 func begin_scene_activation(operation_id: String) -> Dictionary:
 	if operation_id.is_empty() or _pending_restore_scene_id != "scene" or _scene_host_path.is_empty():
@@ -103,6 +163,7 @@ var _restore_publication_scene_id := ""
 var _restore_publication_source_id := 0
 var _restore_publication_publishing := false
 var _restore_publication_published := false
+var _scene_pause_publication: Dictionary = {}
 var _production_pause: Node
 
 ## Bootstrap retains the existing owners; Pause keeps no saved state or alternate route.
@@ -183,6 +244,7 @@ func begin_restore_publication_hold(handle: Dictionary) -> Dictionary:
 
 
 func cancel_restore_publication_hold(handle: Dictionary) -> Dictionary:
+	if not _scene_pause_publication.is_empty(): return _startup_failure("restore_publication_busy")
 	if handle.has("scene_restore_operation_id") and handle == _restore_publication_handle \
 			and not _restore_publication_published and _scene_activation.is_empty():
 		var current := get_tree().current_scene
@@ -208,6 +270,9 @@ func publish_restore_publication_hold(handle: Dictionary) -> Dictionary:
 		return _startup_failure("stale_restore_publication_hold")
 	if _restore_publication_published: return {"ok": true, "value": {"already_published": true}}
 	if _restore_publication_scene_id == "scene":
+		if not _scene_pause_publication.is_empty() and (not _scene_pause_publication.acknowledged \
+				or _scene_pause_publication.handle != handle):
+			return _startup_failure("scene_activation_unproven")
 		var checked := validate_scene_activation(str(_scene_activation.get("operation_id", "")))
 		if not checked.get("ok", false): return checked
 		_restore_publication_published = true
@@ -227,6 +292,7 @@ func release_restore_publication_hold(handle: Dictionary) -> Dictionary:
 	_restore_publication_scene_id = ""
 	_restore_publication_source_id = 0
 	_restore_publication_published = false
+	_scene_pause_publication.clear()
 	_pending_restore_scene_id = ""
 	restore_publication_released.emit()
 	return {"ok": true}

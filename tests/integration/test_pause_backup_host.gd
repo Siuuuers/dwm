@@ -11,6 +11,14 @@ const FILES := preload("res://tests/support/FakeFileOps.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 const SNAPSHOT_FIXTURE := preload("res://tests/support/BackupSnapshotFixture.gd")
 
+## Observe the real projection boundary; layout measurements can run more than
+## once per refresh and do not prove how often records were requested.
+class ObservedPort extends "res://scripts/application/backup/BackupPresentationPort.gd":
+	var projection_calls := 0
+	func get_projection() -> Dictionary:
+		projection_calls += 1
+		return super.get_projection()
+
 var _viewport: SubViewport
 var _surface: Control
 var _backup: Control
@@ -41,7 +49,7 @@ func before_each() -> void:
 	assert_true(prepared.ok,str(prepared))
 	if not prepared.get("ok",false): return
 	assert_true(_manager._journal.commit_prepared(prepared.value.candidate).ok)
-	_port = PORT.new()
+	_port = ObservedPort.new()
 	assert_true(_port.configure(_manager,"in_run",_source_admission).ok)
 	for locator: String in ["slot:1","quick"]:
 		var seed: Dictionary = _port.prepare_action("save",locator)
@@ -109,7 +117,7 @@ func test_direct_load_entry_uses_the_existing_backup_host_once_without_writing()
 	assert_true(_surface.has_method("open_backup_load"),
 		"Pause exposes one semantic rail-to-Backup Load entry")
 	if not _surface.has_method("open_backup_load"): return
-	var before_measure: int = _backup._measure_revision
+	var before_projection: int = _port.projection_calls
 	assert_true(bool(_surface.call("open_backup_load")))
 	assert_eq(_surface.selected_action, &"backup")
 	assert_eq(_surface.entered_action, &"backup")
@@ -117,12 +125,12 @@ func test_direct_load_entry_uses_the_existing_backup_host_once_without_writing()
 	assert_eq(_backup.active_mode, "load")
 	assert_true(_backup.drawer_buttons["slot:1"].has_focus(),
 		"direct Load entry retains the Backup owner's ordinary selected-drawer focus")
-	assert_eq(_backup._measure_revision, before_measure + 1,
+	assert_eq(_port.projection_calls, before_projection + 1,
 		"entry refreshes the real record projection exactly once")
 	assert_eq(_files.snapshot_persisted(), _before)
 	assert_false(bool(_surface.call("open_backup_load")),
 		"an already entered host cannot be entered again")
-	assert_eq(_backup._measure_revision, before_measure + 1)
+	assert_eq(_port.projection_calls, before_projection + 1)
 
 func test_direct_load_entry_refuses_missing_busy_and_retired_pause_custody() -> void:
 	assert_true(_surface.has_method("open_backup_load"))

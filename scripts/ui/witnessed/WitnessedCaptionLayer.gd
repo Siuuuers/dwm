@@ -166,6 +166,8 @@ func _ready() -> void:
 	skip_controller.state_changed.connect(_sync_transport)
 	auto_controller.state_changed.connect(_on_auto_state_changed)
 	configure_reading_transport(_profile, get_node_or_null("/root/DialogicBridge"))
+	if is_instance_valid(_transport_bridge) and _transport_bridge.has_signal("computer_hold_changed"):
+		_transport_bridge.connect("computer_hold_changed", _on_computer_hold_changed)
 	configure_speech(_profile, get_node_or_null("/root/DialogicBridge"), get_node_or_null("/root/SystemTtsCoordinator"))
 	auto_controller.bind_completion_barrier(_speech_allows_auto)
 	var input_owner := get_node_or_null("/root/InputManager")
@@ -372,7 +374,7 @@ func _transport_admitted() -> bool:
 		and bool(_transport_bridge.call("can_skip_current_line"))
 
 func _reading_source_admitted() -> bool:
-	return not _ending_caption_handoff and _timed_hold_frontier.is_empty() and _reading_recovery.is_empty() and not _load_pending and not _history_pending and not _history_open \
+	return not _computer_caption_held() and not _ending_caption_handoff and _timed_hold_frontier.is_empty() and _reading_recovery.is_empty() and not _load_pending and not _history_pending and not _history_open \
 		and not is_next_transport_active()
 
 func is_next_transport_active() -> bool:
@@ -641,7 +643,7 @@ func _sync_transport() -> void:
 	var rehearsal := is_instance_valid(_transport_bridge) \
 		and _transport_bridge.has_method("is_rehearsal_playback") \
 		and bool(_transport_bridge.call("is_rehearsal_playback"))
-	transport_rail.visible = not rehearsal
+	transport_rail.visible = not rehearsal and not _computer_caption_held()
 	if _ending_caption_handoff or not _timed_hold_frontier.is_empty():
 		transport_rail.project(false, false, skip_controller.is_auto_enabled(), false, false, false, false, false)
 	else:
@@ -1282,6 +1284,9 @@ func _on_caption_visibility_changed() -> void:
 	_request_layout()
 
 func _sync_native_processing() -> void:
+	if _computer_caption_held():
+		caption_text.set_process(false)
+		return
 	if _ending_caption_handoff:
 		caption_text.set_process(false)
 		return
@@ -1560,3 +1565,13 @@ func _draw_canvas() -> void:
 
 func _color(role: StringName) -> Color:
 	return _caption_theme.get_color(role, &"WitnessedCaption")
+
+
+func _computer_caption_held() -> bool:
+	return is_instance_valid(_transport_bridge) and _transport_bridge.has_method("is_computer_caption_held") \
+		and _transport_bridge.is_computer_caption_held()
+
+func _on_computer_hold_changed() -> void:
+	accept_input.retire_input()
+	_sync_native_processing()
+	_sync_transport()

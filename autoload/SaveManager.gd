@@ -1874,7 +1874,11 @@ func _capture_backup_inputs() -> Dictionary:
 	var ending: bool = inputs["route_id"] == "ending" and narrative.get("reading_session") is Dictionary \
 		and narrative.reading_session.get("schema_version") == 3 and narrative.reading_session.get("family") == "ending" \
 		and narrative.reading_session.get("boundary") == "line"
-	if not (desktop or dating or hospital or ending) or (not narrative.is_empty() and (not (dating or hospital or ending) or not narrative.has("reading_session"))) \
+	var scene: bool = inputs["route_id"] == "scene" and inputs["active_app_id"] == null \
+		and narrative.get("reading_session") is Dictionary \
+		and narrative.reading_session.get("schema_version") == 5 \
+		and narrative.reading_session.get("boundary") in ["line", "control"]
+	if not (desktop or dating or hospital or ending or scene) or (not narrative.is_empty() and (not (dating or hospital or ending or scene) or not narrative.has("reading_session"))) \
 			or inputs["snapshot_input"]["lifecycle"].get("state") != ("ENDING" if ending else "PLAYING"):
 		return _fail(&"backup_capture_unavailable", "A qualified desktop or admitted reading capture is required")
 	if not narrative.is_empty():
@@ -1884,6 +1888,16 @@ func _capture_backup_inputs() -> Dictionary:
 		var snapshot: Dictionary = inputs["snapshot_input"].duplicate(true)
 		snapshot["route_id"] = inputs["route_id"]
 		snapshot["narrative_checkpoint"] = narrative
+		if scene:
+			# Run9 authority is validated against its real schema-built document,
+			# never a live input dictionary with a fabricated version field.
+			var sequence: Dictionary = _journal.peek_next_sequence(str(inputs.snapshot_input.lifecycle.get("run_id", "")))
+			if not sequence.get("ok", false): return sequence
+			var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(_compose_live_checkpoint_input(inputs.snapshot_input),
+				narrative, inputs.route_id, inputs.active_app_id, inputs.audio_context,
+				inputs.content_version, sequence.value.checkpoint_sequence)
+			if not built.get("ok", false): return built
+			snapshot = built.value.snapshot
 		var reading: Dictionary = preload("res://scripts/narrative/FrozenRunContext.gd").validate_reading_checkpoint(narrative, snapshot)
 		if not reading.get("ok", false): return reading
 	return {"ok": true, "value": inputs}
@@ -2871,9 +2885,28 @@ func _validate_scene_restore_preparation(prepared: Dictionary) -> Dictionary:
 	if not token is String or not _scene_restore_preparations.has(token):
 		return _fail(&"invalid_scene_restore_preparation", "private prepared scene source required")
 	var retained: Dictionary = _scene_restore_preparations[token]
-	if not CANONICAL_JSON._deep_same(retained.prepared, prepared):
+	if not _same_scene_preparation(retained.prepared, prepared):
 		return _fail(&"invalid_scene_restore_preparation", "prepared scene source changed")
 	return {"ok": true, "value": retained.duplicate(true)}
+
+## Prepared participant plans are process-local, not JSON round-trip values.
+## Preserve Variant types and runtime object identity while comparing detached containers.
+static func _same_scene_preparation(left: Variant, right: Variant) -> bool:
+	if typeof(left) != typeof(right): return false
+	if left is Dictionary:
+		if left.size() != right.size(): return false
+		var right_keys: Array = right.keys()
+		for key: Variant in left:
+			var index: int = right_keys.find(key)
+			if index < 0 or typeof(key) != typeof(right_keys[index]): return false
+			if not _same_scene_preparation(left[key], right[key]): return false
+		return true
+	if left is Array:
+		if left.size() != right.size(): return false
+		for index: int in left.size():
+			if not _same_scene_preparation(left[index], right[index]): return false
+		return true
+	return left == right
 
 func _scene_activation_pending(operation: Dictionary) -> bool:
 	return operation.get("kind") in ["scene_restore", "scene_new_run"] and operation.get("stage") == CONTINUATION_JOURNAL.STAGE_COMPLETED \

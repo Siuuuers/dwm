@@ -167,6 +167,11 @@ func commit_action(token: String) -> Dictionary:
 		_owner.cancel_backup_action(token)
 		return _quick_refusal({}) if pending.get("quick", false) else admitted
 	var result: Dictionary = _owner.commit_backup_action(token)
+	# A durable scene Load can still be activating. Preserve its operation and
+	# recovery custody; Quick's ordinary availability refusal must not erase them.
+	if not result.get("ok", false) and (result.get("code") == &"scene_activation_pending" or result.get("recovery_required", false) \
+			or result.get("committed", false) or result.get("fatal", false) or result.get("code") == &"APPLICATION_FATAL"):
+		return result
 	if pending.get("quick", false):
 		pending.erase("quick")
 		if not result.get("ok", false):

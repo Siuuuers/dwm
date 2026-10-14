@@ -33,14 +33,12 @@ func begin_scene_publication_hold(operation_id: String) -> Dictionary:
 	return _owner.begin_scene_publication_hold(operation_id)
 
 func cancel_scene_publication_hold(operation_id: String) -> Dictionary:
-	return _owner.cancel_restore_publication_hold({"scene_restore_operation_id": operation_id})
+	return _owner.cancel_scene_publication_hold(operation_id)
 
 func publish_scene_activation(operation_id: String) -> Dictionary:
 	var checked := validate_scene_activation(operation_id)
 	if not checked.get("ok", false): return checked
-	var published: Dictionary = _owner.publish_restore_publication_hold({"scene_restore_operation_id": operation_id})
-	if not published.get("ok", false): return published
-	return _owner.release_restore_publication_hold({"scene_restore_operation_id": operation_id})
+	return _owner.publish_scene_activation(operation_id)
 
 ## One Bootstrap-owned DesktopAppHostState. When configured, prepare() derives the desktop
 ## subplan from the supplied active_app_id/day and apply/rollback rebuild the host state

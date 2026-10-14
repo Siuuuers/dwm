@@ -1685,6 +1685,12 @@ var _line_registry_fingerprint := ""
 
 func configure_line_registry(registry: Dictionary) -> Dictionary:
 	var block: Variant = registry.get("reply_lines")
+	if registry.get("kind") == "scene_ids_registry":
+		# Scene lines belong to the complete immutable installed registration.
+		# Never accept a caller-created list by projecting it into legacy replies.
+		var checked: Dictionary = preload("res://scripts/narrative/DialogicEntryManifest.gd").validate_ids_document(registry)
+		if not checked.get("ok", false): return _command_failure(&"invalid_line_registry")
+		block = registry.get("lines")
 	if not (block is Array):
 		return _command_failure(&"invalid_line_registry")
 	var index: Dictionary = {}

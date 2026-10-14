@@ -65,12 +65,12 @@ func validate_scene_source(token: RefCounted, session: RefCounted) -> Dictionary
 		return _fail(&"scene_source_changed", "")
 	return {"ok": true}
 
-func _scene_source_boundary(session: RefCounted) -> Dictionary:
+func _scene_source_boundary(session: RefCounted, allow_suspended_read: bool = false) -> Dictionary:
 	if not _qualified_runtime or not _caption_source_is_current() or session == null \
 			or session.family != "scene" or session.boundary not in ["line", "control"] \
 			or session.ledger != _caption_ledger or session.command_id != _caption_token \
 			or session.latest_entry != _caption_entry or session.scene_occurrence != _scene_caption_occurrence \
-			or _dialogic.paused or _dialogic.Inputs.auto_skip.enabled or _dialogic.Inputs.auto_advance.is_enabled():
+			or (_dialogic.paused and not allow_suspended_read) or _dialogic.Inputs.auto_skip.enabled or _dialogic.Inputs.auto_advance.is_enabled():
 		return _fail(&"scene_source_unavailable", "")
 	var frontier := capture_reading_frontier()
 	if not frontier.ok: return frontier
@@ -353,7 +353,9 @@ func capture_scene_control_position(session: RefCounted) -> Dictionary:
 	var captured: Dictionary = session.capture({})
 	if not captured.ok or captured.value != _scene_control_restore.reading:
 		return _fail(&"scene_restore_control_changed", "")
-	var physical := _scene_source_boundary(session)
+	# Read-only Save/History capture retains the same proven session and marker
+	# while sheet custody suspends native playback. Mutation callers stay unpaused.
+	var physical := _scene_source_boundary(session, true)
 	if not physical.ok: return physical
 	return {"ok": true, "value": captured.value}
 

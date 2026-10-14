@@ -81,8 +81,17 @@ static func advances(before: Dictionary, after: Dictionary) -> bool:
 ## Replay the existing bounded generator, including its reserved fallback, without
 ## changing the algorithm or accepting a caller's asserted certificate.
 static func _scene_preparation_matches(spec: Dictionary, envelope: Dictionary) -> bool:
+	var forced_cell: int = int(envelope.forced_cell)
+	if envelope.preparation is Dictionary:
+		forced_cell = int(envelope.preparation.get("forced_cell", -1))
+	if forced_cell < 0: return false
+	# Preserve byte-identical replay for historical random-forced entries. Only a
+	# genuinely different player-selected cell uses the explicit-cell constructor.
 	var begun: Dictionary = GENERATOR.begin_debug(spec)
 	if not begun.ok: return false
+	if int(begun.value.preparation.forced_cell) != forced_cell:
+		begun = GENERATOR.begin_debug_at_cell(spec, forced_cell)
+		if not begun.ok: return false
 	var current: Dictionary = begun.value.preparation
 	var sought: Variant = envelope.preparation
 	while true:
@@ -121,7 +130,8 @@ static func _validate_scene(record: Dictionary) -> bool:
 		if not debug or record.board != null or not envelope.preparation is Dictionary \
 				or not PREPARATION.validate(envelope.preparation).ok \
 				or str(envelope.preparation.status) != ("searching" if record.phase == "preparing" else "exhausted") \
-				or envelope.prepared_layout != null or envelope.forced_cell != -1 or envelope.special_cell != -1 \
+				or envelope.prepared_layout != null or envelope.special_cell != -1 \
+				or (envelope.forced_cell != -1 and envelope.forced_cell != int(envelope.preparation.forced_cell)) \
 				or envelope.shell != make().shell: return false
 		return _scene_preparation_matches(spec, envelope)
 	if record.phase not in ["ready", "active", "terminal"] or envelope.preparation != null: return false
@@ -152,7 +162,9 @@ static func _scene_advances(before: Dictionary, after: Dictionary) -> bool:
 	if before.board != null and current.shell != old.shell: return false
 	if old.preparation != null and current.preparation != null:
 		# Both frontiers were independently replayed from the same immutable spec.
-		return current.preparation.slice_sequence >= old.preparation.slice_sequence
+		return current.preparation.slice_sequence >= old.preparation.slice_sequence \
+			and current.forced_cell == old.forced_cell \
+			and current.preparation.forced_cell == old.preparation.forced_cell
 	return (old.prepared_layout == null or old.prepared_layout == current.prepared_layout) \
 		and (old.forced_cell < 0 or old.forced_cell == current.forced_cell) \
 		and (old.special_cell < 0 or old.special_cell == current.special_cell)

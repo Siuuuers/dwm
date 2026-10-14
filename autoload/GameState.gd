@@ -4509,6 +4509,275 @@ func _accept_scene_runtime_event(event: Dictionary, digest: String, lease: Strin
 var _scene_save_owner: Object
 var _scene_entry_operation: Dictionary = {}
 
+var _scene_challenge_operation: Dictionary = {}
+var _scene_challenge_validating := false
+
+func configure_scene_challenge_runtime() -> Dictionary:
+	if not is_instance_valid(_narrative_checkpoint_port) \
+			or not _narrative_checkpoint_port.has_method("configure_scene_challenge_authority"):
+		return _transaction_failure(&"scene_checkpoint_owner_required", "")
+	var profile := get_node_or_null("/root/ProfileManager")
+	if profile == null or not profile.has_method("configure_scene_absence_validator"):
+		return _transaction_failure(&"scene_challenge_profile_unavailable", "")
+	var configured: Dictionary = _narrative_checkpoint_port.configure_scene_challenge_authority(self,
+		Callable(self, "_validate_scene_challenge_checkpoint"))
+	if not configured.get("ok", false): return configured
+	return profile.configure_scene_absence_validator(Callable(self, "validate_selected_scene_absence"))
+
+## Derive the physical command from the current native control and admitted ledger.
+## Merely asking for this projection never creates a physical attempt or a save.
+func capture_scene_challenge_command() -> Dictionary:
+	if not is_instance_valid(_scene_event_bridge) or not _scene_event_bridge.has_method("capture_scene_challenge_control"):
+		return _transaction_failure(&"scene_challenge_unavailable", "")
+	var current := _scene_runtime_event_context()
+	if not current.ok: return current
+	var held: Dictionary = _scene_event_bridge.capture_scene_challenge_control()
+	if not held.get("ok", false): return held
+	if not _SCENE_EVENT._equal(held.value.checkpoint, current.value.checkpoint):
+		return _transaction_failure(&"scene_challenge_source_changed", "")
+	var registered := _SCENE_MANIFEST.scene_registration()
+	if not registered.ok: return registered
+	var ledger := _SCENE_EVENT.validate_scene_receipts(_command_receipts, registered.value,
+		_identity_issuer, _scene_save_owner)
+	if not ledger.ok: return ledger
+	var found := {}
+	for receipt: Dictionary in ledger.value.commands.values():
+		if receipt.get("kind") != "scene_event": continue
+		var event: Dictionary = receipt.scene_event.semantic
+		if event.kind != "challenge.playable" or event.event_id != held.value.marker_id \
+				or not _SCENE_EVENT._equal(event.source, current.value.source): continue
+		if not found.is_empty(): return _transaction_failure(&"scene_challenge_ambiguous", "")
+		found = {"completion_transaction_id": event.command_id,
+			"command_sha256": receipt.request_fingerprint, "context": {
+				"kind": "scene_challenge", "scene_occurrence": event.source.scene_occurrence,
+				"challenge_id": event.payload.challenge_id, "playable_command_id": event.command_id,
+				"registration_sha256": receipt.scene_event.registration_fingerprint}}
+	if found.is_empty(): return _transaction_failure(&"scene_challenge_unadmitted", "")
+	return {"ok": true, "value": {"command": found, "bundle": registered.value.duplicate(true),
+		"checkpoint": held.value.checkpoint.duplicate(true)}}
+
+func validate_scene_challenge_command(command: Dictionary, bundle: Dictionary) -> Dictionary:
+	var current := capture_scene_challenge_command()
+	if not current.ok: return current
+	var detached := command.duplicate(true)
+	detached.erase("physical_token")
+	if not _SCENE_EVENT._equal(detached, current.value.command) or not _SCENE_EVENT._equal(bundle, current.value.bundle):
+		return _transaction_failure(&"scene_challenge_command_refused", "")
+	return {"ok": true}
+
+# Selected absence is a live grant over SaveManager's retained selected document.
+# Current slot bytes and the source Profile's later board cannot grant this authority.
+var _selected_scene_absence: Dictionary = {}
+var _selected_scene_absence_busy := false
+var _selected_scene_absence_reentered := false
+
+func prepare_selected_scene_absence(command: Dictionary, bundle: Dictionary) -> Dictionary:
+	if _selected_scene_absence_busy:
+		_selected_scene_absence_reentered = true
+		return _transaction_failure(&"scene_absence_reentry", "")
+	_selected_scene_absence_busy = true
+	_selected_scene_absence_reentered = false
+	var material := _capture_selected_scene_absence(command.duplicate(true), bundle.duplicate(true))
+	_selected_scene_absence_busy = false
+	if _selected_scene_absence_reentered: return _transaction_failure(&"scene_absence_reentry", "")
+	if not material.get("ok", false): return material
+	_selected_scene_absence = material.value.duplicate(true)
+	return {"ok": true, "value": _selected_scene_absence.admission.duplicate(true)}
+
+func validate_selected_scene_absence(admission: Dictionary, command: Dictionary, bundle: Dictionary, lease: String) -> Dictionary:
+	if _selected_scene_absence_busy:
+		_selected_scene_absence_reentered = true
+		return _transaction_failure(&"scene_absence_reentry", "")
+	if _selected_scene_absence.is_empty() or not is_instance_valid(_mutation_gate) \
+			or not _mutation_gate.is_lease_active(&"causal_transaction", lease):
+		return _transaction_failure(&"scene_absence_custody_required", "")
+	var retained := _selected_scene_absence.duplicate(true)
+	if not _SCENE_EVENT._equal(admission, retained.admission) \
+			or not _SCENE_EVENT._equal(command, retained.command) or not _SCENE_EVENT._equal(bundle, retained.bundle):
+		return _transaction_failure(&"scene_absence_not_authorized", "")
+	_selected_scene_absence_busy = true
+	_selected_scene_absence_reentered = false
+	var current := _capture_selected_scene_absence(command.duplicate(true), bundle.duplicate(true))
+	_selected_scene_absence_busy = false
+	if _selected_scene_absence_reentered or not current.get("ok", false) \
+			or not _SCENE_EVENT._equal(current.get("value"), retained) \
+			or not _SCENE_EVENT._equal(_selected_scene_absence, retained) \
+			or not _SCENE_EVENT._equal(admission, retained.admission) \
+			or not _SCENE_EVENT._equal(command, retained.command) or not _SCENE_EVENT._equal(bundle, retained.bundle) \
+			or not _mutation_gate.is_lease_active(&"causal_transaction", lease):
+		return _transaction_failure(&"scene_absence_not_authorized", "")
+	return {"ok": true}
+
+func _capture_selected_scene_absence(command: Dictionary, bundle: Dictionary) -> Dictionary:
+	if not _live_session_active or not _run_configuration_installed or not is_instance_valid(_scene_save_owner) \
+			or not _scene_save_owner.has_method("capture_committed_scene_restore"):
+		return _transaction_failure(&"scene_absence_not_authorized", "")
+	var session := _live_session_fact().duplicate(true)
+	var live := capture_run_snapshot_input().duplicate(true)
+	var authorized := validate_scene_challenge_command(command, bundle)
+	if not authorized.get("ok", false): return authorized
+	var route: Dictionary = live.gameplay.route_context
+	if not route.get("active_dating_challenge", {}).is_empty() or not route.get("dating_active_attempt_ref", {}).is_empty():
+		return _transaction_failure(&"scene_absence_not_authorized", "live physical state already exists")
+	var provenance: Variant = live.lifecycle.get("restore_provenance")
+	if not provenance is Dictionary: return _transaction_failure(&"scene_absence_not_authorized", "selected restore required")
+	var restored: Dictionary = _scene_save_owner.capture_committed_scene_restore(str(provenance.restore_transaction_id))
+	if not restored.get("ok", false): return restored
+	var operation: Dictionary = restored.value.operation
+	var source: Dictionary = restored.value.selected_bundle.snapshot
+	var root: Dictionary = _identity_issuer.capture_root()
+	if not root.get("ok", false): return root
+	var allocation: Variant = root.value.get("allocation_receipts", {}).get(provenance.restore_transaction_id)
+	if not allocation is Dictionary or not _SCENE_EVENT._equal(allocation, operation.get("allocation_receipt")) \
+			or _SCENE_EVENT._sha(allocation) != operation.get("allocation_candidate_fingerprint"):
+		return _transaction_failure(&"scene_absence_not_authorized", "restore allocation is not in issuer root")
+	var transaction: Dictionary = _identity_issuer.verify_issued(operation.transaction_issuer_receipt, &"transaction_id")
+	var remap: Dictionary = _identity_issuer.validate_child(provenance.remap_receipt_provenance, &"continuation_operation")
+	if not transaction.get("ok", false) or not remap.get("ok", false) \
+			or operation.transaction_id != provenance.restore_transaction_id \
+			or operation.transaction_issuer_receipt.get("receipt_id") != provenance.identity_allocation_receipt_id \
+			or provenance.remap_receipt_provenance.get("child_id") != provenance.remap_receipt_id \
+			or _SCENE_EVENT._sha(allocation.get("transaction_remap")) != provenance.transaction_remap_sha256:
+		return _transaction_failure(&"scene_absence_not_authorized", "restore provenance mismatch")
+	if source.run_id != live.lifecycle.run_id or source.lifecycle.branch_id == live.lifecycle.branch_id \
+			or provenance.source_branch_id != source.lifecycle.branch_id \
+			or provenance.source_desktop_timeline_generation != source.lifecycle.desktop_timeline_generation \
+			or provenance.source_causal_day_instance != source.lifecycle.causal_day_instance \
+			or provenance.source_issuer_observed_counter != source.lifecycle.causal_day_instance_issuer_receipt.get("counter"):
+		return _transaction_failure(&"scene_absence_not_authorized", "selected source identity mismatch")
+	var destination := {"run_id": live.lifecycle.run_id}
+	var source_identity := {"run_id": source.run_id}
+	for field: String in ["branch_id", "desktop_timeline_generation", "causal_day_instance", "causal_day_instance_issuer_receipt"]:
+		if not _SCENE_EVENT._equal(allocation.get(field), live.lifecycle.get(field)):
+			return _transaction_failure(&"scene_absence_not_authorized", "allocated destination mismatch")
+		destination[field] = live.lifecycle[field]
+		source_identity[field] = source.lifecycle[field]
+	if allocation.get("run_id") != live.lifecycle.run_id:
+		return _transaction_failure(&"scene_absence_not_authorized", "allocated run mismatch")
+	var selected_route: Dictionary = source.gameplay.route_context
+	var slot: String = preload("res://scripts/profile/DatingAttemptLedger.gd").semantic_slot(command.context)
+	if not selected_route.get("active_dating_challenge", {}).is_empty() \
+			or not selected_route.get("dating_active_attempt_ref", {}).is_empty() \
+			or selected_route.get("dating_canonical_heads", {}).has(slot):
+		return _transaction_failure(&"scene_absence_not_authorized", "selected snapshot is not pre-Reveal")
+	var ledger := _SCENE_EVENT.validate_scene_receipts(source.command_receipts, bundle, _identity_issuer, _scene_save_owner)
+	if not ledger.get("ok", false): return ledger
+	var receipt: Variant = ledger.value.commands.get(command.context.playable_command_id)
+	if not receipt is Dictionary or not _SCENE_EVENT._equal(receipt, _command_receipts.get(command.context.playable_command_id)):
+		return _transaction_failure(&"scene_absence_not_authorized", "selected playable receipt mismatch")
+	for row: Dictionary in ledger.value.commands.values():
+		if row.get("kind") != "scene_event": continue
+		if row.scene_event.result.get("kind") == "challenge_closed" \
+				and row.scene_event.result.get("playable_command_id") == command.context.playable_command_id:
+			return _transaction_failure(&"scene_absence_not_authorized", "selected challenge is closed")
+	var current := capture_scene_challenge_command()
+	if not current.get("ok", false) or not _SCENE_EVENT._equal(current.value.checkpoint, source.narrative_checkpoint) \
+			or not _SCENE_EVENT._equal(source.scene, live.scene) \
+			or not _SCENE_EVENT._equal(capture_run_snapshot_input(), live) or not _live_session_active \
+			or not _SCENE_EVENT._equal(_live_session_fact(), session):
+		return _transaction_failure(&"scene_absence_not_authorized", "live selected control changed")
+	var admission := {"restore_transaction_id": operation.transaction_id, "source_locator": operation.source_locator.duplicate(true),
+		"source_identity": source_identity, "destination_identity": destination,
+		"allocation_receipt_id": provenance.identity_allocation_receipt_id, "remap_receipt_id": provenance.remap_receipt_id,
+		"transaction_remap_sha256": provenance.transaction_remap_sha256, "challenge_key": {
+			"run_id": live.lifecycle.run_id, "scene_occurrence": command.context.scene_occurrence,
+			"challenge_id": command.context.challenge_id, "playable_command_id": command.context.playable_command_id,
+			"registration_sha256": command.context.registration_sha256}}
+	return {"ok": true, "value": {"admission": admission, "session": session, "command": command.duplicate(true),
+		"bundle": bundle.duplicate(true), "selected_sha256": _SCENE_EVENT._sha(source)}}
+
+func capture_scene_challenge_closure(context: Dictionary) -> Dictionary:
+	var current := capture_scene_challenge_command()
+	if not current.ok: return current
+	if not _SCENE_EVENT._equal(context, current.value.command.context):
+		return _transaction_failure(&"scene_challenge_command_refused", "")
+	for receipt: Dictionary in _command_receipts.values():
+		var result: Dictionary = receipt.get("scene_event", {}).get("result", {})
+		if result.get("kind") == "challenge_closed" \
+				and result.get("playable_command_id") == context.playable_command_id:
+			return {"ok": true, "value": result.duplicate(true)}
+	return {"ok": true, "value": {}}
+
+func validate_scene_challenge_end(_command: Dictionary) -> Dictionary:
+	return _transaction_failure(&"scene_challenge_end_unavailable", "held End integration required")
+
+func commit_scene_challenge_closure(_command: Dictionary, _result: Dictionary) -> Dictionary:
+	return _transaction_failure(&"scene_challenge_end_unavailable", "held End integration required")
+
+func _scene_challenge_profile_matches(record: Dictionary, reference: Dictionary) -> bool:
+	const ATTEMPTS = preload("res://scripts/profile/DatingAttemptLedger.gd")
+	var profile := get_node_or_null("/root/ProfileManager")
+	if profile == null or not ATTEMPTS.validate_record(record) \
+			or not _SCENE_EVENT._keys(reference, ["attempt_id", "branch_id", "generation"]): return false
+	var live := capture_run_snapshot_input()
+	if reference.branch_id != live.lifecycle.branch_id: return false
+	var retained: Dictionary = profile.get_dating_attempt(str(live.lifecycle.run_id),
+		ATTEMPTS.semantic_slot(record.context), str(reference.attempt_id), str(reference.branch_id))
+	return retained.get("ok", false) and retained.value.generation == reference.generation \
+		and _SCENE_EVENT._equal(retained.value.record, record)
+
+func commit_scene_challenge_checkpoint(record: Dictionary, reference: Dictionary, lease: String) -> Dictionary:
+	if not _scene_challenge_operation.is_empty() or not is_instance_valid(_mutation_gate) \
+			or not _mutation_gate.is_lease_active(&"causal_transaction", lease):
+		return _transaction_failure(&"scene_challenge_lease_required", "")
+	var admitted := capture_scene_challenge_command()
+	if not admitted.ok: return admitted
+	if record.get("context") != admitted.value.command.context \
+			or record.get("completion_transaction_id") != admitted.value.command.completion_transaction_id \
+			or record.get("command_sha256") != admitted.value.command.command_sha256 \
+			or not _scene_challenge_profile_matches(record, reference):
+		return _transaction_failure(&"scene_challenge_profile_mismatch", "")
+	var live := capture_live_session()
+	if not live.ok: return live
+	var candidate := capture_run_snapshot_input().duplicate(true)
+	if candidate.gameplay.route_context.get("active_dating_challenge") != record \
+			or candidate.gameplay.route_context.get("dating_active_attempt_ref") != reference:
+		return _transaction_failure(&"scene_challenge_candidate_mismatch", "")
+	var stable: Dictionary = _scene_save_owner.get_latest_stable_checkpoint()
+	if not stable.get("ok", false): return stable
+	var source: Dictionary = stable.value.bundle.snapshot
+	if source.run_id != candidate.lifecycle.run_id \
+			or not _SCENE_EVENT._equal(source.narrative_checkpoint, admitted.value.checkpoint):
+		return _transaction_failure(&"scene_challenge_source_changed", "")
+	_scene_challenge_operation = {"lease": lease, "session": live.value.duplicate(true),
+		"snapshot": candidate, "checkpoint": admitted.value.checkpoint.duplicate(true),
+		"record": record.duplicate(true), "reference": reference.duplicate(true),
+		"source_sha256": _SCENE_EVENT._sha(source)}
+	var saved: Dictionary = _narrative_checkpoint_port.commit_scene_challenge(candidate.duplicate(true),
+		admitted.value.checkpoint.duplicate(true))
+	_scene_challenge_operation = {}
+	if not saved.get("ok", false) and saved.get("committed", false):
+		return _scene_event_fatal(saved.get("code", &"scene_challenge_commit_uncertain"))
+	return saved
+
+func _validate_scene_challenge_checkpoint(snapshot: Dictionary, checkpoint: Dictionary, phase: String) -> bool:
+	if _scene_challenge_validating or _scene_challenge_operation.is_empty() \
+			or phase not in ["before_prepare", "before_commit", "after_commit"]: return false
+	var operation := _scene_challenge_operation.duplicate(true)
+	if not _mutation_gate.is_lease_active(&"causal_transaction", operation.lease) \
+			or not _SCENE_EVENT._equal(snapshot, operation.snapshot) \
+			or not _SCENE_EVENT._equal(checkpoint, operation.checkpoint): return false
+	_scene_challenge_validating = true
+	var live := capture_live_session()
+	var admitted := capture_scene_challenge_command()
+	var stable: Dictionary = _scene_save_owner.get_latest_stable_checkpoint()
+	var valid: bool = live.get("ok", false) and admitted.get("ok", false) and stable.get("ok", false)
+	if valid:
+		valid = _SCENE_EVENT._equal(live.value, operation.session) \
+			and _SCENE_EVENT._equal(admitted.value.checkpoint, checkpoint) \
+			and _SCENE_EVENT._equal(capture_run_snapshot_input(), snapshot) \
+			and _scene_challenge_profile_matches(operation.record, operation.reference)
+	if valid and phase != "after_commit":
+		valid = _SCENE_EVENT._sha(stable.value.bundle.snapshot) == operation.source_sha256
+	elif valid:
+		var saved: Dictionary = stable.value.bundle.snapshot
+		valid = _SCENE_EVENT._equal(saved.get("narrative_checkpoint"), checkpoint)
+		for key: String in snapshot:
+			if not _SCENE_EVENT._equal(saved.get(key), snapshot[key]): valid = false
+	_scene_challenge_validating = false
+	return valid and _SCENE_EVENT._equal(operation, _scene_challenge_operation) \
+		and _mutation_gate.is_lease_active(&"causal_transaction", operation.lease)
+
 func configure_scene_checkpoint_source(save_owner: Object) -> Dictionary:
 	if not is_instance_valid(save_owner) or not save_owner.has_method("get_latest_stable_checkpoint"):
 		return _transaction_failure(&"scene_checkpoint_owner_required", "")

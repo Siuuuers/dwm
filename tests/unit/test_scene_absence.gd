@@ -28,8 +28,8 @@ class AbsenceState extends FIXTURE.State:
 		return delegate.validate_scene_challenge_end(command)
 	func capture_scene_challenge_closure(context: Dictionary) -> Dictionary:
 		return delegate.capture_scene_challenge_closure(context)
-	func commit_scene_challenge_checkpoint(record: Dictionary, reference: Dictionary) -> Dictionary:
-		return delegate.commit_scene_challenge_checkpoint(record, reference)
+	func commit_scene_challenge_checkpoint(record: Dictionary, reference: Dictionary, lease: String = "") -> Dictionary:
+		return delegate.commit_scene_challenge_checkpoint(record, reference, lease)
 	func commit_scene_challenge_closure(command: Dictionary, result: Dictionary) -> Dictionary:
 		return delegate.commit_scene_challenge_closure(command, result)
 	func prepare_selected_scene_absence(command: Dictionary, bundle: Dictionary) -> Dictionary:
@@ -276,3 +276,21 @@ func test_later_destination_progress_wins_over_selected_absence_after_missing_ru
 	assert_true(f.action("retry").ok)
 	assert_eq(f.attempt(state.lifecycle.branch_id).value, progressed)
 	assert_eq(f.record(), progressed.record)
+
+
+func test_selected_absence_first_reveal_starts_its_own_board_without_future_progress() -> void:
+	var original := _first_attempt()
+	assert_true(f.action("reveal", 323).ok)
+	var future: Dictionary = f.attempt().value.duplicate(true)
+	_select_absence("TEST.selected.first_reveal")
+	assert_true(f.begin().ok)
+	var revealed: Dictionary = f.owner.dispatch_scene_panel_action(f.token, "reveal", 36, 0)
+	assert_true(revealed.ok, str(revealed))
+	if not revealed.ok: return
+	var selected: Dictionary = f.attempt(state.lifecycle.branch_id).value
+	assert_eq(selected.entry_receipt, original.entry_receipt)
+	assert_eq(selected.materialization_receipt.first_cell_index, 36)
+	assert_eq(selected.record.phase, "active")
+	assert_eq(selected.revision, 1)
+	assert_eq(f.attempt("TEST.scene.branch").value, future)
+	assert_eq(state.effects, 0)
