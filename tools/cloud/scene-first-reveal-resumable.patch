@@ -1,955 +1,203 @@
-diff --git a/autoload/ApplicationBootstrap.gd b/autoload/ApplicationBootstrap.gd
-index 6f000a99..05539496 100644
---- a/autoload/ApplicationBootstrap.gd
-+++ b/autoload/ApplicationBootstrap.gd
-@@ -2731,6 +2731,7 @@ func open_scene_computer(host: Control) -> Dictionary:
- 			return _failure(&"scene_panel_unbound", "")
- 		panel.bind_view_preferences(_target(&"ProfileManager"))
- 		panel.configure_input(_target(&"InputManager"))
-+		panel.presentation_changed.connect(_scene_challenge_published.bind(host, panel))
- 	var held: Dictionary = _target(&"DialogicBridge").hold_computer_captions(host)
- 	if not held.get("ok", false): return held
- 	host.set_computer_open(true)
-@@ -2739,6 +2740,25 @@ func open_scene_computer(host: Control) -> Dictionary:
- 		return _failure(&"scene_panel_unavailable", "")
- 	return {"ok": true}
- 
-+func _scene_challenge_published(host: Control, panel: Control) -> void:
-+	if panel.public_view.get("phase") == "terminal":
-+		# Leave the board's input dispatch before replacing its background caption.
-+		_complete_scene_challenge.call_deferred(host, panel)
-+
-+func _complete_scene_challenge(host: Control, panel: Control) -> void:
-+	if not is_instance_valid(panel) or not _scene_host_admitted(host) or not host.is_computer_open() \
-+			or panel.public_view.get("phase") != "terminal": return
-+	var released: Dictionary = close_scene_computer(host)
-+	if not released.get("ok", false):
-+		panel.presentation_failed.emit(StringName(released.get("code", "scene_continuation_refused")))
-+		return
-+	var continued: Dictionary = _target(&"GameState").continue_completed_scene_challenge()
-+	if not continued.get("ok", false):
-+		_target(&"DialogicBridge").hold_computer_captions(host)
-+		host.set_computer_open(true)
-+		panel.show()
-+		panel.presentation_failed.emit(StringName(continued.get("code", "scene_continuation_refused")))
-+
- func close_scene_computer(host: Control) -> Dictionary:
- 	if not is_instance_valid(host): return _failure(&"scene_host_unavailable", "")
- 	var panel: Control = host.get_challenge_mount().get_node_or_null("SceneChallengePanel")
-diff --git a/autoload/DialogicBridge.gd b/autoload/DialogicBridge.gd
-index 86a7e642..46a32dfd 100644
---- a/autoload/DialogicBridge.gd
-+++ b/autoload/DialogicBridge.gd
-@@ -2124,7 +2124,12 @@ func request_auto_step(expected_frontier: Dictionary) -> Dictionary:
- 	if not admitted.get("ok", false):
- 		_auto_step_in_progress = false
- 		return admitted
--	var result: Dictionary = _runtime_adapter.advance_one_event()
-+	var result: Dictionary
-+	var marker := capture_scene_pending_marker()
-+	if marker.get("ok", false):
-+		result = _scene_event_context_provider.get_object().advance_scene_registered_marker()
-+	else:
-+		result = _runtime_adapter.advance_one_event()
- 	_auto_step_in_progress = false
- 	return result
- 
-@@ -2142,7 +2147,7 @@ func _auto_line_context(expected_frontier: Dictionary = {}) -> Dictionary:
- 	if not _runtime_adapter.has_method("is_current_line_complete") \
- 			or not _runtime_adapter.is_current_line_complete():
- 		return _command_failure(&"auto_line_revealing")
--	if _runtime_adapter.classify_next_event() != &"text":
-+	if _runtime_adapter.classify_next_event() != &"text" and not capture_scene_pending_marker().get("ok", false):
- 		return _command_failure(&"auto_boundary")
- 	return _line_presentation_context(current)
- 
-@@ -4018,8 +4023,9 @@ func commit_scene_playable(event: Dictionary, prepared: Dictionary, lease: Strin
- 	return result
- 
- func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease: String, owner: Object) -> Dictionary:
-+	var departing: bool = event.is_empty()
- 	if _scene_playable.is_empty():
--		if not has_reading_session() or _reading_session.family != "scene" or _reading_session.boundary != "line" \
-+		if not has_reading_session() or _reading_session.family != "scene" or _reading_session.boundary != ("control" if departing else "line") \
- 				or not prepared.get("source_context") is Dictionary or not prepared.get("source_input") is Dictionary \
- 				or not prepared.get("snapshot_input") is Dictionary:
- 			return _command_failure(&"scene_playable_source_invalid")
-@@ -4031,16 +4037,16 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
- 		if not held.ok: return held
- 		var native: Dictionary = _runtime_adapter.retain_scene_source(_reading_session)
- 		if not native.ok: return native
--		var planned: Dictionary = _reading_session.prepare_scene_next(source.reading_session.frontier,
--			func(_beat: Dictionary) -> bool: return false)
-+		var planned: Dictionary = _reading_session.prepare_scene_control_continuation() if departing else \
-+			_reading_session.prepare_scene_next(source.reading_session.frontier, func(_beat: Dictionary) -> bool: return false)
- 		if not planned.ok: return planned
- 		var plan: Dictionary = planned.value
- 		if plan.path.size() != 1 or not plan.traversed_captions.is_empty() \
--				or plan.destination.kind != "control" or plan.destination.caption != null \
-+				or plan.destination.kind != ("line" if departing else "control") \
- 				or plan.destination.program_index != source.reading_session.program_index + 1:
- 			return _command_failure(&"scene_playable_edge_invalid")
- 		var node: Dictionary = _reading_session._scene_nodes[_reading_session.latest_entry][plan.destination.program_index]
--		if node.get("marker_id") != event.get("event_id") or event.get("kind") != "challenge.playable":
-+		if not departing and (node.get("marker_id") != event.get("event_id") or event.get("kind") != "challenge.playable"):
- 			return _command_failure(&"scene_playable_edge_invalid")
- 		var source_projection := _READING_TRAVERSAL.project(plan, "source")
- 		var destination := _READING_TRAVERSAL.project(plan, "destination")
-@@ -4081,6 +4087,15 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
- 			or value.material_sha256 != _scene_digest(_scene_playable.material) or not _scene_playable_current():
- 		return {"ok": false, "code": &"scene_playable_ack_invalid", "committed": true}
- 	var checkpoint: Dictionary = _scene_playable.material.checkpoint.duplicate(true)
-+	if departing:
-+		var candidate: RefCounted = _scene_playable.candidate
-+		var source_token: RefCounted = _scene_playable.native_token
-+		_reading_session = candidate
-+		var continued: Dictionary = _runtime_adapter.install_scene_continuation(candidate, checkpoint, source_token)
-+		if not continued.get("ok", false):
-+			return {"ok": false, "code": continued.get("code", &"scene_continuation_native_refused"), "committed": true}
-+		_scene_playable = {}
-+		return {"ok": true, "value": {"checkpoint": checkpoint, "checkpoint_reference": value.target_checkpoint}}
- 	var installed: Dictionary = _runtime_adapter.install_scene_control(_scene_playable.candidate,
- 		checkpoint.reading_session.duplicate(true), _scene_playable.native_token)
- 	if not installed.get("ok", false):
-@@ -4113,7 +4128,7 @@ func _scene_playable_current() -> bool:
- 	var native: Dictionary = _runtime_adapter.validate_scene_source(_scene_playable.native_token, _reading_session)
- 	if not native.ok: return false
- 	var source: Dictionary = _reading_session.capture(_scene_playable.source_reading.frontier)
--	var candidate: Dictionary = _scene_playable.candidate.capture({})
-+	var candidate: Dictionary = _scene_playable.candidate.capture(_scene_playable.material.checkpoint.reading_session.frontier)
- 	return source.ok and candidate.ok \
- 		and _READING_TRAVERSAL._same(source.value, _scene_playable.source_reading) \
- 		and _READING_TRAVERSAL._same(candidate.value, _scene_playable.material.checkpoint.reading_session)
-@@ -4149,7 +4164,7 @@ func dispatch_scene_event(live_session: Dictionary, envelope: Dictionary) -> Dic
- 		return _command_failure(&"event_dependency_invalid")
- 	_scene_event_dispatching = true
- 	var result: Dictionary
--	if typeof(envelope.get("schema_version")) == TYPE_INT and envelope.schema_version == 2 and envelope.get("kind") == "challenge.playable":
-+	if typeof(envelope.get("schema_version")) == TYPE_INT and envelope.schema_version == 2 and envelope.get("kind") in ["challenge.playable", "challenge.end"]:
- 		# This path holds the actual native caption instead of pausing/resuming it.
- 		result = _scene_event_port.dispatch(envelope.duplicate(true))
- 	else:
-@@ -4162,6 +4177,23 @@ func dispatch_scene_event(live_session: Dictionary, envelope: Dictionary) -> Dic
- 	return result
- 
- ## Expose only a currently authenticated held marker, never a guessed UI command.
-+func request_scene_marker_step(expected: Dictionary) -> Dictionary:
-+	var current := _line_presentation_context(expected)
-+	if not current.get("ok", false): return current
-+	var marker := capture_scene_pending_marker()
-+	if not marker.get("ok", false): return marker
-+	return _scene_event_context_provider.get_object().advance_scene_registered_marker()
-+
-+func capture_scene_pending_marker() -> Dictionary:
-+	if not has_reading_session() or _reading_session.family != "scene" or _reading_session.boundary != "line" \
-+			or is_computer_caption_held() or not _runtime_adapter.is_current_line_complete():
-+		return _command_failure(&"scene_marker_unavailable")
-+	var source: Dictionary = _runtime_adapter._scene_source_boundary(_reading_session)
-+	if not source.get("ok", false): return source
-+	if source.value.marker.kind not in ["challenge.playable", "challenge.end"]:
-+		return _command_failure(&"scene_marker_unavailable")
-+	return {"ok": true, "value": source.value.marker.duplicate(true)}
-+
- func capture_scene_challenge_control() -> Dictionary:
- 	var boundary := capture_scene_event_boundary()
- 	if not boundary.get("ok", false): return boundary
-diff --git a/autoload/GameState.gd b/autoload/GameState.gd
-index c93b7d39..103e7c44 100644
---- a/autoload/GameState.gd
-+++ b/autoload/GameState.gd
-@@ -4459,8 +4459,49 @@ func _accept_scene_playable_event(event: Dictionary, digest: String, lease: Stri
- 	return {"ok": true, "duplicate": false, "value": material.result.duplicate(true)}
- 
- 
-+## Physical completion releases only the authenticated playable control. End is
-+## still a separate authored event. This creates no semantic receipt or effect.
-+func continue_completed_scene_challenge() -> Dictionary:
-+	var guarded: Dictionary = _mutation_gate.guard_external(&"scene_challenge_continuation")
-+	if not guarded.get("ok", false): return guarded
-+	var acquired: Dictionary = _mutation_gate.acquire(&"causal_transaction")
-+	if not acquired.get("ok", false): return acquired
-+	var lease: String = acquired.value.token
-+	var result := _continue_completed_scene_challenge_owned(lease)
-+	var released: Dictionary = _mutation_gate.release(&"causal_transaction", lease)
-+	return result if released.get("ok", false) else released
-+
-+func _continue_completed_scene_challenge_owned(lease: String) -> Dictionary:
-+	if not _scene_playable_operation.is_empty(): return _transaction_failure(&"event_in_progress", "")
-+	var admitted := capture_scene_challenge_command()
-+	if not admitted.ok: return admitted
-+	var source_input := capture_run_snapshot_input().duplicate(true)
-+	var route: Dictionary = source_input.gameplay.route_context
-+	var record: Dictionary = route.get("active_dating_challenge", {})
-+	if record.get("phase") != "terminal" or record.get("state") not in ["won", "lost"] \
-+			or record.get("context") != admitted.value.command.context \
-+			or not _scene_challenge_profile_matches(record, route.get("dating_active_attempt_ref", {})):
-+		return _transaction_failure(&"scene_challenge_not_complete", "")
-+	var stable: Dictionary = _scene_save_owner.get_latest_stable_checkpoint()
-+	if not stable.get("ok", false): return stable
-+	var snapshot: Dictionary = stable.value.bundle.snapshot
-+	if snapshot.get("gameplay", {}).get("route_context") != route \
-+			or not _SCENE_EVENT._equal(snapshot.get("narrative_checkpoint"), admitted.value.checkpoint):
-+		return _transaction_failure(&"scene_challenge_completion_not_saved", "")
-+	var context := _scene_runtime_event_context()
-+	if not context.ok: return context
-+	var material := {"source_context": context.value.duplicate(true), "source_input": source_input,
-+		"snapshot_input": source_input.duplicate(true)}
-+	_scene_playable_operation = {"material": material, "lease": lease}
-+	var continued: Dictionary = _scene_event_bridge.commit_scene_playable({}, material, lease)
-+	_scene_playable_operation = {}
-+	if not continued.get("ok", false) and continued.get("committed", false):
-+		return _scene_event_fatal(continued.get("code", &"scene_continuation_native_refused"))
-+	return continued
-+
- func _accept_scene_runtime_event(event: Dictionary, digest: String, lease: String) -> Dictionary:
- 	if event.get("kind") == "challenge.playable": return _accept_scene_playable_event(event, digest, lease)
-+	if event.get("kind") == "challenge.end": return _accept_scene_end(event, digest, lease)
- 	if not is_instance_valid(_mutation_gate) or not _mutation_gate.is_lease_active(&"causal_transaction", lease):
- 		return _transaction_failure(&"event_lease_lost", "")
- 	if _narrative_checkpoint_port == null: return _transaction_failure(&"event_dependency_invalid", "")
-@@ -4556,8 +4597,45 @@ func capture_scene_challenge_command() -> Dictionary:
- 	return {"ok": true, "value": {"command": found, "bundle": registered.value.duplicate(true),
- 		"checkpoint": held.value.checkpoint.duplicate(true)}}
- 
-+# Completed physical custody survives the move to its authored End predecessor.
-+# Closed receipts also permit the retained physical owner to flush as a no-op
-+# after target admission. This projection never admits another board action.
-+func _capture_retained_scene_challenge_command() -> Dictionary:
-+	var held := capture_scene_challenge_command()
-+	if held.get("ok", false): return held
-+	var registered := _SCENE_MANIFEST.scene_registration()
-+	if not registered.ok: return registered
-+	var ledger := _SCENE_EVENT.validate_scene_receipts(_command_receipts, registered.value, _identity_issuer, _scene_save_owner)
-+	if not ledger.ok: return ledger
-+	var live := capture_run_snapshot_input()
-+	var record: Dictionary = live.gameplay.route_context.get("active_dating_challenge", {})
-+	if record.get("phase") != "terminal" or record.get("state") not in ["won", "lost"]:
-+		return held
-+	var context: Dictionary = record.get("context", {})
-+	var receipt: Dictionary = ledger.value.commands.get(context.get("playable_command_id", ""), {})
-+	if receipt.get("scene_event", {}).get("semantic", {}).get("kind") != "challenge.playable": return held
-+	var event: Dictionary = receipt.scene_event.semantic
-+	var expected := {"kind": "scene_challenge", "scene_occurrence": event.source.scene_occurrence,
-+		"challenge_id": event.payload.challenge_id, "playable_command_id": event.command_id,
-+		"registration_sha256": receipt.scene_event.registration_fingerprint}
-+	if not _SCENE_EVENT._equal(context, expected) or event.source.run_id != live.lifecycle.run_id:
-+		return held
-+	var closed := false
-+	for row: Dictionary in ledger.value.commands.values():
-+		var result: Dictionary = row.scene_event.result
-+		if result.get("kind") == "challenge_closed" and result.playable_command_id == event.command_id: closed = true
-+	var checkpoint := {}
-+	if not closed:
-+		var current := _scene_runtime_event_context()
-+		if not current.get("ok", false) or not _SCENE_EVENT._equal(current.value.source, event.source):
-+			return held
-+		checkpoint = current.value.checkpoint.duplicate(true)
-+	return {"ok": true, "value": {"command": {"completion_transaction_id": event.command_id,
-+		"command_sha256": receipt.request_fingerprint, "context": expected}, "bundle": registered.value,
-+		"checkpoint": checkpoint}}
-+
- func validate_scene_challenge_command(command: Dictionary, bundle: Dictionary) -> Dictionary:
--	var current := capture_scene_challenge_command()
-+	var current := _capture_retained_scene_challenge_command()
- 	if not current.ok: return current
- 	var detached := command.duplicate(true)
- 	detached.erase("physical_token")
-@@ -4687,7 +4765,7 @@ func _capture_selected_scene_absence(command: Dictionary, bundle: Dictionary) ->
- 		"bundle": bundle.duplicate(true), "selected_sha256": _SCENE_EVENT._sha(source)}}
- 
- func capture_scene_challenge_closure(context: Dictionary) -> Dictionary:
--	var current := capture_scene_challenge_command()
-+	var current := _capture_retained_scene_challenge_command()
- 	if not current.ok: return current
- 	if not _SCENE_EVENT._equal(context, current.value.command.context):
- 		return _transaction_failure(&"scene_challenge_command_refused", "")
-@@ -4698,11 +4776,84 @@ func capture_scene_challenge_closure(context: Dictionary) -> Dictionary:
- 			return {"ok": true, "value": result.duplicate(true)}
- 	return {"ok": true, "value": {}}
- 
--func validate_scene_challenge_end(_command: Dictionary) -> Dictionary:
--	return _transaction_failure(&"scene_challenge_end_unavailable", "held End integration required")
-+var _scene_end_operation: Dictionary = {}
- 
--func commit_scene_challenge_closure(_command: Dictionary, _result: Dictionary) -> Dictionary:
--	return _transaction_failure(&"scene_challenge_end_unavailable", "held End integration required")
-+func advance_scene_registered_marker() -> Dictionary:
-+	var marker: Dictionary = _scene_event_bridge.capture_scene_pending_marker()
-+	if not marker.get("ok", false): return marker
-+	var current := _scene_runtime_event_context()
-+	if not current.ok: return current
-+	# A saved closure can retry target admission without applying End again.
-+	for receipt: Dictionary in _command_receipts.values():
-+		var saved: Dictionary = receipt.get("scene_event", {})
-+		if saved.get("semantic", {}).get("event_id") == marker.value.marker_id \
-+				and _SCENE_EVENT._equal(saved.semantic.source, current.value.source):
-+			if saved.result.kind == "challenge_closed":
-+				return admit_scene_target(saved.result.target_id, receipt.transaction_id)
-+			return {"ok": true, "duplicate": true, "value": saved.result}
-+	var issued: Dictionary = _identity_issuer.issue(&"transaction_id")
-+	if not issued.get("ok", false): return issued
-+	var event := {"schema_version": 2, "source": current.value.source.duplicate(true),
-+		"event_id": marker.value.marker_id, "kind": marker.value.kind, "payload": marker.value.payload.duplicate(true),
-+		"ordinal": current.value.next_ordinal, "predecessor": current.value.predecessor,
-+		"command_id": issued.value.token, "issuer_receipt": issued.value.issuer_receipt,
-+		"playback_token": current.value.playback_token}
-+	var session := capture_live_session()
-+	if not session.ok: return session
-+	var accepted: Dictionary = _scene_event_bridge.dispatch_scene_event(session.value, event)
-+	if not accepted.get("ok", false): return accepted
-+	if accepted.value.kind == "challenge_closed": return admit_scene_target(accepted.value.target_id, event.command_id)
-+	return accepted
-+
-+func _accept_scene_end(event: Dictionary, digest: String, lease: String) -> Dictionary:
-+	if not _scene_end_operation.is_empty() or not is_instance_valid(_dating_restore_owner):
-+		return _transaction_failure(&"scene_challenge_end_unavailable", "")
-+	var current := _scene_runtime_event_context()
-+	if not current.ok: return current
-+	_scene_end_operation = {"event": event.duplicate(true), "digest": digest, "lease": lease, "context": current.value}
-+	var result: Dictionary = _dating_restore_owner.close_scene_challenge_owned(lease)
-+	_scene_end_operation = {}
-+	return result
-+
-+func validate_scene_challenge_end(command: Dictionary) -> Dictionary:
-+	if _scene_end_operation.is_empty() or not _mutation_gate.is_lease_active(&"causal_transaction", _scene_end_operation.lease):
-+		return _transaction_failure(&"scene_challenge_end_unavailable", "authenticated End required")
-+	var current := _capture_retained_scene_challenge_command()
-+	if not current.ok: return current
-+	var detached := command.duplicate(true)
-+	detached.erase("physical_token")
-+	var marker: Dictionary = _scene_event_bridge.capture_scene_pending_marker()
-+	if not _SCENE_EVENT._equal(detached, current.value.command) or not marker.get("ok", false) \
-+			or marker.value.marker_id != _scene_end_operation.event.event_id \
-+			or _scene_end_operation.event.payload.challenge_id != detached.context.challenge_id \
-+			or marker.value.kind != "challenge.end" or marker.value.payload != _scene_end_operation.event.payload:
-+		return _transaction_failure(&"scene_challenge_end_refused", "")
-+	return {"ok": true}
-+
-+func commit_scene_challenge_closure(command: Dictionary, result: Dictionary) -> Dictionary:
-+	var checked := validate_scene_challenge_end(command)
-+	if not checked.ok: return checked
-+	var operation := _scene_end_operation.duplicate(true)
-+	var registration := _SCENE_MANIFEST.scene_registration()
-+	if not registration.ok: return registration
-+	var current := _scene_runtime_event_context()
-+	if not current.ok: return current
-+	if not _SCENE_EVENT._equal(current.value, operation.context): return _transaction_failure(&"event_source_mismatch", "")
-+	var made := _SCENE_EVENT.make_scene_receipt(operation.event, current.value.anchor, result, registration.value)
-+	if not made.ok: return made
-+	if made.value.request_fingerprint != operation.digest: return _transaction_failure(&"event_digest_mismatch", "")
-+	var candidate := capture_run_snapshot_input().duplicate(true)
-+	candidate.command_receipts[operation.event.command_id] = made.value
-+	var validated := _SCENE_EVENT.validate_scene_receipts(candidate.command_receipts, registration.value, _identity_issuer, _scene_save_owner)
-+	if not validated.ok: return validated
-+	var committed: Dictionary = _narrative_checkpoint_port.commit_scene_event(candidate, current.value.checkpoint)
-+	if not committed.get("ok", false): return committed
-+	var after := _scene_runtime_event_context()
-+	if not after.get("ok", false) or not _SCENE_EVENT._equal(after.value, current.value) \
-+			or not _mutation_gate.is_lease_active(&"causal_transaction", operation.lease):
-+		return _scene_event_fatal(&"event_adoption_source_changed")
-+	_command_receipts = candidate.command_receipts.duplicate(true)
-+	return {"ok": true, "duplicate": false, "value": result.duplicate(true)}
- 
- func _scene_challenge_profile_matches(record: Dictionary, reference: Dictionary) -> bool:
- 	const ATTEMPTS = preload("res://scripts/profile/DatingAttemptLedger.gd")
-@@ -4720,7 +4871,7 @@ func commit_scene_challenge_checkpoint(record: Dictionary, reference: Dictionary
- 	if not _scene_challenge_operation.is_empty() or not is_instance_valid(_mutation_gate) \
- 			or not _mutation_gate.is_lease_active(&"causal_transaction", lease):
- 		return _transaction_failure(&"scene_challenge_lease_required", "")
--	var admitted := capture_scene_challenge_command()
-+	var admitted := _capture_retained_scene_challenge_command()
- 	if not admitted.ok: return admitted
- 	if record.get("context") != admitted.value.command.context \
- 			or record.get("completion_transaction_id") != admitted.value.command.completion_transaction_id \
-@@ -4759,7 +4910,7 @@ func _validate_scene_challenge_checkpoint(snapshot: Dictionary, checkpoint: Dict
- 			or not _SCENE_EVENT._equal(checkpoint, operation.checkpoint): return false
- 	_scene_challenge_validating = true
- 	var live := capture_live_session()
--	var admitted := capture_scene_challenge_command()
-+	var admitted := _capture_retained_scene_challenge_command()
- 	var stable: Dictionary = _scene_save_owner.get_latest_stable_checkpoint()
- 	var valid: bool = live.get("ok", false) and admitted.get("ok", false) and stable.get("ok", false)
- 	if valid:
-@@ -4840,7 +4991,7 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
- 	var ledger := _SCENE_EVENT.validate_scene_receipts(_command_receipts, registration.value, _identity_issuer, get_node_or_null("/root/SaveManager"))
- 	if not ledger.ok: return ledger
- 	var trigger: Variant = ledger.value.commands.get(trigger_command_id)
--	if not trigger is Dictionary or trigger.scene_event.result.get("kind") != "scene_transition_accepted" \
-+	if not trigger is Dictionary or trigger.scene_event.result.get("kind") not in ["scene_transition_accepted", "challenge_closed"] \
- 			or trigger.scene_event.result.target_id != target_id \
- 			or trigger.scene_event.semantic.source.scene_occurrence != _scene_snapshot_references.get("active_occurrence_id"):
- 		return _transaction_failure(&"scene_admission_trigger_mismatch", "")
-diff --git a/scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd b/scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd
-index 13389517..981fcd79 100644
---- a/scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd
-+++ b/scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd
-@@ -268,7 +268,7 @@ func commit_scene_challenge(snapshot_input: Dictionary, checkpoint: Dictionary)
- 	checkpoint = checkpoint.duplicate(true)
- 	if checkpoint.get("stage") != "scene" or not checkpoint.get("reading_session") is Dictionary \
- 			or typeof(checkpoint.reading_session.get("schema_version")) != TYPE_INT \
--			or checkpoint.reading_session.schema_version != 5 or checkpoint.reading_session.get("boundary") != "control":
-+			or checkpoint.reading_session.schema_version != 5 or checkpoint.reading_session.get("boundary") not in ["control", "line"]:
- 		return {"ok": false, "code": &"scene_challenge_checkpoint_invalid", "committed": false}
- 	_next_commit_in_progress = true
- 	_scene_challenge = {"input": snapshot_input, "checkpoint": checkpoint,
-@@ -573,7 +573,7 @@ func retain_scene_control(authority: Object, token: RefCounted, material: Dictio
- 	var plan: Dictionary = material.plan
- 	if source.get("stage") != "scene" or not source.get("reading_session") is Dictionary \
- 			or not target.get("reading_session") is Dictionary \
--			or source.reading_session.get("boundary") != "line" or target.reading_session.get("boundary") != "control":
-+			or [source.reading_session.get("boundary"), target.reading_session.get("boundary")] not in [["line", "control"], ["control", "line"]]:
- 		return _fail(&"scene_control_material_invalid", "exact scene endpoints required")
- 	var source_header := source.duplicate(true)
- 	var target_header := target.duplicate(true)
-@@ -586,7 +586,7 @@ func retain_scene_control(authority: Object, token: RefCounted, material: Dictio
- 		if not projected.ok or not READING_NEXT._same(projected.value, endpoint.reading_session):
- 			return _fail(&"scene_control_material_invalid", "projection changed")
- 	if plan.path.size() != 1 or not plan.traversed_captions.is_empty() \
--			or plan.destination.kind != "control" or plan.destination.caption != null:
-+			or plan.destination.kind != target.reading_session.boundary:
- 		return _fail(&"scene_control_material_invalid", "immediate control required")
- 	_scene_control = {"token": token, "material": material, "state": "prepared"}
- 	if not _scene_control_validate("retain"):
-diff --git a/scripts/application/run/DatingPhysicalOwner.gd b/scripts/application/run/DatingPhysicalOwner.gd
-index 6e053155..3fb84428 100644
---- a/scripts/application/run/DatingPhysicalOwner.gd
-+++ b/scripts/application/run/DatingPhysicalOwner.gd
-@@ -641,7 +641,17 @@ func _commit_attempt() -> Dictionary:
- ## Profile behind the board it saves (dwm-634.2). Runs inside the caller's causal lease when one
- ## is active, otherwise takes and releases its own; a foreign lease refuses pending progress.
- func flush_pending_attempt() -> Dictionary:
--	if _record.get("schema_version") == 4 and not _scene_command(): return _fail(&"scene_challenge_readmission_required")
-+	if _record.get("schema_version") == 4 and not _scene_command():
-+		# A selected completed save keeps its historical closure. There is no
-+		# playable input to re-admit and no new physical progress to flush.
-+		if _record.get("phase") == "terminal" and not _routine_pending and _pending_checkpoint.is_empty() \
-+				and is_instance_valid(_game_state) and _game_state.has_method("capture_scene_challenge_closure"):
-+			var closed: Dictionary = _game_state.capture_scene_challenge_closure(_record.context)
-+			var digest: Dictionary = CANONICAL.canonical_sha256(_record)
-+			if closed.get("ok", false) and digest.get("ok", false) \
-+					and closed.value.get("attempt_proof", {}).get("record_sha256") == digest.value.sha256:
-+				return _ok({"committed": false})
-+		return _fail(&"scene_challenge_readmission_required")
- 	if _scene_command(): return _flush_scene_pending()
- 	if not _routine_pending or _attempt_gate == null or not _pending_checkpoint.is_empty(): return _ok({"committed": false})
- 	var lease := {}
-@@ -1851,6 +1861,17 @@ func close_scene_challenge(token: String) -> Dictionary:
- 	var released: Dictionary = _attempt_gate.release(&"causal_transaction", str(lease.value.token))
- 	return result if released.ok else released
- 
-+## GameState's authenticated End event owns this lease; never acquire a second one.
-+func close_scene_challenge_owned(lease: String) -> Dictionary:
-+	if _scene_authority != _game_state or not _attempt_gate.is_lease_active(&"causal_transaction", lease) \
-+			or not _scene_lease.is_empty(): return _fail(&"scene_challenge_lease_required")
-+	var admitted := _scene_authorize(_admitted_command)
-+	if not admitted.ok: return admitted
-+	_scene_lease = lease
-+	var result := _close_scene_locked()
-+	_scene_lease = ""
-+	return result
-+
- func _close_scene_locked() -> Dictionary:
- 	var end: Dictionary = _scene_authority.validate_scene_challenge_end(_admitted_command.duplicate(true))
- 	if not end.get("ok", false): return end
-diff --git a/scripts/domain/narrative/SceneEventContract.gd b/scripts/domain/narrative/SceneEventContract.gd
-index c652e0d5..afeed0cd 100644
---- a/scripts/domain/narrative/SceneEventContract.gd
-+++ b/scripts/domain/narrative/SceneEventContract.gd
-@@ -618,7 +618,7 @@ static func validate_scene_receipts(receipts: Dictionary, bundle: Dictionary, is
- 		if admission.return_to != null:
- 			# Contact entry needs the actual authored fact/entry owner, not a guessed result.
- 			return _fail(&"scene_contact_entry_unavailable")
--		if trigger.result.kind != "scene_transition_accepted" or trigger.result.target_id != admission.target_id:
-+		if trigger.result.kind not in ["scene_transition_accepted", "challenge_closed"] or trigger.result.target_id != admission.target_id:
- 			return _fail(&"scene_admission_trigger_mismatch")
- 		var source_admission: Dictionary = admission_receipts.get(trigger.semantic.source.scene_occurrence, {})
- 		if source_admission.is_empty() or source_admission.scene_admission.issuer_receipt.counter >= admission_receipts[admission_id].scene_admission.issuer_receipt.counter:
-diff --git a/scripts/narrative/DialogicRuntimeAdapter.gd b/scripts/narrative/DialogicRuntimeAdapter.gd
-index 02e3c2ef..2ede3888 100644
---- a/scripts/narrative/DialogicRuntimeAdapter.gd
-+++ b/scripts/narrative/DialogicRuntimeAdapter.gd
-@@ -272,7 +272,25 @@ func _install_scene_control(session: RefCounted, reading: Dictionary,
- ## Selected Load restores an authenticated saved caption, not a target label.
- ## No marker/jump/Return is executed to reach it; unsupported parked boundaries refuse.
- func restore_scene_frontier(session: RefCounted, checkpoint: Dictionary) -> Dictionary:
--	if not _bound or not _qualified_runtime or has_active_playback() or session == null or session.family != "scene":
-+	return _install_scene_frontier(session, checkpoint)
-+
-+## Only a durable exact one-edge control departure can replace a live source.
-+func install_scene_continuation(session: RefCounted, checkpoint: Dictionary, source_token: RefCounted) -> Dictionary:
-+	var source_session: RefCounted = _scene_source.get("session")
-+	var current := validate_scene_source(source_token, source_session)
-+	if not current.ok: return current
-+	var traversal := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
-+	var operation := traversal.validate(checkpoint.get("reading_session", {}), str(checkpoint.get("entry_id", "")))
-+	if not operation.ok: return operation
-+	var plan: Dictionary = operation.value.plan
-+	if operation.value.phase != "destination" or plan.source_reading.boundary != "control" \
-+			or plan.path.size() != 1 or plan.destination.kind != "line" or not plan.traversed_captions.is_empty() \
-+			or not traversal._same(plan.source_reading, traversal.without_operation(_scene_source.boundary.reading)):
-+		return _fail(&"scene_control_candidate_invalid", "exact control departure required")
-+	return _install_scene_frontier(session, checkpoint, source_token)
-+
-+func _install_scene_frontier(session: RefCounted, checkpoint: Dictionary, source_token: RefCounted = null) -> Dictionary:
-+	if not _bound or not _qualified_runtime or (has_active_playback() and source_token == null) or session == null or session.family != "scene":
- 		return _fail(&"scene_restore_native_unavailable", "idle qualified runtime required")
- 	var checked: Dictionary = session.validate_saved(checkpoint.get("reading_session", {}), str(checkpoint.get("entry_id", "")))
- 	if not checked.ok: return checked
-@@ -310,6 +328,16 @@ func restore_scene_frontier(session: RefCounted, checkpoint: Dictionary) -> Dict
- 	var node: Dictionary = compiled.value.nodes[native_program_index]
- 	if node.kind != "caption" or node.line_id != restore_frontier.line_id:
- 		return _fail(&"scene_restore_native_invalid", "saved caption position changed")
-+	if source_token != null:
-+		var source_checked := validate_scene_source(source_token, _scene_source.get("session"))
-+		if not source_checked.ok: return source_checked
-+		_scene_source_token = null
-+		_scene_source = {}
-+		_retire_caption_binding()
-+		release_frozen_presentation()
-+		_activity_phase = ""
-+		_requested_path = ""
-+		_runtime_generation = 0
- 	var bound := bind_caption_ledger(session.ledger, session.command_id, checkpoint.entry_id, false, saved.occurrence_id)
- 	if not bound.ok: return bound
- 	var frozen := install_frozen_presentation(presentation.value)
-@@ -319,7 +347,8 @@ func restore_scene_frontier(session: RefCounted, checkpoint: Dictionary) -> Dict
- 		_scene_control_restore = {"session": session, "reading": saved.duplicate(true)}
- 	_caption_restore_frontier = restore_frontier.duplicate(true)
- 	_caption_restore_queued = false
--	var started := start_timeline(path, int(compiled.value.native_indices[native_program_index]))
-+	var started := _start_held_scene_target(path, int(compiled.value.native_indices[native_program_index])) if source_token != null \
-+		else start_timeline(path, int(compiled.value.native_indices[native_program_index]))
- 	if not started.ok:
- 		_scene_control_restore = {}
- 		_caption_restore_frontier = {}
-diff --git a/scripts/narrative/ReadingTraversalOperation.gd b/scripts/narrative/ReadingTraversalOperation.gd
-index b8e2625f..5fecc218 100644
---- a/scripts/narrative/ReadingTraversalOperation.gd
-+++ b/scripts/narrative/ReadingTraversalOperation.gd
-@@ -340,7 +340,10 @@ static func _validate_scene_plan_shape(plan: Dictionary) -> Dictionary:
- 			or not plan.destination is Dictionary: return _fail(&"reading_next_plan_invalid")
- 	var source: Dictionary = plan.source_reading
- 	if not valid_scene_reading_shape(source) or source.next_operation != null \
--			or source.entry_id != plan.entry_id or source.boundary != "line": return _fail(&"reading_next_source_invalid")
-+			or source.entry_id != plan.entry_id or source.boundary not in ["line", "control"]: return _fail(&"reading_next_source_invalid")
-+	if source.boundary == "control" and (plan.path.size() != 1 or not plan.traversed_captions.is_empty() \
-+			or plan.destination.get("kind") != "line"):
-+		return _fail(&"reading_next_source_invalid")
- 	var previous: int = source.program_index
- 	for edge: Variant in plan.path:
- 		if not edge is Dictionary or not FROZEN._exact(edge, ["from", "to"]) \
-@@ -402,9 +405,12 @@ static func validate_scene_path(plan: Dictionary, nodes: Array) -> Dictionary:
- 	var checked := _validate_scene_plan_shape(plan)
- 	if not checked.ok: return checked
- 	var source: Dictionary = plan.source_reading
--	if source.program_index >= nodes.size() or not nodes[source.program_index] is Dictionary \
--			or nodes[source.program_index].get("kind") != "caption" \
--			or nodes[source.program_index].get("line_id") != source.frontier.line_id:
-+	if source.program_index >= nodes.size() or not nodes[source.program_index] is Dictionary:
-+		return _fail(&"reading_next_source_invalid")
-+	var source_node: Dictionary = nodes[source.program_index]
-+	if source.boundary == "control":
-+		if source_node.get("kind") != "control": return _fail(&"reading_next_source_invalid")
-+	elif source_node.get("kind") != "caption" or source_node.get("line_id") != source.frontier.line_id:
- 		return _fail(&"reading_next_source_invalid")
- 	var expected_lines: Array = []
- 	var stopped := false
-@@ -413,7 +419,10 @@ static func validate_scene_path(plan: Dictionary, nodes: Array) -> Dictionary:
- 		var edge: Dictionary = plan.path[ordinal]
- 		if stopped or edge.from >= nodes.size() or edge.to >= nodes.size(): return _fail(&"reading_next_path_invalid")
- 		var node: Dictionary = nodes[edge.from]
--		if node.get("kind") not in ["caption", "jump"] or node.get("next") != edge.to: return _fail(&"reading_next_path_invalid")
-+		var leaving_control: bool = source.boundary == "control" and ordinal == 0 and node.get("kind") == "control"
-+		if (not leaving_control and node.get("kind") not in ["caption", "jump"]) \
-+				or (edge.from + 1 if leaving_control else node.get("next")) != edge.to:
-+			return _fail(&"reading_next_path_invalid")
- 		var target: Dictionary = nodes[edge.to]
- 		if target.kind == "caption": expected_lines.append(target.line_id)
- 		elif target.kind in ["control", "completion"]: stopped = true
-diff --git a/scripts/narrative/SoloReadingSession.gd b/scripts/narrative/SoloReadingSession.gd
-index ae5882b8..4e95681b 100644
---- a/scripts/narrative/SoloReadingSession.gd
-+++ b/scripts/narrative/SoloReadingSession.gd
-@@ -143,6 +143,34 @@ func _validate_scene_saved(saved: Dictionary, entry_id: String) -> Dictionary:
- 		if not endpoint.ok: return endpoint
- 	return checked
- 
-+## Pure plan only; the Run owner must authorize departure from the Challenge.
-+## Ordinary Next deliberately remains unable to leave a control boundary.
-+func prepare_scene_control_continuation() -> Dictionary:
-+	if family != "scene" or boundary != "control": return _fail(&"reading_next_unavailable")
-+	var source := _capture_scene({})
-+	if not source.ok: return source
-+	var nodes: Array = _scene_nodes[latest_entry]
-+	var node: Dictionary = nodes[scene_index]
-+	var target: int = scene_index + 1
-+	if node.kind != "control" or target >= nodes.size() or nodes[target].kind != "caption": return _fail(&"reading_next_path_invalid")
-+	var reading: Dictionary = TRAVERSAL.without_operation(source.value)
-+	var candidate := LEDGER.new()
-+	var retained: Dictionary = reading.ledger
-+	var copied := candidate.restore_snapshot(command_id, retained.frozen_context, manifest, registry,
-+		retained, retained.entry_contexts, true, true)
-+	if not copied.ok: return copied
-+	var beat: Dictionary = _caption_variants_by_line[nodes[target].line_id]
-+	var allocation := candidate.allocate_publication(command_id, latest_entry, scene_occurrence)
-+	if not allocation.ok: return allocation
-+	var published := candidate.publish_caption(command_id, allocation.value, beat, scene_occurrence)
-+	if not published.ok: return published
-+	var plan := {"schema_version": 3, "entry_id": latest_entry, "source_reading": reading,
-+		"path": [{"from": scene_index, "to": target}], "traversed_captions": [],
-+		"destination": {"kind": "line", "program_index": target, "caption": {
-+			"publication_id": allocation.value, "occurrence_id": scene_occurrence, "beat": beat.duplicate(true)}}}
-+	var checked := TRAVERSAL.validate_scene_path(plan, nodes)
-+	return {"ok": true, "value": plan} if checked.ok else checked
-+
- func prepare_scene_next(frontier: Dictionary, is_witnessed: Callable) -> Dictionary:
- 	if family != "scene" or boundary != "line" or not is_witnessed.is_valid(): return _fail(&"reading_next_unavailable")
- 	var source := _capture_scene(frontier)
-diff --git a/scripts/ui/witnessed/WitnessedCaptionLayer.gd b/scripts/ui/witnessed/WitnessedCaptionLayer.gd
-index 092219c3..96833002 100644
---- a/scripts/ui/witnessed/WitnessedCaptionLayer.gd
-+++ b/scripts/ui/witnessed/WitnessedCaptionLayer.gd
-@@ -327,7 +327,14 @@ func _before_normal_accept() -> bool:
- 	if _review_offset > 0:
- 		_set_review_offset(0)
- 		return false
--	return _acknowledge_visible_line()
-+	if not _acknowledge_visible_line(): return false
-+	if is_instance_valid(_transport_bridge) and _transport_bridge.has_method("capture_scene_pending_marker") \
-+			and _transport_bridge.capture_scene_pending_marker().get("ok", false):
-+		_transport_bridge.request_scene_marker_step(_presented_line)
-+		# The acknowledged marker owner handles this accept; native labels/Return
-+		# must never run independently of its saved receipt.
-+		return false
-+	return true
- 
- func _acknowledge_visible_line() -> bool:
- 	if _review_offset > 0 or is_next_transport_active(): return false
 diff --git a/tests/integration/scene_completion_child.gd b/tests/integration/scene_completion_child.gd
-new file mode 100644
-index 00000000..7d428346
---- /dev/null
+index 7d428346..19d15784 100644
+--- a/tests/integration/scene_completion_child.gd
 +++ b/tests/integration/scene_completion_child.gd
-@@ -0,0 +1,184 @@
-+extends "res://tests/integration/scene_computer_child.gd"
-+## Actual viewport reveals and Auto; layout inspection is TEST solver knowledge only.
-+const ATTEMPTS := preload("res://scripts/profile/DatingAttemptLedger.gd")
-+var _second_publications: Dictionary = {}
-+var _second_visible := false
-+var _terminal_record: Dictionary = {}
+@@ -27,7 +27,7 @@ func _closure() -> Dictionary:
+ 	assert_true(receipts.has(result.playable_command_id))
+ 	if not receipts.has(result.playable_command_id): return {}
+ 	assert_eq(receipts[result.playable_command_id].scene_event.result.kind, "challenge_playable")
+-	assert_eq(result.outcome, "won")
++	assert_eq(result.outcome, _expected_outcome())
+ 	assert_eq(result.target_id, "target_a")
+ 	assert_true(result.attempt_proof is Dictionary)
+ 	if not result.attempt_proof is Dictionary: return {}
+@@ -35,7 +35,7 @@ func _closure() -> Dictionary:
+ 	var retained: Dictionary = profile.get_dating_attempt(proof.run_id, proof.slot_id, proof.attempt_id, proof.branch_id)
+ 	if not _ok(retained): return {}
+ 	if not _ok(ATTEMPTS.validate_attempt_proof(retained.value, proof)): return {}
+-	assert_eq(retained.value.record.state, "won")
++	assert_eq(retained.value.record.state, _expected_outcome())
+ 	assert_true(retained.value.record.board.terminal)
+ 	return result
+ 
+@@ -76,28 +76,22 @@ func create_completed_scene() -> void:
+ 		var record: Dictionary = captured.value
+ 		assert_false(record.is_empty())
+ 		if record.is_empty(): return
+-		var safe := -1
+-		for index: int in panel.public_view.board.cells.size():
+-			if not record.board.mine_indices.has(index) and "reveal" in panel.public_view.board.cells[index].actions:
+-				if safe < 0: safe = index
+-				if record.board.adjacency_counts[index] == 0:
+-					safe = index
+-					break
+-		assert_gte(safe, 0, "Active board has a remaining safe reveal.")
++		var safe: int = _next_terminal_cell(record, panel)
++		assert_gte(safe, 0, "Active board has a reveal for the expected terminal outcome.")
+ 		if safe < 0: return
+ 		assert_true(panel.worksheet.grid.focus_cell(safe))
+ 		await get_tree().process_frame
+ 		await _click(panel.worksheet.grid.cell_nodes[safe])
+ 	assert_false(_terminal_record.is_empty(), "Native cell inputs reach terminal.")
+ 	if _terminal_record.is_empty(): return
+-	assert_eq(_terminal_record.state, "won")
++	assert_eq(_terminal_record.state, _expected_outcome())
+ 	var arrived := false
+ 	var caption_captured := false
+ 	var deadline := Time.get_ticks_msec() + 15000
+ 	while Time.get_ticks_msec() < deadline:
+ 		_observe_second()
+ 		if _second_visible and not caption_captured:
+-			await _screenshot("completion-caption")
++			await _screenshot(_capture_label("completion-caption"))
+ 			caption_captured = true
+ 		var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
+ 		if checkpoint.get("ok", false) and checkpoint.value.entry_id == "scene.test.a":
+@@ -113,7 +107,7 @@ func create_completed_scene() -> void:
+ 	assert_true(profile.get_preference(&"preferences.reading.auto_enabled", false))
+ 	var closure: Dictionary = _closure()
+ 	if closure.is_empty(): return
+-	await _screenshot("completed-target")
++	await _screenshot(_capture_label("completed-target"))
+ 	# Use the ordinary direct Save surface; its API is the existing backup owner.
+ 	await _click(_controls(get_tree().current_scene, "Save"))
+ 	var sheet: Node = get_node("/root/SceneRouter")._production_pause
+@@ -129,11 +123,11 @@ func create_completed_scene() -> void:
+ 		"second_visible": _second_visible, "slot_sha256": FileAccess.get_sha256("user://saves/slot_1.json"),
+ 		"auto": profile.get_preference(&"preferences.reading.auto_enabled", false)}
+ 	assert_eq(str(proof.slot_sha256).length(), 64)
+-	if not _write_json("user://scene-completion-proof.json", proof): return
+-	_write_json("res://.godot/ci/scene-completion-create-proof.json", proof)
++	if not _write_json("user://" + _proof_prefix() + "-proof.json", proof): return
++	_write_json("res://.godot/ci/" + _proof_prefix() + "-create-proof.json", proof)
+ 
+ func load_completed_scene() -> void:
+-	var parsed: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://scene-completion-proof.json"))
++	var parsed: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://" + _proof_prefix() + "-proof.json"))
+ 	if not _ok(parsed): return
+ 	var proof: Dictionary = parsed.value
+ 	assert_ne(OS.get_process_id(), proof.process_id)
+@@ -159,7 +153,7 @@ func load_completed_scene() -> void:
+ 	assert_eq(profile.get_preference(&"preferences.reading.auto_enabled", false), proof.auto)
+ 	assert_true(proof.auto)
+ 	assert_false(get_tree().paused)
+-	await _screenshot("completed-restored")
++	await _screenshot(_capture_label("completed-restored"))
+ 	# A restored completed scene can be saved again through the normal host.
+ 	var before_profile: Dictionary = profile.get_profile_snapshot().duplicate(true)
+ 	await _click(_controls(get_tree().current_scene, "Save"))
+@@ -181,4 +175,23 @@ func load_completed_scene() -> void:
+ 	proof["second_save_sha256"] = second_hash
+ 	proof["loader_process_id"] = OS.get_process_id()
+ 	proof["loaded_closure"] = closure
+-	_write_json("res://.godot/ci/scene-completion-load-proof.json", proof)
++	_write_json("res://.godot/ci/" + _proof_prefix() + "-load-proof.json", proof)
 +
-+func _observe_second() -> void:
-+	if bridge == null or not bridge.has_reading_session(): return
-+	for row: Dictionary in bridge._reading_session.ledger.snapshot().captions:
-+		if row.beat.line_id == "line.scene.test.b.two":
-+			_second_publications[row.publication_id] = true
++# The loss journey shares completion/Save assertions and changes only its board input.
++func _expected_outcome() -> String:
++	return "won"
++
++func _proof_prefix() -> String:
++	return "scene-completion"
++
++func _capture_label(label: String) -> String:
++	return label
++
++func _next_terminal_cell(record: Dictionary, panel: Control) -> int:
++	var safe := -1
++	for index: int in panel.public_view.board.cells.size():
++		if not record.board.mine_indices.has(index) and "reveal" in panel.public_view.board.cells[index].actions:
++			if safe < 0: safe = index
++			if record.board.adjacency_counts[index] == 0:
++				return index
++	return safe
+diff --git a/tests/integration/scene_loss_child.gd b/tests/integration/scene_loss_child.gd
+new file mode 100644
+index 00000000..daf7d7b7
+--- /dev/null
++++ b/tests/integration/scene_loss_child.gd
+@@ -0,0 +1,18 @@
++extends "res://tests/integration/scene_manual_entry_child.gd"
++## Ordinary dialogue admission, then actual Viewport mine input. Hidden layout
++## is TEST selection knowledge only; production owners commit the losing result.
++
++func _expected_outcome() -> String:
++	return "lost"
++
++func _proof_prefix() -> String:
++	return "scene-loss"
++
++func _capture_label(label: String) -> String:
++	return "loss-" + label
++
++func _next_terminal_cell(record: Dictionary, panel: Control) -> int:
++	for index: int in record.board.mine_indices:
++		if "reveal" in panel.public_view.board.cells[index].actions:
++			return index
++	return -1
+diff --git a/tests/integration/scene_manual_entry_child.gd b/tests/integration/scene_manual_entry_child.gd
+new file mode 100644
+index 00000000..2b7a4dc8
+--- /dev/null
++++ b/tests/integration/scene_manual_entry_child.gd
+@@ -0,0 +1,40 @@
++extends "res://tests/integration/scene_completion_child.gd"
++## TEST registration only; admission uses the mounted caption's normal Viewport input.
++func _start_playable() -> bool:
++	if not _start_services(): return false
++	if not _ok(profile.set_preference(&"preferences.reading.auto_enabled", false)): return false
++	var started: Dictionary = saves.start_scene_new_run("target_b", {"route_id": "scene",
++		"content_version": 1, "audio_context": get_node("/root/AudioManager").get_semantic_audio_context()})
++	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
++	if started.get("code") != &"scene_activation_pending" or not await _await_ready(): return false
 +	var caption: Node = _caption()
-+	if caption != null and bridge._runtime_adapter.current_line_id() == "line.scene.test.b.two" \
-+			and caption.caption_text.is_visible_in_tree() and "B second." in caption.caption_text.text:
-+		_second_visible = true
-+
-+func _closure() -> Dictionary:
-+	var closures: Array = []
-+	var receipts: Dictionary = game.capture_run_snapshot_input().command_receipts
-+	for receipt: Dictionary in receipts.values():
-+		if receipt.get("scene_event", {}).get("result", {}).get("kind") == "challenge_closed":
-+			closures.append(receipt.scene_event.result.duplicate(true))
-+	assert_eq(closures.size(), 1, "Exactly one End closure is retained.")
-+	if closures.size() != 1: return {}
-+	var result: Dictionary = closures[0]
-+	assert_true(receipts.has(result.playable_command_id))
-+	if not receipts.has(result.playable_command_id): return {}
-+	assert_eq(receipts[result.playable_command_id].scene_event.result.kind, "challenge_playable")
-+	assert_eq(result.outcome, "won")
-+	assert_eq(result.target_id, "target_a")
-+	assert_true(result.attempt_proof is Dictionary)
-+	if not result.attempt_proof is Dictionary: return {}
-+	var proof: Dictionary = result.attempt_proof
-+	var retained: Dictionary = profile.get_dating_attempt(proof.run_id, proof.slot_id, proof.attempt_id, proof.branch_id)
-+	if not _ok(retained): return {}
-+	if not _ok(ATTEMPTS.validate_attempt_proof(retained.value, proof)): return {}
-+	assert_eq(retained.value.record.state, "won")
-+	assert_true(retained.value.record.board.terminal)
-+	return result
-+
-+func create_completed_scene() -> void:
-+	if not await _start_playable(): return
-+	if not _ok(profile.set_preference(&"preferences.reading.auto_delay", "short")): return
-+	if not _ok(profile.set_preference(&"preferences.reading.auto_enabled", true)): return
-+	var host: Control = get_tree().current_scene
-+	await _click(_controls(host, "CheckComputer"))
-+	assert_true(host.is_computer_open())
-+	if not host.is_computer_open(): return
-+	var panel: Control = host.get_challenge_mount().get_node("SceneChallengePanel")
-+	var held_checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
-+	if not _ok(held_checkpoint): return
-+	assert_true(bridge.is_computer_caption_held())
-+	await get_tree().create_timer(2.5).timeout
-+	assert_eq(bridge.capture_reading_checkpoint(false), held_checkpoint,
-+		"Enabled Auto cannot leave playable while the computer is open.")
-+	assert_true(host.is_computer_open())
-+	assert_true(profile.get_preference(&"preferences.reading.auto_enabled", false))
-+	assert_true(game.capture_dating_challenge_state().value.is_empty())
-+	for receipt: Dictionary in game.capture_run_snapshot_input().command_receipts.values():
-+		assert_ne(receipt.get("scene_event", {}).get("result", {}).get("kind", ""), "challenge_closed")
-+	panel.presentation_failed.connect(func(code: StringName): fail_test("completion reveal refused: " + String(code)))
-+	# Observe the terminal publication before Bootstrap's deferred close/admission.
-+	panel.presentation_changed.connect(func():
-+		if panel.public_view.get("phase") == "terminal":
-+			_terminal_record = game.capture_dating_challenge_state().value.duplicate(true))
-+	assert_true(panel.worksheet.grid.focus_cell(323))
-+	await get_tree().process_frame
-+	await _click(panel.worksheet.grid.cell_nodes[323])
-+	for step: int in 324:
-+		_observe_second()
-+		if not _terminal_record.is_empty(): break
-+		var captured: Dictionary = game.capture_dating_challenge_state()
-+		assert_true(captured.get("ok", false), str(captured.get("code", "")))
-+		if not captured.get("ok", false): return
-+		var record: Dictionary = captured.value
-+		assert_false(record.is_empty())
-+		if record.is_empty(): return
-+		var safe := -1
-+		for index: int in panel.public_view.board.cells.size():
-+			if not record.board.mine_indices.has(index) and "reveal" in panel.public_view.board.cells[index].actions:
-+				if safe < 0: safe = index
-+				if record.board.adjacency_counts[index] == 0:
-+					safe = index
-+					break
-+		assert_gte(safe, 0, "Active board has a remaining safe reveal.")
-+		if safe < 0: return
-+		assert_true(panel.worksheet.grid.focus_cell(safe))
-+		await get_tree().process_frame
-+		await _click(panel.worksheet.grid.cell_nodes[safe])
-+	assert_false(_terminal_record.is_empty(), "Native cell inputs reach terminal.")
-+	if _terminal_record.is_empty(): return
-+	assert_eq(_terminal_record.state, "won")
-+	var arrived := false
-+	var caption_captured := false
++	assert_not_null(caption)
++	if caption == null: return false
++	# Let the ordinary text reveal finish; never invoke the runtime reveal/admission APIs.
 +	var deadline := Time.get_ticks_msec() + 15000
-+	while Time.get_ticks_msec() < deadline:
-+		_observe_second()
-+		if _second_visible and not caption_captured:
-+			await _screenshot("completion-caption")
-+			caption_captured = true
-+		var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
-+		if checkpoint.get("ok", false) and checkpoint.value.entry_id == "scene.test.a":
-+			arrived = true
-+			break
++	while not bridge._runtime_adapter.is_current_line_complete() and Time.get_ticks_msec() < deadline:
 +		await get_tree().process_frame
-+	assert_true(arrived, "Terminal continuation and Auto reach authored End then target A.")
-+	assert_true(_second_visible, "B second is rendered before End.")
-+	assert_eq(_second_publications.size(), 1, "B second has one publication.")
-+	if not arrived: return
-+	assert_false(get_tree().current_scene.is_computer_open())
-+	assert_false(bridge.is_computer_caption_held())
-+	assert_true(profile.get_preference(&"preferences.reading.auto_enabled", false))
-+	var closure: Dictionary = _closure()
-+	if closure.is_empty(): return
-+	await _screenshot("completed-target")
-+	# Use the ordinary direct Save surface; its API is the existing backup owner.
-+	await _click(_controls(get_tree().current_scene, "Save"))
-+	var sheet: Node = get_node("/root/SceneRouter")._production_pause
-+	assert_true(sheet.can_save_backup(), str(sheet.last_result))
-+	if not sheet.can_save_backup(): return
-+	var prepared: Dictionary = sheet._backup_port.prepare_action("save", "slot:1")
-+	if not _ok(prepared): return
-+	if not _ok(await sheet._backup_port.commit_action(prepared.value.token)): return
-+	sheet.surface.leave_host()
-+	for frame: int in 5: await get_tree().process_frame
-+	var proof := {"process_id": OS.get_process_id(), "closure": closure,
-+		"terminal_record": _terminal_record, "second_publications": _second_publications.size(),
-+		"second_visible": _second_visible, "slot_sha256": FileAccess.get_sha256("user://saves/slot_1.json"),
-+		"auto": profile.get_preference(&"preferences.reading.auto_enabled", false)}
-+	assert_eq(str(proof.slot_sha256).length(), 64)
-+	if not _write_json("user://scene-completion-proof.json", proof): return
-+	_write_json("res://.godot/ci/scene-completion-create-proof.json", proof)
-+
-+func load_completed_scene() -> void:
-+	var parsed: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://scene-completion-proof.json"))
-+	if not _ok(parsed): return
-+	var proof: Dictionary = parsed.value
-+	assert_ne(OS.get_process_id(), proof.process_id)
-+	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.slot_sha256)
-+	if not _start_services(): return
-+	var backup: RefCounted = preload("res://scripts/application/backup/BackupPresentationPort.gd").new()
-+	if not _ok(backup.configure(saves, "title")): return
-+	var prepared: Dictionary = backup.prepare_action("load", "slot:1")
-+	if not _ok(prepared): return
-+	var loaded: Dictionary = backup.commit_action(prepared.value.token)
-+	assert_eq(loaded.get("code"), &"scene_activation_pending", str(loaded))
-+	if loaded.get("code") != &"scene_activation_pending" or not await _await_ready(): return
-+	var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
-+	if not _ok(checkpoint): return
-+	assert_eq(checkpoint.value.entry_id, "scene.test.a")
-+	var closure: Dictionary = _closure()
-+	if closure.is_empty(): return
-+	assert_eq(closure.attempt_proof, proof.closure.attempt_proof, "Terminal board proof survives fresh-process Load.")
-+	var terminal: Dictionary = closure.attempt_proof
-+	var retained: Dictionary = profile.get_dating_attempt(terminal.run_id, terminal.slot_id, terminal.attempt_id, terminal.branch_id)
-+	if not _ok(retained): return
-+	assert_eq(retained.value.record, proof.terminal_record)
-+	assert_eq(profile.get_preference(&"preferences.reading.auto_enabled", false), proof.auto)
-+	assert_true(proof.auto)
-+	assert_false(get_tree().paused)
-+	await _screenshot("completed-restored")
-+	# A restored completed scene can be saved again through the normal host.
++	assert_true(bridge._runtime_adapter.is_current_line_complete())
++	assert_eq(bridge._runtime_adapter.current_line_id(), "line.scene.test.b.one")
++	assert_true(caption.caption_text.is_visible_in_tree())
++	assert_true("B first." in caption.caption_text.text)
++	assert_false(game.capture_scene_challenge_command().get("ok", false))
 +	var before_profile: Dictionary = profile.get_profile_snapshot().duplicate(true)
-+	await _click(_controls(get_tree().current_scene, "Save"))
-+	var sheet: Node = get_node("/root/SceneRouter")._production_pause
-+	assert_true(sheet.can_save_backup(), str(sheet.last_result))
-+	if not sheet.can_save_backup(): return
-+	var second_save: Dictionary = sheet._backup_port.prepare_action("save", "slot:2")
-+	if not _ok(second_save): return
-+	if not _ok(await sheet._backup_port.commit_action(second_save.value.token)): return
-+	sheet.surface.leave_host()
-+	for frame: int in 5: await get_tree().process_frame
-+	assert_eq(_closure(), closure, "Saving completed Load creates no second closure or changed proof.")
-+	assert_eq(profile.get_profile_snapshot(), before_profile, "Saving cannot create another attempt.")
-+	var after_attempt: Dictionary = profile.get_dating_attempt(terminal.run_id, terminal.slot_id,
-+		terminal.attempt_id, terminal.branch_id)
-+	assert_eq(after_attempt, retained)
-+	var second_hash := FileAccess.get_sha256("user://saves/slot_2.json")
-+	assert_eq(second_hash.length(), 64)
-+	proof["second_save_sha256"] = second_hash
-+	proof["loader_process_id"] = OS.get_process_id()
-+	proof["loaded_closure"] = closure
-+	_write_json("res://.godot/ci/scene-completion-load-proof.json", proof)
-diff --git a/tests/integration/test_scene_completion_create.gd b/tests/integration/test_scene_completion_create.gd
++	await _screenshot("manual-before-playable")
++	await _click(caption.caption_text)
++	var admitted: Dictionary = game.capture_scene_challenge_command()
++	if not _ok(admitted): return false
++	var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
++	if not _ok(checkpoint): return false
++	assert_eq(checkpoint.value.reading_session.boundary, "control")
++	assert_eq(bridge._runtime_adapter.current_line_id(), "line.scene.test.b.one",
++		"Accept admits Playable without clicking through to the next caption.")
++	assert_true(game.capture_dating_challenge_state().value.is_empty(), "Admission does not start a board.")
++	assert_eq(profile.get_profile_snapshot(), before_profile, "Admission creates no physical attempt/history.")
++	var playable_count := 0
++	for receipt: Dictionary in game.capture_run_snapshot_input().command_receipts.values():
++		if receipt.get("scene_event", {}).get("result", {}).get("kind") == "challenge_playable":
++			playable_count += 1
++	assert_eq(playable_count, 1, "One normal accept creates exactly one Playable receipt.")
++	await _screenshot("manual-playable-admitted")
++	return true
+diff --git a/tests/integration/test_scene_loss_create.gd b/tests/integration/test_scene_loss_create.gd
 new file mode 100644
-index 00000000..300dcb12
+index 00000000..d0f6c6e0
 --- /dev/null
-+++ b/tests/integration/test_scene_completion_create.gd
-@@ -0,0 +1,3 @@
-+extends "res://tests/integration/scene_completion_child.gd"
-+func test_terminal_board_auto_continues_to_authored_end_and_saves_target() -> void:
++++ b/tests/integration/test_scene_loss_create.gd
+@@ -0,0 +1,4 @@
++extends "res://tests/integration/scene_loss_child.gd"
++
++func test_dialogue_entry_then_mine_input_continues_through_authored_end_and_saves() -> void:
 +	await create_completed_scene()
-diff --git a/tests/integration/test_scene_completion_load.gd b/tests/integration/test_scene_completion_load.gd
+diff --git a/tests/integration/test_scene_loss_load.gd b/tests/integration/test_scene_loss_load.gd
 new file mode 100644
-index 00000000..6a463534
+index 00000000..f1404281
 --- /dev/null
-+++ b/tests/integration/test_scene_completion_load.gd
-@@ -0,0 +1,3 @@
-+extends "res://tests/integration/scene_completion_child.gd"
-+func test_fresh_process_load_preserves_completed_receipt_and_terminal_board() -> void:
++++ b/tests/integration/test_scene_loss_load.gd
+@@ -0,0 +1,4 @@
++extends "res://tests/integration/scene_loss_child.gd"
++
++func test_fresh_process_load_and_resave_preserve_lost_attempt_and_single_closure() -> void:
 +	await load_completed_scene()
-diff --git a/tests/unit/test_scene_control_continuation.gd b/tests/unit/test_scene_control_continuation.gd
-new file mode 100644
-index 00000000..b002f318
---- /dev/null
-+++ b/tests/unit/test_scene_control_continuation.gd
-@@ -0,0 +1,114 @@
-+extends "res://addons/gut/test.gd"
-+## Detached reading plans only: no native execution, Profile effects, or disk proof.
-+## Run in a dedicated process because fixture registration is immutable.
-+const FIXTURE := preload("res://tests/support/SceneDayReadingFixture.gd")
-+const PLAYABLE := preload("res://tests/support/ScenePlayableFixture.gd")
-+const OP := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
-+
-+func before_all() -> void:
-+	var registration := PLAYABLE.new()
-+	var configured: Dictionary = registration._install_registration()
-+	assert_true(configured.ok, str(configured))
-+
-+func _at_playable() -> RefCounted:
-+	var created: Dictionary = FIXTURE.create_session()
-+	assert_true(created.ok, str(created))
-+	if not created.ok: return null
-+	var session: RefCounted = created.value
-+	var entered: Dictionary = FIXTURE.enter(session, FIXTURE.B, "control:1")
-+	assert_true(entered.ok, str(entered))
-+	if not entered.ok: return null
-+	var incoming: Dictionary = session.prepare_scene_next(FIXTURE.frontier(session),
-+		func(_beat: Dictionary) -> bool: return false)
-+	assert_true(incoming.ok, str(incoming))
-+	if not incoming.ok: return null
-+	var held: Dictionary = OP.project(incoming.value, "destination")
-+	assert_true(held.ok, str(held))
-+	if not held.ok: return null
-+	var restored: Dictionary = session.restore(held.value, FIXTURE.B)
-+	assert_true(restored.ok, str(restored))
-+	return session if restored.ok else null
-+
-+func test_continuation_plans_one_visible_caption_without_mutating_held_custody() -> void:
-+	var session := _at_playable()
-+	if session == null: return
-+	var before: Dictionary = session.capture({})
-+	assert_true(before.ok, str(before))
-+	var planned: Dictionary = session.prepare_scene_control_continuation()
-+	assert_true(planned.ok, str(planned))
-+	if not planned.ok: return
-+	var plan: Dictionary = planned.value
-+	assert_eq(plan.schema_version, 3)
-+	assert_eq(plan.source_reading.boundary, "control")
-+	assert_eq(plan.path.size(), 1)
-+	assert_eq(plan.traversed_captions, [], "B second must be shown, never silently traversed.")
-+	assert_eq(plan.destination.kind, "line")
-+	assert_eq(plan.destination.caption.beat.line_id, "line.scene.test.b.two")
-+	assert_eq(session.capture({}), before, "Planning cannot release control or publish into the live ledger.")
-+	var projected: Dictionary = OP.project(plan, "destination")
-+	assert_true(projected.ok, str(projected))
-+	if not projected.ok: return
-+	assert_eq(projected.value.ledger.captions.size(), before.value.ledger.captions.size() + 1)
-+	assert_eq(session.capture({}), before, "Projection grants no commit or native installation authority.")
-+	plan.destination.caption.beat.line_id = "TEST.changed.detached.copy"
-+	assert_eq(session.capture({}), before)
-+
-+func test_ordinary_next_cannot_release_control_and_continuation_refuses_caption_source() -> void:
-+	var session := _at_playable()
-+	if session == null: return
-+	var before: Dictionary = session.capture({})
-+	assert_false(session.prepare_scene_next({}, func(_beat: Dictionary) -> bool: return false).ok)
-+	assert_eq(session.capture({}), before)
-+	var planned: Dictionary = session.prepare_scene_control_continuation()
-+	assert_true(planned.ok, str(planned))
-+	if not planned.ok: return
-+	var projected: Dictionary = OP.project(planned.value, "destination")
-+	assert_true(projected.ok, str(projected))
-+	if not projected.ok: return
-+	var restored: Dictionary = session.restore(projected.value, FIXTURE.B)
-+	assert_true(restored.ok, str(restored))
-+	if not restored.ok: return
-+	var caption_before: Dictionary = session.capture(FIXTURE.frontier(session))
-+	assert_false(session.prepare_scene_control_continuation().ok, "A caption must use ordinary caption admission.")
-+	assert_eq(session.capture(FIXTURE.frontier(session)), caption_before)
-+
-+func test_continuation_cannot_skip_second_caption_to_end_control() -> void:
-+	var session := _at_playable()
-+	if session == null: return
-+	var planned: Dictionary = session.prepare_scene_control_continuation()
-+	assert_true(planned.ok, str(planned))
-+	if not planned.ok: return
-+	var forged: Dictionary = planned.value.duplicate(true)
-+	var nodes: Array = session._scene_nodes[FIXTURE.B]
-+	var second: int = forged.destination.program_index
-+	var end: int = nodes[second].next
-+	assert_eq(nodes[end].kind, "control")
-+	forged.path.append({"from": second, "to": end})
-+	forged.traversed_captions = [forged.destination.caption.duplicate(true)]
-+	forged.destination = {"kind": "control", "program_index": end, "caption": null}
-+	assert_false(OP.validate_scene_path(forged, nodes).ok,
-+		"Even an internally consistent suffix cannot turn continuation into silent Next.")
-+	assert_eq(session.boundary, "control")
-+
-+func test_continuation_refuses_end_control_without_following_caption() -> void:
-+	var session := _at_playable()
-+	if session == null: return
-+	var planned: Dictionary = session.prepare_scene_control_continuation()
-+	assert_true(planned.ok, str(planned))
-+	if not planned.ok: return
-+	var caption: Dictionary = OP.project(planned.value, "destination")
-+	assert_true(caption.ok, str(caption))
-+	if not caption.ok: return
-+	assert_true(session.restore(caption.value, FIXTURE.B).ok)
-+	var to_end: Dictionary = session.prepare_scene_next(FIXTURE.frontier(session),
-+		func(_beat: Dictionary) -> bool: return false)
-+	assert_true(to_end.ok, str(to_end))
-+	if not to_end.ok: return
-+	var end: Dictionary = OP.project(to_end.value, "destination")
-+	assert_true(end.ok, str(end))
-+	if not end.ok: return
-+	assert_true(session.restore(end.value, FIXTURE.B).ok)
-+	var before: Dictionary = session.capture({})
-+	assert_false(session.prepare_scene_control_continuation().ok,
-+		"End belongs to its registered marker owner, never generic continuation.")
-+	assert_eq(session.capture({}), before)
