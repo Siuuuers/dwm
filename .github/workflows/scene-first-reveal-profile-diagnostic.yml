@@ -100,37 +100,15 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @{ source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); parent=(git rev-parse HEAD^) } | ConvertTo-Json | Set-Content .godot/ci/candidate-commit.json -Encoding utf8
 
-      - name: Native caption ownership and activation regressions
-        timeout-minutes: 50
+      - name: Capture exact-engine native failure stacks
+        timeout-minutes: 12
         run: |
-          $ErrorActionPreference = 'Stop'
-          $runner = './tools/testing/Invoke-IsolatedGodot.ps1'
-          $failed = $false
-          $debuggerRoot = Join-Path ${env:ProgramFiles(x86)} 'Windows Kits/10/Debuggers/x64'
-          if (Test-Path $debuggerRoot) { Get-ChildItem $debuggerRoot -Filter '*.exe' | Select-Object -ExpandProperty FullName | Out-File '.godot/ci/debugger-tools.txt' }
-          foreach ($command in @('cdb.exe','gdb.exe','lldb.exe','procdump.exe')) {
-            Get-Command $command -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source | Out-File '.godot/ci/debugger-tools.txt' -Append
+          $ErrorActionPreference = 'Continue'
+          foreach ($mode in @('plain','pageheap')) {
+            & '../controller/tools/cloud/Invoke-StyleCrashDebugger.ps1' -Mode $mode
+            Write-Host "DWM_NATIVE_DEBUGGER_END $mode exit=$LASTEXITCODE"
           }
-          foreach ($mode in @('normal','retire')) {
-            $args = @('-s','res://tests/diagnostics/style_shutdown_probe.gd','--','--inherited-cycle')
-            if ($mode -eq 'retire') { $args += '--retire-style' }
-            & $runner -SuiteId "style-probe-$mode" -LogName "style-probe-$mode.log" -GodotArgs $args -EvidenceLogPath ".godot/ci/style-probe-$mode.jsonl" -TimeoutSeconds 60
-            if ($LASTEXITCODE -ne 0) { $failed = $true }
-            Write-Host "DWM_PROBE_END $mode exit=$LASTEXITCODE"
-          }
-          $tests = @(
-            ,@('style-refusal','tests/integration/test_scene_caption_style_refusal.gd')
-          )
-          foreach ($entry in $tests) {
-            $name = $entry[0]
-            $script = $entry[1]
-            Write-Host "DWM_LANE_BEGIN $name $([DateTime]::UtcNow.ToString('o'))"
-            $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$script",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$name.xml")
-            & $runner -SuiteId "scene-$name" -LogName "$name.log" -GodotArgs $args -EvidenceLogPath ".godot/ci/$name.jsonl" -TimeoutSeconds 180
-            if ($LASTEXITCODE -ne 0) { $failed = $true }
-            Write-Host "DWM_LANE_END $name exit=$LASTEXITCODE $([DateTime]::UtcNow.ToString('o'))"
-          }
-          if ($failed) { throw 'One or more focused engine children failed' }
+          throw 'Diagnostic capture only; candidate acceptance remains blocked pending native failure analysis'
 
       - name: Verify executed census and source identity
         run: |
@@ -227,6 +205,7 @@ jobs:
           path: |
             source/.godot/ci
             source/.godot/phase2r_logs
+            source/.godot/native-crashes
             !source/.godot/ci/import-user
           include-hidden-files: true
           if-no-files-found: error
