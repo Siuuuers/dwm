@@ -2865,7 +2865,26 @@ index 0000000..164a431
 diff --git a/autoload/ApplicationBootstrap.gd b/autoload/ApplicationBootstrap.gd
 --- a/autoload/ApplicationBootstrap.gd
 +++ b/autoload/ApplicationBootstrap.gd
-@@ -1507,7 +1507,28 @@
+@@ -569,6 +569,10 @@
+ 			if not profile_bound.get("ok", false): return profile_bound
+ 			var recovery_bound: Dictionary = save_manager.call(&"configure_new_run_profile_owner", profile)
+ 			if not recovery_bound.get("ok", false): return recovery_bound
++			# Journal loading validates retained scene creations, including completed ones,
++			# before Profile initialization. Bind their immutable validation inputs first.
++			var scene_creation := _configure_registered_scene_creation()
++			if not scene_creation.get("ok", false): return scene_creation
+ 			return save_manager.call(&"reconcile_new_run_storage")
+ 		&"initialize_dialogic_bridge":
+ 			var bridge := _target(&"DialogicBridge")
+@@ -940,7 +944,6 @@
+ 
+ ## The retained Pause or active Dating owner validates its exact source first.
+ func _capture_paused_checkpoint_inputs() -> Dictionary:
+-	var bridge := _target(&"DialogicBridge")
+ 	var game := _target(&"GameState")
+ 	var router := _target(&"SceneRouter")
+ 	if _retained_day_resolution_state_port == null or _retained_schedule_view_controller == null \
+@@ -1507,7 +1510,32 @@
  	var configured: Dictionary = save_manager.call(&"configure_restore_participants", participants)
  	if configured.get("ok", false):
  		_retained_restore_participants = participants.duplicate()
@@ -2873,6 +2892,13 @@ diff --git a/autoload/ApplicationBootstrap.gd b/autoload/ApplicationBootstrap.gd
 +		if not scene_runtime.get("ok", false): return scene_runtime
  	return configured
 +
++
++## Bind creation validation before storage recovery; no live playback starts here.
++func _configure_registered_scene_creation() -> Dictionary:
++	var selected: Dictionary = DIALOGIC_ENTRY_MANIFEST.scene_registration()
++	if not selected.get("ok", false):
++		return {"ok": true} if selected.get("code") == &"scene_registration_absent" else selected
++	return _target(&"SaveManager").configure_scene_new_run(_target(&"DialogicBridge"))
 +
 +## Complete existing scene owners only for an explicitly installed registration.
 +## The retained participant map still serves historical saves; scene transactions
@@ -2882,19 +2908,16 @@ diff --git a/autoload/ApplicationBootstrap.gd b/autoload/ApplicationBootstrap.gd
 +	if not selected.get("ok", false):
 +		return {"ok": true} if selected.get("code") == &"scene_registration_absent" else selected
 +	var saves := _target(&"SaveManager")
-+	var bridge := _target(&"DialogicBridge")
 +	var game := _target(&"GameState")
 +	var router := _target(&"SceneRouter")
 +	var proof: Dictionary = RUN_SNAPSHOT_SCHEMA_FOR_PROBE.configure_scene_validation(
 +		_desktop_identity_nonce_issuer, game, saves)
 +	if not proof.get("ok", false): return proof
-+	var creation: Dictionary = saves.configure_scene_new_run(bridge)
-+	if not creation.get("ok", false): return creation
 +	return router.configure_scene_host("res://scenes/narrative/SceneHost.tscn")
  
  
  ## Composes the retained board, consequence, Schedule, and checkpoint owners.
-@@ -2482,9 +2503,14 @@
+@@ -2482,9 +2510,14 @@
  	# Native scene changes mount at frame end. Keep the exact pending session until
  	# scene_changed wakes us; publishing now would be overwritten by that mount.
  	if get_tree().current_scene == null: return
@@ -3134,7 +3157,7 @@ diff --git a/tests/integration/scene_bootstrap_restart_child.gd b/tests/integrat
 new file mode 100644
 --- /dev/null
 +++ b/tests/integration/scene_bootstrap_restart_child.gd
-@@ -0,0 +1,145 @@
+@@ -0,0 +1,146 @@
 +extends "res://addons/gut/test.gd"
 +## Real FINAL services in separate OS processes sharing the wrapper-owned user directory.
 +## Content registration is TEST-authored; no diagnostic restore participants are installed.
@@ -3267,6 +3290,7 @@ new file mode 100644
 +	if not _ok(frontier): return
 +	if not _ok(bridge.acknowledge_current_line_presentation(frontier)): return
 +	assert_true(bridge.is_current_line_presentation_acknowledged())
++	assert_eq(profile.get_profile_snapshot(), witness.profile)
 +	_assert_physical_bytes(witness)
 +	var proof: Dictionary = witness.duplicate(true)
 +	proof.phase = "load"

@@ -52,7 +52,7 @@ jobs:
           assert git('rev-parse','HEAD') == base
           assert git('ls-remote','origin','refs/heads/codex/scene-runtime-integration-20261009').split()[0] == base
           patch = pathlib.Path('../controller/tools/cloud/scene-first-reveal-resumable.patch').read_bytes()
-          assert hashlib.sha256(patch).hexdigest() == '5825b3266cdaa45c0253b4cbfd8caf500410c2d616450d261e56c63b1c1f3390'
+          assert hashlib.sha256(patch).hexdigest() == '054c5083881a3e6d5a35bc95aac4bd611d5b7becedd2693339f1617e0cbbf677'
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           (out/'candidate.patch').write_bytes(patch)
           subprocess.run(['git','apply','--index','--binary',str(out/'candidate.patch')], check=True)
@@ -101,13 +101,20 @@ jobs:
           @{ source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); parent=(git rev-parse HEAD^) } | ConvertTo-Json | Set-Content .godot/ci/candidate-commit.json -Encoding utf8
 
       - name: Real Bootstrap same-files fresh-process Load
-        timeout-minutes: 10
+        timeout-minutes: 15
         run: |
           $ErrorActionPreference = 'Stop'
           $create = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_bootstrap_restart_create.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/bootstrap-create.xml')
           $load = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_bootstrap_restart_load.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/bootstrap-load.xml')
           & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'bootstrap-restart' -LogName 'bootstrap-create.log' -GodotArgs $create -NextLogName 'bootstrap-load.log' -NextGodotArgs $load -EvidenceLogPath '.godot/ci/bootstrap-restart.jsonl' -TimeoutSeconds 180 -KeepRoot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          foreach ($entry in @(@('scene-bootstrap','tests/integration/test_scene_bootstrap_host.gd'), @('legacy-bootstrap','tests/unit/test_application_bootstrap.gd'))) {
+            $name = $entry[0]
+            $script = $entry[1]
+            $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$script",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$name.xml")
+            & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId $name -LogName "$name.log" -GodotArgs $args -EvidenceLogPath ".godot/ci/$name.jsonl" -TimeoutSeconds 180
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
 
       - name: Verify executed census and source identity
         run: |
@@ -121,7 +128,7 @@ jobs:
           import xml.etree.ElementTree as ET
 
           out = pathlib.Path('.godot/ci')
-          suites = {'bootstrap-create': 'tests/integration/test_scene_bootstrap_restart_create.gd', 'bootstrap-load': 'tests/integration/test_scene_bootstrap_restart_load.gd'}
+          suites = {'bootstrap-create': 'tests/integration/test_scene_bootstrap_restart_create.gd', 'bootstrap-load': 'tests/integration/test_scene_bootstrap_restart_load.gd', 'scene-bootstrap': 'tests/integration/test_scene_bootstrap_host.gd', 'legacy-bootstrap': 'tests/unit/test_application_bootstrap.gd'}
           counts = {}
           for lane, script in suites.items():
               expected = re.findall(r'^func (test_\w+)\(', pathlib.Path(script).read_text(encoding='utf-8'), re.M)
