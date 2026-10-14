@@ -4793,7 +4793,7 @@ index 00000000..164a431e
 +	assert_eq(record.envelope.forced_cell, 323)
 +	assert_eq(f.state.effects, 0)
 diff --git a/tools/testing/Invoke-IsolatedGodot.ps1 b/tools/testing/Invoke-IsolatedGodot.ps1
-index db6b27e3..466e1a6e 100644
+index db6b27e3..8a1f0137 100644
 --- a/tools/testing/Invoke-IsolatedGodot.ps1
 +++ b/tools/testing/Invoke-IsolatedGodot.ps1
 @@ -19,7 +19,10 @@ param(
@@ -4814,7 +4814,7 @@ index db6b27e3..466e1a6e 100644
          Assert-TreeHasNoReparsePoints -Root $guidRoot
 -        $argv = @('--headless','--path',$repositoryRoot,'--log-file',$logPath) + @($childPlan.Arguments)
 +        $displayArgs = if ($Rendered) { @('--rendering-method','gl_compatibility','--audio-driver','Dummy') } else { @('--headless') }
-+        $argv = $displayArgs + @('--path',$repositoryRoot,'--log-file',$logPath) + @($childPlan.Arguments)
++        $argv = @($displayArgs) + @('--path',$repositoryRoot,'--log-file',$logPath) + @($childPlan.Arguments)
          $startedAt = [DateTime]::UtcNow.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
          $requested = Invoke-GodotChild -Executable $godotExecutable -Arguments $argv -AppData $childAppData -LocalAppData $childLocalAppData -DwmTestRoot $childDwmRoot -TimeoutSeconds $TimeoutSeconds -TimeoutLogPath $timeoutLog
          $endedAt = [DateTime]::UtcNow.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
