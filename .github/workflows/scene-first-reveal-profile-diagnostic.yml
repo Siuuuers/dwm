@@ -1,4 +1,4 @@
-name: Scene caption style ownership diagnostic (matched pageheap)
+name: Scene caption style ownership diagnostic (standard pageheap)
 
 on:
   pull_request:

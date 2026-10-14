@@ -7,7 +7,7 @@ $imageName = [IO.Path]::GetFileName($engine)
 $gflags = Join-Path ${env:ProgramFiles(x86)} 'Windows Kits/10/Debuggers/x64/gflags.exe'
 $out = Join-Path (Get-Location) '.godot/ci/pageheap'
 [void][IO.Directory]::CreateDirectory($out)
-$receipt = [ordered]@{ diagnostic_only=$true; image=$imageName; mode='full'; enable_exit=$null; disable_exit=$null; failure=$null }
+$receipt = [ordered]@{ diagnostic_only=$true; image=$imageName; mode='standard'; enable_exit=$null; disable_exit=$null; failure=$null }
 function Invoke-GFlags([string[]]$Arguments, [string]$Name) {
     $process = Start-Process -FilePath $gflags -ArgumentList $Arguments -PassThru -NoNewWindow -RedirectStandardOutput (Join-Path $out "$Name.stdout.log") -RedirectStandardError (Join-Path $out "$Name.stderr.log")
     try {
@@ -23,7 +23,7 @@ $attempted = $false
 $result = 1
 try {
     $attempted = $true
-    $receipt.enable_exit = Invoke-GFlags @('/p', '/enable', $imageName, '/full') 'enable'
+    $receipt.enable_exit = Invoke-GFlags @('/p', '/enable', $imageName) 'enable'
     if ($receipt.enable_exit -ne 0) { throw 'PAGEHEAP_ENABLE_FAILED' }
     $receipt['query_exit'] = Invoke-GFlags @('/p') 'query'
     if ($receipt.query_exit -ne 0) { throw 'PAGEHEAP_QUERY_FAILED' }
