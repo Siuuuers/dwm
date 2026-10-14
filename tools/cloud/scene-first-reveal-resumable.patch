@@ -2691,17 +2691,17 @@ index 00000000..1226b2fc
 +	assert_eq(FileAccess.get_sha256("user://profile.json"), witness.profile_sha256)
 diff --git a/tests/integration/scene_computer_child.gd b/tests/integration/scene_computer_child.gd
 new file mode 100644
-index 00000000..52a3641d
+index 00000000..42619241
 --- /dev/null
 +++ b/tests/integration/scene_computer_child.gd
-@@ -0,0 +1,148 @@
+@@ -0,0 +1,156 @@
 +extends "res://tests/integration/scene_bootstrap_restart_child.gd"
 +## FINAL Bootstrap and actual mounted host; only the authored registration is TEST.
 +## Creator and loader run in distinct OS processes sharing real Save/Profile files.
 +const CAPTION := preload("res://scripts/ui/witnessed/WitnessedCaptionLayer.gd")
 +
 +func _click(control: Control) -> void:
-+	var point := control.get_global_rect().get_center()
++	var point := control.get_global_transform_with_canvas() * (control.size / 2.0)
 +	for pressed: bool in [true, false]:
 +		var event := InputEventMouseButton.new()
 +		event.position = point
@@ -2759,6 +2759,7 @@ index 00000000..52a3641d
 +	assert_eq(bridge.capture_reading_checkpoint(false), checkpoint)
 +	assert_eq(profile.get_profile_snapshot(), profile_before, "opening grants no History or attempt")
 +	var panel: Control = host.get_challenge_mount().get_node("SceneChallengePanel")
++	panel.presentation_failed.connect(func(code: StringName): fail_test("panel action refused: " + String(code)))
 +	assert_eq(panel.public_view.phase, "never_started")
 +	assert_true(game.capture_dating_challenge_state().value.is_empty())
 +	assert_false(panel.dock.buttons.pause.visible)
@@ -2766,8 +2767,15 @@ index 00000000..52a3641d
 +	# Real grid GUI press/release, after scrolling its owner to the selected cell.
 +	assert_true(grid.focus_cell(323))
 +	await get_tree().process_frame
++	assert_true(panel._can_interact())
++	assert_true("reveal" in panel.public_view.board.cells[323].actions)
++	var clicked := [false]
++	grid.gui_input.connect(func(_event: InputEvent): clicked[0] = true, CONNECT_ONE_SHOT)
 +	await _click(grid.cell_nodes[323])
-+	assert_eq(panel.public_view.phase, "active", str(panel.public_view))
++	assert_true(clicked[0], "viewport click reaches the grid")
++	assert_eq(panel.public_view.phase, "active", str({"failed": panel._failed, "blocked": grid._interaction_blocked,
++		"cell_rect": grid.cell_nodes[323].get_global_rect(), "grid_rect": grid.get_global_rect(),
++		"panel_rect": panel.get_global_rect(), "viewport": get_viewport().get_visible_rect()}))
 +	if panel.public_view.phase != "active": return
 +	var saved_board: Dictionary = panel.public_view.board.duplicate(true)
 +	assert_eq(bridge.capture_reading_checkpoint(false), checkpoint, "board click cannot advance captions")
