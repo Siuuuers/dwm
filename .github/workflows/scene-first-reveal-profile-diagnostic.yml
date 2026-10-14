@@ -48,8 +48,8 @@ jobs:
           import json, os, pathlib, subprocess
           def git(*args): return subprocess.check_output(['git',*args],text=True).strip()
           assert git('rev-parse','HEAD') == 'ec17298ace3bf70a2522d9acc2028315f75d7467'
-          assert git('rev-parse','HEAD^^{tree}') == '7a99f3266540ef83f02a94af84dfb28c3ff33b6a'
-          assert git('rev-parse','HEAD^') == os.environ['BASE_SHA']
+          assert git('rev-parse','HEAD^{tree}') == '7a99f3266540ef83f02a94af84dfb28c3ff33b6a'
+          assert git('rev-parse','HEAD^^') == os.environ['BASE_SHA']
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           paths = git('diff','--name-only',os.environ['BASE_SHA'],'HEAD').splitlines()
           assert len(paths) == 22
