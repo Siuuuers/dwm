@@ -80,6 +80,7 @@ jobs:
           @{ version=$version; archive_sha256=$expected; console_sha256=(Get-FileHash $console -Algorithm SHA256).Hash.ToLowerInvariant() } | ConvertTo-Json | Set-Content .godot/ci/engine.json -Encoding utf8
 
       - name: Import and freeze exact candidate
+        if: false # PE metadata inspection only; no test acceptance in this run.
         timeout-minutes: 8
         run: |
           $ErrorActionPreference = 'Stop'
@@ -100,11 +101,12 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @{ source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); parent=(git rev-parse HEAD^) } | ConvertTo-Json | Set-Content .godot/ci/candidate-commit.json -Encoding utf8
 
-      - name: Attach after native fixture setup
+      - name: Inspect exact native executable symbol metadata
         timeout-minutes: 6
         run: |
           $ErrorActionPreference = 'Stop'
-          & '../controller/tools/cloud/Invoke-StyleAttachCapture.ps1'
+          python '../controller/tools/cloud/inspect_godot_pe.py'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           throw 'Diagnostic capture only; candidate acceptance remains blocked pending native failure analysis'
 
       - name: Verify executed census and source identity
