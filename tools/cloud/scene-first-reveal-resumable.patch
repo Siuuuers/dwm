@@ -989,7 +989,7 @@ index 6b487655..aae70e9b 100644
  		pending.erase("quick")
  		if not result.get("ok", false):
 diff --git a/scripts/application/lifecycle/ProductionPauseController.gd b/scripts/application/lifecycle/ProductionPauseController.gd
-index c20bdbab..7120fa93 100644
+index c20bdbab..d0b6e76d 100644
 --- a/scripts/application/lifecycle/ProductionPauseController.gd
 +++ b/scripts/application/lifecycle/ProductionPauseController.gd
 @@ -94,6 +94,8 @@ var _backup_port: RefCounted
@@ -1009,7 +1009,7 @@ index c20bdbab..7120fa93 100644
  	if _busy or not _handle.is_empty() or not event.is_action_pressed(&"ui_cancel", false): return
  	var focused := get_viewport().gui_get_focus_owner()
  	if focused is LineEdit or focused is TextEdit: return
-@@ -143,6 +146,32 @@ func _unhandled_input(event: InputEvent) -> void:
+@@ -143,6 +146,43 @@ func _unhandled_input(event: InputEvent) -> void:
  	get_viewport().set_input_as_handled()
  	request_pause()
  
@@ -1028,21 +1028,32 @@ index c20bdbab..7120fa93 100644
 +	if not opened.get("ok", false): return opened
 +	if mode == &"save":
 +		if not can_save_backup():
++			var refusal := _failure(&"pause_save_unavailable")
++			refusal["details"] = {"frontier_present": not _captured_source.get("frontier", {}).is_empty(),
++				"capture_provider": (_services.get("backup_capture", Callable()) as Callable).is_valid(),
++				"scene_owner": _reading_save_owner_available("scene"),
++				"caption_present": is_instance_valid(_caption),
++				"reading_checkpoint": _services.bridge.capture_reading_checkpoint(false),
++				"admission": _backup_admission()}
 +			await request_continue()
-+			return _failure(&"pause_save_unavailable")
++			last_result = refusal
++			return refusal
 +		var prepared: Dictionary = prepare_backup_save()
 +		if not prepared.get("ok", false):
 +			await request_continue()
++			last_result = prepared
 +			return prepared
 +	if not surface.open_direct_host(host, mode):
 +		await request_continue()
-+		return _failure(&"scene_sheet_unavailable")
-+	return {"ok": true, "value": {"opened": true}}
++		last_result = _failure(&"scene_sheet_unavailable")
++		return last_result
++	last_result = {"ok": true, "value": {"opened": true}}
++	return last_result
 +
  func _input(event: InputEvent) -> void:
  	if is_instance_valid(_quick_commands): _quick_commands.observe_input(event)
  
-@@ -175,7 +204,7 @@ func _can_open_witnessed_surface(caption: Node) -> bool:
+@@ -175,7 +215,7 @@ func _can_open_witnessed_surface(caption: Node) -> bool:
  	if not is_instance_valid(canvas) or not canvas.is_visible_in_tree() \
  			or scene == null or scene.is_queued_for_deletion() or not scene.is_visible_in_tree():
  		return false
@@ -1051,7 +1062,7 @@ index c20bdbab..7120fa93 100644
  			or not _services.bridge.has_active_playback() \
  			or not _services.input.is_source_input_admitted():
  		return false
-@@ -185,6 +214,7 @@ func _can_open_witnessed_surface(caption: Node) -> bool:
+@@ -185,6 +225,7 @@ func _can_open_witnessed_surface(caption: Node) -> bool:
  ## leaves its ordinary Continue surface available instead of abandoning suspension.
  func open_witnessed_backup_load(caption: Node) -> Dictionary:
  	if not can_open_witnessed_backup_load(caption): return _failure(&"pause_backup_unavailable")
@@ -1059,7 +1070,7 @@ index c20bdbab..7120fa93 100644
  	if _find_caption(get_tree().root) != caption: return _failure(&"pause_source_changed")
  	_requested_caption = caption
  	var opened: Dictionary = await request_pause()
-@@ -199,11 +229,15 @@ func open_witnessed_quick_load(caption: Node) -> Dictionary:
+@@ -199,11 +240,15 @@ func open_witnessed_quick_load(caption: Node) -> Dictionary:
  	if not can_open_witnessed_backup_load(caption): return _failure(&"pause_load_unavailable")
  	if _find_caption(get_tree().root) != caption: return _failure(&"pause_source_changed")
  	_requested_caption = caption
@@ -1076,7 +1087,7 @@ index c20bdbab..7120fa93 100644
  	var requested: Dictionary = _quick_commands.request_load()
  	if not requested.get("ok", false):
  		# No consent was exposed. Release only this proven unchanged source.
-@@ -229,6 +263,9 @@ func can_open_witnessed_backup_save(caption: Node) -> bool:
+@@ -229,6 +274,9 @@ func can_open_witnessed_backup_save(caption: Node) -> bool:
  
  ## Family admission is a pure retained-owner query; it never serializes or reveals a caption.
  func _reading_save_owner_available(route: String) -> bool:
@@ -1086,7 +1097,7 @@ index c20bdbab..7120fa93 100644
  	if route == "ending":
  		var scene := get_tree().current_scene
  		return scene != null and scene.scene_file_path == "res://scenes/ending/EndingScene.tscn" \
-@@ -239,6 +276,7 @@ func _reading_save_owner_available(route: String) -> bool:
+@@ -239,6 +287,7 @@ func _reading_save_owner_available(route: String) -> bool:
  
  func open_witnessed_backup_save(caption: Node) -> Dictionary:
  	if not can_open_witnessed_backup_save(caption): return _failure(&"pause_save_unavailable")
@@ -1094,7 +1105,7 @@ index c20bdbab..7120fa93 100644
  	if _find_caption(get_tree().root) != caption: return _failure(&"pause_source_changed")
  	# Reveal belongs to this admitted Save command, before literal Pause custody.
  	# Once suspended, the native source must stay byte-for-byte resumable.
-@@ -363,7 +401,7 @@ func capture_pause_source() -> Dictionary:
+@@ -363,7 +412,7 @@ func capture_pause_source() -> Dictionary:
  	var scene := get_tree().current_scene as Control
  	if scene == null or scene.is_queued_for_deletion(): return _failure(&"pause_source_unavailable")
  	var route: String = _router.get_current_route_id()
@@ -1103,7 +1114,7 @@ index c20bdbab..7120fa93 100644
  	# Recovery owns its registered actions; refuse before capturing a session or frontier.
  	if _find_caption(get_tree().root, true) != null: return _failure(&"pause_recovery_active")
  	var guarded: Dictionary = _services.gate.guard_external(&"universal_pause")
-@@ -384,7 +422,7 @@ func capture_pause_source() -> Dictionary:
+@@ -384,7 +433,7 @@ func capture_pause_source() -> Dictionary:
  		var frontier: Dictionary = _services.bridge.capture_pause_frontier(source.timeline_id if route == "hospital" else "")
  		if not frontier.get("ok", false): return frontier
  		source["frontier"] = frontier.value.duplicate(true)
@@ -1112,7 +1123,7 @@ index c20bdbab..7120fa93 100644
  		return _failure(&"pause_frontier_unavailable")
  	else:
  		source["frontier"] = {}
-@@ -409,7 +447,11 @@ func capture_scene_projection(scene: Object) -> Dictionary:
+@@ -409,7 +458,11 @@ func capture_scene_projection(scene: Object) -> Dictionary:
  	var route: String = _router.get_current_route_id()
  	var paths := {"main": "res://scenes/main/MainGameScene.tscn", "dating": "res://scenes/dating/DatingScene.tscn",
  		"hospital": "res://scenes/hospital/HospitalScene.tscn", "ending": "res://scenes/ending/EndingScene.tscn"}
@@ -1125,7 +1136,7 @@ index c20bdbab..7120fa93 100644
  	var command: Dictionary = scene.get_presentation_projection() if scene.has_method("get_presentation_projection") else {}
  	if route in ["dating", "hospital"] and command.is_empty(): return {}
  	return {"route_id": route, "scene_id": scene.get_instance_id(), "command": command,
-@@ -543,6 +585,10 @@ func prepare_backup_save() -> Dictionary:
+@@ -543,6 +596,10 @@ func prepare_backup_save() -> Dictionary:
  	if _captured_source.get("frontier", {}).is_empty(): return {"ok": true}
  	# Inspection/Delete remain available when saving is disabled; Load has its own gate.
  	if not can_save_backup(): return {"ok": true}
@@ -1136,7 +1147,7 @@ index c20bdbab..7120fa93 100644
  	var completed: Dictionary = _caption.complete_pause_reading_reveal(
  		_caption_anchor, _services.bridge, _handle)
  	if not completed.get("ok", false): return completed
-@@ -608,6 +654,7 @@ func _capture_between_entry_reading_checkpoint() -> Dictionary:
+@@ -608,6 +665,7 @@ func _capture_between_entry_reading_checkpoint() -> Dictionary:
  
  
  func _capture_reading_backup_inputs() -> Dictionary:
@@ -1144,7 +1155,7 @@ index c20bdbab..7120fa93 100644
  	if _captured_source.route_id == "ending": return _capture_ending_reading_backup_inputs()
  	var command: Dictionary = _captured_source.command
  	var physical: Dictionary = _services.dating_presentation.pull_physical(command)
-@@ -638,6 +685,30 @@ func _capture_reading_backup_inputs() -> Dictionary:
+@@ -638,6 +696,30 @@ func _capture_reading_backup_inputs() -> Dictionary:
  		return _failure(&"pause_source_changed")
  	return {"ok": true, "value": inputs.duplicate(true)}
  
@@ -1175,7 +1186,7 @@ index c20bdbab..7120fa93 100644
  ## Ending reuses the same live Run producer and immutable reading checkpoint.
  ## Scene command, session custody and saved authority must all stay unchanged.
  func _capture_ending_reading_backup_inputs() -> Dictionary:
-@@ -696,6 +767,14 @@ func release_for_backup_load() -> Dictionary:
+@@ -696,6 +778,14 @@ func release_for_backup_load() -> Dictionary:
  
  func finish_backup_load(result: Dictionary) -> Dictionary:
  	if not _loading: return _failure(&"pause_load_unavailable")
@@ -1190,7 +1201,7 @@ index c20bdbab..7120fa93 100644
  	if _witnessed_load: return await _finish_witnessed_load(result)
  	_loading = false
  	var current_session: Dictionary = _services.game_state.capture_live_session()
-@@ -733,6 +812,40 @@ func finish_backup_load(result: Dictionary) -> Dictionary:
+@@ -733,6 +823,40 @@ func finish_backup_load(result: Dictionary) -> Dictionary:
  	surface.set_interactive(true)
  	return result if not result.get("ok", false) else _failure(&"pause_load_not_activated")
  
@@ -1815,6 +1826,36 @@ index 9caf5c21..ec8d9174 100644
  ## Advances one bounded slice of an in-progress Debug preparation using slice_operation_budget,
  ## enforcing cumulative search_operation_budget (the kernel is never offered more of the search
  ## budget than remains, and is never offered a call so small it could only stall), then falling
+diff --git a/scripts/narrative/DialogicRuntimeAdapter.gd b/scripts/narrative/DialogicRuntimeAdapter.gd
+index 5c2918c7..02e3c2ef 100644
+--- a/scripts/narrative/DialogicRuntimeAdapter.gd
++++ b/scripts/narrative/DialogicRuntimeAdapter.gd
+@@ -65,12 +65,12 @@ func validate_scene_source(token: RefCounted, session: RefCounted) -> Dictionary
+ 		return _fail(&"scene_source_changed", "")
+ 	return {"ok": true}
+ 
+-func _scene_source_boundary(session: RefCounted) -> Dictionary:
++func _scene_source_boundary(session: RefCounted, allow_suspended_read: bool = false) -> Dictionary:
+ 	if not _qualified_runtime or not _caption_source_is_current() or session == null \
+ 			or session.family != "scene" or session.boundary not in ["line", "control"] \
+ 			or session.ledger != _caption_ledger or session.command_id != _caption_token \
+ 			or session.latest_entry != _caption_entry or session.scene_occurrence != _scene_caption_occurrence \
+-			or _dialogic.paused or _dialogic.Inputs.auto_skip.enabled or _dialogic.Inputs.auto_advance.is_enabled():
++			or (_dialogic.paused and not allow_suspended_read) or _dialogic.Inputs.auto_skip.enabled or _dialogic.Inputs.auto_advance.is_enabled():
+ 		return _fail(&"scene_source_unavailable", "")
+ 	var frontier := capture_reading_frontier()
+ 	if not frontier.ok: return frontier
+@@ -353,7 +353,9 @@ func capture_scene_control_position(session: RefCounted) -> Dictionary:
+ 	var captured: Dictionary = session.capture({})
+ 	if not captured.ok or captured.value != _scene_control_restore.reading:
+ 		return _fail(&"scene_restore_control_changed", "")
+-	var physical := _scene_source_boundary(session)
++	# Read-only Save/History capture retains the same proven session and marker
++	# while sheet custody suspends native playback. Mutation callers stay unpaused.
++	var physical := _scene_source_boundary(session, true)
+ 	if not physical.ok: return physical
+ 	return {"ok": true, "value": captured.value}
+ 
 diff --git a/scripts/profile/DatingAttemptLedger.gd b/scripts/profile/DatingAttemptLedger.gd
 index dce0bc49..eb4af436 100644
 --- a/scripts/profile/DatingAttemptLedger.gd
