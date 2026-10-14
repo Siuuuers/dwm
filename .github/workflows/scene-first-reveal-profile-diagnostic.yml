@@ -1,4 +1,4 @@
-name: Scene manual admission and losing Challenge journey
+name: Scene control localization acceptance
 
 on:
   pull_request:
@@ -17,9 +17,9 @@ jobs:
   profile-first-reveal:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
     runs-on: windows-2022
-    timeout-minutes: 60
+    timeout-minutes: 20
     env:
-      BASE_SHA: 30d8641a1f113507a5f12c88d83cd6afddc0f9c3
+      BASE_SHA: 73298dd3b493e1abac7a8cd869b8a7ce685f27fe
       CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
     defaults:
       run:
@@ -37,30 +37,23 @@ jobs:
 
       - uses: actions/checkout@v7
         with:
-          ref: 30d8641a1f113507a5f12c88d83cd6afddc0f9c3
+          ref: 35a7e1fee3d5e90a2d8f91852e01c919c8504c6a
           path: source
           fetch-depth: 0
 
-      - name: Apply fixed Challenge panel candidate
+      - name: Verify exact localization candidate
         run: |
           $ErrorActionPreference = 'Stop'
           @'
-          import hashlib, json, os, pathlib, subprocess
-          def git(*args):
-              return subprocess.check_output(['git', *args], text=True).strip()
-          base = os.environ['BASE_SHA']
-          assert git('rev-parse','HEAD') == base
-          assert git('ls-remote','origin','refs/heads/codex/scene-runtime-integration-20261009').split()[0] == base
-          patch = pathlib.Path('../controller/tools/cloud/scene-first-reveal-resumable.patch').read_bytes()
-          assert hashlib.sha256(patch).hexdigest() == 'c3daa9cb6df85baa15cc09e6ded28618a0c516adff1acb839f6bb7b5c9463bf5'
+          import json, os, pathlib, subprocess
+          def git(*args): return subprocess.check_output(['git',*args],text=True).strip()
+          assert git('rev-parse','HEAD') == '35a7e1fee3d5e90a2d8f91852e01c919c8504c6a'
+          assert git('rev-parse','HEAD^{tree}') == '9fbf99319aa46f434923fcf7f6d1c133b39b72cf'
+          assert git('rev-parse','HEAD^') == os.environ['BASE_SHA']
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
-          (out/'candidate.patch').write_bytes(patch)
-          subprocess.run(['git','apply','--index','--binary',str(out/'candidate.patch')], check=True)
-          subprocess.run(['git','diff','--cached','--check'], check=True)
-          paths = git('diff','--cached','--name-only').splitlines()
-          assert paths == ['tests/integration/scene_completion_child.gd', 'tests/integration/scene_loss_child.gd', 'tests/integration/scene_manual_entry_child.gd', 'tests/integration/test_scene_loss_create.gd', 'tests/integration/test_scene_loss_load.gd']
-          receipt = {'base':base,'controller':os.environ['CONTROLLER_SHA'],'patch_sha256':hashlib.sha256(patch).hexdigest(),'paths':paths,'publication':'disabled diagnostic'}
-          (out/'candidate-origin.json').write_text(json.dumps(receipt,indent=2),encoding='utf-8')
+          paths = git('diff','--name-only',os.environ['BASE_SHA'],'HEAD').splitlines()
+          assert len(paths) == 9
+          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':git('rev-parse','HEAD'),'controller':os.environ['CONTROLLER_SHA'],'paths':paths},indent=2),encoding='utf-8')
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
@@ -96,58 +89,54 @@ jobs:
           git diff --cached --check
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'Validate fixed Challenge panel and trusted port'
+          git commit --allow-empty -m 'Freeze scene localization candidate with imported UIDs'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @{ source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); parent=(git rev-parse HEAD^) } | ConvertTo-Json | Set-Content .godot/ci/candidate-commit.json -Encoding utf8
 
-      - name: Real computer Save and fresh-process Load
+      - name: Focused scene controls integration
         run: |
           $ErrorActionPreference = 'Stop'
-          $create = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_loss_create.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/computer-create.xml')
-          $load = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_loss_load.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/computer-load.xml')
-          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'scene-computer' -LogName 'computer-create.log' -GodotArgs $create -NextLogName 'computer-load.log' -NextGodotArgs $load -EvidenceLogPath '.godot/ci/computer.jsonl' -TimeoutSeconds 600 -KeepRoot -Rendered
+          $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/scene/test_scene_host_controls.gd,res://tests/integration/test_scene_controls_localization.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/localization.xml','--','--phase2r-bootstrap-mode=final')
+          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'scene-controls-localization' -LogName 'localization.log' -GodotArgs $args -EvidenceLogPath '.godot/ci/localization.jsonl' -TimeoutSeconds 180
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-      - name: Verify executed census and source identity
+      - name: Render all localized controls
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $env:DWM_RENDER_OUTPUT = Join-Path $PWD '.godot/ci/scene-controls-localization-render'
+          $args = @('--script','res://tests/ui/render_scene_controls_localization.gd','--','--phase2r-bootstrap-mode=final')
+          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'scene-controls-localization-render' -LogName 'localization-render.log' -GodotArgs $args -EvidenceLogPath '.godot/ci/localization-render.jsonl' -TimeoutSeconds 180 -Rendered
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Verify executed census and rendered evidence
         run: |
           $ErrorActionPreference = 'Stop'
           @'
-          import collections
-          import json
-          import pathlib
-          import re
-          import subprocess
-          import xml.etree.ElementTree as ET
-
+          import collections, json, pathlib, re, subprocess, xml.etree.ElementTree as ET
           out = pathlib.Path('.godot/ci')
-          suites = {'computer-create':'tests/integration/test_scene_loss_create.gd', 'computer-load':'tests/integration/test_scene_loss_load.gd'}
-          counts = {}
-          for lane, script in suites.items():
-              expected = re.findall(r'^func (test_\w+)\(', pathlib.Path(script).read_text(encoding='utf-8'), re.M)
-              root = ET.parse(out/(lane+'.xml')).getroot()
-              rows = list(root.iter('testcase'))
-              assert collections.Counter(r.attrib['name'] for r in rows) == collections.Counter(expected), (lane, 'census')
-              assert rows and all(r.attrib.get('classname') == script and r.attrib.get('status') == 'pass' and int(r.attrib.get('assertions','0')) > 0 for r in rows), lane
-              assert not any(list(root.iter(tag)) for tag in ['failure','error','skipped']), lane
-              log = pathlib.Path('.godot/phase2r_logs')/(lane+'.log')
-              text = log.read_text(encoding='utf-8-sig')
-              assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character', text), lane
-              counts[lane] = {'cases':len(rows), 'assertions':sum(int(r.attrib['assertions']) for r in rows)}
-          for label in ['manual-before-playable', 'manual-playable-admitted', 'loss-completion-caption', 'loss-completed-target', 'loss-completed-restored']:
-              assert (out / ('computer-' + label + '.png')).read_bytes().startswith(bytes([137,80,78,71,13,10,26,10]))
-          children = [json.loads(line) for line in (out/'computer.jsonl').read_text(encoding='utf-8-sig').splitlines() if line.strip()]
-          assert len(children) == 2 and all(row['exit_code'] == 0 for row in children)
-          assert not subprocess.check_output(['git','diff','--name-only'], text=True).strip()
-          assert not subprocess.check_output(['git','diff','--cached','--name-only'], text=True).strip()
-          result = {
-              'status':'passed',
-              'source':subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip(),
-              'lanes':counts,
-              'total_cases':sum(v['cases'] for v in counts.values()),
-              'total_xml_assertions':sum(v['assertions'] for v in counts.values()),
-              'scope':'Ordinary FINAL Bootstrap computer panel, caption input hold, direct sheets and physical Save/fresh-process Load using TEST-authored registration. Rendered Viewport input and retained PNGs; no OS input acceptance. Manual caption admission, terminal losing board input, visible continuation, Auto-authored End and completed Save/fresh Load/Save; TEST-only content. Broader recovery combinations deferred.',
-          }
-          (out/'gate.json').write_text(json.dumps(result, indent=2), encoding='utf-8')
+          scripts = ['tests/scene/test_scene_host_controls.gd','tests/integration/test_scene_controls_localization.gd']
+          expected = [(s,n) for s in scripts for n in re.findall(r'^func (test_\w+)\(',pathlib.Path(s).read_text(),re.M)]
+          root = ET.parse(out/'localization.xml').getroot()
+          rows = list(root.iter('testcase'))
+          assert len(expected) == 7
+          assert collections.Counter((r.attrib['classname'],r.attrib['name']) for r in rows) == collections.Counter(expected)
+          assert all(r.attrib.get('status') == 'pass' and int(r.attrib.get('assertions','0')) > 0 for r in rows)
+          assert not any(list(root.iter(tag)) for tag in ['failure','error','skipped'])
+          for lane in ['localization','localization-render']:
+              text = (pathlib.Path('.godot/phase2r_logs')/(lane+'.log')).read_text(encoding='utf-8-sig')
+              assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',text), lane
+              children = [json.loads(line) for line in (out/(lane+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if line.strip()]
+              assert len(children) == 1 and children[0]['exit_code'] == 0
+          folder = out/'scene-controls-localization-render'
+          report = json.loads((folder/'results.json').read_text(encoding='utf-8-sig'))
+          assert report['ok'] and report['failures'] == [] and report['renderer'] != 'headless'
+          assert len(report['samples']) == 60 and report['captures'] == 20
+          pictures = list(folder.glob('*.png'))
+          assert len(pictures) == 20 and all(p.read_bytes().startswith(bytes([137,80,78,71,13,10,26,10])) for p in pictures)
+          assert not subprocess.check_output(['git','diff','--name-only'],text=True).strip()
+          assert not subprocess.check_output(['git','diff','--cached','--name-only'],text=True).strip()
+          result = {'status':'passed','source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'cases':len(rows),'xml_assertions':sum(int(r.attrib['assertions']) for r in rows),'samples':60,'captures':20,'scope':'SceneHost localized chrome, isolated real Profile/Localization; synthetic action callbacks. No mounted board/narrative/native OS input or whole-game acceptance.'}
+          (out/'gate.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
           print(json.dumps(result))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -203,7 +192,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: scene-first-reveal-profile-${{ github.run_id }}-${{ github.run_attempt }}
+          name: scene-controls-localization-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             source/.godot/ci
             source/.godot/phase2r_logs
