@@ -2926,6 +2926,39 @@ diff --git a/autoload/ProfileManager.gd b/autoload/ProfileManager.gd
  	if not (block is Array):
  		return _command_failure(&"invalid_line_registry")
  	var index: Dictionary = {}
+diff --git a/autoload/SaveManager.gd b/autoload/SaveManager.gd
+--- a/autoload/SaveManager.gd
++++ b/autoload/SaveManager.gd
+@@ -2871,9 +2871,28 @@
+ 	if not token is String or not _scene_restore_preparations.has(token):
+ 		return _fail(&"invalid_scene_restore_preparation", "private prepared scene source required")
+ 	var retained: Dictionary = _scene_restore_preparations[token]
+-	if not CANONICAL_JSON._deep_same(retained.prepared, prepared):
++	if not _same_scene_preparation(retained.prepared, prepared):
+ 		return _fail(&"invalid_scene_restore_preparation", "prepared scene source changed")
+ 	return {"ok": true, "value": retained.duplicate(true)}
++
++## Prepared participant plans are process-local, not JSON round-trip values.
++## Preserve Variant types and runtime object identity while comparing detached containers.
++static func _same_scene_preparation(left: Variant, right: Variant) -> bool:
++	if typeof(left) != typeof(right): return false
++	if left is Dictionary:
++		if left.size() != right.size(): return false
++		var right_keys: Array = right.keys()
++		for key: Variant in left:
++			var index: int = right_keys.find(key)
++			if index < 0 or typeof(key) != typeof(right_keys[index]): return false
++			if not _same_scene_preparation(left[key], right[key]): return false
++		return true
++	if left is Array:
++		if left.size() != right.size(): return false
++		for index: int in left.size():
++			if not _same_scene_preparation(left[index], right[index]): return false
++		return true
++	return left == right
+ 
+ func _scene_activation_pending(operation: Dictionary) -> bool:
+ 	return operation.get("kind") in ["scene_restore", "scene_new_run"] and operation.get("stage") == CONTINUATION_JOURNAL.STAGE_COMPLETED \
 diff --git a/scenes/narrative/SceneHost.tscn b/scenes/narrative/SceneHost.tscn
 new file mode 100644
 --- /dev/null
@@ -2955,7 +2988,7 @@ diff --git a/tests/integration/test_scene_bootstrap_host.gd b/tests/integration/
 new file mode 100644
 --- /dev/null
 +++ b/tests/integration/test_scene_bootstrap_host.gd
-@@ -0,0 +1,124 @@
+@@ -0,0 +1,141 @@
 +extends "res://addons/gut/test.gd"
 +## Full FINAL startup stages and actual autoload owners. Only authored content is
 +## TEST-selected. No diagnostic restore participants or fabricated acknowledgments.
@@ -3051,7 +3084,16 @@ new file mode 100644
 +	var prepared: Dictionary = pause._backup_port.prepare_action("load", "slot:1")
 +	if not _ok(prepared): return
 +	var opaque: Dictionary = saves._backup_actions[prepared.value.token].prepared_restore
-+	_report_comparison_failure(saves._scene_restore_preparations[opaque.scene_preparation_token].prepared, opaque, "prepared")
++	assert_true(saves._same_scene_preparation(opaque, opaque.duplicate(true)))
++	assert_eq(typeof(opaque.participant_plans.desktop_board.candidate.kind), TYPE_STRING_NAME)
++	var altered: Dictionary = opaque.duplicate(true)
++	altered.participant_plans.desktop_board.candidate.kind = "restore"
++	assert_eq(saves.commit_prepared_restore(altered).get("code"), &"invalid_scene_restore_preparation", "same text with a changed Variant type is not the retained plan")
++	altered = opaque.duplicate(true)
++	altered.participant_plans.desktop_board.candidate.kind = &"changed"
++	assert_eq(saves.commit_prepared_restore(altered).get("code"), &"invalid_scene_restore_preparation", "changed plan is refused before identity allocation")
++	assert_eq(game.capture_run_snapshot_input(), source)
++	assert_eq(profile.get_profile_snapshot(), profile_before)
 +	if not _ok(await pause._backup_port.commit_action(prepared.value.token)): return
 +	if not _ok(await _await_ready(2)): return
 +	for frame: int in 4: await get_tree().process_frame
@@ -3070,13 +3112,21 @@ new file mode 100644
 +func after_all() -> void:
 +	get_tree().paused = false
 +
-+# Diagnostic only: locate the first strict comparator refusal without changing its input.
-+func _report_comparison_failure(left: Variant, right: Variant, path: String) -> void:
-+	if preload("res://scripts/validation/CanonicalJsonWriter.gd")._deep_same(left, right): return
-+	if typeof(left) == TYPE_DICTIONARY and typeof(right) == TYPE_DICTIONARY:
-+		for key: Variant in left:
-+			if right.has(key): _report_comparison_failure(left[key], right[key], path + "." + str(key))
-+	elif typeof(left) == TYPE_ARRAY and typeof(right) == TYPE_ARRAY and left.size() == right.size():
-+		for index: int in left.size(): _report_comparison_failure(left[index], right[index], path + "[%d]" % index)
-+	else:
-+		print("BOOTSTRAP_COMPARISON_REFUSAL ", path, " left_type=", type_string(typeof(left)), " right_type=", type_string(typeof(right)), " equal=", left == right, " left=", left, " right=", right)
++func test_scene_preparation_comparison_preserves_runtime_types_and_identity() -> void:
++	var owner := RefCounted.new()
++	var other := RefCounted.new()
++	var plan := {"nested": [{"kind": &"restore", "count": 1, "owner": owner}]}
++	assert_true(preload("res://autoload/SaveManager.gd")._same_scene_preparation(plan, plan.duplicate(true)))
++	for replacement: Variant in ["restore", &"changed"]:
++		var changed: Dictionary = plan.duplicate(true)
++		changed.nested[0].kind = replacement
++		assert_false(preload("res://autoload/SaveManager.gd")._same_scene_preparation(plan, changed))
++	var changed: Dictionary = plan.duplicate(true)
++	changed.nested[0].count = 1.0
++	assert_false(preload("res://autoload/SaveManager.gd")._same_scene_preparation(plan, changed))
++	changed = plan.duplicate(true)
++	changed.nested[0].owner = other
++	assert_false(preload("res://autoload/SaveManager.gd")._same_scene_preparation(plan, changed))
++	assert_false(preload("res://autoload/SaveManager.gd")._same_scene_preparation({"key": 1}, {&"key": 1}))
++	assert_false(preload("res://autoload/SaveManager.gd")._same_scene_preparation(plan, {}))
++	assert_false(preload("res://autoload/SaveManager.gd")._same_scene_preparation([1], [1, 2]))
