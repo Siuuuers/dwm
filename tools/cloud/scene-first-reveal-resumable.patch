@@ -2868,6 +2868,38 @@ diff --git a/autoload/ApplicationBootstrap.gd b/autoload/ApplicationBootstrap.gd
  
  
  ## Composes the retained board, consequence, Schedule, and checkpoint owners.
+@@ -2482,9 +2503,14 @@
+ 	# Native scene changes mount at frame end. Keep the exact pending session until
+ 	# scene_changed wakes us; publishing now would be overwritten by that mount.
+ 	if get_tree().current_scene == null: return
++	var lifecycle: Dictionary = game_state._run_lifecycle.to_dict()
++	# Scene activation is already acknowledged by SaveManager/Bridge/Router.
++	# It has no legacy calendar continuation to resume.
++	if lifecycle.has("scene_assignment"):
++		_pending_live_continuation = {}
++		return
+ 	if _present_pending_day7_prelude(game_state, router): return
+ 	_pending_live_continuation = {}
+-	var lifecycle: Dictionary = game_state._run_lifecycle.to_dict()
+ 	if str(lifecycle.state) == "COMPLETED":
+ 		# A compatible completed save may name main/menu instead of the ending scene. Retire
+ 		# through the same validated owner seam after restore activation and lease release.
+diff --git a/autoload/ProfileManager.gd b/autoload/ProfileManager.gd
+--- a/autoload/ProfileManager.gd
++++ b/autoload/ProfileManager.gd
+@@ -1685,6 +1685,12 @@
+ 
+ func configure_line_registry(registry: Dictionary) -> Dictionary:
+ 	var block: Variant = registry.get("reply_lines")
++	if registry.get("kind") == "scene_ids_registry":
++		# Scene lines belong to the complete immutable installed registration.
++		# Never accept a caller-created list by projecting it into legacy replies.
++		var checked: Dictionary = preload("res://scripts/narrative/DialogicEntryManifest.gd").validate_ids_document(registry)
++		if not checked.get("ok", false): return _command_failure(&"invalid_line_registry")
++		block = registry.get("lines")
+ 	if not (block is Array):
+ 		return _command_failure(&"invalid_line_registry")
+ 	var index: Dictionary = {}
 diff --git a/scenes/narrative/SceneHost.tscn b/scenes/narrative/SceneHost.tscn
 new file mode 100644
 --- /dev/null
@@ -2897,7 +2929,7 @@ diff --git a/tests/integration/test_scene_bootstrap_host.gd b/tests/integration/
 new file mode 100644
 --- /dev/null
 +++ b/tests/integration/test_scene_bootstrap_host.gd
-@@ -0,0 +1,95 @@
+@@ -0,0 +1,106 @@
 +extends "res://addons/gut/test.gd"
 +## Full FINAL startup stages and actual autoload owners. Only authored content is
 +## TEST-selected. No diagnostic restore participants or fabricated acknowledgments.
@@ -2951,6 +2983,17 @@ new file mode 100644
 +	assert_same(saves._restore_participants.run, bootstrap._retained_restore_participants.run)
 +	assert_same(saves._restore_participants.desktop_board, bootstrap._retained_restore_participants.desktop_board)
 +	assert_same(saves._restore_participants.narrative, bootstrap._retained_restore_participants.narrative)
++	var profile_registry: Node = get_node("/root/ProfileManager")
++	var installed: Dictionary = preload("res://scripts/narrative/DialogicEntryManifest.gd").load_ids_default()
++	if not _ok(installed): return
++	assert_true(profile_registry._line_registry_admits(installed.value.lines[0].line_id))
++	assert_false(profile_registry._line_registry_admits("TEST.unregistered.line"))
++	var fingerprint: String = profile_registry._line_registry_fingerprint
++	var forged: Dictionary = installed.value.duplicate(true)
++	forged.lines[0].line_id = "TEST.unregistered.line"
++	assert_false(profile_registry.configure_line_registry(forged).get("ok", false))
++	assert_eq(profile_registry._line_registry_fingerprint, fingerprint)
++
 +	saves.live_session_ready.connect(func() -> void: ready_count += 1)
 +	var audio: Node = get_node("/root/AudioManager")
 +	var started: Dictionary = saves.start_scene_new_run("target_b", {
