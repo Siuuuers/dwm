@@ -19,7 +19,10 @@ param(
     [ValidateRange(0, 86400)]
     [int]$TimeoutSeconds = 0,
 
-    [switch]$KeepRoot
+    [switch]$KeepRoot,
+
+    # Opt-in real window/renderer; isolation and exit-code checks stay identical.
+    [switch]$Rendered
 )
 
 Set-StrictMode -Version Latest
@@ -308,7 +311,8 @@ try {
         # A prior child must not redirect the retained storage or user directory
         # through a junction before the next process consumes those paths.
         Assert-TreeHasNoReparsePoints -Root $guidRoot
-        $argv = @('--headless','--path',$repositoryRoot,'--log-file',$logPath) + @($childPlan.Arguments)
+        $displayArgs = if ($Rendered) { @('--rendering-method','gl_compatibility','--audio-driver','Dummy') } else { @('--headless') }
+        $argv = @($displayArgs) + @('--path',$repositoryRoot,'--log-file',$logPath) + @($childPlan.Arguments)
         $startedAt = [DateTime]::UtcNow.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
         $requested = Invoke-GodotChild -Executable $godotExecutable -Arguments $argv -AppData $childAppData -LocalAppData $childLocalAppData -DwmTestRoot $childDwmRoot -TimeoutSeconds $TimeoutSeconds -TimeoutLogPath $timeoutLog
         $endedAt = [DateTime]::UtcNow.ToString('o', [Globalization.CultureInfo]::InvariantCulture)

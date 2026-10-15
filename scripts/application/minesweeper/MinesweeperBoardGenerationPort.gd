@@ -26,6 +26,14 @@ func begin_search(spec: Dictionary) -> Dictionary:
 	return _ok({"frontier": preparation.duplicate(true)})
 
 
+func begin_search_at_cell(spec: Dictionary, first_cell: int) -> Dictionary:
+	var begun: Dictionary = _GENERATOR.begin_debug_at_cell(spec, first_cell)
+	if not begun.get("ok", false):
+		return begun
+	var preparation: Dictionary = begun["value"]["preparation"]
+	return _ok({"frontier": preparation.duplicate(true)})
+
+
 func run_search_slice(frontier: Dictionary) -> Dictionary:
 	var advanced: Dictionary = _GENERATOR.run_debug_slice(frontier)
 	if not advanced.get("ok", false):

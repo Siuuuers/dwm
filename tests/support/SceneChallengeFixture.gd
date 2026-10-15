@@ -63,7 +63,7 @@ class Authority extends RefCounted:
 		return {"ok": held_end, "code": &"TEST.end_not_held", "value": {}}
 	func capture_scene_challenge_closure(_context: Dictionary) -> Dictionary:
 		return {"ok": true, "value": closures.get(state.lifecycle.branch_id, {}).duplicate(true)}
-	func commit_scene_challenge_checkpoint(record: Dictionary, reference: Dictionary) -> Dictionary:
+	func commit_scene_challenge_checkpoint(record: Dictionary, reference: Dictionary, _lease: String = "") -> Dictionary:
 		var retained: Dictionary = profile.get_dating_attempt(state.lifecycle.run_id, LEDGER.semantic_slot(record.context), reference.attempt_id, reference.branch_id)
 		if not retained.ok or retained.value.record != record: return {"ok": false, "code": &"TEST.profile_not_before_run"}
 		if not checkpoint_failure.is_empty(): return checkpoint_failure.duplicate(true)
@@ -87,6 +87,8 @@ class Authority extends RefCounted:
 class Generation extends "res://tests/support/FakeMinesweeperGenerationPort.gd":
 	func begin_search(spec: Dictionary) -> Dictionary:
 		return preload("res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd").new().begin_search(spec)
+	func begin_search_at_cell(spec: Dictionary, first_cell: int) -> Dictionary:
+		return preload("res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd").new().begin_search_at_cell(spec, first_cell)
 
 var state := State.new()
 var profile: Node

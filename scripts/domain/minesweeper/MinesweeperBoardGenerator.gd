@@ -183,6 +183,52 @@ static func begin_debug(spec: Dictionary) -> Dictionary:
 	return _PREPARATION.validate((begun["value"] as Dictionary)["preparation"])
 
 
+## Scene Challenge first Reveal chooses the exact forced cell. Burn the same one
+## debug-stream draw as begin_debug(), then retain the player-selected cell while
+## leaving candidate search, budgets, fallback adoption and certification unchanged.
+static func begin_debug_at_cell(spec: Dictionary, first_cell: int) -> Dictionary:
+	var budget_loaded := _read_budget_manifest()
+	if not budget_loaded.get("ok", false):
+		return budget_loaded
+	var fallback_loaded := _read_fallback_manifest()
+	if not fallback_loaded.get("ok", false):
+		return fallback_loaded
+
+	var spec_check: Dictionary = _BOARD_SCHEMA.validate_spec(spec)
+	if not spec_check.get("ok", false):
+		return spec_check
+	var validated_spec: Dictionary = (spec_check["value"] as Dictionary)["spec"]
+	var total_cells: int = int(validated_spec["width"]) * int(validated_spec["height"])
+	if typeof(first_cell) != TYPE_INT or first_cell < 0 or first_cell >= total_cells:
+		return _fail(&"cell_index_out_of_range", "first_cell is out of range", {"first_cell": first_cell})
+
+	var debug_seeded := _seed(StringName(validated_spec["debug_stream_id"]), String(validated_spec["debug_nonce"]))
+	if not debug_seeded.get("ok", false):
+		return debug_seeded
+	var debug_rng: RefCounted = debug_seeded["value"]
+	var burned: Dictionary = debug_rng.sample_bounded(total_cells)
+	if not burned.get("ok", false):
+		return burned
+	var debug_state: Dictionary = debug_rng.capture()["value"]
+
+	var placement_seeded := _seed(StringName(validated_spec["placement_stream_id"]), String(validated_spec["placement_nonce"]))
+	if not placement_seeded.get("ok", false):
+		return placement_seeded
+	var placement_state: Dictionary = (placement_seeded["value"] as RefCounted).capture()["value"]
+
+	var explosion_seeded := _seed(StringName(validated_spec["explosion_stream_id"]), String(validated_spec["explosion_nonce"]))
+	if not explosion_seeded.get("ok", false):
+		return explosion_seeded
+	var explosion_state: Dictionary = (explosion_seeded["value"] as RefCounted).capture()["value"]
+
+	var kernel_spec := _project_kernel_spec(validated_spec)
+	var begun: Dictionary = _KERNEL.begin(kernel_spec, first_cell, _KERNEL.MODE_CANDIDATE_SEARCH,
+		placement_state, debug_state, explosion_state)
+	if not begun.get("ok", false):
+		return begun
+	return _PREPARATION.validate((begun["value"] as Dictionary)["preparation"])
+
+
 ## Advances one bounded slice of an in-progress Debug preparation using slice_operation_budget,
 ## enforcing cumulative search_operation_budget (the kernel is never offered more of the search
 ## budget than remains, and is never offered a call so small it could only stall), then falling

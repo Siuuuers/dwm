@@ -65,12 +65,12 @@ func validate_scene_source(token: RefCounted, session: RefCounted) -> Dictionary
 		return _fail(&"scene_source_changed", "")
 	return {"ok": true}
 
-func _scene_source_boundary(session: RefCounted) -> Dictionary:
+func _scene_source_boundary(session: RefCounted, allow_suspended_read: bool = false) -> Dictionary:
 	if not _qualified_runtime or not _caption_source_is_current() or session == null \
 			or session.family != "scene" or session.boundary not in ["line", "control"] \
 			or session.ledger != _caption_ledger or session.command_id != _caption_token \
 			or session.latest_entry != _caption_entry or session.scene_occurrence != _scene_caption_occurrence \
-			or _dialogic.paused or _dialogic.Inputs.auto_skip.enabled or _dialogic.Inputs.auto_advance.is_enabled():
+			or (_dialogic.paused and not allow_suspended_read) or _dialogic.Inputs.auto_skip.enabled or _dialogic.Inputs.auto_advance.is_enabled():
 		return _fail(&"scene_source_unavailable", "")
 	var frontier := capture_reading_frontier()
 	if not frontier.ok: return frontier
@@ -272,7 +272,25 @@ func _install_scene_control(session: RefCounted, reading: Dictionary,
 ## Selected Load restores an authenticated saved caption, not a target label.
 ## No marker/jump/Return is executed to reach it; unsupported parked boundaries refuse.
 func restore_scene_frontier(session: RefCounted, checkpoint: Dictionary) -> Dictionary:
-	if not _bound or not _qualified_runtime or has_active_playback() or session == null or session.family != "scene":
+	return _install_scene_frontier(session, checkpoint)
+
+## Only a durable exact one-edge control departure can replace a live source.
+func install_scene_continuation(session: RefCounted, checkpoint: Dictionary, source_token: RefCounted) -> Dictionary:
+	var source_session: RefCounted = _scene_source.get("session")
+	var current := validate_scene_source(source_token, source_session)
+	if not current.ok: return current
+	var traversal := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
+	var operation := traversal.validate(checkpoint.get("reading_session", {}), str(checkpoint.get("entry_id", "")))
+	if not operation.ok: return operation
+	var plan: Dictionary = operation.value.plan
+	if operation.value.phase != "destination" or plan.source_reading.boundary != "control" \
+			or plan.path.size() != 1 or plan.destination.kind != "line" or not plan.traversed_captions.is_empty() \
+			or not traversal._same(plan.source_reading, traversal.without_operation(_scene_source.boundary.reading)):
+		return _fail(&"scene_control_candidate_invalid", "exact control departure required")
+	return _install_scene_frontier(session, checkpoint, source_token)
+
+func _install_scene_frontier(session: RefCounted, checkpoint: Dictionary, source_token: RefCounted = null) -> Dictionary:
+	if not _bound or not _qualified_runtime or (has_active_playback() and source_token == null) or session == null or session.family != "scene":
 		return _fail(&"scene_restore_native_unavailable", "idle qualified runtime required")
 	var checked: Dictionary = session.validate_saved(checkpoint.get("reading_session", {}), str(checkpoint.get("entry_id", "")))
 	if not checked.ok: return checked
@@ -310,6 +328,16 @@ func restore_scene_frontier(session: RefCounted, checkpoint: Dictionary) -> Dict
 	var node: Dictionary = compiled.value.nodes[native_program_index]
 	if node.kind != "caption" or node.line_id != restore_frontier.line_id:
 		return _fail(&"scene_restore_native_invalid", "saved caption position changed")
+	if source_token != null:
+		var source_checked := validate_scene_source(source_token, _scene_source.get("session"))
+		if not source_checked.ok: return source_checked
+		_scene_source_token = null
+		_scene_source = {}
+		_retire_caption_binding()
+		release_frozen_presentation()
+		_activity_phase = ""
+		_requested_path = ""
+		_runtime_generation = 0
 	var bound := bind_caption_ledger(session.ledger, session.command_id, checkpoint.entry_id, false, saved.occurrence_id)
 	if not bound.ok: return bound
 	var frozen := install_frozen_presentation(presentation.value)
@@ -319,7 +347,8 @@ func restore_scene_frontier(session: RefCounted, checkpoint: Dictionary) -> Dict
 		_scene_control_restore = {"session": session, "reading": saved.duplicate(true)}
 	_caption_restore_frontier = restore_frontier.duplicate(true)
 	_caption_restore_queued = false
-	var started := start_timeline(path, int(compiled.value.native_indices[native_program_index]))
+	var started := _start_held_scene_target(path, int(compiled.value.native_indices[native_program_index])) if source_token != null \
+		else start_timeline(path, int(compiled.value.native_indices[native_program_index]))
 	if not started.ok:
 		_scene_control_restore = {}
 		_caption_restore_frontier = {}
@@ -353,7 +382,9 @@ func capture_scene_control_position(session: RefCounted) -> Dictionary:
 	var captured: Dictionary = session.capture({})
 	if not captured.ok or captured.value != _scene_control_restore.reading:
 		return _fail(&"scene_restore_control_changed", "")
-	var physical := _scene_source_boundary(session)
+	# Read-only Save/History capture retains the same proven session and marker
+	# while sheet custody suspends native playback. Mutation callers stay unpaused.
+	var physical := _scene_source_boundary(session, true)
 	if not physical.ok: return physical
 	return {"ok": true, "value": captured.value}
 

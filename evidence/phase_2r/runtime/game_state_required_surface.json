@@ -2020,6 +2020,14 @@
       "disposition": "retain",
       "replacement": "",
       "contract_test": "test_confirmed_commit_interrupted_before_adoption_fences_retry_and_manual_save"
+    },
+    {
+      "symbol": "capture_scene_entry_audio",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_fresh_scene_audio_load_retains_admission_and_uses_anchor"
     }
   ]
 }

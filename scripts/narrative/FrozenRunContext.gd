@@ -96,7 +96,7 @@ static func validate_reading_checkpoint(checkpoint: Dictionary, snapshot: Dictio
 			return _fail(&"reading_saved_run_required")
 		var registered := SCENE_ENTRIES.scene_registration()
 		if not registered.ok: return registered
-		var receipts: Dictionary = SCENE_CONTRACT.validate_scene_receipts(snapshot.command_receipts, registered.value, _scene_issuer, _scene_creation_owner)
+		var receipts: Dictionary = SCENE_CONTRACT.validate_scene_receipts(snapshot.command_receipts, registered.value, _scene_issuer, _scene_creation_owner, snapshot.contacts)
 		if not receipts.get("ok", false): return receipts
 		var scene_reading: Dictionary = checkpoint.reading_session
 		if snapshot.scene.get("registration_sha256") != scene_reading.registration_sha256 \

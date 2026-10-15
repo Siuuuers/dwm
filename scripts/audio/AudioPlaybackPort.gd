@@ -59,11 +59,13 @@ func set_player_db(player_id: StringName, value_db: float) -> Dictionary:
 	return _ok({})
 
 
-func play(player_id: StringName) -> Dictionary:
+func play(player_id: StringName, from_position: float = 0.0) -> Dictionary:
+	if not is_finite(from_position) or from_position < 0.0:
+		return _failure(&"invalid_audio_runtime")
 	var player: AudioStreamPlayer = _players.get(player_id)
 	if player == null:
 		return _failure(&"invalid_audio_runtime")
-	player.play()
+	player.play(from_position)
 	return _ok({})
 
 

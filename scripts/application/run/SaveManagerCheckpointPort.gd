@@ -163,7 +163,8 @@ func prepare(checkpoint_inputs: Dictionary, checkpoint_kind: StringName, disk_wr
 	# When configured, the desktop host is the sole source of the persisted active_app_id;
 	# the caller-supplied value is ignored (dwm-p2r.9 Plan 02 Task 1).
 	var active_app_id: Variant = checkpoint_inputs["active_app_id"]
-	if _desktop_context_provider != null:
+	var scene_route: bool = checkpoint_inputs["route_id"] == "scene"
+	if not scene_route and _desktop_context_provider != null:
 		active_app_id = _desktop_context_provider.capture_persistent_state().get("active_app_id", null)
 	# T4-AF.18 / T4-AJ.C item 49: the live ScheduleView is checkpointed from the one restore
 	# participant SaveManager already holds; absent participant, today's behaviour is unchanged;
@@ -177,7 +178,7 @@ func prepare(checkpoint_inputs: Dictionary, checkpoint_kind: StringName, disk_wr
 	# Task 5 / Task 7 work after each checkpoint, so in continuous play it can lag by several days
 	# (RULING T4-AK, review P C1) -- while a recorded day BEHIND the captured view is left to
 	# RunSnapshotSchema.build()'s own day binding to refuse.
-	if not (snapshot_input as Dictionary).has("schedule_view") and _restore_participants().has("schedule_view"):
+	if not scene_route and not (snapshot_input as Dictionary).has("schedule_view") and _restore_participants().has("schedule_view"):
 		var captured: Dictionary = _restore_participants()["schedule_view"].capture()
 		if not captured.get("ok", false):
 			return captured
@@ -205,7 +206,7 @@ func prepare(checkpoint_inputs: Dictionary, checkpoint_kind: StringName, disk_wr
 	# The final captured view may be an uncommitted draft. Bind its retained live registry
 	# on the detached checkpoint only; strict saved-document validation remains unchanged.
 	var view_participant: Object = _restore_participants().get("schedule_view")
-	if is_instance_valid(view_participant) and view_participant.has_method("compose_live_checkpoint_input"):
+	if not scene_route and is_instance_valid(view_participant) and view_participant.has_method("compose_live_checkpoint_input"):
 		snapshot_input = view_participant.compose_live_checkpoint_input(snapshot_input)
 	tick = _profile_phase(profile, "view_capture_us", tick)
 	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(

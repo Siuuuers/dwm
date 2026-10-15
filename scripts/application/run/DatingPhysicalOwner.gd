@@ -181,6 +181,42 @@ func pull_physical(physical_token: String) -> Dictionary:
 	if not _adopt(physical_token): return _fail(&"dating_challenge_unavailable")
 	return _ok(_view())
 
+
+## Presentation-facing Scene Challenge surface. The retained physical API still owns
+## legacy internal start/prepare tests, but the player surface has no Start command.
+func pull_scene_panel(physical_token: String) -> Dictionary:
+	if not _scene_command(): return _fail(&"scene_challenge_unadmitted")
+	var view: Dictionary = _pull_scene(physical_token)
+	if not view.get("ok", false): return view
+	var profile: Dictionary = _scene_board_profile()
+	if not profile.get("ok", false): return profile
+	var value: Dictionary = view.value.duplicate(true)
+	value.host = str(profile.value.difficulty_id)
+	if value.get("phase") != "never_started": return _ok(value)
+	var preview: Dictionary = _scene_unstarted_board()
+	if not preview.get("ok", false): return preview
+	value.actions = ["reveal"]
+	value.board = preview.value
+	value.revision = 0
+	return _ok(value)
+
+func dispatch_scene_panel_action(physical_token: String, action: String, cell_index: int,
+		expected_revision: int) -> Dictionary:
+	var view: Dictionary = pull_scene_panel(physical_token)
+	if not view.get("ok", false): return view
+	if view.value.get("phase") == "never_started":
+		if action != "reveal" or expected_revision != 0 or cell_index < 0 \
+				or cell_index >= int(view.value.board.width) * int(view.value.board.height):
+			return _fail(&"scene_challenge_command_refused")
+		return _dispatch_scene_first_reveal(physical_token, cell_index)
+	if action == "reveal" and expected_revision == 0 and _pending_checkpoint.is_empty() \
+			and _record.get("phase") == "preparing" and cell_index == int(_record.envelope.forced_cell):
+		return view
+	if action == "reveal":
+		var duplicate: Dictionary = _scene_duplicate_first_reveal(cell_index, expected_revision)
+		if duplicate.get("matched", false): return duplicate.result
+	return _dispatch_scene(physical_token, action, cell_index, expected_revision)
+
 func dispatch_physical(physical_token: String, action: String, cell_index: int,
 		expected_revision: int) -> Dictionary:
 	if _scene_command(): return _dispatch_scene(physical_token, action, cell_index, expected_revision)
@@ -605,7 +641,17 @@ func _commit_attempt() -> Dictionary:
 ## Profile behind the board it saves (dwm-634.2). Runs inside the caller's causal lease when one
 ## is active, otherwise takes and releases its own; a foreign lease refuses pending progress.
 func flush_pending_attempt() -> Dictionary:
-	if _record.get("schema_version") == 4 and not _scene_command(): return _fail(&"scene_challenge_readmission_required")
+	if _record.get("schema_version") == 4 and not _scene_command():
+		# A selected completed save keeps its historical closure. There is no
+		# playable input to re-admit and no new physical progress to flush.
+		if _record.get("phase") == "terminal" and not _routine_pending and _pending_checkpoint.is_empty() \
+				and is_instance_valid(_game_state) and _game_state.has_method("capture_scene_challenge_closure"):
+			var closed: Dictionary = _game_state.capture_scene_challenge_closure(_record.context)
+			var digest: Dictionary = CANONICAL.canonical_sha256(_record)
+			if closed.get("ok", false) and digest.get("ok", false) \
+					and closed.value.get("attempt_proof", {}).get("record_sha256") == digest.value.sha256:
+				return _ok({"committed": false})
+		return _fail(&"scene_challenge_readmission_required")
 	if _scene_command(): return _flush_scene_pending()
 	if not _routine_pending or _attempt_gate == null or not _pending_checkpoint.is_empty(): return _ok({"committed": false})
 	var lease := {}
@@ -1549,6 +1595,61 @@ func _pull_scene(token: String) -> Dictionary:
 	return _ok({"phase": "checkpoint_retry" if not _pending_checkpoint.is_empty() else _record.phase,
 		"state": _record.state, "actions": actions, "board": _project_board(), "revision": _revision(), "result": detail})
 
+
+func _scene_board_profile() -> Dictionary:
+	var challenge := {}
+	for row: Dictionary in _scene_bundle.challenges:
+		if row.challenge_id == _admitted_command.context.challenge_id: challenge = row
+	var selected := {}
+	for row: Dictionary in _scene_bundle.board_profiles:
+		if row.board_profile_id == challenge.get("board_profile_id"): selected = row
+	if selected.is_empty() or selected.difficulty_id not in ["canonical_solo", "canonical_pair"] \
+			or selected.capability_policy_id != "owned_inventory_v1":
+		return _fail(&"scene_board_profile_unsupported")
+	return _ok(selected.duplicate(true))
+
+func _scene_unstarted_board() -> Dictionary:
+	var profile: Dictionary = _scene_board_profile()
+	if not profile.get("ok", false): return profile
+	var selected: Dictionary = profile.value
+	var owned: Dictionary = CAPABILITIES.resolve_owned(_game_state.inventory)
+	if not owned.get("ok", false): return owned
+	var inputs: Dictionary = CAPABILITIES.build_spec_inputs(owned.value,
+		int(_game_state.get_stat("pressure")), int(_game_state.penalty_points_today))
+	if not inputs.get("ok", false): return inputs
+	var cells: Array = []
+	for index in int(selected.width) * int(selected.height):
+		cells.append({"index": index, "face": "covered", "mark": "none", "number": 0,
+			"bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal"]})
+	return _ok({"width": int(selected.width), "height": int(selected.height), "revision": 0,
+		"mine_estimate": int(selected.base_mine_count) + int(inputs.value.effective_extra_mines),
+		"terminal": false, "custody": false, "cells": cells})
+
+func _scene_duplicate_first_reveal(cell_index: int, expected_revision: int) -> Dictionary:
+	if expected_revision != 0 or not _pending_checkpoint.is_empty() or not _record.get("board") is Dictionary \
+			or not _history_committed or _history_reference.is_empty():
+		return {"matched": false}
+	var exact: Dictionary = _profile.get_dating_attempt(str(_attempt_identity().run_id),
+		ATTEMPTS.semantic_slot(_record.context), str(_history_reference.attempt_id), str(_history_reference.branch_id))
+	if not exact.get("ok", false) or exact.value.record != _record \
+			or not exact.value.get("materialization_receipt") is Dictionary \
+			or int(exact.value.materialization_receipt.get("first_cell_index", -1)) != cell_index:
+		return {"matched": false}
+	return {"matched": true, "result": _pull_scene(_record.physical_token)}
+
+func _dispatch_scene_first_reveal(token: String, index: int) -> Dictionary:
+	var current: Dictionary = _pull_scene(token)
+	if not current.get("ok", false) or current.value.get("phase") != "never_started":
+		return _fail(&"scene_challenge_command_refused")
+	var lease: Dictionary = _attempt_gate.acquire(&"causal_transaction")
+	if not lease.get("ok", false): return lease
+	_scene_lease = str(lease.value.token)
+	var result: Dictionary = _scene_action("first_reveal", index)
+	_scene_lease = ""
+	_scene_start_admission = {}
+	var released: Dictionary = _attempt_gate.release(&"causal_transaction", str(lease.value.token))
+	return result if released.get("ok", false) else released
+
 func _dispatch_scene(token: String, action: String, index: int, revision: int) -> Dictionary:
 	if _scene_absence_busy:
 		_scene_absence_reentered = true
@@ -1573,12 +1674,16 @@ func _scene_action(action: String, index: int) -> Dictionary:
 	_first_cell_index = -1
 	var changed: Dictionary
 	if action == "start": changed = _scene_start()
+	elif action == "first_reveal":
+		changed = _scene_start(index)
+		if changed.get("ok", false) and _record.phase == "ready":
+			changed = _board_action("reveal", index)
 	elif action == "prepare": changed = _scene_prepare()
 	else:
 		changed = _board_action(action, index)
-		if changed.ok and _record.board != null:
-			_record.phase = "terminal" if _record.board.terminal else "active"
-			_record.state = ("lost" if str(_record.board.outcome) == "exploded" else "won") if _record.board.terminal else "in_progress"
+	if changed.ok and _record.board != null:
+		_record.phase = "terminal" if _record.board.terminal else "active"
+		_record.state = ("lost" if str(_record.board.outcome) == "exploded" else "won") if _record.board.terminal else "in_progress"
 	if changed.ok:
 		var plain: Dictionary = ENVELOPE.plain_frontier(_record)
 		if plain.ok: _record = plain.value
@@ -1599,16 +1704,11 @@ func _scene_action(action: String, index: int) -> Dictionary:
 	_pending_checkpoint = _record.duplicate(true)
 	return _scene_checkpoint()
 
-func _scene_start() -> Dictionary:
+func _scene_start(first_reveal_index: int = -1) -> Dictionary:
 	if not _record.is_empty(): return _fail(&"scene_challenge_already_started")
-	var challenge := {}
-	for row: Dictionary in _scene_bundle.challenges:
-		if row.challenge_id == _admitted_command.context.challenge_id: challenge = row
-	var selected := {}
-	for row: Dictionary in _scene_bundle.board_profiles:
-		if row.board_profile_id == challenge.get("board_profile_id"): selected = row
-	if selected.is_empty() or selected.difficulty_id not in ["canonical_solo", "canonical_pair"] or selected.capability_policy_id != "owned_inventory_v1":
-		return _fail(&"scene_board_profile_unsupported")
+	var selected_result: Dictionary = _scene_board_profile()
+	if not selected_result.get("ok", false): return selected_result
+	var selected: Dictionary = selected_result.value
 	var retained: Dictionary = _profile.get_dating_attempt(str(_attempt_identity().run_id), ATTEMPTS.semantic_slot(_admitted_command.context))
 	if not retained.ok: return retained
 	var absence_selection := {}
@@ -1637,12 +1737,16 @@ func _scene_start() -> Dictionary:
 		"command_sha256": _admitted_command.command_sha256, "physical_token": _token(_admitted_command.completion_transaction_id, _admitted_command.command_sha256),
 		"context": _admitted_command.context.duplicate(true), "host": "scene_challenge", "spec": spec.value,
 		"board": null, "envelope": ENVELOPE.make(), "phase": "ready", "state": "in_progress", "applied_result": {}}
+
 	if _record.spec.capability_ids.has("forced_no_guess"):
-		var begun: Dictionary = _generation.begin_search(_record.spec)
+		var begun: Dictionary = _generation.begin_search_at_cell(_record.spec, first_reveal_index) \
+			if first_reveal_index >= 0 and _generation.has_method("begin_search_at_cell") else _generation.begin_search(_record.spec)
 		if not begun.ok: return begun
 		var plain: Dictionary = ENVELOPE.plain_frontier(begun.value.frontier)
 		if not plain.ok: return plain
 		_record.envelope.preparation = plain.value
+		# A retained accepted Reveal is distinct from legacy internal Start.
+		_record.envelope.forced_cell = first_reveal_index
 		_record.phase = "preparing"
 	_clear_history_state()
 	_history_selection = absence_selection if not absence_selection.is_empty() else {"mode": "fresh"}
@@ -1693,6 +1797,7 @@ func _validate_scene_start_absence() -> Dictionary:
 	return _ok({}) if result is Dictionary and result.get("ok", false) else _fail(&"scene_absence_not_authorized")
 
 func _scene_prepare() -> Dictionary:
+	var accepted_reveal: int = int(_record.envelope.forced_cell)
 	# Use the existing domain preparation owner: the legacy generation-port adapter
 	# deliberately hides exhausted frontiers, which this family must retain.
 	var advanced: Dictionary = preload("res://scripts/domain/minesweeper/MinesweeperBoardGenerator.gd").run_debug_slice(_record.envelope.preparation)
@@ -1711,6 +1816,9 @@ func _scene_prepare() -> Dictionary:
 		_record.envelope.special_cell = ENVELOPE.special_cell(_record.spec, layout)
 		_record.envelope.preparation = null
 		_record.phase = "ready"
+		if accepted_reveal >= 0:
+			var revealed: Dictionary = _board_action("reveal", accepted_reveal)
+			if not revealed.ok: return revealed
 	else: return _fail(&"scene_preparation_result_invalid")
 	return _ok({})
 
@@ -1718,7 +1826,7 @@ func _scene_checkpoint() -> Dictionary:
 	var applied := _apply_record_effect(true)
 	if not applied.ok: return applied
 	_scene_checkpoint_in_flight = true
-	var saved: Dictionary = _scene_authority.commit_scene_challenge_checkpoint(_record.duplicate(true), _history_reference.duplicate(true))
+	var saved: Dictionary = _scene_authority.commit_scene_challenge_checkpoint(_record.duplicate(true), _history_reference.duplicate(true), _scene_lease)
 	_scene_checkpoint_in_flight = false
 	if not saved.get("ok", false):
 		_retain_scene_failure_custody(saved)
@@ -1753,6 +1861,17 @@ func close_scene_challenge(token: String) -> Dictionary:
 	var released: Dictionary = _attempt_gate.release(&"causal_transaction", str(lease.value.token))
 	return result if released.ok else released
 
+## GameState's authenticated End event owns this lease; never acquire a second one.
+func close_scene_challenge_owned(lease: String) -> Dictionary:
+	if _scene_authority != _game_state or not _attempt_gate.is_lease_active(&"causal_transaction", lease) \
+			or not _scene_lease.is_empty(): return _fail(&"scene_challenge_lease_required")
+	var admitted := _scene_authorize(_admitted_command)
+	if not admitted.ok: return admitted
+	_scene_lease = lease
+	var result := _close_scene_locked()
+	_scene_lease = ""
+	return result
+
 func _close_scene_locked() -> Dictionary:
 	var end: Dictionary = _scene_authority.validate_scene_challenge_end(_admitted_command.duplicate(true))
 	if not end.get("ok", false): return end
@@ -1772,7 +1891,7 @@ func _close_scene_locked() -> Dictionary:
 		var exact: Dictionary = _profile.get_dating_attempt(str(_attempt_identity().run_id), ATTEMPTS.semantic_slot(_record.context), str(_record.spec.board_token), str(_history_reference.branch_id))
 		if not exact.ok or exact.value.record != _record or exact.value.revision != _history_revision: return _fail(&"scene_attempt_proof_mismatch")
 		_scene_checkpoint_in_flight = true
-		var source: Dictionary = _scene_authority.commit_scene_challenge_checkpoint(_record.duplicate(true), _history_reference.duplicate(true))
+		var source: Dictionary = _scene_authority.commit_scene_challenge_checkpoint(_record.duplicate(true), _history_reference.duplicate(true), _scene_lease)
 		_scene_checkpoint_in_flight = false
 		if not source.get("ok", false):
 			_retain_scene_failure_custody(source)
@@ -1831,14 +1950,17 @@ func _flush_scene_pending() -> Dictionary:
 	if not closed.value.is_empty(): return _ok({"committed": false})
 	if _record.is_empty() or (_history_committed and not _routine_pending and _pending_checkpoint.is_empty()): return _ok({"committed": false})
 	var lease := {}
+	var prior_lease := _scene_lease
 	if not _attempt_gate.is_internal_owner_active(&"causal_transaction"):
 		lease = _attempt_gate.acquire(&"causal_transaction")
 		if not lease.ok: return lease
+		_scene_lease = str(lease.value.token)
 	var result := _ok({})
 	if _pending_checkpoint.is_empty():
 		result = _commit_attempt()
 		if result.ok: _pending_checkpoint = _record.duplicate(true)
 	if result.ok: result = _scene_checkpoint()
+	_scene_lease = prior_lease
 	if not lease.is_empty():
 		var released: Dictionary = _attempt_gate.release(&"causal_transaction", str(lease.value.token))
 		if not released.ok: return released

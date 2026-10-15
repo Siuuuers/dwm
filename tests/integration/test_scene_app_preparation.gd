@@ -8,14 +8,80 @@ const FILES := preload("res://tests/support/FakeFileOps.gd")
 var viewport: SubViewport
 var locale: RefCounted
 var profile: RefCounted
+var _orphan_baseline: Array[int] = []
 
 func before_each() -> void:
+	_orphan_baseline = Node.get_orphan_node_ids()
 	viewport = SubViewport.new()
 	viewport.size = Vector2i(1280, 720)
-	add_child_autofree(viewport)
+	# This fixture owns viewport teardown; do not also register it with GUT.
+	add_child(viewport)
 	locale = F.MINES.LocaleFixture.new()
 	profile = F.MINES.ProfileFixture.new()
 	profile.values = {"preferences.accessibility.text_size": 100, "preferences.accessibility.large_targets": false}
+
+# Inspect identities, not count deltas: freeing an older orphan cannot hide a new one.
+# Never free enumerated orphans here. Only the fixture viewport is ours to release.
+func _new_orphan_snapshot() -> Dictionary:
+	var snapshot: Dictionary = {}
+	for node_id: int in Node.get_orphan_node_ids():
+		if node_id in _orphan_baseline: continue
+		var orphan := instance_from_id(node_id) as Node
+		if not is_instance_valid(orphan): continue
+		var cursor: Node = orphan
+		var queued_ancestor := 0
+		while cursor != null:
+			if cursor.is_queued_for_deletion():
+				queued_ancestor = cursor.get_instance_id()
+				break
+			cursor = cursor.get_parent()
+		snapshot[node_id] = {"name": str(orphan.name), "class": orphan.get_class(),
+			"queued_ancestor": queued_ancestor}
+	return snapshot
+
+func _settle_ui_deletions() -> void:
+	# Two frame boundaries allow the deletion queue and exit-tree deferred work.
+	# This is a bounded UI-node check, not arbitrary timer or RefCounted leak proof.
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+func after_each() -> void:
+	var before_release := _new_orphan_snapshot()
+	if is_instance_valid(viewport): viewport.queue_free()
+	await _settle_ui_deletions()
+	var after_settle := _new_orphan_snapshot()
+	print("SCENE_APP_TEARDOWN " + JSON.stringify({"before_root_release": before_release,
+		"after_two_frames": after_settle}))
+	assert_false(is_instance_valid(viewport), "The fixture viewport must be released")
+	assert_true(after_settle.is_empty(), "New orphan nodes survive UI teardown: " + str(after_settle))
+
+func test_teardown_probe_distinguishes_queued_children_from_unqueued_survivor() -> void:
+	# Deliberate negative control: the observer must report, not clean, this node.
+	var survivor := Node.new()
+	survivor.name = "DeliberatelyUnqueuedProbe"
+	var survivor_id := survivor.get_instance_id()
+	var queued_root := Node.new()
+	queued_root.name = "QueuedProbeRoot"
+	var queued_child := Node.new()
+	queued_root.add_child(queued_child)
+	var root_id := queued_root.get_instance_id()
+	var child_id := queued_child.get_instance_id()
+	queued_root.queue_free()
+	var before := _new_orphan_snapshot()
+	assert_true(before.has(survivor_id), "The debug orphan API must observe the negative control")
+	assert_eq(before.get(survivor_id, {}).get("queued_ancestor", -1), 0)
+	assert_eq(before.get(root_id, {}).get("queued_ancestor", -1), root_id)
+	assert_eq(before.get(child_id, {}).get("queued_ancestor", -1), root_id)
+	await _settle_ui_deletions()
+	var after := _new_orphan_snapshot()
+	assert_true(is_instance_valid(survivor), "Waiting and observation must not destroy an unqueued node")
+	assert_true(after.has(survivor_id), "A persistent orphan remains a failing condition")
+	assert_false(is_instance_valid(queued_root))
+	assert_false(is_instance_valid(queued_child))
+	assert_false(after.has(root_id))
+	assert_false(after.has(child_id))
+	# Explicitly dispose only this test's sentinel, after proving detection.
+	survivor.free()
 
 func mount_app(path: String, spy: Script = null) -> Control:
 	var app: Control = load(path).instantiate()

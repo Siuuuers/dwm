@@ -74,7 +74,7 @@ var original_owners: Dictionary = {}
 
 func setup(scene_tree: SceneTree, shared_root: String = "") -> Dictionary:
 	tree = scene_tree
-	var checked: Dictionary = REGISTRATION.install_registration()
+	var checked: Dictionary = _install_registration()
 	if not checked.ok: return checked
 	var temporary: Dictionary
 	if shared_root.is_empty():
@@ -176,3 +176,7 @@ func close() -> void:
 		if is_instance_valid(original) and original.get_parent() == null:
 			tree.root.add_child(original)
 			tree.root.move_child(original, mini(original_owners[name].index, tree.root.get_child_count() - 1))
+
+# Test fixtures select registration before any owner binds its immutable bundle.
+func _install_registration() -> Dictionary:
+	return REGISTRATION.install_registration()

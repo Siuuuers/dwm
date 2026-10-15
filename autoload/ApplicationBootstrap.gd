@@ -569,6 +569,10 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 			if not profile_bound.get("ok", false): return profile_bound
 			var recovery_bound: Dictionary = save_manager.call(&"configure_new_run_profile_owner", profile)
 			if not recovery_bound.get("ok", false): return recovery_bound
+			# Journal loading validates retained scene creations, including completed ones,
+			# before Profile initialization. Bind their immutable validation inputs first.
+			var scene_creation := _configure_registered_scene_creation()
+			if not scene_creation.get("ok", false): return scene_creation
 			return save_manager.call(&"reconcile_new_run_storage")
 		&"initialize_dialogic_bridge":
 			var bridge := _target(&"DialogicBridge")
@@ -947,8 +951,15 @@ func _capture_paused_checkpoint_inputs() -> Dictionary:
 			or game == null or bridge == null or router == null:
 		return _failure(&"backup_capture_unavailable", "Paused gameplay owners are unavailable")
 	var route: String = router.get_current_route_id()
-	if route not in ["main", "dating", "hospital", "ending"]:
+	if route not in ["main", "dating", "hospital", "ending", "scene"]:
 		return _failure(&"backup_capture_unavailable", "The paused source has no qualified gameplay capture")
+	if route == "scene":
+		var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
+		if not checkpoint.get("ok", false): return checkpoint
+		return {"ok": true, "value": {"snapshot_input": game.capture_run_snapshot_input(),
+			"dialogic_checkpoint": checkpoint.value, "route_id": "scene", "active_app_id": null,
+			"audio_context": _target(&"AudioManager").get_semantic_audio_context(),
+			"content_version": NARRATIVE_CONTENT_VERSION}}
 	var narrative := _capture_dating_reading_checkpoint(bridge, route)
 	if not narrative.get("ok", false): return narrative
 	var inputs: Dictionary = _retained_day_resolution_state_port._checkpoint_inputs(game._run_lifecycle.to_dict())
@@ -1507,7 +1518,32 @@ func _configure_restore_participants() -> Dictionary:
 	var configured: Dictionary = save_manager.call(&"configure_restore_participants", participants)
 	if configured.get("ok", false):
 		_retained_restore_participants = participants.duplicate()
+		var scene_runtime := _configure_registered_scene_runtime()
+		if not scene_runtime.get("ok", false): return scene_runtime
 	return configured
+
+
+## Bind creation validation before storage recovery; no live playback starts here.
+func _configure_registered_scene_creation() -> Dictionary:
+	var selected: Dictionary = DIALOGIC_ENTRY_MANIFEST.scene_registration()
+	if not selected.get("ok", false):
+		return {"ok": true} if selected.get("code") == &"scene_registration_absent" else selected
+	return _target(&"SaveManager").configure_scene_new_run(_target(&"DialogicBridge"))
+
+## Complete existing scene owners only for an explicitly installed registration.
+## The retained participant map still serves historical saves; scene transactions
+## select their own eight-member order and never execute Schedule restoration.
+func _configure_registered_scene_runtime() -> Dictionary:
+	var selected: Dictionary = DIALOGIC_ENTRY_MANIFEST.scene_registration()
+	if not selected.get("ok", false):
+		return {"ok": true} if selected.get("code") == &"scene_registration_absent" else selected
+	var saves := _target(&"SaveManager")
+	var game := _target(&"GameState")
+	var router := _target(&"SceneRouter")
+	var proof: Dictionary = RUN_SNAPSHOT_SCHEMA_FOR_PROBE.configure_scene_validation(
+		_desktop_identity_nonce_issuer, game, saves)
+	if not proof.get("ok", false): return proof
+	return router.configure_scene_host("res://scenes/narrative/SceneHost.tscn")
 
 
 ## Composes the retained board, consequence, Schedule, and checkpoint owners.
@@ -2482,9 +2518,14 @@ func _resume_live_continuation() -> void:
 	# Native scene changes mount at frame end. Keep the exact pending session until
 	# scene_changed wakes us; publishing now would be overwritten by that mount.
 	if get_tree().current_scene == null: return
+	var lifecycle: Dictionary = game_state._run_lifecycle.to_dict()
+	# Scene activation is already acknowledged by SaveManager/Bridge/Router.
+	# It has no legacy calendar continuation to resume.
+	if lifecycle.has("scene_assignment"):
+		_pending_live_continuation = {}
+		return
 	if _present_pending_day7_prelude(game_state, router): return
 	_pending_live_continuation = {}
-	var lifecycle: Dictionary = game_state._run_lifecycle.to_dict()
 	if str(lifecycle.state) == "COMPLETED":
 		# A compatible completed save may name main/menu instead of the ending scene. Retire
 		# through the same validated owner seam after restore activation and lease release.
@@ -2636,6 +2677,9 @@ func _wire_scene_event_owner(game_state: Node, bridge: Node) -> Dictionary:
 	if not _scene_staging_wired:
 		var source: Dictionary = game_state.configure_scene_checkpoint_source(_target(&"SaveManager"))
 		if not source.get("ok", false): return source
+		var audio_source: Dictionary = _narrative_checkpoint_adapter.configure_scene_audio_source(
+			Callable(game_state, "capture_scene_entry_audio"))
+		if not audio_source.get("ok", false): return audio_source
 		var staged: Dictionary = bridge.configure_scene_staging(_narrative_checkpoint_adapter,
 			Callable(game_state, "validate_scene_entry_staging_source"), Callable(game_state, "scene_entry_staging_context"))
 		if not staged.get("ok", false): return staged
@@ -2650,3 +2694,139 @@ func _wire_scene_event_owner(game_state: Node, bridge: Node) -> Dictionary:
 	return bridge.configure_scene_event_port(_scene_event_command_port, Callable(game_state, "validate_live_session"),
 		Callable(game_state, "scene_event_context"))
 
+
+
+## SceneHost owns only chrome. All commands pass through the retained application owners.
+func configure_scene_host_view(host: Control) -> void:
+	host.configure_scene_controls({
+		"computer_open": open_scene_computer.bind(host),
+		"computer_close": close_scene_computer.bind(host),
+		"contacts": open_scene_contacts.bind(host),
+		"settings": open_scene_settings.bind(host),
+		"backup": open_scene_backup.bind(host, "backup"),
+		"save": open_scene_backup.bind(host, "save"),
+		"load": open_scene_backup.bind(host, "load")})
+
+func _scene_host_admitted(host: Control) -> bool:
+	return is_instance_valid(host) and host == get_tree().current_scene \
+		and _state.get("ready", false) and _target(&"SceneRouter").get_current_route_id() == "scene" \
+		and not _target(&"SceneRouter").is_restore_publication_held()
+
+func open_scene_computer(host: Control) -> Dictionary:
+	if not _scene_host_admitted(host): return _failure(&"scene_host_unavailable", "")
+	var guarded: Dictionary = _application_gate.guard_external(&"scene_computer")
+	if not guarded.get("ok", false): return guarded
+	var game := _target(&"GameState")
+	var configured: Dictionary = game.configure_scene_challenge_runtime()
+	if not configured.get("ok", false): return configured
+	var captured: Dictionary = game.capture_scene_challenge_command()
+	if not captured.get("ok", false):
+		var context: Dictionary = game.capture_scene_contact_context()
+		if not context.get("ok", false): return context
+		var held: Dictionary = _target(&"DialogicBridge").hold_computer_captions(host)
+		if not held.get("ok", false): return held
+		host.set_computer_open(true)
+		return open_scene_contacts(host)
+	configured = _retained_dating_physical_owner.configure_scene_challenges(captured.value.bundle, game)
+	if not configured.get("ok", false): return configured
+	var admitted: Dictionary = _retained_dating_presentation_port.begin(captured.value.command)
+	if not admitted.get("ok", false): return admitted
+	var mount: Control = host.get_challenge_mount()
+	var panel: Control = mount.get_node_or_null("SceneChallengePanel")
+	if panel == null:
+		panel = preload("res://scripts/ui/SceneChallengePanel.gd").new()
+		mount.add_child(panel)
+		if not panel.bind(_retained_dating_presentation_port, admitted.value.presentation_command):
+			panel.queue_free()
+			return _failure(&"scene_panel_unbound", "")
+		panel.bind_view_preferences(_target(&"ProfileManager"))
+		panel.configure_input(_target(&"InputManager"))
+		panel.presentation_changed.connect(_scene_challenge_published.bind(host, panel))
+	var held: Dictionary = _target(&"DialogicBridge").hold_computer_captions(host)
+	if not held.get("ok", false): return held
+	host.set_computer_open(true)
+	if not panel.open_panel():
+		close_scene_computer(host)
+		return _failure(&"scene_panel_unavailable", "")
+	return {"ok": true}
+
+func _scene_challenge_published(host: Control, panel: Control) -> void:
+	if panel.public_view.get("phase") == "terminal":
+		# Leave the board's input dispatch before replacing its background caption.
+		_complete_scene_challenge.call_deferred(host, panel)
+
+func _complete_scene_challenge(host: Control, panel: Control) -> void:
+	if not is_instance_valid(panel) or not _scene_host_admitted(host) or not host.is_computer_open() \
+			or panel.public_view.get("phase") != "terminal": return
+	var released: Dictionary = close_scene_computer(host)
+	if not released.get("ok", false):
+		panel.presentation_failed.emit(StringName(released.get("code", "scene_continuation_refused")))
+		return
+	var continued: Dictionary = _target(&"GameState").continue_completed_scene_challenge()
+	if not continued.get("ok", false):
+		_target(&"DialogicBridge").hold_computer_captions(host)
+		host.set_computer_open(true)
+		panel.show()
+		panel.presentation_failed.emit(StringName(continued.get("code", "scene_continuation_refused")))
+
+func close_scene_computer(host: Control) -> Dictionary:
+	if not is_instance_valid(host): return _failure(&"scene_host_unavailable", "")
+	var contacts_view: Control = host.get_challenge_mount().get_node_or_null("SceneContactsApp")
+	if contacts_view != null: contacts_view.hide_window()
+	var panel: Control = host.get_challenge_mount().get_node_or_null("SceneChallengePanel")
+	if panel != null: panel.close_panel()
+	host.set_computer_open(false)
+	return _target(&"DialogicBridge").release_computer_captions(host)
+
+func open_scene_settings(host: Control) -> Dictionary:
+	if not _scene_host_admitted(host): return _failure(&"scene_host_unavailable", "")
+	var closed: Dictionary = close_scene_computer(host)
+	if not closed.get("ok", false): return closed
+	return await _target(&"SceneRouter")._production_pause.open_scene_settings()
+
+func open_scene_backup(host: Control, mode: String) -> Dictionary:
+	if not _scene_host_admitted(host): return _failure(&"scene_host_unavailable", "")
+	var closed: Dictionary = close_scene_computer(host)
+	if not closed.get("ok", false): return closed
+	return await _target(&"SceneRouter")._production_pause.open_scene_backup(mode)
+
+
+func open_scene_contacts(host: Control) -> Dictionary:
+	if not _scene_host_admitted(host) or not host.is_computer_open():
+		return _failure(&"scene_host_unavailable", "")
+	var guarded: Dictionary = _application_gate.guard_external(&"scene_contacts")
+	if not guarded.get("ok", false): return guarded
+	if _contacts_presentation_port == null:
+		_contacts_presentation_port = CONTACTS_PRESENTATION_PORT.new()
+		var bound: Dictionary = _contacts_presentation_port.configure(_target(&"GameState"), _contact_command_port)
+		if not bound.get("ok", false):
+			_contacts_presentation_port = null
+			return bound
+	var mount: Control = host.get_challenge_mount()
+	var app: Control = mount.get_node_or_null("SceneContactsApp")
+	if app == null:
+		app = preload("res://scenes/apps/ContactListApp.tscn").instantiate()
+		app.name = "SceneContactsApp"
+		mount.add_child(app)
+		app.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+		host.resized.connect(_layout_scene_contacts.bind(host, app))
+		var configured: Dictionary = app.configure_scene_presentation(_contacts_presentation_port,
+			_target(&"LocalizationManager"), _target(&"ProfileManager"))
+		if not configured.get("ok", false):
+			app.queue_free()
+			return configured
+	var refreshed: Dictionary = app.refresh_view()
+	if not refreshed.get("ok", false): return refreshed
+	_layout_scene_contacts(host, app)
+	app.show_window()
+	mount.move_child(app, mount.get_child_count() - 1)
+	return {"ok": true}
+
+
+func _layout_scene_contacts(host: Control, app: Control) -> void:
+	if not is_instance_valid(host) or not is_instance_valid(app): return
+	var available := host.get_viewport_rect().size - Vector2(184, 16)
+	var factor := maxf(0.1, minf(available.x / 800.0, available.y / 656.0))
+	app.size = Vector2(800, 656)
+	app.scale = Vector2.ONE * factor
+	app.global_position = Vector2(176, 8)
