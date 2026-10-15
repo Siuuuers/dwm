@@ -515,6 +515,8 @@ func configure_scene_new_run(bridge: Object) -> Dictionary:
 func configure_scene_title_new_run(target_id: String) -> Dictionary:
 	if not is_instance_valid(_scene_new_run_bridge) or _scene_new_run_bundle.is_empty():
 		return _fail(&"scene_new_run_not_configured", "")
+	if _scene_new_run_bundle.get("schema_version") != 3:
+		return _fail(&"scene_title_audio_catalogue_required", "")
 	if not _scene_title_new_run_target.is_empty():
 		return {"ok": true} if _scene_title_new_run_target == target_id else _fail(&"scene_title_new_run_already_configured", "")
 	if _new_run_busy or not _prepared_new_run.is_empty() or not _new_run_transaction_id.is_empty():

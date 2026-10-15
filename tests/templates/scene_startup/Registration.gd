@@ -7,6 +7,13 @@ func _registration_bundle() -> Dictionary:
 	var built: Dictionary = super._registration_bundle()
 	if not built.ok: return built
 	var bundle: Dictionary = built.value
+	bundle.schema_version = 3
+	var bindings: Array = []
+	for entry: Dictionary in bundle.entry_manifest.entries:
+		bindings.append({"entry_id": entry.entry_id, "plan_id": null})
+	bindings.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.entry_id < b.entry_id)
+	bundle["audio_catalogue"] = {"kind": "scene_audio_catalogue", "schema_version": 1,
+		"assets": [], "plans": [], "bindings": bindings}
 	var labels: Array = []
 	for entry: Dictionary in bundle.entry_manifest.entries:
 		labels.append(entry.entry_id)

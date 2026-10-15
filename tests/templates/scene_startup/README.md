@@ -10,6 +10,8 @@ Preserve `#id:` identifiers, entry labels and control-marker labels for prose-on
 
 The test currently checks the literal opening caption; update that expectation when deliberately replacing its prose. It is deliberately clear that a different visible opening was loaded.
 
+The template registers an explicit silent audio catalogue (schema 3); future audio belongs in that same registered catalogue. Title configuration requires schema 3 so audio comes from the chosen entry rather than a previous live run.
+
 The initial target is `OPENING_TARGET`. It must name an installed scene target. The trusted application configuration calls `SaveManager.configure_scene_title_new_run` once. The normal Menu retains its existing prepare, confirmation, cancel, commit and retry flow. Nothing changes the normal production content selection or introduces a second save or history owner.
 
 Content replacements change registration identity. Existing saves must remain intact and follow existing compatibility/refusal policy; this template does not make old saves compatible with arbitrary rewritten story structure. Do not promise automatic migration.
