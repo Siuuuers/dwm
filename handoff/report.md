@@ -10,18 +10,41 @@ verification_authority: false
 
 Updated 15 October 2026 (Hong Kong), continuing Director6177016339.
 This is a continuation/evidence record, not new product authority or live Beads.
-The earlier Contacts integration composed the accepted audio source
+The historical audio/pointer integration at fa965f7c composed the accepted audio source
 e6ebdc8aff8cb42b033bf95caa19ef63277f2d00 with C's four accepted pointer test/UID
 files from729510597b3e9f5b232ef05979611bc95573244d. Parent productc19124da.
-No existing files were removed. All executable/audio-fixture bytes equal their
-retained accepted candidate; only this report and the independent C test files
-differ from the audio-tested complete tree. No combined pointer/audio execution
+At that historical composition, no existing files were removed. Executable/audio-fixture
+bytes equalled their retained accepted candidate; only its report and the independent
+C test files differed from the audio-tested complete tree. No combined pointer/audio execution
 claim: C uses the unchanged default v2 TEST content path. Extracted registration
 helpers preserve that default; independent source review found no blocker.
 PR30 is the draft controller PR, not the product source. Master remains
 0c8b2384415d71bd3de4ff7408640bbf60b63740; no master merge or release.
 
-## Current continuation and ownership — 15 October 2026
+## Current next work — 16 October 2026
+
+The [C reconciliation](c-remaining-work-20261016.md) separates integrated TEST
+features from unintegrated work and historical/deferred clauses. It is a dated
+evidence index, not live Beads or another authoritative backlog.
+[Director6197370451](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6197370451)
+governs the next sequence and reporting: detailed receipts on the owning PR,
+one short linked update on PR30 Conversation.
+
+Integration was inspected at 3ae6d9138fb53c388380c78550cf6082eafc0ea3.
+Contacts and the title TEST opening are integrated. PR36 at 281c7008 is
+implemented/focused-tested but draft and unmerged with unresolved broad CI.
+A is correcting genuine scene first-Reveal provider wiring; B reviews read-only.
+The later-caption coherence fix/regression follows, then PR37's prepared,
+uninstalled partner-fork content needs the authorized runtime connection and
+cloud compiler/connected proof. No new timer/default policy is approved here.
+See the pinned [CI qualification](https://github.com/Siuuuers/dwm/blob/281c70086033fe7100e12a6d28f186bae8d3c4a8/handoff/a-ci-qualification-20261016.md).
+
+C's remaining-work documentation lane is delivered by the linked reconciliation.
+The retained export has 23 unfinished records, not 23 current features; live
+Dolt and an exact current feature count remain unverified. No successful prior
+campaign needs repeating merely for this status update.
+
+## Retained integrated checkpoint — 15 October 2026
 
 Contacts PR #34 is integrated at 03f606ce490a292eb22edb39cb41f1b57066b0d8.
 The earlier readiness-only assignment below is superseded: the GameState
