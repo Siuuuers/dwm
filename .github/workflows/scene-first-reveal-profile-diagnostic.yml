@@ -37,7 +37,7 @@ jobs:
 
       - uses: actions/checkout@v7
         with:
-          ref: e62ef1c0588ea6b3f1a1a2fa4fcdcded8f429d88
+          ref: 20483c4c92cab745c27a5569d266b6b4cd8f1583
           path: source
           fetch-depth: 0
 
@@ -47,9 +47,9 @@ jobs:
           @'
           import json, os, pathlib, subprocess
           def git(*args): return subprocess.check_output(['git',*args],text=True).strip()
-          assert git('rev-parse','HEAD') == 'e62ef1c0588ea6b3f1a1a2fa4fcdcded8f429d88'
-          assert git('rev-parse','HEAD^{tree}') == 'd5fcb243c9b9d8b9904a7681ae94fdbf860b70b2'
-          assert git('rev-parse','HEAD^') == '97ab628dacc1f7455e866c7c459d64157c2f8258'
+          assert git('rev-parse','HEAD') == '20483c4c92cab745c27a5569d266b6b4cd8f1583'
+          assert git('rev-parse','HEAD^{tree}') == '4ce8fdf49d1dfc223a25b008cfb464fb2f45407c'
+          assert git('rev-parse','HEAD^') == 'e62ef1c0588ea6b3f1a1a2fa4fcdcded8f429d88'
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           paths = git('diff','--name-only',os.environ['BASE_SHA'],'HEAD').splitlines()
           assert set(paths) == set(["autoload/DialogicBridge.gd","autoload/GameState.gd","scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd","scripts/application/run/DatingPhysicalOwner.gd","scripts/ui/witnessed/WitnessedCaptionLayer.gd","tests/integration/scene_optional_child.gd","tests/integration/test_scene_optional_never_opened_create.gd","tests/integration/test_scene_optional_never_opened_load.gd","tests/integration/test_scene_optional_never_started_create.gd","tests/integration/test_scene_optional_never_started_load.gd","tests/integration/test_scene_optional_selected_absence_create.gd","tests/integration/test_scene_optional_selected_absence_load.gd","tests/integration/test_scene_optional_unfinished_create.gd","tests/integration/test_scene_optional_unfinished_load.gd"])
