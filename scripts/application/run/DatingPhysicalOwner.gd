@@ -202,6 +202,7 @@ func pull_scene_panel(physical_token: String) -> Dictionary:
 
 func dispatch_scene_panel_action(physical_token: String, action: String, cell_index: int,
 		expected_revision: int) -> Dictionary:
+	if not _scene_input_open(): return _fail(&"scene_challenge_command_refused")
 	var view: Dictionary = pull_scene_panel(physical_token)
 	if not view.get("ok", false): return view
 	if view.value.get("phase") == "never_started":

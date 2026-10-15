@@ -4807,7 +4807,8 @@ func _capture_selected_scene_absence(command: Dictionary, bundle: Dictionary) ->
 				and row.scene_event.result.get("playable_command_id") == command.context.playable_command_id:
 			return _transaction_failure(&"scene_absence_not_authorized", "selected challenge is closed")
 	var current := _capture_retained_scene_challenge_command(command.context)
-	if not current.get("ok", false) or not _SCENE_EVENT._equal(current.value.checkpoint, source.narrative_checkpoint) \
+	if not current.get("ok", false) or not _scene_absence_checkpoint_matches(source.narrative_checkpoint, current.value.checkpoint) \
+			or not _SCENE_EVENT._equal(source.command_receipts, _command_receipts) \
 			or not _SCENE_EVENT._equal(source.scene, live.scene) \
 			or not _SCENE_EVENT._equal(capture_run_snapshot_input(), live) or not _live_session_active \
 			or not _SCENE_EVENT._equal(_live_session_fact(), session):
@@ -4821,6 +4822,27 @@ func _capture_selected_scene_absence(command: Dictionary, bundle: Dictionary) ->
 			"registration_sha256": command.context.registration_sha256}}
 	return {"ok": true, "value": {"admission": admission, "session": session, "command": command.duplicate(true),
 		"bundle": bundle.duplicate(true), "selected_sha256": _SCENE_EVENT._sha(source)}}
+
+## Selected absence remains valid through its one durable control departure.
+## The saved traversal carries the exact selected prefix, not a guessed nearby
+## cursor or a Profile sibling's later board. No new absence authority is minted.
+func _scene_absence_checkpoint_matches(selected: Dictionary, current: Dictionary) -> bool:
+	if _SCENE_EVENT._equal(selected, current): return true
+	var traversal := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
+	var source: Dictionary = selected.get("reading_session", {})
+	var destination: Dictionary = current.get("reading_session", {})
+	if source.get("schema_version") != 5 or source.get("boundary") != "control" \
+			or destination.get("schema_version") != 5 or destination.get("boundary") != "line": return false
+	var checked: Dictionary = traversal.validate(destination, str(current.get("entry_id", "")))
+	if not checked.get("ok", false): return false
+	var plan: Dictionary = checked.value.plan
+	if checked.value.phase != "destination" or plan.path.size() != 1 \
+			or plan.destination.kind != "line" or not plan.traversed_captions.is_empty() \
+			or plan.destination.program_index != int(source.program_index) + 1 \
+			or not _SCENE_EVENT._equal(plan.source_reading, traversal.without_operation(source)): return false
+	var restored := current.duplicate(true)
+	restored.reading_session = source
+	return _SCENE_EVENT._equal(restored, selected)
 
 func capture_scene_challenge_closure(context: Dictionary) -> Dictionary:
 	var current := _capture_retained_scene_challenge_command(context)

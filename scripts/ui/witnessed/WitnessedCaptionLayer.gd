@@ -740,6 +740,10 @@ func _on_next_request_finished(expected_frontier: Dictionary, result: Dictionary
 	var request := _next_request
 	var retry := _next_request_retry
 	var owner_current := _reading_request_owner_matches(request)
+	if owner_current and request.frontier.get("value", {}).get("kind") == "scene_optional_control" \
+			and result.get("scene_departure_profile_revision", -1) == _reading_profile_revision() \
+			and request.frontier == _transport_bridge.capture_current_line_presentation_frontier():
+		request.profile_revision = _reading_profile_revision()
 	_retire_next_request()
 	if not owner_current:
 		if is_inside_tree():

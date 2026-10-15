@@ -1946,6 +1946,10 @@ func _perform_next(expected_frontier: Dictionary) -> Dictionary:
 	if has_reading_session() and _reading_session.family == "scene" and _reading_session.boundary == "control":
 		var current := capture_scene_optional_frontier()
 		result = _scene_event_context_provider.get_object().continue_optional_scene_challenge() if current.get("ok", false) and current == expected_frontier else _command_failure(&"presentation_frontier_changed")
+		# A real board flush may durably advance Profile before its Run write
+		# refuses. Keep retry fenced to the unchanged native control and new revision.
+		if not result.get("ok", false) and capture_scene_optional_frontier(false) == expected_frontier:
+			result["scene_departure_profile_revision"] = _skip_profile.get_profile_revision()
 	elif _marker_entry_active():
 		result = await _perform_marker_next(expected_frontier)
 	else:
@@ -4112,8 +4116,8 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 		return {"ok": false, "code": &"scene_playable_native_mismatch", "committed": true}
 	_reading_session = _scene_playable.candidate
 	_scene_playable = {}
-	# The caption and its publication did not change. GameState adopts the receipt
-	# before returning the command result; no intermediate reading signal is sent.
+	# GameState must adopt the receipt before the UI observes this new control.
+	# dispatch_scene_event publishes after the command port releases its lease.
 	return {"ok": true, "value": {"checkpoint": checkpoint, "checkpoint_reference": value.target_checkpoint}}
 
 func validate_scene_control_authority(token: RefCounted, material: Dictionary, phase: String) -> Dictionary:
@@ -4178,6 +4182,12 @@ func dispatch_scene_event(live_session: Dictionary, envelope: Dictionary) -> Dic
 		result = _runtime_adapter.dispatch_scene_event_acknowledged(
 			envelope, Callable(_scene_event_port, "dispatch"))
 	_scene_event_dispatching = false
+	if result.get("ok", false) and envelope.get("kind") == "challenge.playable" \
+			and not result.get("duplicate", false) and not result.get("found", false):
+		# Both native control and GameState receipt are now adopted, and the
+		# command port has released its causal lease. Refresh Accept/Next's
+		# frontier without republishing or witnessing the retained caption.
+		reading_session_changed.emit()
 	if result.get("committed", false) and not result.get("ok", false):
 		_mutation_gate.latch_fatal({"source": &"scene_event", "phase": &"acknowledgement",
 			"code": result.get("code", &"event_ack_interrupted"), "details": {"committed": true}})
