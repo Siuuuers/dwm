@@ -4,6 +4,25 @@ extends "res://tests/integration/scene_computer_child.gd"
 const TEMPLATE := preload("res://tests/templates/scene_startup/Registration.gd")
 const MENU_PATH := "res://scenes/menu/MenuScene.tscn"
 var actions: Array[String] = []
+# Records actual owner outcomes without replacing any result or persistence work.
+class TitleObserver extends RefCounted:
+	var owner: Node
+	var last_prepare: Dictionary = {}
+	var last_commit: Dictionary = {}
+	var last_retry: Dictionary = {}
+	func prepare_new_run_action(context: Dictionary) -> Dictionary:
+		last_prepare = owner.prepare_new_run_action(context)
+		return last_prepare
+	func cancel_prepared_new_run(token: String) -> Dictionary:
+		return owner.cancel_prepared_new_run(token)
+	func commit_prepared_new_run_responsive(token: String) -> Dictionary:
+		last_commit = await owner.commit_prepared_new_run_responsive(token)
+		return last_commit
+	func retry_new_run_responsive(transaction: String) -> Dictionary:
+		last_retry = await owner.retry_new_run_responsive(transaction)
+		return last_retry
+var observer: TitleObserver
+
 
 func _install_content_registration() -> Dictionary:
 	return TEMPLATE.new()._install_registration()
@@ -13,6 +32,10 @@ func _title() -> Node:
 	for frame: int in 12: await get_tree().process_frame
 	var menu: Node = get_tree().current_scene
 	assert_eq(menu.scene_file_path, MENU_PATH)
+	if observer == null:
+		observer = TitleObserver.new()
+		observer.owner = saves
+	menu.configure_new_acc_owner(observer)
 	return menu
 
 func _press(button: Button, label: String) -> bool:
@@ -35,7 +58,11 @@ func _wait_opening(count: int) -> bool:
 				and bridge._runtime_adapter.current_line_id() == "line.scene.test.b.one" \
 				and bridge._runtime_adapter.is_current_line_complete(): return true
 		if Time.get_ticks_msec() >= deadline:
-			fail_test("Title did not reach template opening: " + str(saves._scene_restore_activation))
+			await _screenshot("title-template-timeout")
+			fail_test("Title did not reach template opening: " + str({"activation": saves._scene_restore_activation,
+				"ready": ready_count, "scene": get_tree().current_scene.scene_file_path if get_tree().current_scene != null else "",
+				"line": bridge._runtime_adapter.current_line_id(), "prepare": observer.last_prepare,
+				"commit": observer.last_commit, "retry": observer.last_retry}))
 			return false
 		await get_tree().process_frame
 	return false
@@ -55,6 +82,8 @@ func test_title_template_cancel_stale_and_same_operation_retry() -> void:
 	assert_true(saves.configure_scene_title_new_run(TEMPLATE.OPENING_TARGET).ok)
 	assert_false(saves.configure_scene_title_new_run("target_a").ok)
 	var menu: Node = await _title()
+	var overlay := get_tree().root.find_child("GutLayer", true, false)
+	if overlay is CanvasLayer: overlay.hide()
 	await _screenshot("title-template-fresh")
 	if not await _press(menu._new_acc_button, "fresh New Acc"): return
 	if not await _wait_opening(1): return
