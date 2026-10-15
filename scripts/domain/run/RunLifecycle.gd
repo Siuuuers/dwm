@@ -71,6 +71,8 @@ const RESTORE_PROVENANCE_KEYS: Array[String] = [
 	"source_desktop_timeline_generation", "source_issuer_observed_counter", "transaction_remap_sha256",
 ]
 
+var _scene_assignment: Dictionary = {}
+var _scene_issuer: Object
 var _run_id := ""
 # Captured once at New Run and replaced only by a validated full restore.
 var _dark_mode := false
@@ -99,6 +101,7 @@ var _terminal_intent_handoff: Variant = null
 ## object's own `to_dict()` output before any checkpoint or save.
 func reset(run_id: String, branch_id: String, desktop_timeline_generation: int,
 		causal_day_instance: String, identity_allocation_receipt: Dictionary, dark_mode: bool) -> void:
+	_scene_assignment = {}
 	_run_id = run_id
 	_dark_mode = dark_mode
 	_day = 1
@@ -543,6 +546,12 @@ func prepare_terminal_handoff(request: Dictionary) -> Dictionary:
 	}}
 
 func to_dict() -> Dictionary:
+	if not _scene_assignment.is_empty():
+		var scene := get_desktop_identity_context()
+		scene["state"] = String(_state)
+		scene["restore_provenance"] = _dup_or_null(_restore_provenance)
+		scene["scene_assignment"] = _scene_assignment.duplicate(true)
+		return scene
 	return {
 		"run_id": _run_id,
 		"dark_mode": _dark_mode,
@@ -572,12 +581,34 @@ static func _dup_or_null(value: Variant) -> Variant:
 	return (value as Dictionary).duplicate(true)
 
 func prepare_restore(data: Dictionary) -> Dictionary:
+	if data.has("scene_assignment"):
+		var checked := validate_scene(data, _scene_issuer)
+		if not checked.ok: return checked
+		return {"ok": true, "value": {"candidate": data.duplicate(true)}}
 	var error := _validate_lifecycle_dict(data)
 	if error != "":
 		return _fail(&"invalid_lifecycle", error)
 	return {"ok": true, "code": &"ok", "value": {"candidate": data.duplicate(true)}}
 
 func commit_restore(candidate: Dictionary) -> Dictionary:
+	if candidate.has("scene_assignment"):
+		var checked := validate_scene(candidate, _scene_issuer)
+		if not checked.ok: return checked
+		_run_id = candidate.run_id
+		_branch_id = candidate.branch_id
+		_desktop_timeline_generation = candidate.desktop_timeline_generation
+		_causal_day_instance = candidate.causal_day_instance
+		_causal_day_instance_issuer_receipt = candidate.causal_day_instance_issuer_receipt.duplicate(true)
+		_restore_provenance = _dup_or_null(candidate.restore_provenance)
+		_scene_assignment = candidate.scene_assignment.duplicate(true)
+		_state = StringName(candidate.state)
+		_plan = null
+		_ending_plan = {}
+		_has_ending_plan = false
+		_active_condition_hospital_plan = null
+		_condition_hospital_history = {}
+		_terminal_intent_handoff = null
+		return {"ok": true}
 	var error := _validate_lifecycle_dict(candidate)
 	if error != "":
 		return _fail(&"invalid_candidate", error)
@@ -587,6 +618,7 @@ func commit_restore(candidate: Dictionary) -> Dictionary:
 		if not restored.get("ok", false):
 			return restored
 		plan = restored["value"]["plan"]
+	_scene_assignment = {}
 	_run_id = str(candidate["run_id"])
 	_dark_mode = candidate["dark_mode"]
 	_day = int(candidate["day"])
@@ -971,3 +1003,48 @@ func _validate_owner_receipt(stage_id: String, receipt: Dictionary) -> Dictionar
 
 static func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message}
+
+
+const SCENE_LIFECYCLE_KEYS := ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance",
+	"causal_day_instance_issuer_receipt", "restore_provenance", "state", "scene_assignment"]
+const SCENE_ASSIGNMENT := preload("res://scripts/domain/relationship/PairDeckDraw.gd")
+
+func configure_scene_issuer(issuer: Object) -> Dictionary:
+	if not is_instance_valid(issuer) or not issuer.has_method("verify_issued") or not issuer.has_method("validate_child"):
+		return _fail(&"scene_identity_issuer_required", "")
+	if _scene_issuer != null and _scene_issuer != issuer: return _fail(&"scene_identity_issuer_conflict", "")
+	_scene_issuer = issuer
+	return {"ok": true}
+
+static func validate_scene(data: Dictionary, issuer: Object) -> Dictionary:
+	var keys := data.keys()
+	keys.sort()
+	var expected := SCENE_LIFECYCLE_KEYS.duplicate()
+	expected.sort()
+	if keys != expected or typeof(data.get("run_id")) != TYPE_STRING or data.run_id.is_empty() \
+			or typeof(data.get("state")) != TYPE_STRING or data.state != "PLAYING":
+		return _fail(&"invalid_scene_lifecycle", "")
+	var identity_error := _validate_desktop_identity(data)
+	if not identity_error.is_empty(): return _fail(&"invalid_scene_lifecycle", identity_error)
+	var assignment := SCENE_ASSIGNMENT.validate_scene(data.scene_assignment)
+	if not assignment.ok: return assignment
+	if not is_instance_valid(issuer): return _fail(&"scene_identity_issuer_required", "")
+	var proven: Dictionary = issuer.verify_issued(data.causal_day_instance_issuer_receipt, &"causal_day_instance")
+	if not proven.get("ok", false): return proven
+	if data.restore_provenance != null:
+		var provenance: Dictionary = data.restore_provenance
+		for key: String in ["restore_transaction_id", "identity_allocation_receipt_id", "remap_receipt_id",
+				"source_branch_id", "source_causal_day_instance", "transaction_remap_sha256"]:
+			if typeof(provenance[key]) != TYPE_STRING or provenance[key].is_empty():
+				return _fail(&"invalid_scene_restore_provenance", key)
+		if typeof(provenance.source_desktop_timeline_generation) != TYPE_INT \
+				or provenance.source_desktop_timeline_generation < 0 \
+				or typeof(provenance.source_issuer_observed_counter) != TYPE_INT \
+				or provenance.source_issuer_observed_counter < 0 \
+				or not provenance.remap_receipt_provenance is Dictionary:
+			return _fail(&"invalid_scene_restore_provenance", "")
+		var child: Dictionary = issuer.validate_child(provenance.remap_receipt_provenance, &"continuation_operation")
+		if not child.get("ok", false): return child
+		if provenance.remap_receipt_provenance.get("child_id") != provenance.remap_receipt_id:
+			return _fail(&"invalid_scene_restore_provenance", "remap identity mismatch")
+	return {"ok": true, "value": data.duplicate(true)}

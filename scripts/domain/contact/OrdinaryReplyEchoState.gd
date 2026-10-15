@@ -382,3 +382,15 @@ static func _ok(value: Dictionary) -> Dictionary:
 
 static func _fail(code: String) -> Dictionary:
 	return {"ok": false, "code": StringName(code), "message": ""}
+
+## Scene replies retain the existing prepare -> actual transcript draw -> commit
+## boundary, but have no day/expiry/echo producer. Registration lookup and receipt
+## ownership stay in ContactInvitationState and the selected full-B owner.
+static func validate_scene_rendered_line(command_id: String, line_id: String, text: String,
+		rendered_line: Dictionary) -> Dictionary:
+	if command_id.strip_edges().is_empty() or line_id.strip_edges().is_empty() or text.strip_edges().is_empty() \
+			or not _exact(rendered_line, ["view_token", "line_id", "text"]): return _fail("scene_reply_line_invalid")
+	for key: Variant in rendered_line:
+		if typeof(key) != TYPE_STRING or typeof(rendered_line[key]) != TYPE_STRING: return _fail("scene_reply_line_invalid")
+	return _ok({}) if rendered_line == {"view_token": command_id, "line_id": line_id, "text": text} \
+		else _fail("scene_reply_line_not_witnessed")

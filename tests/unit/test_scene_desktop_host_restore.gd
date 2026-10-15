@@ -1,0 +1,45 @@
+extends GutTest
+
+const HOST := preload("res://scripts/domain/desktop/DesktopAppHostState.gd")
+
+func test_scene_restore_has_no_calendar_and_rejects_retired_producers() -> void:
+	var host := HOST.new()
+	host.reset(4)
+	var before: Dictionary = host.get_state()
+	var prepared: Dictionary = host.prepare_scene_restore("contacts")
+	assert_true(prepared.ok)
+	assert_eq(host.get_state(), before, "preparation is silent")
+	assert_true(host.commit_restore(prepared.value.candidate_state).ok)
+	assert_false(host.get_state().has("current_day"))
+	assert_eq(host.capture_persistent_state(), {"active_app_id": "contacts"})
+	assert_false(host.change_day(5).ok)
+	assert_false(host.open_app(&"schedule", 5).ok)
+	assert_false(host.go_home(5, &"NONE").ok)
+	assert_true(host.commit_restore(before).ok)
+	assert_eq(host.get_state(), before, "rollback restores the original owner mode")
+
+func test_scene_restore_rejects_retired_app_and_malformed_cache_without_mutation() -> void:
+	var host := HOST.new()
+	var prepared: Dictionary = host.prepare_scene_restore(null)
+	assert_true(host.commit_restore(prepared.value.candidate_state).ok)
+	var before: Dictionary = host.get_state()
+	assert_false(host.prepare_scene_restore("schedule").ok)
+	assert_false(host.prepare_scene_restore("logout").ok)
+	assert_false(host.commit_restore({"active_app_id": null, "cached_app_ids": ["contacts", "contacts"]}).ok)
+	assert_false(host.commit_restore({"active_app_id": null, "cached_app_ids": ["schedule"]}).ok)
+	assert_eq(host.get_state(), before)
+
+func test_scene_navigation_reuses_board_suspension_and_cache_without_day() -> void:
+	var host := HOST.new()
+	assert_false(host.open_scene_app(&"contacts").ok)
+	assert_true(host.commit_restore(host.prepare_scene_restore(null).value.candidate_state).ok)
+	var opened: Dictionary = host.open_scene_app(&"minesweeper")
+	assert_true(opened.ok)
+	assert_true(opened.instantiate)
+	var home: Dictionary = host.scene_go_home(&"ACTIVE_VISIBLE")
+	assert_eq(home.value.commands, [{"kind": "suspend_board"}, {"kind": "hide_app", "app_id": "minesweeper"}])
+	assert_false(host.get_state().has("current_day"))
+	opened = host.open_scene_app(&"minesweeper", &"ACTIVE_SUSPENDED")
+	assert_false(opened.instantiate)
+	assert_eq(opened.value.commands[0], {"kind": "resume_board"})
+	assert_false(host.open_scene_app(&"schedule").ok)

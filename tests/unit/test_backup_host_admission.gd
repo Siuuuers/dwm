@@ -148,6 +148,8 @@ func test_default_context_behavior_and_immutable_configuration_remain_compatible
 	assert_true(projection.value.records[2].actions.save)
 	assert_true(projection.value.records[2].actions.load)
 	assert_true(projection.value.records[2].actions.delete)
+	assert_null(projection.value.records[2].family, "injected day alone cannot establish a family")
+	assert_null(projection.value.records[2].load_family)
 	var token: String = port.prepare_action("save", "slot:1").value.token
 	assert_true(port.commit_action(token).get("ok", false))
 

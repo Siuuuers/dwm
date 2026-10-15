@@ -54,3 +54,15 @@ func validate_all() -> Dictionary:
 			return {"ok": false, "code": &"duplicate_scene_path", "app_id": id}
 		seen_paths[scene] = true
 	return {"ok": true}
+
+
+## Current scene launcher; legacy calendar consumers retain get_ids().
+func get_scene_ids() -> Array[StringName]:
+	var ids := get_ids()
+	ids.erase(&"schedule")
+	return ids
+
+func get_scene_record(app_id: StringName) -> Dictionary:
+	if app_id not in get_scene_ids():
+		return {"ok": false, "code": &"unknown_app_id"}
+	return get_record(app_id)

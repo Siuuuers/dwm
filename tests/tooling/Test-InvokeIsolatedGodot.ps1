@@ -21,10 +21,15 @@ function ConvertTo-SingleQuotedLiteral {
 }
 
 function Invoke-HelperProcess {
-    param([string]$SuiteId, [string]$LogName, [string[]]$GodotArgs, [AllowEmptyString()][string]$EvidenceLogPath = '', [int]$TimeoutSeconds = 0)
+    param([string]$SuiteId, [string]$LogName, [string[]]$GodotArgs, [AllowEmptyString()][string]$EvidenceLogPath = '', [int]$TimeoutSeconds = 0, [string[]]$NextGodotArgs = @(), [string]$NextLogName = '')
     $argumentLiterals = @($GodotArgs | ForEach-Object { ConvertTo-SingleQuotedLiteral ([string]$_) })
     $evidenceClause = if ($EvidenceLogPath.Length -eq 0) { '' } else { " -EvidenceLogPath $(ConvertTo-SingleQuotedLiteral $EvidenceLogPath)" }
-    $command = "& $(ConvertTo-SingleQuotedLiteral $helper) -SuiteId $(ConvertTo-SingleQuotedLiteral $SuiteId) -LogName $(ConvertTo-SingleQuotedLiteral $LogName) -GodotArgs @($($argumentLiterals -join ','))$evidenceClause -TimeoutSeconds $TimeoutSeconds; exit `$LASTEXITCODE"
+    $nextClause = ''
+    if ($NextGodotArgs.Count -gt 0 -or $NextLogName.Length -gt 0) {
+        $nextLiterals = @($NextGodotArgs | ForEach-Object { ConvertTo-SingleQuotedLiteral ([string]$_) })
+        $nextClause = " -NextGodotArgs @($($nextLiterals -join ',')) -NextLogName $(ConvertTo-SingleQuotedLiteral $NextLogName)"
+    }
+    $command = "& $(ConvertTo-SingleQuotedLiteral $helper) -SuiteId $(ConvertTo-SingleQuotedLiteral $SuiteId) -LogName $(ConvertTo-SingleQuotedLiteral $LogName) -GodotArgs @($($argumentLiterals -join ','))$evidenceClause$nextClause -TimeoutSeconds $TimeoutSeconds; exit `$LASTEXITCODE"
     $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($command))
     $start = New-Object Diagnostics.ProcessStartInfo
     $start.FileName = $powershell
@@ -76,6 +81,48 @@ if (-not $user.StartsWith($root + [IO.Path]::DirectorySeparatorChar, [StringComp
     throw 'ISOLATION_USER_DIR: user_dir is not a strict descendant of test_root.'
 }
 if (Test-Path -LiteralPath $root) { throw 'ISOLATION_CLEANUP: GUID root survived without -KeepRoot.' }
+
+# Restart mode must keep the exact eight-key record shape, wait for process exit,
+# reuse one isolated root, and stop at the first child failure.
+$probeArgs = @('-s','res://tools/evidence/print_user_dir.gd')
+$pair = Invoke-HelperProcess -SuiteId 'fixture-pair' -LogName 'fixture-pair-create.log' -GodotArgs $probeArgs `
+    -NextGodotArgs $probeArgs -NextLogName 'fixture-pair-load.log' -TimeoutSeconds 60
+if ($pair.ExitCode -ne 0) { throw "ISOLATION_PAIR_EXIT: $($pair.Stdout)" }
+$pairRecords = @($pair.Stdout -split "`r?`n" | Where-Object { $_.StartsWith('{') } | ForEach-Object { $_ | ConvertFrom-Json })
+if ($pairRecords.Count -ne 2) { throw 'ISOLATION_PAIR_COUNT' }
+foreach ($item in $pairRecords) {
+    if ((@($item.PSObject.Properties.Name) -join ',') -cne ($expectedKeys -join ',')) { throw 'ISOLATION_PAIR_KEYS' }
+    if ($item.exit_code -ne 0 -or (Test-Path -LiteralPath $item.test_root)) { throw 'ISOLATION_PAIR_RESULT_OR_CLEANUP' }
+}
+if ($pairRecords[0].test_root -cne $pairRecords[1].test_root -or $pairRecords[0].user_dir -cne $pairRecords[1].user_dir -or
+    [DateTime]$pairRecords[1].started_at_utc -lt [DateTime]$pairRecords[0].ended_at_utc -or
+    $pairRecords[0].log_path -ceq $pairRecords[1].log_path) { throw 'ISOLATION_PAIR_ROOT_OR_ORDER' }
+$pairForbidden = Invoke-HelperProcess -SuiteId 'fixture-pair-forbidden' -LogName 'fixture-pair-forbidden.log' -GodotArgs $probeArgs `
+    -NextGodotArgs @('--path','C:\outside') -NextLogName 'fixture-pair-forbidden-next.log'
+if ($pairForbidden.ExitCode -ne 124) { throw 'ISOLATION_PAIR_FORBIDDEN_ARG' }
+$pairDuplicate = Invoke-HelperProcess -SuiteId 'fixture-pair-duplicate' -LogName 'fixture-pair-duplicate.log' -GodotArgs $probeArgs `
+    -NextGodotArgs $probeArgs -NextLogName 'fixture-pair-duplicate.log'
+if ($pairDuplicate.ExitCode -ne 124) { throw 'ISOLATION_PAIR_DUPLICATE_LOG' }
+$pairOutput = Join-Path $repositoryRoot '.godot/ci'
+[void][IO.Directory]::CreateDirectory($pairOutput)
+$exitProbe = Join-Path $pairOutput ('isolation-pair-exit-' + [guid]::NewGuid().ToString('N') + '.gd')
+try {
+    [IO.File]::WriteAllText($exitProbe, "extends SceneTree`nfunc _init() -> void:`n    quit(7)`n", (New-Object Text.UTF8Encoding($false)))
+    $firstFailure = Invoke-HelperProcess -SuiteId 'fixture-pair-first-failure' -LogName 'fixture-pair-first-failure.log' `
+        -GodotArgs @('-s',$exitProbe) -NextGodotArgs $probeArgs -NextLogName 'fixture-pair-never.log' -TimeoutSeconds 60
+    $firstRecords = @($firstFailure.Stdout -split "`r?`n" | Where-Object { $_.StartsWith('{') } | ForEach-Object { $_ | ConvertFrom-Json })
+    if ($firstFailure.ExitCode -ne 7 -or $firstRecords.Count -ne 1 -or $firstRecords[0].exit_code -ne 7 -or
+        (Test-Path -LiteralPath $firstRecords[0].test_root)) { throw 'ISOLATION_PAIR_FIRST_FAILURE' }
+    [IO.File]::WriteAllText($exitProbe, "extends SceneTree`nfunc _init() -> void:`n    quit(9)`n", (New-Object Text.UTF8Encoding($false)))
+    $secondFailure = Invoke-HelperProcess -SuiteId 'fixture-pair-second-failure' -LogName 'fixture-pair-before-failure.log' `
+        -GodotArgs $probeArgs -NextGodotArgs @('-s',$exitProbe) -NextLogName 'fixture-pair-second-failure.log' -TimeoutSeconds 60
+    $secondRecords = @($secondFailure.Stdout -split "`r?`n" | Where-Object { $_.StartsWith('{') } | ForEach-Object { $_ | ConvertFrom-Json })
+    if ($secondFailure.ExitCode -ne 9 -or $secondRecords.Count -ne 2 -or $secondRecords[0].exit_code -ne 0 -or
+        $secondRecords[1].exit_code -ne 9 -or $secondRecords[0].test_root -cne $secondRecords[1].test_root -or
+        (Test-Path -LiteralPath $secondRecords[1].test_root)) { throw 'ISOLATION_PAIR_SECOND_FAILURE' }
+} finally {
+    if (Test-Path -LiteralPath $exitProbe) { Remove-Item -LiteralPath $exitProbe -Force }
+}
 
 # A real GUT teardown can log an engine error after its per-test error tracker
 # has stopped and still exit 0. The runner must reject that diagnostic, retain

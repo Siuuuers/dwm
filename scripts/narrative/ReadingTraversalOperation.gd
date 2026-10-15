@@ -340,7 +340,10 @@ static func _validate_scene_plan_shape(plan: Dictionary) -> Dictionary:
 			or not plan.destination is Dictionary: return _fail(&"reading_next_plan_invalid")
 	var source: Dictionary = plan.source_reading
 	if not valid_scene_reading_shape(source) or source.next_operation != null \
-			or source.entry_id != plan.entry_id or source.boundary != "line": return _fail(&"reading_next_source_invalid")
+			or source.entry_id != plan.entry_id or source.boundary not in ["line", "control"]: return _fail(&"reading_next_source_invalid")
+	if source.boundary == "control" and (plan.path.size() != 1 or not plan.traversed_captions.is_empty() \
+			or plan.destination.get("kind") != "line"):
+		return _fail(&"reading_next_source_invalid")
 	var previous: int = source.program_index
 	for edge: Variant in plan.path:
 		if not edge is Dictionary or not FROZEN._exact(edge, ["from", "to"]) \
@@ -402,9 +405,12 @@ static func validate_scene_path(plan: Dictionary, nodes: Array) -> Dictionary:
 	var checked := _validate_scene_plan_shape(plan)
 	if not checked.ok: return checked
 	var source: Dictionary = plan.source_reading
-	if source.program_index >= nodes.size() or not nodes[source.program_index] is Dictionary \
-			or nodes[source.program_index].get("kind") != "caption" \
-			or nodes[source.program_index].get("line_id") != source.frontier.line_id:
+	if source.program_index >= nodes.size() or not nodes[source.program_index] is Dictionary:
+		return _fail(&"reading_next_source_invalid")
+	var source_node: Dictionary = nodes[source.program_index]
+	if source.boundary == "control":
+		if source_node.get("kind") != "control": return _fail(&"reading_next_source_invalid")
+	elif source_node.get("kind") != "caption" or source_node.get("line_id") != source.frontier.line_id:
 		return _fail(&"reading_next_source_invalid")
 	var expected_lines: Array = []
 	var stopped := false
@@ -413,7 +419,10 @@ static func validate_scene_path(plan: Dictionary, nodes: Array) -> Dictionary:
 		var edge: Dictionary = plan.path[ordinal]
 		if stopped or edge.from >= nodes.size() or edge.to >= nodes.size(): return _fail(&"reading_next_path_invalid")
 		var node: Dictionary = nodes[edge.from]
-		if node.get("kind") not in ["caption", "jump"] or node.get("next") != edge.to: return _fail(&"reading_next_path_invalid")
+		var leaving_control: bool = source.boundary == "control" and ordinal == 0 and node.get("kind") == "control"
+		if (not leaving_control and node.get("kind") not in ["caption", "jump"]) \
+				or (edge.from + 1 if leaving_control else node.get("next")) != edge.to:
+			return _fail(&"reading_next_path_invalid")
 		var target: Dictionary = nodes[edge.to]
 		if target.kind == "caption": expected_lines.append(target.line_id)
 		elif target.kind in ["control", "completion"]: stopped = true

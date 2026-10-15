@@ -28,6 +28,8 @@ var _host_confirmation: Control
 var _quick_confirmation := false
 var _suspended_inputs: Dictionary = {}
 var _opened := false
+var _direct_host := false
+var _sheet_back: Button
 var _return_retry := false
 var _interactive := true
 var entry_admission := Callable()
@@ -83,6 +85,12 @@ func _ready() -> void:
 	workfield.position = Vector2(480,64)
 	workfield.size = Vector2(800,656)
 	add_child(workfield)
+	_sheet_back = Button.new()
+	_sheet_back.text = "Back"
+	_sheet_back.position = Vector2(16, 12)
+	_sheet_back.size = Vector2(96, 40)
+	_sheet_back.pressed.connect(handle_back)
+	add_child(_sheet_back)
 	_build_confirmation()
 	for id: StringName in _hosts: _mount_host(id)
 	_apply_copy()
@@ -248,9 +256,31 @@ func _open_backup_mode(mode: StringName) -> bool:
 		prior_focus.grab_focus()
 	return false
 
+## A Scene opens the requested application directly; closing it resumes its source.
+func open_direct_host(id: StringName, mode: StringName = &"") -> bool:
+	if not is_node_ready() or _opened or not _interactive or id not in [&"settings", &"backup"]:
+		return false
+	var host: Control = _hosts.get(id)
+	if not is_instance_valid(host): return false
+	_direct_host = true
+	_opened = true
+	selected_action = id
+	entered_action = id
+	show()
+	_sync_custody()
+	if id == &"backup" and host.has_method("focus_entry"):
+		if not host.call("focus_entry", mode if mode in [&"save", &"load"] else &""):
+			close_surface()
+			return false
+	elif host.has_method("focus_entry"): host.call("focus_entry")
+	elif host.has_method("show_window"): host.call("show_window")
+	else: _focus_first(host)
+	return true
+
 func close_surface() -> void:
 	if is_instance_valid(_host_confirmation): _host_confirmation._finish(false)
 	_opened = false
+	_direct_host = false
 	_return_retry = false
 	cancel_button.disabled = false
 	entered_action = &""
@@ -415,6 +445,9 @@ func leave_host() -> void:
 		return
 	var host: Control = _hosts.get(entered_action)
 	if host != null and host.has_method("can_return_home") and not host.can_return_home(): return
+	if _direct_host:
+		continue_requested.emit()
+		return
 	var source := entered_action
 	entered_action = &""
 	_sync_custody()
@@ -433,7 +466,12 @@ func _sync_custody() -> void:
 		if not is_instance_valid(_hosts[id]):
 			_hosts.erase(id)
 			if entered_action == id: entered_action = &""
-	var root_active := _opened and _interactive and entered_action == &"" and not is_instance_valid(_host_confirmation)
+	_left.visible = not _direct_host
+	_sheet_back.visible = _opened and _direct_host
+	_sheet_back.disabled = not _interactive or is_instance_valid(_host_confirmation)
+	context_strip.position.x = 240 if _direct_host else 480
+	workfield.position.x = 240 if _direct_host else 480
+	var root_active := not _direct_host and _opened and _interactive and entered_action == &"" and not is_instance_valid(_host_confirmation)
 	_set_custody(_left,root_active)
 	for id: StringName in ACTIONS:
 		rows[id].selected = id == selected_action
@@ -493,8 +531,8 @@ func _draw() -> void:
 	var veil := get_theme_color(&"habitat",&"Pause")
 	veil.a = 1.0 if _high_contrast else 0.7
 	draw_rect(Rect2(0,0,1280,720),veil)
-	draw_rect(Rect2(0,0,480,720),get_theme_color(&"face",&"Pause"))
-	if _opened and selected_action != &"continue": draw_rect(Rect2(480,0,800,64),get_theme_color(&"face",&"Pause"))
+	if not _direct_host: draw_rect(Rect2(0,0,480,720),get_theme_color(&"face",&"Pause"))
+	if _opened and selected_action != &"continue": draw_rect(Rect2(240 if _direct_host else 480,0,800,64),get_theme_color(&"face",&"Pause"))
 
 func _draw_confirmation() -> void:
 	confirmation.draw_rect(Rect2(0,0,800,656),get_theme_color(&"face",&"Pause"))

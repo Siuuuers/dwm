@@ -62,8 +62,8 @@ func get_projection() -> Dictionary:
 		if inspected.get("ok", false):
 			record = _project_record(inspected["value"], capability, operations_admitted)
 		else:
-			record = {"locator": locator, "state": "unavailable", "day": null, "saved_time": null,
-				"fallback": false, "load_day": null, "load_saved_time": null, "reason": "unreadable",
+			record = {"locator": locator, "state": "unavailable", "family": null, "day": null, "saved_time": null,
+				"fallback": false, "load_family": null, "load_day": null, "load_saved_time": null, "reason": "unreadable",
 				"actions": {"save": false, "load": false, "delete": false}}
 		records.append(record)
 	return {"ok": true, "value": {"records": records, "save_capability": capability}}
@@ -167,6 +167,11 @@ func commit_action(token: String) -> Dictionary:
 		_owner.cancel_backup_action(token)
 		return _quick_refusal({}) if pending.get("quick", false) else admitted
 	var result: Dictionary = _owner.commit_backup_action(token)
+	# A durable scene Load can still be activating. Preserve its operation and
+	# recovery custody; Quick's ordinary availability refusal must not erase them.
+	if not result.get("ok", false) and (result.get("code") == &"scene_activation_pending" or result.get("recovery_required", false) \
+			or result.get("committed", false) or result.get("fatal", false) or result.get("code") == &"APPLICATION_FATAL"):
+		return result
 	if pending.get("quick", false):
 		pending.erase("quick")
 		if not result.get("ok", false):
@@ -187,6 +192,10 @@ func _project_record(source: Dictionary, capability: Dictionary, admitted: bool)
 	var record := {}
 	for key: String in ["locator", "state", "day", "saved_time", "fallback", "load_day", "load_saved_time", "reason"]:
 		record[key] = source[key]
+	# Older injected presentation owners may omit these fields. Unknown remains
+	# unknown; neither the UI nor this port infers family from a missing day.
+	record["family"] = source.get("family")
+	record["load_family"] = source.get("load_family")
 	var accessible: bool = source.has("revision") and source.get("operation_allowed", false)
 	record["actions"] = {
 		"save": admitted and _context != "title" and accessible and capability.get("enabled", false) and source["locator"] != "autosave",

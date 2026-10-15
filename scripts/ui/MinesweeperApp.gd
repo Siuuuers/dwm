@@ -14,6 +14,7 @@ const PREFERENCE_KEYS := ["preferences.accessibility.font_style","preferences.ac
 	"preferences.accessibility.colorblind_mode"]
 const LEGACY_COLOUR_PRESETS := {"none":"standard","protanopia":"protan","deuteranopia":"deutan","tritanopia":"tritan"}
 
+var _scene_presentation := false
 var panel: Control
 var last_result: Dictionary = {"ok":false,"code":&"minesweeper_unconfigured"}
 var _port: Object
@@ -21,7 +22,7 @@ var _localization: Object
 var _profile: Object
 var _input_owner: Object
 var _palette: StringName = &"after_hours"
-var _day := 1
+var _day: Variant = 1
 var _home: Button
 var _busy := false
 var _show_prepared := false
@@ -89,8 +90,8 @@ func _fit_host() -> void:
 func set_footer_host(host: Control) -> void:
 	if panel == null: return
 	panel.worksheet.set_footer_host(host)
-	panel.configure(panel._locale, panel._percent, panel._large, panel._palette,
-		panel._high_contrast, panel._colour_preset, panel._font_style, panel._day)
+	panel._configure_context(panel._locale, panel._percent, panel._large, panel._palette,
+		panel._high_contrast, panel._colour_preset, panel._font_style, panel._day, _scene_presentation)
 	_fit_host()
 	_update_home()
 
@@ -140,7 +141,14 @@ func _refresh_preparation_retry() -> void:
 
 func configure_presentation(port: Object, localization: Object = null, profile: Object = null,
 		input_owner: Object = null, palette: StringName = &"after_hours", day: int = 1) -> Dictionary:
-	if day not in range(1, 8) or palette not in [&"after_hours",&"midnight"]: return {"ok":false,"code":&"invalid_minesweeper_palette"}
+	return _configure_presentation_context(port, localization, profile, input_owner, palette, day, false)
+
+func configure_scene_presentation(port: Object, localization: Object = null, profile: Object = null, input_owner: Object = null, palette: StringName = &"after_hours") -> Dictionary:
+	return _configure_presentation_context(port, localization, profile, input_owner, palette, null, true)
+
+func _configure_presentation_context(port: Object, localization: Object = null, profile: Object = null, input_owner: Object = null, palette: StringName = &"after_hours", day: Variant = 1, scene: bool = false) -> Dictionary:
+	if _scene_presentation and not scene: return {"ok": false, "code": &"scene_calendar_configuration_forbidden"}
+	if (not scene and day not in range(1, 8)) or palette not in [&"after_hours",&"midnight"]: return {"ok":false,"code":&"invalid_minesweeper_palette"}
 	if not is_node_ready() or not is_instance_valid(port): return _fail(&"minesweeper_unconfigured")
 	for method: String in ["pull","dispatch","set_foreground"]:
 		if not port.has_method(method): return _fail(&"invalid_minesweeper_presentation")
@@ -159,6 +167,7 @@ func configure_presentation(port: Object, localization: Object = null, profile: 
 		return _fail(&"invalid_minesweeper_preferences")
 	_input_owner = candidate_input
 	_palette = palette
+	_scene_presentation = scene
 	_day = day
 	if localization != null and localization.has_signal("locale_changed") and not localization.is_connected("locale_changed",_on_locale_changed):
 		localization.connect("locale_changed",_on_locale_changed)
@@ -322,12 +331,12 @@ func _apply_preferences() -> bool:
 	if typeof(high_contrast) != TYPE_BOOL or typeof(colour) != TYPE_STRING: return false
 	var font_style := str(_profile.get_preference("preferences.accessibility.font_style", "pixel")) if _profile != null else "pixel"
 	var retained_scroll: Vector2i = panel.worksheet.get_scroll()
-	if not panel.configure(locale,percent,large,_palette,high_contrast,colour,font_style,_day):
+	if not panel._configure_context(locale,percent,large,_palette,high_contrast,colour,font_style,_day, _scene_presentation):
 		var previous_height: int = panel.layout_height
 		# Large text can outgrow the compact board. Keep its readable layout and
 		# let the desktop scroll the page instead of rejecting valid preferences.
 		if _desktop_layout_height <= 0 or previous_height >= 656 or not panel.set_layout_height(656): return false
-		if not panel.configure(locale,percent,large,_palette,high_contrast,colour,font_style,_day):
+		if not panel._configure_context(locale,percent,large,_palette,high_contrast,colour,font_style,_day, _scene_presentation):
 			panel.set_layout_height(previous_height)
 			return false
 	_fit_host()
@@ -358,4 +367,3 @@ func _on_failure(code: StringName) -> void:
 func _fail(code: StringName) -> Dictionary:
 	_on_failure(code)
 	return last_result.duplicate()
-

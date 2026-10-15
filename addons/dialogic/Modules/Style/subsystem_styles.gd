@@ -128,11 +128,26 @@ func create_layout(style: DialogicStyle, parent: Node = null) -> DialogicLayoutB
 
 	if parent == null:
 		parent = dialogic.get_parent()
-	parent.call_deferred("add_child", base_scene)
+	_attach_layout.call_deferred(weakref(parent), weakref(base_scene))
 
 	dialogic.get_tree().set_meta('dialogic_layout_node', base_scene)
 
 	return base_scene
+
+
+# style_changed callbacks may retire or reparent a layout before deferred mounting.
+# Keep weak references so the call queue never converts a freed Node argument.
+func _attach_layout(parent_ref: WeakRef, layout_ref: WeakRef) -> void:
+	var layout := layout_ref.get_ref() as Node
+	if not is_instance_valid(layout) or layout.is_queued_for_deletion():
+		return
+	if layout.get_parent() != null:
+		return
+	var parent := parent_ref.get_ref() as Node
+	if not is_instance_valid(parent) or parent.is_queued_for_deletion():
+		layout.queue_free()
+		return
+	parent.add_child(layout)
 
 
 ## When changing to a different layout scene,

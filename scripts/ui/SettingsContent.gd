@@ -29,6 +29,7 @@ const RESET_METHODS: Dictionary = {
 	"gallery": "reset_gallery", "entire_profile": "reset_entire_profile",
 }
 
+var _scene_presentation := false
 @onready var rail_scroll: ScrollContainer = $RailScroll
 @onready var sheet_scroll: ScrollContainer = $SheetScroll
 var controls: Dictionary = {}
@@ -56,9 +57,9 @@ var _presentation_percent: int = 0
 var _presentation_palette: StringName = &""
 var _presentation_high_contrast: bool = false
 var _presentation_colour_preset: String = ""
-var _presentation_day := 0
+var _presentation_day: Variant = 0
 var _run_palette: StringName = &"after_hours"
-var _run_day := 1
+var _run_day: Variant = 1
 var _selected_extension: Control
 var _reset_consent: Dictionary = {}
 var _confirmation_generation: int = 0
@@ -74,11 +75,19 @@ func configure_services(services: Dictionary) -> void:
 
 
 func configure_run_presentation(palette: StringName, day: int) -> Dictionary:
-	if palette not in [&"after_hours", &"midnight"] or day < 1 or day > 7:
+	return _configure_run_presentation_context(palette, day, false)
+
+func configure_scene_run_presentation(palette: StringName) -> Dictionary:
+	return _configure_run_presentation_context(palette, null, true)
+
+func _configure_run_presentation_context(palette: StringName, day: Variant, scene: bool = false) -> Dictionary:
+	if _scene_presentation and not scene: return {"ok": false, "code": &"scene_calendar_configuration_forbidden"}
+	if palette not in [&"after_hours", &"midnight"] or (not scene and (day < 1 or day > 7)):
 		return {"ok": false, "code": &"invalid_settings_run_presentation"}
 	if palette == _run_palette and day == _run_day:
 		return {"ok": true}
 	_run_palette = palette
+	_scene_presentation = scene
 	_run_day = day
 	if _controller != null:
 		_controller.refresh()
@@ -499,7 +508,7 @@ func apply_text_size(percent: int, large_targets: bool) -> void:
 	_refresh_discovered_dark_mode()
 	var locale := current_locale().replace("_", "-")
 	var palette_id := get_palette_id()
-	var day := 1 if host_context == "title" else _run_day
+	var day: Variant = null if _scene_presentation else (1 if host_context == "title" else _run_day)
 	var presentation_profile: Variant = _services.get("profile")
 	var font_style := str(presentation_profile.get_preference(&"preferences.accessibility.font_style", "pixel")) if presentation_profile != null else "pixel"
 	var contrast_value: Variant = presentation_profile.get_preference(&"preferences.accessibility.high_contrast", false) if presentation_profile != null else false
@@ -511,7 +520,7 @@ func apply_text_size(percent: int, large_targets: bool) -> void:
 	var font_size := roundi(24.0 * float(percent) / 100.0)
 	if locale != _presentation_locale or font_style != _presentation_font_style or percent != _presentation_percent or palette_id != _presentation_palette \
 			or high_contrast != _presentation_high_contrast or colour_preset != _presentation_colour_preset or day != _presentation_day:
-		var candidate := PRESENTATION.build(locale, percent, palette_id, high_contrast, colour_preset, day, font_style)
+		var candidate := PRESENTATION._build_context(locale, percent, palette_id, high_contrast, colour_preset, day, font_style, _scene_presentation)
 		if candidate == null:
 			return
 		_presentation_locale = locale
@@ -814,4 +823,3 @@ func _unhandled_input(event: InputEvent) -> void:
 		var delta := -1 if event.keycode == KEY_PAGEUP else 1
 		sheet_scroll.scroll_vertical += roundi(sheet_scroll.size.y * 0.85) * delta
 		get_viewport().set_input_as_handled()
-

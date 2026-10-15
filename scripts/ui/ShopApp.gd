@@ -12,11 +12,12 @@ const SHOP_THEME := preload("res://scripts/ui/shop/ShopTheme.gd")
 const SUPPORTZ_CONFIRMATION := preload("res://scripts/ui/shop/SupportzConfirmation.gd")
 const CONFIRMATION_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
 
+var _scene_presentation := false
 var cards: Dictionary = {}
 var page_index := 0
 var page_capacity := 9
 var page_count := 2
-var selected_id := "coffee"
+var selected_id := "wine"
 var quantity := 1
 var _item_quantities: Dictionary = {}
 var previous_button: Button
@@ -50,7 +51,7 @@ var _page_selection: Dictionary = {}
 var _measurement_revision := 0
 var _focus_after_layout := true
 var _palette: StringName = &"after_hours"
-var _day := 1
+var _day: Variant = 1
 var _high_contrast := false
 var _colour_preset := "standard"
 var _font_style := "pixel"
@@ -105,7 +106,14 @@ func _view_is_current() -> bool:
 	return true
 
 func configure_catalog(provider: Object, localization: Object = null, profile: Object = null, palette: StringName = &"after_hours", day: int = 1) -> Dictionary:
-	if SHOP_THEME.resolve(palette, day).is_empty(): return {"ok":false,"code":"invalid_shop_palette"}
+	return _configure_catalog_context(provider, localization, profile, palette, day, false)
+
+func configure_scene_catalog(provider: Object, localization: Object = null, profile: Object = null, palette: StringName = &"after_hours") -> Dictionary:
+	return _configure_catalog_context(provider, localization, profile, palette, null, true)
+
+func _configure_catalog_context(provider: Object, localization: Object = null, profile: Object = null, palette: StringName = &"after_hours", day: Variant = 1, scene: bool = false) -> Dictionary:
+	if _scene_presentation and not scene: return {"ok": false, "code": &"scene_calendar_configuration_forbidden"}
+	if SHOP_THEME._resolve_context(palette, day, false, "standard", scene).is_empty(): return {"ok":false,"code":"invalid_shop_palette"}
 	if not is_instance_valid(provider) or not provider.has_method("get_catalog") or Callable(provider,"get_catalog").get_argument_count() != 1 or not provider.has_signal("catalog_changed"):
 		return {"ok":false,"code":"invalid_shop_catalog_provider"}
 	if provider.has_method("purchase") and Callable(provider,"purchase").get_argument_count() != 2:
@@ -127,8 +135,9 @@ func configure_catalog(provider: Object, localization: Object = null, profile: O
 	if not preferences.ok: return preferences
 	if _provider == null:
 		_palette = palette
+		_scene_presentation = scene
 		_day = day
-		_roles = SHOP_THEME.resolve(palette, day, preferences.value[3], preferences.value[4])
+		_roles = SHOP_THEME._resolve_context(palette, day, preferences.value[3], preferences.value[4], scene)
 		_source_pending = true
 		_provider = provider
 		_provider.connect("catalog_changed",_on_catalog_changed)
@@ -187,7 +196,7 @@ func refresh_view(on_open: bool = false, _presentation_only: bool = false, prepa
 		var unchanged: bool = preferences.value.slice(3, 5) == [_high_contrast,_colour_preset]
 		_high_contrast = preferences.value[3]
 		_colour_preset = preferences.value[4]
-		_roles = SHOP_THEME.resolve(_palette, _day, _high_contrast, _colour_preset)
+		_roles = SHOP_THEME._resolve_context(_palette, _day, _high_contrast, _colour_preset, _scene_presentation)
 		if is_node_ready() and not unchanged: _apply_colours()
 		_refresh_pending = false
 		return {"ok":true,"code":"unchanged" if unchanged else "ok"}
@@ -209,7 +218,7 @@ func refresh_view(on_open: bool = false, _presentation_only: bool = false, prepa
 		var colours_changed: bool = preferences.value.slice(3, 5) != [_high_contrast,_colour_preset]
 		_high_contrast = preferences.value[3]
 		_colour_preset = preferences.value[4]
-		_roles = SHOP_THEME.resolve(_palette, _day, _high_contrast, _colour_preset)
+		_roles = SHOP_THEME._resolve_context(_palette, _day, _high_contrast, _colour_preset, _scene_presentation)
 		if is_node_ready() and colours_changed: _apply_colours()
 		# Eligibility changes after rounds/day transitions even when all ordinary rows are identical.
 		if is_node_ready():
@@ -225,8 +234,8 @@ func refresh_view(on_open: bool = false, _presentation_only: bool = false, prepa
 		var focused := get_viewport().gui_get_focus_owner()
 		if on_open or (focused != null and is_ancestor_of(focused)):
 			_host_anchor = {"focus":_remembered_focus,"scroll":info_scroll.scroll_vertical}
-	var result := configure_shop(rows,preferences.value[0],preferences.value[1],preferences.value[2],_palette,
-		_day,preferences.value[3],preferences.value[4],preferences.value[5])
+	var result := _configure_shop_context(rows,preferences.value[0],preferences.value[1],preferences.value[2],_palette,
+		_day,preferences.value[3],preferences.value[4],preferences.value[5], _scene_presentation)
 	_focus_after_layout = false
 	if result.ok:
 		_catalog_rows = rows.duplicate(true)
@@ -316,9 +325,16 @@ func _restore_host_view(revision: int) -> void:
 	info_scroll.scroll_vertical = clampi(int(anchor.scroll),0,maxi(0,int(_document.size.y-info_scroll.size.y)))
 
 func configure_shop(items: Array, locale: String = "en", percent: int = 100, large_targets: bool = false, palette: StringName = &"after_hours", day: int = 1, high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> Dictionary:
+	return _configure_shop_context(items, locale, percent, large_targets, palette, day, high_contrast, colour_preset, font_style, false)
+
+func configure_scene_shop(items: Array, locale: String = "en", percent: int = 100, large_targets: bool = false, palette: StringName = &"after_hours", high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> Dictionary:
+	return _configure_shop_context(items, locale, percent, large_targets, palette, null, high_contrast, colour_preset, font_style, true)
+
+func _configure_shop_context(items: Array, locale: String = "en", percent: int = 100, large_targets: bool = false, palette: StringName = &"after_hours", day: Variant = 1, high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel", scene: bool = false) -> Dictionary:
+	if _scene_presentation and not scene: return {"ok": false, "code": &"scene_calendar_configuration_forbidden"}
 	if is_node_ready() and not _view_is_current(): return {"ok":false,"code":"shop_view_detached"}
 	# Refuse an unknown presentation before disturbing a valid mounted snapshot.
-	var candidate_roles: Dictionary = SHOP_THEME.resolve(palette, day, high_contrast, colour_preset)
+	var candidate_roles: Dictionary = SHOP_THEME._resolve_context(palette, day, high_contrast, colour_preset, scene)
 	if candidate_roles.is_empty():
 		return {"ok": false, "code": "invalid_shop_palette"}
 	var normalized_locale := locale.replace("-","_")
@@ -338,6 +354,7 @@ func configure_shop(items: Array, locale: String = "en", percent: int = 100, lar
 	_large_targets = large_targets
 	_large = large_targets or percent > 100
 	_palette = palette
+	_scene_presentation = scene
 	_day = day
 	_high_contrast = high_contrast
 	_colour_preset = colour_preset
@@ -439,9 +456,9 @@ func _ready() -> void:
 	_connect_focus_observer()
 
 func _apply_colours() -> void:
-	theme = SHOP_THEME.build(_locale, _percent, _palette, _day, _high_contrast, _colour_preset, _font_style)
+	theme = SHOP_THEME._build_context(_locale, _percent, _palette, _day, _high_contrast, _colour_preset, _font_style, _scene_presentation)
 	for card: Button in cards.values():
-		card.apply_palette(_palette, _day, _high_contrast, _colour_preset)
+		card._apply_palette_context(_palette, _day, _high_contrast, _colour_preset, _scene_presentation)
 	for found: Node in find_children("*", "Label", true, false):
 		var label := found as Label
 		if label != null and label.has_meta("shop_color_role"):
@@ -476,7 +493,7 @@ func _rebuild_catalog() -> void:
 	for record: Dictionary in _records:
 		if record.blank: continue
 		var card: Button = CARD.instantiate()
-		card.apply_palette(_palette, _day, _high_contrast, _colour_preset)
+		card._apply_palette_context(_palette, _day, _high_contrast, _colour_preset, _scene_presentation)
 		card.configure(record, _price(record.unit_price, record.currency), _t("available" if record.available else "sold_out"))
 		card.pressed.connect(_select_item.bind(record.id))
 		card.inspection_requested.connect(_inspect_item.bind(record.id))
@@ -673,7 +690,8 @@ func _refresh_supportz() -> void:
 	var admitted: bool = page_index == 0 and _provider != null and _provider.has_method("purchase") \
 		and _provider_can_purchase("supportz", 1).get("ok", false)
 	var card_height: float = 176.0 if cards.is_empty() else (cards.values()[0] as Control).size.y
-	_supportz_button.position = Vector2(304, 2 * (card_height + 8))
+	var slot := _index_of("supportz") % page_capacity
+	_supportz_button.position = Vector2((slot % 3) * 152, (slot / 3) * (card_height + 8))
 	_supportz_button.size = Vector2(144, card_height)
 	_supportz_button.disabled = not admitted
 	_supportz_button.focus_mode = Control.FOCUS_ALL if admitted else Control.FOCUS_NONE
@@ -700,7 +718,7 @@ func _purchase_supportz() -> void:
 	_cancel_contacts()
 	_supportz_confirmation = SUPPORTZ_CONFIRMATION.new()
 	_supportz_confirmation.name = "ShopConfirmation"
-	_supportz_confirmation.theme = CONFIRMATION_THEME.build(_locale, _percent, _palette, _day, _high_contrast, _colour_preset, _font_style)
+	_supportz_confirmation.theme = CONFIRMATION_THEME._build_context(_locale, _percent, _palette, _day, _high_contrast, _colour_preset, _font_style, _scene_presentation)
 	_supportz_confirmation.request = {"title": _price(45, "money"), "body": "", "warning": false,
 		"cancel": _t("no"), "confirm": _t("yes"), "risk": "neutral", "dialog_name": _t("confirmation")}
 	_supportz_confirmation.attempt_purchase = _attempt_supportz_purchase

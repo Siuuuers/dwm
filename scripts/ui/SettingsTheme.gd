@@ -30,10 +30,16 @@ const SAMPLE_COPY := {
 
 
 static func build(locale: String, percent: int, palette_id: StringName = &"after_hours", high_contrast: bool = false, colour_preset: String = "standard", day: int = 1, font_style: String = "pixel") -> Theme:
+	return _build_context(locale, percent, palette_id, high_contrast, colour_preset, day, font_style, false)
+
+static func build_scene(locale: String, percent: int, palette_id: StringName = &"after_hours", high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> Theme:
+	return _build_context(locale, percent, palette_id, high_contrast, colour_preset, null, font_style, true)
+
+static func _build_context(locale: String, percent: int, palette_id: StringName = &"after_hours", high_contrast: bool = false, colour_preset: String = "standard", day: Variant = 1, font_style: String = "pixel", scene: bool = false) -> Theme:
 	var roles: Dictionary = PALETTES.resolve(palette_id, high_contrast, colour_preset)
-	if roles.is_empty() or day < 1 or day > 7:
+	if roles.is_empty() or (not scene and (day < 1 or day > 7)):
 		return null
-	roles = WEEK_TINT.apply(roles, WEEK_TINT.tint_for_day(day), high_contrast, colour_preset)
+	roles = WEEK_TINT.apply(roles, (0.0 if scene else WEEK_TINT.tint_for_day(day)), high_contrast, colour_preset)
 	var result := Theme.new()
 	var primary: Font = TYPOGRAPHY.font(locale, percent, font_style)
 	if primary == null: return null

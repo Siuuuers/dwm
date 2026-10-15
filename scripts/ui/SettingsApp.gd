@@ -16,6 +16,9 @@ func configure_pause() -> void:
 func configure_run_presentation(palette: StringName, day: int) -> Dictionary:
 	return $SettingsContent.configure_run_presentation(palette, day)
 
+func configure_scene_run_presentation(palette: StringName) -> Dictionary:
+	return $SettingsContent.configure_scene_run_presentation(palette)
+
 func set_interaction_enabled(enabled: bool) -> void:
 	if enabled == _host_interactive and settings_content.is_interaction_enabled() == enabled: return
 	_host_interactive = enabled
@@ -133,4 +136,3 @@ func _unhandled_input(event: InputEvent) -> void:
 	if is_visible_in_tree() and not _closing and event.is_action_pressed("ui_cancel"):
 		get_viewport().set_input_as_handled()
 		await settings_content.handle_back()
-

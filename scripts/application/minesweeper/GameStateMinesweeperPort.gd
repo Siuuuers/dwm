@@ -20,7 +20,7 @@ const CHECKPOINT_PROVIDER_KEYS: Array[String] = [
 const DEFAULT_ROUTE_ID := "main"
 const DEFAULT_CONTENT_VERSION := 1
 
-const COUNTER_KEYS: Array[String] = ["money", "motivation", "app_rounds", "health", "pressure"]
+const COUNTER_KEYS: Array[String] = ["money", "app_rounds", "pressure"]
 
 ## Task IDs each outcome records, by difficulty. `no_flag` and `foresight` keep the
 ## approved perfect-equivalent REWARD while recording their own distinct task IDs.
@@ -121,8 +121,6 @@ func prepare_begin(request: Dictionary, round_id: String) -> Dictionary:
 	if context == "app":
 		if not bool(_game_state.call(&"has_minesweeper_app_round_available")):
 			return _fail(&"NO_APP_ROUND_AVAILABLE", "no app round remains")
-		if int(_game_state.call(&"get_stat", "motivation")) <= 0:
-			return _fail(&"INSUFFICIENT_MOTIVATION", "motivation is exhausted")
 		if not bool(_game_state.call(&"can_start_minesweeper_app_round")):
 			return _fail(&"NO_APP_ROUND_AVAILABLE", "an app round is already unfinished")
 	else:
@@ -238,7 +236,7 @@ func prepare_complete(active_round: Dictionary, result: Dictionary, transaction_
 	for key: String in COUNTER_KEYS:
 		deltas[key] = int(after[key]) - int(before[key])
 	if context != "app":
-		for key: String in ["money", "motivation", "app_rounds"]:
+		for key: String in ["money", "app_rounds"]:
 			deltas[key] = 0
 		claimed = []
 	var receipt := {
@@ -305,9 +303,6 @@ func prepare_abort(active_round: Dictionary, reason: StringName, transaction_id:
 	var restored: Dictionary = clone.call(&"to_save_dict")
 	if str(active_round.get("context", "")) == "app":
 		restored["minesweeper_rounds_left"] = int(restored.get("minesweeper_rounds_left", 0)) + 1
-		var stats: Dictionary = (restored.get("stats", {}) as Dictionary).duplicate()
-		stats["motivation"] = int(stats.get("motivation", 0)) + 1
-		restored["stats"] = stats
 	# The abort candidate is consumed by rollback() (the coordinator funnels it there), so it
 	# carries the ROLLBACK shape -- "save" beside "contacts" -- not the commit shape
 	# (dwm-p2r.17; the eleventh review's catch).
@@ -367,7 +362,7 @@ func publish_desktop_completion(receipt: Dictionary, events: Array) -> Dictionar
 	if not published.get("ok", false): return published
 	_game_state.emit_signal("money_changed", int(_game_state.money))
 	_game_state.emit_signal("coins_changed", int(_game_state.coins))
-	for stat_id in ["health", "pressure", "motivation"]:
+	for stat_id in ["pressure"]:
 		_game_state.emit_signal("stat_changed", stat_id, int(_game_state.get_stat(stat_id)),
 			int(_game_state.call(&"_stat_min", stat_id)), int(_game_state.call(&"_stat_max", stat_id)))
 	return published
@@ -493,9 +488,7 @@ func _detached_clone() -> Object:
 func _counters(target: Object) -> Dictionary:
 	return {
 		"money": int(target.get("money")),
-		"motivation": int(target.call(&"get_stat", "motivation")),
 		"app_rounds": int(target.get("minesweeper_app_rounds_finished_today")),
-		"health": int(target.call(&"get_stat", "health")),
 		"pressure": int(target.call(&"get_stat", "pressure")),
 	}
 
@@ -673,3 +666,4 @@ func _provided(key: String, fallback: Variant) -> Variant:
 
 func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": {}, "receipt": {}}
+

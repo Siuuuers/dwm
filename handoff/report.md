@@ -1,227 +1,180 @@
 ---
-document_role: worker_handoff
+document_role: coordinator_handoff
 execution_authority: false
 status_authority: false
 behavior_authority: false
 verification_authority: false
 ---
 
-# Worker A handoff: ending-replay History exit
+# Coordinator A — Contacts and TEST title template accepted
 
-## Current candidate — Work continuation
+Updated 15 October 2026 (Hong Kong), continuing Director6177016339.
+This is a continuation/evidence record, not new product authority or live Beads.
+The earlier Contacts integration composed the accepted audio source
+e6ebdc8aff8cb42b033bf95caa19ef63277f2d00 with C's four accepted pointer test/UID
+files from729510597b3e9f5b232ef05979611bc95573244d. Parent productc19124da.
+No existing files were removed. All executable/audio-fixture bytes equal their
+retained accepted candidate; only this report and the independent C test files
+differ from the audio-tested complete tree. No combined pointer/audio execution
+claim: C uses the unchanged default v2 TEST content path. Extracted registration
+helpers preserve that default; independent source review found no blocker.
+PR30 is the draft controller PR, not the product source. Master remains
+0c8b2384415d71bd3de4ff7408640bbf60b63740; no master merge or release.
 
-Implementation source: [`1cafd00f32b93c48d539ca0970b19e86cfb0404e`](https://github.com/Siuuuers/dwm/commit/1cafd00f32b93c48d539ca0970b19e86cfb0404e).
-This supersedes the incomplete implementation/source-access status below. The
-remaining pre-implementation report is retained as historical context, not the
-current execution instruction.
+## Current continuation and ownership — 15 October 2026
 
-The coherent source candidate changes the seven originally allocated runtime/test
-paths, the five catalogues (only the fifteen delegated messages), and the existing
-`tests/unit/test_gallery_replay_owner.gd` under [extension 5993054418](https://github.com/Siuuuers/dwm/pull/1#issuecomment-5993054418).
-Ending replay merges eligible presented captions through Profile on clean exit,
-retains exact custody on refusal/uncertainty, revalidates synchronous callbacks,
-and restores Gallery context with action-bounded neutral success feedback.
-Menu destination guards preserve retained exit custody. The legacy dating-card
-close contract remains unchanged.
+Contacts PR #34 is integrated at 03f606ce490a292eb22edb39cb41f1b57066b0d8.
+The earlier readiness-only assignment below is superseded: the GameState
+message/read/context/fact delegates, checkpoint connection, registered entry
+and original-parent return are implemented for the bounded TEST registration.
+See [a-contacts-connected-result.md](a-contacts-connected-result.md).
 
-Integration fixture coverage increases from 11 to 20 test functions, with no
-removed tests. The existing rendered fixture now mounts the real Menu and covers
-explicit/natural exit, real storage faults, context/focus, destination refusal,
-and 90 projection tuples (five locales, two font styles, three sizes, three
-statuses). Projection tuples are not owner-outcome or native-input proof.
+Retain the separate cloud results: run38681480224, 2 tests/129 assertions,
+and run38683172134, 1 test/60 assertions for physical message/read write refusal,
+rollback, exact retry and duplicate suppression. B's persistence/caller review
+and C's bounded visual disposition are complete. The fresh-load screenshot
+remains partially obscured; no clean post-Load layout, rendered board restoration,
+crash/uncertain-compensation or whole-game acceptance is claimed. Later evidence
+and test additions did not change the runtime reviewed by B/C.
 
-**Actually checked:** complete Git checkout/connectivity; focused independent
-source review; exact 13-path implementation scope; whitespace/UTF-8 checks;
-semantic preservation of every existing catalogue entry and schema; existing
-Japanese/Korean catalogue validator; all thirteen remote blob identities and the
-entire remote tree matching local reviewed bytes. This is not GDScript parsing.
+The user selected the labelled TEST title-to-scene milestone with replaceable content.
+It is accepted in PR #35 on candidate d922f51e0330f56c9018c2544b90b2594c65aa80,
+tree 04169661acc6f03a00212de3a5f99aea357f2732. Cloud run38687431565 passed
+1 rendered test/106 assertions plus 10 legacy tests/261 assertions, including strict
+evidence gates. See [a-title-template-result.md](a-title-template-result.md) for source,
+retained evidence, failed attempts, owner boundaries and exact limitations.
+No local engine/PowerShell execution. Production story selection remains unresolved;
+normal production launch is not changed. The TEST milestone is complete.
 
-**Pending:** cloud-generated public inventories and any literal/test mapping
-reconciliation; Godot/PowerShell import and tests; rendered captures/visual fit;
-strict and combined acceptance. No child PR or run was created. The full strict
-workflow, inventories, Profile/Save/schema owners, Beads, integration and master
-remain unchanged. This report-only descendant does not add engine evidence.
+A retains integration/controller/inventory ownership; external B/C reservations
+remain separate. Master remains 0c8b2384415d71bd3de4ff7408640bbf60b63740;
+controller PR30 is not a product merge target. The audio and pointer sections
+below retain their historical exact-source evidence, not a new combined run.
 
-The A writer has stopped and released ownership to coordinator review. Resume
-from the live A branch and newer PR1 comments; do not redo source-access or apply
-the old optional partial draft. The Director must select the supported cloud
-route and exact source before execution. B's dispatch-capability handoff
-5992989075 and D's pause remain separate.
+C's pointer assignment is accepted and composed. Its nonblocking visual follow-up
+is sheet Back overlapping dimmed Check Computer at top left. Back was clicked
+successfully twice and remains identifiable; consent/primary actions are clear.
+Assign the smallest shell/UI correction separately; do not claim polished chrome.
+External B/C retain separate ownership. A owns integration/controller/inventories;
+do not spawn duplicate implementers or dispatch overlapping controller runs.
 
-## Historical pre-implementation report
+## Connected canonical audio acceptance
 
-Snapshot: 5 October 2026. Repository: `Siuuuers/dwm`, PR #1.
-Lead: `dwm-7wj`; companion: touched `dwm-sx8` contracts.
+[Run38634133827](https://github.com/Siuuuers/dwm/actions/runs/38634133827),
+job116092852508, controller2a73df9d642847cddc71040eedbec08f59343ede:
+**2 tests / 234 XML assertions** (creator133, loader101), zero failures/errors/skips.
+Exact census, engine/import, strict child logs, physical two-process proofs and
+source-clean gates passed. Godot4.6.3 standard/PowerShell, Windows Actions only.
+Test logs contain OpenGL-to-ANGLE fallback warnings, no script errors.
+No local Godot or PowerShell execution.
 
-## Director decision
+Source6913344413b68006b3491106c23c084afe72d04f was frozen by cloud import as
+7c12113cea1f64553f4186e39d6efb98ea112493, full tree
+b3448749bcd99dfb4677105f8bf92f5c83476c62.
+Retained candidatee6ebdc8aff8cb42b033bf95caa19ef63277f2d00 on
+codex/a-scene-audio-connected-20261015 has exactly that full tree.
+Only four generated UIDs were added after the executed source; all seven
+retained non-UID changed files were compared byte-for-byte with the local source.
 
-**Resume one A implementation session with complete source-file access and a safe
-branch-editing route. Do not open a child PR or release CI yet: no coherent runtime
-candidate exists.** The existing allocation is sufficient. There is no unresolved
-player-facing architecture question or outstanding file-extension request.
+Original log-backed ZIP365454 bytes, SHA256
+8a44138b3905268cafe70da7bdb33226906a9683ba23d1a2d7e37d754ac12ee7;
+all35 manifest members rehashed. Artifact11927995456,
+scene-audio-connected-38634133827-1, separately packaged371922 bytes,
+artifact digestf5db5d17a00934961dd90b031d82913e270b773221eeb92ea8c56159e0b75ae0.
+Seven original992x558 PNGs retained. A inspected full restored-board and silent
+target images: restored board visible; target A first caption and dialogue
+controls visible, computer closed. No soundtrack listening/export acceptance.
 
-This is an owner-requested, branch-local report, not a second backlog or acceptance
-receipt. Beads owns status/dependencies; approved design owns behavior; the
-coordinator owns scheduling, shared publication and integration. This report does
-not reacquire the runtime slot released in [A's handoff][handoff].
+CreatorPID5492 and loaderPID5552 used the same isolated real files in distinct
+OS processes. Canonical immutable registration3 is installed once before FINAL
+Bootstrap; no AudioManager registration override or diagnostic restore participants.
+A forwarding native-port observer records calls but delegates unchanged to the
+real engine; the production AudioManager script is used.
 
-| Decision field | Actual state at this snapshot |
-|---|---|
-| Implementation | Incomplete; no A runtime, test or catalogue changes committed. |
-| Reusable work | Completed boundary audit and an optional, uncommitted partial draft. |
-| Prior blocker | The previous session did not obtain a complete source checkout in its editing workspace. This was an execution limitation, not a design or allocation blocker. |
-| Next deliverable | One coherent implementation and fixture diff, committed on the existing A branch, for coordinator review. |
-| Acceptance | No new Godot/PowerShell execution, rendered-fit evidence, tested merge, run or attempt. |
-| This publication | Only `handoff/report.md`; its enclosing commit is documentation-only, not an implementation candidate. |
+Observed/checked:
+- NewRun forwards native ambience play at0ms; fresh selected Load forwards1000ms.
+  These are exact native start arguments, not exact initial-playhead measurements.
+- Initial readiness does not restart the player. Both proofs retain Ready1;
+  the controller gate verifies this again after the final forward transition.
+- Computer open/close retains player stream/playback identity, no pause/start/
+  clear, unchanged semantics and advancing playhead. Creator samples176/192/96ms;
+  loader192ms. Four-second loop wrap is accounted for.
+- Saved slot audio equals the canonical context selected by the active admission.
+  Load retains that identity while lifecycle branch changes; original source slot,
+  Profile/history and reading/Challenge are checked by the inherited loader
+  before the intentional continued move.
+- Continued restored board and slot2 re-save preserve audio context.
+- Actual Viewport mine input reaches terminal; authored continuation reaches A.
+  Destination has a NEW admission receipt, same registration digest, durable/live
+  null audio selection, cleared stream and no inherited start.
+  Retained diagnostic: arrivedtrue, terminaltrue, failures[], empty staging
+  operation, computerfalse, pausedfalse.
+- Save/Load uses actual application ports; computer/cell actions use Viewport
+  input. This is not another pointer-consent or native OS-input acceptance lane.
 
-## Source identities and authority
+The wait-loop fix samples the final completed frame BEFORE declaring timeout.
+A synchronous durable transition can cross the wall-clock threshold within that
+frame. This is functional correctness evidence, not a transition latency result.
+No runtime change was required in this turn.
 
-Before publishing this report, live refs were:
+## Failed attempts remain failed
 
-| Ref | Observed SHA |
-|---|---|
-| A: `codex/parallel-history-exit` | `a6decec3693ee4d57df9f879b90ace3e118c9d1d` |
-| Integration: `codex/windows-cloud-ux` | `a6decec3693ee4d57df9f879b90ace3e118c9d1d` |
-| Actual `master` | `dded76aee2e85aeea94f65218de043b1f4fdce7b` |
+-38631937315/job116085474700, source1bc081b2: creator129/130 then canonical
+ evidence JSON self-check failed. Floating timing witnesses were converted to
+ integer milliseconds. No runtime fix. ZIP283153 bytes SHA256
+ 62093444d4893406044d8ab0b92f34213f1f9e746b85a71e09d22e5d73ac7520;
+ 25 manifest members verified.
+-38632392125/job116087018856, sourcea5217c26: creator133 passed; loader79/80
+ failed the forward wait. ZIP335522 bytes SHA256
+ 05eab94f8eb96306f4d276f2fe20c6c087bb4e736f80deedd3926bc10e9d3cd1;
+ 31 manifest members verified.
+-38633291304/job116090046452, source8099de5a: diagnostic creator133 passed;
+ loader83/84 failed the same wait. Retained diagnostic proved A was already active,
+ audio silent, board terminal, no refusals: fixture checked deadline before
+ inspecting the last awaited frame. ZIP339710 bytes SHA256
+ a95ad2ff6460e8d7e0164e759794e913f6b54284ebd69e2c495f880146eae9f9;
+ 32 manifest members verified.
+Do not count partial attempts as accepted cases. Final run supersedes them.
+Creator reruns were necessary to seed each real fresh-loader process with
+matching physical files; no unrelated accepted suite was repeated.
 
-The report advances only A's branch with documentation. These are pre-publication
-anchors, never reset targets. Its exact publication commit is recorded on PR #1;
-resume from the actual live worker head, including this documentation descendant.
-PR #1 was inspected open, draft and unmerged. No metadata change is requested.
-The newer-comments check found B's separate candidate handoff and no competing A
-claim; a query after 08:51:52 UTC returned no comments before this publication.
+## Retained A/B owner evidence and compatibility
 
-Read [README](../README.md), the [current handoff](../docs/agent/2026-09-23-next-session-handoff.md),
-the [execution map](../docs/agent/execution-map.md), and current Bead/design authority.
-The [coordinator release][release] expands the map's older initial five-file scope.
-[A's completed audit][audit] resolves the caller/notice-host boundary; do not repeat
-it as a prerequisite. [A's partial-work handoff][handoff] closes resume claim
-5990745662. [This documentation reservation][publication] authorizes no runtime work.
+A shared hooks99cb4e75: run38628274246/job116072971983 passed36/465.
+A+B composed ownerse6's ancestor4ba2802e: run38629834675/job116078528772
+passed62/624. Prior independent source/owner reviews retained.
+The concrete B mode mismatch was corrected before that owner run:
+NewRun transient entry mode chooses entrance0, explicit Load of the same
+initial admission still chooses authored1. Mode never enters durable context.
+Registration1/2 behavior remains explicit; no cross-registration save migration.
+Run9/Save9 envelope versions remain unchanged; audio has its own exact subdocument.
+Runtime preserves canonical staged destination audio, durable-before-playback
+adoption, identity custody and compensation/recovery behavior.
 
-## Observable outcome and preserved owners
+New capture_scene_entry_audio API is classified against the executed connected
+loader/forward-transition test. Its source declaration/test mapping was checked.
+The inherited wider public-facade inventory gaps remain; no full inventory gate
+or broad cleanup is claimed. Prior hashes/full owner details:
+[handoffc19124da](https://github.com/Siuuuers/dwm/blob/c19124da064eea897b84963b27a667cdd0ccd7e4/handoff/report.md).
 
-Leaving an admitted ending replay merges only eligible, actually-presented
-captions through existing `ProfileManager.merge_caption_history()`. Bridge keeps
-exact batch/session custody; GalleryReplayOwner coordinates lifetime; Profile
-remains the sole durable History owner. Safe release restores the exact Gallery
-record, witnessed version, scroll anchors and Replay focus.
+## C pointer Save/Load acceptance
 
-Only confirmed newly durable base-line visits produce the neutral Gallery notice
-`New dialogue added to History`. Empty/duplicate-only batches and exact-variant-only
-additions must not produce that notice. Clear it on the next record/version
-command, Replay admission or Gallery exit, not focus restoration or a timer.
-Proven refusal and uncertain durability retain required custody and receive
-truthful, distinct feedback. Revalidate the exact session after synchronous
-publication before cleanup or notification. No Title toast, new History store,
-repair/restart architecture or canonical gameplay consequences.
+C visual disposition [6177644857](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6177644857)
+accepts candidate729510597b3e9f5b232ef05979611bc95573244d,
+tree3419907c546bbf94ade65246749f0a1fecfd68a6, sourcefb739f3 plus two UIDs.
+[Run38628693997](https://github.com/Siuuuers/dwm/actions/runs/38628693997),
+job116074396909:1 connected test/201 XML assertions,9 original PNGs.
+C independently verified original ZIP295300 bytes SHA256
+3a5a050f010ace658475a36fd51fde031e3c4e6607d7a4b12c05dd62d21a4705,
+all24 manifest members and all4 retained source/UID files.
 
-Reuse Runs 166/168/171 for the accepted register, atomic Profile union and temporary
-collection. Their receipts remain historical evidence, not acceptance of this
-report or the unfinished exit integration. No prerequisite rebuild or reseal.
+Actual same-process Viewport Save/Load selection and consent, changed-board
+overwrite and nonvacuous restoration; real disk/services. Not fresh-process,
+native OS input or whole-game acceptance. Visual Back overlap remains nonblocking.
+No rerun of C or accepted localization/manual/loss/winning lanes was needed.
+Earlier accepted localization7/142, manual/loss2/128 and winning15/545 remain
+linked in the prior handoff. Do not sum unrelated suites into a whole-game score.
 
-## Completed versus unfinished
-
-The following reflects [the prior handoff][handoff], not a new engine/source audit.
-
-| Area | Available work | Still required |
-|---|---|---|
-| Bridge and GalleryReplayOwner | Optional anchored source drafts for retained exit custody and exact-session revalidation. | Review against full current files; finish, apply and verify as part of the coherent candidate. No Godot parsing has occurred. |
-| GalleryScene, GalleryCanvas, MenuScene | Completed boundary findings only. | Implement exact context restoration, neutral action-bounded status, truthful retained failure states and blocked destination/same-Gallery transitions. |
-| Two allocated fixtures | Existing fixtures unchanged. | Evolve successful-exit discard expectations without weakening playback/exact-visible protections; implement the real Menu-host journey and failure matrix. |
-| Five locale catalogues | Fifteen proposed additions recorded in the prior handoff. | Apply only the delegated entries; preserve all existing values/structure; provide the exact diff and rendered-fit evidence for review. |
-| Shared contracts and acceptance | Publication boundaries identified. | Return final callable/return/caller and literal/test changes for coordinator-owned inventory regeneration and run release. |
-
-## Existing implementation allocation
-
-[Release 5990254368][release] permits only these seven runtime/test paths:
-
-```text
-autoload/DialogicBridge.gd
-scripts/application/ending/GalleryReplayOwner.gd
-scripts/ui/GalleryScene.gd
-tests/integration/test_gallery_caption_collection.gd
-tests/ui/render_gallery_caption_collection.gd
-scripts/ui/gallery/GalleryCanvas.gd
-scripts/ui/MenuScene.gd
-```
-
-It also delegates only `gallery.history.added`, `gallery.history.failed` and
-`gallery.history.uncertain` in `localization/ui/{en,zh_CN,zh_HK,ja,ko}.json`.
-Exact English values, in that order:
-
-```text
-New dialogue added to History
-History could not be updated
-History update could not be confirmed
-```
-
-The fifteen proposed values are preserved in [the partial-work handoff][handoff].
-They are drafts, not accepted translations or committed catalogue changes.
-No Profile/Save/schema/semantic-ledger/shared CaptionLayer/input, other fixtures,
-localization framework, registration, workflow, inventory, Beads or consolidated
-navigation edits are authorized here. Any newly necessary path requires an exact
-coordinator request. Audio, production inputs/registration/prose/exhaustive
-variants and future Rehearsal/Scenes/Full Dates remain outside this outcome.
-
-## Required evidence before acceptance
-
-Use the full [release matrix][release], including natural completion and explicit
-close; empty/duplicate/variant-only batches; real proven refusal and uncertainty;
-repeated exits; stale/replaced sessions, including replacement during synchronous
-Profile publication; separate Profile-restoration refresh; and no unrelated
-Profile/run/variables/canonical consequences. Preserve no writes during playback,
-publication-before-ack, exact-token and unseen/ineligible exclusion checks.
-
-The existing rendered fixture must exercise Menu -> Gallery -> Replay -> exit,
-exact selection/scroll/Replay-focus restoration, action-bounded notice lifetime,
-blocked destinations and same-Gallery transitions. Check the new statuses in all
-five locales under the existing typography/scale conditions. No captures or
-rendered-fit acceptance exist for these changes yet.
-
-Godot 4.6.3 standard GDScript and PowerShell run only in GitHub Actions. Preserve
-registered commands, strict gates and isolated-root final bootstrap:
-
-```text
--- --phase2r-bootstrap-mode=final
-```
-
-Finish compatible caller/test-body reviews before the stable candidate gate.
-Return the exact committed head, base, changed paths and concrete shared-inventory
-needs before opening a child PR or dispatching CI. The coordinator owns publication
-and run release. A later child PR targets `codex/windows-cloud-ux`, never master;
-record its actual tested merge/run/attempt and limits. No self-merge.
-
-## Optional draft and evidence limits
-
-Conversation attachment: `worker-a-history-exit-PARTIAL-DRAFT.zip`.
-SHA-256 recorded in [the prior handoff][handoff]:
-
-```text
-5cd25bdd90bed3d94d6c83684361332abdf0ae8ed22f1848530d6a7d79ae8e66
-```
-
-The ZIP is not stored in this branch. A repository checkout alone does not contain
-it. Obtain the attachment from the owner only when useful; it is optional and must
-not become another prerequisite. Do not apply its core draft alone: the three UI
-files and both fixtures are unfinished. The prior nine passing Python checks were
-synthetic text/JSON packaging checks only, not game acceptance. This report does
-not rerun those checks or claim that its diff previewer ran against a real checkout.
-The previous workspace limitation is not retested by this small-document publication.
-
-## Ownership handoff and next action
-
-The director retains scheduling control. This documentation publication does not
-start a background worker or reacquire A's runtime ownership. Resume exactly one A
-writer after checking live refs and newer claims, then record that implementation
-claim. First establish complete source access and a safe editing route; finish the
-coherent seven-file/limited-localization outcome rather than restarting the audit.
-
-All exit-integration acceptance, translation/visual review and broader production
-or native clauses remain pending. No Bead status/dependency or shared navigation
-is changed by this report. The publication comment records the actual report
-commit and closes the documentation-only reservation.
-
-[release]: https://github.com/Siuuuers/dwm/pull/1#issuecomment-5990254368
-[audit]: https://github.com/Siuuuers/dwm/pull/1#issuecomment-5989585021
-[handoff]: https://github.com/Siuuuers/dwm/pull/1#issuecomment-5991152244
-[publication]: https://github.com/Siuuuers/dwm/pull/1#issuecomment-5991354129
+All controller batches are complete. Read live refs/comments before the next
+write or dispatch. Live Beads is unavailable; October5's23-unfinished export is
+stale. No current task-count claim, Beads closure, master merge or release.

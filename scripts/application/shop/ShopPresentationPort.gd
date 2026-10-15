@@ -16,9 +16,9 @@ const _CAPABILITY_RULES := preload("res://scripts/domain/minesweeper/Minesweeper
 
 const _SPECIAL_IDS: Array[String] = ["supportz", "lucky_charm", "debug_key"]
 const _PUBLIC_ORDER: Array[String] = [
-	"coffee", "wine", "pineapple_bun", "bandage_pack", "quiet_tea",
-	"soft_blanket", "weighted_plush", "spa_coupon", "healthy_meal", "protein_box",
-	"pep_note", "premium_care", "lucky_charm", "debug_key", "bookend_keepsake",
+	"wine", "pineapple_bun", "quiet_tea",
+	"soft_blanket", "weighted_plush", "spa_coupon",
+	"premium_care", "lucky_charm", "debug_key", "bookend_keepsake",
 	"metronome_keepsake", "pocket_calculator_keepsake",
 ]
 const _SOURCE_TO_PUBLIC := {
@@ -32,9 +32,9 @@ const _PUBLIC_TO_SOURCE := {
 	"pocket_calculator_keepsake": "sylvia_gift",
 }
 const _BATCHABLE_IDS: Array[String] = [
-	"coffee", "wine", "pineapple_bun", "bandage_pack", "quiet_tea",
-	"soft_blanket", "weighted_plush", "healthy_meal", "protein_box",
-	"pep_note", "premium_care",
+	"wine", "pineapple_bun", "quiet_tea",
+	"soft_blanket", "weighted_plush",
+	"premium_care",
 ]
 
 const _GAME_STATE_METHODS: Array[String] = [
@@ -110,7 +110,7 @@ func get_catalog(locale: String) -> Dictionary:
 	if locale_id not in ["en", "zh_CN", "zh_HK", "ja", "ko"]:
 		return _fail(&"invalid_shop_locale")
 	var source_items: Variant = _data_catalog.call(&"get_shop_items")
-	if typeof(source_items) != TYPE_ARRAY or (source_items as Array).size() != 18:
+	if typeof(source_items) != TYPE_ARRAY or (source_items as Array).size() != _PUBLIC_ORDER.size() + 1:
 		return _fail(&"shop_catalog_unavailable")
 	var rows_by_id: Dictionary = {}
 	for item: Variant in source_items:
@@ -301,6 +301,8 @@ func _supportz_eligibility() -> Dictionary:
 
 
 func _resolve_item(public_id: String) -> Dictionary:
+	if public_id not in _PUBLIC_ORDER and public_id != "supportz":
+		return _fail(&"unregistered_shop_item")
 	var source_id := str(_PUBLIC_TO_SOURCE.get(public_id, public_id))
 	var raw: Variant = _data_catalog.call(&"get_shop_item", source_id)
 	if typeof(raw) != TYPE_DICTIONARY or (raw as Dictionary).is_empty():
@@ -411,3 +413,4 @@ static func _validate_note_record(raw: Dictionary) -> Dictionary:
 			or not raw.get("effect_ids") is Array or not raw.effect_ids.is_empty():
 		return _fail(&"invalid_note_shop_record")
 	return _ok({})
+

@@ -343,6 +343,36 @@ func dispatch_physical(presentation_command: Dictionary, action: String, cell_in
 		"the owner returned no physical command result", {})
 
 
+## The fixed Challenge view can only use a command admitted by this port.
+## The physical owner retains first-Reveal validation and all durable mutations.
+func pull_scene_panel(presentation_command: Dictionary) -> Dictionary:
+	var trusted := _trusted_scene_panel_command(presentation_command)
+	if not trusted.get("ok", false): return trusted
+	if not _physical_owner.has_method("pull_scene_panel"):
+		return _fail(&"physical_presentation_unavailable", "the owner exposes no scene panel", {})
+	var result: Variant = _physical_owner.call("pull_scene_panel", str(trusted.value.physical_token))
+	return result if result is Dictionary else _fail(
+		&"physical_presentation_unavailable", "the owner returned no scene panel", {})
+
+func dispatch_scene_panel_action(presentation_command: Dictionary, action: String,
+		cell_index: int, expected_revision: int) -> Dictionary:
+	var trusted := _trusted_scene_panel_command(presentation_command)
+	if not trusted.get("ok", false): return trusted
+	if not _physical_owner.has_method("dispatch_scene_panel_action"):
+		return _fail(&"physical_presentation_unavailable", "the owner exposes no scene panel actions", {})
+	var result: Variant = _physical_owner.call("dispatch_scene_panel_action",
+		str(trusted.value.physical_token), action, cell_index, expected_revision)
+	return result if result is Dictionary else _fail(
+		&"physical_presentation_unavailable", "the owner returned no scene panel action result", {})
+
+func _trusted_scene_panel_command(candidate: Dictionary) -> Dictionary:
+	var trusted := _trusted_physical_command(candidate)
+	if not trusted.get("ok", false): return trusted
+	if not trusted.value.get("context") is Dictionary \
+			or trusted.value.context.get("kind") != "scene_challenge":
+		return _fail(&"scene_challenge_family_mismatch", "", {})
+	return trusted
+
 func _trusted_physical_command(candidate: Dictionary) -> Dictionary:
 	if _physical_owner == null:
 		return _fail(&"dating_physical_owner_unconfigured",

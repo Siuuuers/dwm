@@ -214,13 +214,15 @@ func test_quick_load_preserves_actual_document_compatibility_and_read_failure_re
 	var cases := {
 		"unreadable": "not a save document",
 		"older_version": '{"schema_version":1,"kind":"quick","slot_id":null}',
-		"newer_version": JSON.stringify({"schema_version": MANAGER.SAVE_DOCUMENT_SCHEMA.DOCUMENT_VERSION + 1}),
+		"newer_version": JSON.stringify({"schema_version": MANAGER.SAVE_DOCUMENT_SCHEMA.SCENE_DOCUMENT_VERSION + 1}),
 	}
 	for reason: String in cases:
 		files._persisted["memory/quick-actions/quicksave.json"] = cases[reason].to_utf8_buffer()
 		var persisted: Dictionary = files.snapshot_persisted()
 		var inspected: Dictionary = _manager.inspect_backup("quick")
 		assert_eq(inspected.value.reason, reason)
+		assert_null(inspected.value.family, "unadmitted bytes establish no presentation family")
+		assert_null(inspected.value.load_family)
 		assert_false(inspected.value.loadable)
 		assert_eq(port.get_quick_capability("load").value.status_key, reason)
 		assert_eq(_manager.prepare_quick_backup_action("load").status_key, reason)
@@ -271,6 +273,8 @@ func test_load_always_requires_consent_for_normal_and_fallback() -> void:
 		assert_true(prepared.get("ok", false))
 		assert_true(prepared.value.confirmation_required)
 		assert_eq(prepared.value.confirmation_kind, "replace_progress_fallback" if fallback else "replace_progress")
+		assert_eq(prepared.value.record.family, "legacy_day")
+		assert_eq(prepared.value.record.load_family, "legacy_day")
 		assert_eq(_manager.restore_commits, 0, "preparation never restores")
 		port.cancel_action(prepared.value.token)
 		assert_false(port.commit_action(prepared.value.token).get("ok", false))

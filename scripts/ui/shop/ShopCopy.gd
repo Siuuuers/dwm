@@ -47,38 +47,35 @@ const _TEXT := {
 
 const _ITEM_NAMES := {
 	"en": {
-		"coffee": "Coffee", "wine": "Wine", "pineapple_bun": "Pineapple Bun",
-		"bandage_pack": "Bandage Pack", "quiet_tea": "Quiet Tea",
+		"wine": "Wine", "pineapple_bun": "Pineapple Bun",
+		"quiet_tea": "Quiet Tea",
 		"soft_blanket": "Soft Blanket", "weighted_plush": "Weighted Plush",
-		"spa_coupon": "Spa Coupon", "healthy_meal": "Healthy Meal",
-		"protein_box": "Protein Box", "pep_note": "Pep Note",
+		"spa_coupon": "Spa Coupon",
 		"premium_care": "Premium Care", "lucky_charm": "Lucky Charm",
 		"debug_key": "Debug Key", "bookend_keepsake": "Bookend",
 		"metronome_keepsake": "Metronome",
 		"pocket_calculator_keepsake": "Pocket Calculator",
 	},
 	"zh_CN": {
-		"coffee": "咖啡", "wine": "葡萄酒", "pineapple_bun": "菠萝包",
-		"bandage_pack": "绷带包", "quiet_tea": "清茶", "soft_blanket": "柔软毛毯",
+		"wine": "葡萄酒", "pineapple_bun": "菠萝包",
+		"quiet_tea": "清茶", "soft_blanket": "柔软毛毯",
 		"weighted_plush": "加重毛绒玩具", "spa_coupon": "水疗券",
-		"healthy_meal": "健康餐", "protein_box": "蛋白质餐盒", "pep_note": "短笺",
 		"premium_care": "高级护理用品", "lucky_charm": "幸运符",
 		"debug_key": "调试键", "bookend_keepsake": "书挡",
 		"metronome_keepsake": "节拍器",
 		"pocket_calculator_keepsake": "袖珍计算器",
 	},
 	"zh_HK": {
-		"coffee": "咖啡", "wine": "葡萄酒", "pineapple_bun": "菠蘿包",
-		"bandage_pack": "繃帶包", "quiet_tea": "清茶", "soft_blanket": "柔軟毛毯",
+		"wine": "葡萄酒", "pineapple_bun": "菠蘿包",
+		"quiet_tea": "清茶", "soft_blanket": "柔軟毛毯",
 		"weighted_plush": "加重毛絨玩具", "spa_coupon": "水療券",
-		"healthy_meal": "健康餐", "protein_box": "蛋白質餐盒", "pep_note": "短箋",
 		"premium_care": "高級護理用品", "lucky_charm": "幸運符",
 		"debug_key": "除錯鍵", "bookend_keepsake": "書擋",
 		"metronome_keepsake": "節拍器",
 		"pocket_calculator_keepsake": "袖珍計算器",
 	},
-	"ja": {"coffee": "コーヒー", "wine": "ワイン", "pineapple_bun": "パイナップルパン", "bandage_pack": "包帯セット", "quiet_tea": "安らぎのお茶", "soft_blanket": "柔らかな毛布", "weighted_plush": "重みのあるぬいぐるみ", "spa_coupon": "スパ利用券", "healthy_meal": "ヘルシーな食事", "protein_box": "プロテイン弁当", "pep_note": "励ましのメモ", "premium_care": "上質なケア用品", "lucky_charm": "幸運のお守り", "debug_key": "デバッグキー", "bookend_keepsake": "ブックエンド", "metronome_keepsake": "メトロノーム", "pocket_calculator_keepsake": "ポケット電卓"},
-	"ko": {"coffee": "커피", "wine": "와인", "pineapple_bun": "파인애플 번", "bandage_pack": "붕대 세트", "quiet_tea": "차분한 차", "soft_blanket": "부드러운 담요", "weighted_plush": "무게감 있는 봉제 인형", "spa_coupon": "스파 이용권", "healthy_meal": "건강식", "protein_box": "단백질 도시락", "pep_note": "응원 쪽지", "premium_care": "고급 케어 용품", "lucky_charm": "행운의 부적", "debug_key": "디버그 키", "bookend_keepsake": "북엔드", "metronome_keepsake": "메트로놈", "pocket_calculator_keepsake": "휴대용 계산기"},
+	"ja": {"wine": "ワイン", "pineapple_bun": "パイナップルパン", "quiet_tea": "安らぎのお茶", "soft_blanket": "柔らかな毛布", "weighted_plush": "重みのあるぬいぐるみ", "spa_coupon": "スパ利用券", "premium_care": "上質なケア用品", "lucky_charm": "幸運のお守り", "debug_key": "デバッグキー", "bookend_keepsake": "ブックエンド", "metronome_keepsake": "メトロノーム", "pocket_calculator_keepsake": "ポケット電卓"},
+	"ko": {"wine": "와인", "pineapple_bun": "파인애플 번", "quiet_tea": "차분한 차", "soft_blanket": "부드러운 담요", "weighted_plush": "무게감 있는 봉제 인형", "spa_coupon": "스파 이용권", "premium_care": "고급 케어 용품", "lucky_charm": "행운의 부적", "debug_key": "디버그 키", "bookend_keepsake": "북엔드", "metronome_keepsake": "메트로놈", "pocket_calculator_keepsake": "휴대용 계산기"},
 }
 
 
@@ -117,3 +114,4 @@ static func price(locale: String, amount: int, currency: String) -> String:
 
 static func _locale_id(locale: String) -> String:
 	return _LOCALE_ALIASES.get(locale, "")
+

@@ -13,6 +13,7 @@ const A11Y := {
 	"ko": {"none": "", "flag": "깃발", "mine": "지뢰", "exploded": "폭발한 지뢰", "correct_flag": "올바른 깃발", "incorrect_flag": "잘못된 깃발", "marked_mine": "표시된 지뢰", "marked_flag": "표시된 깃발"},
 }
 
+var _scene_presentation := false
 var public_cell: Dictionary = {}
 var focused := false
 var hovered := false
@@ -29,11 +30,19 @@ func _ready() -> void:
 
 func configure(locale: String = "en", percent: int = 100, large: bool = false, palette: StringName = &"after_hours",
 		high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel", day: int = 1) -> bool:
+	return _configure_context(locale, percent, large, palette, high_contrast, colour_preset, font_style, day, false)
+
+func configure_scene(locale: String = "en", percent: int = 100, large: bool = false, palette: StringName = &"after_hours", high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> bool:
+	return _configure_context(locale, percent, large, palette, high_contrast, colour_preset, font_style, null, true)
+
+func _configure_context(locale: String = "en", percent: int = 100, large: bool = false, palette: StringName = &"after_hours", high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel", day: Variant = 1, scene: bool = false) -> bool:
+	if _scene_presentation and not scene: return false
 	locale = locale.replace("_","-")
-	var candidate: Theme = MINESWEEPER_THEME.build(locale,percent,palette,high_contrast,colour_preset,font_style,day)
+	var candidate: Theme = MINESWEEPER_THEME._build_context(locale,percent,palette,high_contrast,colour_preset,font_style,day, scene)
 	if candidate == null: return false
 	_locale = locale
 	_large = large
+	_scene_presentation = scene
 	theme = candidate
 	_resize()
 	_update_accessibility()

@@ -7,6 +7,7 @@ const JSON_WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
 class CheckpointSeam extends "res://tests/support/FakeNarrativeCheckpointContext.gd":
 	var current := {"checkpoint_id": "run:1", "checkpoint_sequence": 1, "narrative_checkpoint": {"source": true}}
+	var scene_family := false
 	var bad_ack := false
 	var bad_target := false
 	var readback_mismatch := false
@@ -26,9 +27,16 @@ class CheckpointSeam extends "res://tests/support/FakeNarrativeCheckpointContext
 		if not prepare_ok: return {"ok": false, "code": &"prepare_failed"}
 		var snapshot := {"checkpoint_id": "run:2", "checkpoint_sequence": 2,
 			"narrative_checkpoint": inputs.dialogic_checkpoint.duplicate(true), "payload": inputs.snapshot_input.duplicate(true)}
+		snapshot["audio_context"] = inputs.audio_context.duplicate(true)
+		if scene_family:
+			snapshot.erase("payload")
+			snapshot.merge(inputs.snapshot_input.duplicate(true))
+			snapshot["schema_version"] = 9
+			snapshot["route_id"] = inputs.route_id
 		if bad_target: snapshot.narrative_checkpoint["altered"] = true
 		prepared_object = {"checkpoint_id": "run:2", "journal_candidate": {"current": {"snapshot": snapshot}},
 			"autosave_document": {"current_snapshot": {"snapshot": snapshot.duplicate(true)}}, "storage_backup": {"original": true}}
+		if scene_family: prepared_object.autosave_document["schema_version"] = 9
 		if after_prepare.is_valid(): after_prepare.call()
 		return {"ok": true, "value": {"candidate": prepared_object, "checkpoint_id": "run:2"}}
 
@@ -52,6 +60,15 @@ class BridgeSeam extends RefCounted:
 		if callback.is_valid(): callback.call()
 		return {"ok": allow and capability == "cap:1" and binding.recursive_equal(expected_binding, 32)
 			and checkpoint.recursive_equal(expected_checkpoint, 32)}
+
+class AudioSource extends RefCounted:
+	var context: Variant = null
+	var expected_binding: Dictionary = {}
+	var callback := Callable()
+	var allow := true
+	func capture(binding: Dictionary) -> Dictionary:
+		if callback.is_valid(): callback.call()
+		return {"ok": allow and binding == expected_binding, "value": context}
 
 func _hash(value: Variant) -> String:
 	return str(JSON_WRITER.stringify(value).value).sha256_text()
@@ -338,3 +355,104 @@ func test_final_external_callbacks_cannot_mutate_prepared_candidate_before_write
 			assert_true(f.port.commit_scene_event({}, f.checkpoint).ok, "no-write refusal retains retry custody")
 			assert_true(f.real.committed_same_object)
 			assert_true(f.port.consume_scene_entry_ack("cap:1").ok)
+
+# Protocol-only lower seam: complete scene Run/Save validation is A's composed gate.
+func _scene_input(f: Dictionary) -> Dictionary:
+	return {"lifecycle": {}, "gameplay": {}, "contacts": {}, "desktop": {},
+		"scene": {"registration_sha256": f.binding.registration_sha256,
+			"active_occurrence_id": f.binding.target_occurrence_id,
+			"active_admission_receipt_id": f.binding.admission_receipt_id},
+		"applied_effect_transaction_ids": {}, "applied_variable_transaction_ids": {}, "command_receipts": {}}
+
+func test_scene_route_keeps_real_candidate_identity_and_exact_checkpoint_ack() -> void:
+	for entry: bool in [false, true]:
+		var f := _fixture(entry)
+		f.real.route_id_value = "scene"
+		f.real.scene_family = true
+		var input := _scene_input(f)
+		var committed: Dictionary = f.port.commit_scene_event(input, f.checkpoint)
+		assert_true(committed.ok, str(committed))
+		assert_true(f.real.committed_same_object)
+		assert_eq(committed.value.checkpoint_reference.snapshot_sha256, _hash(f.real.current))
+		for key: String in input: assert_eq(f.real.current[key], input[key])
+		var ack: Dictionary = f.port.consume_scene_entry_ack("cap:1")
+		assert_eq(ack.ok, entry)
+		if entry: assert_eq(ack.value.narrative_checkpoint_sha256, _hash(f.real.current.narrative_checkpoint))
+
+func test_scene_entry_captures_target_audio_without_changing_live_provider() -> void:
+	for legacy: bool in [false, true]:
+		var f := _fixture(false)
+		f.real.route_id_value = "scene"
+		f.real.scene_family = true
+		f.real.audio_context_value = {"TEST": "old live audio"}
+		var audio := AudioSource.new()
+		audio.expected_binding = f.binding.duplicate(true)
+		audio.context = null if legacy else {"TEST": "frozen destination"}
+		assert_true(f.port.configure_scene_audio_source(audio.capture).ok)
+		assert_true(f.port.retain_scene_entry(f.authority, "cap:1", f.binding, f.checkpoint).ok)
+		var result: Dictionary = f.port.commit_scene_event(_scene_input(f), f.checkpoint)
+		assert_true(result.ok, str(result))
+		assert_eq(f.real.current.audio_context, f.real.audio_context_value if legacy else audio.context)
+		assert_eq(f.real.audio_context_value, {"TEST": "old live audio"}, "capture never adopts playback")
+		assert_true(f.port.consume_scene_entry_ack("cap:1").ok)
+
+func test_scene_entry_audio_refusal_or_lost_custody_never_reaches_prepare() -> void:
+	for revoke: bool in [false, true]:
+		var f := _fixture(false)
+		f.real.route_id_value = "scene"
+		f.real.scene_family = true
+		var audio := AudioSource.new()
+		audio.expected_binding = f.binding.duplicate(true)
+		audio.context = {"TEST": "destination"}
+		if revoke: audio.callback = func() -> void: f.authority.allow = false
+		else: audio.allow = false
+		assert_true(f.port.configure_scene_audio_source(audio.capture).ok)
+		assert_true(f.port.retain_scene_entry(f.authority, "cap:1", f.binding, f.checkpoint).ok)
+		assert_false(f.port.commit_scene_event(_scene_input(f), f.checkpoint).ok)
+		assert_false(f.real.calls.has("prepare"))
+		assert_false(f.real.calls.has("commit"))
+		audio.callback = Callable()
+
+func test_scene_route_rejects_unbound_input_or_legacy_prepared_family_before_write() -> void:
+	for mode: String in ["input", "registration", "occurrence", "admission", "legacy_candidate", "save_version", "run_version", "legacy_route", "authority"]:
+		var f := _fixture()
+		f.real.route_id_value = "scene"
+		f.real.scene_family = true
+		var input := _scene_input(f)
+		match mode:
+			"input": input["committed_schedule"] = {}
+			"registration": input.scene.registration_sha256 = "b".repeat(64)
+			"occurrence": input.scene.active_occurrence_id = "wrong"
+			"admission": input.scene.active_admission_receipt_id = "wrong"
+			"legacy_candidate": f.real.scene_family = false
+			"save_version":
+				f.real.after_prepare = func() -> void:
+					f.real.prepared_object.autosave_document.schema_version = 8
+			"run_version":
+				f.real.after_prepare = func() -> void:
+					f.real.prepared_object.journal_candidate.current.snapshot.schema_version = 8
+					f.real.prepared_object.autosave_document.current_snapshot.snapshot.schema_version = 8
+			"legacy_route": f.real.route_id_value = "dating"
+			"authority":
+				f.port = PORT.new()
+				assert_true(f.port.configure(f.real, f.real.provider_callables()).ok)
+		var refused: Dictionary = f.port.commit_scene_event(input, f.checkpoint)
+		assert_false(refused.ok, mode)
+		assert_false(f.real.calls.has("commit"), mode)
+
+func test_scene_route_rejects_candidate_payload_change_and_uncertain_readback() -> void:
+	var f := _fixture(false)
+	f.real.route_id_value = "scene"
+	f.real.scene_family = true
+	f.real.after_prepare = func() -> void:
+		var snapshot: Dictionary = f.real.prepared_object.journal_candidate.current.snapshot
+		snapshot.gameplay["injected"] = true
+		f.real.prepared_object.autosave_document.current_snapshot.snapshot = snapshot.duplicate(true)
+	assert_false(f.port.commit_scene_event(_scene_input(f), f.checkpoint).ok)
+	assert_false(f.real.calls.has("commit"))
+	f.real.after_prepare = Callable()
+	f.real.readback_mismatch = true
+	var uncertain: Dictionary = f.port.commit_scene_event(_scene_input(f), f.checkpoint)
+	assert_false(uncertain.ok)
+	assert_true(uncertain.committed)
+	assert_false(f.real.calls.has("rollback"))
