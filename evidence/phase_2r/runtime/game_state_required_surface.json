@@ -2028,6 +2028,214 @@
       "disposition": "retain",
       "replacement": "",
       "contract_test": "test_fresh_scene_audio_load_retains_admission_and_uses_anchor"
+    },
+    {
+      "symbol": "SCENE_GAMEPLAY_KEYS",
+      "kind": "constant",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_real_bootstrap_scene_text_and_selected_load_keep_owner_authority"
+    },
+    {
+      "symbol": "prepare_scene_new_run",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_real_bootstrap_scene_text_and_selected_load_keep_owner_authority"
+    },
+    {
+      "symbol": "apply_scene_new_run_silent",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_real_bootstrap_scene_text_and_selected_load_keep_owner_authority"
+    },
+    {
+      "symbol": "configure_scene_runtime_validation",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_real_bootstrap_scene_text_and_selected_load_keep_owner_authority"
+    },
+    {
+      "symbol": "make_scene_new_run_gameplay",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_complete_initial_candidate_is_read_only_and_not_committed_authority"
+    },
+    {
+      "symbol": "prepare_scene_new_run_snapshot_input",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_rebuilt_other_initial_target_is_valid_preparation_but_not_committed_authority"
+    },
+    {
+      "symbol": "validate_scene_snapshot_semantics",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_committed_receipt_survives_evolved_checkpoint_and_unrelated_profile_write"
+    },
+    {
+      "symbol": "continue_optional_scene_challenge",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_optional_unfinished_create"
+    },
+    {
+      "symbol": "validate_scene_challenge_end",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_optional_unfinished_create"
+    },
+    {
+      "symbol": "commit_scene_challenge_closure",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_optional_unfinished_create"
+    },
+    {
+      "symbol": "continue_completed_scene_challenge",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_terminal_board_auto_continues_to_authored_end_and_saves_target"
+    },
+    {
+      "symbol": "scene_entry_staging_context",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_terminal_board_auto_continues_to_authored_end_and_saves_target"
+    },
+    {
+      "symbol": "validate_scene_entry_staging_source",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_terminal_board_auto_continues_to_authored_end_and_saves_target"
+    },
+    {
+      "symbol": "admit_scene_target",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_terminal_board_auto_continues_to_authored_end_and_saves_target"
+    },
+    {
+      "symbol": "configure_scene_challenge_runtime",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_first_reveal_real_two_store_retry_and_save"
+    },
+    {
+      "symbol": "capture_scene_challenge_command",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_first_reveal_real_two_store_retry_and_save"
+    },
+    {
+      "symbol": "validate_scene_challenge_command",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_first_reveal_real_two_store_retry_and_save"
+    },
+    {
+      "symbol": "commit_scene_challenge_checkpoint",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_first_reveal_real_two_store_retry_and_save"
+    },
+    {
+      "symbol": "prepare_selected_scene_absence",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_selected_absence_survives_source_overwrite_and_destination_retry"
+    },
+    {
+      "symbol": "validate_selected_scene_absence",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_selected_absence_survives_source_overwrite_and_destination_retry"
+    },
+    {
+      "symbol": "capture_scene_challenge_closure",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_optional_selected_absence_load"
+    },
+    {
+      "symbol": "advance_scene_registered_marker",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_optional_never_opened_create"
+    },
+    {
+      "symbol": "configure_scene_checkpoint_source",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_genuine_playable_retries_and_commits_control"
+    },
+    {
+      "symbol": "capture_scene_contact_context",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_registered_contacts_read_entry_and_save"
+    },
+    {
+      "symbol": "resolve_scene_contact_facts",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_message_and_read_refusal_preserve_state_and_allow_exact_retry"
+    },
+    {
+      "symbol": "emit_scene_contact_message",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_message_and_read_refusal_preserve_state_and_allow_exact_retry"
     }
   ]
 }
