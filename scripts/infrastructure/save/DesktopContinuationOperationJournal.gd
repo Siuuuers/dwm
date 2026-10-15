@@ -123,6 +123,7 @@ var _scene_new_run_issuer: Object = null
 var _storage: Object = null
 var _source_loader: Object = null
 var _document: Dictionary = {}
+var _creation_storage_recovery := false
 var _loaded := false
 var _load_in_progress := false
 var _validated_loading_creations: Dictionary = {}
@@ -167,6 +168,29 @@ func configure_scene_new_run_validation(bundle: Dictionary, issuer: Object) -> D
 	_scene_new_run_bundle = bundle.duplicate(true)
 	_scene_new_run_issuer = issuer
 	return {"ok": true}
+
+
+## Bootstrap must settle the durable NewRun pair before Profile initializes.
+## Ordinary retained Load semantics require the later live owners. This synchronous
+## scope permits only creation recovery and never exports a fully loaded journal.
+func with_creation_storage_recovery(work: Callable) -> Dictionary:
+	if _creation_storage_recovery or _load_in_progress or not work.is_valid():
+		return _failed(&"creation_storage_recovery_busy", "invalid or nested recovery scope")
+	_clear_loaded_proofs()
+	_creation_storage_recovery = true
+	var result: Dictionary = work.call()
+	_creation_storage_recovery = false
+	_clear_loaded_proofs()
+	return result
+
+
+func _clear_loaded_proofs() -> void:
+	_loaded = false
+	_document.clear()
+	_validated_loading_creations.clear()
+	_validated_text_documents.clear()
+	_validated_text_order.clear()
+	_operation_text_cache.clear()
 
 
 func prepare_intent(request: Dictionary) -> Dictionary:
@@ -264,6 +288,8 @@ func advance(request: Dictionary) -> Dictionary:
 	if not operations.has(txid):
 		return _failed(&"continuation_transaction_not_found", txid)
 	var operation: Dictionary = operations[txid]
+	if _creation_storage_recovery and not _is_new_run(operation):
+		return _failed(&"creation_storage_recovery_only", txid)
 	if str(request["request_fingerprint"]) != str(operation.get("request_fingerprint", "")):
 		return _failed(&"continuation_request_conflict", txid)
 
@@ -309,6 +335,8 @@ func record_new_run_target(transaction_id: String, request_fingerprint: String,
 	if not operations.has(transaction_id):
 		return _failed(&"continuation_transaction_not_found", transaction_id)
 	var operation: Dictionary = operations[transaction_id]
+	if _creation_storage_recovery and not _is_new_run(operation):
+		return _failed(&"creation_storage_recovery_only", transaction_id)
 	if request_fingerprint != str(operation.get("request_fingerprint", "")):
 		return _failed(&"continuation_request_conflict", transaction_id)
 	if not _is_new_run(operation) or operation.get("stage") != STAGE_ALLOCATED:
@@ -354,6 +382,8 @@ func get_operation(transaction_id: String) -> Dictionary:
 		return loaded
 	if not _document.get("operations", {}).has(transaction_id):
 		return _failed(&"continuation_transaction_not_found", transaction_id)
+	if _creation_storage_recovery and not _is_new_run(_document["operations"][transaction_id]):
+		return _failed(&"creation_storage_recovery_only", transaction_id)
 	return {"ok": true, "value": (_document["operations"][transaction_id] as Dictionary).duplicate(true)}
 
 
@@ -428,7 +458,11 @@ func list_incomplete() -> Dictionary:
 		var stage := str(operation.get("stage", ""))
 		if (stage == STAGE_COMPLETED and not _activation_pending(operation)) or stage == STAGE_ABORTED:
 			continue
-		listed.append(operation.duplicate(true))
+		if _creation_storage_recovery and not _is_new_run(operation):
+			# Only conflict classification is needed early; no selected restore source escapes.
+			listed.append({"kind": operation["kind"], "transaction_id": operation["transaction_id"]})
+		else:
+			listed.append(operation.duplicate(true))
 	return {"ok": true, "value": listed}
 
 
@@ -454,6 +488,8 @@ func reconcile_startup(transaction_id: String, issuer: Object) -> Dictionary:
 	if not operations.has(transaction_id):
 		return _failed(&"continuation_transaction_not_found", transaction_id)
 	var operation: Dictionary = operations[transaction_id]
+	if _creation_storage_recovery and not _is_new_run(operation):
+		return _failed(&"creation_storage_recovery_only", transaction_id)
 
 	var verified: Dictionary = issuer.call(
 		&"verify_issued", operation.get("transaction_issuer_receipt"), &"transaction_id")
@@ -503,6 +539,9 @@ func reconcile_startup(transaction_id: String, issuer: Object) -> Dictionary:
 
 
 func _require_configured(method: String) -> Dictionary:
+	if _creation_storage_recovery and method not in ["list_incomplete", "get_operation",
+			"reconcile_startup", "advance", "record_new_run_target"]:
+		return _failed(&"creation_storage_recovery_only", method)
 	if _storage == null or _source_loader == null:
 		return _failed(&"journal_not_configured", "DesktopContinuationOperationJournal.%s before configure" % method)
 	return {"ok": true}
@@ -541,6 +580,9 @@ func _load_owned() -> Dictionary:
 
 
 func _write(document: Dictionary, changed_transaction: String = "") -> Dictionary:
+	if _creation_storage_recovery and (changed_transaction.is_empty()
+			or not _is_new_run(document.get("operations", {}).get(changed_transaction, {}))):
+		return _failed(&"creation_storage_recovery_only", changed_transaction)
 	# Every caller uses a validated entry path: commit/target call _validate_operation, advance
 	# constructs an exhaustive legal transition, and diagnostic clearing only nulls an
 	# already-validated failure. _document itself was validated on load. Avoid rescanning all
@@ -1545,6 +1587,8 @@ func acknowledge_scene_activation(transaction_id: String, request_fingerprint: S
 	if not operations.has(transaction_id):
 		return _failed(&"continuation_transaction_not_found", transaction_id)
 	var operation: Dictionary = operations[transaction_id]
+	if _creation_storage_recovery and not _is_new_run(operation):
+		return _failed(&"creation_storage_recovery_only", transaction_id)
 	if operation.get("request_fingerprint") != request_fingerprint:
 		return _failed(&"continuation_request_conflict", transaction_id)
 	if not _is_scene(operation) or operation.get("stage") != STAGE_COMPLETED:
@@ -1603,10 +1647,14 @@ func _validate_scene_source(operation: Dictionary) -> Dictionary:
 	if typeof(document) != TYPE_DICTIONARY or typeof(document.get("schema_version")) != TYPE_INT \
 			or document.get("schema_version") != 9:
 		return _failed(_schema_error, "scene restore requires actual Save9 selected_document")
-	var admitted: Dictionary = _SAVE_DOCUMENT.validate(document)
-	if not admitted.get("ok", false): return admitted
-	if not _CANONICAL_WRITER._deep_same(document, admitted["value"]["candidate"]):
-		return _failed(_schema_error, "selected_document must already be the exact validated Save9 value")
+	if _creation_storage_recovery:
+		var envelope := _validate_retained_scene_envelope(document)
+		if not envelope.get("ok", false): return envelope
+	else:
+		var admitted: Dictionary = _SAVE_DOCUMENT.validate(document)
+		if not admitted.get("ok", false): return admitted
+		if not _CANONICAL_WRITER._deep_same(document, admitted["value"]["candidate"]):
+			return _failed(_schema_error, "selected_document must already be the exact validated Save9 value")
 	var locator: Dictionary = operation["source_locator"]
 	var slot := str(document["kind"])
 	if slot == "slot": slot = "slot:" + str(document["slot_id"])
@@ -1623,10 +1671,11 @@ func _validate_scene_source(operation: Dictionary) -> Dictionary:
 			return _failed(_schema_error, "retained recovery bundle is malformed")
 		var snapshot: Dictionary = bundle["snapshot"]
 		if snapshot.get("checkpoint_id") != locator["checkpoint_id"]: continue
-		var selected_ok: Dictionary = _SAVE_DOCUMENT._validate_bundle(bundle)
-		if not selected_ok.get("ok", false): return selected_ok
-		if not _CANONICAL_WRITER._deep_same(snapshot, selected_ok["value"]["candidate"]):
-			return _failed(_schema_error, "selected snapshot must already be validated")
+		if not _creation_storage_recovery:
+			var selected_ok: Dictionary = _SAVE_DOCUMENT._validate_bundle(bundle)
+			if not selected_ok.get("ok", false): return selected_ok
+			if not _CANONICAL_WRITER._deep_same(snapshot, selected_ok["value"]["candidate"]):
+				return _failed(_schema_error, "selected snapshot must already be validated")
 		# A repeated checkpoint identity is ambiguous even when only one hash matches.
 		matches += 1
 		if _canonical_sha256(bundle) != locator["bundle_id"] \
@@ -1642,6 +1691,38 @@ func _validate_scene_source(operation: Dictionary) -> Dictionary:
 		return _failed(_schema_error, "scene request fingerprint must bind complete selected document")
 	return {"ok": true}
 
+
+
+## Only the immutable envelope is independent of initialized Profile/scene owners.
+## Full Save9 and snapshot admission still runs after the early scope is discarded.
+func _validate_retained_scene_envelope(document: Dictionary) -> Dictionary:
+	var keys: Array[String] = _SAVE_DOCUMENT.DOCUMENT_KEYS.duplicate()
+	if document.has("saved_time"): keys.append("saved_time")
+	var shape := _exact_keys(document, keys)
+	if not shape.get("ok", false): return shape
+	if typeof(document.kind) != TYPE_STRING or typeof(document.save_reason) != TYPE_STRING \
+			or typeof(document.current_snapshot) != TYPE_DICTIONARY \
+			or typeof(document.recovery_journal) != TYPE_ARRAY:
+		return _failed(_schema_error, "retained Save9 envelope is malformed")
+	if _SAVE_DOCUMENT._validate_discriminators(document.kind, document.slot_id, document.save_reason) != "":
+		return _failed(_schema_error, "retained Save9 discriminators are invalid")
+	if document.has("saved_time") and not _SAVE_DOCUMENT.validate_saved_time(document.saved_time):
+		return _failed(_schema_error, "retained Save9 saved time is invalid")
+	var bundles: Array = [document.current_snapshot]
+	bundles.append_array(document.recovery_journal)
+	for raw: Variant in bundles:
+		if typeof(raw) != TYPE_DICTIONARY:
+			return _failed(_schema_error, "retained Save9 bundle is malformed")
+		var bundle: Dictionary = raw
+		var bundle_shape := _exact_keys(bundle, ["checkpoint_kind", "snapshot"])
+		if not bundle_shape.get("ok", false): return bundle_shape
+		if typeof(bundle.checkpoint_kind) != TYPE_STRING or bundle.checkpoint_kind not in _SAVE_DOCUMENT.CHECKPOINT_KINDS \
+				or typeof(bundle.snapshot) != TYPE_DICTIONARY:
+			return _failed(_schema_error, "retained Save9 bundle is malformed")
+		if typeof(bundle.snapshot.get("schema_version")) != TYPE_INT or bundle.snapshot.get("schema_version") != 9 \
+				or typeof(bundle.snapshot.get("checkpoint_id")) != TYPE_STRING:
+			return _failed(_schema_error, "retained Save9 snapshot envelope is malformed")
+	return {"ok": true}
 
 
 func _is_scene(operation: Dictionary) -> bool:

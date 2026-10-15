@@ -1002,7 +1002,7 @@ func reconcile_new_run_storage() -> Dictionary:
 	var ready := _new_run_ready(false)
 	if not ready.get("ok", false): return ready
 	_new_run_busy = true
-	var result := _reconcile_new_run_storage()
+	var result: Dictionary = _continuation_journal.with_creation_storage_recovery(Callable(self, "_reconcile_new_run_storage"))
 	_new_run_busy = false
 	return result
 
