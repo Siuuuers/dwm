@@ -1,0 +1,20 @@
+# TEST ONLY: immediate native playable handoff; not production story.
+return
+
+label scene.test.a
+TEST TEMPLATE: destination opening. #id:line.scene.test.a.one
+label scene.test.a.loop
+TEST TEMPLATE: destination continuation. #id:line.scene.test.a.two
+jump scene.test.a.loop
+
+label scene.test.b
+TEST TEMPLATE: opening caption. #id:line.scene.test.b.one
+label scene.test.b.playable
+TEST TEMPLATE: after the challenge. #id:line.scene.test.b.two
+label scene.test.b.end
+return
+
+label contact.test.a
+TEST TEMPLATE: contact caption. #id:line.contact.test.a.one
+label contact.test.a.end
+return

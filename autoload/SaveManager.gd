@@ -65,6 +65,8 @@ var _identity_issuer: Object = null
 var _new_run_profile_owner: Object = null
 var _scene_new_run_bridge: Object = null
 var _scene_new_run_bundle: Dictionary = {}
+var _scene_title_new_run_target := ""
+var _scene_title_new_run_context: Dictionary = {}
 var _new_run_busy := false
 var _new_run_slice_started_us := 0
 var _new_run_gate_token := ""
@@ -508,6 +510,23 @@ func configure_scene_new_run(bridge: Object) -> Dictionary:
 	_scene_new_run_bundle = selected.value.duplicate(true)
 	return {"ok": true}
 
+## Application configuration selects the installed opening once. The title uses its existing
+## prepare/confirm/commit capability; no UI token grants direct scene admission.
+func configure_scene_title_new_run(target_id: String) -> Dictionary:
+	if not is_instance_valid(_scene_new_run_bridge) or _scene_new_run_bundle.is_empty():
+		return _fail(&"scene_new_run_not_configured", "")
+	if not _scene_title_new_run_target.is_empty():
+		return {"ok": true} if _scene_title_new_run_target == target_id else _fail(&"scene_title_new_run_already_configured", "")
+	if _new_run_busy or not _prepared_new_run.is_empty() or not _new_run_transaction_id.is_empty():
+		return _fail(&"new_run_busy", "")
+	for row: Dictionary in _scene_new_run_bundle.targets:
+		if row.target_id == target_id and row.target.kind == "scene":
+			_scene_title_new_run_target = target_id
+			_scene_title_new_run_context = {"route_id": "scene", "audio_context": {},
+				"content_version": row.target.content_version}
+			return {"ok": true}
+	return _fail(&"scene_initial_target_invalid", target_id)
+
 ## The caller selects only an installed target and presentation context. All identity,
 ## assignment and reading materials are produced and retained by their existing owners.
 func start_scene_new_run(target_id: String, initial_context: Dictionary, rng_nonce: Variant = null) -> Dictionary:
@@ -729,7 +748,10 @@ func _admit_new_run_journal_io() -> Dictionary:
 ## read-only operation: it neither loads the continuation journal nor allocates
 ## identity, reconciles storage, or changes live run state.
 func prepare_new_run_action(initial_context: Dictionary) -> Dictionary:
-	if _new_run_busy: return _fail(&"new_run_busy", "")
+	if _new_run_busy or not _scene_restore_activation.is_empty(): return _fail(&"new_run_busy", "")
+	if not _scene_title_new_run_target.is_empty():
+		for key: String in _SCENE_PARTICIPANT_ORDER:
+			if not _restore_participants.has(key): return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", key)
 	var ready := _new_run_ready(true)
 	if not ready.get("ok", false): return ready
 	var context_error := _validate_new_run_context(initial_context)
@@ -749,7 +771,8 @@ func prepare_new_run_action(initial_context: Dictionary) -> Dictionary:
 	var token := "prepared-new-run-%d-%d" % [get_instance_id(), _prepared_new_run_counter]
 	_prepared_new_run = {
 		"token": token,
-		"initial_context": initial_context.duplicate(true),
+		"initial_context": initial_context.duplicate(true) if _scene_title_new_run_target.is_empty() else _scene_title_new_run_context.duplicate(true),
+		"scene_target_id": _scene_title_new_run_target,
 		"profile": (profile["value"] as Dictionary).duplicate(true),
 		"autosave": (autosave["value"] as Dictionary).duplicate(true),
 		"live": (live["value"] as Dictionary).duplicate(true),
@@ -831,8 +854,14 @@ func _commit_prepared_new_run(responsive: bool = false) -> Dictionary:
 	if live["value"] != retained["live"]:
 		return _release_prepared_new_run_after_refusal(
 			_fail(&"NEW_RUN_PREPARATION_STALE", "Live run changed after preparation"), true)
-	var prepared := _prepare_new_run_decision_from_sources(
-		retained["initial_context"], retained["profile"], retained["autosave"])
+	var prepared: Dictionary
+	if not str(retained.get("scene_target_id", "")).is_empty():
+		# Baselines were checked under the same lease. Allocate and sample only now;
+		# the shared durable intent retains these exact materials for every retry.
+		prepared = _prepare_scene_new_run_decision(retained.scene_target_id, retained.initial_context, null)
+	else:
+		prepared = _prepare_new_run_decision_from_sources(
+			retained["initial_context"], retained["profile"], retained["autosave"])
 	if not prepared.get("ok", false):
 		return _release_prepared_new_run_after_refusal(prepared, false)
 	# The next write establishes (or ambiguously may establish) the durable decision.
