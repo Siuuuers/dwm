@@ -194,7 +194,7 @@ func _ready() -> void:
 	_history_overlay.close_requested.connect(_on_history_close_requested)
 	_configure_history_presentation()
 	if input_owner != null and input_owner.has_signal("source_input_custody_changed"):
-		input_owner.connect("source_input_custody_changed", _retire_transport)
+		input_owner.connect("source_input_custody_changed", _on_reading_input_custody_changed)
 	if runtime != null and runtime.has_method("get_subsystem"):
 		var text_owner: Object = runtime.call("get_subsystem", "Text")
 		if text_owner != null:
@@ -864,6 +864,13 @@ func _configure_recovery_presentation() -> void:
 	if is_instance_valid(recovery_overlay) and _recovery_bound:
 		recovery_overlay.configure_presentation(_locale, _text_percent, _palette,
 			_high_contrast, _colour_preset, _large_targets, _font_style)
+
+func _on_reading_input_custody_changed() -> void:
+	_retire_transport()
+	# Restore can publish its destination while source input/tree suspension is
+	# still held. Re-read after the handoff settles; never retain that temporary
+	# refusal as the new caption's permanent Accept/Next frontier.
+	_refresh_reading_session.call_deferred()
 
 func _retire_transport() -> void:
 	_cancel_speech()
