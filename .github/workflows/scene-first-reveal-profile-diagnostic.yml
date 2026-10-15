@@ -1,4 +1,4 @@
-name: Scene title template consent and recovery
+name: Scene optional Challenge departure and End
 
 on:
   pull_request:
@@ -19,7 +19,7 @@ jobs:
     runs-on: windows-2022
     timeout-minutes: 20
     env:
-      BASE_SHA: 20bb737ab536539889d2482273012ef7e03e27e9
+      BASE_SHA: 3ae6d9138fb53c388380c78550cf6082eafc0ea3
       CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
     defaults:
       run:
@@ -37,22 +37,22 @@ jobs:
 
       - uses: actions/checkout@v7
         with:
-          ref: d922f51e0330f56c9018c2544b90b2594c65aa80
+          ref: dec783d515e196c0c65266d0e24b8de5272bb63f
           path: source
           fetch-depth: 0
 
-      - name: Verify exact title-template candidate
+      - name: Verify exact optional-Challenge candidate
         run: |
           $ErrorActionPreference = 'Stop'
           @'
           import json, os, pathlib, subprocess
           def git(*args): return subprocess.check_output(['git',*args],text=True).strip()
-          assert git('rev-parse','HEAD') == 'd922f51e0330f56c9018c2544b90b2594c65aa80'
-          assert git('rev-parse','HEAD^{tree}') == '04169661acc6f03a00212de3a5f99aea357f2732'
-          assert git('rev-parse','HEAD^') == 'd1150e635df6deb9b8d9bd059472a5b1b943cf93'
+          assert git('rev-parse','HEAD') == 'dec783d515e196c0c65266d0e24b8de5272bb63f'
+          assert git('rev-parse','HEAD^{tree}') == '552ecb65e4f8ae93cf263ec8a7124d65d32df184'
+          assert git('rev-parse','HEAD^') == '3ae6d9138fb53c388380c78550cf6082eafc0ea3'
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           paths = git('diff','--name-only',os.environ['BASE_SHA'],'HEAD').splitlines()
-          assert len(paths) == 7
+          assert set(paths) == set(["autoload/DialogicBridge.gd","autoload/GameState.gd","scripts/application/run/DatingPhysicalOwner.gd","scripts/ui/witnessed/WitnessedCaptionLayer.gd","tests/integration/scene_optional_child.gd","tests/integration/test_scene_optional_never_opened_create.gd","tests/integration/test_scene_optional_never_opened_load.gd","tests/integration/test_scene_optional_never_started_create.gd","tests/integration/test_scene_optional_never_started_load.gd","tests/integration/test_scene_optional_unfinished_create.gd","tests/integration/test_scene_optional_unfinished_load.gd"])
           (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':git('rev-parse','HEAD'),'controller':os.environ['CONTROLLER_SHA'],'paths':paths},indent=2),encoding='utf-8')
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -89,68 +89,63 @@ jobs:
           git diff --cached --check
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit --allow-empty -m 'Freeze title template candidate'
+          git commit --allow-empty -m 'Freeze optional Challenge candidate'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @{ source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); parent=(git rev-parse HEAD^) } | ConvertTo-Json | Set-Content .godot/ci/candidate-commit.json -Encoding utf8
 
-      - name: Rendered title template consent and retry
+      - name: Rendered optional and terminal journeys across fresh processes
         run: |
           $ErrorActionPreference = 'Stop'
-          $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_title_template.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/title-template.xml')
-          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'scene-title-template' -LogName 'title-template.log' -GodotArgs $arguments -EvidenceLogPath '.godot/ci/title-template.jsonl' -TimeoutSeconds 240 -Rendered
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          foreach ($case in @('optional_never_opened','optional_never_started','optional_unfinished','loss')) {
+            $first = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://tests/integration/test_scene_${case}_create.gd",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/${case}-create.xml")
+            $next = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://tests/integration/test_scene_${case}_load.gd",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/${case}-load.xml")
+            & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId $case -LogName "${case}-create.log" -GodotArgs $first -NextGodotArgs $next -NextLogName "${case}-load.log" -EvidenceLogPath ".godot/ci/${case}.jsonl" -TimeoutSeconds 240 -Rendered
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
 
-      - name: Existing legacy prepared New Run compatibility
+      - name: Existing Challenge and absence owner checks
         run: |
           $ErrorActionPreference = 'Stop'
-          $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_prepared_new_run.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/prepared-legacy.xml')
-          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'title-prepared-legacy' -LogName 'prepared-legacy.log' -GodotArgs $arguments -EvidenceLogPath '.godot/ci/prepared-legacy.jsonl' -TimeoutSeconds 240
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          foreach ($case in @('challenge','absence')) {
+            $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://tests/unit/test_scene_${case}.gd",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/unit-${case}.xml")
+            & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId "unit-${case}" -LogName "unit-${case}.log" -GodotArgs $arguments -EvidenceLogPath ".godot/ci/unit-${case}.jsonl" -TimeoutSeconds 240
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
 
-      - name: Verify exact title test census and retry evidence
+      - name: Verify exact census, physical proof and clean source
         run: |
           $ErrorActionPreference = 'Stop'
           @'
           import collections, json, pathlib, re, subprocess, xml.etree.ElementTree as ET
           out = pathlib.Path('.godot/ci')
-          script = 'tests/integration/test_scene_title_template.gd'
-          expected = [(script,n) for n in re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(),re.M)]
-          root = ET.parse(out/'title-template.xml').getroot()
-          cases = list(root.iter('testcase'))
-          assert len(expected) == 1
-          assert collections.Counter((r.attrib['classname'],r.attrib['name']) for r in cases) == collections.Counter(expected)
-          assert all(r.attrib.get('status') == 'pass' and int(r.attrib.get('assertions','0')) > 0 for r in cases)
-          assert not any(list(root.iter(tag)) for tag in ['failure','error','skipped'])
-          log = pathlib.Path('.godot/phase2r_logs/title-template.log').read_text(encoding='utf-8-sig')
-          assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',log)
-          children = [json.loads(line) for line in (out/'title-template.jsonl').read_text(encoding='utf-8-sig').splitlines() if line.strip()]
-          assert len(children) == 1 and children[0]['exit_code'] == 0
-          proof = json.loads((out/'title-template-proof.json').read_text(encoding='utf-8-sig'))
-          assert proof['refusals'] == 1 and proof['ready_count'] == 2
-          assert proof['first_assignment']['form'] != proof['second_assignment']['form']
-          assert proof['second_assignment']['creation_transaction_id'] == proof['retry_transaction']
-          assert len(proof['actions']) == 9
+          result = {'status':'passed','source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'cases':0,'assertions':0}
+          cases = [(f'{c}-{p}',f'tests/integration/test_scene_{c}_{p}.gd') for c in ['optional_never_opened','optional_never_started','optional_unfinished','loss'] for p in ['create','load']]
+          cases += [(f'unit-{c}',f'tests/unit/test_scene_{c}.gd') for c in ['challenge','absence']]
+          for name,script in cases:
+              expected = [(script,n) for n in re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(),re.M)]
+              root = ET.parse(out/(name+'.xml')).getroot()
+              rows = list(root.iter('testcase'))
+              assert expected and collections.Counter((r.attrib['classname'],r.attrib['name']) for r in rows) == collections.Counter(expected),name
+              assert all(r.attrib.get('status') == 'pass' and int(r.attrib.get('assertions','0')) > 0 for r in rows),name
+              assert not any(list(root.iter(tag)) for tag in ['failure','error','skipped']),name
+              log = pathlib.Path('.godot/phase2r_logs',name+'.log').read_text(encoding='utf-8-sig')
+              assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',log),name
+              result['cases'] += len(rows)
+              result['assertions'] += sum(int(r.attrib['assertions']) for r in rows)
+          for c in ['optional_never_opened','optional_never_started','optional_unfinished','loss','unit-challenge','unit-absence']:
+              children = [json.loads(s) for s in (out/(c+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
+              assert len(children) == (1 if c.startswith('unit-') else 2) and all(r['exit_code'] == 0 for r in children),c
+              if len(children) == 2: assert children[0]['user_dir'] == children[1]['user_dir']
+          for mode in ['never_opened','never_started','unfinished']:
+              a = json.loads((out/f'optional-{mode}-create-proof.json').read_text())
+              b = json.loads((out/f'optional-{mode}-load-proof.json').read_text())
+              assert a['closure'] == b['closure'] and a['profile'] == b['profile']
+              assert a['creator_process_id'] != b['loader_process_id'] and b['ready_count'] == 1
+              assert a['outcome'] == ('unfinished' if mode == 'unfinished' else 'never_started')
+              assert a['refusals'] == (1 if mode == 'unfinished' else 0)
           assert not subprocess.check_output(['git','diff','--name-only'],text=True).strip()
           assert not subprocess.check_output(['git','diff','--cached','--name-only'],text=True).strip()
-          result = {'status':'passed','source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'cases':len(cases),'xml_assertions':sum(int(r.attrib['assertions']) for r in cases),'scope':'FINAL title pointer creation, cancellation, stale consent, physical autosave refusal and exact creation retry; labelled replaceable TEST content.'}
-          legacy_script = 'tests/integration/test_prepared_new_run.gd'
-          legacy_expected = [(legacy_script,n) for n in re.findall(r'^func (test_\w+)\(',pathlib.Path(legacy_script).read_text(),re.M)]
-          legacy_root = ET.parse(out/'prepared-legacy.xml').getroot()
-          legacy_cases = list(legacy_root.iter('testcase'))
-          assert len(legacy_expected) == 10
-          assert collections.Counter((r.attrib['classname'],r.attrib['name']) for r in legacy_cases) == collections.Counter(legacy_expected)
-          assert all(r.attrib.get('status') == 'pass' and int(r.attrib.get('assertions','0')) > 0 for r in legacy_cases)
-          assert not any(list(legacy_root.iter(tag)) for tag in ['failure','error','skipped'])
-          legacy_log = pathlib.Path('.godot/phase2r_logs/prepared-legacy.log').read_text(encoding='utf-8-sig')
-          expected_decode = 'Unicode parsing error, some characters were replaced with \uFFFD (U+FFFD): Invalid UTF-8 leading byte (ff)'
-          assert legacy_log.count(expected_decode) == 1
-          corrupt_case = legacy_log.split('* test_prepare_counts_nonempty_unreadable_autosave_but_not_zero_bytes',1)[1].split('* test_cancel_requires_exact_token_and_performs_no_io',1)[0]
-          assert corrupt_case.count(expected_decode) == 1
-          assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',legacy_log.replace(expected_decode,''))
-          legacy_children = [json.loads(line) for line in (out/'prepared-legacy.jsonl').read_text(encoding='utf-8-sig').splitlines() if line.strip()]
-          assert len(legacy_children) == 1 and legacy_children[0]['exit_code'] == 0
-          result['legacy_preparation'] = {'cases':len(legacy_cases),'xml_assertions':sum(int(r.attrib['assertions']) for r in legacy_cases)}
-          (out/'gate.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
+          (out/'gate.json').write_text(json.dumps(result,indent=2))
           print(json.dumps(result))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -206,7 +201,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: scene-title-template-${{ github.run_id }}-${{ github.run_attempt }}
+          name: scene-optional-challenge-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             source/.godot/ci
             source/.godot/phase2r_logs
