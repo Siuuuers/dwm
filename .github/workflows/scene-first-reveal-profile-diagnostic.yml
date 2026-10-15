@@ -1,4 +1,4 @@
-name: Save schema future-version fixture qualification
+name: Legacy first Reveal baseline comparison
 
 on:
   pull_request:
@@ -16,10 +16,22 @@ concurrency:
 jobs:
   profile-first-reveal:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: baseline
+            source: 3ae6d9138fb53c388380c78550cf6082eafc0ea3
+            tree: 31ea91c9dbd63dc8eb9ee57e7bcc2a824fb28feb
+          - label: candidate
+            source: 6f837d85e35dcd803d3328531798ce24e302d66f
+            tree: b7fd26ea718e0777594289e963a0cece00ede36e
+    name: First Reveal diagnostic / ${{ matrix.label }}
     runs-on: windows-2022
     timeout-minutes: 30
     env:
-      BASE_SHA: 84a0c9661bbea4853a2dfabdef9e4c25cd194e8b
+      BASE_SHA: ${{ matrix.source }}
+      EXPECTED_TREE: ${{ matrix.tree }}
       CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
     defaults:
       run:
@@ -37,23 +49,24 @@ jobs:
 
       - uses: actions/checkout@v7
         with:
-          ref: 6f837d85e35dcd803d3328531798ce24e302d66f
+          ref: ${{ matrix.source }}
           path: source
           fetch-depth: 0
 
-      - name: Verify exact schema-fixture candidate
+      - name: Pin source and add observation-only first-Reveal probes
         run: |
           $ErrorActionPreference = 'Stop'
           @'
           import json, os, pathlib, subprocess
-          def git(*args): return subprocess.check_output(['git',*args],text=True).strip()
-          assert git('rev-parse','HEAD') == '6f837d85e35dcd803d3328531798ce24e302d66f'
-          assert git('rev-parse','HEAD^{tree}') == 'b7fd26ea718e0777594289e963a0cece00ede36e'
-          assert git('rev-parse','HEAD^') == '84a0c9661bbea4853a2dfabdef9e4c25cd194e8b'
-          out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
-          paths = git('diff','--name-only',os.environ['BASE_SHA'],'HEAD').splitlines()
-          assert set(paths) == set(["tests/unit/test_save_migrations.gd", "tests/unit/test_save_document_schema.gd"])
-          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':git('rev-parse','HEAD'),'controller':os.environ['CONTROLLER_SHA'],'paths':paths},indent=2),encoding='utf-8')
+          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip() == os.environ['BASE_SHA']
+          assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip() == os.environ['EXPECTED_TREE']
+          out=pathlib.Path('.godot/ci'); out.mkdir(parents=True,exist_ok=True)
+          patches=[('scripts/application/minesweeper/MinesweeperPresentationPort.gd', '\tvar issued: Dictionary = _mint_transaction()\n', '\tvar issued: Dictionary = _mint_transaction()\n\tprint("FIRST_REVEAL_MINT: " + JSON.stringify(issued))\n'), ('scripts/application/minesweeper/MinesweeperPresentationPort.gd', '\t\t_: return _failure(&"minesweeper_action_not_available")\n\tif not result.get("ok", false):', '\t\t_: return _failure(&"minesweeper_action_not_available")\n\tprint("FIRST_REVEAL_OWNER_RESULT: " + JSON.stringify(result))\n\tif not result.get("ok", false):'), ('tests/manual/benchmark_minesweeper_click_latency.gd', '\tif not _check(app.last_result.get("ok", false) and first.ok, "app first reveal accepted"): return false\n', '\tprint("FIRST_REVEAL_PUBLIC_RESULT: " + JSON.stringify(app.last_result))\n\tif not _check(app.last_result.get("ok", false) and first.ok, "app first reveal accepted"): return false\n\tif "--first-reveal-diagnostic" in OS.get_cmdline_user_args():\n\t\tprint("FIRST_REVEAL_DIAGNOSTIC_ACCEPTED")\n\t\tquit(0)\n\t\treturn false\n')]
+          for name, old, new in patches:
+              p=pathlib.Path(name); source=p.read_text()
+              assert source.count(old)==1,(name,source.count(old))
+              p.write_text(source.replace(old,new),encoding='utf-8',newline='')
+          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'original_tree':os.environ['EXPECTED_TREE'],'controller':os.environ['CONTROLLER_SHA'],'scope':'diagnostic instrumentation only; no runtime acceptance','instrumented_paths':sorted(set(p[0] for p in patches))},indent=2))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
@@ -85,64 +98,20 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           if (Select-String "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Candidate import script error' }
           git restore --worktree -- project.godot
-          & './tools/testing/Invoke-PublicSurfaceValidation.ps1' 
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git diff --exit-code
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (@(git ls-files --others --exclude-standard).Count -ne 0) { throw 'Import changed frozen source' }
           git add --all
           git diff --cached --check
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit --allow-empty -m 'Freeze schema fixture candidate'
+          git commit --allow-empty -m 'Freeze diagnostic instrumentation only'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @{ source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); parent=(git rev-parse HEAD^) } | ConvertTo-Json | Set-Content .godot/ci/candidate-commit.json -Encoding utf8
 
-      - name: Run both affected schema suites
+      - name: Observe one real first Reveal with truthful child exit
         run: |
           $ErrorActionPreference = 'Stop'
-          $cases = @(
-            @{Name='unit-save-migrations'; Script='tests/unit/test_save_migrations.gd'},
-            @{Name='unit-save-document-schema'; Script='tests/unit/test_save_document_schema.gd'}
-          )
-          foreach ($case in $cases) {
-            $name = $case.Name
-            $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$($case.Script)",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/${name}.xml")
-            & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId $name -LogName "${name}.log" -GodotArgs $arguments -EvidenceLogPath ".godot/ci/${name}.jsonl" -TimeoutSeconds 600
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          }
-
-      - name: Verify exact test census and clean source
-        run: |
-          $ErrorActionPreference = 'Stop'
-          @'
-          import collections, json, pathlib, re, subprocess, xml.etree.ElementTree as ET
-          out = pathlib.Path('.godot/ci')
-          result = {'scope':'future-version fixtures only; broader CI remains separately blocked','status':'passed','source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'cases':0,'assertions':0}
-          cases = []
-          cases += [["unit-save-migrations", "tests/unit/test_save_migrations.gd"], ["unit-save-document-schema", "tests/unit/test_save_document_schema.gd"]]
-          for name,script in cases:
-              expected = [(script,n) for n in re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(),re.M)]
-              root = ET.parse(out/(name+'.xml')).getroot()
-              rows = list(root.iter('testcase'))
-              assert expected and collections.Counter((r.attrib['classname'],r.attrib['name']) for r in rows) == collections.Counter(expected),name
-              assert all(r.attrib.get('status') == 'pass' and int(r.attrib.get('assertions','0')) > 0 for r in rows),name
-              assert not any(list(root.iter(tag)) for tag in ['failure','error','skipped']),name
-              log = pathlib.Path('.godot/phase2r_logs',name+'.log').read_text(encoding='utf-8-sig')
-              assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',log),name
-              result['cases'] += len(rows)
-              result['assertions'] += sum(int(r.attrib['assertions']) for r in rows)
-          for c in ["unit-save-migrations", "unit-save-document-schema"]:
-              children = [json.loads(s) for s in (out/(c+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
-              assert len(children) == (1 if c.startswith(('unit-','integration-')) else 2) and all(r['exit_code'] == 0 for r in children),c
-              if len(children) == 2: assert children[0]['user_dir'] == children[1]['user_dir']
-          assert not subprocess.check_output(['git','diff','--name-only'],text=True).strip()
-          assert not subprocess.check_output(['git','diff','--cached','--name-only'],text=True).strip()
-          assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip() == 'b7fd26ea718e0777594289e963a0cece00ede36e'
-          (out/'gate.json').write_text(json.dumps(result,indent=2))
-          print(json.dumps(result))
-          '@ | python -
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $arguments = @('-s','res://tests/manual/benchmark_minesweeper_click_latency.gd','--','--phase2r-bootstrap-mode=final','--reply-locale=zh-CN','--dating-ending=win','--first-reveal-diagnostic')
+          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'first-reveal' -LogName 'first-reveal.log' -GodotArgs $arguments -Rendered -EvidenceLogPath '.godot/ci/first-reveal.jsonl' -TimeoutSeconds 240
+          exit $LASTEXITCODE
 
       - name: Retain evidence on every outcome
         if: always()
@@ -195,7 +164,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: schema-future-fixtures-${{ github.run_id }}-${{ github.run_attempt }}
+          name: first-reveal-${{ matrix.label }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             source/.godot/ci
             source/.godot/phase2r_logs
