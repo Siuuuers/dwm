@@ -62,8 +62,8 @@ func create_contacts_scene() -> void:
 	assert_true(panel.worksheet.grid.focus_cell(323))
 	await _click(panel.worksheet.grid.cell_nodes[323])
 	var record: Dictionary = game.capture_dating_challenge_state().value
-	assert_eq(record.state, "active")
-	if record.state != "active": return
+	assert_eq(record.state, "in_progress")
+	if record.state != "in_progress": return
 	# TEST solver knowledge selects a mine; the action is real player cell input.
 	var mine: int = record.board.mine_indices[0]
 	assert_true(panel.worksheet.grid.focus_cell(mine))
