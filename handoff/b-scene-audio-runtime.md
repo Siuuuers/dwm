@@ -1,4 +1,55 @@
-# B scene audio candidate — owner implementation, cloud acceptance pending
+# B scene audio — accepted successor and historical candidate
+
+## Acceptance reconciliation — 15 October 2026
+
+B's assigned scene-audio increment is complete in A's integrated successor
+`fa965f7cb7b0c32cb7682758804cc9fc8eee3bc0`.
+The original B runtime commit `2609e9f98515257254145347e36f8c09f265883a`
+is historical: do not replay it over the corrected integration.
+
+A corrected the initial-NewRun restore path to carry transient
+`scene_audio_mode` (`entry` or `load`, default `load`) through prepare/apply.
+Initial NewRun uses the entrance; explicit Load uses the authored anchor, even
+for the same initial admission. This selector is not a durable saved field.
+The original implementation record below predates this correction.
+
+Retained acceptance evidence in PR #30:
+
+- Owner lane: **62 tests / 624 XML assertions**, run38629834675,
+  job116078528772; accepted candidate
+  `4ba2802e9f9b4181d8b30b911cf4305fd6dfa28a`. A receipt6177430700.
+- Canonical registration3 connected journey: **2 tests / 234 XML assertions**
+  (133 creator, 101 fresh loader), run38634133827, job116092852508.
+  Frozen candidate `7c12113cea1f64553f4186e39d6efb98ea112493`,
+  tree `b3448749bcd99dfb4677105f8bf92f5c83476c62`.
+  A's integration and original-evidence receipt:6178115787.
+- The connected journey covers native start requests at entrance0ms and
+  Load1000ms, computer continuity, real Save/fresh-process Load, preserved
+  admission with changed branch, retained reading/Challenge/Profile/history
+  checks, and a subsequent mine transition to authored silence with a new
+  admission and no readiness restart.
+
+B independently checked the successful connected job status and the integrated
+AudioManager transient-mode source during reconciliation. Counts and archive
+verification above are retained A evidence; B did not rerun Godot/PowerShell or
+rehash the archive in this reconciliation.
+
+This is functional TEST acceptance, not production soundtrack, listening,
+export, latency, or whole-game acceptance. C's separate accepted pointer
+Save/Load journey is composed in the integration; no combined pointer/audio
+acceptance run is claimed. Save/recovery/history and legacy saved-context
+guarantees remain in scope.
+
+A's recorded next assignment is bounded TEST Contacts entry/return. B does not
+duplicate that assignment. This update changes only B's historical handoff;
+the pending language and 60-case estimate below describe the original candidate
+and are superseded by the receipts above. No further B audio runtime change or
+repeat acceptance run is required by the recorded results.
+
+---
+
+## Historical candidate record (superseded acceptance status)
+
 
 15 October 2026 (Hong Kong). Implements accepted interface6176921937 and
 Director6177016339, reserved in6177049145. Base:
