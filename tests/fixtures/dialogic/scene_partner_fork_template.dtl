@@ -1,0 +1,18 @@
+# TEST ONLY: uninstalled content segments, not a functioning choice or production story.
+# Entry/line IDs are fixture identities, not approved production identifiers.
+return
+
+label scene.test.partner.shared
+TEST ONLY: shared Priscilla-viewpoint passage before the later fork. #id:line.scene.test.partner.shared.before
+label scene.test.partner.offer
+TEST ONLY: Priscilla considers the Sylvia continuation. #id:line.scene.test.partner.shared.offer
+label scene.test.partner.expiry
+return
+
+label scene.test.partner.sylvia
+TEST ONLY: Priscilla-viewpoint continuation after accepting Yes. #id:line.scene.test.partner.sylvia.after
+return
+
+label scene.test.partner.lavinia
+TEST ONLY: Priscilla-viewpoint continuation after passing the opportunity. #id:line.scene.test.partner.lavinia.after
+return
