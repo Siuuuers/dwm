@@ -28,7 +28,12 @@ func _install_content_registration() -> Dictionary:
 	return TEMPLATE.new()._install_registration()
 
 func _title() -> Node:
-	assert_eq(get_tree().change_scene_to_file(MENU_PATH), OK)
+	if get_tree().current_scene != null and get_tree().current_scene.scene_file_path == HOST:
+		var pause: Node = get_node("/root/SceneRouter")._production_pause
+		if not _ok(await pause.request_pause()): return null
+		if not _ok(pause.request_return()): return null
+	else:
+		assert_eq(get_tree().change_scene_to_file(MENU_PATH), OK)
 	for frame: int in 12: await get_tree().process_frame
 	var menu: Node = get_tree().current_scene
 	assert_eq(menu.scene_file_path, MENU_PATH)
@@ -82,6 +87,7 @@ func test_title_template_cancel_stale_and_same_operation_retry() -> void:
 	assert_true(saves.configure_scene_title_new_run(TEMPLATE.OPENING_TARGET).ok)
 	assert_false(saves.configure_scene_title_new_run("target_a").ok)
 	var menu: Node = await _title()
+	if menu == null: return
 	var overlay := get_tree().root.find_child("GutLayer", true, false)
 	if overlay is CanvasLayer: overlay.hide()
 	await _screenshot("title-template-fresh")
@@ -101,6 +107,7 @@ func test_title_template_cancel_stale_and_same_operation_retry() -> void:
 	assert_eq(auto_hash.length(), 64, "physical autosave exists before replacement")
 	await _screenshot("title-template-opening")
 	menu = await _title()
+	if menu == null: return
 	var profile_before: Dictionary = profile.get_profile_snapshot().duplicate(true)
 	var live_before: Dictionary = game.capture_run_snapshot_input().duplicate(true)
 	if not await _press(menu._new_acc_button, "replacement New Acc"): return
