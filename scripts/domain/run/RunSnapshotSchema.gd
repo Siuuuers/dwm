@@ -844,7 +844,7 @@ static func validate_scene(snapshot: Dictionary, bundle: Dictionary) -> Dictiona
 		if not ids_error.is_empty(): return _fail(&"invalid_transaction_ids", ids_error)
 	var receipts_error := _validate_scene_receipt_shapes(candidate)
 	if not receipts_error.is_empty(): return _fail(&"invalid_command_receipts", receipts_error)
-	var scene_receipts: Dictionary = SCENE_EVENT_CONTRACT.validate_scene_receipts(candidate.command_receipts, bundle, _scene_issuer, _scene_creation_owner)
+	var scene_receipts: Dictionary = SCENE_EVENT_CONTRACT.validate_scene_receipts(candidate.command_receipts, bundle, _scene_issuer, _scene_creation_owner, candidate.contacts)
 	if not scene_receipts.ok: return scene_receipts
 	var audio := _validate_scene_audio(candidate, bundle)
 	if not audio.ok: return audio
@@ -938,7 +938,7 @@ static func validate_scene_input_fields(input: Dictionary, bundle: Dictionary) -
 		if not ids_error.is_empty(): return _fail(&"invalid_transaction_ids", ids_error)
 	var receipts_error := _validate_scene_receipt_shapes(input)
 	if not receipts_error.is_empty(): return _fail(&"invalid_command_receipts", receipts_error)
-	var scene_receipts: Dictionary = SCENE_EVENT_CONTRACT.validate_scene_receipts(input.command_receipts, bundle, _scene_issuer, _scene_creation_owner)
+	var scene_receipts: Dictionary = SCENE_EVENT_CONTRACT.validate_scene_receipts(input.command_receipts, bundle, _scene_issuer, _scene_creation_owner, input.contacts)
 	if not scene_receipts.ok: return scene_receipts
 	return {"ok": true}
 

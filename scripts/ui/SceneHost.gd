@@ -4,7 +4,7 @@ extends Control
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const CONTROL_KEYS := {
 	"Settings": "ui.pause.settings", "Backup": "ui.pause.backup",
-	"Save": "button.save", "Load": "button.load",
+	"Save": "button.save", "Load": "button.load", "Contacts": "app.contacts",
 }
 
 var _actions: Dictionary = {}
@@ -16,7 +16,7 @@ var _profile: Node
 func _ready() -> void:
 	_bind_presentation()
 	$SceneControlsLayer/Surface/Controls/CheckComputer.pressed.connect(_toggle_computer)
-	for action: String in ["settings", "backup", "save", "load"]:
+	for action: String in ["settings", "backup", "save", "load", "contacts"]:
 		get_node("SceneControlsLayer/Surface/Controls/" + action.capitalize()).pressed.connect(_invoke.bind(action))
 	if _actions.is_empty():
 		var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
@@ -37,6 +37,7 @@ func is_computer_open() -> bool:
 func set_computer_open(open: bool) -> void:
 	_computer_open = open
 	$SceneControlsLayer/Surface/ChallengeMount.visible = open
+	$SceneControlsLayer/Surface/Controls/Contacts.visible = open
 	_refresh_presentation()
 	_update_controls()
 
@@ -114,6 +115,6 @@ func _update_controls() -> void:
 	if not is_inside_tree(): return
 	var computer: Callable = _actions.get("computer_close" if _computer_open else "computer_open", Callable())
 	$SceneControlsLayer/Surface/Controls/CheckComputer.disabled = _busy or not computer.is_valid()
-	for action: String in ["settings", "backup", "save", "load"]:
+	for action: String in ["settings", "backup", "save", "load", "contacts"]:
 		var callback: Callable = _actions.get(action, Callable())
 		get_node("SceneControlsLayer/Surface/Controls/" + action.capitalize()).disabled = _busy or not callback.is_valid()

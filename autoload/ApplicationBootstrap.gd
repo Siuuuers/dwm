@@ -2701,6 +2701,7 @@ func configure_scene_host_view(host: Control) -> void:
 	host.configure_scene_controls({
 		"computer_open": open_scene_computer.bind(host),
 		"computer_close": close_scene_computer.bind(host),
+		"contacts": open_scene_contacts.bind(host),
 		"settings": open_scene_settings.bind(host),
 		"backup": open_scene_backup.bind(host, "backup"),
 		"save": open_scene_backup.bind(host, "save"),
@@ -2719,7 +2720,13 @@ func open_scene_computer(host: Control) -> Dictionary:
 	var configured: Dictionary = game.configure_scene_challenge_runtime()
 	if not configured.get("ok", false): return configured
 	var captured: Dictionary = game.capture_scene_challenge_command()
-	if not captured.get("ok", false): return captured
+	if not captured.get("ok", false):
+		var context: Dictionary = game.capture_scene_contact_context()
+		if not context.get("ok", false): return context
+		var held: Dictionary = _target(&"DialogicBridge").hold_computer_captions(host)
+		if not held.get("ok", false): return held
+		host.set_computer_open(true)
+		return open_scene_contacts(host)
 	configured = _retained_dating_physical_owner.configure_scene_challenges(captured.value.bundle, game)
 	if not configured.get("ok", false): return configured
 	var admitted: Dictionary = _retained_dating_presentation_port.begin(captured.value.command)
@@ -2764,6 +2771,8 @@ func _complete_scene_challenge(host: Control, panel: Control) -> void:
 
 func close_scene_computer(host: Control) -> Dictionary:
 	if not is_instance_valid(host): return _failure(&"scene_host_unavailable", "")
+	var contacts_view: Control = host.get_challenge_mount().get_node_or_null("SceneContactsApp")
+	if contacts_view != null: contacts_view.hide_window()
 	var panel: Control = host.get_challenge_mount().get_node_or_null("SceneChallengePanel")
 	if panel != null: panel.close_panel()
 	host.set_computer_open(false)
@@ -2780,3 +2789,33 @@ func open_scene_backup(host: Control, mode: String) -> Dictionary:
 	var closed: Dictionary = close_scene_computer(host)
 	if not closed.get("ok", false): return closed
 	return await _target(&"SceneRouter")._production_pause.open_scene_backup(mode)
+
+
+func open_scene_contacts(host: Control) -> Dictionary:
+	if not _scene_host_admitted(host) or not host.is_computer_open():
+		return _failure(&"scene_host_unavailable", "")
+	var guarded: Dictionary = _application_gate.guard_external(&"scene_contacts")
+	if not guarded.get("ok", false): return guarded
+	if _contacts_presentation_port == null:
+		_contacts_presentation_port = CONTACTS_PRESENTATION_PORT.new()
+		var bound: Dictionary = _contacts_presentation_port.configure(_target(&"GameState"), _contact_command_port)
+		if not bound.get("ok", false):
+			_contacts_presentation_port = null
+			return bound
+	var mount: Control = host.get_challenge_mount()
+	var app: Control = mount.get_node_or_null("SceneContactsApp")
+	if app == null:
+		app = preload("res://scenes/apps/ContactListApp.tscn").instantiate()
+		app.name = "SceneContactsApp"
+		mount.add_child(app)
+		app.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		var configured: Dictionary = app.configure_scene_presentation(_contacts_presentation_port,
+			_target(&"LocalizationManager"), _target(&"ProfileManager"))
+		if not configured.get("ok", false):
+			app.queue_free()
+			return configured
+	var refreshed: Dictionary = app.refresh_view()
+	if not refreshed.get("ok", false): return refreshed
+	app.show_window()
+	mount.move_child(app, mount.get_child_count() - 1)
+	return {"ok": true}

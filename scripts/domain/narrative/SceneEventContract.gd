@@ -445,6 +445,17 @@ static func validate_scene_result(envelope: Dictionary, result: Variant, bundle:
 			if result.outcome == "never_started":
 				if result.attempt_proof != null: return _fail(&"scene_attempt_proof_invalid")
 			elif not _attempt_proof(result.attempt_proof, envelope.source.run_id, occurrence): return _fail(&"scene_attempt_proof_invalid")
+		"contact_entry_accepted":
+			if not _keys(result, ["kind", "target_id", "source_fact_ids"]) or envelope.kind != "contact.enter":
+				return _fail(&"scene_result_invalid")
+			var contact: Dictionary = registered.value.contacts[envelope.payload.contact_event_id]
+			var target_id := ""
+			for id: String in targets:
+				if targets[id].target.kind == "contact" and targets[id].target.entry_id == contact.entry_id:
+					if not target_id.is_empty(): return _fail(&"scene_contact_target_ambiguous")
+					target_id = id
+			if target_id.is_empty() or result.target_id != target_id or not _equal(result.source_fact_ids, contact.source_fact_ids):
+				return _fail(&"scene_result_invalid")
 		"contact_returned":
 			if not _keys(result, ["kind", "contact_admission_receipt_id", "target_id", "parent_occurrence_id"]) \
 					or envelope.kind != "contact.return" or not _id(result.contact_admission_receipt_id) \
@@ -502,7 +513,7 @@ static func _checkpoint(value: Variant) -> bool:
 ## Full scene command ledger admission. The Run owner separately checks the applied
 ## effect/variable partitions, physical Profile proofs and anchors against the actual ledger.
 static func validate_scene_receipts(receipts: Dictionary, bundle: Dictionary, issuer: Object,
-		creation_owner: Object = null) -> Dictionary:
+		creation_owner: Object = null, contacts: Dictionary = {}) -> Dictionary:
 	if not _json_data(receipts): return _fail(&"scene_receipt_invalid")
 	if issuer == null or issuer.get_script() != SCENE_RECEIPT_ISSUER:
 		return _fail(&"scene_receipt_issuer_unbound")
@@ -572,6 +583,7 @@ static func validate_scene_receipts(receipts: Dictionary, bundle: Dictionary, is
 			return a.scene_event.semantic.ordinal < b.scene_event.semantic.ordinal)
 		var seen := {}
 		var transitioned := false
+		var contact_child: bool = admission.get("return_to") != null
 		for receipt: Dictionary in group.receipts:
 			var semantic: Dictionary = receipt.scene_event.semantic
 			if transitioned or semantic.ordinal != group.next_ordinal or semantic.predecessor != group.predecessor \
@@ -580,7 +592,9 @@ static func validate_scene_receipts(receipts: Dictionary, bundle: Dictionary, is
 				return _fail(&"event_notification_clear_invalid")
 			if semantic.kind in ["notification.set", "notification.clear"]:
 				group.notification = receipt.scene_event.result.notification.duplicate(true)
-			transitioned = semantic.kind == "scene.transition"
+			if contact_child and semantic.kind in ["contact.enter", "scene.transition", "challenge.end"]:
+				return _fail(&"scene_contact_exit_refused")
+			transitioned = semantic.kind in ["scene.transition", "contact.return"]
 			seen[semantic.event_id] = true
 			group.next_ordinal += 1
 			group.predecessor = semantic.event_id
@@ -595,8 +609,31 @@ static func validate_scene_receipts(receipts: Dictionary, bundle: Dictionary, is
 					or playable.payload.challenge_id != semantic.payload.challenge_id or playable.ordinal >= semantic.ordinal \
 					or playable_result.kind != "challenge_playable" or playable_result.challenge_occurrence != result.challenge_occurrence:
 				return _fail(&"scene_playable_receipt_mismatch")
+		elif result.kind == "contact_entry_accepted":
+			var contact_owner: Script = load("res://scripts/domain/contact/ContactInvitationState.gd")
+			if contact_owner == null: return _fail(&"scene_contact_owner_unavailable")
+			var facts: Dictionary = contact_owner.validate_scene_facts(
+				contacts, result.source_fact_ids, registered.value.fingerprint, issuer)
+			if not facts.get("ok", false): return facts
+			for fact: Dictionary in facts.value.receipts:
+				if fact.receipt.context.identity.run_id != semantic.source.run_id \
+						or fact.receipt.command_issuer_receipt.counter >= semantic.issuer_receipt.counter:
+					return _fail(&"scene_contact_fact_source_mismatch")
+			if admissions[semantic.source.scene_occurrence].get("return_to") != null:
+				return _fail(&"scene_contact_nested")
 		elif result.kind == "contact_returned":
-			if not admissions.has(result.contact_admission_receipt_id): return _fail(&"scene_contact_admission_missing")
+			if result.contact_admission_receipt_id != semantic.source.scene_occurrence \
+					or not admissions.has(result.contact_admission_receipt_id): return _fail(&"scene_contact_admission_missing")
+			var called: Dictionary = admissions[result.contact_admission_receipt_id]
+			if called.get("return_to") == null or not commands.has(called.trigger_command_id):
+				return _fail(&"scene_contact_return_mismatch")
+			var entry_event: Dictionary = commands[called.trigger_command_id].scene_event
+			if semantic.issuer_receipt.counter <= admission_receipts[result.contact_admission_receipt_id].scene_admission.issuer_receipt.counter \
+					or entry_event.semantic.kind != "contact.enter" \
+					or entry_event.semantic.payload.contact_event_id != semantic.payload.contact_event_id \
+					or result.parent_occurrence_id != called.return_to.scene_occurrence \
+					or result.target_id != called.return_to.target_id:
+				return _fail(&"scene_contact_return_mismatch")
 	var roots := {}
 	var triggers := {}
 	for admission_id: String in admissions:
@@ -616,13 +653,38 @@ static func validate_scene_receipts(receipts: Dictionary, bundle: Dictionary, is
 		var trigger: Dictionary = commands[admission.trigger_command_id].scene_event
 		if trigger.semantic.source.run_id != identity.run_id: return _fail(&"scene_admission_source_mismatch")
 		if admission.return_to != null:
-			# Contact entry needs the actual authored fact/entry owner, not a guessed result.
-			return _fail(&"scene_contact_entry_unavailable")
-		if trigger.result.kind not in ["scene_transition_accepted", "challenge_closed"] or trigger.result.target_id != admission.target_id:
+			var back: Dictionary = admission.return_to
+			var parent: Dictionary = admissions.get(back.admission_receipt_id, {})
+			if trigger.result.kind != "contact_entry_accepted" or trigger.result.target_id != admission.target_id \
+					or parent.is_empty() or parent.get("return_to") != null \
+					or back.scene_occurrence != parent.occurrence_id or back.entry_id != parent.entry_id \
+					or trigger.semantic.source.scene_occurrence != back.scene_occurrence \
+					or not _equal(back.source_checkpoint, admission.source_checkpoint) \
+					or back.target_id != registered.value.contacts[trigger.semantic.payload.contact_event_id].return_target_id:
+				return _fail(&"scene_contact_parent_mismatch")
+		elif trigger.result.kind not in ["scene_transition_accepted", "challenge_closed"] or trigger.result.target_id != admission.target_id:
 			return _fail(&"scene_admission_trigger_mismatch")
 		var source_admission: Dictionary = admission_receipts.get(trigger.semantic.source.scene_occurrence, {})
 		if source_admission.is_empty() or source_admission.scene_admission.issuer_receipt.counter >= admission_receipts[admission_id].scene_admission.issuer_receipt.counter:
 			return _fail(&"scene_admission_cycle")
+	# A suspended parent cannot allocate another exit until its child has returned.
+	# Issuer order is already the admission ancestry order; Load retains these bytes.
+	for entry_receipt: Dictionary in commands.values():
+		if entry_receipt.scene_event.result.kind != "contact_entry_accepted": continue
+		var entered: Dictionary = entry_receipt.scene_event.semantic
+		var child_id: String = str(triggers.get(entered.command_id, ""))
+		var returned_counter := -1
+		for receipt: Dictionary in commands.values():
+			var event: Dictionary = receipt.scene_event
+			if event.result.kind == "contact_returned" and event.result.contact_admission_receipt_id == child_id:
+				if returned_counter != -1: return _fail(&"scene_contact_return_duplicate")
+				returned_counter = event.semantic.issuer_receipt.counter
+		for receipt: Dictionary in commands.values():
+			var event: Dictionary = receipt.scene_event.semantic
+			if event.source.scene_occurrence != entered.source.scene_occurrence or event.ordinal <= entered.ordinal: continue
+			if event.kind in ["contact.enter", "scene.transition", "challenge.end"] \
+					and (returned_counter < 0 or event.issuer_receipt.counter <= returned_counter):
+				return _fail(&"scene_contact_exit_refused")
 	for receipt: Dictionary in admission_receipts.values():
 		if not roots.has(receipt.scene_admission.source_identity.run_id): return _fail(&"scene_admission_root_missing")
 	return {"ok": true, "value": {"admissions": admissions, "admission_receipts": admission_receipts,

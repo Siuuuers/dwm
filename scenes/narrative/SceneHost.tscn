@@ -79,3 +79,9 @@ autowrap_mode = 3
 layout_mode = 2
 custom_minimum_size = Vector2(0, 38)
 autowrap_mode = 3
+
+[node name="Contacts" type="Button" parent="SceneControlsLayer/Surface/Controls"]
+visible = false
+layout_mode = 2
+custom_minimum_size = Vector2(0, 38)
+autowrap_mode = 3
