@@ -37,7 +37,7 @@ jobs:
 
       - uses: actions/checkout@v7
         with:
-          ref: 20483c4c92cab745c27a5569d266b6b4cd8f1583
+          ref: a658e06e025207b9c1ac814bda7c1bd265ebf387
           path: source
           fetch-depth: 0
 
@@ -47,12 +47,12 @@ jobs:
           @'
           import json, os, pathlib, subprocess
           def git(*args): return subprocess.check_output(['git',*args],text=True).strip()
-          assert git('rev-parse','HEAD') == '20483c4c92cab745c27a5569d266b6b4cd8f1583'
-          assert git('rev-parse','HEAD^{tree}') == '4ce8fdf49d1dfc223a25b008cfb464fb2f45407c'
-          assert git('rev-parse','HEAD^') == 'e62ef1c0588ea6b3f1a1a2fa4fcdcded8f429d88'
+          assert git('rev-parse','HEAD') == 'a658e06e025207b9c1ac814bda7c1bd265ebf387'
+          assert git('rev-parse','HEAD^{tree}') == 'cf66e919439dcdcb77b58d9cd66af25db11f1e40'
+          assert git('rev-parse','HEAD^') == '20483c4c92cab745c27a5569d266b6b4cd8f1583'
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           paths = git('diff','--name-only',os.environ['BASE_SHA'],'HEAD').splitlines()
-          assert set(paths) == set(["autoload/DialogicBridge.gd","autoload/GameState.gd","scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd","scripts/application/run/DatingPhysicalOwner.gd","scripts/ui/witnessed/WitnessedCaptionLayer.gd","tests/integration/scene_optional_child.gd","tests/integration/test_scene_optional_never_opened_create.gd","tests/integration/test_scene_optional_never_opened_load.gd","tests/integration/test_scene_optional_never_started_create.gd","tests/integration/test_scene_optional_never_started_load.gd","tests/integration/test_scene_optional_selected_absence_create.gd","tests/integration/test_scene_optional_selected_absence_load.gd","tests/integration/test_scene_optional_unfinished_create.gd","tests/integration/test_scene_optional_unfinished_load.gd"])
+          assert set(paths) == set(["autoload/DialogicBridge.gd","autoload/GameState.gd","autoload/SaveManager.gd","scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd","scripts/application/run/DatingPhysicalOwner.gd","scripts/infrastructure/save/DesktopContinuationOperationJournal.gd","scripts/ui/witnessed/WitnessedCaptionLayer.gd","tests/integration/scene_optional_child.gd","tests/integration/test_scene_optional_never_opened_create.gd","tests/integration/test_scene_optional_never_opened_load.gd","tests/integration/test_scene_optional_never_started_create.gd","tests/integration/test_scene_optional_never_started_load.gd","tests/integration/test_scene_optional_selected_absence_create.gd","tests/integration/test_scene_optional_selected_absence_load.gd","tests/integration/test_scene_optional_unfinished_create.gd","tests/integration/test_scene_optional_unfinished_load.gd","tests/unit/test_scene_creation_storage_recovery.gd"])
           (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':git('rev-parse','HEAD'),'controller':os.environ['CONTROLLER_SHA'],'paths':paths},indent=2),encoding='utf-8')
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -85,6 +85,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           if (Select-String "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Candidate import script error' }
           git restore --worktree -- project.godot
+          & './tools/testing/Invoke-PublicSurfaceValidation.ps1' -Regenerate
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           git add --all
           git diff --cached --check
           git config user.name 'github-actions[bot]'
@@ -103,12 +105,23 @@ jobs:
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
 
-      - name: Existing Challenge and absence owner checks
+      - name: Challenge owners and startup recovery checks
         run: |
           $ErrorActionPreference = 'Stop'
-          foreach ($case in @('challenge','absence')) {
-            $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://tests/unit/test_scene_${case}.gd",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/unit-${case}.xml")
-            & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId "unit-${case}" -LogName "unit-${case}.log" -GodotArgs $arguments -EvidenceLogPath ".godot/ci/unit-${case}.jsonl" -TimeoutSeconds 240
+          $cases = @(
+            @{Name='unit-challenge'; Script='tests/unit/test_scene_challenge.gd'},
+            @{Name='unit-absence'; Script='tests/unit/test_scene_absence.gd'},
+            @{Name='unit-creation-storage-recovery'; Script='tests/unit/test_scene_creation_storage_recovery.gd'},
+            @{Name='unit-scene-new-run-journal'; Script='tests/unit/test_scene_new_run_journal.gd'},
+            @{Name='unit-scene-restore-journal'; Script='tests/unit/test_scene_restore_journal.gd'},
+            @{Name='unit-scene-bootstrap-recovery'; Script='tests/unit/test_scene_bootstrap_recovery.gd'},
+            @{Name='integration-new-run-pair'; Script='tests/integration/test_new_run_pair_durability.gd'},
+            @{Name='integration-new-run-startup'; Script='tests/integration/test_new_run_startup_publication.gd'}
+          )
+          foreach ($case in $cases) {
+            $name = $case.Name
+            $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$($case.Script)",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/${name}.xml")
+            & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId $name -LogName "${name}.log" -GodotArgs $arguments -EvidenceLogPath ".godot/ci/${name}.jsonl" -TimeoutSeconds 240
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
 
@@ -120,7 +133,7 @@ jobs:
           out = pathlib.Path('.godot/ci')
           result = {'status':'passed','source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'cases':0,'assertions':0}
           cases = [(f'{c}-{p}',f'tests/integration/test_scene_{c}_{p}.gd') for c in ['optional_never_opened','optional_never_started','optional_unfinished','optional_selected_absence','loss'] for p in ['create','load']]
-          cases += [(f'unit-{c}',f'tests/unit/test_scene_{c}.gd') for c in ['challenge','absence']]
+          cases += [["unit-challenge","tests/unit/test_scene_challenge.gd"],["unit-absence","tests/unit/test_scene_absence.gd"],["unit-creation-storage-recovery","tests/unit/test_scene_creation_storage_recovery.gd"],["unit-scene-new-run-journal","tests/unit/test_scene_new_run_journal.gd"],["unit-scene-restore-journal","tests/unit/test_scene_restore_journal.gd"],["unit-scene-bootstrap-recovery","tests/unit/test_scene_bootstrap_recovery.gd"],["integration-new-run-pair","tests/integration/test_new_run_pair_durability.gd"],["integration-new-run-startup","tests/integration/test_new_run_startup_publication.gd"]]
           for name,script in cases:
               expected = [(script,n) for n in re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(),re.M)]
               root = ET.parse(out/(name+'.xml')).getroot()
@@ -132,9 +145,9 @@ jobs:
               assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',log),name
               result['cases'] += len(rows)
               result['assertions'] += sum(int(r.attrib['assertions']) for r in rows)
-          for c in ['optional_never_opened','optional_never_started','optional_unfinished','optional_selected_absence','loss','unit-challenge','unit-absence']:
+          for c in ["optional_never_opened","optional_never_started","optional_unfinished","optional_selected_absence","loss","unit-challenge","unit-absence","unit-creation-storage-recovery","unit-scene-new-run-journal","unit-scene-restore-journal","unit-scene-bootstrap-recovery","integration-new-run-pair","integration-new-run-startup"]:
               children = [json.loads(s) for s in (out/(c+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
-              assert len(children) == (1 if c.startswith('unit-') else 2) and all(r['exit_code'] == 0 for r in children),c
+              assert len(children) == (1 if c.startswith(('unit-','integration-')) else 2) and all(r['exit_code'] == 0 for r in children),c
               if len(children) == 2: assert children[0]['user_dir'] == children[1]['user_dir']
           for mode in ['never_opened','never_started','unfinished','selected_absence']:
               a = json.loads((out/f'optional-{mode}-create-proof.json').read_text())
