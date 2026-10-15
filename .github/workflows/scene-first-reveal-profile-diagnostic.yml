@@ -141,7 +141,12 @@ jobs:
           assert collections.Counter((r.attrib['classname'],r.attrib['name']) for r in legacy_cases) == collections.Counter(legacy_expected)
           assert all(r.attrib.get('status') == 'pass' and int(r.attrib.get('assertions','0')) > 0 for r in legacy_cases)
           assert not any(list(legacy_root.iter(tag)) for tag in ['failure','error','skipped'])
-          assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',pathlib.Path('.godot/phase2r_logs/prepared-legacy.log').read_text(encoding='utf-8-sig'))
+          legacy_log = pathlib.Path('.godot/phase2r_logs/prepared-legacy.log').read_text(encoding='utf-8-sig')
+          expected_decode = 'Unicode parsing error, some characters were replaced with \uFFFD (U+FFFD): Invalid UTF-8 leading byte (ff)'
+          assert legacy_log.count(expected_decode) == 1
+          corrupt_case = legacy_log.split('* test_prepare_counts_nonempty_unreadable_autosave_but_not_zero_bytes',1)[1].split('* test_cancel_requires_exact_token_and_performs_no_io',1)[0]
+          assert corrupt_case.count(expected_decode) == 1
+          assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',legacy_log.replace(expected_decode,''))
           legacy_children = [json.loads(line) for line in (out/'prepared-legacy.jsonl').read_text(encoding='utf-8-sig').splitlines() if line.strip()]
           assert len(legacy_children) == 1 and legacy_children[0]['exit_code'] == 0
           result['legacy_preparation'] = {'cases':len(legacy_cases),'xml_assertions':sum(int(r.attrib['assertions']) for r in legacy_cases)}
