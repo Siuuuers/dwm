@@ -6,7 +6,7 @@ behavior_authority: false
 verification_authority: false
 ---
 
-# Coordinator A — canonical audio journey accepted; C pointer fixture accepted
+# Coordinator A — Contacts integrated; startup milestone requires scope selection
 
 Updated 15 October 2026 (Hong Kong), continuing Director6177016339.
 This is a continuation/evidence record, not new product authority or live Beads.
@@ -21,18 +21,38 @@ helpers preserve that default; independent source review found no blocker.
 PR30 is the draft controller PR, not the product source. Master remains
 0c8b2384415d71bd3de4ff7408640bbf60b63740; no master merge or release.
 
-## Next work and ownership
+## Current continuation and ownership — 15 October 2026
 
-A next: bounded TEST Contacts entry/return under the existing design seam,
-preserving parent reading/Challenge and Save/fresh Load. Contacts is still
-readiness audit only; do not mark it implemented. Existing TEST.fact.read is
-the engineering trigger, not a new universal production read-to-scene rule.
-Missing real GameState context/fact/read delegates/checkpoint connection,
-registered enter/return producers and authenticated parent linkage remain.
-Reuse existing domain/command/presentation owners and
-docs/design/2026-10-09-scene-runtime-integration-seam.md.
-No new reply choice, story prose, device ownership, nested call or allocating
-exit while a contact return is outstanding.
+Contacts PR #34 is integrated at 03f606ce490a292eb22edb39cb41f1b57066b0d8.
+The earlier readiness-only assignment below is superseded: the GameState
+message/read/context/fact delegates, checkpoint connection, registered entry
+and original-parent return are implemented for the bounded TEST registration.
+See [a-contacts-connected-result.md](a-contacts-connected-result.md).
+
+Retain the separate cloud results: run38681480224, 2 tests/129 assertions,
+and run38683172134, 1 test/60 assertions for physical message/read write refusal,
+rollback, exact retry and duplicate suppression. B's persistence/caller review
+and C's bounded visual disposition are complete. The fresh-load screenshot
+remains partially obscured; no clean post-Load layout, rendered board restoration,
+crash/uncertain-compensation or whole-game acceptance is claimed. Later evidence
+and test additions did not change the runtime reviewed by B/C.
+
+Next-milestone source audit: DialogicEntryManifest currently selects the scene
+bundle only through its debug TEST startup selector or configure_test_scene_registration.
+Its scene_registration returns scene_registration_absent without that selection.
+ApplicationBootstrap explicitly leaves scene creation/host configuration absent
+in that case. Production content selection is therefore still unresolved; the
+accepted TEST journey must not be described as the normal production launch.
+The recorded Director sequence through Contacts is complete. A next startup
+journey should explicitly choose either a labelled TEST title-to-scene milestone
+or an owner-selected authored production entry before changing registration.
+No production IDs, story text, device ownership or reply choices are selected by
+this audit. No new engine test or whole-runtime acceptance is claimed.
+
+A retains integration/controller/inventory ownership; external B/C reservations
+remain separate. Master remains 0c8b2384415d71bd3de4ff7408640bbf60b63740;
+controller PR30 is not a product merge target. The audio and pointer sections
+below retain their historical exact-source evidence, not a new combined run.
 
 C's pointer assignment is accepted and composed. Its nonblocking visual follow-up
 is sheet Back overlapping dimmed Check Computer at top left. Back was clicked
