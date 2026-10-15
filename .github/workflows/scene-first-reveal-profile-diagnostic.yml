@@ -37,7 +37,7 @@ jobs:
 
       - uses: actions/checkout@v7
         with:
-          ref: a658e06e025207b9c1ac814bda7c1bd265ebf387
+          ref: 9222cb72c6d63d054f057263dc97185250d29a5d
           path: source
           fetch-depth: 0
 
@@ -47,12 +47,12 @@ jobs:
           @'
           import json, os, pathlib, subprocess
           def git(*args): return subprocess.check_output(['git',*args],text=True).strip()
-          assert git('rev-parse','HEAD') == 'a658e06e025207b9c1ac814bda7c1bd265ebf387'
-          assert git('rev-parse','HEAD^{tree}') == 'cf66e919439dcdcb77b58d9cd66af25db11f1e40'
-          assert git('rev-parse','HEAD^') == '20483c4c92cab745c27a5569d266b6b4cd8f1583'
+          assert git('rev-parse','HEAD') == '9222cb72c6d63d054f057263dc97185250d29a5d'
+          assert git('rev-parse','HEAD^{tree}') == 'c4a5df6f5f30d65acd96ab185bf3eb3fe79c6921'
+          assert git('rev-parse','HEAD^') == 'a658e06e025207b9c1ac814bda7c1bd265ebf387'
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           paths = git('diff','--name-only',os.environ['BASE_SHA'],'HEAD').splitlines()
-          assert set(paths) == set(["autoload/DialogicBridge.gd","autoload/GameState.gd","autoload/SaveManager.gd","scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd","scripts/application/run/DatingPhysicalOwner.gd","scripts/infrastructure/save/DesktopContinuationOperationJournal.gd","scripts/ui/witnessed/WitnessedCaptionLayer.gd","tests/integration/scene_optional_child.gd","tests/integration/test_scene_optional_never_opened_create.gd","tests/integration/test_scene_optional_never_opened_load.gd","tests/integration/test_scene_optional_never_started_create.gd","tests/integration/test_scene_optional_never_started_load.gd","tests/integration/test_scene_optional_selected_absence_create.gd","tests/integration/test_scene_optional_selected_absence_load.gd","tests/integration/test_scene_optional_unfinished_create.gd","tests/integration/test_scene_optional_unfinished_load.gd","tests/unit/test_scene_creation_storage_recovery.gd"])
+          assert set(paths) == set(["autoload/DialogicBridge.gd","autoload/GameState.gd","autoload/SaveManager.gd","evidence/phase_2r/runtime/game_state_required_surface.json","evidence/phase_2r/runtime/save_manager_required_surface.json","scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd","scripts/application/run/DatingPhysicalOwner.gd","scripts/infrastructure/save/DesktopContinuationOperationJournal.gd","scripts/ui/witnessed/WitnessedCaptionLayer.gd","tests/integration/scene_optional_child.gd","tests/integration/test_scene_optional_never_opened_create.gd","tests/integration/test_scene_optional_never_opened_load.gd","tests/integration/test_scene_optional_never_started_create.gd","tests/integration/test_scene_optional_never_started_load.gd","tests/integration/test_scene_optional_selected_absence_create.gd","tests/integration/test_scene_optional_selected_absence_load.gd","tests/integration/test_scene_optional_unfinished_create.gd","tests/integration/test_scene_optional_unfinished_load.gd","tests/unit/test_scene_creation_storage_recovery.gd"])
           (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':git('rev-parse','HEAD'),'controller':os.environ['CONTROLLER_SHA'],'paths':paths},indent=2),encoding='utf-8')
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
