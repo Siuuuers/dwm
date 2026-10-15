@@ -6,11 +6,11 @@ behavior_authority: false
 verification_authority: false
 ---
 
-# Coordinator A — Contacts integrated; startup milestone requires scope selection
+# Coordinator A — Contacts and TEST title template accepted
 
 Updated 15 October 2026 (Hong Kong), continuing Director6177016339.
 This is a continuation/evidence record, not new product authority or live Beads.
-The integration commit containing this report composes the accepted audio source
+The earlier Contacts integration composed the accepted audio source
 e6ebdc8aff8cb42b033bf95caa19ef63277f2d00 with C's four accepted pointer test/UID
 files from729510597b3e9f5b232ef05979611bc95573244d. Parent productc19124da.
 No existing files were removed. All executable/audio-fixture bytes equal their
@@ -37,17 +37,14 @@ remains partially obscured; no clean post-Load layout, rendered board restoratio
 crash/uncertain-compensation or whole-game acceptance is claimed. Later evidence
 and test additions did not change the runtime reviewed by B/C.
 
-Next-milestone source audit: DialogicEntryManifest currently selects the scene
-bundle only through its debug TEST startup selector or configure_test_scene_registration.
-Its scene_registration returns scene_registration_absent without that selection.
-ApplicationBootstrap explicitly leaves scene creation/host configuration absent
-in that case. Production content selection is therefore still unresolved; the
-accepted TEST journey must not be described as the normal production launch.
-The recorded Director sequence through Contacts is complete. A next startup
-journey should explicitly choose either a labelled TEST title-to-scene milestone
-or an owner-selected authored production entry before changing registration.
-No production IDs, story text, device ownership or reply choices are selected by
-this audit. No new engine test or whole-runtime acceptance is claimed.
+The user selected the labelled TEST title-to-scene milestone with replaceable content.
+It is accepted in PR #35 on candidate d922f51e0330f56c9018c2544b90b2594c65aa80,
+tree 04169661acc6f03a00212de3a5f99aea357f2732. Cloud run38687431565 passed
+1 rendered test/106 assertions plus 10 legacy tests/261 assertions, including strict
+evidence gates. See [a-title-template-result.md](a-title-template-result.md) for source,
+retained evidence, failed attempts, owner boundaries and exact limitations.
+No local engine/PowerShell execution. Production story selection remains unresolved;
+normal production launch is not changed. The TEST milestone is complete.
 
 A retains integration/controller/inventory ownership; external B/C reservations
 remain separate. Master remains 0c8b2384415d71bd3de4ff7408640bbf60b63740;
