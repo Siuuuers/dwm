@@ -2,7 +2,7 @@
 
 This is engineering placeholder content, not selected production story.
 
-- `story.dtl`: replace the visible English caption prose here.
+- `tests/fixtures/dialogic/scene_title_template.dtl`: replace the visible English caption prose here.
 - `Registration.gd`: selects the opening target and recompiles the DTL through the existing registration owner. It inherits the established TEST scene/Challenge registration, then recomputes content/program hashes and target hashes for this file.
 - `tests/integration/test_scene_title_template.gd`: installs this registration before FINAL Bootstrap, configures the title opening through SaveManager, and clicks the actual title/confirmation controls. Registration selection and returning to the title are explicit test setup, not player-input claims.
 

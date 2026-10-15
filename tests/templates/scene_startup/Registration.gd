@@ -1,6 +1,6 @@
 extends "res://tests/support/ScenePlayableFixture.gd"
 ## Editable TEST content; existing registration/compilation owners remain authoritative.
-const STORY := "res://tests/templates/scene_startup/story.dtl"
+const STORY := "res://tests/fixtures/dialogic/scene_title_template.dtl"
 const OPENING_TARGET := "target_b"
 
 func _registration_bundle() -> Dictionary:
