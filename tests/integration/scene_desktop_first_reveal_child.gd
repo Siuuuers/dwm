@@ -198,6 +198,14 @@ func load_scene_desktop_first_reveal() -> void:
 	var backup: RefCounted = preload("res://scripts/application/backup/BackupPresentationPort.gd").new()
 	if not _ok(backup.configure(saves, "title")): return
 	var prepared: Dictionary = backup.prepare_action("load", "slot:1")
+	if not prepared.get("ok", false):
+		# Diagnostic-only: expose the same public prepare boundary's underlying
+		# rejection without committing or substituting any successful restore plan.
+		var raw: Dictionary = saves.prepare_restore_slot(1)
+		print("SCENE_DESKTOP_FIRST_REVEAL_LOAD_DIAGNOSTIC ", JSON.stringify({
+			"ok": raw.get("ok", false), "code": str(raw.get("code", "")),
+			"message": str(raw.get("message", "")).left(1000),
+			"details": raw.get("details", {})}))
 	if not _ok(prepared): return
 	assert_false(prepared.value.confirmation_required)
 	var loaded: Dictionary = backup.commit_action(prepared.value.token)
