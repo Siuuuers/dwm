@@ -86,6 +86,16 @@ func create_optional(mode: String) -> void:
 		assert_eq(ready_count, 2)
 		if ready_count != 2: return
 		for frame: int in 4: await get_tree().process_frame
+		# Ready restores ownership; the native caption can still be revealing.
+		# Wait for real presentation completion before the one departure input.
+		if not await _optional_wait("line.scene.test.b.one"): return
+		await get_tree().process_frame
+		var departure_admission := {"complete": bridge._runtime_adapter.is_current_line_complete(),
+			"next_admitted": _caption()._next_admitted(), "waiting_for_text": _caption()._line_waiting_for_text,
+			"frontier_kind": str(bridge.capture_current_line_presentation_frontier().get("value", {}).get("kind", ""))}
+		print("OPTIONAL_SELECTED_DEPARTURE_ADMISSION ", departure_admission)
+		_write_json("res://.godot/ci/optional-selected-absence-admission.json", departure_admission)
+		assert_true(departure_admission.next_admitted, str(departure_admission))
 		assert_false(get_tree().paused)
 		assert_false(get_tree().current_scene.is_computer_open())
 		assert_ne(game.capture_run_snapshot_input().lifecycle.branch_id, source_branch)
