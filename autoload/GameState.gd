@@ -5174,6 +5174,8 @@ func capture_scene_contact_context() -> Dictionary:
 		return _transaction_failure(&"scene_contact_unavailable", "")
 	var identity := capture_desktop_identity_context()
 	if not identity.ok: return identity
+	# Contacts authenticate the causal issuer as well as the public identity.
+	identity.value = _run_lifecycle.get_desktop_identity_context()
 	var registration := _SCENE_MANIFEST.scene_registration()
 	if not registration.ok: return registration
 	if _scene_snapshot_references.get("registration_sha256") != _SCENE_MANIFEST.scene_registration_fingerprint():
