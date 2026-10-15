@@ -2808,7 +2808,8 @@ func open_scene_contacts(host: Control) -> Dictionary:
 		app = preload("res://scenes/apps/ContactListApp.tscn").instantiate()
 		app.name = "SceneContactsApp"
 		mount.add_child(app)
-		app.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		app.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+		host.resized.connect(_layout_scene_contacts.bind(host, app))
 		var configured: Dictionary = app.configure_scene_presentation(_contacts_presentation_port,
 			_target(&"LocalizationManager"), _target(&"ProfileManager"))
 		if not configured.get("ok", false):
@@ -2816,6 +2817,16 @@ func open_scene_contacts(host: Control) -> Dictionary:
 			return configured
 	var refreshed: Dictionary = app.refresh_view()
 	if not refreshed.get("ok", false): return refreshed
+	_layout_scene_contacts(host, app)
 	app.show_window()
 	mount.move_child(app, mount.get_child_count() - 1)
 	return {"ok": true}
+
+
+func _layout_scene_contacts(host: Control, app: Control) -> void:
+	if not is_instance_valid(host) or not is_instance_valid(app): return
+	var available := host.get_viewport_rect().size - Vector2(184, 16)
+	var factor := maxf(0.1, minf(available.x / 800.0, available.y / 656.0))
+	app.size = Vector2(800, 656)
+	app.scale = Vector2.ONE * factor
+	app.global_position = Vector2(176, 8)
