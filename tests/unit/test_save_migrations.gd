@@ -146,7 +146,7 @@ func test_retained_v7_snapshot_is_refused_without_repair_or_profile_patch() -> v
 
 func test_future_fractional_missing_and_wrong_type_versions_are_refused() -> void:
 	var future := _document()
-	future.schema_version = DOCUMENT.DOCUMENT_VERSION + 1
+	future.schema_version = DOCUMENT.SCENE_DOCUMENT_VERSION + 1
 	_assert_refused_unchanged(future, {"kind": "slot", "slot_id": 1}, &"unsupported_future_schema")
 	for version: Variant in [6.5, "6", null, true, {}, [], INF]:
 		var raw := _document()
