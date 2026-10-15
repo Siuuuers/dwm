@@ -1,4 +1,4 @@
-name: Legacy first Reveal baseline comparison
+name: Legacy first Reveal baseline diagnostic
 
 on:
   pull_request:
@@ -23,9 +23,6 @@ jobs:
           - label: baseline
             source: 3ae6d9138fb53c388380c78550cf6082eafc0ea3
             tree: 31ea91c9dbd63dc8eb9ee57e7bcc2a824fb28feb
-          - label: candidate
-            source: 6f837d85e35dcd803d3328531798ce24e302d66f
-            tree: b7fd26ea718e0777594289e963a0cece00ede36e
     name: First Reveal diagnostic / ${{ matrix.label }}
     runs-on: windows-2022
     timeout-minutes: 30
@@ -51,7 +48,7 @@ jobs:
         with:
           ref: ${{ matrix.source }}
           path: source
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Pin source and add observation-only first-Reveal probes
         run: |
