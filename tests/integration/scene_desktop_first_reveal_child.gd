@@ -118,6 +118,28 @@ func create_scene_desktop_first_reveal() -> void:
 	var observed := ObservedFiles.new()
 	saves._storage._file_ops = observed
 	var refused: Dictionary = port.dispatch("reveal", 0, int(projected.value.revision))
+	if observed.refused_writes == 0:
+		# Diagnostic-only failure path: presentation intentionally hides owner errors.
+		# Keep the filesystem obstruction in place and mint a genuine production
+		# transaction to expose the first failing owner boundary without fake success.
+		var issued: Dictionary = port._mint_transaction()
+		var diagnostic: Dictionary = issued
+		if issued.get("ok", false):
+			var identity: Variant = port.get("_identity")
+			diagnostic = bootstrap.get("_retained_minesweeper_round_coordinator_app").reveal({
+				"transaction_id": str(issued.value.token),
+				"transaction_issuer_receipt": issued.value.issuer_receipt.duplicate(true),
+				"expected_identity": identity.duplicate(true) if identity is Dictionary else null,
+				"expected_revision": int(port.get("_revision")), "cell_index": 0,
+				"difficulty_id": str(port.get("_difficulty"))})
+		print("SCENE_DESKTOP_FIRST_REVEAL_OWNER_DIAGNOSTIC ", JSON.stringify({
+			"ok": diagnostic.get("ok", false), "code": str(diagnostic.get("code", "")),
+			"message": str(diagnostic.get("message", "")).left(1000),
+			"details": str(diagnostic.get("details", {})).left(2400)}))
+		saves._storage._file_ops = original_files
+		assert_eq(DirAccess.remove_absolute(blocked), OK)
+		fail_test("First Reveal did not reach the obstructed autosave; see owner diagnostic")
+		return
 	saves._storage._file_ops = original_files
 	assert_eq(DirAccess.remove_absolute(blocked), OK)
 	assert_false(refused.get("ok", false), str(refused))
