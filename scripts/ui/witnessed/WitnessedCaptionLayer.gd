@@ -327,6 +327,9 @@ func _before_normal_accept() -> bool:
 	if _review_offset > 0:
 		_set_review_offset(0)
 		return false
+	if _presented_line.get("value", {}).get("kind") == "scene_optional_control":
+		if _next_admitted(): _request_reading_command(&"next", true)
+		return false
 	if not _acknowledge_visible_line(): return false
 	if is_instance_valid(_transport_bridge) and _transport_bridge.has_method("capture_scene_pending_marker") \
 			and _transport_bridge.capture_scene_pending_marker().get("ok", false):

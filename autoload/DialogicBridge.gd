@@ -1906,6 +1906,8 @@ func can_skip_current_line() -> bool:
 ## Next is opt-in to the complete fixed Solo programme and existing durable
 ## checkpoint owner. Capability queries do not allocate History or write Profile.
 func can_next_current_line() -> bool:
+	if has_reading_session() and _reading_session.family == "scene" and _reading_session.boundary == "control":
+		return not _next_active and not _next_admitting and capture_scene_optional_frontier().get("ok", false)
 	if _marker_entry_active():
 		return not _next_active and not _next_admitting and capture_next_frontier().get("ok", false)
 	if _next_active or _line_ack_in_progress or _auto_step_in_progress or _skip_step_in_progress \
@@ -1941,7 +1943,10 @@ func _perform_next(expected_frontier: Dictionary) -> Dictionary:
 	_next_admitting = true
 	_admitting_frontier = expected_frontier.duplicate(true)
 	var result: Dictionary
-	if _marker_entry_active():
+	if has_reading_session() and _reading_session.family == "scene" and _reading_session.boundary == "control":
+		var current := capture_scene_optional_frontier()
+		result = _scene_event_context_provider.get_object().continue_optional_scene_challenge() if current.get("ok", false) and current == expected_frontier else _command_failure(&"presentation_frontier_changed")
+	elif _marker_entry_active():
 		result = await _perform_marker_next(expected_frontier)
 	else:
 		result = await _perform_caption_next(expected_frontier)
@@ -2105,6 +2110,8 @@ func is_current_line_presentation_acknowledged() -> bool:
 
 ## Opaque proof of the rendered source, even while a transaction temporarily owns writes.
 func capture_current_line_presentation_frontier() -> Dictionary:
+	if has_reading_session() and _reading_session.family == "scene" and _reading_session.boundary == "control":
+		return capture_scene_optional_frontier(false)
 	if _reached_replay.has("caption_ledger"): return _reached_caption_frontier({}, false)
 	return _line_presentation_context({}, false)
 
@@ -4193,6 +4200,34 @@ func capture_scene_pending_marker() -> Dictionary:
 	if source.value.marker.kind not in ["challenge.playable", "challenge.end", "contact.enter", "contact.return"]:
 		return _command_failure(&"scene_marker_unavailable")
 	return {"ok": true, "value": source.value.marker.duplicate(true)}
+
+## Manual departure uses the held control identity, never a new caption witness.
+## Auto and Skip retain their ordinary-line admission and cannot use this capability.
+## The current registered cursor must lie beyond this exact playable control.
+## Receipt/source validation belongs to GameState; this supplies native position.
+func is_scene_challenge_departed(marker_id: String) -> bool:
+	if not has_reading_session() or _reading_session.family != "scene" or _reading_session.boundary != "line": return false
+	var captured := capture_reading_checkpoint(false)
+	if not captured.get("ok", false): return false
+	var reading: Dictionary = captured.value.reading_session
+	var nodes: Array = _reading_session._scene_nodes.get(reading.entry_id, [])
+	for index: int in nodes.size():
+		if nodes[index].get("marker_id") == marker_id:
+			return index < int(reading.program_index)
+	return false
+
+func capture_scene_optional_frontier(guard_mutation: bool = true) -> Dictionary:
+	if guard_mutation and is_computer_caption_held(): return _command_failure(&"computer_caption_held")
+	if not _pause_handle.is_empty() or _pause_changing or is_pause_restore_pending() \
+			or not _active_transaction.is_empty() or (is_inside_tree() and get_tree().paused) \
+			or not _scene_event_context_provider.is_valid(): return _command_failure(&"narrative_suspended")
+	if guard_mutation:
+		var guarded: Dictionary = _mutation_gate.guard_external(&"scene_challenge_continuation")
+		if not guarded.get("ok", false): return guarded
+	var held := capture_scene_challenge_control()
+	if not held.get("ok", false): return held
+	return {"ok": true, "value": {"kind": "scene_optional_control", "token": str(_active_entry.token),
+		"marker_id": held.value.marker_id, "reading": held.value.checkpoint.reading_session}}
 
 func capture_scene_challenge_control() -> Dictionary:
 	var boundary := capture_scene_event_boundary()
