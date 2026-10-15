@@ -37,7 +37,7 @@ jobs:
 
       - uses: actions/checkout@v7
         with:
-          ref: e81733846dc3407c8767bf473c530a4f915aad42
+          ref: eb2c4c1c40740646f9efe22e7a5ccf87dd007dcd
           path: source
           fetch-depth: 0
 
@@ -47,9 +47,9 @@ jobs:
           @'
           import json, os, pathlib, subprocess
           def git(*args): return subprocess.check_output(['git',*args],text=True).strip()
-          assert git('rev-parse','HEAD') == 'e81733846dc3407c8767bf473c530a4f915aad42'
-          assert git('rev-parse','HEAD^{tree}') == '30292b4c907e405198afef59e662bad9e280a5a4'
-          assert git('rev-parse','HEAD^') == 'ac0686f9dedcce5d22ccf01ac7cd51f8797472ea'
+          assert git('rev-parse','HEAD') == 'eb2c4c1c40740646f9efe22e7a5ccf87dd007dcd'
+          assert git('rev-parse','HEAD^{tree}') == 'a82cdfd808172a766cbc09fcc5ea403481207d6f'
+          assert git('rev-parse','HEAD^') == 'e81733846dc3407c8767bf473c530a4f915aad42'
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           paths = git('diff','--name-only',os.environ['BASE_SHA'],'HEAD').splitlines()
           assert len(paths) == 7
