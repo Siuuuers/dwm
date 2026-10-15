@@ -209,6 +209,10 @@ func prepare(checkpoint_inputs: Dictionary, checkpoint_kind: StringName, disk_wr
 	if not scene_route and is_instance_valid(view_participant) and view_participant.has_method("compose_live_checkpoint_input"):
 		snapshot_input = view_participant.compose_live_checkpoint_input(snapshot_input)
 	tick = _profile_phase(profile, "view_capture_us", tick)
+	# Live desktop reducers use StringName enums. Convert producer values at this
+	# existing JSON boundary before strict Run9 validation; never normalize Load input.
+	if scene_route:
+		snapshot_input = _normalize_json_string_types(snapshot_input)
 	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(
 		snapshot_input, checkpoint_inputs["dialogic_checkpoint"],
 		str(checkpoint_inputs["route_id"]), active_app_id,

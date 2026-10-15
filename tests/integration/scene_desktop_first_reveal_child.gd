@@ -3,6 +3,7 @@ extends "res://tests/integration/scene_bootstrap_restart_child.gd"
 ## Production presentation commands exercise the retained desktop coordinator; this
 ## is connected owner coverage, not a claim of desktop UI availability on SceneHost.
 const PRESENTATION := preload("res://scripts/application/minesweeper/MinesweeperPresentationPort.gd")
+const DESKTOP_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
 const PROOF := "user://scene-desktop-first-reveal-proof.json"
 
 class ObservedFiles extends "res://scripts/infrastructure/storage/FileOps.gd":
@@ -76,10 +77,11 @@ func _assert_scene_snapshot(snapshot: Dictionary, reading: Dictionary, run: Dict
 	assert_eq(snapshot.narrative_checkpoint.reading_session.entry_id, reading.entry_id)
 	assert_eq(snapshot.narrative_checkpoint.reading_session.program_index, reading.program_index)
 	assert_eq(snapshot.narrative_checkpoint.reading_session.boundary, "line")
-	assert_eq(snapshot.desktop.board, run.desktop.board, "durable candidate contains the installed paid board")
-	assert_eq(snapshot.gameplay, run.gameplay)
-	assert_eq(snapshot.command_receipts, run.command_receipts)
-	assert_eq(snapshot.scene, run.scene)
+	var normalized: Dictionary = DESKTOP_STATE._inspection_normalize(run)
+	for key: String in normalized:
+		assert_eq(snapshot[key], normalized[key], "durable candidate matches complete live owner input: " + key)
+	assert_eq(typeof(snapshot.desktop.board.board.board.outcome), TYPE_STRING, "saved reducer outcome is JSON primitive text")
+	assert_eq(typeof(run.desktop.board.board.board.outcome), TYPE_STRING_NAME, "serialization never mutates the live reducer outcome")
 
 func create_scene_desktop_first_reveal() -> void:
 	if not _start_services(): return
@@ -154,6 +156,7 @@ func create_scene_desktop_first_reveal() -> void:
 	var revealed: Dictionary = port.dispatch("reveal", 0, int(projected.value.revision))
 	if not _ok(revealed): return
 	var after: Dictionary = game.capture_run_snapshot_input()
+	assert_eq(typeof(after.desktop.board.board.board.outcome), TYPE_STRING_NAME)
 	assert_eq(after.gameplay.minesweeper_rounds_left, before.gameplay.minesweeper_rounds_left - 1)
 	assert_eq(after.desktop.board.phase, "ACTIVE_VISIBLE")
 	assert_false(after.desktop.board.board.board.terminal, "beginner first Reveal stays playable")
@@ -173,9 +176,11 @@ func create_scene_desktop_first_reveal() -> void:
 	assert_eq(disk.value.schema_version, 9)
 	assert_eq(disk.value.current_snapshot.snapshot, snapshot, "physical Save9 carries the complete committed Run9")
 	if not _ok(saves.save_latest_to_slot(1)): return
+	assert_eq(game.capture_run_snapshot_input(), after, "serializing autosave and selected slot leaves live state untouched")
+	assert_eq(typeof(game.capture_run_snapshot_input().desktop.board.board.board.outcome), TYPE_STRING_NAME)
 	var proof := {"phase": "create", "process_id": OS.get_process_id(),
 		"user_dir": ProjectSettings.globalize_path("user://"), "file_hashes": _file_hashes(),
-		"run": after, "profile": history, "reading_session": snapshot.narrative_checkpoint.reading_session,
+		"run": DESKTOP_STATE._inspection_normalize(after), "profile": history, "reading_session": snapshot.narrative_checkpoint.reading_session,
 		"ready_count": ready_count, "refused_writes": observed.refused_writes}
 	if not _write_json(PROOF, proof): return
 	_write_json("res://.godot/ci/scene-desktop-first-reveal-create-proof.json", proof)
@@ -202,7 +207,8 @@ func load_scene_desktop_first_reveal() -> void:
 	if not await _line_ready(): return
 	assert_eq(ready_count, 1)
 	assert_eq(get_tree().current_scene.scene_file_path, HOST)
-	var current: Dictionary = game.capture_run_snapshot_input()
+	var current_raw: Dictionary = game.capture_run_snapshot_input()
+	var current: Dictionary = DESKTOP_STATE._inspection_normalize(current_raw)
 	assert_eq(current.lifecycle.run_id, witness.run.lifecycle.run_id)
 	assert_ne(current.lifecycle.branch_id, witness.run.lifecycle.branch_id)
 	assert_eq(current.gameplay, witness.run.gameplay, "Load never charges another round")
@@ -232,7 +238,7 @@ func load_scene_desktop_first_reveal() -> void:
 	if not _ok(projected): return
 	assert_eq(projected.value.revision, current.desktop.board.revision)
 	for frame: int in 4: await get_tree().process_frame
-	assert_eq(game.capture_run_snapshot_input(), current, "opening restored presentation has no accounting or receipt side effects")
+	assert_eq(game.capture_run_snapshot_input(), current_raw, "opening restored presentation has no accounting or receipt side effects")
 	assert_eq(profile.get_profile_snapshot(), witness.profile)
 	_same_files(witness.file_hashes)
 	var proof: Dictionary = witness.duplicate(true)

@@ -47,9 +47,13 @@ func _board_candidate(transaction_id: String = "tx-composer") -> Dictionary:
 	var input: Dictionary = semantic.duplicate(true)
 	input["request_fingerprint"] = _fp(semantic)
 	var prepared: Dictionary = state.prepare_first_reveal(input, {"layout": layout, "board": board},
-		{"checkpoint_id": "run-composer:1"})
+		{"checkpoint_id": "run-composer:1", "transaction_id": transaction_id})
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
-	return (prepared["value"] as Dictionary)["candidate"]
+	var candidate: Dictionary = prepared.value.candidate
+	var payment: Dictionary = candidate.board_after.paid_start_receipt.duplicate(true)
+	candidate["result_override"] = {"ok": true, "code": &"first_reveal_committed", "receipt": {},
+		"value": {"receipt": payment, "publication": {"transaction_id": transaction_id, "receipt": payment.duplicate(true)}}}
+	return candidate
 
 func _game_state_candidate(transaction_id: String = "tx-composer") -> Dictionary:
 	return {"transaction_id": transaction_id, "rounds_left": 4, "starts_today": {"day-composer": 1}}
@@ -197,3 +201,62 @@ func test_scene_composer_refuses_wrong_debit_and_coerced_revisions() -> void:
 	var consequence := _consequence_candidate()
 	consequence.extra = true
 	assert_false(COMPOSER.compose(_base_snapshot_input(), _game_state_candidate(), _board_candidate(), consequence).ok)
+
+
+func test_projection_matches_actual_board_commit_and_its_retry_result() -> void:
+	var candidate := _board_candidate()
+	var before := candidate.duplicate(true)
+	var base := _base_snapshot_input()
+	var composed: Dictionary = COMPOSER.compose(base, _game_state_candidate(), candidate, _consequence_candidate())
+	assert_true(composed.ok, str(composed))
+	if not composed.ok: return
+	var owner: RefCounted = BOARD_STATE.new()
+	var committed: Dictionary = owner.commit(candidate)
+	assert_true(committed.ok, str(committed))
+	assert_eq(composed.value.snapshot_input.desktop.board, owner.capture())
+	assert_eq(owner.commit(candidate), candidate.result_override, "retry returns the same canonical payment result")
+	assert_eq(candidate, before, "composition and commit do not modify the caller candidate")
+	composed.value.snapshot_input.desktop.board.command_receipts[candidate.transaction_id].result.value.receipt.checkpoint_id = "changed"
+	assert_eq(candidate, before, "the persisted result is detached from the coordinator result")
+	assert_eq(owner.capture().command_receipts[candidate.transaction_id].result, before.result_override)
+
+
+func test_scene_composer_requires_canonical_result_before_projection() -> void:
+	var candidate := _board_candidate()
+	candidate.erase("result_override")
+	var result: Dictionary = COMPOSER.compose(_base_snapshot_input(), _game_state_candidate(), candidate, _consequence_candidate())
+	assert_false(result.ok)
+	assert_eq(result.code, &"invalid_board_candidate")
+
+
+func test_scene_composer_refuses_malformed_or_disagreeing_results_without_mutation() -> void:
+	var valid := _board_candidate()
+	var cases: Array = [null, {}, {"ok": false, "code": &"first_reveal_committed", "value": {}, "receipt": {}}]
+	for change: Dictionary in [{"ok": 1}, {"code": &"ok"}, {"receipt": {"unexpected": true}},
+			{"value": []}, {"extra": true}]:
+		var changed: Dictionary = valid.result_override.duplicate(true)
+		changed.merge(change, true)
+		cases.append(changed)
+	var wrong_transaction: Dictionary = valid.result_override.duplicate(true)
+	wrong_transaction.value.publication.transaction_id = "different"
+	cases.append(wrong_transaction)
+	var wrong_publication: Dictionary = valid.result_override.duplicate(true)
+	wrong_publication.value.publication.receipt.checkpoint_id = "different"
+	cases.append(wrong_publication)
+	var wrong_payment: Dictionary = valid.result_override.duplicate(true)
+	wrong_payment.value.receipt.transaction_id = "different"
+	wrong_payment.value.publication.receipt = wrong_payment.value.receipt.duplicate(true)
+	cases.append(wrong_payment)
+	var wrong_board_payment: Dictionary = valid.result_override.duplicate(true)
+	wrong_board_payment.value.receipt.checkpoint_id = "different"
+	wrong_board_payment.value.publication.receipt = wrong_board_payment.value.receipt.duplicate(true)
+	cases.append(wrong_board_payment)
+	for malformed: Variant in cases:
+		var candidate := valid.duplicate(true)
+		candidate.result_override = malformed
+		var base := _base_snapshot_input()
+		var before := base.duplicate(true)
+		var result: Dictionary = COMPOSER.compose(base, _game_state_candidate(), candidate, _consequence_candidate())
+		assert_false(result.ok, str(malformed))
+		assert_eq(result.code, &"invalid_board_result")
+		assert_eq(base, before)
