@@ -37,7 +37,7 @@ jobs:
 
       - uses: actions/checkout@v7
         with:
-          ref: 676e953d9d465cbfb9fbdcb10bc2876e4edbe9c7
+          ref: ac0686f9dedcce5d22ccf01ac7cd51f8797472ea
           path: source
           fetch-depth: 0
 
@@ -47,12 +47,12 @@ jobs:
           @'
           import json, os, pathlib, subprocess
           def git(*args): return subprocess.check_output(['git',*args],text=True).strip()
-          assert git('rev-parse','HEAD') == '676e953d9d465cbfb9fbdcb10bc2876e4edbe9c7'
-          assert git('rev-parse','HEAD^{tree}') == 'fcb464c7315730d39c18dff02f97694fdc56dbff'
-          assert git('rev-parse','HEAD^') == '20bb737ab536539889d2482273012ef7e03e27e9'
+          assert git('rev-parse','HEAD') == 'ac0686f9dedcce5d22ccf01ac7cd51f8797472ea'
+          assert git('rev-parse','HEAD^{tree}') == 'b8f70ce736f214fafecc010980a98f567e03d49a'
+          assert git('rev-parse','HEAD^') == '676e953d9d465cbfb9fbdcb10bc2876e4edbe9c7'
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           paths = git('diff','--name-only',os.environ['BASE_SHA'],'HEAD').splitlines()
-          assert len(paths) == 5
+          assert len(paths) == 7
           (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':git('rev-parse','HEAD'),'controller':os.environ['CONTROLLER_SHA'],'paths':paths},indent=2),encoding='utf-8')
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
