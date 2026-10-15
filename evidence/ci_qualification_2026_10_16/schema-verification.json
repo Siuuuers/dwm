@@ -1,0 +1,11 @@
+{
+  "gate": {
+    "scope": "future-version fixtures only; broader CI remains separately blocked",
+    "status": "passed",
+    "source": "8aa463feccb1631a877a0bb7966ed8e9c39b437a",
+    "cases": 33,
+    "assertions": 613
+  },
+  "members": 22,
+  "sha256": "ea59f92e353c5a3db6749de514d6fde8959c62f4795f3adbeb8ce19392f726fd"
+}

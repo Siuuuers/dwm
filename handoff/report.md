@@ -21,6 +21,23 @@ helpers preserve that default; independent source review found no blocker.
 PR30 is the draft controller PR, not the product source. Master remains
 0c8b2384415d71bd3de4ff7408640bbf60b63740; no master merge or release.
 
+## Current CI qualification — 16 October 2026
+
+PR36 now also retains a two-file future-save-version fixture correction, verified
+in cloud run38766739347: **33 tests / 613 assertions**. Runtime validators and the
+previously accepted optional-Challenge implementation are unchanged. This is a
+separate focused result, not whole-project acceptance.
+
+Paired instrumented cloud diagnostics reproduced the same legacy/scene snapshot
+mismatch at desktop first Reveal on integration3ae6d913 and the candidate. Both
+children correctly exited1. The original broader CI run is still failed; its
+provenance, fixture, integration and cancelled-job blockers remain explicit.
+See [a-ci-qualification-20261016.md](a-ci-qualification-20261016.md) for exact
+sources, evidence, baseline limits and next owner-wiring task. Keep PR36 draft;
+master and integration were not moved. B's later-caption diagnosis is received;
+C's separate reconciliation lane remains reserved. Local source inspection is
+available again; all engine/PowerShell execution remains cloud-only.
+
 ## Current continuation and ownership — 15 October 2026
 
 The latest bounded TEST optional-Challenge work is on draft PR #36,
