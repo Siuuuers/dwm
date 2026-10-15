@@ -90,12 +90,28 @@ func create_optional(mode: String) -> void:
 		# Wait for real presentation completion before the one departure input.
 		if not await _optional_wait("line.scene.test.b.one"): return
 		await get_tree().process_frame
+		var caption: Node = _caption()
+		var frontier: Dictionary = bridge.capture_current_line_presentation_frontier()
+		var optional_frontier: Dictionary = bridge.capture_scene_optional_frontier()
 		var departure_admission := {"complete": bridge._runtime_adapter.is_current_line_complete(),
-			"next_admitted": _caption()._next_admitted(), "waiting_for_text": _caption()._line_waiting_for_text,
-			"frontier_kind": str(bridge.capture_current_line_presentation_frontier().get("value", {}).get("kind", ""))}
+			"next_admitted": caption._next_admitted(), "waiting_for_text": caption._line_waiting_for_text,
+			"frontier_kind": str(frontier.get("value", {}).get("kind", "")),
+			"frontier_ok": bool(frontier.get("ok", false)), "frontier_code": str(frontier.get("code", "")),
+			"optional_frontier_ok": bool(optional_frontier.get("ok", false)),
+			"optional_frontier_code": str(optional_frontier.get("code", "")),
+			"presented_matches": caption._presented_line == frontier, "can_next": bridge.can_next_current_line(),
+			"presented_ok": bool(caption._presented_line.get("ok", false)),
+			"presented_code": str(caption._presented_line.get("code", "")),
+			"paused": get_tree().paused, "pause_covered": caption._pause_covered,
+			"next_input_bound": caption._next_input_bound, "auto_configured": caption._auto_configured,
+			"accept_source_admitted": caption.accept_input.is_source_admitted(),
+			"reading_source_admitted": caption._reading_source_admitted(), "has_caption": caption._has_caption(),
+			"rail_visible": caption.transport_rail.is_visible_in_tree(), "review_offset": caption._review_offset,
+			"pause_state": str(pause.coordinator.get_state().get("value", {}).get("state", ""))}
 		print("OPTIONAL_SELECTED_DEPARTURE_ADMISSION ", departure_admission)
 		_write_json("res://.godot/ci/optional-selected-absence-admission.json", departure_admission)
 		assert_true(departure_admission.next_admitted, str(departure_admission))
+		if not departure_admission.next_admitted: return
 		assert_false(get_tree().paused)
 		assert_false(get_tree().current_scene.is_computer_open())
 		assert_ne(game.capture_run_snapshot_input().lifecycle.branch_id, source_branch)
