@@ -156,12 +156,26 @@ func load_contacts_scene() -> void:
 	assert_eq(game.capture_dating_challenge_state().value.state, "lost")
 	assert_eq(game.capture_dating_challenge_state().value.phase, "terminal")
 	assert_eq(game.capture_dating_challenge_state().value.board, proof.board)
-	assert_eq(profile.get_profile_snapshot(), profile_before)
 	assert_eq(_result_count("contact_entry_accepted"), 1)
 	assert_eq(_result_count("contact_returned"), 1)
 	var ledger: Dictionary = bridge.capture_reading_checkpoint(false).value.reading_session.ledger
 	assert_eq(ledger.captions.size(), proof.reading.captions.size() + 1)
 	for index: int in proof.reading.captions.size(): assert_eq(ledger.captions[index], proof.reading.captions[index])
+	# The newly rendered resume caption adds exactly its ordinary Profile witness.
+	var profile_after: Dictionary = profile.get_profile_snapshot().duplicate(true)
+	var expected_visits: Array = profile_before.visited_line_ids.duplicate()
+	expected_visits.append("line.scene.test.a.two")
+	assert_eq(profile_after.visited_line_ids, expected_visits)
+	var new_witnesses: Dictionary = profile_after.witnessed_caption_variants.duplicate(true)
+	for witness_id: String in profile_before.witnessed_caption_variants:
+		assert_eq(new_witnesses.get(witness_id), profile_before.witnessed_caption_variants[witness_id])
+		new_witnesses.erase(witness_id)
+	assert_eq(new_witnesses.size(), 1)
+	if new_witnesses.size() == 1: assert_eq(new_witnesses.values()[0], ledger.captions[-1].beat)
+	for field: String in ["visited_line_ids", "witnessed_caption_variants"]:
+		profile_before.erase(field)
+		profile_after.erase(field)
+	assert_eq(profile_after, profile_before, "return preserves every other Profile field")
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.slot_sha256)
 	await _screenshot("contacts-parent-return")
 	if not await _save_slot(2): return
