@@ -527,6 +527,10 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 			if save_manager == null or not save_manager.has_method("initialize"):
 				return _failure(&"missing_stage_adapter", "SaveManager initializer is unavailable")
 			_saves_storage = JSON_STORAGE.new(_selected_root.path_join("saves"))
+			# The issuer stage already ran; bind the hook only after this storage exists.
+			# Flush deferred identity receipts before initialization or later save writes.
+			var gated: Dictionary = _saves_storage.configure_before_write(Callable(self, "_flush_before_run_save"))
+			if not gated.get("ok", false): return gated
 			var save_initialized: Dictionary = save_manager.call(&"initialize", _saves_storage)
 			if not save_initialized.get("ok", false):
 				return save_initialized
@@ -737,14 +741,6 @@ func _construct_identity_issuer_and_contact_commands() -> Dictionary:
 			_desktop_issuer_root_store)
 		if not issuer_configured.get("ok", false):
 			return issuer_configured
-	# dwm-634.1: routine board receipts live in memory until the board itself is saved. Every run
-	# save goes through this storage root, so it persists the ledger first and fails closed.
-	# dwm-634.2: the Dating owner's uncommitted routine progress flushes to Profile the same way.
-	if _saves_storage != null and _saves_storage.has_method("configure_before_write"):
-		var gated: Dictionary = _saves_storage.call(&"configure_before_write",
-			Callable(self, "_flush_before_run_save"))
-		if not gated.get("ok", false):
-			return gated
 	var injected: Dictionary = game_state.call(
 		&"configure_identity_issuer", _desktop_identity_nonce_issuer)
 	if not injected.get("ok", false):

@@ -199,11 +199,21 @@ func load_scene_desktop_first_reveal() -> void:
 	if not _ok(backup.configure(saves, "title")): return
 	var prepared: Dictionary = backup.prepare_action("load", "slot:1")
 	if not prepared.get("ok", false):
-		# Diagnostic-only: expose the same public prepare boundary's underlying
-		# rejection without committing or substituting any successful restore plan.
-		var raw: Dictionary = saves.prepare_restore_slot(1)
+		# Diagnostic-only: mirror Backup's detached document admission, avoiding
+		# the unrelated storage read lease required by public prepare_restore_slot.
+		# No plan returned here is committed or substituted for the failed action.
+		var phase := "parse"
+		var raw: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/slot_1.json"))
+		if raw.get("ok", false):
+			phase = "migrate"
+			raw = preload("res://scripts/infrastructure/save/SaveMigrations.gd").migrate_document(
+				raw.value, {"kind": "slot", "slot_id": 1})
+			if raw.get("ok", false):
+				phase = "participants"
+				raw = saves._prepare_restore_document(saves._resolve_locator(&"slot", 1),
+					raw.value.document, raw.value)
 		print("SCENE_DESKTOP_FIRST_REVEAL_LOAD_DIAGNOSTIC ", JSON.stringify({
-			"ok": raw.get("ok", false), "code": str(raw.get("code", "")),
+			"phase": phase, "ok": raw.get("ok", false), "code": str(raw.get("code", "")),
 			"message": str(raw.get("message", "")).left(1000),
 			"details": raw.get("details", {})}))
 	if not _ok(prepared): return
