@@ -1638,6 +1638,9 @@ func _configure_desktop_production_graph() -> Dictionary:
 		var save_audio: Dictionary = save_board_port.configure_audio_context_capture(
 			Callable(_target(&"AudioManager"), &"get_semantic_audio_context"))
 		if not save_audio.get("ok", false): return save_audio
+		var save_scene: Dictionary = save_board_port.configure_scene_context_capture(
+			Callable(self, "_capture_desktop_board_scene_context"))
+		if not save_scene.get("ok", false): return save_scene
 		_retained_save_manager_desktop_board_port = save_board_port
 		var durable: Dictionary = round_coordinator.configure_durable_checkpoint(
 			save_board_port, DESKTOP_FIRST_REVEAL_SNAPSHOT_COMPOSER, _desktop_consequence_state)
@@ -2711,6 +2714,38 @@ func _scene_host_admitted(host: Control) -> bool:
 	return is_instance_valid(host) and host == get_tree().current_scene \
 		and _state.get("ready", false) and _target(&"SceneRouter").get_current_route_id() == "scene" \
 		and not _target(&"SceneRouter").is_restore_publication_held()
+
+## Preserve the real reading frontier while the first-Reveal composer owns its detached board.
+func _capture_desktop_board_scene_context(projected_input: Dictionary) -> Dictionary:
+	var host: Node = get_tree().current_scene
+	if not host is Control or host.scene_file_path != "res://scenes/narrative/SceneHost.tscn" \
+			or not _scene_host_admitted(host):
+		return _failure(&"scene_host_unavailable", "")
+	var game := _target(&"GameState")
+	var bridge := _target(&"DialogicBridge")
+	var session: Dictionary = game.capture_live_session()
+	if not session.get("ok", false): return session
+	# Cost-free desktop markers already own the causal transaction lease. Keep that
+	# internal read available while refusing Restore/NewRun and every external busy gate.
+	var internal: bool = _application_gate.is_internal_owner_active(&"causal_transaction")
+	var admitted: Dictionary = game.capture_desktop_identity_context() if internal else game.validate_live_session(session.value)
+	if not admitted.get("ok", false): return admitted
+	var live: Dictionary = game.capture_run_snapshot_input()
+	for key: String in ["lifecycle", "scene", "contacts", "command_receipts",
+			"applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
+		if not projected_input.has(key) or projected_input[key] != live.get(key):
+			return _failure(&"stale_scene_checkpoint_source", key)
+	var active_app: Variant = _active_app_id_context()
+	var reading: Dictionary = bridge.capture_reading_checkpoint(false)
+	if not reading.get("ok", false): return reading
+	admitted = game.capture_desktop_identity_context() if internal else game.validate_live_session(session.value)
+	if not admitted.get("ok", false): return admitted
+	if game.capture_live_session() != session or game.capture_run_snapshot_input() != live \
+			or internal != _application_gate.is_internal_owner_active(&"causal_transaction") \
+			or active_app != _active_app_id_context() or not _scene_host_admitted(host):
+		return _failure(&"stale_scene_checkpoint_source", "")
+	return {"ok": true, "value": {"route_id": "scene", "active_app_id": active_app,
+		"content_version": NARRATIVE_CONTENT_VERSION, "dialogic_checkpoint": reading.value}}
 
 func open_scene_computer(host: Control) -> Dictionary:
 	if not _scene_host_admitted(host): return _failure(&"scene_host_unavailable", "")
