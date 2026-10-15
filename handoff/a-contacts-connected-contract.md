@@ -2,8 +2,10 @@
 
 15 October 2026. Implements the coordination request in Director comment
 6183819347; reservations published in PR30 comment6184004188.
-Status: source reconciliation and callable/path allocation only. No runtime
-implementation, new cloud evidence or acceptance is claimed by this document.
+Historical planning packet. Implementation and connected cloud results are now
+recorded in [a-contacts-connected-result.md](a-contacts-connected-result.md).
+The requirements and original allocations below describe the preparation stage;
+A subsequently reclaimed the dedicated connected tests in PR30 comment6184198257.
 
 Observed product: fa965f7cb7b0c32cb7682758804cc9fc8eee3bc0.
 Observed controller: 2a73df9d642847cddc71040eedbec08f59343ede.
