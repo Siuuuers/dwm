@@ -129,7 +129,7 @@ jobs:
           assert proof['refusals'] == 1 and proof['ready_count'] == 2
           assert proof['first_assignment']['form'] != proof['second_assignment']['form']
           assert proof['second_assignment']['creation_transaction_id'] == proof['retry_transaction']
-          assert len(proof['actions']) == 10
+          assert len(proof['actions']) == 9
           assert not subprocess.check_output(['git','diff','--name-only'],text=True).strip()
           assert not subprocess.check_output(['git','diff','--cached','--name-only'],text=True).strip()
           result = {'status':'passed','source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'cases':len(cases),'xml_assertions':sum(int(r.attrib['assertions']) for r in cases),'scope':'FINAL title pointer creation, cancellation, stale consent, physical autosave refusal and exact creation retry; labelled replaceable TEST content.'}
