@@ -27,7 +27,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 23f279e0960ecce7d8d7bfcbbcbbe3c6ac6cb6ff
+          ref: aca90425b4d3871a041d76d0cae9e7d669735c60
           path: source
           fetch-depth: 16
       - name: Verify exact candidate source
@@ -36,9 +36,9 @@ jobs:
           @'
           import json,os,pathlib,subprocess
           subprocess.check_call(['git','cat-file','-e',os.environ['BASE_SHA']])
-          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='23f279e0960ecce7d8d7bfcbbcbbe3c6ac6cb6ff'
+          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='aca90425b4d3871a041d76d0cae9e7d669735c60'
           out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
-          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':'23f279e0960ecce7d8d7bfcbbcbbe3c6ac6cb6ff','controller':os.environ['CONTROLLER_SHA'],'scope':'seven-day connected terminal persistence and rendered restart proof'}))
+          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':'aca90425b4d3871a041d76d0cae9e7d669735c60','controller':os.environ['CONTROLLER_SHA'],'scope':'seven-day connected terminal persistence and rendered restart proof'}))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Install exact Godot standard engine
@@ -182,7 +182,7 @@ jobs:
         run: |
           @'
           import pathlib
-          for p in pathlib.Path('.godot/phase2r_logs').glob('connected-*.log'):
+          for p in pathlib.Path('.godot/phase2r_logs').glob('*.log'):
               print('LOG_RESULT',p.name)
               for line in p.read_text(encoding='utf-8',errors='replace').splitlines():
                   if any(word in line for word in ['ENDING_HANDOFF_FAILURE','[Failed]','SCRIPT ERROR:','ERROR:','Passing Tests','Failing Tests','Asserts','Exiting with code']):
