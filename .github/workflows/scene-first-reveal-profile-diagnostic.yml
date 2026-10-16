@@ -1,4 +1,4 @@
-name: Seven-day authoring qualification
+name: Seven-day connected ending qualification
 on:
   pull_request:
     paths:
@@ -10,12 +10,12 @@ concurrency:
   group: scene-first-reveal-profile-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 jobs:
-  authoring:
+  connected:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
     runs-on: windows-2022
-    timeout-minutes: 20
+    timeout-minutes: 50
     env:
-      BASE_SHA: 7adbff9a8b9a9a3ed2952e0a72b39979b9e4b032
+      BASE_SHA: 027a70dff8ee45bc43dfae3be592430c39147721
       CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
     defaults:
       run:
@@ -27,7 +27,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: b8f26cf669b84e14afc840f74d80bd0351da5801
+          ref: a9ee8a151f6bd682f478b94eeb4a3077785121a9
           path: source
           fetch-depth: 16
       - name: Verify exact candidate source
@@ -36,9 +36,9 @@ jobs:
           @'
           import json,os,pathlib,subprocess
           subprocess.check_call(['git','cat-file','-e',os.environ['BASE_SHA']])
-          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='b8f26cf669b84e14afc840f74d80bd0351da5801'
+          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='a9ee8a151f6bd682f478b94eeb4a3077785121a9'
           out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
-          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':'b8f26cf669b84e14afc840f74d80bd0351da5801','controller':os.environ['CONTROLLER_SHA'],'scope':'sequence helper and seven-day authoring templates only'}))
+          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':'a9ee8a151f6bd682f478b94eeb4a3077785121a9','controller':os.environ['CONTROLLER_SHA'],'scope':'seven-day connected terminal persistence and rendered restart proof'}))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Install exact Godot standard engine
@@ -66,27 +66,49 @@ jobs:
           $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
           $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
           New-Item -ItemType Directory -Force -Path $env:APPDATA,$env:LOCALAPPDATA,$env:DWM_TEST_ROOT | Out-Null
+          $env:DWM_SCENE_READING_FIXTURE = '1'
           & $env:GODOT_CONSOLE_PATH --headless --path (Get-Location) --import --log-file "$output/import.log"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           if (Select-String "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Import failed' }
           git restore --worktree -- project.godot
+          & $env:GODOT_CONSOLE_PATH --headless --path (Get-Location) -s res://tools/authoring/ExportSevenDayRegistration.gd --log-file "$output/export-registration.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (Select-String "$output/export-registration.log" -Pattern 'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Registration export failed' }
+          Remove-Item Env:DWM_SCENE_READING_FIXTURE
+          & $env:GODOT_CONSOLE_PATH --headless --path (Get-Location) --import --log-file "$output/import-connected.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (Select-String "$output/import-connected.log" -Pattern 'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Connected import failed' }
+          git restore --worktree -- project.godot
+          & './tools/testing/Invoke-PublicSurfaceValidation.ps1' -Regenerate
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @'
-          import subprocess,pathlib
-          expected=sorted(p.as_posix()+'.uid' for p in [pathlib.Path('tools/authoring/SceneSequenceAuthoring.gd'),pathlib.Path('tests/unit/test_scene_sequence_authoring.gd'),pathlib.Path('tests/templates/seven_day/SevenDayTemplates.gd'),pathlib.Path('tests/unit/test_seven_day_templates.gd')])
-          assert not subprocess.check_output(['git','diff','--name-only'],text=True).strip()
-          actual=sorted(subprocess.check_output(['git','ls-files','--others','--exclude-standard'],text=True).splitlines())
-          assert actual==expected,(actual,expected)
-          subprocess.check_call(['git','add',*expected])
+          import json,os,subprocess,pathlib
+          added=subprocess.check_output(['git','diff','--name-only','--diff-filter=A',os.environ['BASE_SHA'],'HEAD','--','*.gd'],text=True).splitlines()
+          tracked=set(subprocess.check_output(['git','ls-files'],text=True).splitlines())
+          uids=sorted(p+'.uid' for p in added if p+'.uid' not in tracked)
+          exported=['data/manifests/scene_story_registration.json','data/manifests/scene_ending_reading_catalogue.json']
+          surfaces=['evidence/phase_2r/runtime/game_state_surface.json','evidence/phase_2r/runtime/save_manager_surface.json']
+          changed=set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())
+          assert changed <= set(exported+surfaces),(changed,exported+surfaces)
+          actual=set(subprocess.check_output(['git','ls-files','--others','--exclude-standard'],text=True).splitlines())
+          expected=set(uids+[p for p in exported if p not in tracked])
+          assert actual==expected,(sorted(actual),sorted(expected))
+          for name in uids+exported+surfaces: assert pathlib.Path(name).is_file(),name
+          pathlib.Path('.godot/ci/generated-files.json').write_text(json.dumps({'uids':uids,'exported':exported,'surfaces':surfaces,'added_scripts':added},indent=2))
+          subprocess.check_call(['git','add',*uids,*exported,*surfaces])
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'Freeze generated authoring script identities'
+          git commit --allow-empty -m 'Freeze connected registration, identities and surface inventories'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @{ source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}') } | ConvertTo-Json | Set-Content .godot/ci/candidate-commit.json -Encoding utf8
-      - name: Run focused authoring suites
+      - name: Run focused terminal and authoring suites
         run: |
           $cases = @(
+            @{Name='terminal-lifecycle'; Script='tests/unit/test_scene_terminal_lifecycle.gd'},
+            @{Name='terminal-presentation'; Script='tests/unit/test_scene_terminal_presentation.gd'},
+            @{Name='terminal-snapshot'; Script='tests/unit/test_scene_terminal_snapshot.gd'},
             @{Name='sequence-authoring'; Script='tests/unit/test_scene_sequence_authoring.gd'},
             @{Name='seven-day-templates'; Script='tests/unit/test_seven_day_templates.gd'}
           )
@@ -96,6 +118,14 @@ jobs:
             & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId $name -LogName "${name}.log" -GodotArgs $arguments -EvidenceLogPath ".godot/ci/${name}.jsonl" -TimeoutSeconds 240
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
+      - name: Render connected creation and fresh-process Load
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue
+          $create = @('--rendering-method','gl_compatibility','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_seven_day_connected_create.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/connected-create.xml','--','--phase2r-bootstrap-mode=test_manual')
+          $load = @('--rendering-method','gl_compatibility','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_seven_day_connected_load.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/connected-load.xml','--','--phase2r-bootstrap-mode=test_manual')
+          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'connected' -LogName 'connected-create.log' -GodotArgs $create -NextGodotArgs $load -NextLogName 'connected-load.log' -EvidenceLogPath '.godot/ci/connected.jsonl' -TimeoutSeconds 600 -Rendered
+          exit $LASTEXITCODE
       - name: Verify exact test census and frozen source
         run: |
           $ErrorActionPreference = 'Stop'
@@ -104,7 +134,7 @@ jobs:
           out=pathlib.Path('.godot/ci')
           frozen=json.loads((out/'candidate-commit.json').read_text(encoding='utf-8-sig'))
           result={'source':frozen['source'],'tree':frozen['tree'],'passed':0,'assertions':0,'suites':[]}
-          suites=[('sequence-authoring','tests/unit/test_scene_sequence_authoring.gd'),('seven-day-templates','tests/unit/test_seven_day_templates.gd')]
+          suites=[('terminal-lifecycle','tests/unit/test_scene_terminal_lifecycle.gd'),('terminal-presentation','tests/unit/test_scene_terminal_presentation.gd'),('terminal-snapshot','tests/unit/test_scene_terminal_snapshot.gd'),('connected-create','tests/integration/test_scene_seven_day_connected_create.gd'),('connected-load','tests/integration/test_scene_seven_day_connected_load.gd'),('sequence-authoring','tests/unit/test_scene_sequence_authoring.gd'),('seven-day-templates','tests/unit/test_seven_day_templates.gd')]
           for name,script in suites:
               expected=re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(),re.M)
               root=ET.parse(out/(name+'.xml')).getroot();rows=list(root.iter('testcase'))
@@ -116,9 +146,13 @@ jobs:
               assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',log),name
               result['passed']+=len(rows);result['assertions']+=count
               result['suites'].append({'name':name,'passed':len(rows),'assertions':count})
-          for name in ['sequence-authoring','seven-day-templates']:
+          for name in ['terminal-lifecycle','terminal-presentation','terminal-snapshot','sequence-authoring','seven-day-templates','connected']:
               children=[json.loads(s) for s in (out/(name+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
-              assert len(children)==1 and all(c['exit_code']==0 for c in children),name
+              assert len(children)==(2 if name=='connected' else 1) and all(c['exit_code']==0 for c in children),name
+          for proof in ['scene-seven-day-create-proof.json','scene-seven-day-load-proof.json']:
+              assert (out/proof).is_file(),proof
+              json.loads((out/proof).read_text(encoding='utf-8-sig'))
+          assert list(out.glob('computer-seven-day-*.png')), 'Missing rendered evidence'
           assert not subprocess.check_output(['git','status','--porcelain'],text=True).strip()
           assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()==frozen['tree']
           (out/'gate.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
@@ -176,7 +210,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: seven-day-authoring-${{ github.run_id }}-${{ github.run_attempt }}
+          name: seven-day-connected-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             source/.godot/ci
             source/.godot/phase2r_logs
