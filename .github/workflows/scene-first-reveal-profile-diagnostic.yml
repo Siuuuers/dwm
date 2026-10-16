@@ -1,4 +1,4 @@
-name: Scene Challenge budget-cache matched probe
+name: Scene Challenge manifest-cache matched probe
 
 on:
   pull_request:
@@ -16,7 +16,7 @@ jobs:
     runs-on: windows-2022
     timeout-minutes: 15
     env:
-      BASE_SHA: 2e619cdea503d846e9671e87eec3b4e273a251b8
+      BASE_SHA: 92cac93440448edfd5309fe599a0991622ad74a1
       CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
     defaults:
       run:
@@ -28,9 +28,9 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 2e619cdea503d846e9671e87eec3b4e273a251b8
+          ref: 92cac93440448edfd5309fe599a0991622ad74a1
           path: source
-          fetch-depth: 4
+          fetch-depth: 8
       - name: Apply observation-only bounded test probe
         run: |
           $ErrorActionPreference = 'Stop'
@@ -75,7 +75,7 @@ jobs:
           @'
           import subprocess
           assert subprocess.check_output(['git','diff','--name-only'],text=True).splitlines()==['tests/unit/test_scene_first_reveal.gd']
-          assert subprocess.check_output(['git','ls-files','--others','--exclude-standard'],text=True).splitlines()==['tests/unit/test_minesweeper_budget_cache.gd.uid']
+          assert subprocess.check_output(['git','ls-files','--others','--exclude-standard'],text=True).splitlines()==[]
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           git add tests/unit/test_scene_first_reveal.gd tests/unit/test_minesweeper_budget_cache.gd.uid
