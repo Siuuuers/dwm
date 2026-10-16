@@ -5,6 +5,12 @@ const PROOF_PATH := "user://scene-later-caption-proof.json"
 const LOOP_LINE := "line.scene.test.a.two"
 var _ready_observation: Dictionary = {}
 
+func _screenshot(label: String) -> void:
+	var overlay := get_tree().root.find_child("GutLayer", true, false)
+	if overlay is CanvasLayer: overlay.hide()
+	await get_tree().process_frame
+	await super._screenshot(label)
+
 func _ok(result: Dictionary) -> bool:
 	assert_true(result.get("ok", false), str(result.get("code", "ok")))
 	return result.get("ok", false)
