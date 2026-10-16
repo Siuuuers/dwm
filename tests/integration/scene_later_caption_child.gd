@@ -9,14 +9,19 @@ func _ok(result: Dictionary) -> bool:
 	assert_true(result.get("ok", false), str(result.get("code", "ok")))
 	return result.get("ok", false)
 
-func _native_observation() -> Dictionary:
-	var caption: Node = _caption()
+func _native_observation(retained_native: Node = null) -> Dictionary:
+	var native: Node = retained_native
+	if native == null:
+		var caption: Node = _caption()
+		if caption != null: native = caption.caption_text
+	# Pause deliberately hides the layer and excludes current_line_id(). Retain
+	# the exact source node and inspect the actual event with paused admission.
 	var event: DialogicTextEvent = bridge._runtime_adapter._current_skip_text(true)
-	return {"line_id": bridge._runtime_adapter.current_line_id(),
-		"revealing": caption.caption_text.revealing if caption != null else true,
-		"visible_ratio": caption.caption_text.visible_ratio if caption != null else -1.0,
-		"text": caption.caption_text.get_parsed_text() if caption != null else "",
-		"visible": caption != null and caption.caption_text.is_visible_in_tree(),
+	return {"line_id": bridge._runtime_adapter._authored_line_id(event),
+		"revealing": native.revealing if is_instance_valid(native) else true,
+		"visible_ratio": native.visible_ratio if is_instance_valid(native) else -1.0,
+		"text": native.get_parsed_text() if is_instance_valid(native) else "",
+		"visible": is_instance_valid(native) and native.is_visible_in_tree(),
 		"event_done": event != null and event.state == DialogicTextEvent.States.DONE,
 		"ledger": bridge._reading_session.ledger.snapshot().duplicate(true)}
 
@@ -86,7 +91,7 @@ func create_later_caption() -> void:
 	if not sheet.can_save_backup(): return
 	# Existing Save entry completes the partial source under suspension;
 	# source_native below records the pre-Save reveal, not a persisted cursor.
-	var saved_native := _native_observation()
+	var saved_native := _native_observation(native)
 	assert_eq(saved_native.line_id, LOOP_LINE)
 	assert_false(saved_native.revealing, "Save entry completes the admitted source reveal")
 	assert_eq(float(saved_native.visible_ratio), 1.0)
