@@ -65,6 +65,49 @@ func validate_scene_source(token: RefCounted, session: RefCounted) -> Dictionary
 		return _fail(&"scene_source_changed", "")
 	return {"ok": true}
 
+## Resolve the current native activation to its authenticated semantic node.
+## The session alone decides whether that node follows the previous frontier.
+func reconcile_scene_publication(session: RefCounted) -> Dictionary:
+	if not _qualified_runtime or not _caption_source_is_current() or session == null \
+			or session.family != "scene" or session.boundary != "line" \
+			or session.ledger != _caption_ledger or session.command_id != _caption_token \
+			or session.latest_entry != _caption_entry or session.scene_occurrence != _scene_caption_occurrence \
+			or not _caption_seek_frontier.is_empty() or not _caption_restore_frontier.is_empty() \
+			or not _marker_hold.is_empty() or _scene_control_installing:
+		return _fail(&"scene_source_unavailable", "")
+	var frontier := capture_reading_frontier()
+	if not frontier.ok: return frontier
+	var owner := preload("res://scripts/narrative/DialogicEntryManifest.gd")
+	var selected := owner.scene_registration()
+	if not selected.ok or session.fingerprint != owner.scene_registration_fingerprint():
+		return _fail(&"scene_source_registration_changed", "")
+	var labels: Array = []
+	var path := ""
+	var programme := {}
+	for entry: Dictionary in selected.value.entry_manifest.entries:
+		labels.append(entry.entry_id)
+		if entry.entry_id == _caption_entry: path = entry.locators.en.path
+	for row: Dictionary in selected.value.scene_programme.entries:
+		if row.entry_id == _caption_entry: programme = row
+	if programme.is_empty() or path != _requested_path: return _fail(&"scene_source_unavailable", "")
+	var compiled := compile_scene_programme(path, _caption_entry, labels, programme.markers)
+	if not compiled.ok: return compiled
+	if compiled.value.program_sha256 != programme.program_sha256 \
+			or compiled.value.content_sha256 != programme.content_sha256:
+		return _fail(&"scene_source_registration_changed", "")
+	var index: int = compiled.value.native_indices.find(int(_dialogic.current_event_idx))
+	if index < 0: return _fail(&"scene_source_boundary_invalid", "")
+	var node: Dictionary = compiled.value.nodes[index]
+	if node.kind != "caption" or node.line_id != frontier.value.line_id:
+		return _fail(&"scene_source_boundary_invalid", "")
+	var authored_text := ""
+	for event: Dictionary in compiled.value.events:
+		if event.kind == "text" and event.line_id == node.line_id: authored_text = event.text
+	if _caption_event.get_property_translated("text") != authored_text \
+			or _caption_event.character != null or not _caption_event.character_identifier.is_empty():
+		return _fail(&"scene_source_boundary_invalid", "live source differs from the authenticated programme")
+	return session.accept_scene_publication(index, frontier.value)
+
 func _scene_source_boundary(session: RefCounted, allow_suspended_read: bool = false) -> Dictionary:
 	if not _qualified_runtime or not _caption_source_is_current() or session == null \
 			or session.family != "scene" or session.boundary not in ["line", "control"] \

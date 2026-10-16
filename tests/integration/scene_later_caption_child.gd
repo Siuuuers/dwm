@@ -55,11 +55,12 @@ func create_later_caption() -> void:
 	assert_false(_caption().caption_text.revealing, "initial activation reveals first caption")
 	var first: Dictionary = bridge.capture_reading_checkpoint(false)
 	if not _ok(first): return
-	# Existing native timing seam (also used by narrative pause integration tests).
-	# The signal changes only the duration of the actual authored reveal.
+	# Native update_dialog_text resets speed AFTER started_revealing_text.
+	# text_started follows that reset and precedes the first idle reveal tick.
+	# Change only elapsed reveal timing, never text position or reveal state.
 	var native: Node = _caption().caption_text
-	var slow := func() -> void: native.active_speed = 10.0
-	native.started_revealing_text.connect(slow, CONNECT_ONE_SHOT)
+	var slow := func(_info: Dictionary) -> void: native.active_speed = 10.0
+	get_node("/root/Dialogic").Text.text_started.connect(slow, CONNECT_ONE_SHOT)
 	await _accept()
 	var visible := _native_observation()
 	var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)

@@ -3152,6 +3152,11 @@ func _on_reading_publication(result: Dictionary) -> void:
 	if has_reading_session() and not result.get("ok", false):
 		_on_playback_start_failed(result, true)
 	elif has_reading_session() and not _next_active and not result.get("value", {}).get("duplicate", false):
+		if _reading_session.family == "scene":
+			var reconciled: Dictionary = _runtime_adapter.reconcile_scene_publication(_reading_session)
+			if not reconciled.ok:
+				_on_playback_start_failed(reconciled, true)
+			return
 		# Ordinary playback after a completed/refused Next starts a new frontier.
 		# Keep the prior operation in its already durable retained checkpoint.
 		_reading_session.next_operation = {}
