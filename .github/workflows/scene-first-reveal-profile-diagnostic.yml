@@ -27,7 +27,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 974b6eac24a323e7ddfc5a0bb72e00fb50cc7921
+          ref: 52b2287ce654fd0a6cf5d5b5731d910f84118f26
           path: source
           fetch-depth: 16
       - name: Verify exact candidate source
@@ -36,9 +36,9 @@ jobs:
           @'
           import json,os,pathlib,subprocess
           subprocess.check_call(['git','cat-file','-e',os.environ['BASE_SHA']])
-          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='974b6eac24a323e7ddfc5a0bb72e00fb50cc7921'
+          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='52b2287ce654fd0a6cf5d5b5731d910f84118f26'
           out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
-          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':'974b6eac24a323e7ddfc5a0bb72e00fb50cc7921','controller':os.environ['CONTROLLER_SHA'],'scope':'seven-day connected terminal persistence and rendered restart proof'}))
+          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':'52b2287ce654fd0a6cf5d5b5731d910f84118f26','controller':os.environ['CONTROLLER_SHA'],'scope':'seven-day connected terminal persistence and rendered restart proof'}))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Install exact Godot standard engine
@@ -185,7 +185,7 @@ jobs:
           for p in pathlib.Path('.godot/phase2r_logs').glob('*.log'):
               print('LOG_RESULT',p.name)
               for line in p.read_text(encoding='utf-8',errors='replace').splitlines():
-                  if any(word in line for word in ['ENDING_HANDOFF_FAILURE','[Failed]','SCRIPT ERROR:','ERROR:','Passing Tests','Failing Tests','Asserts','Exiting with code']):
+                  if any(word in line for word in ['ENDING_HANDOFF_FAILURE','ENDING_COMPLETION_FAILURE','ENDING_RESTORE_DIFFERENCE','[Failed]','SCRIPT ERROR:','ERROR:','Passing Tests','Failing Tests','Asserts','Exiting with code']):
                       print(line[:2000])
           '@ | python -
       - name: Retain evidence on every outcome
