@@ -3726,7 +3726,7 @@ func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode
 	var presentation := _validate_frozen_projection(entry_id, context)
 	if not presentation.ok: return presentation
 	if not _pause_handle.is_empty(): return _playback_failure(&"narrative_suspended", "Pause retains playback custody")
-	var owns_terminal_restore := not scene_restore_operation.is_empty() \
+	var owns_terminal_restore: bool = not scene_restore_operation.is_empty() \
 		and _scene_restore.get("operation_id") == scene_restore_operation \
 		and _scene_restore.get("terminal", false) and _scene_restore.get("in_call", false) \
 		and _scene_restore.get("native_started", false) and not _scene_restore.get("confirmed", false) \
@@ -3737,7 +3737,7 @@ func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode
 		and _READING_TRAVERSAL._same(_scene_restore.checkpoint.get("frozen_context"), context)
 	if not scene_restore_operation.is_empty() and not owns_terminal_restore:
 		return _playback_failure(&"scene_activation_operation_invalid", "retained terminal activation required")
-	var occupied := _has_physical_playback() if owns_terminal_restore else has_active_playback()
+	var occupied: bool = _has_physical_playback() if owns_terminal_restore else has_active_playback()
 	if occupied:
 		var standing := str(_active_entry.get("token", _active_playback.get("token", "")))
 		return _playback_failure(&"entry_already_active", "%s is still active" % standing)
