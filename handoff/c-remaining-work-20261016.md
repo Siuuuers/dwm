@@ -9,14 +9,14 @@ verification_authority: false
 # C — remaining-work reconciliation, 16 October 2026
 
 Dated navigation/evidence snapshot, not a second backlog or Beads status update.
-Read [Director's current assignment and reporting convention](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6197370451)
+Read [Director's current assignment and reporting convention](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6205746082)
 before acting. PR #30 Conversation is the shared index; detailed receipts belong
 on the owning PR. Publish one short linked result/blocker back to #30.
 
 ## Source boundary
 
 Inspected integration `3ae6d9138fb53c388380c78550cf6082eafc0ea3`,
-PR36 `281c70086033fe7100e12a6d28f186bae8d3c4a8`,
+PR36 refreshed against published head `f8b873bd5e0df1dbab2ffaec9301c87d487de74e`,
 PR37 `b0c876bf49fa482c86cdb8c03abbbf3e11214fc9`, and master
 `0c8b2384415d71bd3de4ff7408640bbf60b63740`.
 Refs can advance: these are evidence pins, not reset targets.
@@ -34,8 +34,8 @@ scene integration branch, not master. C did not execute engines or CI in this re
 | Title New Acc into replaceable TEST opening | [PR35](https://github.com/Siuuuers/dwm/pull/35), [result](a-title-template-result.md), [C review](https://github.com/Siuuuers/dwm/pull/35#issuecomment-6189051447). Consent, Cancel, stale decision and same-operation Retry covered within stated scope. Production story selection and normal production cutover are separate. |
 
 Earlier bounded Challenge/first-Reveal/restore receipts remain historical evidence,
-not proof that every current producer is connected. The concrete first-Reveal
-failure below must not be hidden by those earlier passes.
+not proof that every current producer is connected. The newer bounded first-Reveal
+acceptance below supersedes the earlier active-correction status, not broader CI.
 Do not sum separate suites into a whole-game completion score.
 
 ## Current unintegrated and missing outcomes, without duplicate feature rows
@@ -43,8 +43,8 @@ Do not sum separate suites into a whole-game completion score.
 | Outcome | Disposition | Next action / owner |
 |---|---|---|
 | Leave optional Minesweeper after closing Computer, through Accept/Next | Implemented and focused-tested on [PR36](https://github.com/Siuuuers/dwm/pull/36), not integrated. Closing alone does not advance or mark a loss; authored End remains distinct. | A resolves required integration checks. Preserve the accepted immediate-caption-to-End scope; it does not prove longer traversal. |
-| Registered scene desktop first Reveal reaches durable accounting and recovery | Active runtime correction, not accepted. Baseline and candidate probes both fail with legacy input reaching the strict scene composer. | [A reservation](https://github.com/Siuuuers/dwm/pull/36#issuecomment-6197478151). A supplies genuine scene/checkpoint providers; B reviews read-only. Preserve scene-only and pressure-only contracts. |
-| Ordinary later-caption progression remains coherent through Save/fresh Load | Diagnosed, missing executed fix/regression. Visible publication may advance without semantic scene cursor. | [B diagnosis](https://github.com/Siuuuers/dwm/pull/36#issuecomment-6196086346). A follows first-Reveal/integration qualification with the small Accept → Save → fresh Load journey. |
+| Registered scene desktop first Reveal reaches durable accounting and recovery | Implemented, verified and published on draft PR36; not integrated. [A acceptance/audit](https://github.com/Siuuuers/dwm/pull/36#issuecomment-6200655139) reports 31 tests/515 assertions on source9946a869, tested tree1b0c76af. [B provider review](https://github.com/Siuuuers/dwm/pull/36#issuecomment-6205604424) found no blocking issue in its bounded scope. | A qualifies remaining integration gates; do not rebuild this completed slice. Evidence uses presentation commands, not desktop mouse input; repaired retry is a fresh request, not same-command crash replay. Broad CI and the separate600-second Challenge timeout remain unresolved. |
+| Ordinary later-caption progression remains coherent through Save/fresh Load | Diagnosed, missing executed fix/regression. Visible publication may advance without semantic scene cursor. | [B diagnosis](https://github.com/Siuuuers/dwm/pull/36#issuecomment-6196086346). A prepares the small real Accept → Save → separate-process Load journey with correct loop identity as a separate reviewable slice while integration qualification continues; this does not make PR36 merge-ready. |
 | Later optional self-talk partner fork | Content-prepared, uninstalled and runtime-blocked in [PR37](https://github.com/Siuuuers/dwm/pull/37). Compiler test NOT RUN after inventory-gate failure. | A connects authenticated offer and once-only durable resolution through existing owners, then compiler/connected evidence. B's content preparation is complete. Approved expiry/default behavior must be established; README recommendation is not approval. |
 
 Integration qualification is a cross-cutting gate, not another player feature:
@@ -56,6 +56,12 @@ fixtures and censuses, legacy health/routing expectations, localization coverage
 shop/desktop fixtures, text audits, benchmark derivation and cancelled checks remain
 qualified separately in that report. A owns corrections/inventories/controller.
 No weakened guards, blanket failure inheritance or automatic merge follows.
+
+Morning status refresh follows [Director6205746082](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6205746082).
+A owns diagnosis of the timed-out Challenge check and necessary integration corrections;
+do not repeat its600-second timeout or raise its ceiling without diagnosis. The first-Reveal
+counts/audit are attributed to A; B performed source/caller review, and C has not repeated
+an artifact audit or engine run. PR37 composition follows ordinary reading coherence.
 
 ## Deferred, content-dependent and historically open scope
 
