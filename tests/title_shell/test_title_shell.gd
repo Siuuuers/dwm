@@ -131,6 +131,7 @@ func _run() -> void:
 	clock_value = {"hour": 9, "minute": 7, "second": 13}
 	clock.refresh_clock()
 	var clock_rect: Rect2 = clock.get_global_rect()
+	check(clock_rect == Rect2(1128, 656, 152, 64), "Clock occupies the far-right bottom footer")
 	ledger[0].grab_focus()
 	await key(KEY_UP)
 	check(ledger[0].has_focus(), "Up at the first ledger row does not wrap")

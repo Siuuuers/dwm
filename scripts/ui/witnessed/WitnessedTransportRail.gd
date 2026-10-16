@@ -12,8 +12,17 @@ signal next_requested
 const TRANSPORT_BUTTON := preload("res://scripts/ui/witnessed/WitnessedTransportButton.gd")
 const SETTINGS_PALETTES := preload("res://scripts/settings/SettingsPaletteRegistry.gd")
 
-const RAIL_POSITION := Vector2(0, 656)
-const RAIL_SIZE := Vector2(1280, 64)
+const ROUTINE_CLOCK := preload("res://scripts/ui/desktop/RoutineClock.gd")
+
+const RAIL_POSITION := Vector2(0, 592)
+const RAIL_SIZE := Vector2(1280, 128)
+# Keep the existing command widths and owners; only their presentation bays move.
+const CONTROL_RECTS := {
+	&"history": Rect2(0, 64, 212, 64), &"save": Rect2(212, 64, 214, 64),
+	&"load": Rect2(426, 64, 214, 64), &"skip": Rect2(640, 0, 212, 64),
+	&"auto": Rect2(852, 0, 214, 64), &"next": Rect2(1066, 0, 214, 64),
+}
+var clock_label: Label
 const PLATE_INSET := 4.0
 const CONTROL_IDS: Array[StringName] = [&"history", &"skip", &"auto", &"save", &"load", &"next"]
 const LOCALES := ["en", "zh-CN", "zh-HK", "ja", "ko"]
@@ -68,7 +77,7 @@ func _ready() -> void:
 	queue_redraw()
 
 
-func configure_presentation(presentation_theme: Theme, locale: String) -> bool:
+func configure_presentation(presentation_theme: Theme, locale: String, text_percent: int = 100, font_style: String = "pixel") -> bool:
 	var normalized := locale.replace("_", "-")
 	if presentation_theme == null or normalized not in LOCALES:
 		return false
@@ -92,6 +101,8 @@ func configure_presentation(presentation_theme: Theme, locale: String) -> bool:
 	_filed = filed
 	theme = presentation_theme
 	_ensure_controls()
+	clock_label.set_presentation(normalized, text_percent, font_style)
+	clock_label.add_theme_color_override("font_color", roles[&"text"])
 	_apply_projection()
 	queue_redraw()
 	return true
@@ -251,7 +262,8 @@ func retire_input() -> void:
 
 func _draw() -> void:
 	if not _roles.is_empty():
-		draw_rect(Rect2(Vector2.ZERO, RAIL_SIZE), _roles[&"deep"])
+		draw_rect(Rect2(0, 64, 1280, 64), _roles[&"deep"])
+		draw_rect(Rect2(640, 0, 640, 64), _roles[&"deep"])
 
 
 func _ensure_controls() -> void:
@@ -260,11 +272,10 @@ func _ensure_controls() -> void:
 	for index: int in CONTROL_IDS.size():
 		var id := CONTROL_IDS[index]
 		var button: TRANSPORT_BUTTON = TRANSPORT_BUTTON.new()
-		var left := floori(640.0 * index / 6.0) * 2
-		var right := floori(640.0 * (index + 1) / 6.0) * 2
+		var bay: Rect2 = CONTROL_RECTS[id]
 		button.name = String(id).capitalize()
-		button.position = Vector2(left, 0)
-		button.size = Vector2(right - left, 64)
+		button.position = bay.position
+		button.size = bay.size
 		button.custom_minimum_size = button.size
 		button.focus_mode = Control.FOCUS_NONE
 		button.mouse_default_cursor_shape = Control.CURSOR_ARROW
@@ -281,6 +292,11 @@ func _ensure_controls() -> void:
 		button.draw.connect(_draw_button_focus.bind(button))
 		add_child(button)
 		_buttons[id] = button
+	clock_label = ROUTINE_CLOCK.new()
+	clock_label.name = "AudienceClock"
+	clock_label.position = Vector2(1128, 64)
+	clock_label.size = Vector2(152, 64)
+	add_child(clock_label)
 	_skip_button = _buttons[&"skip"] as TRANSPORT_BUTTON
 	_auto_button = _buttons[&"auto"] as TRANSPORT_BUTTON
 	_load_button = _buttons[&"load"] as TRANSPORT_BUTTON

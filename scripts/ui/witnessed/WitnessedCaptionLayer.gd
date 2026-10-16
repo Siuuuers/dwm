@@ -4,8 +4,8 @@ extends DialogicLayoutLayer
 const CAPTION_THEME := preload("res://scripts/ui/witnessed/WitnessedCaptionTheme.gd")
 const HISTORY := preload("res://scripts/ui/witnessed/WitnessedHistory.gd")
 const RUN_PRESENTATION := preload("res://scripts/ui/witnessed/WitnessedRunPresentation.gd")
-const FIELD_TOP := {100: 448, 125: 392, 150: 328}
-const FIELD_BOTTOM := 656
+const FIELD_TOP := {100: 384, 125: 328, 150: 264}
+const FIELD_BOTTOM := 592
 const PROFILE_COLOUR_PRESETS := {
 	"standard": "standard", "protan": "protan", "deutan": "deutan", "tritan": "tritan",
 }
@@ -1091,7 +1091,7 @@ func configure_presentation(locale: String = "en", text_percent: int = 100, pale
 	if next_theme == null:
 		return false
 	# Caption and rail publish one locale tuple. Refusal leaves both unchanged.
-	if is_instance_valid(transport_rail) and not transport_rail.configure_presentation(next_theme, locale):
+	if is_instance_valid(transport_rail) and not transport_rail.configure_presentation(next_theme, locale, text_percent, font_style):
 		return false
 	var metrics_changed := _caption_theme == null or _locale != locale.replace("_", "-") or _text_percent != text_percent or _large_targets != large_targets or _font_style != font_style
 	_locale = locale.replace("_", "-")
@@ -1582,7 +1582,7 @@ func _leaf_rect(leaf: RichTextLabel) -> Rect2:
 func _draw_canvas() -> void:
 	if _caption_theme == null:
 		return
-	canvas.draw_rect(Rect2(0, FIELD_BOTTOM, 1280, 64), _color(&"deep"))
+	canvas.draw_rect(Rect2(0, 656, 1280, 64), _color(&"deep"))
 
 func _color(role: StringName) -> Color:
 	return _caption_theme.get_color(role, &"WitnessedCaption")
