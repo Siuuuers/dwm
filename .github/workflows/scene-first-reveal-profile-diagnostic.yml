@@ -23,7 +23,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: b64c077d14148eafdf4ba7ecf7558f24c95e810a
+          ref: f67a17fb4f6aed3ed25c0c5194a51f5c6bc59133
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -31,9 +31,9 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne 'b64c077d14148eafdf4ba7ecf7558f24c95e810a') { throw 'Candidate mismatch' }
+          if ((git rev-parse HEAD) -cne 'f67a17fb4f6aed3ed25c0c5194a51f5c6bc59133') { throw 'Candidate mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='b64c077d14148eafdf4ba7ecf7558f24c95e810a'; tree='8bf47f5bac42bae5a7bff439bfbb009f7f57bba4'; controller='${{ github.event.pull_request.head.sha }}'; base='2b88fb432592776466ac221a359d96fb63e62788'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{candidate='f67a17fb4f6aed3ed25c0c5194a51f5c6bc59133'; tree='a7d65ecf14a0a0c437ed318ecdc9ae8f2133ee57'; controller='${{ github.event.pull_request.head.sha }}'; base='2b88fb432592776466ac221a359d96fb63e62788'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -81,7 +81,7 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Run affected audit and scene identity checks
+      - name: Run affected clock and caption checks
         run: |
           $ErrorActionPreference = 'Stop'
           $lanes = @(
@@ -112,7 +112,7 @@ jobs:
           import collections,json,pathlib,re,subprocess,xml.etree.ElementTree as ET
           out=pathlib.Path('.godot/ci')
           lanes=[('transport','tests/unit/test_witnessed_transport_rail.gd',''),('clock-rendered','tests/integration/test_scene_clock_layout.gd',''),('caption-clear','tests/integration/test_witnessed_caption_runtime.gd','test_clear_holds_empty_without_finishing_a_hidden_incomplete_reveal'),('dating-scroll','tests/integration/test_dating_caption_style.gd','test_long_dating_caption_stays_centered_and_scrollable_with_both_scrollbar_sizes')]
-          result={'source':'b64c077d14148eafdf4ba7ecf7558f24c95e810a','tree':'8bf47f5bac42bae5a7bff439bfbb009f7f57bba4','tests':0,'assertions':0,'suites':[]}
+          result={'source':'f67a17fb4f6aed3ed25c0c5194a51f5c6bc59133','tree':'a7d65ecf14a0a0c437ed318ecdc9ae8f2133ee57','tests':0,'assertions':0,'suites':[]}
           assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==result['source']
           assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()==result['tree']
           changed=subprocess.check_output(['git','diff','HEAD','--name-only'],text=True).splitlines()
@@ -133,13 +133,13 @@ jobs:
           clock_log=pathlib.Path('.godot/phase2r_logs/routine-clock.log').read_text(encoding='utf-8-sig')
           assert 'ROUTINE_CLOCK_PASS' in clock_log and not re.search(r'SCRIPT ERROR:|ERROR:',clock_log)
           assert json.loads((out/'routine-clock.jsonl').read_text(encoding='utf-8-sig').strip())['exit_code']==0
-          assert len(list(out.glob('computer-clock-*.png')))==4
+          assert len(list(out.glob('computer-clock-*.png')))==3
           assert result['tests']==15
           (out/'gate.json').write_text(json.dumps(result,indent=2))
           print(json.dumps(result))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Retain bounded audit evidence
+      - name: Retain bounded clock evidence
         if: always()
         run: |
           $ErrorActionPreference = 'Stop'
