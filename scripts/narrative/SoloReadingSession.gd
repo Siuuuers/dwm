@@ -99,6 +99,32 @@ func admit_scene(entry_id: String, context: Dictionary, index: int = 0) -> Dicti
 	next_operation = {}
 	return {"ok": true}
 
+## Ordinary native publication may cross jumps, but never skip another caption
+## or a control owned by the durable traversal transaction.
+func accept_scene_publication(index: int, frontier: Dictionary) -> Dictionary:
+	if family != "scene" or boundary != "line" or ledger == null \
+			or not _scene_nodes.has(latest_entry) \
+			or not ledger.is_current_occurrence(command_id, latest_entry, frontier, scene_occurrence):
+		return _fail(&"reading_frontier_invalid")
+	var nodes: Array = _scene_nodes[latest_entry]
+	if scene_index < 0 or scene_index >= nodes.size() or index < 0 or index >= nodes.size() \
+			or nodes[scene_index].kind != "caption" or nodes[index].kind != "caption" \
+			or nodes[index].line_id != frontier.line_id:
+		return _fail(&"reading_frontier_invalid")
+	var cursor: int = nodes[scene_index].next
+	var visited := {}
+	while cursor >= 0 and cursor < nodes.size():
+		var node: Dictionary = nodes[cursor]
+		if node.kind == "caption":
+			if cursor != index: return _fail(&"reading_frontier_invalid")
+			scene_index = index
+			next_operation = {}
+			return {"ok": true}
+		if node.kind != "jump" or visited.has(cursor): break
+		visited[cursor] = true
+		cursor = node.next
+	return _fail(&"reading_frontier_invalid")
+
 func _capture_scene(frontier: Dictionary) -> Dictionary:
 	if ledger == null or latest_entry.is_empty(): return _fail(&"reading_session_unavailable")
 	var saved := {"schema_version": 5, "registration_sha256": fingerprint, "entry_id": latest_entry,
