@@ -74,7 +74,7 @@ func create_later_caption() -> void:
 	assert_eq(visible.line_id, LOOP_LINE)
 	assert_true(visible.visible)
 	assert_true("A loop." in visible.text)
-	assert_true(visible.revealing, "saved source is a genuine partial native reveal")
+	assert_true(visible.revealing, "pre-Save source is a genuine partial native reveal")
 	assert_lt(float(visible.visible_ratio), 1.0)
 	if not _ok(checkpoint): return
 	assert_eq(checkpoint.value.reading_session.frontier.line_id, LOOP_LINE)
@@ -84,6 +84,14 @@ func create_later_caption() -> void:
 	var sheet: Node = get_node("/root/SceneRouter")._production_pause
 	assert_true(sheet.can_save_backup(), str(sheet.last_result.get("code", "ok")))
 	if not sheet.can_save_backup(): return
+	# Existing Save entry completes the partial source under suspension;
+	# source_native below records the pre-Save reveal, not a persisted cursor.
+	var saved_native := _native_observation()
+	assert_eq(saved_native.line_id, LOOP_LINE)
+	assert_false(saved_native.revealing, "Save entry completes the admitted source reveal")
+	assert_eq(float(saved_native.visible_ratio), 1.0)
+	assert_true(saved_native.event_done, "Save entry leaves native text DONE")
+	assert_true(saved_native.ledger == visible.ledger, "Save entry preserves publication ledger")
 	var prepared: Dictionary = sheet._backup_port.prepare_action("save", "slot:1")
 	if not _ok(prepared): return
 	if not _ok(await sheet._backup_port.commit_action(prepared.value.token)): return
@@ -96,7 +104,7 @@ func create_later_caption() -> void:
 		"real slot retains the later caption and exact publication ledger")
 	assert_true(game.capture_dating_challenge_state().value.is_empty(), "reading creates no board")
 	var proof := {"process_id": OS.get_process_id(), "user_dir": ProjectSettings.globalize_path("user://"),
-		"checkpoint": snapshot.narrative_checkpoint, "source_native": visible,
+		"checkpoint": snapshot.narrative_checkpoint, "source_native": visible, "saved_native": saved_native,
 		"slot_sha256": FileAccess.get_sha256("user://saves/slot_1.json"),
 		"autosave_sha256": FileAccess.get_sha256("user://saves/autosave.json"),
 		"profile_sha256": FileAccess.get_sha256("user://profile.json"),
