@@ -23,7 +23,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: be2f5259b4de2c25e07cc0f3707c7473c9ffcfdb
+          ref: b64c077d14148eafdf4ba7ecf7558f24c95e810a
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -31,9 +31,9 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne 'be2f5259b4de2c25e07cc0f3707c7473c9ffcfdb') { throw 'Candidate mismatch' }
+          if ((git rev-parse HEAD) -cne 'b64c077d14148eafdf4ba7ecf7558f24c95e810a') { throw 'Candidate mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='be2f5259b4de2c25e07cc0f3707c7473c9ffcfdb'; tree='617a8943ede1d9b8300dc2fba58fadc93233bf45'; controller='${{ github.event.pull_request.head.sha }}'; base='2b88fb432592776466ac221a359d96fb63e62788'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{candidate='b64c077d14148eafdf4ba7ecf7558f24c95e810a'; tree='8bf47f5bac42bae5a7bff439bfbb009f7f57bba4'; controller='${{ github.event.pull_request.head.sha }}'; base='2b88fb432592776466ac221a359d96fb63e62788'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -86,6 +86,8 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $lanes = @(
             @{Name='transport'; Script='tests/unit/test_witnessed_transport_rail.gd'; Filter=''; Rendered=$false},
+            @{Name='caption-clear'; Script='tests/integration/test_witnessed_caption_runtime.gd'; Filter='test_clear_holds_empty_without_finishing_a_hidden_incomplete_reveal'; Rendered=$false},
+            @{Name='dating-scroll'; Script='tests/integration/test_dating_caption_style.gd'; Filter='test_long_dating_caption_stays_centered_and_scrollable_with_both_scrollbar_sizes'; Rendered=$false},
             @{Name='clock-rendered'; Script='tests/integration/test_scene_clock_layout.gd'; Filter=''; Rendered=$true}
           )
           $failed = $false
@@ -109,8 +111,8 @@ jobs:
           @'
           import collections,json,pathlib,re,subprocess,xml.etree.ElementTree as ET
           out=pathlib.Path('.godot/ci')
-          lanes=[('transport','tests/unit/test_witnessed_transport_rail.gd',''),('clock-rendered','tests/integration/test_scene_clock_layout.gd','')]
-          result={'source':'be2f5259b4de2c25e07cc0f3707c7473c9ffcfdb','tree':'617a8943ede1d9b8300dc2fba58fadc93233bf45','tests':0,'assertions':0,'suites':[]}
+          lanes=[('transport','tests/unit/test_witnessed_transport_rail.gd',''),('clock-rendered','tests/integration/test_scene_clock_layout.gd',''),('caption-clear','tests/integration/test_witnessed_caption_runtime.gd','test_clear_holds_empty_without_finishing_a_hidden_incomplete_reveal'),('dating-scroll','tests/integration/test_dating_caption_style.gd','test_long_dating_caption_stays_centered_and_scrollable_with_both_scrollbar_sizes')]
+          result={'source':'b64c077d14148eafdf4ba7ecf7558f24c95e810a','tree':'8bf47f5bac42bae5a7bff439bfbb009f7f57bba4','tests':0,'assertions':0,'suites':[]}
           assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==result['source']
           assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()==result['tree']
           changed=subprocess.check_output(['git','diff','HEAD','--name-only'],text=True).splitlines()
@@ -132,7 +134,7 @@ jobs:
           assert 'ROUTINE_CLOCK_PASS' in clock_log and not re.search(r'SCRIPT ERROR:|ERROR:',clock_log)
           assert json.loads((out/'routine-clock.jsonl').read_text(encoding='utf-8-sig').strip())['exit_code']==0
           assert len(list(out.glob('computer-clock-*.png')))==4
-          assert result['tests']==13
+          assert result['tests']==15
           (out/'gate.json').write_text(json.dumps(result,indent=2))
           print(json.dumps(result))
           '@ | python -
@@ -144,7 +146,7 @@ jobs:
           @'
           import base64,hashlib,io,json,pathlib,subprocess,zipfile
           out=pathlib.Path('.godot/ci')
-          for source in ["scenes/menu/MenuScene.tscn","scenes/ui/witnessed/WitnessedCaptionLayer.tscn","scripts/ui/MenuScene.gd","scripts/ui/witnessed/WitnessedCaptionLayer.gd","scripts/ui/witnessed/WitnessedTransportRail.gd","tests/title_shell/test_title_shell.gd","tests/unit/test_witnessed_transport_rail.gd","tests/integration/test_scene_clock_layout.gd"]:
+          for source in ["scenes/menu/MenuScene.tscn","scenes/ui/witnessed/WitnessedCaptionLayer.tscn","scripts/ui/MenuScene.gd","scripts/ui/witnessed/WitnessedCaptionLayer.gd","scripts/ui/witnessed/WitnessedTransportRail.gd","tests/title_shell/test_title_shell.gd","tests/unit/test_witnessed_transport_rail.gd","tests/integration/test_scene_clock_layout.gd","tests/integration/test_witnessed_caption_runtime.gd","tests/integration/test_dating_caption_style.gd","tests/manual/witnessed_transport_capture.gd","tools/backup_ui/verify.py"]:
               p=out/'source'/source;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(pathlib.Path(source).read_bytes())
           (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
           files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))
