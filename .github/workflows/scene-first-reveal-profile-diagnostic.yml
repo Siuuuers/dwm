@@ -27,7 +27,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 1b06d557a7874b5a872508aef686bd05b37cb25f
+          ref: d9cb28c695fb02c623ea77833d2bb72b481cd372
           path: source
           fetch-depth: 4
       - name: Verify exact candidate source
@@ -35,9 +35,9 @@ jobs:
           $ErrorActionPreference = 'Stop'
           @'
           import json,os,pathlib,subprocess
-          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='1b06d557a7874b5a872508aef686bd05b37cb25f'
+          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='d9cb28c695fb02c623ea77833d2bb72b481cd372'
           out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
-          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':'1b06d557a7874b5a872508aef686bd05b37cb25f','controller':os.environ['CONTROLLER_SHA'],'scope':'ordinary scene publication cursor and rendered Save/fresh-process Load'}))
+          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':'d9cb28c695fb02c623ea77833d2bb72b481cd372','controller':os.environ['CONTROLLER_SHA'],'scope':'ordinary scene publication cursor and rendered Save/fresh-process Load'}))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Install exact Godot standard engine
@@ -71,7 +71,7 @@ jobs:
           git restore --worktree -- project.godot
           @'
           import subprocess
-          expected=["tests/integration/scene_later_caption_child.gd.uid","tests/integration/test_scene_later_caption_create.gd.uid","tests/integration/test_scene_later_caption_load.gd.uid","tests/unit/test_scene_publication_cursor.gd.uid"]
+          expected=[]
           assert not subprocess.check_output(['git','diff','--name-only'],text=True).strip()
           assert sorted(subprocess.check_output(['git','ls-files','--others','--exclude-standard'],text=True).splitlines())==sorted(expected)
           '@ | python -
@@ -89,7 +89,7 @@ jobs:
           git add tests/integration/scene_later_caption_child.gd.uid tests/integration/test_scene_later_caption_create.gd.uid tests/integration/test_scene_later_caption_load.gd.uid
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'Freeze cloud-generated later-caption test identities'
+          git commit --allow-empty -m 'Freeze regenerated later-caption test inventories'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @{ source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}') } | ConvertTo-Json | Set-Content .godot/ci/candidate-commit.json -Encoding utf8
       - name: Run focused owner and native regression suites
