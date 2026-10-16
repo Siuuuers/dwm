@@ -27,7 +27,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 66f11423c93616376dd3489c40ee8a95cd597468
+          ref: 5bc27ecf3b84fdf46cd12cf9f45f50bcd0e3e033
           path: source
           fetch-depth: 16
       - name: Verify exact candidate source
@@ -36,9 +36,9 @@ jobs:
           @'
           import json,os,pathlib,subprocess
           subprocess.check_call(['git','cat-file','-e',os.environ['BASE_SHA']])
-          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='66f11423c93616376dd3489c40ee8a95cd597468'
+          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='5bc27ecf3b84fdf46cd12cf9f45f50bcd0e3e033'
           out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
-          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':'66f11423c93616376dd3489c40ee8a95cd597468','controller':os.environ['CONTROLLER_SHA'],'scope':'seven-day connected terminal persistence and rendered restart proof'}))
+          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':'5bc27ecf3b84fdf46cd12cf9f45f50bcd0e3e033','controller':os.environ['CONTROLLER_SHA'],'scope':'seven-day connected terminal persistence and rendered restart proof'}))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Install exact Godot standard engine
@@ -88,7 +88,7 @@ jobs:
           & './tools/testing/Invoke-PublicSurfaceValidation.ps1' -Regenerate
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @'
-          import json,os,subprocess,pathlib
+          import json,os,re,subprocess,pathlib
           added=subprocess.check_output(['git','diff','--name-only','--diff-filter=A',os.environ['BASE_SHA'],'HEAD','--','*.gd'],text=True).splitlines()
           tracked=set(subprocess.check_output(['git','ls-files'],text=True).splitlines())
           uids=sorted(p+'.uid' for p in added if p+'.uid' not in tracked)
@@ -97,11 +97,14 @@ jobs:
           changed=set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())
           assert changed <= set(exported+surfaces),(changed,exported+surfaces)
           actual=set(subprocess.check_output(['git','ls-files','--others','--exclude-standard'],text=True).splitlines())
-          expected=set(uids+[p for p in exported if p not in tracked])
+          resource_uids=sorted(p for p in actual if p.endswith('.dtl.uid') and p[:-4] in tracked)
+          for name in resource_uids:
+              assert re.fullmatch(rb'uid://[a-z0-9]+\n',pathlib.Path(name).read_bytes()),name
+          expected=set(uids+resource_uids+[p for p in exported if p not in tracked])
           assert actual==expected,(sorted(actual),sorted(expected))
-          for name in uids+exported+surfaces: assert pathlib.Path(name).is_file(),name
-          pathlib.Path('.godot/ci/generated-files.json').write_text(json.dumps({'uids':uids,'exported':exported,'surfaces':surfaces,'added_scripts':added},indent=2))
-          subprocess.check_call(['git','add',*uids,*exported,*surfaces])
+          for name in uids+resource_uids+exported+surfaces: assert pathlib.Path(name).is_file(),name
+          pathlib.Path('.godot/ci/generated-files.json').write_text(json.dumps({'uids':uids,'resource_uids':resource_uids,'exported':exported,'surfaces':surfaces,'added_scripts':added},indent=2))
+          subprocess.check_call(['git','add',*uids,*resource_uids,*exported,*surfaces])
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           git config user.name 'github-actions[bot]'
