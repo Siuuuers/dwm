@@ -13,7 +13,7 @@ func before_each() -> void:
 func after_each() -> void:
 	for path: String in _originals:
 		_write(path, _originals[path])
-		assert_eq(FileAccess.get_file_as_bytes(path), _originals[path], "resource bytes restored")
+		assert_true(FileAccess.get_file_as_bytes(path) == _originals[path], "resource bytes restored")
 	_originals.clear()
 
 func _write(path: String, bytes: PackedByteArray) -> void:
@@ -25,7 +25,7 @@ func _write(path: String, bytes: PackedByteArray) -> void:
 
 func _warm() -> Dictionary:
 	var result: Dictionary = GENERATOR._read_budget_manifest()
-	assert_true(result.ok, str(result))
+	assert_true(result.ok, str(result.get("code", "ok")))
 	return result.get("value", {}).duplicate(true)
 
 func _refused(message: String, cause: String = "") -> void:
@@ -38,8 +38,8 @@ func _refused(message: String, cause: String = "") -> void:
 func _restore_and_match(expected: Dictionary) -> void:
 	for path: String in _originals: _write(path, _originals[path])
 	var result: Dictionary = GENERATOR._read_budget_manifest()
-	assert_true(result.ok, str(result))
-	assert_eq(result.get("value"), expected)
+	assert_true(result.ok, str(result.get("code", "ok")))
+	assert_true(result.get("value") == expected, "exact restored budget")
 
 func test_warm_results_are_detached_from_nested_caller_mutation() -> void:
 	var expected := _warm()
@@ -47,15 +47,15 @@ func test_warm_results_are_detached_from_nested_caller_mutation() -> void:
 	cold_expected.device_evidence.cpu_model = "TEST.cache.cold"
 	_write(GENERATOR.BUDGET_MANIFEST_PATH, JSON.stringify(cold_expected).to_utf8_buffer())
 	var cold: Dictionary = GENERATOR._read_budget_manifest()
-	assert_true(cold.ok, str(cold))
+	assert_true(cold.ok, str(cold.get("code", "ok")))
 	cold.value.rows[0].capability_ids.clear()
 	cold.value.source_sha256.kernel = "0".repeat(64)
 	var after_cold: Dictionary = GENERATOR._read_budget_manifest()
-	assert_true(after_cold.ok, str(after_cold))
-	assert_eq(after_cold.get("value"), cold_expected)
+	assert_true(after_cold.ok, str(after_cold.get("code", "ok")))
+	assert_true(after_cold.get("value") == cold_expected, "cold output mutation cannot alter cache")
 	_restore_and_match(expected)
 	var result: Dictionary = GENERATOR._read_budget_manifest()
-	assert_true(result.ok, str(result))
+	assert_true(result.ok, str(result.get("code", "ok")))
 	result.value.rows[0].capability_ids.clear()
 	result.value.source_sha256.kernel = "0".repeat(64)
 	result.value.device_evidence.cpu_model = "TEST.changed"
@@ -82,7 +82,7 @@ func test_warm_cache_rechecks_source_freshness_with_unchanged_budget_bytes() -> 
 	var changed: PackedByteArray = _originals[DEPENDENCY].duplicate()
 	changed.append(10)
 	_write(DEPENDENCY, changed)
-	assert_eq(FileAccess.get_file_as_bytes(GENERATOR.BUDGET_MANIFEST_PATH), _originals[GENERATOR.BUDGET_MANIFEST_PATH])
+	assert_true(FileAccess.get_file_as_bytes(GENERATOR.BUDGET_MANIFEST_PATH) == _originals[GENERATOR.BUDGET_MANIFEST_PATH], "budget bytes unchanged")
 	_refused("the generator budget manifest is stale", "budget_source_stale")
 	_restore_and_match(expected)
 
@@ -92,12 +92,12 @@ func test_warm_cache_refuses_missing_manifest_and_recovers() -> void:
 	_refused("the generator budget manifest is absent")
 	_restore_and_match(expected)
 
-func test_changed_valid_bytes_are_reparsed_and_returned_without_stale_rows() -> void:
+func test_changed_valid_bytes_are_reparsed_and_returned_without_stale_content() -> void:
 	var expected := _warm()
 	var changed := expected.duplicate(true)
 	changed.device_evidence.cpu_model = "TEST.cache.changed-valid"
 	_write(GENERATOR.BUDGET_MANIFEST_PATH, JSON.stringify(changed).to_utf8_buffer())
 	var result: Dictionary = GENERATOR._read_budget_manifest()
-	assert_true(result.ok, str(result))
-	assert_eq(result.get("value"), changed)
+	assert_true(result.ok, str(result.get("code", "ok")))
+	assert_true(result.get("value") == changed, "exact replacement budget")
 	_restore_and_match(expected)
