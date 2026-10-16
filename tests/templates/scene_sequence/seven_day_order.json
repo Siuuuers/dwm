@@ -1,0 +1,41 @@
+{
+  "order": [
+    "Day1",
+    "Day2",
+    "Day3",
+    "Day4",
+    "Day5",
+    "Day6",
+    "Day7"
+  ],
+  "bindings": {
+    "Day1": {
+      "target_id": "target.Day1",
+      "next_marker_id": "Day1.next"
+    },
+    "Day2": {
+      "target_id": "target.Day2",
+      "next_marker_id": "Day2.next"
+    },
+    "Day3": {
+      "target_id": "target.Day3",
+      "next_marker_id": "Day3.next"
+    },
+    "Day4": {
+      "target_id": "target.Day4",
+      "next_marker_id": "Day4.next"
+    },
+    "Day5": {
+      "target_id": "target.Day5",
+      "next_marker_id": "Day5.next"
+    },
+    "Day6": {
+      "target_id": "target.Day6",
+      "next_marker_id": "Day6.next"
+    },
+    "Day7": {
+      "target_id": "target.Day7",
+      "next_marker_id": ""
+    }
+  }
+}
