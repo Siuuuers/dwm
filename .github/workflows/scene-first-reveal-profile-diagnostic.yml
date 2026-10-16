@@ -1,4 +1,4 @@
-name: Scene later-caption baseline reproduction
+name: Scene later-caption acceptance
 on:
   pull_request:
     paths:
@@ -27,17 +27,17 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 211ed40d11001297ccf947697ca65c23711448bb
+          ref: 1b06d557a7874b5a872508aef686bd05b37cb25f
           path: source
           fetch-depth: 4
-      - name: Verify exact reproduction source
+      - name: Verify exact candidate source
         run: |
           $ErrorActionPreference = 'Stop'
           @'
           import json,os,pathlib,subprocess
-          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='211ed40d11001297ccf947697ca65c23711448bb'
+          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='1b06d557a7874b5a872508aef686bd05b37cb25f'
           out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
-          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':'211ed40d11001297ccf947697ca65c23711448bb','controller':os.environ['CONTROLLER_SHA'],'scope':'expected-failing real Accept later-caption reproduction; unchanged runtime'}))
+          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':'1b06d557a7874b5a872508aef686bd05b37cb25f','controller':os.environ['CONTROLLER_SHA'],'scope':'ordinary scene publication cursor and rendered Save/fresh-process Load'}))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Install exact Godot standard engine
@@ -71,22 +71,76 @@ jobs:
           git restore --worktree -- project.godot
           @'
           import subprocess
-          expected=["tests/integration/scene_later_caption_child.gd.uid","tests/integration/test_scene_later_caption_create.gd.uid","tests/integration/test_scene_later_caption_load.gd.uid"]
+          expected=["tests/integration/scene_later_caption_child.gd.uid","tests/integration/test_scene_later_caption_create.gd.uid","tests/integration/test_scene_later_caption_load.gd.uid","tests/unit/test_scene_publication_cursor.gd.uid"]
           assert not subprocess.check_output(['git','diff','--name-only'],text=True).strip()
           assert sorted(subprocess.check_output(['git','ls-files','--others','--exclude-standard'],text=True).splitlines())==sorted(expected)
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & './tools/testing/Invoke-PublicSurfaceValidation.ps1' -Regenerate
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          @'
+          import subprocess
+          expected={'evidence/phase_2r/runtime/game_state_surface.json','evidence/phase_2r/runtime/save_manager_surface.json'}
+          changed=set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())
+          assert changed <= expected, changed
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git add evidence/phase_2r/runtime/game_state_surface.json evidence/phase_2r/runtime/save_manager_surface.json tests/unit/test_scene_publication_cursor.gd.uid
           git add tests/integration/scene_later_caption_child.gd.uid tests/integration/test_scene_later_caption_create.gd.uid tests/integration/test_scene_later_caption_load.gd.uid
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git commit -m 'Freeze cloud-generated later-caption test identities'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @{ source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}') } | ConvertTo-Json | Set-Content .godot/ci/candidate-commit.json -Encoding utf8
-      - name: Reproduce real Accept checkpoint on unchanged runtime
+      - name: Run focused owner and native regression suites
         run: |
-          $arguments = @('--rendering-method','gl_compatibility','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_later_caption_create.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/later-caption-create.xml')
-          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'later-caption-baseline' -LogName 'later-caption-create.log' -GodotArgs $arguments -EvidenceLogPath '.godot/ci/later-caption.jsonl' -TimeoutSeconds 240 -Rendered
+          $cases = @(
+            @{Name='publication-cursor'; Script='tests/unit/test_scene_publication_cursor.gd'},
+            @{Name='native-activation'; Script='tests/unit/test_scene_runtime_activation.gd'},
+            @{Name='restore-protocol'; Script='tests/unit/test_scene_restore_activation_protocol.gd'},
+            @{Name='reading-frontier'; Script='tests/integration/test_narrative_reading_frontier_runtime.gd'}
+          )
+          foreach ($case in $cases) {
+            $name = $case.Name
+            $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$($case.Script)",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/${name}.xml")
+            & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId $name -LogName "${name}.log" -GodotArgs $arguments -EvidenceLogPath ".godot/ci/${name}.jsonl" -TimeoutSeconds 240
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+      - name: Render actual Accept Save and fresh-process Load
+        run: |
+          $create = @('--rendering-method','gl_compatibility','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_later_caption_create.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/later-caption-create.xml')
+          $load = @('--rendering-method','gl_compatibility','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_later_caption_load.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/later-caption-load.xml')
+          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'later-caption' -LogName 'later-caption-create.log' -GodotArgs $create -NextGodotArgs $load -NextLogName 'later-caption-load.log' -EvidenceLogPath '.godot/ci/later-caption.jsonl' -TimeoutSeconds 240 -Rendered
           exit $LASTEXITCODE
+      - name: Verify exact test census and frozen source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          @'
+          import collections,json,pathlib,re,subprocess,xml.etree.ElementTree as ET
+          out=pathlib.Path('.godot/ci')
+          frozen=json.loads((out/'candidate-commit.json').read_text(encoding='utf-8-sig'))
+          result={'source':frozen['source'],'tree':frozen['tree'],'passed':0,'assertions':0,'suites':[]}
+          suites=[('publication-cursor','tests/unit/test_scene_publication_cursor.gd'),('native-activation','tests/unit/test_scene_runtime_activation.gd'),('restore-protocol','tests/unit/test_scene_restore_activation_protocol.gd'),('reading-frontier','tests/integration/test_narrative_reading_frontier_runtime.gd'),('later-caption-create','tests/integration/test_scene_later_caption_create.gd'),('later-caption-load','tests/integration/test_scene_later_caption_load.gd')]
+          for name,script in suites:
+              expected=re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(),re.M)
+              root=ET.parse(out/(name+'.xml')).getroot();rows=list(root.iter('testcase'))
+              assert collections.Counter((r.attrib['classname'],r.attrib['name']) for r in rows)==collections.Counter((script,n) for n in expected),name
+              assert not any(list(root.iter(tag)) for tag in ['failure','error','skipped']),name
+              assert all(r.attrib.get('status')=='pass' and int(r.attrib.get('assertions','0'))>0 for r in rows),name
+              count=sum(int(r.attrib['assertions']) for r in rows)
+              log=pathlib.Path('.godot/phase2r_logs',name+'.log').read_text(encoding='utf-8-sig')
+              assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',log),name
+              result['passed']+=len(rows);result['assertions']+=count
+              result['suites'].append({'name':name,'passed':len(rows),'assertions':count})
+          for name in ['publication-cursor','native-activation','restore-protocol','reading-frontier','later-caption']:
+              children=[json.loads(s) for s in (out/(name+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
+              assert len(children)==(2 if name=='later-caption' else 1) and all(c['exit_code']==0 for c in children),name
+          assert not subprocess.check_output(['git','status','--porcelain'],text=True).strip()
+          assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()==frozen['tree']
+          (out/'gate.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
+          print(json.dumps(result))
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Retain evidence on every outcome
         if: always()
         run: |
