@@ -27,7 +27,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 5bc27ecf3b84fdf46cd12cf9f45f50bcd0e3e033
+          ref: 4a7dbb8638e47ad963e15a623d479bd0837a8c96
           path: source
           fetch-depth: 16
       - name: Verify exact candidate source
@@ -36,9 +36,9 @@ jobs:
           @'
           import json,os,pathlib,subprocess
           subprocess.check_call(['git','cat-file','-e',os.environ['BASE_SHA']])
-          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='5bc27ecf3b84fdf46cd12cf9f45f50bcd0e3e033'
+          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='4a7dbb8638e47ad963e15a623d479bd0837a8c96'
           out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
-          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':'5bc27ecf3b84fdf46cd12cf9f45f50bcd0e3e033','controller':os.environ['CONTROLLER_SHA'],'scope':'seven-day connected terminal persistence and rendered restart proof'}))
+          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':'4a7dbb8638e47ad963e15a623d479bd0837a8c96','controller':os.environ['CONTROLLER_SHA'],'scope':'seven-day connected terminal persistence and rendered restart proof'}))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Install exact Godot standard engine
@@ -59,6 +59,7 @@ jobs:
 
 
       - name: Import and freeze generated test identities
+        id: freeze
         timeout-minutes: 8
         run: |
           $ErrorActionPreference = 'Stop'
@@ -121,13 +122,16 @@ jobs:
             @{Name='sequence-authoring'; Script='tests/unit/test_scene_sequence_authoring.gd'},
             @{Name='seven-day-templates'; Script='tests/unit/test_seven_day_templates.gd'}
           )
+          $failed = $false
           foreach ($case in $cases) {
             $name = $case.Name
             $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$($case.Script)",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/${name}.xml")
             & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId $name -LogName "${name}.log" -GodotArgs $arguments -EvidenceLogPath ".godot/ci/${name}.jsonl" -TimeoutSeconds 240
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            if ($LASTEXITCODE -ne 0) { $failed = $true }
           }
+          if ($failed) { exit 1 }
       - name: Render connected creation and fresh-process Load
+        if: ${{ !cancelled() && steps.freeze.outcome == 'success' }}
         run: |
           $ErrorActionPreference = 'Stop'
           Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue
