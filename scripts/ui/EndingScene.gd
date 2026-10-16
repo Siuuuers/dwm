@@ -50,7 +50,9 @@ func _show_ending() -> void:
 		_set_playback_status(true)
 		return
 	var resumed := resume_ending()
-	if not resumed.get("ok", false): _set_playback_status(true)
+	if not resumed.get("ok", false):
+		_last_playback_failure = resumed.duplicate(true)
+		_set_playback_status(true)
 
 
 func _on_return_pressed() -> void:
@@ -168,6 +170,7 @@ var _pending_completion: Dictionary = {}
 var _ending_navigation: Object = null
 var _retry_available := false
 var _finished := false
+var _last_playback_failure: Dictionary = {}
 
 func configure_ending_ports(state_port: Object, playback_port: Object) -> Dictionary:
 	if not _pending_ending_command.is_empty():
@@ -261,6 +264,7 @@ func on_ending_playback_failed(failure: Dictionary) -> void:
 	if str(failure.get("playback_id", "")) != str(context.playback_id) \
 			or str(failure.get("transaction_id", "")) != str(context.transaction_id) \
 			or str(failure.get("ending_id", "")) != str(_pending_ending_command.ending_id): return
+	_last_playback_failure = failure.duplicate(true)
 	_pending_ending_command = {}
 	_pending_completion = {}
 	_set_playback_status(true)

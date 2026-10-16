@@ -45,6 +45,9 @@ func _wait_line(line_id: String) -> bool:
 			return true
 		await get_tree().process_frame
 	await _screenshot("seven-day-line-timeout")
+	if get_tree().current_scene is EndingScene:
+		print("ENDING_HANDOFF_FAILURE ", get_tree().current_scene._last_playback_failure,
+			" adapter_phase=", bridge._runtime_adapter._activity_phase)
 	fail_test("Caption timeout: " + line_id + "; actual=" + bridge._runtime_adapter.current_line_id()
 		+ "; activation=" + str(saves._scene_restore_activation))
 	return false
