@@ -31,7 +31,17 @@ func _native_observation(retained_native: Node = null) -> Dictionary:
 		"event_done": event != null and event.state == DialogicTextEvent.States.DONE,
 		"ledger": bridge._reading_session.ledger.snapshot().duplicate(true)}
 
-func _accept() -> void:
+func _accept(wait_for_input: bool = true) -> void:
+	# Native reveal completion and manual-input readiness are distinct. Organic
+	# reveal starts Dialogic's advance-delay guard after publishing text_finished.
+	# Observe that owner; never stop its timer or use Save as a timing workaround.
+	if wait_for_input:
+		var inputs: Node = bridge._runtime_adapter._dialogic.get_subsystem("Inputs")
+		var deadline := Time.get_ticks_msec() + 5000
+		while inputs.is_input_blocked() and Time.get_ticks_msec() < deadline:
+			await get_tree().process_frame
+		assert_false(inputs.is_input_blocked(), "native manual input is ready")
+		if inputs.is_input_blocked(): return
 	var overlay := get_tree().root.find_child("GutLayer", true, false)
 	if overlay is CanvasLayer: overlay.hide()
 	var caption: Node = _caption()
