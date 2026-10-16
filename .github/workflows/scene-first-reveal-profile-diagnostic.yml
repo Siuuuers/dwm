@@ -16,7 +16,7 @@ jobs:
     runs-on: windows-2022
     timeout-minutes: 15
     env:
-      BASE_SHA: 35dffc25e581fcf10cebb1c6782c4a3183408b15
+      BASE_SHA: 2e619cdea503d846e9671e87eec3b4e273a251b8
       CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
     defaults:
       run:
@@ -28,9 +28,9 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 35dffc25e581fcf10cebb1c6782c4a3183408b15
+          ref: 2e619cdea503d846e9671e87eec3b4e273a251b8
           path: source
-          fetch-depth: 1
+          fetch-depth: 4
       - name: Apply observation-only bounded test probe
         run: |
           $ErrorActionPreference = 'Stop'
