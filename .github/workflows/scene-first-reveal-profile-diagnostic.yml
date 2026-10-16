@@ -29,7 +29,7 @@ jobs:
         with:
           ref: 8f16da2509d042850e090a15218ae1244f8d5fb4
           path: source
-          fetch-depth: 16
+          fetch-depth: 32
       - name: Verify exact candidate source
         run: |
           $ErrorActionPreference = 'Stop'
