@@ -26,15 +26,20 @@ PR30 is the draft controller PR, not the product source. Master remains
 The [C reconciliation](c-remaining-work-20261016.md) separates integrated TEST
 features from unintegrated work and historical/deferred clauses. It is a dated
 evidence index, not live Beads or another authoritative backlog.
-[Director6197370451](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6197370451)
+[Director6205746082](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6205746082)
 governs the next sequence and reporting: detailed receipts on the owning PR,
 one short linked update on PR30 Conversation.
 
 Integration was inspected at 3ae6d9138fb53c388380c78550cf6082eafc0ea3.
-Contacts and the title TEST opening are integrated. PR36 at 281c7008 is
-implemented/focused-tested but draft and unmerged with unresolved broad CI.
-A is correcting genuine scene first-Reveal provider wiring; B reviews read-only.
-The later-caption coherence fix/regression follows, then PR37's prepared,
+Contacts and the title TEST opening are integrated. PR36 at f8b873bd is
+implemented/focused-tested but draft and unmerged with unresolved broad CI
+and a separate600-second Challenge timeout. Its bounded first-Reveal wiring is
+verified/published: [A's31/515 acceptance and audit](https://github.com/Siuuuers/dwm/pull/36#issuecomment-6200655139)
+and [B's completed provider review](https://github.com/Siuuuers/dwm/pull/36#issuecomment-6205604424).
+These are attributed receipts, not a new C engine run or archive audit.
+A diagnoses remaining integration gates without blindly repeating the timeout.
+The later-caption coherence fix/regression may proceed as a separate reviewable
+slice while qualification continues, then PR37's prepared,
 uninstalled partner-fork content needs the authorized runtime connection and
 cloud compiler/connected proof. No new timer/default policy is approved here.
 See the pinned [CI qualification](https://github.com/Siuuuers/dwm/blob/281c70086033fe7100e12a6d28f186bae8d3c4a8/handoff/a-ci-qualification-20261016.md).
