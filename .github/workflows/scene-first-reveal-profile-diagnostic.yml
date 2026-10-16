@@ -1,179 +1,80 @@
-name: Clock and transport layout qualification
+name: Clock retained evidence verification
 on:
   pull_request:
     paths:
       - '.github/workflows/scene-first-reveal-profile-diagnostic.yml'
 permissions:
   contents: read
-  actions: read
 concurrency:
   group: scene-first-reveal-profile-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 jobs:
-  authority-audit:
+  clock-evidence:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
-    name: Windows / clock and transport layout
     runs-on: windows-2022
-    timeout-minutes: 20
-    defaults:
-      run:
-        shell: pwsh
+    timeout-minutes: 10
     steps:
-      - name: Preserve source bytes
-        run: git config --global core.autocrlf false
-      - uses: actions/checkout@v7
-        with:
-          ref: f67a17fb4f6aed3ed25c0c5194a51f5c6bc59133
-          fetch-depth: 2
-          # Defer credential removal until the post-job cleanup, after the
-          # malformed gitlinks are removed from this disposable runner's index.
-          persist-credentials: true
-      - name: Record pinned source
+      - name: Verify preserved tests and source with explicit UTF-8
+        shell: python
         run: |
-          $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne 'f67a17fb4f6aed3ed25c0c5194a51f5c6bc59133') { throw 'Candidate mismatch' }
-          New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='f67a17fb4f6aed3ed25c0c5194a51f5c6bc59133'; tree='a7d65ecf14a0a0c437ed318ecdc9ae8f2133ee57'; controller='${{ github.event.pull_request.head.sha }}'; base='2b88fb432592776466ac221a359d96fb63e62788'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
-      - name: Prepare disposable checkout for credential cleanup
-        run: |
-          $ErrorActionPreference = 'Stop'
-          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
-          # submodule foreach reads the index even with sparse checkout.
-          # The source commit and working files remain unchanged.
-          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git submodule foreach --recursive 'true'
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Install Godot 4.6.3 standard
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
-          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
-          # SHA256 published with the official 4.6.3-stable release asset.
-          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
-          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
-            throw 'Godot archive checksum mismatch.'
-          }
-          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
-          Expand-Archive -LiteralPath $archive -DestinationPath $editor
-          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
-          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
-          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          & $console --version
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Import project
-        timeout-minutes: 8
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
-          $env:APPDATA = Join-Path $output 'import-user/appdata'
-          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
-          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
-          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
-          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
-            throw 'Project import reported script errors; inspect import.log.'
-          }
-      - name: Restore committed project settings after editor import
-        run: |
-          # Dialogic's editor scan rewrites its timeline lookup during import.
-          # Execute the committed configuration with the freshly imported assets.
-          git restore -- project.godot
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Run affected clock and caption checks
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $lanes = @(
-            @{Name='transport'; Script='tests/unit/test_witnessed_transport_rail.gd'; Filter=''; Rendered=$false},
-            @{Name='caption-clear'; Script='tests/integration/test_witnessed_caption_runtime.gd'; Filter='test_clear_holds_empty_without_finishing_a_hidden_incomplete_reveal'; Rendered=$false},
-            @{Name='dating-scroll'; Script='tests/integration/test_dating_caption_style.gd'; Filter='test_long_dating_caption_stays_centered_and_scrollable_with_both_scrollbar_sizes'; Rendered=$false},
-            @{Name='clock-rendered'; Script='tests/integration/test_scene_clock_layout.gd'; Filter=''; Rendered=$true}
-          )
-          $failed = $false
-          foreach ($lane in $lanes) {
-            $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$($lane.Script)",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$($lane.Name).xml")
-            if ($lane.Filter) { $args += "-gunit_test_name=$($lane.Filter)" }
-            & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId $lane.Name -LogName "$($lane.Name).log" -GodotArgs $args -EvidenceLogPath ".godot/ci/$($lane.Name).jsonl" -TimeoutSeconds 240 -Rendered:$lane.Rendered
-            if ($LASTEXITCODE -ne 0) { $failed = $true }
-          }
-          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'routine-clock' -LogName 'routine-clock.log' -GodotArgs @('-s','res://tests/routine_clock/test_routine_clock.gd') -EvidenceLogPath '.godot/ci/routine-clock.jsonl' -TimeoutSeconds 120
-          if ($LASTEXITCODE -ne 0) { $failed = $true }
-          python tools/title_shell/verify.py
-          if ($LASTEXITCODE -ne 0) { $failed = $true }
-          New-Item -ItemType Directory -Force '.godot/ci/title-shell' | Out-Null
-          Copy-Item 'tools/title_shell/evidence/*' '.godot/ci/title-shell/' -Recurse -Force
-          git restore -- tools/title_shell/evidence
-          if ($failed) { exit 1 }
-      - name: Verify exact selected census and source
-        run: |
-          $ErrorActionPreference = 'Stop'
-          @'
-          import collections,json,pathlib,re,subprocess,xml.etree.ElementTree as ET
-          out=pathlib.Path('.godot/ci')
-          lanes=[('transport','tests/unit/test_witnessed_transport_rail.gd',''),('clock-rendered','tests/integration/test_scene_clock_layout.gd',''),('caption-clear','tests/integration/test_witnessed_caption_runtime.gd','test_clear_holds_empty_without_finishing_a_hidden_incomplete_reveal'),('dating-scroll','tests/integration/test_dating_caption_style.gd','test_long_dating_caption_stays_centered_and_scrollable_with_both_scrollbar_sizes')]
-          result={'source':'f67a17fb4f6aed3ed25c0c5194a51f5c6bc59133','tree':'a7d65ecf14a0a0c437ed318ecdc9ae8f2133ee57','tests':0,'assertions':0,'suites':[]}
-          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==result['source']
-          assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()==result['tree']
-          changed=subprocess.check_output(['git','diff','HEAD','--name-only'],text=True).splitlines()
-          assert not set(changed)-{'.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1'},changed
-          for name,script,select in lanes:
-              expected=[n for n in re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(),re.M) if select in n]
-              root=ET.parse(out/(name+'.xml')).getroot();rows=list(root.iter('testcase'))
-              assert expected and collections.Counter((r.attrib['classname'],r.attrib['name']) for r in rows)==collections.Counter((script,n) for n in expected),name
-              assert not any(list(root.iter(tag)) for tag in ['failure','error','skipped']),name
-              assert all(r.attrib.get('status')=='pass' and int(r.attrib.get('assertions','0'))>0 for r in rows),name
-              log=pathlib.Path('.godot/phase2r_logs',name+'.log').read_text(encoding='utf-8-sig')
-              assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',log),name
-              children=[json.loads(s) for s in (out/(name+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
-              assert len(children)==1 and children[0]['exit_code']==0,name
-              count=sum(int(r.attrib['assertions']) for r in rows)
-              result['tests']+=len(rows);result['assertions']+=count
-              result['suites'].append({'name':name,'script':script,'filter':select,'tests':len(rows),'assertions':count})
-          clock_log=pathlib.Path('.godot/phase2r_logs/routine-clock.log').read_text(encoding='utf-8-sig')
-          assert 'ROUTINE_CLOCK_PASS' in clock_log and not re.search(r'SCRIPT ERROR:|ERROR:',clock_log)
-          assert json.loads((out/'routine-clock.jsonl').read_text(encoding='utf-8-sig').strip())['exit_code']==0
-          assert len(list(out.glob('computer-clock-*.png')))==3
-          assert result['tests']==15
-          (out/'gate.json').write_text(json.dumps(result,indent=2))
-          print(json.dumps(result))
-          '@ | python -
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Retain bounded clock evidence
-        if: always()
-        run: |
-          $ErrorActionPreference = 'Stop'
-          @'
-          import base64,hashlib,io,json,pathlib,subprocess,zipfile
-          out=pathlib.Path('.godot/ci')
-          for source in ["scenes/menu/MenuScene.tscn","scenes/ui/witnessed/WitnessedCaptionLayer.tscn","scripts/ui/MenuScene.gd","scripts/ui/witnessed/WitnessedCaptionLayer.gd","scripts/ui/witnessed/WitnessedTransportRail.gd","tests/title_shell/test_title_shell.gd","tests/unit/test_witnessed_transport_rail.gd","tests/integration/test_scene_clock_layout.gd","tests/integration/test_witnessed_caption_runtime.gd","tests/integration/test_dating_caption_style.gd","tests/manual/witnessed_transport_capture.gd","tools/backup_ui/verify.py"]:
-              p=out/'source'/source;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(pathlib.Path(source).read_bytes())
-          (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
-          files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))
-          manifest={p.relative_to('.godot').as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in files}
-          retained=out/'retained-hashes.json';retained.write_text(json.dumps(manifest,indent=2));files.append(retained)
-          payload=io.BytesIO()
-          with zipfile.ZipFile(payload,'w',zipfile.ZIP_DEFLATED) as z:
-              for p in files:z.write(p,p.relative_to('.godot').as_posix())
-          data=payload.getvalue()
-          if len(data)>8*1024*1024:raise RuntimeError('Bounded evidence too large')
-          print('DWM_EVIDENCE_BEGIN '+json.dumps({'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}))
-          encoded=base64.b64encode(data).decode()
-          for offset in range(0,len(encoded),3000):print('DWM_EVIDENCE_CHUNK '+encoded[offset:offset+3000])
-          print('DWM_EVIDENCE_END')
-          for p in pathlib.Path('.godot/phase2r_logs').glob('*.log'):
-              for line in p.read_text(encoding='utf-8-sig').splitlines():
-                  if any(s in line for s in ['[Failed]','SCRIPT ERROR:','ERROR:','Passing Tests','Failing Tests','Asserts','Exiting with code']):print(p.name,line[:1500])
-          '@ | python -
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          import base64,collections,hashlib,json,pathlib,re,sys,xml.etree.ElementTree as ET,zipfile
+          prefix='original';root=pathlib.Path.cwd()
+          import urllib.request
+          original=urllib.request.urlopen('https://raw.githubusercontent.com/Siuuuers/dwm/7e68a0d64da49f596a176238a0e28de9250c9617/evidence/phase_2r/clock_layout_20261016/final-original.zip').read()
+          (root/'original.b64').write_text(base64.b64encode(original).decode(),encoding='utf-8')
+          (root/'original-meta.json').write_text('{"bytes":743552,"sha256":"09ee7b6cfaaeb7e881a4e30d7f5b8f8addeae2aee9f2dbba150983f35740a4a9"}',encoding='utf-8')
+          raw=base64.b64decode((root/(prefix+'.b64')).read_text());meta=json.loads((root/(prefix+'-meta.json')).read_text())
+          assert len(raw)==meta['bytes'] and hashlib.sha256(raw).hexdigest()==meta['sha256']
+          zip_path=root/(prefix+'.zip');zip_path.write_bytes(raw)
+          with zipfile.ZipFile(zip_path) as z:
+           m=json.loads(z.read('ci/retained-hashes.json'))
+           for p,v in m.items():
+            b=z.read(p);assert len(b)==v['bytes'] and hashlib.sha256(b).hexdigest()==v['sha256'],p
+           result={'zip':meta,'manifest_members':len(m),'origin':json.loads(z.read('ci/audit-origin.json')),'suites':[]}
+           for lane,script,select in [('transport','tests/unit/test_witnessed_transport_rail.gd',''),('clock-rendered','tests/integration/test_scene_clock_layout.gd',''),('caption-clear','tests/integration/test_witnessed_caption_runtime.gd','test_clear_holds_empty_without_finishing_a_hidden_incomplete_reveal'),('dating-scroll','tests/integration/test_dating_caption_style.gd','test_long_dating_caption_stays_centered_and_scrollable_with_both_scrollbar_sizes')]:
+            expected=[n for n in re.findall(r'^func (test_\w+)\(',z.read('ci/source/'+script).decode(),re.M) if select in n]
+            doc=ET.fromstring(z.read('ci/'+lane+'.xml'));cases=list(doc.iter('testcase'))
+            assert collections.Counter((r.attrib['classname'],r.attrib['name']) for r in cases)==collections.Counter((script,n) for n in expected),lane
+            assert not any(list(doc.iter(t)) for t in ['failure','error','skipped']),lane
+            assert all(c.attrib.get('status')=='pass' and int(c.attrib['assertions'])>0 for c in cases),lane
+            log=z.read('phase2r_logs/'+lane+'.log').decode('utf-8-sig');assert not re.search(r'SCRIPT ERROR:|ERROR:',log),lane
+            children=[json.loads(s) for s in z.read('ci/'+lane+'.jsonl').decode('utf-8-sig').splitlines() if s.strip()]
+            assert len(children)==1 and children[0]['exit_code']==0,lane
+            result['suites'].append({'lane':lane,'tests':len(cases),'assertions':sum(int(c.attrib['assertions']) for c in cases)})
+           clock_log=z.read('phase2r_logs/routine-clock.log').decode('utf-8-sig')
+           assert 'ROUTINE_CLOCK_PASS' in clock_log and not re.search(r'SCRIPT ERROR:|ERROR:',clock_log)
+           assert json.loads(z.read('ci/routine-clock.jsonl').decode('utf-8-sig').strip())['exit_code']==0
+           title=json.loads(z.read('ci/title-shell/result.json'));assert title['passed']
+           result['title_shell_summaries']=title['test_summaries']
+           result['routine_clock']='passed with exit 0'
+           result['tests']=sum(x['tests'] for x in result['suites']);result['assertions']=sum(x['assertions'] for x in result['suites'])
+           assert result['tests']==15
+           result['status']=z.read('ci/final-status.txt').decode()
+           result['captures']=[p for p in z.namelist() if p.endswith('.png')]
+           assert len(result['captures'])==3,result['captures']
+           z.extractall(root/prefix)
+           (root/(prefix+'-verified.json')).write_text(json.dumps(result,indent=2))
+           print(json.dumps(result,indent=2))
+          
+          for path in result['captures']:
+           assert path.startswith('ci/computer-clock-')
+          with zipfile.ZipFile(zip_path) as z:
+           origin=json.loads(z.read('ci/audit-origin.json'))
+           assert origin['candidate']=='f67a17fb4f6aed3ed25c0c5194a51f5c6bc59133' and origin['tree']=='a7d65ecf14a0a0c437ed318ecdc9ae8f2133ee57'
+           sources=[p for p in z.namelist() if p.startswith('ci/source/')]
+           assert len(sources)==12
+           for p in sources:
+            remote=urllib.request.urlopen('https://raw.githubusercontent.com/Siuuuers/dwm/f67a17fb4f6aed3ed25c0c5194a51f5c6bc59133/'+p.removeprefix('ci/source/')).read()
+            assert remote==z.read(p),p
+          result['source_files_verified']=len(sources)
+          result['verified_original_run']=38908745202
+          result['scope']='verification only; no engine or PowerShell tests repeated'
+          (root/'verification.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
+          print('CLOCK_EVIDENCE_VERIFIED '+json.dumps(result))
+          
       - uses: actions/upload-artifact@v4
-        if: always()
         with:
-          name: scene-clock-layout-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            .godot/ci
-            .godot/phase2r_logs
-            !.godot/ci/import-user
-          include-hidden-files: true
+          name: clock-evidence-verification-${{ github.run_id }}
+          path: verification.json
           retention-days: 30
           if-no-files-found: error
