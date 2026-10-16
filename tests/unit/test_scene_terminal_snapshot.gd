@@ -22,7 +22,7 @@ func test_terminal_restore_remaps_live_identity_but_retains_admission_and_readin
 	fixture.free()
 	source.route_id = "ending"
 	source.lifecycle.state = "ENDING"
-	source.lifecycle.ending_plan = {"source_kind": "scene", "source_reading_checkpoint": source.narrative_checkpoint.duplicate(true),
+	source.lifecycle["ending_plan"] = {"source_kind": "scene", "source_reading_checkpoint": source.narrative_checkpoint.duplicate(true),
 		"admission": {"source_identity": {"branch_id": "TEST.old.branch"}}, "playback_stage": "PRIMARY_PENDING"}
 	source.narrative_checkpoint = {"TEST.ending_cursor": 2}
 	var before := source.duplicate(true)
