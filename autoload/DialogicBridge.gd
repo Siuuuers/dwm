@@ -3005,7 +3005,7 @@ func _start_terminal_restore_native() -> void:
 	_scene_restore.native_started = true
 	_scene_restore.in_call = true
 	var installed := _begin_entry_playback(checkpoint.entry_id, checkpoint.frozen_context,
-		&"canonical", "resume", checkpoint.content_version)
+		&"canonical", "resume", checkpoint.content_version, _scene_restore.operation_id)
 	_reading_resume_frontier = {}
 	_scene_restore.in_call = false
 	if not installed.get("ok", false):
@@ -3145,7 +3145,7 @@ func _capture_scene_restore_position() -> Dictionary:
 		return _command_failure(&"scene_activation_changed")
 	if _scene_restore.get("terminal", false):
 		if _scene_restore.checkpoint.is_empty() or _scene_restore.checkpoint.reading_session.boundary == "between_entries":
-			return {"ok": true, "value": {}} if not has_active_playback() else _command_failure(&"scene_activation_changed")
+			return {"ok": true, "value": {}} if not _has_physical_playback() else _command_failure(&"scene_activation_changed")
 		if _scene_restore.get("confirmed", false) and _active_entry.get("token") != _scene_restore.get("playback_token"):
 			return _command_failure(&"scene_activation_changed")
 	if _scene_restore.checkpoint.reading_session.boundary == "control":
@@ -3369,6 +3369,12 @@ func validate_resume_checkpoint(checkpoint: Dictionary,
 ## has ONE copy rather than two that can drift apart.
 func has_active_playback() -> bool:
 	if not _scene_restore.is_empty() and not _scene_restore.get("confirmed", false): return true
+	return _has_physical_playback()
+
+
+## Restore custody fences ordinary callers before physical playback exists.
+## Its retained activation owner must still prove the physical channel is empty.
+func _has_physical_playback() -> bool:
 	if _reached_replay.has("surface"): return true
 	return _start_in_progress or not (_ordinary_playback.is_empty() and _active_entry.is_empty() and _active_playback.is_empty()) \
 		or (_runtime_adapter != null and _runtime_adapter.has_method("has_active_playback") and _runtime_adapter.has_active_playback())
@@ -3716,11 +3722,23 @@ func _context_fingerprint(context: Dictionary) -> Dictionary:
 ## playback-%d for starts, resume-%d for restores - both monotonic and process-local, so an
 ## old-process token can never equal a live one (staleness is exact string equality).
 func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode: StringName,
-		token_kind: String, expected_version: int = -1) -> Dictionary:
+		token_kind: String, expected_version: int = -1, scene_restore_operation: String = "") -> Dictionary:
 	var presentation := _validate_frozen_projection(entry_id, context)
 	if not presentation.ok: return presentation
 	if not _pause_handle.is_empty(): return _playback_failure(&"narrative_suspended", "Pause retains playback custody")
-	if has_active_playback():
+	var owns_terminal_restore := not scene_restore_operation.is_empty() \
+		and _scene_restore.get("operation_id") == scene_restore_operation \
+		and _scene_restore.get("terminal", false) and _scene_restore.get("in_call", false) \
+		and _scene_restore.get("native_started", false) and not _scene_restore.get("confirmed", false) \
+		and not _scene_restore.has("failure") and _scene_restore_current() \
+		and token_kind == "resume" and execution_mode == &"canonical" \
+		and _scene_restore.checkpoint.get("entry_id") == entry_id \
+		and _scene_restore.checkpoint.get("content_version") == expected_version \
+		and _READING_TRAVERSAL._same(_scene_restore.checkpoint.get("frozen_context"), context)
+	if not scene_restore_operation.is_empty() and not owns_terminal_restore:
+		return _playback_failure(&"scene_activation_operation_invalid", "retained terminal activation required")
+	var occupied := _has_physical_playback() if owns_terminal_restore else has_active_playback()
+	if occupied:
 		var standing := str(_active_entry.get("token", _active_playback.get("token", "")))
 		return _playback_failure(&"entry_already_active", "%s is still active" % standing)
 	var resolved := _resolve_entry_for_playback(entry_id, expected_version)
