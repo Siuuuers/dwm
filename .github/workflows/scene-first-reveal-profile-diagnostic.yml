@@ -1,4 +1,4 @@
-name: Scene Challenge manifest-cache acceptance
+name: Scene later-caption baseline reproduction
 on:
   pull_request:
     paths:
@@ -10,12 +10,12 @@ concurrency:
   group: scene-first-reveal-profile-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 jobs:
-  challenge-acceptance:
+  later-caption:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
     runs-on: windows-2022
-    timeout-minutes: 30
+    timeout-minutes: 20
     env:
-      BASE_SHA: f8b873bd5e0df1dbab2ffaec9301c87d487de74e
+      BASE_SHA: 5e4da996bdb896fb0db96641232595d78dd08cd9
       CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
     defaults:
       run:
@@ -27,21 +27,17 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 92cac93440448edfd5309fe599a0991622ad74a1
+          ref: 211ed40d11001297ccf947697ca65c23711448bb
           path: source
-          fetch-depth: 8
-      - name: Verify exact candidate
+          fetch-depth: 4
+      - name: Verify exact reproduction source
         run: |
           $ErrorActionPreference = 'Stop'
           @'
-          import json, os, pathlib, subprocess
-          def git(*args): return subprocess.check_output(['git',*args],text=True).strip()
-          assert git('rev-parse','HEAD')=='92cac93440448edfd5309fe599a0991622ad74a1'
-          assert git('rev-parse','HEAD^{tree}')=='b220e38d58834aaf789ad3821e7ea33c85f7267b'
-          out=pathlib.Path('.godot/ci'); out.mkdir(parents=True,exist_ok=True)
-          paths=git('diff','--name-only',os.environ['BASE_SHA'],'HEAD').splitlines()
-          assert set(paths)=={'scripts/domain/minesweeper/MinesweeperBoardGenerator.gd','tests/unit/test_minesweeper_budget_cache.gd','tests/unit/test_minesweeper_budget_cache.gd.uid'},paths
-          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':git('rev-parse','HEAD'),'tree':git('rev-parse','HEAD^{tree}'),'controller':os.environ['CONTROLLER_SHA'],'paths':paths}),encoding='utf-8')
+          import json,os,pathlib,subprocess
+          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='211ed40d11001297ccf947697ca65c23711448bb'
+          out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
+          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':'211ed40d11001297ccf947697ca65c23711448bb','controller':os.environ['CONTROLLER_SHA'],'scope':'expected-failing real Accept later-caption reproduction; unchanged runtime'}))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Install exact Godot standard engine
@@ -60,8 +56,8 @@ jobs:
           @{ version=$version; archive_sha256=$expected; console_sha256=(Get-FileHash $console -Algorithm SHA256).Hash.ToLowerInvariant() } | ConvertTo-Json | Set-Content .godot/ci/engine.json -Encoding utf8
 
 
-      - name: Import and verify source remains frozen
-        timeout-minutes: 8
+
+      - name: Import and freeze generated test identities
         run: |
           $ErrorActionPreference = 'Stop'
           $output = Join-Path (Get-Location) '.godot/ci'
@@ -73,92 +69,24 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           if (Select-String "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Import failed' }
           git restore --worktree -- project.godot
-          & './tools/testing/Invoke-PublicSurfaceValidation.ps1' -Regenerate
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @'
-          import subprocess,json,pathlib
-          expected={'evidence/phase_2r/runtime/game_state_surface.json','evidence/phase_2r/runtime/save_manager_surface.json'}
-          changed=set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())
-          assert changed and changed <= expected, changed
-          assert not subprocess.check_output(['git','ls-files','--others','--exclude-standard'],text=True).strip()
-          prefix='tests/unit/test_minesweeper_budget_cache.gd:'
-          changes={}
-          def remove_new_sites(value, removed):
-              if isinstance(value,list):
-                  result=[]
-                  for item in value:
-                      if isinstance(item,str) and item.startswith(prefix): removed.append(item)
-                      else: result.append(remove_new_sites(item,removed))
-                  return result
-              if isinstance(value,dict): return {k:remove_new_sites(v,removed) for k,v in value.items()}
-              return value
-          for name,lines in [('game_state',[185]),('save_manager',[5,113])]:
-              path='evidence/phase_2r/runtime/'+name+'_surface.json'
-              before=json.loads(subprocess.check_output(['git','show','HEAD:'+path],text=True))
-              after=json.loads(pathlib.Path(path).read_text())
-              removed=[]
-              assert remove_new_sites(after,removed)==before,name
-              assert sorted(removed)==sorted(prefix+str(n) for n in lines),(name,removed)
-              changes[name]=removed
-          pathlib.Path('.godot/ci/inventory-refresh.json').write_text(json.dumps(changes,indent=2))
+          import subprocess
+          expected=["tests/integration/scene_later_caption_child.gd.uid","tests/integration/test_scene_later_caption_create.gd.uid","tests/integration/test_scene_later_caption_load.gd.uid"]
+          assert not subprocess.check_output(['git','diff','--name-only'],text=True).strip()
+          assert sorted(subprocess.check_output(['git','ls-files','--others','--exclude-standard'],text=True).splitlines())==sorted(expected)
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git add evidence/phase_2r/runtime/game_state_surface.json evidence/phase_2r/runtime/save_manager_surface.json
+          git add tests/integration/scene_later_caption_child.gd.uid tests/integration/test_scene_later_caption_create.gd.uid tests/integration/test_scene_later_caption_load.gd.uid
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'Freeze regenerated canonical inventories for manifest cache tests'
+          git commit -m 'Freeze cloud-generated later-caption test identities'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if ((git status --porcelain | Out-String).Trim()) { throw 'Source drifted after canonical inventory freeze' }
           @{ source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}') } | ConvertTo-Json | Set-Content .godot/ci/candidate-commit.json -Encoding utf8
-      - name: Run focused acceptance suites
+      - name: Reproduce real Accept checkpoint on unchanged runtime
         run: |
-          $cases = @(
-            @{Name='budget-cache'; Script='tests/unit/test_minesweeper_budget_cache.gd'},
-            @{Name='board-generator'; Script='tests/unit/test_minesweeper_board_generator.gd'},
-            @{Name='scene-first-reveal'; Script='tests/unit/test_scene_first_reveal.gd'}
-          )
-          foreach ($case in $cases) {
-            $name = $case.Name
-            $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$($case.Script)",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/${name}.xml")
-            & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId $name -LogName "${name}.log" -GodotArgs $arguments -EvidenceLogPath ".godot/ci/${name}.jsonl" -TimeoutSeconds 600
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          }
-      - name: Verify exact census refusals and clean source
-        run: |
-          $ErrorActionPreference = 'Stop'
-          @'
-          import collections,json,pathlib,re,subprocess,xml.etree.ElementTree as ET
-          out=pathlib.Path('.godot/ci')
-          frozen=json.loads((out/'candidate-commit.json').read_text(encoding='utf-8-sig'))
-          pending={'test_begin_debug_returns_generator_budget_unavailable_while_the_budget_manifest_is_absent','test_run_debug_slice_returns_generator_budget_unavailable_while_the_budget_manifest_is_absent'}
-          result={'source':frozen['source'],'tree':frozen['tree'],'scope':'manifest caches and original Challenge certification/refusal/retry; no broad CI or whole-game acceptance','passed':0,'pending':0,'assertions':0,'suites':[]}
-          for name,script in [('budget-cache','tests/unit/test_minesweeper_budget_cache.gd'),('board-generator','tests/unit/test_minesweeper_board_generator.gd'),('scene-first-reveal','tests/unit/test_scene_first_reveal.gd')]:
-              expected=re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(),re.M)
-              root=ET.parse(out/(name+'.xml')).getroot();rows=list(root.iter('testcase'))
-              assert collections.Counter((r.attrib['classname'],r.attrib['name']) for r in rows)==collections.Counter((script,n) for n in expected),name
-              assert not any(list(root.iter(tag)) for tag in ['failure','error']),name
-              passed=0;skipped=0;assertions=0
-              for row in rows:
-                  if row.attrib['name'] in pending and name=='board-generator':
-                      assert row.find('skipped') is not None,row.attrib
-                      skipped+=1
-                  else:
-                      assert row.find('skipped') is None and row.attrib.get('status')=='pass' and int(row.attrib.get('assertions','0'))>0,row.attrib
-                      passed+=1;assertions+=int(row.attrib['assertions'])
-              assert skipped==(2 if name=='board-generator' else 0)
-              children=[json.loads(s) for s in (out/(name+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
-              assert len(children)==1 and children[0]['exit_code']==0,name
-              log=pathlib.Path('.godot/phase2r_logs',name+'.log').read_text(encoding='utf-8-sig')
-              assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',log),name
-              result['passed']+=passed;result['pending']+=skipped;result['assertions']+=assertions
-              result['suites'].append({'name':name,'passed':passed,'pending':skipped,'assertions':assertions,'child':children[0]})
-          assert result['passed']==50 and result['pending']==2,result
-          assert not subprocess.check_output(['git','status','--porcelain'],text=True).strip()
-          assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()==frozen['tree']
-          (out/'gate.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
-          print(json.dumps(result))
-          '@ | python -
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $arguments = @('--rendering-method','gl_compatibility','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_later_caption_create.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/later-caption-create.xml')
+          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'later-caption-baseline' -LogName 'later-caption-create.log' -GodotArgs $arguments -EvidenceLogPath '.godot/ci/later-caption.jsonl' -TimeoutSeconds 240 -Rendered
+          exit $LASTEXITCODE
       - name: Retain evidence on every outcome
         if: always()
         run: |
@@ -210,7 +138,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: scene-challenge-acceptance-${{ github.run_id }}-${{ github.run_attempt }}
+          name: scene-later-caption-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             source/.godot/ci
             source/.godot/phase2r_logs
