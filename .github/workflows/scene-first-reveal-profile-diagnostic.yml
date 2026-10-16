@@ -135,9 +135,9 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue
-          $create = @('--rendering-method','gl_compatibility','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_seven_day_connected_create.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/connected-create.xml','--','--phase2r-bootstrap-mode=test_manual')
-          $load = @('--rendering-method','gl_compatibility','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_seven_day_connected_load.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/connected-load.xml','--','--phase2r-bootstrap-mode=test_manual')
-          $terminalLoad = @('--rendering-method','gl_compatibility','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_seven_day_terminal_load.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/terminal-load.xml','--','--phase2r-bootstrap-mode=test_manual')
+          $create = @('--rendering-method','gl_compatibility','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_seven_day_connected_create.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/connected-create.xml')
+          $load = @('--rendering-method','gl_compatibility','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_seven_day_connected_load.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/connected-load.xml')
+          $terminalLoad = @('--rendering-method','gl_compatibility','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_seven_day_terminal_load.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/terminal-load.xml')
           & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'connected' -LogName 'connected-create.log' -GodotArgs $create -NextGodotArgs $load -NextLogName 'connected-load.log' -ThirdGodotArgs $terminalLoad -ThirdLogName 'terminal-load.log' -EvidenceLogPath '.godot/ci/connected.jsonl' -TimeoutSeconds 600 -Rendered
           exit $LASTEXITCODE
       - name: Verify exact test census and frozen source
