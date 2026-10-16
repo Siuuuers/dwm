@@ -106,7 +106,7 @@ static func validate_reading_checkpoint(checkpoint: Dictionary, snapshot: Dictio
 		if not scene.ok: return scene
 		if snapshot.get("schema_version") != 9 or snapshot.get("route_id") != "scene" \
 				or not snapshot.get("command_receipts") is Dictionary or not snapshot.get("scene") is Dictionary:
-			return _fail(&"reading_saved_run_required")
+			return _saved_run_failure(snapshot, "scene_envelope")
 		var registered := SCENE_ENTRIES.scene_registration()
 		if not registered.ok: return registered
 		var receipts: Dictionary = SCENE_CONTRACT.validate_scene_receipts(snapshot.command_receipts, registered.value, _scene_issuer, _scene_creation_owner, snapshot.contacts)
@@ -123,12 +123,12 @@ static func validate_reading_checkpoint(checkpoint: Dictionary, snapshot: Dictio
 	if not snapshot.get("lifecycle") is Dictionary or not snapshot.get("gameplay") is Dictionary \
 			or not snapshot.get("contacts") is Dictionary \
 			or (not _scene_terminal_plan(snapshot) and not snapshot.gameplay.get("route_context") is Dictionary):
-		return _fail(&"reading_saved_run_required")
+		return _saved_run_failure(snapshot, "saved_owner_sections")
 	var reading: Variant = checkpoint.get("reading_session")
 	if reading is Dictionary and typeof(reading.get("schema_version")) == TYPE_INT and reading.schema_version == 3:
 		if reading.get("family") == "ending": return _ending_reading(checkpoint, snapshot, reading)
 		return _hospital_reading(checkpoint, snapshot, reading)
-	if snapshot.get("route_id") != "dating": return _fail(&"reading_saved_run_required")
+	if snapshot.get("route_id") != "dating": return _saved_run_failure(snapshot, "dating_route")
 	if reading is Dictionary and typeof(reading.get("schema_version")) == TYPE_INT \
 			and reading.schema_version == 4:
 		if not READING_NEXT.valid_marker_reading_shape(reading): return _fail(&"reading_session_invalid")
@@ -335,7 +335,7 @@ static func _scene_checkpoint_reference(value: Variant) -> bool:
 ## just-completed tail while the durable cursor (and frozen cache) move forward.
 ## A future cached presentation is not an admitted History frame.
 static func _ending_reading(checkpoint: Dictionary, snapshot: Dictionary, reading: Dictionary) -> Dictionary:
-	if snapshot.get("route_id") != "ending": return _fail(&"reading_saved_run_required")
+	if snapshot.get("route_id") != "ending": return _saved_run_failure(snapshot, "ending_route")
 	if not _exact(reading, ["schema_version", "family", "catalogue_fingerprint", "boundary", "ledger", "frontier"]) \
 			or reading.family != "ending" or not FROZEN._field(reading.catalogue_fingerprint, "id") \
 			or reading.boundary not in ["line", "between_entries"] or not reading.frontier is Dictionary:
@@ -425,7 +425,7 @@ static func _ending_reading(checkpoint: Dictionary, snapshot: Dictionary, readin
 ## command identity. A completed anchor is needed by the coordinator's produced
 ## checkpoints, including those after increment_day; it is not a playable line.
 static func _hospital_reading(checkpoint: Dictionary, snapshot: Dictionary, reading: Dictionary) -> Dictionary:
-	if snapshot.get("route_id") != "hospital": return _fail(&"reading_saved_run_required")
+	if snapshot.get("route_id") != "hospital": return _saved_run_failure(snapshot, "hospital_route")
 	if not _exact(reading, ["schema_version", "family", "catalogue_fingerprint", "boundary", "ledger", "frontier"]) \
 			or reading.family != "hospital" or not FROZEN._field(reading.catalogue_fingerprint, "id") \
 			or reading.boundary not in ["line", "between_entries"] or not reading.frontier is Dictionary:
@@ -869,7 +869,7 @@ static func _validate_scene_terminal(snapshot: Dictionary) -> Dictionary:
 	if snapshot.get("schema_version") != 9 or snapshot.get("route_id") != "ending" \
 			or not snapshot.get("command_receipts") is Dictionary or not snapshot.get("contacts") is Dictionary \
 			or not snapshot.get("scene") is Dictionary:
-		return _fail(&"reading_saved_run_required")
+		return _saved_run_failure(snapshot, "scene_terminal_envelope")
 	var plan: Dictionary = snapshot.lifecycle.ending_plan
 	var projected := ENDING.build_scene(plan, str(snapshot.lifecycle.get("run_id", "")) + ":ending:0")
 	if not projected.ok: return projected
@@ -919,3 +919,10 @@ static func _fail(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code, "message": str(code), "details": {}}
 
 
+
+static func _saved_run_failure(snapshot: Dictionary, phase: String) -> Dictionary:
+	var result := _fail(&"reading_saved_run_required")
+	result["details"] = {"phase": phase, "schema_version": snapshot.get("schema_version"),
+		"route_id": snapshot.get("route_id"), "scene_terminal": _scene_terminal_plan(snapshot),
+		"sections": snapshot.keys()}
+	return result
