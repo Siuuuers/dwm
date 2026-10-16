@@ -23,6 +23,7 @@ signal ending_playback_retired(playback_token: String, ending_id: String)
 signal scene_art_changed
 signal computer_hold_changed
 signal reading_session_changed
+signal scene_terminal_retired(admission_id: String)
 signal scene_activation_confirmed(operation_id: String)
 signal scene_activation_failed(operation_id: String, result: Dictionary)
 ## Exact command retained by the Hospital physical owner; emitted only by its native end.
@@ -112,14 +113,25 @@ func retire_scene_for_ending(admission_id: String) -> Dictionary:
 		return _command_failure(&"scene_terminal_unavailable")
 	if plan.admission.admission_id != admission_id:
 		return _command_failure(&"scene_terminal_admission_mismatch")
-	if not has_reading_session(): return {"ok": true}
+	if not has_reading_session():
+		_publish_scene_terminal_retirement(admission_id)
+		return {"ok": true}
 	if _reading_session.family != "scene" or _reading_session.scene_occurrence != plan.admission.source_occurrence_id:
 		return _command_failure(&"scene_terminal_source_changed")
 	if not _active_entry.is_empty():
 		var retired := abort_current_entry(&"scene_terminal_admitted")
 		if not retired.ok: return retired
 	retire_reading_session()
+	_publish_scene_terminal_retirement(admission_id)
 	return {"ok": true}
+
+
+func _publish_scene_terminal_retirement(admission_id: String) -> void:
+	# Native end_timeline awaits resource cleanup. Its qualified notification is
+	# the only proof that the old reader no longer owns the playback slot.
+	if _runtime_adapter != null and _runtime_adapter.has_active_playback():
+		await _runtime_adapter.timeline_ended_signal
+	scene_terminal_retired.emit(admission_id)
 
 
 func prepare_day_entry(entry_id: String, context: Dictionary) -> Dictionary:

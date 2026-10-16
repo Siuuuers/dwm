@@ -5101,12 +5101,28 @@ func admit_scene_target(target_id: String, trigger_command_id: String) -> Dictio
 	var released: Dictionary = _mutation_gate.release(&"causal_transaction", lease)
 	if not released.get("ok", false): return released
 	if result.get("ok", false) and result.get("value", {}).get("route") == "ending":
+		var route_after_retirement := _on_scene_terminal_retired.bind(_live_session_fact())
+		_scene_event_bridge.scene_terminal_retired.connect(route_after_retirement, CONNECT_ONE_SHOT | CONNECT_DEFERRED)
 		var retired: Dictionary = _scene_event_bridge.retire_scene_for_ending(str(result.value.admission_id))
-		if not retired.get("ok", false): return _scene_event_fatal(&"scene_terminal_retirement_failed")
-		var router := get_node_or_null("/root/SceneRouter")
-		if router == null: return _scene_event_fatal(&"scene_terminal_route_unavailable")
-		router.goto_ending()
+		if not retired.get("ok", false):
+			if _scene_event_bridge.scene_terminal_retired.is_connected(route_after_retirement):
+				_scene_event_bridge.scene_terminal_retired.disconnect(route_after_retirement)
+			return _scene_event_fatal(&"scene_terminal_retirement_failed")
 	return result
+
+func _on_scene_terminal_retired(admission_id: String, session: Dictionary) -> void:
+	# A late native completion cannot route a replaced, loaded, or abandoned run.
+	if not _live_session_active or _live_session_fact() != session: return
+	var lifecycle: Dictionary = _run_lifecycle.to_dict()
+	var plan: Variant = lifecycle.get("ending_plan")
+	if lifecycle.get("state") != "ENDING" or not plan is Dictionary \
+			or plan.get("source_kind") != "scene" or plan.admission.admission_id != admission_id: return
+	if not _mutation_gate.guard_external(&"scene_entry").get("ok", false): return
+	var router := get_node_or_null("/root/SceneRouter")
+	if router == null:
+		_scene_event_fatal(&"scene_terminal_route_unavailable")
+		return
+	router.goto_ending()
 
 func _admit_scene_target_owned(target_id: String, trigger_command_id: String, lease: String) -> Dictionary:
 	var session := capture_live_session()
