@@ -22,6 +22,7 @@ const CONTROL_RECTS := {
 	&"load": Rect2(426, 64, 214, 64), &"skip": Rect2(640, 0, 212, 64),
 	&"auto": Rect2(852, 0, 214, 64), &"next": Rect2(1066, 0, 214, 64),
 }
+var ending_layout := false
 var clock_label: Label
 const PLATE_INSET := 4.0
 const CONTROL_IDS: Array[StringName] = [&"history", &"skip", &"auto", &"save", &"load", &"next"]
@@ -260,8 +261,23 @@ func retire_input() -> void:
 		_next_button.retire_input()
 
 
+func set_ending_layout(enabled: bool) -> void:
+	if ending_layout == enabled: return
+	retire_input()
+	ending_layout = enabled
+	_ensure_controls()
+	position = Vector2(0, 656) if enabled else RAIL_POSITION
+	custom_minimum_size = Vector2(1280, 64) if enabled else RAIL_SIZE
+	size = custom_minimum_size
+	for id: StringName in CONTROL_IDS:
+		var bay: Rect2 = CONTROL_RECTS[id]
+		_buttons[id].position = Vector2(bay.position.x, 0) if enabled else bay.position
+	clock_label.visible = not enabled
+	queue_redraw()
+
+
 func _draw() -> void:
-	if not _roles.is_empty():
+	if not ending_layout and not _roles.is_empty():
 		draw_rect(Rect2(0, 64, 1280, 64), _roles[&"deep"])
 		draw_rect(Rect2(640, 0, 640, 64), _roles[&"deep"])
 

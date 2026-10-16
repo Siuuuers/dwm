@@ -653,6 +653,10 @@ func _sync_transport() -> void:
 	var rehearsal := is_instance_valid(_transport_bridge) \
 		and _transport_bridge.has_method("is_rehearsal_playback") \
 		and bool(_transport_bridge.call("is_rehearsal_playback"))
+	var ending := get_tree().current_scene is EndingScene
+	if transport_rail.ending_layout != ending:
+		transport_rail.set_ending_layout(ending)
+		canvas.queue_redraw()
 	transport_rail.visible = not rehearsal and not _computer_caption_held()
 	if _ending_caption_handoff or not _timed_hold_frontier.is_empty():
 		transport_rail.project(false, false, skip_controller.is_auto_enabled(), false, false, false, false, false)
@@ -1580,7 +1584,7 @@ func _leaf_rect(leaf: RichTextLabel) -> Rect2:
 	return Rect2(scroll.position + stack.position + leaf.position, leaf.size)
 
 func _draw_canvas() -> void:
-	if _caption_theme == null:
+	if _caption_theme == null or transport_rail.ending_layout:
 		return
 	canvas.draw_rect(Rect2(0, 656, 1280, 64), _color(&"deep"))
 

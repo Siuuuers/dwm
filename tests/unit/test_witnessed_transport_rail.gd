@@ -84,6 +84,27 @@ func test_commands_and_clock_use_separate_nonoverlapping_footer_rows() -> void:
 	assert_eq(rail.clock_label.mouse_filter, Control.MOUSE_FILTER_IGNORE)
 
 
+func test_ending_layout_restores_ordinary_layout_without_replacing_controls() -> void:
+	var rail := _new_rail()
+	add_child_autofree(rail)
+	var original_next: Node = rail.get_node("Next")
+	rail.set_ending_layout(true)
+	assert_true(rail.ending_layout)
+	assert_false(rail.clock_label.visible)
+	assert_eq(rail.position, Vector2(0, 656))
+	assert_eq(rail.size, Vector2(1280, 64))
+	for index: int in NAMES.size():
+		assert_eq(rail.get_node(NAMES[index]).position, Vector2(LEFTS[index], 0))
+	rail.set_ending_layout(false)
+	assert_false(rail.ending_layout)
+	assert_true(rail.clock_label.visible)
+	assert_eq(rail.position, Vector2(0, 592))
+	assert_eq(rail.size, Vector2(1280, 128))
+	assert_same(rail.get_node("Next"), original_next)
+	for index: int in NAMES.size():
+		assert_eq(rail.get_node(NAMES[index]).position, Vector2(LEFTS[index], TOPS[index]))
+
+
 func test_projection_keeps_placeholders_visible_disabled_and_modes_truthful() -> void:
 	var rail := _new_rail()
 	assert_true(rail.configure_presentation(CAPTION_THEME.build("en", 100, "AfterHours"), "en"))

@@ -58,5 +58,18 @@ func test_clock_and_upper_transport_on_title_ordinary_and_ending() -> void:
 	await _accept()
 	if not await _wait_line("line.ending.alone.normal.one"): return
 	assert_true(get_tree().current_scene is EndingScene)
-	_reading_layout()
-	await _screenshot("clock-ending")
+	var rail: Control = _caption().transport_rail
+	assert_true(rail.ending_layout)
+	assert_false(rail.clock_label.is_visible_in_tree())
+	assert_eq(rail.position, Vector2(0, 656))
+	assert_eq(rail.size, Vector2(1280, 64))
+	var previous_right := 0.0
+	for name: String in ["History", "Save", "Load", "Skip", "Auto", "Next"]:
+		var button: Control = rail.get_node(name)
+		assert_true(button.is_visible_in_tree())
+		assert_eq(button.position.y, 0.0)
+		assert_eq(button.position.x, previous_right)
+		assert_false(_caption().scroll.get_global_rect().intersects(button.get_global_rect()))
+		previous_right = button.get_rect().end.x
+	assert_eq(previous_right, 1280.0)
+	await _screenshot("ending-bottom-controls")
