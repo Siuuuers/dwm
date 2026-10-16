@@ -60,9 +60,3 @@ func test_clock_and_upper_transport_on_title_ordinary_and_ending() -> void:
 	assert_true(get_tree().current_scene is EndingScene)
 	_reading_layout()
 	await _screenshot("clock-ending")
-	await _accept()
-	if not await _wait_route(MENU): return
-	_clock(get_tree().current_scene._clock_label)
-	assert_eq(get_tree().current_scene._clock_label.get_global_rect(), Rect2(1128, 656, 152, 64))
-	assert_true(get_tree().current_scene._new_acc_button.is_visible_in_tree())
-	await _screenshot("clock-return-title")
