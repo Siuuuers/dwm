@@ -1,25 +1,22 @@
-name: Scene desktop first-Reveal focused acceptance
+name: Scene Challenge bounded timeout diagnosis
 
 on:
   pull_request:
     paths:
       - '.github/workflows/scene-first-reveal-profile-diagnostic.yml'
-
 permissions:
   contents: read
   actions: read
-
 concurrency:
   group: scene-first-reveal-profile-${{ github.event.pull_request.number }}
   cancel-in-progress: true
-
 jobs:
-  profile-first-reveal:
+  challenge-timeout-probe:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
     runs-on: windows-2022
-    timeout-minutes: 30
+    timeout-minutes: 15
     env:
-      BASE_SHA: 281c70086033fe7100e12a6d28f186bae8d3c4a8
+      BASE_SHA: f8b873bd5e0df1dbab2ffaec9301c87d487de74e
       CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
     defaults:
       run:
@@ -29,34 +26,23 @@ jobs:
       - name: Preserve source bytes
         working-directory: .
         run: git config --global core.autocrlf false
-
       - uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          path: controller
-
-      - uses: actions/checkout@v7
-        with:
-          ref: b418eeaa8362ba84b9ba565bdcb476963748e853
+          ref: f8b873bd5e0df1dbab2ffaec9301c87d487de74e
           path: source
-          fetch-depth: 0
-
-      - name: Verify exact scene desktop candidate
+          fetch-depth: 1
+      - name: Apply observation-only bounded test probe
         run: |
           $ErrorActionPreference = 'Stop'
           @'
           import json, os, pathlib, subprocess
-          def git(*args): return subprocess.check_output(['git',*args],text=True).strip()
-          assert git('rev-parse','HEAD') == 'b418eeaa8362ba84b9ba565bdcb476963748e853'
-          assert git('rev-parse','HEAD^{tree}') == '78d3d2d3464222c58740fe0df7e3dd70a463d862'
-          assert git('rev-parse','HEAD^') == 'e90edb42ce3934b6ae7582e07da0f0bf98df238e'
-          out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
-          paths = git('diff','--name-only',os.environ['BASE_SHA'],'HEAD').splitlines()
-          assert set(paths) == set(["autoload/ApplicationBootstrap.gd", "scripts/application/minesweeper/SaveManagerDesktopBoardPort.gd", "tests/unit/test_save_manager_desktop_first_reveal_port.gd", "tests/integration/scene_desktop_first_reveal_child.gd", "tests/integration/test_scene_desktop_first_reveal_create.gd", "tests/integration/test_scene_desktop_first_reveal_load.gd", "tests/unit/test_save_manager_desktop_first_reveal_port.gd.uid", "tests/integration/scene_desktop_first_reveal_child.gd.uid", "tests/integration/test_scene_desktop_first_reveal_create.gd.uid", "tests/integration/test_scene_desktop_first_reveal_load.gd.uid", "evidence/phase_2r/runtime/game_state_surface.json", "evidence/phase_2r/runtime/save_manager_surface.json", "scripts/application/run/SaveManagerCheckpointPort.gd", "scripts/application/minesweeper/MinesweeperRoundCoordinator.gd", "scripts/application/minesweeper/DesktopFirstRevealSnapshotComposer.gd", "tests/unit/test_desktop_first_reveal_snapshot_composer.gd", "tests/unit/test_scene_save_identity_flush.gd"])
-          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':git('rev-parse','HEAD'),'controller':os.environ['CONTROLLER_SHA'],'paths':paths},indent=2),encoding='utf-8')
+          out=pathlib.Path('.godot/ci'); out.mkdir(parents=True,exist_ok=True)
+          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==os.environ['BASE_SHA']
+          path=pathlib.Path('tests/unit/test_scene_first_reveal.gd')
+          path.write_text(json.loads(r'''"extends \"res://addons/gut/test.gd\"\n## Presentation-facing first-Reveal contract over the real physical owner, Profile\n## ledger, reducer and generator. Checkpoint authority remains an injected seam.\nconst FIXTURE := preload(\"res://tests/support/SceneChallengeFixture.gd\")\nconst LEDGER := preload(\"res://scripts/profile/DatingAttemptLedger.gd\")\nconst ENVELOPE := preload(\"res://scripts/application/run/DatingChallengeEnvelope.gd\")\nconst REDUCER := preload(\"res://scripts/domain/minesweeper/MinesweeperBoardReducer.gd\")\n\nvar f: RefCounted\n\nfunc before_each() -> void:\n\tf = FIXTURE.new()\n\tassert_true(f.setup(\"TEST.scene.first_reveal\").ok)\n\t_arm_unfinished_layout()\n\tassert_true(f.begin().ok)\n\nfunc _arm_unfinished_layout() -> void:\n\tvar mines: Array = []\n\tfor index in 33: mines.append(index)\n\tmines.append_array([288, 289, 307])\n\tf.generation.arm_materialize({\"schema_version\": 1, \"width\": 18, \"height\": 18, \"mine_indices\": mines, \"mine_count\": 36})\n\nfunc after_each() -> void:\n\tf.dispose()\n\nfunc _pull() -> Dictionary:\n\treturn f.owner.pull_scene_panel(f.token)\n\nfunc _reveal(index: int, revision: int = 0) -> Dictionary:\n\treturn f.owner.dispatch_scene_panel_action(f.token, \"reveal\", index, revision)\n\nfunc diagnostic_unselected_unstarted_panel_is_a_fixed_covered_board_without_start_mutation() -> void:\n\tvar view: Dictionary = _pull()\n\tassert_true(view.ok, str(view))\n\tif not view.ok: return\n\tassert_eq(view.value.phase, \"never_started\")\n\tassert_eq(view.value.host, \"canonical_solo\")\n\tassert_eq(view.value.state, \"never_started\")\n\tassert_eq(view.value.actions, [\"reveal\"])\n\tassert_eq(view.value.revision, 0)\n\tassert_eq(view.value.board.width, 18)\n\tassert_eq(view.value.board.height, 18)\n\tassert_eq(view.value.board.cells.size(), 324)\n\tassert_eq(view.value.board.cells[323].actions, [\"reveal\"])\n\tassert_eq(f.record(), {})\n\tassert_true(f.attempt().ok)\n\tassert_eq(f.attempt().value, {})\n\tassert_eq(f.authority.checkpoints.size(), 0)\n\nfunc diagnostic_unselected_first_reveal_materializes_commits_and_checkpoints_once() -> void:\n\tvar revealed: Dictionary = _reveal(323)\n\tassert_true(revealed.ok, str(revealed))\n\tif not revealed.ok: return\n\tvar record: Dictionary = f.record()\n\tassert_eq(record.phase, \"active\")\n\tassert_eq(record.state, \"in_progress\")\n\tassert_true(record.board is Dictionary)\n\tassert_true(record.board.revealed_indices.has(323))\n\tvar attempt: Dictionary = f.attempt().value\n\tassert_eq(attempt.materialization_receipt.first_cell_index, 323)\n\tassert_eq(attempt.record, record)\n\tassert_eq(attempt.revision, 1)\n\tassert_eq(f.authority.checkpoints.size(), 1)\n\nfunc diagnostic_unselected_duplicate_first_reveal_reuses_exact_profile_result() -> void:\n\tassert_true(_reveal(323).ok)\n\tvar record: Dictionary = f.record().duplicate(true)\n\tvar attempt: Dictionary = f.attempt().value.duplicate(true)\n\tvar checkpoints: int = f.authority.checkpoints.size()\n\tvar duplicate: Dictionary = _reveal(323, 0)\n\tassert_true(duplicate.ok, str(duplicate))\n\tassert_eq(f.record(), record)\n\tassert_eq(f.attempt().value, attempt)\n\tassert_eq(f.authority.checkpoints.size(), checkpoints)\n\nfunc diagnostic_unselected_non_reveal_bad_cell_and_stale_revision_refuse_before_start() -> void:\n\tassert_false(f.owner.dispatch_scene_panel_action(f.token, \"flag\", 323, 0).ok)\n\tassert_false(_reveal(-1).ok)\n\tassert_false(_reveal(324).ok)\n\tassert_false(_reveal(323, 1).ok)\n\tassert_eq(f.record(), {})\n\tassert_eq(f.attempt().value, {})\n\tassert_eq(f.authority.checkpoints.size(), 0)\n\nfunc diagnostic_unselected_debug_first_reveal_checkpoints_exact_initial_frontier_and_survives_owner_restart() -> void:\n\tf.dispose()\n\tf = FIXTURE.new()\n\tf.state.inventory = {\"debug_key\": 1}\n\tassert_true(f.setup(\"TEST.scene.first_reveal.debug\").ok)\n\tassert_true(f.begin().ok)\n\tvar revealed: Dictionary = _reveal(323)\n\tassert_true(revealed.ok, str(revealed))\n\tif not revealed.ok: return\n\tvar record: Dictionary = f.record().duplicate(true)\n\tvar attempt: Dictionary = f.attempt().value.duplicate(true)\n\tassert_eq(record.phase, \"preparing\")\n\tassert_null(record.board)\n\tassert_eq(record.envelope.preparation.forced_cell, 323)\n\tassert_eq(record.envelope.preparation.slice_sequence, 0)\n\tassert_eq(attempt.record, record)\n\tassert_eq(attempt.revision, 1)\n\tassert_eq(f.authority.checkpoints.size(), 1)\n\tassert_true(f.recreate_owner().ok)\n\tassert_true(f.begin().ok)\n\tassert_eq(_pull().value.phase, \"preparing\")\n\tassert_eq(f.record(), record)\n\tvar duplicate: Dictionary = _reveal(323, 0)\n\tassert_true(duplicate.ok, str(duplicate))\n\tassert_eq(f.record(), record)\n\tassert_eq(f.attempt().value, attempt)\n\tassert_eq(f.authority.checkpoints.size(), 1)\n\nfunc diagnostic_unselected_profile_refusal_leaves_first_reveal_absent_and_retry_commits_once() -> void:\n\tf.storage.refuse = true\n\tvar refused: Dictionary = _reveal(323)\n\tassert_false(refused.ok, str(refused))\n\tassert_eq(f.record(), {})\n\tassert_eq(f.attempt().value, {})\n\tassert_eq(f.authority.checkpoints.size(), 0)\n\tf.storage.refuse = false\n\tvar retried: Dictionary = _reveal(323)\n\tassert_true(retried.ok, str(retried))\n\tif not retried.ok: return\n\tassert_eq(f.attempt().value.revision, 1)\n\tassert_eq(f.attempt().value.materialization_receipt.first_cell_index, 323)\n\tassert_eq(f.attempt().value.record, f.record())\n\tassert_eq(f.authority.checkpoints.size(), 1)\n\nfunc diagnostic_unselected_profile_ahead_first_reveal_recovers_exact_attempt_after_cold_owner_retry() -> void:\n\tf.authority.reject_checkpoint = true\n\tvar refused: Dictionary = _reveal(323)\n\tassert_false(refused.ok, str(refused))\n\tvar retained: Dictionary = f.attempt().value.duplicate(true)\n\tassert_eq(retained.revision, 1)\n\tassert_eq(retained.materialization_receipt.first_cell_index, 323)\n\tassert_eq(f.authority.checkpoints.size(), 0)\n\tf.state.route_context = {}\n\tassert_true(f.recreate_owner().ok)\n\tassert_true(f.begin().ok)\n\tassert_eq(_pull().value.phase, \"checkpoint_retry\")\n\tf.authority.reject_checkpoint = false\n\tvar retried: Dictionary = f.action(\"retry\")\n\tassert_true(retried.ok, str(retried))\n\tassert_eq(f.attempt().value, retained)\n\tassert_eq(f.record(), retained.record)\n\tassert_eq(f.authority.checkpoints.size(), 1)\n\nfunc diagnostic_unselected_immediately_winning_first_reveal_duplicate_is_write_free() -> void:\n\tvar mines: Array = []\n\tfor index in 36: mines.append(index)\n\tf.generation.arm_materialize({\"schema_version\": 1, \"width\": 18, \"height\": 18, \"mine_indices\": mines, \"mine_count\": 36})\n\tvar revealed: Dictionary = _reveal(323)\n\tassert_true(revealed.ok, str(revealed))\n\tif not revealed.ok: return\n\tvar record: Dictionary = f.record().duplicate(true)\n\tvar attempt: Dictionary = f.attempt().value.duplicate(true)\n\tassert_eq(record.phase, \"terminal\")\n\tassert_eq(record.state, \"won\")\n\tassert_eq(f.authority.checkpoints.size(), 1)\n\tvar duplicate: Dictionary = _reveal(323, 0)\n\tassert_true(duplicate.ok, str(duplicate))\n\tassert_eq(f.record(), record)\n\tassert_eq(f.attempt().value, attempt)\n\tassert_eq(f.authority.checkpoints.size(), 1)\n\nfunc diagnostic_unselected_fresh_profile_entry_refuses_a_prebuilt_second_action() -> void:\n\tassert_true(_reveal(323).ok)\n\tvar attempt: Dictionary = f.attempt().value.duplicate(true)\n\tvar record: Dictionary = attempt.record.duplicate(true)\n\tvar covered := -1\n\tfor index in int(record.board.width) * int(record.board.height):\n\t\tif not record.board.revealed_indices.has(index) and not record.board.flagged_indices.has(index):\n\t\t\tcovered = index\n\t\t\tbreak\n\tassert_gte(covered, 0)\n\tif covered < 0: return\n\tvar marked: Dictionary = REDUCER.set_flag(record.board, covered, true, \"extra.after-first-reveal\")\n\tassert_true(marked.ok, str(marked))\n\tif not marked.ok: return\n\tvar plain: Dictionary = ENVELOPE.plain_frontier(marked.value.board)\n\tassert_true(plain.ok, str(plain))\n\tif not plain.ok: return\n\trecord.board = plain.value\n\tassert_true(LEDGER.validate_record(record))\n\tvar rejected: Dictionary = LEDGER.prepare_update({}, str(attempt.run_id), str(attempt.slot_id),\n\t\tstr(attempt.branch_id), record, 0, int(attempt.materialization_receipt.first_cell_index), {}, {\"mode\": \"fresh\"})\n\tassert_false(rejected.ok, str(rejected))\n\tassert_eq(rejected.get(\"code\"), &\"dating_fresh_entry_required\")\n\nfunc test_debug_certification_applies_retained_reveal_and_recovers_checkpoint_refusal() -> void:\n\tf.dispose()\n\tf = FIXTURE.new()\n\tf.state.inventory = {\"debug_key\": 1}\n\tassert_true(f.setup(\"TEST.scene.first_reveal.certification\").ok)\n\tassert_true(f.begin().ok)\n\t_probe(\"before_first_reveal\", -1)\n\tvar started: Dictionary = _reveal(323)\n\t_probe(\"after_first_reveal\", -1)\n\tassert_true(started.ok, str(started))\n\tif not started.ok: return\n\tvar slices := 0\n\twhile f.record().phase == \"preparing\" and slices < 3:\n\t\t# Every slice is Profile-durable before the intentionally refused Run write.\n\t\tvar saved_run: Dictionary = f.state.route_context.duplicate(true)\n\t\tf.authority.reject_checkpoint = true\n\t\t_probe(\"before_prepare\", slices)\n\t\tvar prepared: Dictionary = f.action(\"prepare\")\n\t\t_probe(\"after_prepare\", slices)\n\t\tassert_false(prepared.ok)\n\t\tvar retained: Dictionary = f.attempt().value.duplicate(true)\n\t\tassert_eq(retained.record.envelope.forced_cell, 323)\n\t\tf.state.route_context = saved_run.duplicate(true)\n\t\t_probe(\"before_recreate\", slices)\n\t\tassert_true(f.recreate_owner().ok)\n\t\t_probe(\"after_recreate\", slices)\n\t\t_probe(\"before_begin\", slices)\n\t\tassert_true(f.begin().ok)\n\t\t_probe(\"after_begin\", slices)\n\t\tassert_eq(_pull().value.phase, \"checkpoint_retry\")\n\t\tf.authority.reject_checkpoint = false\n\t\t_probe(\"before_retry\", slices)\n\t\tvar retried: Dictionary = f.action(\"retry\")\n\t\t_probe(\"after_retry\", slices)\n\t\tassert_true(retried.ok, str(retried))\n\t\tif not retried.ok: return\n\t\tassert_eq(f.attempt().value, retained)\n\t\tassert_eq(f.record(), retained.record)\n\t\tslices += 1\n\t_probe(\"bounded_diagnostic_complete\", slices)\n\tassert_true(false, \"Observation-only bounded probe; NOT gameplay acceptance\")\n\treturn\n\nfunc _probe(stage: String, iteration: int) -> void:\n\tvar record: Dictionary = f.record()\n\tvar preparation: Variant = record.get(\"envelope\", {}).get(\"preparation\")\n\tvar frontier: Dictionary = preparation if preparation is Dictionary else {}\n\tprint(\"DWM_CHALLENGE_PROBE \" + JSON.stringify({\"stage\": stage, \"iteration\": iteration,\n\t\t\"ticks_msec\": Time.get_ticks_msec(), \"phase\": record.get(\"phase\"),\n\t\t\"status\": frontier.get(\"status\"), \"slice_sequence\": frontier.get(\"slice_sequence\"),\n\t\t\"operations_used\": frontier.get(\"operations_used\"), \"candidate_ordinal\": frontier.get(\"candidate_ordinal\")}))\n"'''),encoding='utf-8')
+          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'controller':os.environ['CONTROLLER_SHA'],'scope':'observation-only three-iteration timing probe; intentional failed assertion, no acceptance'}),encoding='utf-8')
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
       - name: Install exact Godot standard engine
         run: |
           $ErrorActionPreference = 'Stop'
@@ -72,7 +58,8 @@ jobs:
           "GODOT_CONSOLE_PATH=$console" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
           @{ version=$version; archive_sha256=$expected; console_sha256=(Get-FileHash $console -Algorithm SHA256).Hash.ToLowerInvariant() } | ConvertTo-Json | Set-Content .godot/ci/engine.json -Encoding utf8
 
-      - name: Import and freeze exact candidate
+
+      - name: Import and freeze diagnostic source
         timeout-minutes: 8
         run: |
           $ErrorActionPreference = 'Stop'
@@ -83,123 +70,25 @@ jobs:
           New-Item -ItemType Directory -Force -Path $env:APPDATA,$env:LOCALAPPDATA,$env:DWM_TEST_ROOT | Out-Null
           & $env:GODOT_CONSOLE_PATH --headless --path (Get-Location) --import --log-file "$output/import.log"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Candidate import script error' }
+          if (Select-String "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Import failed' }
           git restore --worktree -- project.godot
-          & './tools/testing/Invoke-PublicSurfaceValidation.ps1' -Regenerate
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          & './tools/testing/Invoke-PublicSurfaceValidation.ps1'
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @'
-          import pathlib, subprocess
-          tracked = set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())
-          assert tracked <= set(["evidence/phase_2r/runtime/game_state_surface.json", "evidence/phase_2r/runtime/save_manager_surface.json"]), sorted(tracked)
-          assert set(subprocess.check_output(['git','ls-files','--others','--exclude-standard'],text=True).splitlines()) == {'tests/unit/test_scene_save_identity_flush.gd.uid'}
-          uid_value = pathlib.Path('tests/unit/test_scene_save_identity_flush.gd.uid').read_text().strip()
-          assert uid_value.startswith('uid://') and len(uid_value)>6
+          import subprocess
+          assert subprocess.check_output(['git','diff','--name-only'],text=True).splitlines()==['tests/unit/test_scene_first_reveal.gd']
+          assert not subprocess.check_output(['git','ls-files','--others','--exclude-standard'],text=True).strip()
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git add --all
-          git diff --cached --check
+          git add tests/unit/test_scene_first_reveal.gd
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit --allow-empty -m 'Freeze scene desktop first-Reveal candidate'
+          git commit -m 'Freeze observation-only Challenge timeout probe'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @{ source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); parent=(git rev-parse HEAD^) } | ConvertTo-Json | Set-Content .godot/ci/candidate-commit.json -Encoding utf8
-
-      - name: Run focused unit suites
+      - name: Run bounded diagnostic with truthful child exit
         run: |
-          $ErrorActionPreference = 'Stop'
-          $cases = @(
-            @{Name='unit-first-reveal-port'; Script='tests/unit/test_save_manager_desktop_first_reveal_port.gd'},
-            @{Name='unit-desktop-board-audio'; Script='tests/unit/test_save_manager_desktop_board_audio.gd'},
-            @{Name='unit-desktop-composer'; Script='tests/unit/test_desktop_first_reveal_snapshot_composer.gd'},
-            @{Name='unit-scene-save-identity-flush'; Script='tests/unit/test_scene_save_identity_flush.gd'}
-          )
-          foreach ($case in $cases) {
-            $name = $case.Name
-            $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$($case.Script)",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/${name}.xml")
-            & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId $name -LogName "${name}.log" -GodotArgs $arguments -EvidenceLogPath ".godot/ci/${name}.jsonl" -TimeoutSeconds 600
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          }
-
-      - name: Run connected rendered creator and cold loader pairs
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $pairs = @(
-            @{Name='desktop-first-reveal'; Prefix='tests/integration/test_scene_desktop_first_reveal_'},
-            @{Name='optional-never-started'; Prefix='tests/integration/test_scene_optional_never_started_'}
-          )
-          foreach ($pair in $pairs) {
-            $name = $pair.Name
-            $createArgs = @('--rendering-method','gl_compatibility','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$($pair.Prefix)create.gd",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/${name}-create.xml")
-            $loadArgs = @('--rendering-method','gl_compatibility','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$($pair.Prefix)load.gd",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/${name}-load.xml")
-            & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId $name -LogName "${name}-create.log" -GodotArgs $createArgs -NextGodotArgs $loadArgs -NextLogName "${name}-load.log" -EvidenceLogPath ".godot/ci/${name}.jsonl" -TimeoutSeconds 600 -Rendered
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          }
-
-      - name: Verify complete focused census proofs and frozen source
-        run: |
-          $ErrorActionPreference = 'Stop'
-          @'
-          import collections, json, pathlib, re, subprocess, xml.etree.ElementTree as ET
-          def git(*args): return subprocess.check_output(['git',*args],text=True).strip()
-          out = pathlib.Path('.godot/ci')
-          def read(name): return json.loads((out/name).read_text(encoding='utf-8-sig'))
-          frozen = read('candidate-commit.json')
-          assert frozen['parent'] == 'b418eeaa8362ba84b9ba565bdcb476963748e853'
-          assert frozen['source'] == git('rev-parse','HEAD') and frozen['tree'] == git('rev-parse','HEAD^{tree}')
-          generated = set(git('diff','--name-only','b418eeaa8362ba84b9ba565bdcb476963748e853','HEAD').splitlines())
-          assert {'tests/unit/test_scene_save_identity_flush.gd.uid'} <= generated <= set(["evidence/phase_2r/runtime/game_state_surface.json", "evidence/phase_2r/runtime/save_manager_surface.json", "tests/unit/test_scene_save_identity_flush.gd.uid"]), sorted(generated)
-          result_generated = sorted(generated)
-          result = {'scope':'scene desktop first-Reveal diagnostic candidate; acceptance only if every gate passes; broader CI and prior optional Challenge timeout remain unresolved','status':'passed','source':frozen['source'],'tree':frozen['tree'],'candidate':'b418eeaa8362ba84b9ba565bdcb476963748e853','candidate_tree':'78d3d2d3464222c58740fe0df7e3dd70a463d862','cases':0,'assertions':0,'suites':[],'generated_paths':result_generated,'unresolved':{'suite':'tests/unit/test_scene_first_reveal.gd','run':38773783369,'exit_code':124,'timeout_seconds':600,'counted_in_this_gate':False}}
-          cases = [["unit-first-reveal-port", "tests/unit/test_save_manager_desktop_first_reveal_port.gd"], ["unit-desktop-board-audio", "tests/unit/test_save_manager_desktop_board_audio.gd"], ["unit-desktop-composer", "tests/unit/test_desktop_first_reveal_snapshot_composer.gd"], ["unit-scene-save-identity-flush", "tests/unit/test_scene_save_identity_flush.gd"], ["desktop-first-reveal-create", "tests/integration/test_scene_desktop_first_reveal_create.gd"], ["desktop-first-reveal-load", "tests/integration/test_scene_desktop_first_reveal_load.gd"], ["optional-never-started-create", "tests/integration/test_scene_optional_never_started_create.gd"], ["optional-never-started-load", "tests/integration/test_scene_optional_never_started_load.gd"]]
-          for name,script in cases:
-              expected = [(script,n) for n in re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(),re.M)]
-              root = ET.parse(out/(name+'.xml')).getroot()
-              rows = list(root.iter('testcase'))
-              assert expected and collections.Counter((r.attrib['classname'],r.attrib['name']) for r in rows) == collections.Counter(expected), name
-              assert all(r.attrib.get('status') == 'pass' and int(r.attrib.get('assertions','0')) > 0 for r in rows),name
-              assert not any(list(root.iter(tag)) for tag in ['failure','error','skipped']),name
-              log = pathlib.Path('.godot/phase2r_logs',name+'.log').read_text(encoding='utf-8-sig')
-              assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',log),name
-              count = sum(int(r.attrib['assertions']) for r in rows)
-              result['cases'] += len(rows); result['assertions'] += count
-              result['suites'].append({'name':name,'cases':len(rows),'assertions':count})
-          for name,script in [["unit-first-reveal-port", "tests/unit/test_save_manager_desktop_first_reveal_port.gd"], ["unit-desktop-board-audio", "tests/unit/test_save_manager_desktop_board_audio.gd"], ["unit-desktop-composer", "tests/unit/test_desktop_first_reveal_snapshot_composer.gd"], ["unit-scene-save-identity-flush", "tests/unit/test_scene_save_identity_flush.gd"]]:
-              children = [json.loads(s) for s in (out/(name+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
-              assert len(children)==1 and children[0]['exit_code']==0,name
-          for name,prefix in [["desktop-first-reveal", "tests/integration/test_scene_desktop_first_reveal_"], ["optional-never-started", "tests/integration/test_scene_optional_never_started_"]]:
-              children = [json.loads(s) for s in (out/(name+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
-              assert len(children)==2 and all(r['exit_code']==0 for r in children),name
-              assert children[0]['user_dir']==children[1]['user_dir'] and children[0]['test_root']==children[1]['test_root'],name
-              for child,phase in zip(children,['create','load']):
-                  assert '-gtest=res://'+prefix+phase+'.gd' in child['argv']
-                  assert '--headless' not in child['argv']
-                  assert '--rendering-method' in child['argv'] and 'gl_compatibility' in child['argv']
-          create = read('scene-desktop-first-reveal-create-proof.json'); loaded = read('scene-desktop-first-reveal-load-proof.json')
-          assert create['phase']=='create' and loaded['phase']=='load'
-          assert create['process_id'] != loaded['process_id'] and loaded['creator_process_id']==create['process_id']
-          assert create['user_dir']==loaded['user_dir']
-          assert create['ready_count']==loaded['ready_count']==1
-          assert create['refused_writes']==loaded['refused_writes']==1
-          for key in ['file_hashes','run','profile','reading_session']: assert create[key]==loaded[key],key
-          assert loaded['destination_branch'] != create['run']['lifecycle']['branch_id']
-          assert create['file_hashes'] and all(re.fullmatch('[a-f0-9]{64}',v) for v in create['file_hashes'].values())
-          oc = read('optional-never_started-create-proof.json'); ol = read('optional-never_started-load-proof.json')
-          assert oc['mode']==ol['mode']=='never_started' and oc['outcome']==ol['outcome']=='never_started'
-          assert oc['creator_process_id']==ol['creator_process_id'] and oc['creator_process_id'] != ol['loader_process_id']
-          assert oc['creator_ready_count']==ol['ready_count']==1
-          for key in ['closure','profile','record','slot_sha256']: assert oc[key]==ol[key],key
-          assert re.fullmatch('[a-f0-9]{64}',oc['slot_sha256']) and oc['refusals']==0
-          assert not git('diff','--name-only') and not git('diff','--cached','--name-only')
-          assert not git('ls-files','--others','--exclude-standard')
-          assert git('rev-parse','HEAD^{tree}')==frozen['tree']
-          assert result['cases'] == 31, result
-          (out/'gate.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
-          print(json.dumps(result))
-          '@ | python -
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
+          $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/unit/test_scene_first_reveal.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/challenge-probe.xml')
+          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'challenge-probe' -LogName 'challenge-probe.log' -GodotArgs $arguments -EvidenceLogPath '.godot/ci/challenge-probe.jsonl' -TimeoutSeconds 180
+          exit $LASTEXITCODE
       - name: Retain evidence on every outcome
         if: always()
         run: |
@@ -251,7 +140,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: scene-desktop-hook-${{ github.run_id }}-${{ github.run_attempt }}
+          name: scene-challenge-probe-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             source/.godot/ci
             source/.godot/phase2r_logs
