@@ -252,9 +252,12 @@ func on_ending_playback_completed(completion: Dictionary) -> void:
 		_pending_ending_command = {}
 		_pending_completion = {}
 		var resumed: Dictionary = resume_ending()
-		if not resumed.get("ok", false): _set_playback_status(true)
+		if not resumed.get("ok", false):
+			_last_playback_failure = resumed.duplicate(true)
+			_set_playback_status(true)
 	else:
 		# Keep the exact completion while the state owner rolls back its unsaved cursor.
+		_last_playback_failure = result.duplicate(true)
 		_set_playback_status(true)
 
 

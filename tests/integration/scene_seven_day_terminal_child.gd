@@ -52,7 +52,9 @@ func load_saved_terminal_line() -> void:
 	assert_eq(restored.lifecycle.state, "ENDING")
 	assert_eq(restored.lifecycle.ending_plan.next_step_index, 0, "restoring caption does not complete ending")
 	for key: String in ["gameplay", "scene", "command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
-		assert_eq(restored[key], proof.snapshot[key], "ending Load preserves " + key)
+		if restored[key] != proof.snapshot[key]:
+			print("ENDING_RESTORE_DIFFERENCE ", key, " actual=", restored[key], " saved=", proof.snapshot[key])
+		assert_eq_deep(restored[key], proof.snapshot[key], "ending Load preserves " + key)
 	assert_eq(profile.get_profile_snapshot(), profile_before, "ending Load preserves current history")
 	assert_eq(FileAccess.get_sha256("user://profile.json"), profile_hash)
 	assert_eq(FileAccess.get_sha256(TERMINAL_SLOT), proof.slot_sha256)
@@ -67,7 +69,17 @@ func load_saved_terminal_line() -> void:
 	assert_eq(bridge.capture_reading_checkpoint(false).get("value"), proof.checkpoint, "adoption does not replay the caption")
 	await _screenshot("seven-day-terminal-restored-full")
 	await _accept()
-	if not await _wait_route(MENU): return
+	if not await _wait_route(MENU):
+		print("ENDING_COMPLETION_FAILURE ", scene._last_playback_failure,
+			" pending=", scene._pending_completion, " command=", scene._pending_ending_command,
+			" lifecycle=", game._run_lifecycle.to_dict().get("ending_plan", {}).get("playback_stage"),
+			" reader_boundary=", bridge._reading_session.boundary,
+			" native_phase=", bridge._runtime_adapter._activity_phase,
+			" active_entry=", bridge._active_entry.get("token", ""),
+			" paused=", get_tree().paused,
+			" gate=", game._mutation_gate.guard_external(&"ending_test_diagnostic"))
+		await _screenshot("seven-day-terminal-completion-timeout")
+		return
 	var finished: Dictionary = game._run_lifecycle.to_dict()
 	assert_eq(finished.state, "COMPLETED")
 	assert_eq(finished.ending_plan.next_step_index, 1, "one physical completion advances restored ending")
