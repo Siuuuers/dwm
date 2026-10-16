@@ -38,7 +38,7 @@ mouse_filter = 2
 [node name="BackgroundInput" type="Control" parent="Canvas"]
 layout_mode = 0
 offset_right = 1280.0
-offset_bottom = 592.0
+offset_bottom = 656.0
 mouse_filter = 0
 
 [node name="Scroll" type="ScrollContainer" parent="Canvas"]
