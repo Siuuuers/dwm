@@ -27,7 +27,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: a9ee8a151f6bd682f478b94eeb4a3077785121a9
+          ref: 2f46356fe5cea738f0a509212cf9a6c042add3a7
           path: source
           fetch-depth: 16
       - name: Verify exact candidate source
@@ -36,9 +36,9 @@ jobs:
           @'
           import json,os,pathlib,subprocess
           subprocess.check_call(['git','cat-file','-e',os.environ['BASE_SHA']])
-          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='a9ee8a151f6bd682f478b94eeb4a3077785121a9'
+          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='2f46356fe5cea738f0a509212cf9a6c042add3a7'
           out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
-          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':'a9ee8a151f6bd682f478b94eeb4a3077785121a9','controller':os.environ['CONTROLLER_SHA'],'scope':'seven-day connected terminal persistence and rendered restart proof'}))
+          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':'2f46356fe5cea738f0a509212cf9a6c042add3a7','controller':os.environ['CONTROLLER_SHA'],'scope':'seven-day connected terminal persistence and rendered restart proof'}))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Install exact Godot standard engine
@@ -59,6 +59,7 @@ jobs:
 
 
       - name: Import and freeze generated test identities
+        timeout-minutes: 8
         run: |
           $ErrorActionPreference = 'Stop'
           $output = Join-Path (Get-Location) '.godot/ci'
@@ -67,18 +68,23 @@ jobs:
           $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
           New-Item -ItemType Directory -Force -Path $env:APPDATA,$env:LOCALAPPDATA,$env:DWM_TEST_ROOT | Out-Null
           $env:DWM_SCENE_READING_FIXTURE = '1'
-          & $env:GODOT_CONSOLE_PATH --headless --path (Get-Location) --import --log-file "$output/import.log"
+          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId connected-import-fixture -LogName import.log -GodotArgs @('--import') -EvidenceLogPath .godot/ci/import-fixture.jsonl -TimeoutSeconds 120
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Import failed' }
+          if (Select-String ".godot/phase2r_logs/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Import failed' }
           git restore --worktree -- project.godot
-          & $env:GODOT_CONSOLE_PATH --headless --path (Get-Location) -s res://tools/authoring/ExportSevenDayRegistration.gd --log-file "$output/export-registration.log"
+          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId connected-export -LogName export-registration.log -GodotArgs @('-s','res://tools/authoring/ExportSevenDayRegistration.gd') -EvidenceLogPath .godot/ci/export-registration.jsonl -TimeoutSeconds 180
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String "$output/export-registration.log" -Pattern 'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Registration export failed' }
+          if (Select-String ".godot/phase2r_logs/export-registration.log" -Pattern 'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Registration export failed' }
           Remove-Item Env:DWM_SCENE_READING_FIXTURE
-          & $env:GODOT_CONSOLE_PATH --headless --path (Get-Location) --import --log-file "$output/import-connected.log"
+          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId connected-import -LogName import-connected.log -GodotArgs @('--import') -EvidenceLogPath .godot/ci/import-connected.jsonl -TimeoutSeconds 120
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String "$output/import-connected.log" -Pattern 'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Connected import failed' }
+          if (Select-String ".godot/phase2r_logs/import-connected.log" -Pattern 'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Connected import failed' }
           git restore --worktree -- project.godot
+          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId connected-validate-registration -LogName validate-registration.log -GodotArgs @('-s','res://tools/authoring/ExportSevenDayRegistration.gd','--','--validate-seven-day-export') -EvidenceLogPath .godot/ci/validate-registration.jsonl -TimeoutSeconds 180
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (Select-String ".godot/phase2r_logs/validate-registration.log" -Pattern 'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Exported registration validation failed' }
+          $validationMarkers = @(Get-Content .godot/phase2r_logs/validate-registration.log | Where-Object { $_ -ceq 'SEVEN_DAY_EXPORT_VALIDATED first_target_id=target.Day1' })
+          if ($validationMarkers.Count -ne 1) { throw 'Export validation pass marker missing or repeated' }
           & './tools/testing/Invoke-PublicSurfaceValidation.ps1' -Regenerate
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @'
@@ -124,7 +130,8 @@ jobs:
           Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue
           $create = @('--rendering-method','gl_compatibility','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_seven_day_connected_create.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/connected-create.xml','--','--phase2r-bootstrap-mode=test_manual')
           $load = @('--rendering-method','gl_compatibility','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_seven_day_connected_load.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/connected-load.xml','--','--phase2r-bootstrap-mode=test_manual')
-          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'connected' -LogName 'connected-create.log' -GodotArgs $create -NextGodotArgs $load -NextLogName 'connected-load.log' -EvidenceLogPath '.godot/ci/connected.jsonl' -TimeoutSeconds 600 -Rendered
+          $terminalLoad = @('--rendering-method','gl_compatibility','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_seven_day_terminal_load.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/terminal-load.xml','--','--phase2r-bootstrap-mode=test_manual')
+          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'connected' -LogName 'connected-create.log' -GodotArgs $create -NextGodotArgs $load -NextLogName 'connected-load.log' -ThirdGodotArgs $terminalLoad -ThirdLogName 'terminal-load.log' -EvidenceLogPath '.godot/ci/connected.jsonl' -TimeoutSeconds 600 -Rendered
           exit $LASTEXITCODE
       - name: Verify exact test census and frozen source
         run: |
@@ -134,7 +141,7 @@ jobs:
           out=pathlib.Path('.godot/ci')
           frozen=json.loads((out/'candidate-commit.json').read_text(encoding='utf-8-sig'))
           result={'source':frozen['source'],'tree':frozen['tree'],'passed':0,'assertions':0,'suites':[]}
-          suites=[('terminal-lifecycle','tests/unit/test_scene_terminal_lifecycle.gd'),('terminal-presentation','tests/unit/test_scene_terminal_presentation.gd'),('terminal-snapshot','tests/unit/test_scene_terminal_snapshot.gd'),('connected-create','tests/integration/test_scene_seven_day_connected_create.gd'),('connected-load','tests/integration/test_scene_seven_day_connected_load.gd'),('sequence-authoring','tests/unit/test_scene_sequence_authoring.gd'),('seven-day-templates','tests/unit/test_seven_day_templates.gd')]
+          suites=[('terminal-load','tests/integration/test_scene_seven_day_terminal_load.gd'),('terminal-lifecycle','tests/unit/test_scene_terminal_lifecycle.gd'),('terminal-presentation','tests/unit/test_scene_terminal_presentation.gd'),('terminal-snapshot','tests/unit/test_scene_terminal_snapshot.gd'),('connected-create','tests/integration/test_scene_seven_day_connected_create.gd'),('connected-load','tests/integration/test_scene_seven_day_connected_load.gd'),('sequence-authoring','tests/unit/test_scene_sequence_authoring.gd'),('seven-day-templates','tests/unit/test_seven_day_templates.gd')]
           for name,script in suites:
               expected=re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(),re.M)
               root=ET.parse(out/(name+'.xml')).getroot();rows=list(root.iter('testcase'))
@@ -148,8 +155,12 @@ jobs:
               result['suites'].append({'name':name,'passed':len(rows),'assertions':count})
           for name in ['terminal-lifecycle','terminal-presentation','terminal-snapshot','sequence-authoring','seven-day-templates','connected']:
               children=[json.loads(s) for s in (out/(name+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
-              assert len(children)==(2 if name=='connected' else 1) and all(c['exit_code']==0 for c in children),name
-          for proof in ['scene-seven-day-create-proof.json','scene-seven-day-load-proof.json']:
+              assert len(children)==(3 if name=='connected' else 1) and all(c['exit_code']==0 for c in children),name
+              if name=='connected':
+                  assert len({c['test_root'] for c in children})==1 and len({c['user_dir'] for c in children})==1
+                  assert len({c['log_path'] for c in children})==3
+                  assert all(children[i]['ended_at_utc']<=children[i+1]['started_at_utc'] for i in range(2))
+          for proof in ['scene-seven-day-create-proof.json','scene-seven-day-load-proof.json','scene-seven-day-terminal-load-proof.json']:
               assert (out/proof).is_file(),proof
               json.loads((out/proof).read_text(encoding='utf-8-sig'))
           assert list(out.glob('computer-seven-day-*.png')), 'Missing rendered evidence'
