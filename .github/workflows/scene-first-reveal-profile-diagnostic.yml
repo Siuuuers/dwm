@@ -1,4 +1,4 @@
-name: Registered story Windows export qualification
+name: Scene authority audit qualification
 on:
   pull_request:
     paths:
@@ -10,11 +10,11 @@ concurrency:
   group: scene-first-reveal-profile-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 jobs:
-  windows-export:
+  authority-audit:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
-    name: Windows / exported release startup
+    name: Windows / current scene authority audit
     runs-on: windows-2022
-    timeout-minutes: 35
+    timeout-minutes: 20
     defaults:
       run:
         shell: pwsh
@@ -23,17 +23,17 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: be597be59f3f06d7cc9ea6a169fbb433f1120ca3
-          fetch-depth: 3
+          ref: 9aa6a409c3a5ae61495b090d7ec78aa26910228a
+          fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne 'be597be59f3f06d7cc9ea6a169fbb433f1120ca3') { throw 'Candidate mismatch' }
+          if ((git rev-parse HEAD) -cne '9aa6a409c3a5ae61495b090d7ec78aa26910228a') { throw 'Candidate mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='be597be59f3f06d7cc9ea6a169fbb433f1120ca3'; tree='05085de256de4ccb6d39dfd469b979330bd9f704'; controller='${{ github.event.pull_request.head.sha }}'; base='b92951d4e4e06820768aea5d672d50c0c01f798c'} | ConvertTo-Json | Set-Content '.godot/ci/export-origin.json'
+          @{candidate='9aa6a409c3a5ae61495b090d7ec78aa26910228a'; tree='0bcfbf2ec1fa415b63174573d3588a502e6035f1'; controller='${{ github.event.pull_request.head.sha }}'; base='154aede473ac8f91e56e0c48af7d0d2f10153d73'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -81,80 +81,87 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Cache pinned export templates
-        id: export-templates-cache
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-        with:
-          path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
-          key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
-      - name: Download verified Godot export templates
-        timeout-minutes: 10
+      - name: Run affected audit and scene identity checks
         run: |
           $ErrorActionPreference = 'Stop'
-          $folder = Join-Path $env:RUNNER_TEMP 'dwm-godot-templates'
-          New-Item -ItemType Directory -Force -Path $folder | Out-Null
-          $archive = Join-Path $folder 'Godot_v4.6.3-stable_export_templates.tpz'
-          if (-not (Test-Path -LiteralPath $archive)) {
-            Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_export_templates.tpz' -OutFile $archive
+          $lanes = @(
+            @{Name='issuer-census'; Script='tests/unit/tooling/test_phase2r_schedule_gate.gd'; Filter='test_derive_child_census'},
+            @{Name='identity-shape'; Script='tests/unit/tooling/test_phase2r_schedule_gate.gd'; Filter='test_day_advance_identity_shapes_are_bound_from_source'},
+            @{Name='scene-identity'; Script='tests/unit/test_scene_transition_identity.gd'; Filter=''}
+          )
+          $failed = $false
+          foreach ($lane in $lanes) {
+            $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$($lane.Script)",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$($lane.Name).xml")
+            if ($lane.Filter) { $args += "-gunit_test_name=$($lane.Filter)" }
+            & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId $lane.Name -LogName "$($lane.Name).log" -GodotArgs $args -EvidenceLogPath ".godot/ci/$($lane.Name).jsonl" -TimeoutSeconds 240
+            if ($LASTEXITCODE -ne 0) { $failed = $true }
           }
-          $expected = '3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8'
-          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
-            throw 'Godot export templates checksum mismatch.'
-          }
-          "GODOT_EXPORT_TEMPLATES_ARCHIVE=$archive" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-      - name: Retain verified export templates for subsequent runs
-        if: steps.export-templates-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-        with:
-          path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
-          key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
-      - name: Export and launch isolated Windows executable
-        timeout-minutes: 12
-        run: ./tools/testing/Invoke-WindowsExportValidation.ps1
-
-      - name: Retain bounded export evidence
+          if ($failed) { exit 1 }
+      - name: Verify exact selected census and source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          @'
+          import collections,json,pathlib,re,subprocess,xml.etree.ElementTree as ET
+          out=pathlib.Path('.godot/ci')
+          lanes=[('issuer-census','tests/unit/tooling/test_phase2r_schedule_gate.gd','test_derive_child_census'),('identity-shape','tests/unit/tooling/test_phase2r_schedule_gate.gd','test_day_advance_identity_shapes_are_bound_from_source'),('scene-identity','tests/unit/test_scene_transition_identity.gd','')]
+          result={'source':'9aa6a409c3a5ae61495b090d7ec78aa26910228a','tree':'0bcfbf2ec1fa415b63174573d3588a502e6035f1','tests':0,'assertions':0,'suites':[]}
+          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==result['source']
+          assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()==result['tree']
+          changed=subprocess.check_output(['git','diff','HEAD','--name-only'],text=True).splitlines()
+          assert not set(changed)-{'.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1'},changed
+          for name,script,select in lanes:
+              expected=[n for n in re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(),re.M) if select in n]
+              root=ET.parse(out/(name+'.xml')).getroot();rows=list(root.iter('testcase'))
+              assert expected and collections.Counter((r.attrib['classname'],r.attrib['name']) for r in rows)==collections.Counter((script,n) for n in expected),name
+              assert not any(list(root.iter(tag)) for tag in ['failure','error','skipped']),name
+              assert all(r.attrib.get('status')=='pass' and int(r.attrib.get('assertions','0'))>0 for r in rows),name
+              log=pathlib.Path('.godot/phase2r_logs',name+'.log').read_text(encoding='utf-8-sig')
+              assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',log),name
+              children=[json.loads(s) for s in (out/(name+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
+              assert len(children)==1 and children[0]['exit_code']==0,name
+              count=sum(int(r.attrib['assertions']) for r in rows)
+              result['tests']+=len(rows);result['assertions']+=count
+              result['suites'].append({'name':name,'script':script,'filter':select,'tests':len(rows),'assertions':count})
+          assert result['tests']==10
+          (out/'gate.json').write_text(json.dumps(result,indent=2))
+          print(json.dumps(result))
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Retain bounded audit evidence
         if: always()
         run: |
           $ErrorActionPreference = 'Stop'
           @'
           import base64,hashlib,io,json,pathlib,subprocess,zipfile
           out=pathlib.Path('.godot/ci')
-          root=out/'export-evidence';root.mkdir(parents=True,exist_ok=True)
-          status=subprocess.check_output(['git','status','--porcelain'],text=True)
-          (root/'final-status.txt').write_text(status)
-          source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
-          tree=subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()
-          changed=subprocess.check_output(['git','diff','HEAD','--name-only'],text=True).splitlines()
-          allowed=['.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1']
-          clean=not [p for p in changed if p not in allowed]
-          (root/'source-check.json').write_text(json.dumps({'source':source,'tree':tree,'tracked_source_unchanged':clean,'disposable_index_removals':changed}))
-          for p in subprocess.check_output(['git','diff','--name-only','b92951d4e4e06820768aea5d672d50c0c01f798c','HEAD'],text=True).splitlines():
-              target=root/'source'/p;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(pathlib.Path(p).read_bytes())
-          files=[out/'export-origin.json',out/'import.log']+list(root.rglob('*'))+list((out/'windows-export').glob('*.log'))+list((out/'windows-export').glob('*.json'))+list((out/'windows-export').glob('*.txt'))
-          files=[p for p in files if p.is_file()]
-          manifest={p.relative_to(out).as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in files}
-          retained=root/'retained-hashes.json';retained.write_text(json.dumps(manifest,indent=2));files.append(retained)
+          for source in ['tests/unit/tooling/test_phase2r_schedule_gate.gd','tests/unit/test_scene_transition_identity.gd']:
+              p=out/'source'/source;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(pathlib.Path(source).read_bytes())
+          (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
+          files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))
+          manifest={p.relative_to('.godot').as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in files}
+          retained=out/'retained-hashes.json';retained.write_text(json.dumps(manifest,indent=2));files.append(retained)
           payload=io.BytesIO()
           with zipfile.ZipFile(payload,'w',zipfile.ZIP_DEFLATED) as z:
-              for p in files:z.write(p,p.relative_to(out).as_posix())
+              for p in files:z.write(p,p.relative_to('.godot').as_posix())
           data=payload.getvalue()
-          if len(data)>8*1024*1024:raise RuntimeError('Bounded export evidence too large')
+          if len(data)>8*1024*1024:raise RuntimeError('Bounded evidence too large')
           print('DWM_EVIDENCE_BEGIN '+json.dumps({'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}))
           encoded=base64.b64encode(data).decode()
           for offset in range(0,len(encoded),3000):print('DWM_EVIDENCE_CHUNK '+encoded[offset:offset+3000])
           print('DWM_EVIDENCE_END')
-          assert clean,'Tracked source changed during export'
+          for p in pathlib.Path('.godot/phase2r_logs').glob('*.log'):
+              for line in p.read_text(encoding='utf-8-sig').splitlines():
+                  if any(s in line for s in ['[Failed]','SCRIPT ERROR:','ERROR:','Passing Tests','Failing Tests','Asserts','Exiting with code']):print(p.name,line[:1500])
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Upload Windows validation build and evidence
+      - uses: actions/upload-artifact@v4
         if: always()
-        uses: actions/upload-artifact@v4
         with:
-          name: windows-export-${{ github.run_id }}-${{ github.run_attempt }}
+          name: scene-authority-audit-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
-            .godot/ci/import.log
-            .godot/ci/windows-export/
+            .godot/ci
+            .godot/phase2r_logs
+            !.godot/ci/import-user
           include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
-
+          retention-days: 30
+          if-no-files-found: error
