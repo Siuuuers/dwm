@@ -55,3 +55,30 @@ func test_scene_projection_alone_cannot_authorize_saved_ending() -> void:
 		"lifecycle": {"state": "ENDING", "ending_plan": _plan()}}
 	assert_false(RUN.validate(snapshot, true).ok,
 		"A projection is not an authenticated terminal admission or retained source checkpoint")
+
+class NativeOccupancyProbe extends RefCounted:
+	var occupied := false
+	func has_active_playback() -> bool: return occupied
+
+func test_restore_reservation_blocks_ordinary_start_without_claiming_native_playback() -> void:
+	var bridge := preload("res://autoload/DialogicBridge.gd").new()
+	var native := NativeOccupancyProbe.new()
+	bridge._runtime_adapter = native
+	bridge._scene_restore = {"operation_id": "restore:owned", "confirmed": false}
+	assert_true(bridge.has_active_playback(), "restore custody blocks ordinary callers")
+	assert_false(bridge._has_physical_playback(), "reservation is not native playback")
+	assert_eq(bridge._begin_entry_playback("ending.alone.normal", {}, &"canonical", "resume", 1).code,
+		&"entry_already_active")
+	assert_eq(bridge._begin_entry_playback("ending.alone.normal", {}, &"canonical", "resume", 1, "restore:foreign").code,
+		&"scene_activation_operation_invalid", "foreign operation cannot bypass custody")
+	assert_eq(bridge._begin_entry_playback("ending.alone.normal", {}, &"canonical", "resume", 1, "restore:owned").code,
+		&"scene_activation_operation_invalid", "operation id alone cannot authorize activation")
+	native.occupied = true
+	assert_true(bridge._has_physical_playback(), "actual adapter occupancy remains visible")
+	bridge._scene_restore.clear()
+	assert_true(bridge.has_active_playback(), "native playback remains occupied without reservation")
+	assert_eq(bridge._begin_entry_playback("ending.alone.normal", {}, &"canonical", "resume", 1).code,
+		&"entry_already_active")
+	native.occupied = false
+	assert_false(bridge.has_active_playback())
+	bridge.free()
