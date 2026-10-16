@@ -5117,7 +5117,13 @@ func _on_scene_terminal_retired(admission_id: String, session: Dictionary) -> vo
 	var plan: Variant = lifecycle.get("ending_plan")
 	if lifecycle.get("state") != "ENDING" or not plan is Dictionary \
 			or plan.get("source_kind") != "scene" or plan.admission.admission_id != admission_id: return
-	if not _mutation_gate.guard_external(&"scene_entry").get("ok", false): return
+	var guarded: Dictionary = _mutation_gate.guard_external(&"scene_entry")
+	if not guarded.get("ok", false):
+		if guarded.get("code") == &"TRANSACTION_ACTIVE":
+			var retry := _on_scene_terminal_retired.bind(admission_id, session.duplicate(true))
+			if not _mutation_gate.transaction_released.is_connected(retry):
+				_mutation_gate.transaction_released.connect(retry, CONNECT_ONE_SHOT | CONNECT_DEFERRED)
+		return
 	var router := get_node_or_null("/root/SceneRouter")
 	if router == null:
 		_scene_event_fatal(&"scene_terminal_route_unavailable")

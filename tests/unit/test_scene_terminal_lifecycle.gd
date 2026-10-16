@@ -179,3 +179,30 @@ func test_delayed_duplicate_admission_preserves_ending_reader_and_completed_run(
 	assert_eq(fixture.issuer.capture_root(), issuer_before)
 	assert_true(game._scene_terminal_operation.is_empty())
 	game.free()
+
+func test_terminal_route_waits_for_transaction_then_rejects_replaced_session() -> void:
+	if not _setup(): return
+	assert_true(lifecycle.enter_scene_ending(plan).ok)
+	var game := preload("res://autoload/GameState.gd").new()
+	var gate := preload("res://scripts/application/transaction/ApplicationMutationGate.gd").new()
+	game._run_lifecycle = lifecycle
+	game._live_session_active = true
+	game._live_session_generation = 1
+	game._live_session_run_id = lifecycle.to_dict().run_id
+	assert_true(game.configure_mutation_gate(gate).ok)
+	var held: Dictionary = gate.acquire(&"restore")
+	assert_true(held.ok)
+	var session: Dictionary = game._live_session_fact()
+	game._on_scene_terminal_retired(admission.admission_id, session)
+	game._on_scene_terminal_retired(admission.admission_id, session)
+	assert_eq(gate.get_signal_connection_list("transaction_released").size(), 1,
+		"one pending route survives a temporary gate owner")
+	# A replacement during the awaited transaction makes the old route obsolete.
+	game._live_session_generation += 1
+	assert_true(gate.release(&"restore", held.value.token).ok)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_eq(gate.get_signal_connection_list("transaction_released").size(), 0)
+	assert_false(gate.is_fatal_latched(), "stale callback does not route or fault the replacement")
+	assert_eq(lifecycle.to_dict().state, "ENDING")
+	game.free()

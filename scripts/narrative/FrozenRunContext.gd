@@ -121,7 +121,8 @@ static func validate_reading_checkpoint(checkpoint: Dictionary, snapshot: Dictio
 		return frames
 
 	if not snapshot.get("lifecycle") is Dictionary or not snapshot.get("gameplay") is Dictionary \
-			or not snapshot.get("contacts") is Dictionary or not snapshot.gameplay.get("route_context") is Dictionary:
+			or not snapshot.get("contacts") is Dictionary \
+			or (not _scene_terminal_plan(snapshot) and not snapshot.gameplay.get("route_context") is Dictionary):
 		return _fail(&"reading_saved_run_required")
 	var reading: Variant = checkpoint.get("reading_session")
 	if reading is Dictionary and typeof(reading.get("schema_version")) == TYPE_INT and reading.schema_version == 3:
@@ -354,10 +355,10 @@ static func _ending_reading(checkpoint: Dictionary, snapshot: Dictionary, readin
 		return _fail(&"reading_physical_owner_mismatch")
 	for step: Variant in plan.steps:
 		if not step is Dictionary: return _fail(&"reading_physical_owner_mismatch")
-	var route: Dictionary = snapshot.gameplay.route_context
+	var scene_terminal: bool = plan.get("source_kind") == "scene"
+	var route: Dictionary = {} if scene_terminal else snapshot.gameplay.route_context
 	var checked := _ending(route, lifecycle, true)
 	if not checked.ok: return checked
-	var scene_terminal: bool = plan.get("source_kind") == "scene"
 	var cache: Dictionary = route.get(ENDING_KEY, {})
 	var admitted := {}
 	var indices := {}

@@ -141,7 +141,7 @@ func _action() -> StringName:
 	return StringName(ProjectSettings.get_setting(ACTION_SETTING, "dialogic_default_action"))
 
 func _admissible() -> bool:
-	return _source_has_custody() and not get_tree().paused and _foreground and is_instance_valid(_runtime) and not bool(_runtime.get("paused")) \
+	return is_inside_tree() and _source_has_custody() and not get_tree().paused and _foreground and is_instance_valid(_runtime) and not bool(_runtime.get("paused")) \
 		and is_instance_valid(_caption) and _focus_caption().is_visible_in_tree() \
 		and not _caption.get_parsed_text().is_empty()
 
