@@ -23,17 +23,17 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 19a8710e2ccc61b1105fec351be7205a4f9289ec
-          fetch-depth: 2
+          ref: be597be59f3f06d7cc9ea6a169fbb433f1120ca3
+          fetch-depth: 3
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '19a8710e2ccc61b1105fec351be7205a4f9289ec') { throw 'Candidate mismatch' }
+          if ((git rev-parse HEAD) -cne 'be597be59f3f06d7cc9ea6a169fbb433f1120ca3') { throw 'Candidate mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='19a8710e2ccc61b1105fec351be7205a4f9289ec'; tree='5853a6381bde665c1bf0801fb2a8f33ca6d0ccf5'; controller='${{ github.event.pull_request.head.sha }}'; base='b92951d4e4e06820768aea5d672d50c0c01f798c'} | ConvertTo-Json | Set-Content '.godot/ci/export-origin.json'
+          @{candidate='be597be59f3f06d7cc9ea6a169fbb433f1120ca3'; tree='05085de256de4ccb6d39dfd469b979330bd9f704'; controller='${{ github.event.pull_request.head.sha }}'; base='b92951d4e4e06820768aea5d672d50c0c01f798c'} | ConvertTo-Json | Set-Content '.godot/ci/export-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -128,7 +128,7 @@ jobs:
           allowed=['.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1']
           clean=not [p for p in changed if p not in allowed]
           (root/'source-check.json').write_text(json.dumps({'source':source,'tree':tree,'tracked_source_unchanged':clean,'disposable_index_removals':changed}))
-          for p in subprocess.check_output(['git','diff','--name-only','HEAD^','HEAD'],text=True).splitlines():
+          for p in subprocess.check_output(['git','diff','--name-only','b92951d4e4e06820768aea5d672d50c0c01f798c','HEAD'],text=True).splitlines():
               target=root/'source'/p;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(pathlib.Path(p).read_bytes())
           files=[out/'export-origin.json',out/'import.log']+list(root.rglob('*'))+list((out/'windows-export').glob('*.log'))+list((out/'windows-export').glob('*.json'))+list((out/'windows-export').glob('*.txt'))
           files=[p for p in files if p.is_file()]
