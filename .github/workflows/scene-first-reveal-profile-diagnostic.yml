@@ -27,7 +27,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: f56171e6e663f3164a6ef1be0c50a3c95a465408
+          ref: 974b6eac24a323e7ddfc5a0bb72e00fb50cc7921
           path: source
           fetch-depth: 16
       - name: Verify exact candidate source
@@ -36,9 +36,9 @@ jobs:
           @'
           import json,os,pathlib,subprocess
           subprocess.check_call(['git','cat-file','-e',os.environ['BASE_SHA']])
-          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='f56171e6e663f3164a6ef1be0c50a3c95a465408'
+          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='974b6eac24a323e7ddfc5a0bb72e00fb50cc7921'
           out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
-          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':'f56171e6e663f3164a6ef1be0c50a3c95a465408','controller':os.environ['CONTROLLER_SHA'],'scope':'seven-day connected terminal persistence and rendered restart proof'}))
+          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':'974b6eac24a323e7ddfc5a0bb72e00fb50cc7921','controller':os.environ['CONTROLLER_SHA'],'scope':'seven-day connected terminal persistence and rendered restart proof'}))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Install exact Godot standard engine
