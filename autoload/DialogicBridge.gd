@@ -104,11 +104,12 @@ func hold_scene_entry_source() -> Dictionary:
 ## old native token before stopping so its late callbacks cannot complete it.
 func retire_scene_for_ending(admission_id: String) -> Dictionary:
 	var game := get_node_or_null("/root/GameState")
-	if game == null or not game.has_method("capture_scene_terminal_projection"):
+	if game == null or not game.has_method("capture_run_snapshot_input"):
 		return _command_failure(&"scene_terminal_unavailable")
-	var terminal: Dictionary = game.capture_scene_terminal_projection()
-	if not terminal.get("ok", false): return terminal
-	var plan: Dictionary = terminal.value.lifecycle.ending_plan
+	var snapshot: Dictionary = game.capture_run_snapshot_input()
+	var plan: Variant = snapshot.get("lifecycle", {}).get("ending_plan")
+	if not plan is Dictionary or plan.get("source_kind") != "scene":
+		return _command_failure(&"scene_terminal_unavailable")
 	if plan.admission.admission_id != admission_id:
 		return _command_failure(&"scene_terminal_admission_mismatch")
 	if not has_reading_session(): return {"ok": true}

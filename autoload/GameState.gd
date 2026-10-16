@@ -5400,10 +5400,3 @@ func _admit_scene_ending_owned(target_id: String, trigger: Dictionary, source: D
 		return saved if rolled.get("ok", false) else rolled
 	_scene_terminal_operation.clear()
 	return {"ok": true, "committed": true, "value": {"route": "ending", "admission_id": plan.admission.admission_id}}
-
-## Detached observation only; tests and presenters cannot mutate terminal authority.
-func capture_scene_terminal_projection() -> Dictionary:
-	var state: Dictionary = _run_lifecycle.to_dict()
-	if not state.get("ending_plan") is Dictionary or state.ending_plan.get("source_kind") != "scene":
-		return _transaction_failure(&"scene_terminal_unavailable", "")
-	return {"ok": true, "value": {"lifecycle": state, "command": request_next_ending_command()}}
