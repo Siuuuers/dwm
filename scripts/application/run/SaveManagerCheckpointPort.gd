@@ -163,7 +163,7 @@ func prepare(checkpoint_inputs: Dictionary, checkpoint_kind: StringName, disk_wr
 	# When configured, the desktop host is the sole source of the persisted active_app_id;
 	# the caller-supplied value is ignored (dwm-p2r.9 Plan 02 Task 1).
 	var active_app_id: Variant = checkpoint_inputs["active_app_id"]
-	var scene_route: bool = checkpoint_inputs["route_id"] == "scene"
+	var scene_route: bool = snapshot_input.has("scene")
 	if not scene_route and _desktop_context_provider != null:
 		active_app_id = _desktop_context_provider.capture_persistent_state().get("active_app_id", null)
 	# T4-AF.18 / T4-AJ.C item 49: the live ScheduleView is checkpointed from the one restore

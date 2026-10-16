@@ -1337,6 +1337,8 @@ func capture_ending_frozen_presentation(ending_id: String, context: Dictionary) 
 			or command.value.ending_id != ending_id or command.value.playback_context != context:
 		return _transaction_failure(&"ending_presentation_command_mismatch", ending_id)
 	var lifecycle: Dictionary = _run_lifecycle.to_dict()
+	if lifecycle.get("ending_plan") is Dictionary and lifecycle.ending_plan.get("source_kind") == "scene":
+		return _ENDING_FROZEN_CONTEXT.build_scene(lifecycle.ending_plan, str(context.playback_id))
 	var cached: Variant = route_context.get("ending_frozen_contexts_v1")
 	var checked := _ENDING_FROZEN_CONTEXT.validate_cache(cached, lifecycle)
 	if not checked.ok: return checked
@@ -1371,6 +1373,11 @@ func capture_ending_presentation_signature(ending_id: String, context: Dictionar
 	if not command.get("ok", false) or command.get("value", {}).get("kind") != "play_ending" \
 			or command.value.get("ending_id") != ending_id or command.value.get("playback_context") != context:
 		return _transaction_failure(&"ending_presentation_command_mismatch", ending_id)
+	var scene_lifecycle: Dictionary = _run_lifecycle.to_dict()
+	if scene_lifecycle.get("ending_plan") is Dictionary and scene_lifecycle.ending_plan.get("source_kind") == "scene":
+		var projected := _ENDING_FROZEN_CONTEXT.build_scene(scene_lifecycle.ending_plan, str(context.playback_id))
+		return {"ok": true, "value": projected.value.signature} if projected.ok else projected
+
 	if _frozen_ending_contexts_enabled:
 		var lifecycle: Dictionary = _run_lifecycle.to_dict()
 		var cache: Variant = route_context.get("ending_frozen_contexts_v1")
@@ -2817,6 +2824,9 @@ func _commit_ending_playback_completion(transaction_id: String, expected_stage: 
 	if _ending_checkpoint_writer.is_valid():
 		var saved: Dictionary = _ending_checkpoint_writer.call()
 		if not saved.get("ok", false):
+			var plan: Variant = _run_lifecycle.to_dict().get("ending_plan")
+			if saved.get("committed", false) and plan is Dictionary and plan.get("source_kind") == "scene":
+				return _scene_event_fatal(&"scene_terminal_commit_uncertain")
 			var restored: Dictionary = rollback_restore_silent(captured.value.backup)
 			return saved if restored.get("ok", false) else restored
 	_retire_completed_ending_session()
@@ -3212,6 +3222,7 @@ func activate_live_session(ticket: Variant) -> Dictionary:
 	var admitted := validate_live_session_activation(ticket)
 	if not admitted.get("ok", false): return admitted
 	if not admitted.value.already_active:
+		_scene_terminal_operation.clear()
 		_live_session_generation += 1
 		_live_session_active = true
 		_live_session_run_id = ticket.run_id
@@ -4263,7 +4274,8 @@ func validate_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary)
 			return _transaction_failure(&"event_dependency_invalid", "scene reading anchor validator required")
 		for receipt: Dictionary in checked.value.commands.values():
 			var anchored: Dictionary = _scene_event_bridge.validate_scene_event_anchor(
-				receipt.scene_event.reading_anchor, snapshot.narrative_checkpoint)
+				receipt.scene_event.reading_anchor, snapshot.lifecycle.ending_plan.source_reading_checkpoint
+				if snapshot.lifecycle.get("ending_plan") is Dictionary and snapshot.lifecycle.ending_plan.get("source_kind") == "scene" else snapshot.narrative_checkpoint)
 			if not anchored.get("ok", false): return anchored
 	return {"ok": true}
 
@@ -4868,7 +4880,7 @@ func advance_scene_registered_marker() -> Dictionary:
 		var saved: Dictionary = receipt.get("scene_event", {})
 		if saved.get("semantic", {}).get("event_id") == marker.value.marker_id \
 				and _SCENE_EVENT._equal(saved.semantic.source, current.value.source):
-			if saved.result.kind in ["challenge_closed", "contact_entry_accepted", "contact_returned"]:
+			if saved.result.kind in ["scene_transition_accepted", "challenge_closed", "contact_entry_accepted", "contact_returned"]:
 				return admit_scene_target(saved.result.target_id, receipt.transaction_id)
 			return {"ok": true, "duplicate": true, "value": saved.result}
 	var issued: Dictionary = _identity_issuer.issue(&"transaction_id")
@@ -4882,7 +4894,7 @@ func advance_scene_registered_marker() -> Dictionary:
 	if not session.ok: return session
 	var accepted: Dictionary = _scene_event_bridge.dispatch_scene_event(session.value, event)
 	if not accepted.get("ok", false): return accepted
-	if accepted.value.kind in ["challenge_closed", "contact_entry_accepted", "contact_returned"]: return admit_scene_target(accepted.value.target_id, event.command_id)
+	if accepted.value.kind in ["scene_transition_accepted", "challenge_closed", "contact_entry_accepted", "contact_returned"]: return admit_scene_target(accepted.value.target_id, event.command_id)
 	return accepted
 
 func _accept_scene_end(event: Dictionary, digest: String, lease: String) -> Dictionary:
@@ -5057,6 +5069,20 @@ func admit_scene_target(target_id: String, trigger_command_id: String) -> Dictio
 		return _transaction_failure(&"scene_entry_unavailable", "")
 	var guarded: Dictionary = _mutation_gate.guard_external(&"scene_entry")
 	if not guarded.get("ok", false): return guarded
+	# A delayed final Accept observes the already-admitted authority. It must
+	# not mint another root, retire the ending reader, or publish another route.
+	var terminal: Dictionary = _run_lifecycle.to_dict()
+	var terminal_plan: Variant = terminal.get("ending_plan")
+	if terminal.get("state") in ["ENDING", "COMPLETED"] and terminal_plan is Dictionary \
+			and terminal_plan.get("source_kind") == "scene":
+		var prior: Dictionary = terminal_plan.admission
+		if prior.target_id != target_id or prior.trigger_command_id != trigger_command_id \
+				or prior.source_identity.run_id != terminal.run_id \
+				or prior.source_occurrence_id != _scene_snapshot_references.get("active_occurrence_id") \
+				or _SCENE_EVENT._sha(_command_receipts.get(trigger_command_id)) != prior.trigger_sha256:
+			return _transaction_failure(&"scene_terminal_retry_mismatch", "")
+		return {"ok": true, "committed": true, "duplicate": true,
+			"value": {"route": "ending", "admission_id": prior.admission_id}}
 	var acquired: Dictionary = _mutation_gate.acquire(&"causal_transaction")
 	if not acquired.get("ok", false): return acquired
 	var lease: String = acquired.value.token
@@ -5074,6 +5100,12 @@ func admit_scene_target(target_id: String, trigger_command_id: String) -> Dictio
 		_scene_entry_operation.clear()
 	var released: Dictionary = _mutation_gate.release(&"causal_transaction", lease)
 	if not released.get("ok", false): return released
+	if result.get("ok", false) and result.get("value", {}).get("route") == "ending":
+		var retired: Dictionary = _scene_event_bridge.retire_scene_for_ending(str(result.value.admission_id))
+		if not retired.get("ok", false): return _scene_event_fatal(&"scene_terminal_retirement_failed")
+		var router := get_node_or_null("/root/SceneRouter")
+		if router == null: return _scene_event_fatal(&"scene_terminal_route_unavailable")
+		router.goto_ending()
 	return result
 
 func _admit_scene_target_owned(target_id: String, trigger_command_id: String, lease: String) -> Dictionary:
@@ -5100,6 +5132,8 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 		"snapshot_sha256": _SCENE_EVENT._sha(source)}
 	var admission: Dictionary
 	var admitted: Dictionary
+	if trigger.scene_event.result.get("target", {}).get("kind") == "ending":
+		return _admit_scene_ending_owned(target_id, trigger, source, source_ref)
 	var returning: bool = trigger.scene_event.result.kind == "contact_returned"
 	if returning:
 		var parent_id: String = trigger.scene_event.result.parent_occurrence_id
@@ -5323,3 +5357,53 @@ func _validate_scene_contact_checkpoint(candidate: Dictionary, checkpoint: Dicti
 		and _SCENE_EVENT._equal(candidate, op.candidate) \
 		and _SCENE_EVENT._equal(checkpoint, op.checkpoint) \
 		and _SCENE_EVENT._equal(boundary.value.checkpoint, op.checkpoint)
+
+
+var _scene_terminal_operation: Dictionary = {}
+
+## The source transition is already durable. Only its authenticated ending target
+## may create this terminal candidate; UI strings never supply ending authority.
+func _admit_scene_ending_owned(target_id: String, trigger: Dictionary, source: Dictionary, source_ref: Dictionary) -> Dictionary:
+	# Public duplicate delivery is handled before routing. This guard also
+	# prevents an internal stale call from allocating an unused terminal root.
+	if _run_lifecycle.get_state() != &"PLAYING":
+		return _transaction_failure(&"scene_terminal_source_changed", "")
+	if not _ending_checkpoint_writer.is_valid(): return _transaction_failure(&"ending_checkpoint_writer_unconfigured", "")
+	var selected := _SCENE_MANIFEST.scene_registration()
+	if not selected.ok: return selected
+	if _scene_terminal_operation.is_empty():
+		var issued: Dictionary = _identity_issuer.issue(&"transaction_id")
+		if not issued.get("ok", false): return issued
+		var admission := _SCENE_EVENT.make_scene_terminal_admission(_run_lifecycle.get_desktop_identity_context(),
+			issued.value.issuer_receipt, _scene_snapshot_references.active_occurrence_id,
+			_scene_snapshot_references.active_admission_receipt_id, trigger, source_ref, target_id, selected.value, _identity_issuer)
+		if not admission.ok: return admission
+		_scene_terminal_operation = {"trigger_id": trigger.transaction_id, "source_ref": source_ref.duplicate(true),
+			"plan": {"schema_version": 1, "source_kind": "scene", "admission": admission.value,
+			"source_reading_checkpoint": source.narrative_checkpoint.duplicate(true),
+			"ending_id": "ending.alone", "epilogue_ending_id": "", "steps": [{"ending_id": "ending.alone", "role": "core"}],
+			"next_step_index": 0, "playback_stage": "PRIMARY_PENDING", "playback_receipts": {}}}
+	if _scene_terminal_operation.trigger_id != trigger.transaction_id or not _SCENE_EVENT._equal(_scene_terminal_operation.source_ref, source_ref):
+		return _transaction_failure(&"scene_terminal_retry_mismatch", "")
+	var plan: Dictionary = _scene_terminal_operation.plan.duplicate(true)
+	var checked := _SCENE_EVENT.validate_scene_terminal_admission(plan.admission, selected.value, _identity_issuer,
+		_command_receipts, _scene_save_owner, contacts)
+	if not checked.ok: return checked
+	var captured := capture_restore_state()
+	if not captured.ok: return captured
+	var admitted: Dictionary = _run_lifecycle.enter_scene_ending(plan)
+	if not admitted.ok: return admitted
+	var saved: Dictionary = _ending_checkpoint_writer.call()
+	if not saved.get("ok", false):
+		if saved.get("committed", false): return _scene_event_fatal(&"scene_terminal_commit_uncertain")
+		var rolled := rollback_restore_silent(captured.value.backup)
+		return saved if rolled.get("ok", false) else rolled
+	_scene_terminal_operation.clear()
+	return {"ok": true, "committed": true, "value": {"route": "ending", "admission_id": plan.admission.admission_id}}
+
+## Detached observation only; tests and presenters cannot mutate terminal authority.
+func capture_scene_terminal_projection() -> Dictionary:
+	var state: Dictionary = _run_lifecycle.to_dict()
+	if not state.get("ending_plan") is Dictionary or state.ending_plan.get("source_kind") != "scene":
+		return _transaction_failure(&"scene_terminal_unavailable", "")
+	return {"ok": true, "value": {"lifecycle": state, "command": request_next_ending_command()}}

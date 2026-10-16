@@ -523,14 +523,19 @@ static func _scene_runtime_boundary(snapshot: Dictionary) -> Dictionary:
 	if not requested: return {"ok": true, "value": false}
 	var event := preload("res://scripts/domain/narrative/SceneEventContract.gd")
 	if typeof(snapshot.get("schema_version")) != TYPE_INT or snapshot.schema_version != 9 \
-			or typeof(snapshot.get("route_id")) != TYPE_STRING or snapshot.route_id != "scene":
+			or typeof(snapshot.get("route_id")) != TYPE_STRING or snapshot.route_id not in ["scene", "ending"]:
 		return _fail(&"remap_scene_family_invalid", "scene requires explicit Run9 and scene host", {})
 	for retired: String in ["dating", "committed_schedule", "schedule_view"]:
 		if snapshot.has(retired): return _fail(&"remap_scene_family_invalid", "retired scene member: " + retired, {})
 	var lifecycle: Variant = snapshot.get("lifecycle")
-	if not event._keys(lifecycle, ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance",
-			"causal_day_instance_issuer_receipt", "restore_provenance", "state", "scene_assignment"]) \
-			or not event._json_data(lifecycle) or lifecycle.state != "PLAYING":
+	var terminal: bool = lifecycle is Dictionary and lifecycle.get("ending_plan") is Dictionary \
+		and lifecycle.ending_plan.get("source_kind") == "scene" and lifecycle.get("state") in ["ENDING", "COMPLETED"]
+	var lifecycle_keys := ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance",
+		"causal_day_instance_issuer_receipt", "restore_provenance", "state", "scene_assignment"]
+	if terminal: lifecycle_keys.append("ending_plan")
+	if not event._keys(lifecycle, lifecycle_keys) or not event._json_data(lifecycle) \
+			or (snapshot.route_id == "ending") != terminal \
+			or (not terminal and lifecycle.state != "PLAYING"):
 		return _fail(&"remap_scene_lifecycle_invalid", "exact scene PLAYING lifecycle required", {})
 	var assignment := preload("res://scripts/domain/relationship/PairDeckDraw.gd").validate_scene(lifecycle.scene_assignment)
 	if not assignment.get("ok", false):

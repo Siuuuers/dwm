@@ -40,6 +40,11 @@ func _ready() -> void:
 
 
 func _show_ending() -> void:
+	var router := get_node_or_null("/root/SceneRouter")
+	if router != null and router.is_restore_publication_held():
+		if not router.restore_publication_released.is_connected(_show_ending):
+			router.restore_publication_released.connect(_show_ending, CONNECT_ONE_SHOT | CONNECT_DEFERRED)
+		return
 	if not _pending_ending_command.is_empty() or _finished: return
 	if _ending_state_port == null or _ending_playback_port == null:
 		_set_playback_status(true)

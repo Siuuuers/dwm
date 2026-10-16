@@ -51,7 +51,10 @@
             "minLength": 1
           },
           "role": {
-            "const": "scene"
+            "enum": [
+              "scene",
+              "alone_step"
+            ]
           },
           "allowed_signals": {
             "type": "array",
@@ -151,6 +154,17 @@
                 }
               }
             }
+          },
+          "day": {
+            "type": "null"
+          },
+          "ending_id": {
+            "const": "ending.alone"
+          },
+          "allowed_ending_forms": {
+            "const": [
+              "alone_normal"
+            ]
           }
         }
       }

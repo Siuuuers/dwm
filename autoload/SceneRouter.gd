@@ -110,7 +110,8 @@ func publish_scene_activation(operation_id: String) -> Dictionary:
 	return release_restore_publication_hold(handle)
 
 func begin_scene_activation(operation_id: String) -> Dictionary:
-	if operation_id.is_empty() or _pending_restore_scene_id != "scene" or _scene_host_path.is_empty():
+	if operation_id.is_empty() or _pending_restore_scene_id not in ["scene", "ending"] \
+			or (_pending_restore_scene_id == "scene" and _scene_host_path.is_empty()):
 		return _startup_failure("scene_activation_unavailable")
 	if not _scene_activation.is_empty():
 		if _scene_activation.operation_id != operation_id:
@@ -120,10 +121,18 @@ func begin_scene_activation(operation_id: String) -> Dictionary:
 	var tree := get_tree()
 	if tree == null or _return_title_publishing or _startup_publishing:
 		return _startup_failure("scene_activation_unavailable")
-	var packed := ResourceLoader.load(_scene_host_path) as PackedScene
+	var target_path: String = _SCENE_PATHS.ending if _pending_restore_scene_id == "ending" else _scene_host_path
+	var packed := ResourceLoader.load(target_path) as PackedScene
 	if packed == null: return _startup_failure("scene_host_unavailable")
 	_scene_activation = {"operation_id": operation_id, "generation": _route_generation,
-		"path": _scene_host_path, "node_id": 0, "revision": _route_custody_revision + 1}
+		"path": target_path, "route_id": _pending_restore_scene_id, "node_id": 0, "revision": _route_custody_revision + 1}
+	if _pending_restore_scene_id == "ending":
+		var mounted := _change_to_ending(target_path)
+		if not mounted.get("ok", false):
+			_scene_activation.clear()
+			return mounted
+		_on_scene_activation_mounted()
+		return validate_scene_activation(operation_id)
 	if not tree.scene_changed.is_connected(_on_scene_activation_mounted):
 		tree.scene_changed.connect(_on_scene_activation_mounted)
 	var changed := tree.change_scene_to_packed(packed)
@@ -141,7 +150,7 @@ func _on_scene_activation_mounted() -> void:
 	var mounted := tree.current_scene
 	if _scene_activation.generation != _route_generation \
 			or _scene_activation.revision != _route_custody_revision \
-			or _current_scene_id != "scene" or mounted.scene_file_path != _scene_activation.path \
+			or _current_scene_id != _scene_activation.route_id or mounted.scene_file_path != _scene_activation.path \
 			or not mounted.is_node_ready(): return
 	_scene_activation.node_id = mounted.get_instance_id()
 	scene_activation_confirmed.emit(str(_scene_activation.operation_id))
@@ -151,7 +160,7 @@ func validate_scene_activation(operation_id: String) -> Dictionary:
 	if _scene_activation.is_empty() or _scene_activation.operation_id != operation_id \
 			or _scene_activation.generation != _route_generation \
 			or _scene_activation.revision != _route_custody_revision \
-			or _current_scene_id != "scene" or tree == null or tree.current_scene == null \
+			or _current_scene_id != _scene_activation.route_id or tree == null or tree.current_scene == null \
 			or tree.current_scene.get_instance_id() != _scene_activation.node_id \
 			or tree.current_scene.scene_file_path != _scene_activation.path \
 			or not tree.current_scene.is_node_ready():
@@ -269,7 +278,7 @@ func publish_restore_publication_hold(handle: Dictionary) -> Dictionary:
 			or _restore_publication_publishing:
 		return _startup_failure("stale_restore_publication_hold")
 	if _restore_publication_published: return {"ok": true, "value": {"already_published": true}}
-	if _restore_publication_scene_id == "scene":
+	if _restore_publication_scene_id == "scene" or (_restore_publication_scene_id == "ending" and not _scene_activation.is_empty()):
 		if not _scene_pause_publication.is_empty() and (not _scene_pause_publication.acknowledged \
 				or _scene_pause_publication.handle != handle):
 			return _startup_failure("scene_activation_unproven")
@@ -920,8 +929,8 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 
 
 func finalize_restore() -> Dictionary:
-	if _pending_restore_scene_id == "scene":
-		if is_restore_publication_held(): _restore_publication_scene_id = "scene"
+	if _pending_restore_scene_id == "scene" or (_pending_restore_scene_id == "ending" and _restore_publication_handle.has("scene_restore_operation_id")):
+		if is_restore_publication_held(): _restore_publication_scene_id = _pending_restore_scene_id
 		return {"ok": true, "value": {"deferred": true}}
 	if is_restore_publication_held():
 		if _pending_restore_scene_id.is_empty(): return _startup_failure("restore_route_unavailable")

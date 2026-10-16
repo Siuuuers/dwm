@@ -272,7 +272,7 @@ func prepare_restore_autosave() -> Dictionary:
 ## the participant transaction with whatever "run"/"desktop_consequence"/"desktop_board" plans it
 ## already supplied, exactly as this method behaved before Task 6.
 func commit_prepared_restore(prepared: Dictionary) -> Dictionary:
-	if prepared.get("route_id") == "scene":
+	if _prepared_is_scene_family(prepared):
 		if _scene_restore_commit_busy or not _scene_restore_activation.is_empty():
 			return _fail(&"scene_restore_busy", "a retained scene restore owns custody")
 		_scene_restore_commit_busy = true
@@ -291,7 +291,7 @@ func _commit_prepared_restore_profiled(prepared: Dictionary, profile: Dictionary
 			return _fail(&"invalid_prepared_restore", "unexpected prepared key: " + str(key))
 	if typeof(prepared.get("participant_plans")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_prepared_restore", "prepared requires participant_plans")
-	var scene_restore: bool = prepared.get("route_id") == "scene"
+	var scene_restore: bool = _prepared_is_scene_family(prepared)
 	if scene_restore:
 		var retained := _validate_scene_restore_preparation(prepared)
 		if not retained.get("ok", false): return retained
@@ -398,7 +398,7 @@ func _begin_restore_continuation(prepared: Dictionary) -> Dictionary:
 	if _identity_issuer == null:
 		return _fail(&"identity_issuer_not_configured", "configure_identity_issuer first")
 	var selected_document := {}
-	var scene_restore: bool = prepared.get("route_id") == "scene"
+	var scene_restore: bool = _prepared_is_scene_family(prepared)
 	if scene_restore:
 		var retained := _validate_scene_restore_preparation(prepared)
 		if not retained.get("ok", false): return retained
@@ -1931,7 +1931,7 @@ func _capture_backup_inputs() -> Dictionary:
 		var snapshot: Dictionary = inputs["snapshot_input"].duplicate(true)
 		snapshot["route_id"] = inputs["route_id"]
 		snapshot["narrative_checkpoint"] = narrative
-		if scene:
+		if inputs.snapshot_input.has("scene"):
 			# Run9 authority is validated against its real schema-built document,
 			# never a live input dictionary with a fabricated version field.
 			var sequence: Dictionary = _journal.peek_next_sequence(str(inputs.snapshot_input.lifecycle.get("run_id", "")))
@@ -1946,6 +1946,7 @@ func _capture_backup_inputs() -> Dictionary:
 	return {"ok": true, "value": inputs}
 
 func _compose_live_checkpoint_input(snapshot_input: Dictionary) -> Dictionary:
+	if snapshot_input.has("scene"): return snapshot_input
 	var view: Object = _restore_participants.get("schedule_view")
 	if is_instance_valid(view) and view.has_method("compose_live_checkpoint_input"):
 		return view.compose_live_checkpoint_input(snapshot_input)
@@ -3322,3 +3323,8 @@ func _validate_scene_creation_chronology() -> Dictionary:
 	if validated.value.scene_count != scene_count or validated.value.tail_run_id != previous_run:
 		return _fail(&"creation_history_unproven", "assignment tail differs from successful creations")
 	return {"ok": true, "value": {"fresh": false}}
+
+static func _prepared_is_scene_family(prepared: Dictionary) -> bool:
+	var bundle: Variant = prepared.get("bundle")
+	return bundle is Dictionary and bundle.get("snapshot") is Dictionary \
+		and bundle.snapshot.get("schema_version") == 9

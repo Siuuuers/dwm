@@ -24,7 +24,7 @@ const ENUMS := {
 	"pair_form": ["ambiguous_sweet", "ambiguous_dark", "love_sweet", "love_dark"],
 	"ending_role": ["primary", "epilogue", "special_prefix", "core", "pair_coda", "observer_coda"],
 	"playback_mode": ["full", "residue"], "residue_variant": ["full", "residue"],
-	"alone_cause": ["empty_done", "hospital_faint"],
+	"alone_cause": ["empty_done", "hospital_faint", "scene_terminal"],
 }
 static var _schemas: Dictionary = {}
 static var _ids: Dictionary = {}
@@ -118,6 +118,10 @@ static func _field(value: Variant, descriptor: Variant) -> bool:
 	return false
 
 static func _bindings(entry_id: String, fields: Dictionary) -> Dictionary:
+	if fields.get("alone_cause") == "scene_terminal" and (entry_id != "ending.alone.normal" \
+			or fields.get("ending_role") != "core" or fields.get("playback_mode") != "full" \
+			or fields.get("prerequisite_receipt_ids") != []):
+		return _fail("frozen_context_scene_terminal_mismatch", entry_id)
 	if fields.has("pair_count_status") and (fields.pair_count_receipt == null) != (fields.pair_count_status == "pending_rollover"):
 		return _fail("frozen_context_pair_count_mismatch", entry_id)
 	if fields.has("board_result"):

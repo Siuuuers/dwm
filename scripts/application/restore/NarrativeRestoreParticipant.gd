@@ -69,6 +69,7 @@ var _catalog: Object = null
 ## The ONE semantic plan apply_silent has staged and finalize has not yet consumed.
 var _pending_semantic_plan: Dictionary = {}
 var _prepared_scene_checkpoint: Dictionary = {}
+var _prepared_terminal := false
 var _scene_operation := ""
 var _scene_activation_in_call := false
 var _scene_activation_proof := false
@@ -81,11 +82,24 @@ func _init(owner: Object, catalog: Object = null) -> void:
 
 func prepare(input: Dictionary) -> Dictionary:
 	_prepared_scene_checkpoint = {}
+	_prepared_terminal = false
 	if typeof(input.get("narrative_checkpoint")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_narrative_input", "narrative participant requires a narrative_checkpoint")
 	if typeof(input.get("content_version")) != TYPE_INT:
 		return _fail(&"invalid_narrative_input", "narrative participant requires a content_version")
 	var checkpoint: Dictionary = input["narrative_checkpoint"]
+	var snapshot: Variant = input.get("snapshot")
+	if snapshot is Dictionary and preload("res://scripts/domain/run/RunSnapshotSchema.gd").is_scene_terminal(snapshot):
+		if snapshot.get("narrative_checkpoint") != checkpoint:
+			return _fail(&"invalid_narrative_input", "terminal checkpoint must match its complete Run")
+		var validated: Dictionary = preload("res://scripts/domain/run/RunSnapshotSchema.gd").validate(snapshot)
+		if not validated.get("ok", false): return validated
+		if not checkpoint.is_empty():
+			var prepared := _prepare_reading(checkpoint, snapshot) if checkpoint.has("reading_session") else _prepare_semantic(checkpoint)
+			if not prepared.get("ok", false): return prepared
+		_prepared_terminal = true
+		_prepared_scene_checkpoint = checkpoint.duplicate(true)
+		return {"ok": true, "value": {"narrative_plan": {"scene_terminal_checkpoint": checkpoint.duplicate(true)}}}
 	# This discriminator must precede both older branches. Removing entry_id from
 	# a reading checkpoint must never downgrade it to an empty legacy playhead.
 	if checkpoint.has("reading_session"):
@@ -148,14 +162,17 @@ func apply_silent(plan: Dictionary) -> Dictionary:
 	# Rejects a missing route-ready token and therefore cannot run early.
 	if typeof(plan.get("route_ready_token")) != TYPE_DICTIONARY:
 		return _fail(&"missing_route_ready_token", "narrative apply requires the route-ready token")
-	if FROZEN_RUN._is_scene_checkpoint(plan):
-		var checkpoint := _projected(plan)
-		if _prepared_scene_checkpoint.is_empty() or not _same_scene_value(checkpoint, _prepared_scene_checkpoint) \
+	if plan.has("scene_terminal_checkpoint") or FROZEN_RUN._is_scene_checkpoint(plan):
+		var terminal: bool = plan.has("scene_terminal_checkpoint")
+		var checkpoint: Dictionary = plan.scene_terminal_checkpoint if terminal else _projected(plan)
+		var method := "stage_scene_terminal_restore" if terminal else "stage_scene_reading_restore"
+		if (terminal and not _prepared_terminal) or (not terminal and _prepared_scene_checkpoint.is_empty()) \
+				or not _same_scene_value(checkpoint, _prepared_scene_checkpoint) \
 				or typeof(plan.get("scene_restore_operation_id")) != TYPE_STRING \
 				or plan.scene_restore_operation_id.strip_edges().is_empty() \
-				or not _owner.has_method("stage_scene_reading_restore"):
+				or not _owner.has_method(method):
 			return _fail(&"scene_restore_plan_invalid", "private prepared checkpoint and current operation required")
-		var staged: Dictionary = _owner.stage_scene_reading_restore(checkpoint, plan.scene_restore_operation_id)
+		var staged: Dictionary = _owner.call(method, checkpoint, plan.scene_restore_operation_id)
 		if not staged.get("ok", false): return staged
 		_scene_operation = plan.scene_restore_operation_id
 		_scene_activation_proof = false
@@ -195,6 +212,7 @@ func capture() -> Dictionary:
 
 func rollback_silent(backup: Dictionary) -> Dictionary:
 	_prepared_scene_checkpoint = {}
+	_prepared_terminal = false
 	_scene_operation = ""
 	_scene_activation_proof = false
 	_scene_activation_notified = false

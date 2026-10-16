@@ -949,11 +949,11 @@ func _capture_paused_checkpoint_inputs() -> Dictionary:
 	var route: String = router.get_current_route_id()
 	if route not in ["main", "dating", "hospital", "ending", "scene"]:
 		return _failure(&"backup_capture_unavailable", "The paused source has no qualified gameplay capture")
-	if route == "scene":
+	if route == "scene" or (route == "ending" and game._run_lifecycle.to_dict().has("scene_assignment")):
 		var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
 		if not checkpoint.get("ok", false): return checkpoint
 		return {"ok": true, "value": {"snapshot_input": game.capture_run_snapshot_input(),
-			"dialogic_checkpoint": checkpoint.value, "route_id": "scene", "active_app_id": null,
+			"dialogic_checkpoint": checkpoint.value, "route_id": route, "active_app_id": null,
 			"audio_context": _target(&"AudioManager").get_semantic_audio_context(),
 			"content_version": NARRATIVE_CONTENT_VERSION}}
 	var narrative := _capture_dating_reading_checkpoint(bridge, route)
@@ -1524,7 +1524,12 @@ func _configure_registered_scene_creation() -> Dictionary:
 	var selected: Dictionary = DIALOGIC_ENTRY_MANIFEST.scene_registration()
 	if not selected.get("ok", false):
 		return {"ok": true} if selected.get("code") == &"scene_registration_absent" else selected
-	return _target(&"SaveManager").configure_scene_new_run(_target(&"DialogicBridge"))
+	var saves := _target(&"SaveManager")
+	var configured: Dictionary = saves.configure_scene_new_run(_target(&"DialogicBridge"))
+	if not configured.get("ok", false): return configured
+	var first_target: String = DIALOGIC_ENTRY_MANIFEST.first_target_id()
+	if first_target.is_empty() or selected.value.get("schema_version") != 3: return {"ok": true} # Older test registrations configure their own opening.
+	return saves.configure_scene_title_new_run(first_target)
 
 ## Complete existing scene owners only for an explicitly installed registration.
 ## The retained participant map still serves historical saves; scene transactions
@@ -1533,6 +1538,11 @@ func _configure_registered_scene_runtime() -> Dictionary:
 	var selected: Dictionary = DIALOGIC_ENTRY_MANIFEST.scene_registration()
 	if not selected.get("ok", false):
 		return {"ok": true} if selected.get("code") == &"scene_registration_absent" else selected
+	if FileAccess.file_exists("res://data/manifests/scene_ending_reading_catalogue.json") and OS.get_environment("DWM_SCENE_READING_FIXTURE") != "1" and not OS.get_cmdline_user_args().has(DIALOGIC_ENTRY_MANIFEST.SCENE_TEST_FLAG) and not OS.get_cmdline_args().has(DIALOGIC_ENTRY_MANIFEST.SCENE_TEST_FLAG):
+		var catalogue: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://data/manifests/scene_ending_reading_catalogue.json"))
+		if not catalogue is Dictionary: return _failure(&"ending_reading_catalogue_unavailable", "")
+		var configured: Dictionary = _target(&"DialogicBridge").configure_reading_catalogue(catalogue)
+		if not configured.get("ok", false): return configured
 	var saves := _target(&"SaveManager")
 	var game := _target(&"GameState")
 	var router := _target(&"SceneRouter")
@@ -2251,6 +2261,27 @@ func _flush_before_run_save() -> Dictionary:
 
 
 func _commit_ending_checkpoint() -> Dictionary:
+	var game := _target(&"GameState")
+	var lifecycle: Dictionary = game._run_lifecycle.to_dict()
+	if lifecycle.get("ending_plan") is Dictionary and lifecycle.ending_plan.get("source_kind") == "scene":
+		if _retained_checkpoint_port == null: return _failure(&"presentation_checkpoint_unavailable", "")
+		var bridge := _target(&"DialogicBridge")
+		var reading: Dictionary = bridge.capture_ending_physical_checkpoint()
+		if not reading.get("ok", false): return reading
+		var inputs := {"snapshot_input": game.capture_run_snapshot_input(), "route_id": "ending",
+			"dialogic_checkpoint": reading.value, "active_app_id": null,
+			"audio_context": _target(&"AudioManager").get_semantic_audio_context(),
+			"content_version": NARRATIVE_CONTENT_VERSION}
+		var backup: Dictionary = _retained_checkpoint_port.capture()
+		if not backup.get("ok", false): return backup
+		var prepared: Dictionary = _retained_checkpoint_port.prepare(inputs, &"safe_marker", {"kind": &"autosave", "reason": &"automatic"})
+		if not prepared.get("ok", false): return prepared
+		var committed: Dictionary = _retained_checkpoint_port.commit(prepared.value.candidate)
+		if not committed.get("ok", false) and not committed.get("committed", false):
+			var rolled: Dictionary = _retained_checkpoint_port.rollback({"journal_backup": backup.value.backup,
+				"storage_backup": prepared.value.candidate.storage_backup})
+			if not rolled.get("ok", false): return rolled
+		return committed
 	return _commit_presentation_checkpoint("ending")
 
 
