@@ -148,6 +148,7 @@ func load_and_complete_week() -> void:
 	assert_true(_ready_observation.event_done)
 	assert_eq(_ready_observation.text.strip_edges(), "TEST Day4 closing.")
 	assert_eq(_ready_observation.ledger, proof.checkpoint.reading_session.ledger, "Load adds no publication")
+	var restored_native: Dictionary = _ready_observation.duplicate(true)
 	var reading: Dictionary = bridge.capture_reading_checkpoint(false)
 	if not _ok(reading): return
 	assert_eq(reading.value, proof.checkpoint, "Load neither replays nor advances the saved caption")
@@ -181,7 +182,7 @@ func load_and_complete_week() -> void:
 	assert_eq(finished.state, "COMPLETED")
 	assert_eq(finished.ending_plan.next_step_index, 1, "physical ending completed once")
 	assert_eq(finished.ending_plan.playback_stage, "GALLERY_RECORDED")
-	assert_false(game.capture_live_session().get("ok", false), "completion retires live authority")
+	assert_false(game.capture_live_session().value.active, "completion retires live authority")
 	var durable: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/autosave.json"))
 	if not _ok(durable): return
 	assert_eq(durable.value.current_snapshot.snapshot.lifecycle.state, "COMPLETED", "completion durable before Title")
@@ -205,7 +206,7 @@ func load_and_complete_week() -> void:
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.slot_sha256)
 	await _screenshot("seven-day-fresh-day1")
 	_write_json("res://.godot/ci/scene-seven-day-load-proof.json", {"loader_process_id": OS.get_process_id(),
-		"creator_process_id": proof.process_id, "ready_native": _ready_observation,
+		"creator_process_id": proof.process_id, "ready_native": restored_native,
 		"creator_lines": proof.observed_lines, "loader_lines": observed_lines,
 		"completed_lifecycle": finished, "completed_profile": completed_profile,
 		"fresh_lifecycle": fresh.lifecycle, "ready_count": ready_count,
@@ -230,6 +231,7 @@ func _save_ending_caption() -> bool:
 	if not _ok(prepared): return false
 	if not _ok(await sheet._backup_port.commit_action(prepared.value.token)): return false
 	sheet.surface.leave_host()
+	if not _ok(await sheet.request_continue()): return false
 	for frame: int in 4: await get_tree().process_frame
 	var parsed: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/slot_2.json"))
 	if not _ok(parsed): return false

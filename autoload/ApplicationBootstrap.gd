@@ -1538,7 +1538,7 @@ func _configure_registered_scene_runtime() -> Dictionary:
 	var selected: Dictionary = DIALOGIC_ENTRY_MANIFEST.scene_registration()
 	if not selected.get("ok", false):
 		return {"ok": true} if selected.get("code") == &"scene_registration_absent" else selected
-	if FileAccess.file_exists("res://data/manifests/scene_ending_reading_catalogue.json") and OS.get_environment("DWM_SCENE_READING_FIXTURE") != "1" and not OS.get_cmdline_user_args().has(DIALOGIC_ENTRY_MANIFEST.SCENE_TEST_FLAG) and not OS.get_cmdline_args().has(DIALOGIC_ENTRY_MANIFEST.SCENE_TEST_FLAG):
+	if not DIALOGIC_ENTRY_MANIFEST.first_target_id().is_empty() and FileAccess.file_exists("res://data/manifests/scene_ending_reading_catalogue.json") and OS.get_environment("DWM_SCENE_READING_FIXTURE") != "1" and not OS.get_cmdline_user_args().has(DIALOGIC_ENTRY_MANIFEST.SCENE_TEST_FLAG) and not OS.get_cmdline_args().has(DIALOGIC_ENTRY_MANIFEST.SCENE_TEST_FLAG):
 		var catalogue: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(
 			FileAccess.get_file_as_string("res://data/manifests/scene_ending_reading_catalogue.json"))
 		if not catalogue.get("ok", false): return catalogue

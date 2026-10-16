@@ -4330,7 +4330,7 @@ func capture_scene_pending_marker() -> Dictionary:
 		return _command_failure(&"scene_marker_unavailable")
 	var source: Dictionary = _runtime_adapter._scene_source_boundary(_reading_session)
 	if not source.get("ok", false): return source
-	if source.value.marker.kind not in ["challenge.playable", "challenge.end", "contact.enter", "contact.return"]:
+	if source.value.marker.kind not in ["scene.transition", "challenge.playable", "challenge.end", "contact.enter", "contact.return"]:
 		return _command_failure(&"scene_marker_unavailable")
 	return {"ok": true, "value": source.value.marker.duplicate(true)}
 

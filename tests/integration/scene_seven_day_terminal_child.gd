@@ -72,7 +72,7 @@ func load_saved_terminal_line() -> void:
 	assert_eq(finished.state, "COMPLETED")
 	assert_eq(finished.ending_plan.next_step_index, 1, "one physical completion advances restored ending")
 	assert_eq(finished.ending_plan.playback_stage, "GALLERY_RECORDED")
-	assert_false(game.capture_live_session().get("ok", false))
+	assert_false(game.capture_live_session().value.active)
 	assert_eq(profile.get_profile_snapshot().gallery_transaction_receipts,
 		profile_before.gallery_transaction_receipts, "replayed run ending reuses existing gallery transaction")
 	var durable: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/autosave.json"))
