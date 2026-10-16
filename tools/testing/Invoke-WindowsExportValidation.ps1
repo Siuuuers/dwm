@@ -20,7 +20,9 @@ $smokeUser = Join-Path $work 'smoke-user'
 New-Item -ItemType Directory -Path $package, $exportUser, $smokeUser | Out-Null
 $expectedTemplateHash = '3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8'
 $result = [ordered]@{
-    schema_version = 1; ok = $false; commit = $env:GITHUB_SHA
+    schema_version = 1; ok = $false
+    commit = (& git -C $repositoryRoot rev-parse HEAD).Trim()
+    ci_event_commit = $env:GITHUB_SHA
     engine = '4.6.3.stable'; architecture = 'x86_64'; signed = $false
     scope = 'Unsigned Windows release export, packaged data audit, isolated headless startup'
     limitations = @('No graphical rendering, UI Automation, screen-reader, or full release acceptance claim')
