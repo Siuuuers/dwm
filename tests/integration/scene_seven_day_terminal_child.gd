@@ -54,7 +54,7 @@ func load_saved_terminal_line() -> void:
 	for key: String in ["gameplay", "scene", "command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
 		if restored[key] != proof.snapshot[key]:
 			print("ENDING_RESTORE_DIFFERENCE ", key, " actual=", restored[key], " saved=", proof.snapshot[key])
-		assert_eq_deep(restored[key], proof.snapshot[key], "ending Load preserves " + key)
+		assert_eq(restored[key], proof.snapshot[key], "ending Load preserves " + key)
 	assert_eq(profile.get_profile_snapshot(), profile_before, "ending Load preserves current history")
 	assert_eq(FileAccess.get_sha256("user://profile.json"), profile_hash)
 	assert_eq(FileAccess.get_sha256(TERMINAL_SLOT), proof.slot_sha256)
