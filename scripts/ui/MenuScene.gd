@@ -736,7 +736,7 @@ func _ledger_input(event: InputEvent, source: Button) -> void:
 
 func _draw() -> void:
 	if theme != null:
-		draw_rect(Rect2(320, 64, 960, 656), get_theme_color("habitat", "Desktop"))
+		draw_rect(Rect2(320, 0, 960, 656), get_theme_color("habitat", "Desktop"))
 
 func _show_login_unavailable() -> void:
 	_title_status.show()
