@@ -895,9 +895,10 @@ func apply_route_restore_silent(plan: Dictionary) -> Dictionary:
 	_pending_restore_scene_id = route_id
 	var gs := _gs()
 	# Scene Run restore already installed its complete gameplay context. The scene
-	# host plan carries contacts/lifecycle/desktop references for mounting, not
+	# host and terminal plans carry contacts/lifecycle/desktop references for mounting, not
 	# additional gameplay fields. Legacy route metadata retains its existing merge.
-	if route_id != "scene" and gs != null and typeof(plan.get("route_context")) == TYPE_DICTIONARY:
+	if route_id != "scene" and gs != null and typeof(plan.get("route_context")) == TYPE_DICTIONARY \
+			and not plan.route_context.has("scene"):
 		# The run participant already restored gameplay-owned challenge/ending context.
 		# This participant adds safe routing metadata; replacing the map discards that state.
 		var combined: Dictionary = gs.route_context.duplicate(true)

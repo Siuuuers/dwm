@@ -82,3 +82,28 @@ func test_restore_reservation_blocks_ordinary_start_without_claiming_native_play
 	native.occupied = false
 	assert_false(bridge.has_active_playback())
 	bridge.free()
+
+class RouteGameplayProbe extends Node:
+	var route_context := {"retained_gameplay": "unchanged"}
+
+class TerminalRouteProbe extends "res://autoload/SceneRouter.gd":
+	var game_probe: Node
+	func _gs() -> Node: return game_probe
+
+func test_terminal_mounting_context_does_not_become_gameplay_route_context() -> void:
+	var game := RouteGameplayProbe.new()
+	var router := TerminalRouteProbe.new()
+	router.game_probe = game
+	var before: Dictionary = game.route_context.duplicate(true)
+	var mounting := {"run_id": "run:terminal", "lifecycle_state": "ENDING", "active_app_id": null,
+		"scene": {"active_occurrence_id": "occurrence:seven"}, "contacts": {}, "ending_plan": {}}
+	var restored: Dictionary = router.apply_route_restore_silent({"route_id": "ending", "route_context": mounting})
+	assert_true(restored.ok, str(restored))
+	assert_eq(game.route_context, before, "Run owns gameplay; terminal route metadata only mounts its scene")
+	assert_eq(restored.value.route_ready_token.route_id, "ending")
+	var legacy: Dictionary = router.apply_route_restore_silent({"route_id": "ending", "route_context": {"legacy_route": "retained"}})
+	assert_true(legacy.ok, str(legacy))
+	assert_eq(game.route_context, {"retained_gameplay": "unchanged", "legacy_route": "retained"},
+		"legacy route metadata keeps its existing merge")
+	router.free()
+	game.free()
