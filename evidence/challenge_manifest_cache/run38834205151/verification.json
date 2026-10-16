@@ -1,0 +1,129 @@
+{
+  "audit_status": "verified_observation_only",
+  "run_id": 38834205151,
+  "job_id": 116759523920,
+  "archive": {
+    "bytes": 26975,
+    "sha256": "c86af63e3296e6bdadb73a490e58de5f71d4ed2c840be8b0d6d30a47cfc2f177",
+    "members": 11,
+    "crc_clean": true
+  },
+  "retained_manifest": {
+    "entries": 10,
+    "all_sizes_and_hashes_match": true,
+    "only_unmanifested_member": "ci/retained-hashes.json"
+  },
+  "source": {
+    "source": "177ff6ee3a13fc2e40346adc131eafd105a6af89",
+    "tree": "5843dac75acfae16b35b824a025871e76a60d608",
+    "parent": "f8b873bd5e0df1dbab2ffaec9301c87d487de74e"
+  },
+  "origin": {
+    "base": "f8b873bd5e0df1dbab2ffaec9301c87d487de74e",
+    "controller": "a29e8c82c7f4a7c645da6836c02fa39e8da006e2",
+    "scope": "observation-only three-iteration timing probe; intentional failed assertion, no acceptance"
+  },
+  "source_checks": {
+    "base_test_blob": "164a431e52dc615651f2e6bd8c3f9ff2eda5e663",
+    "captured_test_raw_blob": "c6a4ea185ab04e940d47d5fdd9ae1f68312f77c5",
+    "captured_test_normalized_blob": "c6c5ab31746dada1a0ea9402cb47d80859db2670",
+    "captured_line_endings": "CRLF",
+    "retained_patch_exactly_reconstructs_normalized_captured_test": true,
+    "only_patch_path": "tests/unit/test_scene_first_reveal.gd",
+    "selected_test_count": 1,
+    "probe_iteration_cap": 3,
+    "intentional_failure_if_probe_completes": true,
+    "final_status_empty": true,
+    "full_frozen_tree_reconstruction": "Not performed by this auditor; coordinator reconstructs with full checkout"
+  },
+  "engine": {
+    "version": "4.6.3.stable.official.7d41c59c4",
+    "archive_sha256": "e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90",
+    "console_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a"
+  },
+  "engine_checks": {
+    "metadata_matches_expected_pins": true,
+    "log_version_matches": true,
+    "binary_archive_not_available_for_rehash": true
+  },
+  "child": {
+    "suite_id": "challenge-probe",
+    "argv": [
+      "--headless",
+      "--path",
+      "D:\\a\\dwm\\dwm\\source",
+      "--log-file",
+      "D:\\a\\dwm\\dwm\\source\\.godot\\phase2r_logs\\challenge-probe.log",
+      "-s",
+      "res://addons/gut/gut_cmdln.gd",
+      "-gconfig=",
+      "-gtest=res://tests/unit/test_scene_first_reveal.gd",
+      "-gexit",
+      "-glog=2",
+      "-gjunit_xml_file=res://.godot/ci/challenge-probe.xml"
+    ],
+    "exit_code": 124,
+    "log_path": "D:\\a\\dwm\\dwm\\source\\.godot\\phase2r_logs\\challenge-probe.log",
+    "test_root": "D:\\a\\dwm\\dwm\\source\\.godot\\phase2r_tests\\6928f247-bd98-44ca-aa3d-ace50e9e4ed2",
+    "user_dir": "D:\\a\\dwm\\dwm\\source\\.godot\\phase2r_tests\\6928f247-bd98-44ca-aa3d-ace50e9e4ed2\\appdata\\Godot\\app_userdata\\DWM",
+    "started_at_utc": "2026-10-16T01:17:37.6676467Z",
+    "ended_at_utc": "2026-10-16T01:20:37.7002557Z"
+  },
+  "events": [
+    {
+      "candidate_ordinal": null,
+      "iteration": -1,
+      "operations_used": null,
+      "phase": null,
+      "slice_sequence": null,
+      "stage": "before_first_reveal",
+      "status": null,
+      "ticks_msec": 5955
+    },
+    {
+      "candidate_ordinal": 0,
+      "iteration": -1,
+      "operations_used": 0,
+      "phase": "preparing",
+      "slice_sequence": 0,
+      "stage": "after_first_reveal",
+      "status": "searching",
+      "ticks_msec": 101753
+    },
+    {
+      "candidate_ordinal": 0,
+      "iteration": 0,
+      "operations_used": 0,
+      "phase": "preparing",
+      "slice_sequence": 0,
+      "stage": "before_prepare",
+      "status": "searching",
+      "ticks_msec": 101757
+    }
+  ],
+  "observations": {
+    "first_reveal_elapsed_msec": 95798,
+    "first_reveal_result_phase": "preparing",
+    "first_reveal_slice_sequence": 0,
+    "first_prepare_started_msec": 101757,
+    "first_prepare_finished": false,
+    "timeout_seconds": 180,
+    "exit_code": 124,
+    "completed_iteration_count": 0,
+    "xml_present": false,
+    "acceptance_tests_credited": 0,
+    "error_markers_in_import_or_main_log": 0
+  },
+  "limits": [
+    "Observation-only diagnostic; no gameplay acceptance or completed test census",
+    "No evidence of completed certification or recovery loop",
+    "Engine pin verified from retained metadata and logs, not binary rehash",
+    "Captured source uses CRLF; Git patch/source blob comparison uses LF normalization",
+    "Frozen tree identity is retained metadata pending coordinator independent reconstruction"
+  ],
+  "coordinator_frozen_tree_reconstruction": {
+    "tree": "5843dac75acfae16b35b824a025871e76a60d608",
+    "matched": true,
+    "normalization": "Repository .gitattributes text=auto eol=lf; retained instrumented test bytes are CRLF, git blob is LF."
+  }
+}
