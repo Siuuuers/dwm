@@ -1,4 +1,4 @@
-name: Scene later-caption acceptance
+name: Seven-day authoring qualification
 on:
   pull_request:
     paths:
@@ -10,12 +10,12 @@ concurrency:
   group: scene-first-reveal-profile-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 jobs:
-  later-caption:
+  authoring:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
     runs-on: windows-2022
     timeout-minutes: 20
     env:
-      BASE_SHA: 5e4da996bdb896fb0db96641232595d78dd08cd9
+      BASE_SHA: 7adbff9a8b9a9a3ed2952e0a72b39979b9e4b032
       CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
     defaults:
       run:
@@ -27,7 +27,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 150bd58598ffa8ebefb4ed621a348e5ca12cccd8
+          ref: b8f26cf669b84e14afc840f74d80bd0351da5801
           path: source
           fetch-depth: 16
       - name: Verify exact candidate source
@@ -36,9 +36,9 @@ jobs:
           @'
           import json,os,pathlib,subprocess
           subprocess.check_call(['git','cat-file','-e',os.environ['BASE_SHA']])
-          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='150bd58598ffa8ebefb4ed621a348e5ca12cccd8'
+          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='b8f26cf669b84e14afc840f74d80bd0351da5801'
           out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
-          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':'150bd58598ffa8ebefb4ed621a348e5ca12cccd8','controller':os.environ['CONTROLLER_SHA'],'scope':'ordinary scene publication cursor and rendered Save/fresh-process Load'}))
+          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':'b8f26cf669b84e14afc840f74d80bd0351da5801','controller':os.environ['CONTROLLER_SHA'],'scope':'sequence helper and seven-day authoring templates only'}))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Install exact Godot standard engine
@@ -71,35 +71,24 @@ jobs:
           if (Select-String "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Import failed' }
           git restore --worktree -- project.godot
           @'
-          import subprocess
-          expected=[]
+          import subprocess,pathlib
+          expected=sorted(p.as_posix()+'.uid' for p in [pathlib.Path('tools/authoring/SceneSequenceAuthoring.gd'),pathlib.Path('tests/unit/test_scene_sequence_authoring.gd'),pathlib.Path('tests/templates/seven_day/SevenDayTemplates.gd'),pathlib.Path('tests/unit/test_seven_day_templates.gd')])
           assert not subprocess.check_output(['git','diff','--name-only'],text=True).strip()
-          assert sorted(subprocess.check_output(['git','ls-files','--others','--exclude-standard'],text=True).splitlines())==sorted(expected)
+          actual=sorted(subprocess.check_output(['git','ls-files','--others','--exclude-standard'],text=True).splitlines())
+          assert actual==expected,(actual,expected)
+          subprocess.check_call(['git','add',*expected])
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          & './tools/testing/Invoke-PublicSurfaceValidation.ps1' -Regenerate
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          @'
-          import subprocess
-          expected={'evidence/phase_2r/runtime/game_state_surface.json','evidence/phase_2r/runtime/save_manager_surface.json'}
-          changed=set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())
-          assert changed <= expected, changed
-          '@ | python -
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git add evidence/phase_2r/runtime/game_state_surface.json evidence/phase_2r/runtime/save_manager_surface.json tests/unit/test_scene_publication_cursor.gd.uid
-          git add tests/integration/scene_later_caption_child.gd.uid tests/integration/test_scene_later_caption_create.gd.uid tests/integration/test_scene_later_caption_load.gd.uid
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit --allow-empty -m 'Freeze regenerated later-caption test inventories'
+          git commit -m 'Freeze generated authoring script identities'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @{ source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}') } | ConvertTo-Json | Set-Content .godot/ci/candidate-commit.json -Encoding utf8
-      - name: Run focused owner and native regression suites
+      - name: Run focused authoring suites
         run: |
           $cases = @(
-            @{Name='publication-cursor'; Script='tests/unit/test_scene_publication_cursor.gd'},
-            @{Name='native-activation'; Script='tests/unit/test_scene_runtime_activation.gd'},
-            @{Name='restore-protocol'; Script='tests/unit/test_scene_restore_activation_protocol.gd'},
-            @{Name='reading-frontier'; Script='tests/integration/test_narrative_reading_frontier_runtime.gd'}
+            @{Name='sequence-authoring'; Script='tests/unit/test_scene_sequence_authoring.gd'},
+            @{Name='seven-day-templates'; Script='tests/unit/test_seven_day_templates.gd'}
           )
           foreach ($case in $cases) {
             $name = $case.Name
@@ -107,12 +96,6 @@ jobs:
             & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId $name -LogName "${name}.log" -GodotArgs $arguments -EvidenceLogPath ".godot/ci/${name}.jsonl" -TimeoutSeconds 240
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
-      - name: Render actual Accept Save and fresh-process Load
-        run: |
-          $create = @('--rendering-method','gl_compatibility','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_later_caption_create.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/later-caption-create.xml')
-          $load = @('--rendering-method','gl_compatibility','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_later_caption_load.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/later-caption-load.xml')
-          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'later-caption' -LogName 'later-caption-create.log' -GodotArgs $create -NextGodotArgs $load -NextLogName 'later-caption-load.log' -EvidenceLogPath '.godot/ci/later-caption.jsonl' -TimeoutSeconds 240 -Rendered
-          exit $LASTEXITCODE
       - name: Verify exact test census and frozen source
         run: |
           $ErrorActionPreference = 'Stop'
@@ -121,7 +104,7 @@ jobs:
           out=pathlib.Path('.godot/ci')
           frozen=json.loads((out/'candidate-commit.json').read_text(encoding='utf-8-sig'))
           result={'source':frozen['source'],'tree':frozen['tree'],'passed':0,'assertions':0,'suites':[]}
-          suites=[('publication-cursor','tests/unit/test_scene_publication_cursor.gd'),('native-activation','tests/unit/test_scene_runtime_activation.gd'),('restore-protocol','tests/unit/test_scene_restore_activation_protocol.gd'),('reading-frontier','tests/integration/test_narrative_reading_frontier_runtime.gd'),('later-caption-create','tests/integration/test_scene_later_caption_create.gd'),('later-caption-load','tests/integration/test_scene_later_caption_load.gd')]
+          suites=[('sequence-authoring','tests/unit/test_scene_sequence_authoring.gd'),('seven-day-templates','tests/unit/test_seven_day_templates.gd')]
           for name,script in suites:
               expected=re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(),re.M)
               root=ET.parse(out/(name+'.xml')).getroot();rows=list(root.iter('testcase'))
@@ -133,9 +116,9 @@ jobs:
               assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',log),name
               result['passed']+=len(rows);result['assertions']+=count
               result['suites'].append({'name':name,'passed':len(rows),'assertions':count})
-          for name in ['publication-cursor','native-activation','restore-protocol','reading-frontier','later-caption']:
+          for name in ['sequence-authoring','seven-day-templates']:
               children=[json.loads(s) for s in (out/(name+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
-              assert len(children)==(2 if name=='later-caption' else 1) and all(c['exit_code']==0 for c in children),name
+              assert len(children)==1 and all(c['exit_code']==0 for c in children),name
           assert not subprocess.check_output(['git','status','--porcelain'],text=True).strip()
           assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()==frozen['tree']
           (out/'gate.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
@@ -193,7 +176,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: scene-later-caption-${{ github.run_id }}-${{ github.run_attempt }}
+          name: seven-day-authoring-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             source/.godot/ci
             source/.godot/phase2r_logs
