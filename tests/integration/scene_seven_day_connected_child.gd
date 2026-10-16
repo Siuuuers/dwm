@@ -174,6 +174,7 @@ func load_and_complete_week() -> void:
 	assert_eq(ending_state.ending_plan.source_reading_checkpoint.reading_session.frontier.line_id, "line.Day7.two")
 	assert_eq(terminal_scene.get_presentation_projection().kind, "play_ending")
 	await _screenshot("seven-day-ending")
+	if not await _save_ending_caption(): return
 	await _accept()
 	if not await _wait_route(MENU): return
 	var finished: Dictionary = game._run_lifecycle.to_dict()
@@ -209,3 +210,37 @@ func load_and_complete_week() -> void:
 		"completed_lifecycle": finished, "completed_profile": completed_profile,
 		"fresh_lifecycle": fresh.lifecycle, "ready_count": ready_count,
 		"preserved_slot_sha256": proof.slot_sha256})
+
+func _save_ending_caption() -> bool:
+	var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
+	if not _ok(checkpoint): return false
+	var native := _native_observation()
+	assert_eq(native.line_id, "line.ending.alone.normal.one")
+	assert_true(native.visible)
+	var caption: Node = _caption()
+	var save_button: Control = caption.transport_rail.get_node("Save")
+	assert_true(save_button.is_visible_in_tree(), "ending exposes normal Save")
+	assert_true(caption._save_admitted(), "ending caption admits physical Save")
+	if not caption._save_admitted(): return false
+	await _click(save_button)
+	var sheet: Node = get_node("/root/SceneRouter")._production_pause
+	assert_true(sheet.can_save_backup(), str(sheet.last_result))
+	if not sheet.can_save_backup(): return false
+	var prepared: Dictionary = sheet._backup_port.prepare_action("save", "slot:2")
+	if not _ok(prepared): return false
+	if not _ok(await sheet._backup_port.commit_action(prepared.value.token)): return false
+	sheet.surface.leave_host()
+	for frame: int in 4: await get_tree().process_frame
+	var parsed: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/slot_2.json"))
+	if not _ok(parsed): return false
+	var snapshot: Dictionary = parsed.value.current_snapshot.snapshot
+	assert_eq(snapshot.narrative_checkpoint, checkpoint.value, "ending Save keeps exact visible reading frontier")
+	assert_eq(snapshot.lifecycle.state, "ENDING")
+	assert_eq(snapshot.lifecycle.ending_plan.next_step_index, 0)
+	var proof := {"process_id": OS.get_process_id(), "user_dir": ProjectSettings.globalize_path("user://"),
+		"checkpoint": snapshot.narrative_checkpoint, "snapshot": snapshot, "saved_native": native,
+		"profile": profile.get_profile_snapshot(), "slot_sha256": FileAccess.get_sha256("user://saves/slot_2.json")}
+	assert_eq(str(proof.slot_sha256).length(), 64)
+	await _screenshot("seven-day-ending-saved")
+	if not _write_json("user://scene-seven-day-ending-proof.json", proof): return false
+	return _write_json("res://.godot/ci/scene-seven-day-ending-save-proof.json", proof)
