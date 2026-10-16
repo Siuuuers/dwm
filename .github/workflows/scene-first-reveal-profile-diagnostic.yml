@@ -1,4 +1,4 @@
-name: Scene authority audit qualification
+name: Clock and transport layout qualification
 on:
   pull_request:
     paths:
@@ -12,7 +12,7 @@ concurrency:
 jobs:
   authority-audit:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
-    name: Windows / current scene authority audit
+    name: Windows / clock and transport layout
     runs-on: windows-2022
     timeout-minutes: 20
     defaults:
@@ -23,7 +23,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 9aa6a409c3a5ae61495b090d7ec78aa26910228a
+          ref: be2f5259b4de2c25e07cc0f3707c7473c9ffcfdb
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -31,9 +31,9 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '9aa6a409c3a5ae61495b090d7ec78aa26910228a') { throw 'Candidate mismatch' }
+          if ((git rev-parse HEAD) -cne 'be2f5259b4de2c25e07cc0f3707c7473c9ffcfdb') { throw 'Candidate mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='9aa6a409c3a5ae61495b090d7ec78aa26910228a'; tree='0bcfbf2ec1fa415b63174573d3588a502e6035f1'; controller='${{ github.event.pull_request.head.sha }}'; base='154aede473ac8f91e56e0c48af7d0d2f10153d73'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{candidate='be2f5259b4de2c25e07cc0f3707c7473c9ffcfdb'; tree='617a8943ede1d9b8300dc2fba58fadc93233bf45'; controller='${{ github.event.pull_request.head.sha }}'; base='2b88fb432592776466ac221a359d96fb63e62788'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -85,17 +85,23 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $lanes = @(
-            @{Name='issuer-census'; Script='tests/unit/tooling/test_phase2r_schedule_gate.gd'; Filter='test_derive_child_census'},
-            @{Name='identity-shape'; Script='tests/unit/tooling/test_phase2r_schedule_gate.gd'; Filter='test_day_advance_identity_shapes_are_bound_from_source'},
-            @{Name='scene-identity'; Script='tests/unit/test_scene_transition_identity.gd'; Filter=''}
+            @{Name='transport'; Script='tests/unit/test_witnessed_transport_rail.gd'; Filter=''; Rendered=$false},
+            @{Name='clock-rendered'; Script='tests/integration/test_scene_clock_layout.gd'; Filter=''; Rendered=$true}
           )
           $failed = $false
           foreach ($lane in $lanes) {
             $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$($lane.Script)",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$($lane.Name).xml")
             if ($lane.Filter) { $args += "-gunit_test_name=$($lane.Filter)" }
-            & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId $lane.Name -LogName "$($lane.Name).log" -GodotArgs $args -EvidenceLogPath ".godot/ci/$($lane.Name).jsonl" -TimeoutSeconds 240
+            & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId $lane.Name -LogName "$($lane.Name).log" -GodotArgs $args -EvidenceLogPath ".godot/ci/$($lane.Name).jsonl" -TimeoutSeconds 240 -Rendered:$lane.Rendered
             if ($LASTEXITCODE -ne 0) { $failed = $true }
           }
+          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'routine-clock' -LogName 'routine-clock.log' -GodotArgs @('-s','res://tests/routine_clock/test_routine_clock.gd') -EvidenceLogPath '.godot/ci/routine-clock.jsonl' -TimeoutSeconds 120
+          if ($LASTEXITCODE -ne 0) { $failed = $true }
+          python tools/title_shell/verify.py
+          if ($LASTEXITCODE -ne 0) { $failed = $true }
+          New-Item -ItemType Directory -Force '.godot/ci/title-shell' | Out-Null
+          Copy-Item 'tools/title_shell/evidence/*' '.godot/ci/title-shell/' -Recurse -Force
+          git restore -- tools/title_shell/evidence
           if ($failed) { exit 1 }
       - name: Verify exact selected census and source
         run: |
@@ -103,8 +109,8 @@ jobs:
           @'
           import collections,json,pathlib,re,subprocess,xml.etree.ElementTree as ET
           out=pathlib.Path('.godot/ci')
-          lanes=[('issuer-census','tests/unit/tooling/test_phase2r_schedule_gate.gd','test_derive_child_census'),('identity-shape','tests/unit/tooling/test_phase2r_schedule_gate.gd','test_day_advance_identity_shapes_are_bound_from_source'),('scene-identity','tests/unit/test_scene_transition_identity.gd','')]
-          result={'source':'9aa6a409c3a5ae61495b090d7ec78aa26910228a','tree':'0bcfbf2ec1fa415b63174573d3588a502e6035f1','tests':0,'assertions':0,'suites':[]}
+          lanes=[('transport','tests/unit/test_witnessed_transport_rail.gd',''),('clock-rendered','tests/integration/test_scene_clock_layout.gd','')]
+          result={'source':'be2f5259b4de2c25e07cc0f3707c7473c9ffcfdb','tree':'617a8943ede1d9b8300dc2fba58fadc93233bf45','tests':0,'assertions':0,'suites':[]}
           assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==result['source']
           assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()==result['tree']
           changed=subprocess.check_output(['git','diff','HEAD','--name-only'],text=True).splitlines()
@@ -122,7 +128,11 @@ jobs:
               count=sum(int(r.attrib['assertions']) for r in rows)
               result['tests']+=len(rows);result['assertions']+=count
               result['suites'].append({'name':name,'script':script,'filter':select,'tests':len(rows),'assertions':count})
-          assert result['tests']==10
+          clock_log=pathlib.Path('.godot/phase2r_logs/routine-clock.log').read_text(encoding='utf-8-sig')
+          assert 'ROUTINE_CLOCK_PASS' in clock_log and not re.search(r'SCRIPT ERROR:|ERROR:',clock_log)
+          assert json.loads((out/'routine-clock.jsonl').read_text(encoding='utf-8-sig').strip())['exit_code']==0
+          assert len(list(out.glob('computer-clock-*.png')))==4
+          assert result['tests']==13
           (out/'gate.json').write_text(json.dumps(result,indent=2))
           print(json.dumps(result))
           '@ | python -
@@ -134,7 +144,7 @@ jobs:
           @'
           import base64,hashlib,io,json,pathlib,subprocess,zipfile
           out=pathlib.Path('.godot/ci')
-          for source in ['tests/unit/tooling/test_phase2r_schedule_gate.gd','tests/unit/test_scene_transition_identity.gd']:
+          for source in ["scenes/menu/MenuScene.tscn","scenes/ui/witnessed/WitnessedCaptionLayer.tscn","scripts/ui/MenuScene.gd","scripts/ui/witnessed/WitnessedCaptionLayer.gd","scripts/ui/witnessed/WitnessedTransportRail.gd","tests/title_shell/test_title_shell.gd","tests/unit/test_witnessed_transport_rail.gd","tests/integration/test_scene_clock_layout.gd"]:
               p=out/'source'/source;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(pathlib.Path(source).read_bytes())
           (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
           files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))
@@ -157,7 +167,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: scene-authority-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          name: scene-clock-layout-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             .godot/ci
             .godot/phase2r_logs
