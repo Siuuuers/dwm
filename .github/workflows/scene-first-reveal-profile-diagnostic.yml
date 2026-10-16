@@ -1,4 +1,4 @@
-name: Direct ending return diagnostic
+name: Direct ending input readiness qualification
 on:
   pull_request:
     paths:
@@ -23,7 +23,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 4d6382fde5c7dec78582755cd3f3aafa57f90102
+          ref: 48b2aeefc2fe2c5dc8ddec4a00716598cc62e14e
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -31,9 +31,9 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '4d6382fde5c7dec78582755cd3f3aafa57f90102') { throw 'Candidate mismatch' }
+          if ((git rev-parse HEAD) -cne '48b2aeefc2fe2c5dc8ddec4a00716598cc62e14e') { throw 'Candidate mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='4d6382fde5c7dec78582755cd3f3aafa57f90102'; tree='1ecef7701f8f7af239e55138c3b62f49b8d49a49'; controller='${{ github.event.pull_request.head.sha }}'; base='a18f28931ede72bbf228f08592481228e2fbb0bb'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{candidate='48b2aeefc2fe2c5dc8ddec4a00716598cc62e14e'; tree='f95ed1f94cb39069e8801894eb7bd89907dea190'; controller='${{ github.event.pull_request.head.sha }}'; base='a18f28931ede72bbf228f08592481228e2fbb0bb'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -102,7 +102,7 @@ jobs:
           import collections,json,pathlib,re,subprocess,xml.etree.ElementTree as ET
           out=pathlib.Path('.godot/ci')
           lanes=[('ending-direct','tests/integration/test_scene_ending_direct_return.gd','test_direct_ending_accept_returns_without_save')]
-          result={'source':'4d6382fde5c7dec78582755cd3f3aafa57f90102','tree':'1ecef7701f8f7af239e55138c3b62f49b8d49a49','tests':0,'assertions':0,'suites':[]}
+          result={'source':'48b2aeefc2fe2c5dc8ddec4a00716598cc62e14e','tree':'f95ed1f94cb39069e8801894eb7bd89907dea190','tests':0,'assertions':0,'suites':[]}
           assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==result['source']
           assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()==result['tree']
           changed=subprocess.check_output(['git','diff','HEAD','--name-only'],text=True).splitlines()
@@ -132,7 +132,7 @@ jobs:
           @'
           import base64,hashlib,io,json,pathlib,subprocess,zipfile
           out=pathlib.Path('.godot/ci')
-          for source in ["tests/integration/test_scene_ending_direct_return.gd","scenes/menu/MenuScene.tscn","scenes/ui/witnessed/WitnessedCaptionLayer.tscn","scripts/ui/MenuScene.gd","scripts/ui/witnessed/WitnessedCaptionLayer.gd","scripts/ui/witnessed/WitnessedTransportRail.gd","tests/title_shell/test_title_shell.gd","tests/unit/test_witnessed_transport_rail.gd","tests/integration/test_scene_clock_layout.gd","tests/integration/test_witnessed_caption_runtime.gd","tests/integration/test_dating_caption_style.gd","tests/manual/witnessed_transport_capture.gd","tools/backup_ui/verify.py"]:
+          for source in ["tests/integration/scene_later_caption_child.gd","tests/integration/test_scene_ending_direct_return.gd","scenes/menu/MenuScene.tscn","scenes/ui/witnessed/WitnessedCaptionLayer.tscn","scripts/ui/MenuScene.gd","scripts/ui/witnessed/WitnessedCaptionLayer.gd","scripts/ui/witnessed/WitnessedTransportRail.gd","tests/title_shell/test_title_shell.gd","tests/unit/test_witnessed_transport_rail.gd","tests/integration/test_scene_clock_layout.gd","tests/integration/test_witnessed_caption_runtime.gd","tests/integration/test_dating_caption_style.gd","tests/manual/witnessed_transport_capture.gd","tools/backup_ui/verify.py"]:
               p=out/'source'/source;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(pathlib.Path(source).read_bytes())
           (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
           files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))
