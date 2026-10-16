@@ -27,7 +27,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 8f16da2509d042850e090a15218ae1244f8d5fb4
+          ref: f8f2ffe6eefbffe264a1dfa1cff55ac37af427b8
           path: source
           fetch-depth: 32
       - name: Verify exact candidate source
@@ -36,9 +36,9 @@ jobs:
           @'
           import json,os,pathlib,subprocess
           subprocess.check_call(['git','cat-file','-e',os.environ['BASE_SHA']])
-          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='8f16da2509d042850e090a15218ae1244f8d5fb4'
+          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='f8f2ffe6eefbffe264a1dfa1cff55ac37af427b8'
           out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
-          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':'8f16da2509d042850e090a15218ae1244f8d5fb4','controller':os.environ['CONTROLLER_SHA'],'scope':'seven-day connected terminal persistence and rendered restart proof'}))
+          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':'f8f2ffe6eefbffe264a1dfa1cff55ac37af427b8','controller':os.environ['CONTROLLER_SHA'],'scope':'seven-day connected terminal persistence and rendered restart proof'}))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Install exact Godot standard engine
@@ -113,6 +113,16 @@ jobs:
           git commit --allow-empty -m 'Freeze connected registration, identities and surface inventories'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @{ source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}') } | ConvertTo-Json | Set-Content .godot/ci/candidate-commit.json -Encoding utf8
+      - name: Compile rendered children before their journey
+        id: parse
+        run: |
+          $ErrorActionPreference = 'Stop'
+          foreach ($child in @('connected_create','connected_load','terminal_load')) {
+            $log = "parse-${child}.log"
+            & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId "parse-$child" -LogName $log -GodotArgs @('--check-only','-s',"res://tests/integration/test_scene_seven_day_${child}.gd") -EvidenceLogPath ".godot/ci/parse-$child.jsonl" -TimeoutSeconds 120
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            if (Select-String ".godot/phase2r_logs/$log" -Pattern 'SCRIPT ERROR:|ERROR:' -Quiet) { throw "Child compilation failed: $child" }
+          }
       - name: Run focused terminal and authoring suites
         run: |
           $cases = @(
@@ -131,7 +141,7 @@ jobs:
           }
           if ($failed) { exit 1 }
       - name: Render connected creation and fresh-process Load
-        if: ${{ !cancelled() && steps.freeze.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.freeze.outcome == 'success' && steps.parse.outcome == 'success' }}
         run: |
           $ErrorActionPreference = 'Stop'
           Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue
