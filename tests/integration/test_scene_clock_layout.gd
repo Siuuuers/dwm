@@ -48,15 +48,19 @@ func test_clock_and_upper_transport_on_title_ordinary_and_ending() -> void:
 	if not await _wait_line("line.Day7.one"): return
 	_reading_layout()
 	await _screenshot("clock-ordinary")
-	# Physical viewport clicks verify that moving Next keeps one-step input ownership.
+	# Ordinary schema-2 reading retains existing Next unavailability. A click must
+	# not fall through to background Accept after moving the control.
+	assert_true(_caption().transport_rail.get_node("Next").disabled)
 	await _click(_caption().transport_rail.get_node("Next"))
+	assert_eq(bridge._runtime_adapter.current_line_id(), "line.Day7.one")
+	await _accept()
 	if not await _wait_line("line.Day7.two"): return
-	await _click(_caption().transport_rail.get_node("Next"))
+	await _accept()
 	if not await _wait_line("line.ending.alone.normal.one"): return
 	assert_true(get_tree().current_scene is EndingScene)
 	_reading_layout()
 	await _screenshot("clock-ending")
-	await _click(_caption().transport_rail.get_node("Next"))
+	await _accept()
 	if not await _wait_route(MENU): return
 	_clock(get_tree().current_scene._clock_label)
 	assert_eq(get_tree().current_scene._clock_label.get_global_rect(), Rect2(1128, 656, 152, 64))
