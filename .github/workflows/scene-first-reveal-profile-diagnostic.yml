@@ -1,4 +1,4 @@
-name: Seven-day connected ending qualification
+name: Registered story Windows export qualification
 on:
   pull_request:
     paths:
@@ -10,251 +10,151 @@ concurrency:
   group: scene-first-reveal-profile-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 jobs:
-  connected:
-    if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
+  windows-export:
+    if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
+    name: Windows / exported release startup
     runs-on: windows-2022
-    timeout-minutes: 50
-    env:
-      BASE_SHA: 027a70dff8ee45bc43dfae3be592430c39147721
-      CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
+    timeout-minutes: 35
     defaults:
       run:
         shell: pwsh
-        working-directory: source
     steps:
       - name: Preserve source bytes
-        working-directory: .
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: f8f2ffe6eefbffe264a1dfa1cff55ac37af427b8
-          path: source
-          fetch-depth: 32
-      - name: Verify exact candidate source
+          ref: 19a8710e2ccc61b1105fec351be7205a4f9289ec
+          fetch-depth: 2
+          # Defer credential removal until the post-job cleanup, after the
+          # malformed gitlinks are removed from this disposable runner's index.
+          persist-credentials: true
+      - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          @'
-          import json,os,pathlib,subprocess
-          subprocess.check_call(['git','cat-file','-e',os.environ['BASE_SHA']])
-          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='f8f2ffe6eefbffe264a1dfa1cff55ac37af427b8'
-          out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
-          (out/'candidate-origin.json').write_text(json.dumps({'base':os.environ['BASE_SHA'],'candidate':'f8f2ffe6eefbffe264a1dfa1cff55ac37af427b8','controller':os.environ['CONTROLLER_SHA'],'scope':'seven-day connected terminal persistence and rendered restart proof'}))
-          '@ | python -
+          if ((git rev-parse HEAD) -cne '19a8710e2ccc61b1105fec351be7205a4f9289ec') { throw 'Candidate mismatch' }
+          New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
+          @{candidate='19a8710e2ccc61b1105fec351be7205a4f9289ec'; tree='5853a6381bde665c1bf0801fb2a8f33ca6d0ccf5'; controller='${{ github.event.pull_request.head.sha }}'; base='b92951d4e4e06820768aea5d672d50c0c01f798c'} | ConvertTo-Json | Set-Content '.godot/ci/export-origin.json'
+      - name: Prepare disposable checkout for credential cleanup
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
+          # submodule foreach reads the index even with sparse checkout.
+          # The source commit and working files remain unchanged.
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Install exact Godot standard engine
+          git submodule foreach --recursive 'true'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Install Godot 4.6.3 standard
         run: |
           $ErrorActionPreference = 'Stop'
           $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
           Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
+          # SHA256 published with the official 4.6.3-stable release asset.
           $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
-          if ((Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) { throw 'Engine archive hash mismatch' }
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
+            throw 'Godot archive checksum mismatch.'
+          }
           $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
-          Expand-Archive $archive $editor
+          Expand-Archive -LiteralPath $archive -DestinationPath $editor
           $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
-          $version = (& $console --version | Out-String).Trim()
-          if ($LASTEXITCODE -ne 0 -or $version -cne '4.6.3.stable.official.7d41c59c4') { throw "Unexpected engine: $version" }
-          "GODOT_CONSOLE_PATH=$console" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
-          @{ version=$version; archive_sha256=$expected; console_sha256=(Get-FileHash $console -Algorithm SHA256).Hash.ToLowerInvariant() } | ConvertTo-Json | Set-Content .godot/ci/engine.json -Encoding utf8
-
-
-
-      - name: Import and freeze generated test identities
-        id: freeze
+          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
+          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          & $console --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Import project
         timeout-minutes: 8
         run: |
           $ErrorActionPreference = 'Stop'
-          $output = Join-Path (Get-Location) '.godot/ci'
+          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
           $env:APPDATA = Join-Path $output 'import-user/appdata'
           $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
           $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
-          New-Item -ItemType Directory -Force -Path $env:APPDATA,$env:LOCALAPPDATA,$env:DWM_TEST_ROOT | Out-Null
-          $env:DWM_SCENE_READING_FIXTURE = '1'
-          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId connected-import-fixture -LogName import.log -GodotArgs @('--import') -EvidenceLogPath .godot/ci/import-fixture.jsonl -TimeoutSeconds 120
+          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
+          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String ".godot/phase2r_logs/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Import failed' }
-          git restore --worktree -- project.godot
-          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId connected-export -LogName export-registration.log -GodotArgs @('-s','res://tools/authoring/ExportSevenDayRegistration.gd') -EvidenceLogPath .godot/ci/export-registration.jsonl -TimeoutSeconds 180
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String ".godot/phase2r_logs/export-registration.log" -Pattern 'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Registration export failed' }
-          Remove-Item Env:DWM_SCENE_READING_FIXTURE
-          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId connected-import -LogName import-connected.log -GodotArgs @('--import') -EvidenceLogPath .godot/ci/import-connected.jsonl -TimeoutSeconds 120
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String ".godot/phase2r_logs/import-connected.log" -Pattern 'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Connected import failed' }
-          git restore --worktree -- project.godot
-          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId connected-validate-registration -LogName validate-registration.log -GodotArgs @('-s','res://tools/authoring/ExportSevenDayRegistration.gd','--','--validate-seven-day-export') -EvidenceLogPath .godot/ci/validate-registration.jsonl -TimeoutSeconds 180
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String ".godot/phase2r_logs/validate-registration.log" -Pattern 'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Exported registration validation failed' }
-          $validationMarkers = @(Get-Content .godot/phase2r_logs/validate-registration.log | Where-Object { $_ -ceq 'SEVEN_DAY_EXPORT_VALIDATED first_target_id=target.Day1' })
-          if ($validationMarkers.Count -ne 1) { throw 'Export validation pass marker missing or repeated' }
-          & './tools/testing/Invoke-PublicSurfaceValidation.ps1' -Regenerate
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          @'
-          import json,os,re,subprocess,pathlib
-          added=subprocess.check_output(['git','diff','--name-only','--diff-filter=A',os.environ['BASE_SHA'],'HEAD','--','*.gd'],text=True).splitlines()
-          tracked=set(subprocess.check_output(['git','ls-files'],text=True).splitlines())
-          uids=sorted(p+'.uid' for p in added if p+'.uid' not in tracked)
-          exported=['data/manifests/scene_story_registration.json','data/manifests/scene_ending_reading_catalogue.json']
-          surfaces=['evidence/phase_2r/runtime/game_state_surface.json','evidence/phase_2r/runtime/save_manager_surface.json']
-          changed=set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())
-          assert changed <= set(exported+surfaces),(changed,exported+surfaces)
-          actual=set(subprocess.check_output(['git','ls-files','--others','--exclude-standard'],text=True).splitlines())
-          resource_uids=sorted(p for p in actual if p.endswith('.dtl.uid') and p[:-4] in tracked)
-          for name in resource_uids:
-              assert re.fullmatch(rb'uid://[a-z0-9]+\n',pathlib.Path(name).read_bytes()),name
-          expected=set(uids+resource_uids+[p for p in exported if p not in tracked])
-          assert actual==expected,(sorted(actual),sorted(expected))
-          for name in uids+resource_uids+exported+surfaces: assert pathlib.Path(name).is_file(),name
-          pathlib.Path('.godot/ci/generated-files.json').write_text(json.dumps({'uids':uids,'resource_uids':resource_uids,'exported':exported,'surfaces':surfaces,'added_scripts':added},indent=2))
-          subprocess.check_call(['git','add',*uids,*resource_uids,*exported,*surfaces])
-          '@ | python -
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit --allow-empty -m 'Freeze connected registration, identities and surface inventories'
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          @{ source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}') } | ConvertTo-Json | Set-Content .godot/ci/candidate-commit.json -Encoding utf8
-      - name: Compile rendered children before their journey
-        id: parse
-        run: |
-          $ErrorActionPreference = 'Stop'
-          foreach ($child in @('connected_create','connected_load','terminal_load')) {
-            $log = "parse-${child}.log"
-            & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId "parse-$child" -LogName $log -GodotArgs @('--check-only','-s',"res://tests/integration/test_scene_seven_day_${child}.gd") -EvidenceLogPath ".godot/ci/parse-$child.jsonl" -TimeoutSeconds 120
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-            if (Select-String ".godot/phase2r_logs/$log" -Pattern 'SCRIPT ERROR:|ERROR:' -Quiet) { throw "Child compilation failed: $child" }
+          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
+            throw 'Project import reported script errors; inspect import.log.'
           }
-      - name: Run focused terminal and authoring suites
+      - name: Restore committed project settings after editor import
         run: |
-          $cases = @(
-            @{Name='terminal-lifecycle'; Script='tests/unit/test_scene_terminal_lifecycle.gd'},
-            @{Name='terminal-presentation'; Script='tests/unit/test_scene_terminal_presentation.gd'},
-            @{Name='terminal-snapshot'; Script='tests/unit/test_scene_terminal_snapshot.gd'},
-            @{Name='sequence-authoring'; Script='tests/unit/test_scene_sequence_authoring.gd'},
-            @{Name='seven-day-templates'; Script='tests/unit/test_seven_day_templates.gd'}
-          )
-          $failed = $false
-          foreach ($case in $cases) {
-            $name = $case.Name
-            $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$($case.Script)",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/${name}.xml")
-            & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId $name -LogName "${name}.log" -GodotArgs $arguments -EvidenceLogPath ".godot/ci/${name}.jsonl" -TimeoutSeconds 240
-            if ($LASTEXITCODE -ne 0) { $failed = $true }
-          }
-          if ($failed) { exit 1 }
-      - name: Render connected creation and fresh-process Load
-        if: ${{ !cancelled() && steps.freeze.outcome == 'success' && steps.parse.outcome == 'success' }}
-        run: |
-          $ErrorActionPreference = 'Stop'
-          Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue
-          $create = @('--rendering-method','gl_compatibility','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_seven_day_connected_create.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/connected-create.xml')
-          $load = @('--rendering-method','gl_compatibility','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_seven_day_connected_load.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/connected-load.xml')
-          $terminalLoad = @('--rendering-method','gl_compatibility','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_seven_day_terminal_load.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/terminal-load.xml')
-          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'connected' -LogName 'connected-create.log' -GodotArgs $create -NextGodotArgs $load -NextLogName 'connected-load.log' -ThirdGodotArgs $terminalLoad -ThirdLogName 'terminal-load.log' -EvidenceLogPath '.godot/ci/connected.jsonl' -TimeoutSeconds 600 -Rendered
-          exit $LASTEXITCODE
-      - name: Verify exact test census and frozen source
-        run: |
-          $ErrorActionPreference = 'Stop'
-          @'
-          import collections,json,pathlib,re,subprocess,xml.etree.ElementTree as ET
-          out=pathlib.Path('.godot/ci')
-          frozen=json.loads((out/'candidate-commit.json').read_text(encoding='utf-8-sig'))
-          result={'source':frozen['source'],'tree':frozen['tree'],'passed':0,'assertions':0,'suites':[]}
-          suites=[('terminal-load','tests/integration/test_scene_seven_day_terminal_load.gd'),('terminal-lifecycle','tests/unit/test_scene_terminal_lifecycle.gd'),('terminal-presentation','tests/unit/test_scene_terminal_presentation.gd'),('terminal-snapshot','tests/unit/test_scene_terminal_snapshot.gd'),('connected-create','tests/integration/test_scene_seven_day_connected_create.gd'),('connected-load','tests/integration/test_scene_seven_day_connected_load.gd'),('sequence-authoring','tests/unit/test_scene_sequence_authoring.gd'),('seven-day-templates','tests/unit/test_seven_day_templates.gd')]
-          for name,script in suites:
-              expected=re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(),re.M)
-              root=ET.parse(out/(name+'.xml')).getroot();rows=list(root.iter('testcase'))
-              assert collections.Counter((r.attrib['classname'],r.attrib['name']) for r in rows)==collections.Counter((script,n) for n in expected),name
-              assert not any(list(root.iter(tag)) for tag in ['failure','error','skipped']),name
-              assert all(r.attrib.get('status')=='pass' and int(r.attrib.get('assertions','0'))>0 for r in rows),name
-              count=sum(int(r.attrib['assertions']) for r in rows)
-              log=pathlib.Path('.godot/phase2r_logs',name+'.log').read_text(encoding='utf-8-sig')
-              assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',log),name
-              result['passed']+=len(rows);result['assertions']+=count
-              result['suites'].append({'name':name,'passed':len(rows),'assertions':count})
-          for name in ['terminal-lifecycle','terminal-presentation','terminal-snapshot','sequence-authoring','seven-day-templates','connected']:
-              children=[json.loads(s) for s in (out/(name+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
-              assert len(children)==(3 if name=='connected' else 1) and all(c['exit_code']==0 for c in children),name
-              if name=='connected':
-                  assert len({c['test_root'] for c in children})==1 and len({c['user_dir'] for c in children})==1
-                  assert len({c['log_path'] for c in children})==3
-                  assert all(children[i]['ended_at_utc']<=children[i+1]['started_at_utc'] for i in range(2))
-          for proof in ['scene-seven-day-create-proof.json','scene-seven-day-load-proof.json','scene-seven-day-terminal-load-proof.json']:
-              assert (out/proof).is_file(),proof
-              json.loads((out/proof).read_text(encoding='utf-8-sig'))
-          assert list(out.glob('computer-seven-day-*.png')), 'Missing rendered evidence'
-          assert not subprocess.check_output(['git','status','--porcelain'],text=True).strip()
-          assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()==frozen['tree']
-          (out/'gate.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
-          print(json.dumps(result))
-          '@ | python -
+          # Dialogic's editor scan rewrites its timeline lookup during import.
+          # Execute the committed configuration with the freshly imported assets.
+          git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Summarize rendered failures
-        if: always()
-        run: |
-          @'
-          import pathlib
-          for p in pathlib.Path('.godot/phase2r_logs').glob('*.log'):
-              print('LOG_RESULT',p.name)
-              for line in p.read_text(encoding='utf-8',errors='replace').splitlines():
-                  if any(word in line for word in ['ENDING_HANDOFF_FAILURE','ENDING_COMPLETION_FAILURE','ENDING_RESTORE_DIFFERENCE','[Failed]','SCRIPT ERROR:','ERROR:','Passing Tests','Failing Tests','Asserts','Exiting with code']):
-                      print(line[:2000])
-          '@ | python -
-      - name: Retain evidence on every outcome
-        if: always()
-        run: |
-          $ErrorActionPreference = 'Stop'
-          @'
-          import hashlib
-          import json
-          import pathlib
-          import subprocess
-          out = pathlib.Path('.godot/ci')
-          out.mkdir(parents=True, exist_ok=True)
-          (out/'final-status.txt').write_text(subprocess.run(['git','status','--porcelain'],capture_output=True,text=True).stdout, encoding='utf-8')
-          if (out/'candidate-origin.json').exists():
-              origin = json.loads((out/'candidate-origin.json').read_text(encoding='utf-8-sig'))
-              for name in subprocess.check_output(['git','diff','--name-only',origin['base'],'HEAD'],text=True).splitlines():
-                  source = pathlib.Path(name)
-                  if source.exists():
-                      target = out/'source'/name; target.parent.mkdir(parents=True,exist_ok=True); target.write_bytes(source.read_bytes())
-              (out/'final-candidate.patch').write_bytes(subprocess.check_output(['git','diff',origin['base'],'--binary']))
-          files = {}
-          for root in [out, pathlib.Path('.godot/phase2r_logs')]:
-              if root.exists():
-                  for p in root.rglob('*'):
-                      if p.is_file() and p.name != 'retained-hashes.json' and 'import-user' not in p.parts:
-                          files[p.as_posix()] = {'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}
-          (out/'retained-hashes.json').write_text(json.dumps(files, indent=2), encoding='utf-8')
-          # Preserve bounded test evidence even when GitHub artifact quota is full.
-          # Only these generated test files are included; never runner environment.
-          import base64
-          import io
-          import zipfile
-          payload = io.BytesIO()
-          with zipfile.ZipFile(payload, 'w', zipfile.ZIP_DEFLATED) as archive:
-              for root in [out, pathlib.Path('.godot/phase2r_logs')]:
-                  if root.exists():
-                      for p in sorted(root.rglob('*')):
-                          if p.is_file() and 'import-user' not in p.parts:
-                              archive.write(p, p.relative_to('.godot').as_posix())
-          data = payload.getvalue()
-          if len(data) > 8 * 1024 * 1024:
-              raise RuntimeError('Evidence exceeds bounded log fallback; artifact retention required')
-          print('DWM_EVIDENCE_BEGIN ' + json.dumps({'bytes':len(data), 'sha256':hashlib.sha256(data).hexdigest()}))
-          encoded = base64.b64encode(data).decode('ascii')
-          for offset in range(0, len(encoded), 3000):
-              print('DWM_EVIDENCE_CHUNK ' + encoded[offset:offset+3000])
-          print('DWM_EVIDENCE_END')
-          '@ | python -
-
-      - uses: actions/upload-artifact@v4
-        if: always()
+      - name: Cache pinned export templates
+        id: export-templates-cache
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
-          name: seven-day-connected-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
+          key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
+      - name: Download verified Godot export templates
+        timeout-minutes: 10
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $folder = Join-Path $env:RUNNER_TEMP 'dwm-godot-templates'
+          New-Item -ItemType Directory -Force -Path $folder | Out-Null
+          $archive = Join-Path $folder 'Godot_v4.6.3-stable_export_templates.tpz'
+          if (-not (Test-Path -LiteralPath $archive)) {
+            Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_export_templates.tpz' -OutFile $archive
+          }
+          $expected = '3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8'
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
+            throw 'Godot export templates checksum mismatch.'
+          }
+          "GODOT_EXPORT_TEMPLATES_ARCHIVE=$archive" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Retain verified export templates for subsequent runs
+        if: steps.export-templates-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
+          key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
+      - name: Export and launch isolated Windows executable
+        timeout-minutes: 12
+        run: ./tools/testing/Invoke-WindowsExportValidation.ps1
+
+      - name: Retain bounded export evidence
+        if: always()
+        run: |
+          $ErrorActionPreference = 'Stop'
+          @'
+          import base64,hashlib,io,json,pathlib,subprocess,zipfile
+          out=pathlib.Path('.godot/ci')
+          root=out/'export-evidence';root.mkdir(parents=True,exist_ok=True)
+          status=subprocess.check_output(['git','status','--porcelain'],text=True)
+          (root/'final-status.txt').write_text(status)
+          source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+          tree=subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()
+          changed=subprocess.check_output(['git','diff','HEAD','--name-only'],text=True).splitlines()
+          allowed=['.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1']
+          clean=not [p for p in changed if p not in allowed]
+          (root/'source-check.json').write_text(json.dumps({'source':source,'tree':tree,'tracked_source_unchanged':clean,'disposable_index_removals':changed}))
+          for p in subprocess.check_output(['git','diff','--name-only','HEAD^','HEAD'],text=True).splitlines():
+              target=root/'source'/p;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(pathlib.Path(p).read_bytes())
+          files=[out/'export-origin.json',out/'import.log']+list(root.rglob('*'))+list((out/'windows-export').glob('*.log'))+list((out/'windows-export').glob('*.json'))+list((out/'windows-export').glob('*.txt'))
+          files=[p for p in files if p.is_file()]
+          manifest={p.relative_to(out).as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in files}
+          retained=root/'retained-hashes.json';retained.write_text(json.dumps(manifest,indent=2));files.append(retained)
+          payload=io.BytesIO()
+          with zipfile.ZipFile(payload,'w',zipfile.ZIP_DEFLATED) as z:
+              for p in files:z.write(p,p.relative_to(out).as_posix())
+          data=payload.getvalue()
+          if len(data)>8*1024*1024:raise RuntimeError('Bounded export evidence too large')
+          print('DWM_EVIDENCE_BEGIN '+json.dumps({'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}))
+          encoded=base64.b64encode(data).decode()
+          for offset in range(0,len(encoded),3000):print('DWM_EVIDENCE_CHUNK '+encoded[offset:offset+3000])
+          print('DWM_EVIDENCE_END')
+          assert clean,'Tracked source changed during export'
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Upload Windows validation build and evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-export-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
-            source/.godot/ci
-            source/.godot/phase2r_logs
-            !source/.godot/ci/import-user
+            .godot/ci/import.log
+            .godot/ci/windows-export/
           include-hidden-files: true
-          if-no-files-found: error
-          retention-days: 30
+          if-no-files-found: warn
+          retention-days: 7
 
