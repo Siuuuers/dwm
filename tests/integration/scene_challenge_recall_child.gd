@@ -73,9 +73,15 @@ func create_recall() -> void:
 	if not await _await_ready(): return
 	if not await _wait_line("line.scene.test.recall.start.one"): return
 	await _accept()
-	if not await _wait_line("line.scene.test.recall.start.two"): return
 	assert_eq(_result_receipts("challenge_playable").size(), 1)
+	var held: Dictionary = bridge.capture_reading_checkpoint(false)
+	if not _ok(held): return
+	assert_eq(held.value.reading_session.boundary, "control")
+	assert_eq(bridge._runtime_adapter.current_line_id(), "line.scene.test.recall.start.one")
 	assert_true(game.capture_dating_challenge_state().value.is_empty())
+	# Playable admission holds the caption; a separate physical Accept departs.
+	await _click(_caption().caption_text)
+	if not await _wait_line("line.scene.test.recall.start.two"): return
 	await _accept()
 	if not await _wait_line("line.scene.test.echo_a_day1.one"): return
 	var closures: Array = _result_receipts("challenge_closed")
