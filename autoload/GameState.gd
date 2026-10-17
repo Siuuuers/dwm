@@ -4883,12 +4883,17 @@ func advance_scene_registered_marker() -> Dictionary:
 
 ## Yes receives only a live presentation proof; registered targets remain owner data.
 func accept_scene_thought(expected: Dictionary) -> Dictionary:
+	if not is_instance_valid(_scene_event_bridge): return _transaction_failure(&"scene_thought_unavailable", "")
 	if expected.is_empty(): return _transaction_failure(&"presentation_frontier_changed", "")
 	var current: Dictionary = _scene_event_bridge._line_presentation_context(expected)
 	if not current.get("ok", false): return current
 	return _advance_scene_registered_marker(true)
 
 func _advance_scene_registered_marker(accept_thought: bool) -> Dictionary:
+	if not is_instance_valid(_mutation_gate) or not is_instance_valid(_scene_event_bridge):
+		return _transaction_failure(&"scene_event_unavailable", "")
+	var guarded: Dictionary = _mutation_gate.guard_external(&"scene_event")
+	if not guarded.get("ok", false): return guarded
 	var marker: Dictionary = _scene_event_bridge.capture_scene_pending_marker()
 	if not marker.get("ok", false): return marker
 	if accept_thought and marker.value.kind != "thought.pass": return _transaction_failure(&"scene_thought_unavailable", "")

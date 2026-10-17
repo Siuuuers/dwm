@@ -469,11 +469,15 @@ static func _validate_scene_tables(bundle: Dictionary, entries: Dictionary, prog
 		for fact: Variant in row.source_fact_ids:
 			if not _scene_id(fact) or fact <= previous: return _scene_fail("contact facts")
 			previous = fact
+	var opportunities := {}
 	for value: Dictionary in markers.values():
 		var marker: Dictionary = value.row
 		match marker.kind:
 			"thought.accept": return _scene_fail("Yes is intent, not an authored boundary")
 			"thought.pass":
+				if opportunities.has(marker.payload.opportunity_id) or marker.payload.yes_target_id == marker.payload.pass_target_id:
+					return _scene_fail("duplicate thought binding or target")
+				opportunities[marker.payload.opportunity_id] = true
 				for target_id: String in [marker.payload.yes_target_id, marker.payload.pass_target_id]:
 					if not targets.value.has(target_id) or targets.value[target_id].target.kind != "scene":
 						return _scene_fail("dangling thought target")

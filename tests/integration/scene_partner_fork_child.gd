@@ -18,7 +18,7 @@ func _save_partner(slot: int) -> bool:
 	var sheet: Node = get_node("/root/SceneRouter")._production_pause
 	var prepared: Dictionary = sheet._backup_port.prepare_action("save", "slot:" + str(slot))
 	if not _ok(prepared): return false
-	if not _ok(sheet._backup_port.commit_action(prepared.value.token)): return false
+	if not _ok(await sheet._backup_port.commit_action(prepared.value.token)): return false
 	sheet.surface.leave_host()
 	for frame: int in 4: await get_tree().process_frame
 	return true
@@ -34,7 +34,7 @@ func _load_partner(slot: int, initial: bool = false) -> bool:
 	var prepared: Dictionary = backup.prepare_action("load", "slot:" + str(slot))
 	if not _ok(prepared): return false
 	var count := ready_count
-	var loaded: Dictionary = backup.commit_action(prepared.value.token)
+	var loaded: Dictionary = await backup.commit_action(prepared.value.token)
 	assert_eq(loaded.get("code"), &"scene_activation_pending", str(loaded))
 	if loaded.get("code") != &"scene_activation_pending": return false
 	var deadline := Time.get_ticks_msec() + 20000
@@ -57,6 +57,13 @@ func create_partner() -> void:
 	if not await _wait_line(OFFER): return
 	if not await _save_partner(1): return
 	var stale: Dictionary = bridge.capture_current_line_presentation_frontier()
+	var caption: Node = _caption()
+	await caption._on_history_requested()
+	assert_true(caption._history_open)
+	assert_false(game.accept_scene_thought(stale).ok, "History cannot resolve the live offer")
+	assert_true(_thoughts().is_empty())
+	await caption._on_history_close_requested()
+	for frame: int in 4: await get_tree().process_frame
 	var host: Control = get_tree().current_scene
 	await _click(_controls(host, "CheckComputer"))
 	assert_true(host.is_computer_open())
@@ -79,7 +86,16 @@ func create_partner() -> void:
 	assert_eq(bridge._runtime_adapter.current_line_id(), OFFER)
 	saves._storage._file_ops = original_files
 	for frame: int in 12: await get_tree().process_frame
-	await _click(yes)
+	yes.grab_focus()
+	await get_tree().process_frame
+	assert_true(yes.has_focus())
+	for pressed: bool in [true, false]:
+		var key := InputEventKey.new()
+		key.keycode = KEY_ENTER
+		key.physical_keycode = KEY_ENTER
+		key.pressed = pressed
+		get_viewport().push_input(key, true)
+		await get_tree().process_frame
 	if not await _wait_line("line.scene.test.partner.sylvia.after"): return
 	assert_eq(_thoughts().size(), 1)
 	assert_eq(_thoughts()[0].scene_event.result.choice, "yes")

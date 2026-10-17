@@ -135,6 +135,14 @@ func _process(delta: float) -> void:
 	var bridge := get_node_or_null("/root/DialogicBridge")
 	var marker: Dictionary = bridge.capture_scene_pending_marker() if bridge != null else {}
 	var available: bool = not _busy and not _computer_open and marker.get("ok", false) and marker.value.kind == "thought.pass"
+	if available:
+		var game := get_node_or_null("/root/GameState")
+		if game == null: available = false
+		else:
+			for receipt: Dictionary in game.capture_run_snapshot_input().command_receipts.values():
+				var result: Dictionary = receipt.get("scene_event", {}).get("result", {})
+				if result.get("kind") == "thought_resolved" and result.opportunity_id == marker.value.payload.opportunity_id:
+					available = false
 	_thought_frontier = bridge.capture_current_line_presentation_frontier() if available else {}
 	button.visible = available and _thought_frontier.get("ok", false)
 	button.disabled = not button.visible
