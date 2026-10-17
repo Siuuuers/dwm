@@ -2803,6 +2803,19 @@ func get_ending_caption_memory() -> Dictionary:
 	return _reading_session.project(frontier)
 
 
+## Read-only display reconstruction bound to the renderer's exact live proof.
+func get_scene_caption_memory(expected_presentation: Dictionary) -> Dictionary:
+	if expected_presentation.is_empty() or not has_reading_session() \
+			or _reading_session.family != "scene" or _reading_session.boundary != "line":
+		return _command_failure(&"reading_frontier_unavailable")
+	var current := _line_presentation_context(expected_presentation)
+	if not current.ok: return current
+	var projected: Dictionary = _reading_session.project_scene_caption_memory(current.value.caption_publication)
+	if not projected.ok: return projected
+	projected.value["presentation"] = current.duplicate(true)
+	return projected
+
+
 func get_reading_history() -> Dictionary:
 	if not can_capture_reading_checkpoint(): return _command_failure(&"reading_frontier_unavailable")
 	var frontier := {}

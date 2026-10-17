@@ -2055,3 +2055,30 @@ func test_assistive_caption_action_retired_by_real_input_custody_roundtrip() -> 
 	await _settle()
 	assert_eq(_finished, 1)
 	assert_eq(runtime.current_event_idx, 0)
+
+func test_full_scrollback_reprojection_keeps_native_state_and_three_caption_window() -> void:
+	if not _mount(): return
+	runtime.start(_timeline("Current."))
+	await _settle()
+	caption.caption_text.finish_text()
+	await _settle()
+	var before := _stack_invariants()
+	var speech_generation: int = caption._speech_generation
+	var older: Array = ["One.", "Two.", "Three.", "Four."]
+	assert_true(caption.reproject_retained_captions(older, true))
+	await _settle()
+	_assert_passive_stack(["Three.", "Four."])
+	assert_eq(caption._speech_generation, speech_generation, "older-copy refresh does not cancel current speech")
+	assert_eq(caption._scrollback, older)
+	assert_eq(caption.get_caption_projection().caption_window, ["Three.", "Four.", "Current."])
+	caption._set_review_offset(2)
+	assert_eq(caption.get_caption_projection().caption_window, ["One.", "Two.", "Three."])
+	assert_true(caption.reproject_retained_captions(older, true))
+	await _settle()
+	assert_eq(caption._review_offset, 0)
+	assert_eq(caption._scrollback, older)
+	assert_eq(_stack_invariants(), before)
+	assert_true(caption.reproject_retained_captions([], true))
+	assert_eq(caption._scrollback, [])
+	assert_eq(caption.get_caption_projection().retained_captions, [])
+	assert_eq(_stack_invariants(), before)

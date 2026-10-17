@@ -33,6 +33,7 @@ var _scrollback: Array[String] = []
 var _review_offset := 0
 var _live_scroll := 0.0
 var _current_copy := ""
+var _scene_caption_memory := {}
 var _ending_caption_session := ""
 var _ending_caption_handoff := false
 var _layout_generation := 0
@@ -572,8 +573,10 @@ func _refresh_reading_session() -> void:
 	if not is_inside_tree(): return
 	if not _ending_caption_handoff and _project_ending_caption_memory(): _layout_stack()
 	if not is_instance_valid(_transport_bridge) or not _transport_bridge.has_method("capture_current_line_presentation_frontier"): return
-	if _presented_line == _transport_bridge.call("capture_current_line_presentation_frontier"): return
-	_capture_presented_line()
+	var changed: bool = _presented_line != _transport_bridge.call("capture_current_line_presentation_frontier")
+	if changed: _capture_presented_line()
+	_project_scene_caption_memory()
+	if not changed: return
 	_acknowledge_visible_line()
 	_sync_transport()
 
@@ -1130,6 +1133,7 @@ func configure_presentation(locale: String = "en", text_percent: int = 100, pale
 	return true
 
 func reset_caption_stack() -> void:
+	_scene_caption_memory.clear()
 	_ending_caption_session = ""
 	_ending_caption_handoff = false
 	var was_reviewing := _review_offset > 0
@@ -1188,15 +1192,33 @@ func _project_ending_caption_memory() -> bool:
 		_scrollback.append(rows[index].text)
 	return true
 
-func reproject_retained_captions(captions: Array) -> bool:
-	if captions.size() > 2:
+func _project_scene_caption_memory() -> bool:
+	if not _presented_line.get("ok", false) or not is_instance_valid(_transport_bridge) \
+			or not _transport_bridge.has_method("get_scene_caption_memory"): return false
+	var projected: Dictionary = _transport_bridge.call("get_scene_caption_memory", _presented_line)
+	if not projected.get("ok", false): return false
+	var memory: Dictionary = projected.value
+	var rows: Array = memory.captions
+	if rows.is_empty() or memory.presentation != _presented_line \
+			or rows.back().text != caption_text.get_parsed_text(): return false
+	if _scene_caption_memory == memory: return true
+	var preceding: Array = []
+	for index: int in range(rows.size() - 1): preceding.append(rows[index].text)
+	if not reproject_retained_captions(preceding, true): return false
+	_scene_caption_memory = memory.duplicate(true)
+	return true
+
+
+func reproject_retained_captions(captions: Array, full_scrollback: bool = false) -> bool:
+	if not full_scrollback and captions.size() > 2:
 		return false
 	for copy: Variant in captions:
 		if typeof(copy) != TYPE_STRING or String(copy).strip_edges().is_empty():
 			return false
 	if _review_offset > 0: _set_review_offset(0)
-	_cancel_speech()
-	_retained.assign(captions)
+	# Authenticated memory refresh changes only older copies, not current speech.
+	if not full_scrollback: _cancel_speech()
+	_retained.assign(captions.slice(maxi(0, captions.size() - 2)))
 	_scrollback.assign(captions)
 	_review_offset = 0
 	accept_input.set_review_caption(null)

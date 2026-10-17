@@ -258,6 +258,26 @@ func _project_scene(frontier: Dictionary) -> Dictionary:
 	return {"ok": true, "value": {"captions": rows, "frontier": frontier.duplicate(true), "session_id": command_id}}
 
 
+## Presentation memory uses authenticated publication/occurrence identities, never
+## text equality or entry name alone. The full History projection stays unchanged.
+func project_scene_caption_memory(frontier: Dictionary) -> Dictionary:
+	if family != "scene" or boundary != "line": return _fail(&"reading_frontier_unavailable")
+	var projected := _project_scene(frontier)
+	if not projected.ok: return projected
+	var publications := {}
+	for row: Dictionary in ledger.snapshot().captions:
+		if row.occurrence_id == scene_occurrence and row.beat.owning_entry_id == latest_entry:
+			publications[row.publication_id] = true
+	var rows: Array[Dictionary] = []
+	for row: Dictionary in projected.value.captions:
+		if publications.has(row.publication_id): rows.append(row.duplicate(true))
+	if rows.is_empty() or rows.back().publication_id != frontier.get("publication_id") \
+			or rows.back().line_id != frontier.get("line_id"):
+		return _fail(&"reading_frontier_invalid")
+	return {"ok": true, "value": {"captions": rows, "frontier": frontier.duplicate(true),
+		"session_id": command_id, "occurrence_id": scene_occurrence}}
+
+
 func configure(document: Dictionary) -> Dictionary:
 	if not catalogue.is_empty(): return _fail(&"reading_catalogue_already_configured")
 	if typeof(document.get("schema_version")) == TYPE_INT and document.schema_version == 2:

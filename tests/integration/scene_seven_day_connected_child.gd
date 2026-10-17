@@ -125,7 +125,7 @@ func create_week() -> void:
 	if not _write_json(WEEK_PROOF, proof): return
 	_write_json("res://.godot/ci/scene-seven-day-create-proof.json", proof)
 
-func load_and_complete_week() -> void:
+func load_and_complete_week(stop_after_load: bool = false) -> void:
 	var parsed: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string(WEEK_PROOF))
 	if not _ok(parsed): return
 	var proof: Dictionary = parsed.value
@@ -162,7 +162,26 @@ func load_and_complete_week() -> void:
 		assert_eq(current[key], proof.snapshot[key], "Load preserves " + key)
 	assert_eq(profile.get_profile_snapshot(), proof.profile, "Load writes no history")
 	_assert_source_files(proof)
+	# Session publication uses a deferred display refresh. Native Ready stays full-line.
+	for frame: int in 4: await get_tree().process_frame
+	var layer: Node = _caption()
+	assert_eq(layer.get_caption_projection().retained_captions, ["TEST Day4 opening."])
+	assert_eq(layer.get_caption_projection().caption_window, ["TEST Day4 opening.", "TEST Day4 closing."])
+	assert_eq(layer._scrollback, ["TEST Day4 opening."], "earlier days cannot leak into this occurrence")
+	assert_eq(layer._review_offset, 0)
+	assert_eq(bridge.get_reading_history().value.captions.size(), 8)
+	var stale: Dictionary = layer._presented_line.duplicate(true)
+	stale.value.token = "stale-playback"
+	assert_false(bridge.get_scene_caption_memory(stale).ok)
+	var native_index: int = bridge._runtime_adapter._dialogic.current_event_idx
+	layer._refresh_reading_session()
+	layer._refresh_reading_session()
+	assert_eq(bridge._runtime_adapter._dialogic.current_event_idx, native_index)
+	assert_eq(bridge.capture_reading_checkpoint(false).value, proof.checkpoint)
+	assert_eq(layer.get_caption_projection().caption_window, ["TEST Day4 opening.", "TEST Day4 closing."])
+	assert_eq(profile.get_profile_snapshot(), proof.profile)
 	await _screenshot("seven-day-day4-restored-full")
+	if stop_after_load: return
 	if not await _walk(5, 1, 7, 2): return
 	assert_eq(observed_lines.size(), 6, "remaining six captions observed in order")
 	assert_true(game.capture_dating_challenge_state().value.is_empty(), "seven-day reading does not require Minesweeper")
