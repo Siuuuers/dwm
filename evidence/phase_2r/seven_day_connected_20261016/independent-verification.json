@@ -1,0 +1,40 @@
+{
+  "run_id": 38867983987,
+  "job_id": 116865121803,
+  "controller": "a4ba76bb994df2be887c7878f062e6899d3c2f48",
+  "candidate": "f8f2ffe6eefbffe264a1dfa1cff55ac37af427b8",
+  "published_source": "6eaa6a94a01aea23655774b0608613f46961036d",
+  "cloud_frozen_source": "571d68cf9a50726a93054100360f0b8de8376f0b",
+  "tested_tree": "604a5d96f9eedc7466e7f64f6085928fbac63402",
+  "original_archive": {
+    "bytes": 2863793,
+    "sha256": "31e1945c437a82fb0dbbed37ba6444714386ca244397ab4592bd89da36ad9e64"
+  },
+  "manifest_entries_verified": 136,
+  "exact_source_derived_test_census": true,
+  "tests": 25,
+  "assertions": 623,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "child_process_ids": [
+    5972,
+    7040,
+    4240
+  ],
+  "child_exits": [
+    0,
+    0,
+    0
+  ],
+  "same_isolated_disk": true,
+  "ordered_processes": true,
+  "clean_frozen_tree": true,
+  "generated_files_published": 32,
+  "cloud_and_published_tree_equal": true,
+  "visually_inspected": [
+    "terminal-restored-full",
+    "terminal-restored-completed-title"
+  ],
+  "scope": "Bounded fourteen-caption TEST journey, Day4 save restore, ending save restore and idempotent Gallery completion. Not whole-game, performance, arbitrary interruption or broader-CI acceptance."
+}

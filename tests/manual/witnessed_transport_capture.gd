@@ -49,7 +49,8 @@ func _run() -> void:
 			return
 		var labels: Array[String] = []
 		var enabled: Dictionary = {}
-		for button: Button in _caption.transport_rail.get_children():
+		for id: StringName in _caption.transport_rail.CONTROL_IDS:
+			var button: Button = _caption.transport_rail.get_node(String(id).capitalize())
 			labels.append(button.text)
 			enabled[button.name] = not button.disabled
 		captures.append({"locale": locale, "text_percent": 150, "file": path,

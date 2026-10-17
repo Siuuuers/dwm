@@ -1,0 +1,29 @@
+{
+  "source": "9aa6a409c3a5ae61495b090d7ec78aa26910228a",
+  "tree": "0bcfbf2ec1fa415b63174573d3588a502e6035f1",
+  "tests": 10,
+  "assertions": 145,
+  "suites": [
+    {
+      "name": "issuer-census",
+      "script": "tests/unit/tooling/test_phase2r_schedule_gate.gd",
+      "filter": "test_derive_child_census",
+      "tests": 2,
+      "assertions": 66
+    },
+    {
+      "name": "identity-shape",
+      "script": "tests/unit/tooling/test_phase2r_schedule_gate.gd",
+      "filter": "test_day_advance_identity_shapes_are_bound_from_source",
+      "tests": 1,
+      "assertions": 11
+    },
+    {
+      "name": "scene-identity",
+      "script": "tests/unit/test_scene_transition_identity.gd",
+      "filter": "",
+      "tests": 7,
+      "assertions": 68
+    }
+  ]
+}

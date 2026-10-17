@@ -18,7 +18,7 @@ static func validate_seed(seed: Variant) -> Dictionary:
 	if not seed is Dictionary or not _exact(seed, ["schema_version", "presentation_by_scope", "evidence_receipt_ids_by_scope", "pair_count_receipt_ids", "alone_cause"]) \
 			or typeof(seed.schema_version) != TYPE_INT or seed.schema_version != 1 \
 			or not seed.presentation_by_scope is Dictionary or not seed.evidence_receipt_ids_by_scope is Dictionary \
-			or not CONTEXT._field(seed.pair_count_receipt_ids, "ids") or not CONTEXT._field(seed.alone_cause, "alone_cause"):
+			or not CONTEXT._field(seed.pair_count_receipt_ids, "ids") or seed.alone_cause not in ["empty_done", "hospital_faint"]:
 		return _fail(&"ending_frozen_seed_invalid")
 	var inputs: Dictionary = seed.presentation_by_scope
 	if not _exact(inputs, ["priscilla", "lavinia", "sylvia", "dark_mode", "pair_form", "special_variant"]) \
@@ -118,6 +118,29 @@ static func build(plan: Dictionary, index: int, seed: Dictionary, playback_id: S
 	var frozen := CONTEXT.build(projected.entry_id, fields)
 	if not frozen.ok: return frozen
 	return _ok({"signature": projected, "presentation": frozen.value})
+
+## Scene admission selects a registered neutral presentation directly. It carries
+## no relationship eligibility, day closure or legacy ending seed. The Run owner
+## authenticates admission before this pure projection is used.
+static func build_scene(plan: Dictionary, playback_id: String) -> Dictionary:
+	var admission: Variant = plan.get("admission")
+	if plan.get("source_kind") != "scene" or typeof(plan.get("schema_version")) != TYPE_INT \
+			or plan.schema_version != 1 or not admission is Dictionary \
+			or not admission.get("target") is Dictionary \
+			or admission.target.get("kind") != "ending" \
+			or admission.target.get("entry_id") != "ending.alone.normal" \
+			or plan.get("steps") != [{"ending_id": "ending.alone", "role": "core"}] \
+			or not CONTEXT._field(playback_id, "id"):
+		return _fail(&"ending_scene_plan_invalid")
+	var signature := SIGNATURE.validate({"entry_id": "ending.alone.normal", "schema_version": 1,
+		"fields": {"ending_role": "core", "ending_form": "alone_normal"}})
+	if not signature.ok: return signature
+	var frozen := CONTEXT.build("ending.alone.normal", {"entry_id": "ending.alone.normal",
+		"entry_role": "alone_step", "ending_id": "ending.alone", "ending_role": "core",
+		"ending_form": "alone_normal", "playback_mode": "full", "prerequisite_receipt_ids": [],
+		"step_token": playback_id, "alone_cause": "scene_terminal"})
+	if not frozen.ok: return frozen
+	return _ok({"signature": signature.value.signature, "presentation": frozen.value})
 
 static func validate_cache(cache: Variant, lifecycle: Dictionary) -> Dictionary:
 	if not cache is Dictionary or not _exact(cache, ["schema_version", "seed", "presentations"]) \

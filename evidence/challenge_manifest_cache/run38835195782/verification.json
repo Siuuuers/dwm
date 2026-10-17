@@ -1,0 +1,166 @@
+{
+  "audit_status": "safety_suite_verified_probe_timeout",
+  "run_id": 38835195782,
+  "archive": {
+    "bytes": 42232,
+    "sha256": "a20ffaff1ad790b4774fcbe62ca2f7354cfbe21f6fbb29c2c0bdaa4ca6913020",
+    "members": 17,
+    "crc_clean": true
+  },
+  "retained_manifest": {
+    "entries": 16,
+    "all_sizes_and_hashes_match": true
+  },
+  "source": {
+    "tree": "78cd521407b99de9d756713ce7526138aa467047",
+    "source": "77a1090e81a7526c6fddc06878d22d3c0293f85f",
+    "parent": "2e619cdea503d846e9671e87eec3b4e273a251b8"
+  },
+  "origin": {
+    "base": "f8b873bd5e0df1dbab2ffaec9301c87d487de74e",
+    "candidate": "2e619cdea503d846e9671e87eec3b4e273a251b8",
+    "controller": "bd62e017d54e2292ead48e890d95745701556028",
+    "scope": "observation-only three-iteration timing probe; intentional failed assertion, no acceptance"
+  },
+  "source_verification": {
+    "exact_frozen_tree_reconstructed": "78cd521407b99de9d756713ce7526138aa467047",
+    "method": "Separate temporary Git index from candidate plus captured source bytes normalized CRLF to LF",
+    "runtime_generator_and_safety_test_match_candidate": true,
+    "runner_changes": [
+      "tests/unit/test_scene_first_reveal.gd",
+      "tests/unit/test_minesweeper_budget_cache.gd.uid"
+    ],
+    "final_status_empty": true
+  },
+  "safety_suite": {
+    "exact_source_derived_census": true,
+    "tests": 6,
+    "assertions": 97,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duplicates": 0,
+    "all_cases_positive_assertions": true,
+    "child_exit_code": 0,
+    "xml_seconds": 10.231462,
+    "cases": [
+      {
+        "name": "test_warm_results_are_detached_from_nested_caller_mutation",
+        "assertions": "20",
+        "status": "pass",
+        "classname": "tests/unit/test_minesweeper_budget_cache.gd",
+        "time": "4.882081"
+      },
+      {
+        "name": "test_warm_cache_refuses_same_length_malformed_bytes_and_recovers",
+        "assertions": "15",
+        "status": "pass",
+        "classname": "tests/unit/test_minesweeper_budget_cache.gd",
+        "time": "0.129266"
+      },
+      {
+        "name": "test_warm_cache_refuses_changed_schema_and_recovers",
+        "assertions": "16",
+        "status": "pass",
+        "classname": "tests/unit/test_minesweeper_budget_cache.gd",
+        "time": "1.672575"
+      },
+      {
+        "name": "test_warm_cache_rechecks_source_freshness_with_unchanged_budget_bytes",
+        "assertions": "17",
+        "status": "pass",
+        "classname": "tests/unit/test_minesweeper_budget_cache.gd",
+        "time": "0.15224"
+      },
+      {
+        "name": "test_warm_cache_refuses_missing_manifest_and_recovers",
+        "assertions": "15",
+        "status": "pass",
+        "classname": "tests/unit/test_minesweeper_budget_cache.gd",
+        "time": "0.114356"
+      },
+      {
+        "name": "test_changed_valid_bytes_are_reparsed_and_returned_without_stale_content",
+        "assertions": "14",
+        "status": "pass",
+        "classname": "tests/unit/test_minesweeper_budget_cache.gd",
+        "time": "3.280944"
+      }
+    ]
+  },
+  "probe": {
+    "events": [
+      {
+        "candidate_ordinal": null,
+        "iteration": -1,
+        "operations_used": null,
+        "phase": null,
+        "slice_sequence": null,
+        "stage": "before_first_reveal",
+        "status": null,
+        "ticks_msec": 7681
+      },
+      {
+        "candidate_ordinal": 0,
+        "iteration": -1,
+        "operations_used": 0,
+        "phase": "preparing",
+        "slice_sequence": 0,
+        "stage": "after_first_reveal",
+        "status": "searching",
+        "ticks_msec": 94502
+      },
+      {
+        "candidate_ordinal": 0,
+        "iteration": 0,
+        "operations_used": 0,
+        "phase": "preparing",
+        "slice_sequence": 0,
+        "stage": "before_prepare",
+        "status": "searching",
+        "ticks_msec": 94507
+      }
+    ],
+    "first_reveal_elapsed_msec": 86821,
+    "before_prepare_ticks_msec": 94507,
+    "after_prepare_observed": false,
+    "timeout_seconds": 180,
+    "child_exit_code": 124,
+    "xml_present": false,
+    "acceptance_credit": 0
+  },
+  "engine": {
+    "console_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+    "archive_sha256": "e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90",
+    "version": "4.6.3.stable.official.7d41c59c4"
+  },
+  "logs": {
+    "ci/import.log": {
+      "error_markers": 0,
+      "engine_version_matches": true
+    },
+    "phase2r_logs/budget-cache.log": {
+      "error_markers": 0,
+      "engine_version_matches": true
+    },
+    "phase2r_logs/challenge-probe.log": {
+      "error_markers": 0,
+      "engine_version_matches": true
+    }
+  },
+  "interpretation": {
+    "budget_only_does_not_resolve_timeout": true,
+    "baseline_first_reveal_msec": 95798,
+    "single_pair_difference_msec": 8977,
+    "repeated_benchmark_claim": false,
+    "remaining_candidate": "Repeated fallback strict parsing/schema validation during initial frontier validation; fallback883191bytes/2904records",
+    "reason": "First Reveal remains slow at slice_sequence0 and operations_used0, before candidate search slices; repeated constructors still parse fallback",
+    "causality_limit": "Fallback dominance not yet measured separately; freshness hashing and other validation remain alternatives"
+  },
+  "limits": [
+    "Six cache safety tests pass; connected debug certification test remains unqualified",
+    "Probe is observation-only and never gameplay acceptance",
+    "One baseline/candidate pair does not establish robust performance statistics",
+    "Engine archive hash verified from metadata, not downloaded binary"
+  ]
+}

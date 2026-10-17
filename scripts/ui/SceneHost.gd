@@ -11,9 +11,12 @@ var _actions: Dictionary = {}
 var _computer_open := false
 var _busy := false
 var _localization: Node
+var _thought_frontier: Dictionary = {}
+var _thought_poll := 0.0
 var _profile: Node
 
 func _ready() -> void:
+	$SceneControlsLayer/Surface/ThoughtYes.pressed.connect(_accept_thought)
 	_bind_presentation()
 	$SceneControlsLayer/Surface/Controls/CheckComputer.pressed.connect(_toggle_computer)
 	for action: String in ["settings", "backup", "save", "load", "contacts"]:
@@ -74,6 +77,9 @@ func _refresh_presentation(_locale_id: String = "") -> void:
 	# Keep scene chrome typography out of the independently owned Challenge mount.
 	var controls: VBoxContainer = $SceneControlsLayer/Surface/Controls
 	controls.theme = presentation
+	$SceneControlsLayer/Surface/ThoughtYes.theme = presentation
+	$SceneControlsLayer/Surface/ThoughtYes.text = _localization.t("scene.thought.yes")
+	$SceneControlsLayer/Surface/ThoughtYes.accessibility_name = $SceneControlsLayer/Surface/ThoughtYes.text
 	for control_name: String in CONTROL_KEYS:
 		var button: Button = controls.get_node(control_name)
 		button.text = _localization.t(CONTROL_KEYS[control_name])
@@ -118,3 +124,36 @@ func _update_controls() -> void:
 	for action: String in ["settings", "backup", "save", "load", "contacts"]:
 		var callback: Callable = _actions.get(action, Callable())
 		get_node("SceneControlsLayer/Surface/Controls/" + action.capitalize()).disabled = _busy or not callback.is_valid()
+
+## Read-only offer projection. The captured presentation proof is retained until
+## the button is pressed, so Load or native movement cannot borrow a fresh token.
+func _process(delta: float) -> void:
+	_thought_poll -= delta
+	if _thought_poll > 0.0: return
+	_thought_poll = 0.1
+	var button: Button = $SceneControlsLayer/Surface/ThoughtYes
+	var bridge := get_node_or_null("/root/DialogicBridge")
+	var marker: Dictionary = bridge.capture_scene_pending_marker() if bridge != null else {}
+	var available: bool = not _busy and not _computer_open and marker.get("ok", false) and marker.value.kind == "thought.pass"
+	if available:
+		var game := get_node_or_null("/root/GameState")
+		if game == null: available = false
+		else:
+			for receipt: Dictionary in game.capture_run_snapshot_input().command_receipts.values():
+				var result: Dictionary = receipt.get("scene_event", {}).get("result", {})
+				if result.get("kind") == "thought_resolved" and result.opportunity_id == marker.value.payload.opportunity_id:
+					available = false
+	_thought_frontier = bridge.capture_current_line_presentation_frontier() if available else {}
+	button.visible = available and _thought_frontier.get("ok", false)
+	button.disabled = not button.visible
+
+func _accept_thought() -> void:
+	get_viewport().set_input_as_handled()
+	if _busy or _computer_open or not _thought_frontier.get("ok", false): return
+	var expected := _thought_frontier.duplicate(true)
+	_busy = true
+	$SceneControlsLayer/Surface/ThoughtYes.disabled = true
+	var game := get_node_or_null("/root/GameState")
+	if game != null: game.accept_scene_thought(expected)
+	_busy = false
+	_thought_poll = 0.0

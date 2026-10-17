@@ -631,18 +631,23 @@ func test_derive_child_census_at_head_attributes_every_call_site_to_a_matrix_pro
 	assert_true(context_seam_code.find("_identity_issuer.call(&\"derive_child\"") >= 0,
 		"the context seam delegates every derivation to the retained issuer, never minting itself")
 	# The historical classifier calls direct `issuer.derive_child(...)` syntax "dynamic" because
-	# Plan 01 only admitted literal `.call(&"derive_child", ...)` producers. These six newer
+	# Plan 01 only admitted literal `.call(&"derive_child", ...)` producers. These explicitly enumerated
 	# calls are statically named on retained issuer objects; pin every one, including its role.
 	var direct_calls: Array[Dictionary] = [
 		{"path": "autoload/GameState.gd", "call": "_identity_issuer.derive_child({\"child_kind\": \"terminal_intent\"", "kind": "terminal_intent"},
+		{"path": "autoload/GameState.gd", "call": "_identity_issuer.derive_child(request.value)", "kind": "scene_day_completion"},
 		{"path": "scripts/application/run/ConditionHospitalContactsAdapter.gd", "call": "issuer.derive_child({\"child_kind\": \"hospital_miss\"", "kind": "hospital_miss"},
 		{"path": "scripts/application/run/ConditionHospitalContactsAdapter.gd", "call": "issuer.derive_child({\"child_kind\": \"sylvia_hospital_witness\"", "kind": "sylvia_hospital_witness"},
 		{"path": "scripts/application/run/GameStateConditionHospitalPort.gd", "call": "_issuer.derive_child({\"child_kind\": \"day_resolution_stage\"", "kind": "day_resolution_stage"},
 		{"path": "scripts/application/run/GameStateConditionHospitalPort.gd", "call": "_issuer.derive_child({\"child_kind\": \"day_resolution_stage\"", "kind": "day_resolution_stage"},
 		{"path": "scripts/application/run/GameStateDayResolutionPort.gd", "call": "_identity_issuer.derive_child(source.value.derivation_request)", "kind": "day_resolution_stage"},
+		{"path": "scripts/domain/narrative/SceneEventContract.gd", "call": "issuer.derive_child({\"parent_receipt_id\": root_issuer_receipt.receipt_id,", "kind": "continuation_operation"},
+		{"path": "scripts/domain/narrative/SceneEventContract.gd", "call": "issuer.derive_child({\"parent_receipt_id\": root.receipt_id,", "kind": "continuation_operation"},
+		{"path": "scripts/domain/narrative/SceneEventContract.gd", "call": "issuer.derive_child(request)", "kind": "continuation_operation"},
+		{"path": "scripts/domain/narrative/SceneEventContract.gd", "call": "issuer.derive_child(_scene_terminal_child_request(record.issuer_receipt, record.request_fingerprint))", "kind": "continuation_operation"},
 	]
 	assert_eq((value["dynamic"] as Array).size(), direct_calls.size(),
-		"only the six identified, statically named issuer calls remain outside the Plan-01 classifier")
+		"only the identified, statically named issuer calls remain outside the Plan-01 classifier")
 	for index: int in range(mini((value["dynamic"] as Array).size(), direct_calls.size())):
 		var site: Dictionary = value["dynamic"][index]
 		var expected: Dictionary = direct_calls[index]
@@ -659,7 +664,7 @@ func test_derive_child_census_at_head_attributes_every_call_site_to_a_matrix_pro
 		"res://scripts/domain/desktop/DesktopContinuationRemapper.gd"))
 	assert_true(remapper.contains("\"derivation_request\": {")
 		and remapper.contains("\"child_kind\": \"day_resolution_stage\""),
-		"the source request of the sixth direct call fixes its registered role")
+		"the day-advance source request fixes its registered role")
 	assert_true(_generator.strip_comments(FileAccess.get_file_as_string(
 		"res://scripts/application/run/GameStateDayResolutionPort.gd")).contains(
 		"_identity_issuer.validate_child(derived.value.provenance, &\"day_resolution_stage\")"),
@@ -848,7 +853,7 @@ func test_day_advance_identity_shapes_are_bound_from_source() -> void:
 			"counter_start", "counter_end", "disposition", "root_before_fingerprint"]:
 		assert_true(receipt_keys.has(key), "receipt carries " + key)
 	var kinds: Dictionary = _generator.parse_string_array_constant(text, "ALLOWED_RESOLUTION_KIND")
-	assert_eq((kinds["value"] as Dictionary)["values"], ["schedule_done", "condition_hospital"], "both resolution kinds")
+	assert_eq((kinds["value"] as Dictionary)["values"], ["schedule_done", "condition_hospital", "scene_day_complete"], "exact registered resolution kinds")
 	assert_true(_generator.strip_comments(text).find("\"%s:%s\" % [resolution_kind, source_resolution_receipt_id]") >= 0,
 		"the allocation key is resolution_kind:source_resolution_receipt_id, so schedule_done keys are schedule_done:<start receipt id>")
 

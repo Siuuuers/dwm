@@ -20,7 +20,9 @@ $smokeUser = Join-Path $work 'smoke-user'
 New-Item -ItemType Directory -Path $package, $exportUser, $smokeUser | Out-Null
 $expectedTemplateHash = '3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8'
 $result = [ordered]@{
-    schema_version = 1; ok = $false; commit = $env:GITHUB_SHA
+    schema_version = 1; ok = $false
+    commit = (& git -C $repositoryRoot rev-parse HEAD).Trim()
+    ci_event_commit = $env:GITHUB_SHA
     engine = '4.6.3.stable'; architecture = 'x86_64'; signed = $false
     scope = 'Unsigned Windows release export, packaged data audit, isolated headless startup'
     limitations = @('No graphical rendering, UI Automation, screen-reader, or full release acceptance claim')
@@ -211,6 +213,18 @@ try {
             }
     }
     if ($expected.Count -eq 0) { throw 'No runtime data files were found to audit.' }
+    # These exact files retain the resource identities of already accepted saves.
+    # They are normal-story dependencies, not permission to package test tools.
+    $storyCompatibilityResources = @(
+        'res://tests/fixtures/dialogic/scene_seven_day_linear.dtl'
+        'res://tests/fixtures/dialogic/scene_seven_day_ending.dtl'
+        'res://tests/templates/scene_sequence/seven_day_order.json'
+    )
+    foreach ($resource in $storyCompatibilityResources) {
+        $source = Join-Path $repositoryRoot $resource.Substring(6)
+        $expected[$resource] = (Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash.ToLowerInvariant()
+    }
+    $result.story_compatibility_resources = $storyCompatibilityResources
     $expected | ConvertTo-Json -Depth 3 | Set-Content -LiteralPath (Join-Path $work 'expected.json') -Encoding utf8NoBOM
     $probe = @'
 extends SceneTree
@@ -226,7 +240,20 @@ func _initialize() -> void:
             push_error("Pack data missing or changed: " + path)
             quit(1)
             return
-    for forbidden: String in ["tools", "tests", "docs", "evidence", "prompt_docs", "art_source", "temp-artifacts", "addons/gut"]:
+    # The expected map independently permits only three test-path data files.
+    # Reject every other file recursively, including compiled test scripts.
+    var pending: Array[String] = ["res://tests"]
+    while not pending.is_empty():
+        var directory: String = pending.pop_back()
+        for file: String in DirAccess.get_files_at(directory):
+            var resource := directory.path_join(file)
+            if not expected.has(resource):
+                push_error("Unapproved test resource included in pack: " + resource)
+                quit(1)
+                return
+        for child: String in DirAccess.get_directories_at(directory):
+            pending.append(directory.path_join(child))
+    for forbidden: String in ["tools", "docs", "evidence", "prompt_docs", "art_source", "temp-artifacts", "addons/gut", "addons/story_export"]:
         if DirAccess.dir_exists_absolute("res://" + forbidden):
             push_error("Development directory included in pack: " + forbidden)
             quit(1)

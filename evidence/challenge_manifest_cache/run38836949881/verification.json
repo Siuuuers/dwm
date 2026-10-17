@@ -1,0 +1,94 @@
+{
+  "audit_status": "verified_pretest_surface_gate_failure",
+  "run_id": 38836949881,
+  "archive": {
+    "bytes": 33882,
+    "sha256": "4cbc17444b4ebbf4b41155ace949468f717f8ed9eb0ae3be7aead0366116d615",
+    "members": 12,
+    "crc_clean": true
+  },
+  "retained_manifest": {
+    "entries": 11,
+    "all_sizes_and_hashes_match": true
+  },
+  "origin": {
+    "base": "f8b873bd5e0df1dbab2ffaec9301c87d487de74e",
+    "candidate": "92cac93440448edfd5309fe599a0991622ad74a1",
+    "tree": "b220e38d58834aaf789ad3821e7ea33c85f7267b",
+    "controller": "be0a8afa43f7b9cda672562256145f5e5c9e3d4a",
+    "paths": [
+      "scripts/domain/minesweeper/MinesweeperBoardGenerator.gd",
+      "tests/unit/test_minesweeper_budget_cache.gd",
+      "tests/unit/test_minesweeper_budget_cache.gd.uid"
+    ]
+  },
+  "source_matches_candidate_normalized": {
+    "tests/unit/test_minesweeper_budget_cache.gd": true,
+    "tests/unit/test_minesweeper_budget_cache.gd.uid": true,
+    "scripts/domain/minesweeper/MinesweeperBoardGenerator.gd": true
+  },
+  "candidate_tree": "b220e38d58834aaf789ad3821e7ea33c85f7267b",
+  "final_status_empty": true,
+  "engine": {
+    "version": "4.6.3.stable.official.7d41c59c4",
+    "console_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+    "archive_sha256": "e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90"
+  },
+  "child": {
+    "suite_id": "cloud-public-surface-game_state-check",
+    "argv": [
+      "--headless",
+      "--path",
+      "D:\\a\\dwm\\dwm\\source",
+      "--log-file",
+      "D:\\a\\dwm\\dwm\\source\\.godot\\phase2r_logs\\cloud-public-surface-game_state-check.log",
+      "-s",
+      "res://tools/runtime/generate_public_surface_inventory.gd",
+      "--",
+      "--script=res://autoload/GameState.gd",
+      "--required=res://evidence/phase_2r/runtime/game_state_required_surface.json",
+      "--output=res://evidence/phase_2r/runtime/game_state_surface.json",
+      "--search-root=res://autoload",
+      "--search-root=res://scripts",
+      "--search-root=res://scenes",
+      "--search-root=res://tests",
+      "--check"
+    ],
+    "exit_code": 1,
+    "log_path": "D:\\a\\dwm\\dwm\\source\\.godot\\phase2r_logs\\cloud-public-surface-game_state-check.log",
+    "test_root": "D:\\a\\dwm\\dwm\\source\\.godot\\phase2r_tests\\a67aba78-3fc6-4578-b713-46db5ea4bc44",
+    "user_dir": "D:\\a\\dwm\\dwm\\source\\.godot\\phase2r_tests\\a67aba78-3fc6-4578-b713-46db5ea4bc44\\appdata\\Godot\\app_userdata\\DWM",
+    "started_at_utc": "2026-10-16T01:48:14.3243188Z",
+    "ended_at_utc": "2026-10-16T01:48:36.1000771Z"
+  },
+  "failure": "SURFACE_OUTPUT_STALE: regenerate res://evidence/phase_2r/runtime/game_state_surface.json",
+  "retired_symbol_references": [],
+  "retirement_scanned_source_files": 1130,
+  "acceptance_tests_started": false,
+  "accepted_tests": 0,
+  "scanner_analysis": {
+    "owner": "tools/runtime/PublicSurfaceInventory.gd::_scan_references",
+    "behavior": "Word-boundary lexical scanning of all gd/tscn files; quoted symbol is dynamic reference, other token match static; no receiver/type resolution",
+    "predicted_new_sites": {
+      "game_state_surface.json": {
+        "dynamic_references.penalty_points_today": [
+          "tests/unit/test_minesweeper_budget_cache.gd:185"
+        ]
+      },
+      "save_manager_surface.json": {
+        "records.STRICT_JSON.call_sites": [
+          "tests/unit/test_minesweeper_budget_cache.gd:5",
+          "tests/unit/test_minesweeper_budget_cache.gd:113"
+        ]
+      }
+    },
+    "generator_source_changes_add_no_scanned_reference_sites": true,
+    "runtime_public_caller_changes": false,
+    "required_next_step": "Regenerate both inventories on cloud, inspect exact diffs, rerun strict checks, freeze generated-source tree before acceptance"
+  },
+  "limits": [
+    "Surface diff additions predicted by static scanner reproduction; authoritative generated diff still pending",
+    "No gameplay or cache acceptance credit from this run",
+    "No frozen-source candidate-commit manifest present because qualification stopped before source freeze"
+  ]
+}

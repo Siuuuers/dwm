@@ -141,9 +141,9 @@ func test_validate_rejects_malformed_documents() -> void:
 	bad_journal["recovery_journal"] = [{"entry": &"stringname"}]
 	assert_false(schema.validate(bad_journal).get("ok", true), "non-primitive journal entry rejects")
 
-	# v8 is current; the unsupported-future probe must remain newer.
+	# Both legacy and scene documents are supported; probe beyond the newest version.
 	var future: Dictionary = document.duplicate(true)
-	future["schema_version"] = 9
+	future["schema_version"] = schema.SCENE_DOCUMENT_VERSION + 1
 	assert_false(schema.validate(future).get("ok", true), "unsupported future document version rejects")
 
 func test_document_version_is_eight_and_embedded_snapshot_version_must_agree() -> void:
@@ -389,7 +389,7 @@ func test_validate_refusal_order_survives_multiple_simultaneous_defects() -> voi
 		"a wrong document version is answered before the discriminators")
 
 	var future_version_too: Dictionary = discriminator_too.duplicate(true)
-	future_version_too["schema_version"] = 9
+	future_version_too["schema_version"] = schema.SCENE_DOCUMENT_VERSION + 1
 	assert_eq(schema.validate(future_version_too).get("code", &""), &"unsupported_schema_version",
 		"a future document version keeps its own code, ahead of the discriminators")
 
@@ -840,7 +840,7 @@ func test_outgoing_journal_container_check_retains_refusal_precedence() -> void:
 	assert_eq(schema.validate_outgoing(document, proofs).get("code"), &"invalid_bundle_shape")
 	document.slot_id = 0
 	assert_eq(schema.validate_outgoing(document, proofs).get("code"), &"invalid_discriminator")
-	document.schema_version = 9
+	document.schema_version = schema.SCENE_DOCUMENT_VERSION + 1
 	assert_eq(schema.validate_outgoing(document, proofs).get("code"), &"unsupported_schema_version")
 	document["saved_time"] = {"broken": true}
 	assert_eq(schema.validate_outgoing(document, proofs).get("code"), &"invalid_saved_time")

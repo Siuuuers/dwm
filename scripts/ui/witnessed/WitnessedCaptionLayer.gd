@@ -4,8 +4,8 @@ extends DialogicLayoutLayer
 const CAPTION_THEME := preload("res://scripts/ui/witnessed/WitnessedCaptionTheme.gd")
 const HISTORY := preload("res://scripts/ui/witnessed/WitnessedHistory.gd")
 const RUN_PRESENTATION := preload("res://scripts/ui/witnessed/WitnessedRunPresentation.gd")
-const FIELD_TOP := {100: 448, 125: 392, 150: 328}
-const FIELD_BOTTOM := 656
+const FIELD_TOP := {100: 384, 125: 328, 150: 264}
+const FIELD_BOTTOM := 592
 const PROFILE_COLOUR_PRESETS := {
 	"standard": "standard", "protan": "protan", "deutan": "deutan", "tritan": "tritan",
 }
@@ -33,6 +33,7 @@ var _scrollback: Array[String] = []
 var _review_offset := 0
 var _live_scroll := 0.0
 var _current_copy := ""
+var _scene_caption_memory := {}
 var _ending_caption_session := ""
 var _ending_caption_handoff := false
 var _layout_generation := 0
@@ -194,7 +195,7 @@ func _ready() -> void:
 	_history_overlay.close_requested.connect(_on_history_close_requested)
 	_configure_history_presentation()
 	if input_owner != null and input_owner.has_signal("source_input_custody_changed"):
-		input_owner.connect("source_input_custody_changed", _retire_transport)
+		input_owner.connect("source_input_custody_changed", _on_reading_input_custody_changed)
 	if runtime != null and runtime.has_method("get_subsystem"):
 		var text_owner: Object = runtime.call("get_subsystem", "Text")
 		if text_owner != null:
@@ -326,6 +327,9 @@ func configure_reading_transport(profile: Object, bridge: Object) -> bool:
 func _before_normal_accept() -> bool:
 	if _review_offset > 0:
 		_set_review_offset(0)
+		return false
+	if _presented_line.get("value", {}).get("kind") == "scene_optional_control":
+		if _next_admitted(): _request_reading_command(&"next", true)
 		return false
 	if not _acknowledge_visible_line(): return false
 	if is_instance_valid(_transport_bridge) and _transport_bridge.has_method("capture_scene_pending_marker") \
@@ -569,8 +573,10 @@ func _refresh_reading_session() -> void:
 	if not is_inside_tree(): return
 	if not _ending_caption_handoff and _project_ending_caption_memory(): _layout_stack()
 	if not is_instance_valid(_transport_bridge) or not _transport_bridge.has_method("capture_current_line_presentation_frontier"): return
-	if _presented_line == _transport_bridge.call("capture_current_line_presentation_frontier"): return
-	_capture_presented_line()
+	var changed: bool = _presented_line != _transport_bridge.call("capture_current_line_presentation_frontier")
+	if changed: _capture_presented_line()
+	_project_scene_caption_memory()
+	if not changed: return
 	_acknowledge_visible_line()
 	_sync_transport()
 
@@ -650,6 +656,10 @@ func _sync_transport() -> void:
 	var rehearsal := is_instance_valid(_transport_bridge) \
 		and _transport_bridge.has_method("is_rehearsal_playback") \
 		and bool(_transport_bridge.call("is_rehearsal_playback"))
+	var ending := get_tree().current_scene is EndingScene
+	if transport_rail.ending_layout != ending:
+		transport_rail.set_ending_layout(ending)
+		canvas.queue_redraw()
 	transport_rail.visible = not rehearsal and not _computer_caption_held()
 	if _ending_caption_handoff or not _timed_hold_frontier.is_empty():
 		transport_rail.project(false, false, skip_controller.is_auto_enabled(), false, false, false, false, false)
@@ -737,6 +747,10 @@ func _on_next_request_finished(expected_frontier: Dictionary, result: Dictionary
 	var request := _next_request
 	var retry := _next_request_retry
 	var owner_current := _reading_request_owner_matches(request)
+	if owner_current and request.frontier.get("value", {}).get("kind") == "scene_optional_control" \
+			and result.get("scene_departure_profile_revision", -1) == _reading_profile_revision() \
+			and request.frontier == _transport_bridge.capture_current_line_presentation_frontier():
+		request.profile_revision = _reading_profile_revision()
 	_retire_next_request()
 	if not owner_current:
 		if is_inside_tree():
@@ -857,6 +871,13 @@ func _configure_recovery_presentation() -> void:
 	if is_instance_valid(recovery_overlay) and _recovery_bound:
 		recovery_overlay.configure_presentation(_locale, _text_percent, _palette,
 			_high_contrast, _colour_preset, _large_targets, _font_style)
+
+func _on_reading_input_custody_changed() -> void:
+	_retire_transport()
+	# Restore can publish its destination while source input/tree suspension is
+	# still held. Re-read after the handoff settles; never retain that temporary
+	# refusal as the new caption's permanent Accept/Next frontier.
+	_refresh_reading_session.call_deferred()
 
 func _retire_transport() -> void:
 	_cancel_speech()
@@ -1077,7 +1098,7 @@ func configure_presentation(locale: String = "en", text_percent: int = 100, pale
 	if next_theme == null:
 		return false
 	# Caption and rail publish one locale tuple. Refusal leaves both unchanged.
-	if is_instance_valid(transport_rail) and not transport_rail.configure_presentation(next_theme, locale):
+	if is_instance_valid(transport_rail) and not transport_rail.configure_presentation(next_theme, locale, text_percent, font_style):
 		return false
 	var metrics_changed := _caption_theme == null or _locale != locale.replace("_", "-") or _text_percent != text_percent or _large_targets != large_targets or _font_style != font_style
 	_locale = locale.replace("_", "-")
@@ -1112,6 +1133,7 @@ func configure_presentation(locale: String = "en", text_percent: int = 100, pale
 	return true
 
 func reset_caption_stack() -> void:
+	_scene_caption_memory.clear()
 	_ending_caption_session = ""
 	_ending_caption_handoff = false
 	var was_reviewing := _review_offset > 0
@@ -1170,15 +1192,33 @@ func _project_ending_caption_memory() -> bool:
 		_scrollback.append(rows[index].text)
 	return true
 
-func reproject_retained_captions(captions: Array) -> bool:
-	if captions.size() > 2:
+func _project_scene_caption_memory() -> bool:
+	if not _presented_line.get("ok", false) or not is_instance_valid(_transport_bridge) \
+			or not _transport_bridge.has_method("get_scene_caption_memory"): return false
+	var projected: Dictionary = _transport_bridge.call("get_scene_caption_memory", _presented_line)
+	if not projected.get("ok", false): return false
+	var memory: Dictionary = projected.value
+	var rows: Array = memory.captions
+	if rows.is_empty() or memory.presentation != _presented_line \
+			or rows.back().text != caption_text.get_parsed_text(): return false
+	if _scene_caption_memory == memory: return true
+	var preceding: Array = []
+	for index: int in range(rows.size() - 1): preceding.append(rows[index].text)
+	if not reproject_retained_captions(preceding, true): return false
+	_scene_caption_memory = memory.duplicate(true)
+	return true
+
+
+func reproject_retained_captions(captions: Array, full_scrollback: bool = false) -> bool:
+	if not full_scrollback and captions.size() > 2:
 		return false
 	for copy: Variant in captions:
 		if typeof(copy) != TYPE_STRING or String(copy).strip_edges().is_empty():
 			return false
 	if _review_offset > 0: _set_review_offset(0)
-	_cancel_speech()
-	_retained.assign(captions)
+	# Authenticated memory refresh changes only older copies, not current speech.
+	if not full_scrollback: _cancel_speech()
+	_retained.assign(captions.slice(maxi(0, captions.size() - 2)))
 	_scrollback.assign(captions)
 	_review_offset = 0
 	accept_input.set_review_caption(null)
@@ -1566,9 +1606,9 @@ func _leaf_rect(leaf: RichTextLabel) -> Rect2:
 	return Rect2(scroll.position + stack.position + leaf.position, leaf.size)
 
 func _draw_canvas() -> void:
-	if _caption_theme == null:
+	if _caption_theme == null or transport_rail.ending_layout:
 		return
-	canvas.draw_rect(Rect2(0, FIELD_BOTTOM, 1280, 64), _color(&"deep"))
+	canvas.draw_rect(Rect2(0, 656, 1280, 64), _color(&"deep"))
 
 func _color(role: StringName) -> Color:
 	return _caption_theme.get_color(role, &"WitnessedCaption")

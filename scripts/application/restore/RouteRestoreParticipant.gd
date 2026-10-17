@@ -68,7 +68,7 @@ func prepare(input: Dictionary) -> Dictionary:
 		return prepared
 	var value := {"route_plan": prepared.get("value", {})}
 	var desktop_context: Dictionary = input["route_context"]
-	if input["route_id"] == "scene" and _desktop_host != null:
+	if desktop_context.has("scene") and _desktop_host != null:
 		if not _desktop_host.has_method("prepare_scene_restore"):
 			return _fail(&"scene_desktop_host_unavailable", "dayless scene host restore is required")
 		if not desktop_context.has("active_app_id"):

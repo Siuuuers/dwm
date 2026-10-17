@@ -132,7 +132,7 @@ func _mount_title_art() -> void:
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	art.texture = texture
-	art.position = Vector2(320, 64)
+	art.position = Vector2(320, 0)
 	art.size = Vector2(960, 656)
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(art)
@@ -424,7 +424,7 @@ func _on_log_in_pressed() -> void:
 		return
 	_backup_app_instance = BACKUP_APP_SCENE.instantiate()
 	_backup_app_instance.configure_title_login()
-	_backup_app_instance.position = Vector2(80, 64)
+	_backup_app_instance.position = Vector2(80, 0)
 	_backup_app_instance.window_hidden.connect(_close_backup_app)
 	_backup_app_instance.navigation_state_changed.connect(_sync_title_navigation)
 	_backup_app_host.add_child(_backup_app_instance)
@@ -589,20 +589,20 @@ func _unhandled_input(event: InputEvent) -> void:
 func _build_login_shell() -> void:
 	_gallery_host = Control.new()
 	_gallery_host.name = "GalleryHost"
-	_gallery_host.position = Vector2(320,64)
+	_gallery_host.position = Vector2(320,0)
 	_gallery_host.size = Vector2(960,656)
 	_gallery_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_gallery_host.hide()
 	add_child(_gallery_host)
 	_title_strip = Control.new()
 	_title_strip.name = "TitleStrip"
-	_title_strip.position = Vector2(320, 0)
+	_title_strip.position = Vector2(320, 656)
 	_title_strip.size = Vector2(960, 64)
 	_title_strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_title_strip)
 	_title_strip.draw.connect(func():
 		_title_strip.draw_rect(Rect2(0, 0, 960, 64), get_theme_color("face", "Desktop"))
-		_title_strip.draw_rect(Rect2(0, 62, 960, 2), get_theme_color("structure", "Desktop")))
+		_title_strip.draw_rect(Rect2(0, 0, 960, 2), get_theme_color("structure", "Desktop")))
 	_title_home = HOME_BUTTON.new()
 	_title_home.name = "TitleReturn"
 	_title_home.current_on_launcher = false
@@ -616,7 +616,7 @@ func _build_login_shell() -> void:
 	_title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_title_strip.add_child(_title_label)
 	_clock_label = ROUTINE_CLOCK.new()
-	_clock_label.position = Vector2(792, 0)
+	_clock_label.position = Vector2(808, 0)
 	_clock_label.size = Vector2(152, 64)
 	_title_strip.add_child(_clock_label)
 	_title_status = Label.new()
@@ -626,7 +626,7 @@ func _build_login_shell() -> void:
 	_backup_app_host.add_child(_title_status)
 	_title_welcome = TITLE_WELCOME.new()
 	_title_welcome.name = "TitleWelcome"
-	_title_welcome.position = Vector2(320, 64)
+	_title_welcome.position = Vector2(320, 0)
 	_title_welcome.size = Vector2(960, 656)
 	add_child(_title_welcome)
 	var locale := _menu_localization()
@@ -736,7 +736,7 @@ func _ledger_input(event: InputEvent, source: Button) -> void:
 
 func _draw() -> void:
 	if theme != null:
-		draw_rect(Rect2(320, 64, 960, 656), get_theme_color("habitat", "Desktop"))
+		draw_rect(Rect2(320, 0, 960, 656), get_theme_color("habitat", "Desktop"))
 
 func _show_login_unavailable() -> void:
 	_title_status.show()

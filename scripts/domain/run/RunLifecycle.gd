@@ -7,6 +7,7 @@ extends RefCounted
 const DAY_RESOLUTION_PLAN := preload("res://scripts/domain/run/DayResolutionPlan.gd")
 const CONDITION_HOSPITAL_PLAN := preload("res://scripts/domain/run/ConditionHospitalPlan.gd")
 const DATING_ENDING_RULES := preload("res://scripts/domain/ending/DatingEndingRules.gd")
+const SCENE_TERMINAL_CONTRACT := preload("res://scripts/domain/narrative/SceneEventContract.gd")
 const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
 const PLAYING := &"PLAYING"
@@ -416,6 +417,17 @@ func complete_ending_playback_stage(transaction_id: String, expected_stage: Stri
 	if receipt_keys != ["value"] or typeof(receipt["value"]) != TYPE_DICTIONARY:
 		return _fail(&"invalid_receipt", "receipt must be {\"value\": Dictionary}")
 	if _ending_plan.has("steps"):
+		if _ending_plan.get("source_kind") == "scene":
+			var trial: Dictionary = _ending_plan.duplicate(true)
+			if expected == "PRIMARY_PENDING":
+				trial.playback_receipts["step:0"] = receipt.duplicate(true)
+				trial.next_step_index = 1
+				trial.playback_stage = "EPILOGUE_PLAYED"
+			elif expected == "EPILOGUE_PLAYED":
+				trial.playback_receipts["gallery"] = receipt.duplicate(true)
+				trial.playback_stage = "GALLERY_RECORDED"
+			var valid := validate_scene_ending_plan(trial, _scene_issuer)
+			if not valid.ok: return valid
 		return _complete_ordered_ending_stage(transaction_id, expected, receipt)
 	if expected not in PLAYBACK_SEQUENCE:
 		return _fail(&"invalid_playback_stage", expected)
@@ -551,6 +563,7 @@ func to_dict() -> Dictionary:
 		scene["state"] = String(_state)
 		scene["restore_provenance"] = _dup_or_null(_restore_provenance)
 		scene["scene_assignment"] = _scene_assignment.duplicate(true)
+		if _has_ending_plan: scene["ending_plan"] = _ending_plan.duplicate(true)
 		return scene
 	return {
 		"run_id": _run_id,
@@ -603,8 +616,8 @@ func commit_restore(candidate: Dictionary) -> Dictionary:
 		_scene_assignment = candidate.scene_assignment.duplicate(true)
 		_state = StringName(candidate.state)
 		_plan = null
-		_ending_plan = {}
-		_has_ending_plan = false
+		_has_ending_plan = candidate.has("ending_plan")
+		_ending_plan = candidate.ending_plan.duplicate(true) if _has_ending_plan else {}
 		_active_condition_hospital_plan = null
 		_condition_hospital_history = {}
 		_terminal_intent_handoff = null
@@ -1020,14 +1033,22 @@ static func validate_scene(data: Dictionary, issuer: Object) -> Dictionary:
 	var keys := data.keys()
 	keys.sort()
 	var expected := SCENE_LIFECYCLE_KEYS.duplicate()
+	var terminal: bool = data.get("state") in ["ENDING", "COMPLETED"]
+	if terminal: expected.append("ending_plan")
 	expected.sort()
 	if keys != expected or typeof(data.get("run_id")) != TYPE_STRING or data.run_id.is_empty() \
-			or typeof(data.get("state")) != TYPE_STRING or data.state != "PLAYING":
+			or typeof(data.get("state")) != TYPE_STRING or data.state not in ["PLAYING", "ENDING", "COMPLETED"]:
 		return _fail(&"invalid_scene_lifecycle", "")
 	var identity_error := _validate_desktop_identity(data)
 	if not identity_error.is_empty(): return _fail(&"invalid_scene_lifecycle", identity_error)
 	var assignment := SCENE_ASSIGNMENT.validate_scene(data.scene_assignment)
 	if not assignment.ok: return assignment
+	if terminal:
+		var ending := validate_scene_ending_plan(data.ending_plan, issuer)
+		if not ending.ok: return ending
+		if data.ending_plan.admission.source_identity.run_id != data.run_id \
+				or (data.state == "COMPLETED" and data.ending_plan.playback_stage != "GALLERY_RECORDED"):
+			return _fail(&"invalid_scene_lifecycle", "terminal identity/state mismatch")
 	if not is_instance_valid(issuer): return _fail(&"scene_identity_issuer_required", "")
 	var proven: Dictionary = issuer.verify_issued(data.causal_day_instance_issuer_receipt, &"causal_day_instance")
 	if not proven.get("ok", false): return proven
@@ -1048,3 +1069,57 @@ static func validate_scene(data: Dictionary, issuer: Object) -> Dictionary:
 		if provenance.remap_receipt_provenance.get("child_id") != provenance.remap_receipt_id:
 			return _fail(&"invalid_scene_restore_provenance", "remap identity mismatch")
 	return {"ok": true, "value": data.duplicate(true)}
+
+
+const SCENE_ENDING_PLAN_KEYS := ["schema_version", "source_kind", "admission", "ending_id", "epilogue_ending_id",
+	"steps", "next_step_index", "playback_stage", "playback_receipts", "source_reading_checkpoint"]
+
+## Source reading remains provenance, while the active checkpoint is an ending
+## checkpoint. No numeric day or legacy eligibility is synthesized.
+func enter_scene_ending(plan: Dictionary) -> Dictionary:
+	if _state != PLAYING or _scene_assignment.is_empty():
+		return _fail(&"invalid_state", "scene ending requires a PLAYING scene run")
+	var checked := validate_scene_ending_plan(plan, _scene_issuer)
+	if not checked.ok: return checked
+	if plan.playback_stage != "PRIMARY_PENDING" or plan.next_step_index != 0 \
+			or not SCENE_TERMINAL_CONTRACT._equal(plan.admission.source_identity, get_desktop_identity_context()):
+		return _fail(&"scene_terminal_source_changed", "")
+	_state = ENDING
+	_ending_plan = plan.duplicate(true)
+	_has_ending_plan = true
+	return {"ok": true}
+
+static func validate_scene_ending_plan(plan: Variant, issuer: Object) -> Dictionary:
+	if not SCENE_TERMINAL_CONTRACT._keys(plan, SCENE_ENDING_PLAN_KEYS) \
+			or typeof(plan.schema_version) != TYPE_INT or plan.schema_version != 1 or plan.source_kind != "scene" \
+			or plan.ending_id != "ending.alone" or plan.epilogue_ending_id != "" \
+			or not SCENE_TERMINAL_CONTRACT._equal(plan.steps, [{"ending_id": "ending.alone", "role": "core"}]) \
+			or not plan.playback_receipts is Dictionary or not plan.source_reading_checkpoint is Dictionary:
+		return _fail(&"invalid_scene_ending_plan", "invalid scene terminal member set")
+	var checked := SCENE_TERMINAL_CONTRACT.validate_scene_terminal_admission_shape(plan.admission, issuer)
+	if not checked.get("ok", false): return checked
+	var ordered_error := _validate_ordered_ending_plan(plan)
+	if not ordered_error.is_empty(): return _fail(&"invalid_scene_ending_plan", ordered_error)
+	var source: Dictionary = plan.source_reading_checkpoint
+	if source.get("stage") != "scene" or not source.get("reading_session") is Dictionary \
+			or source.reading_session.get("occurrence_id") != plan.admission.source_occurrence_id:
+		return _fail(&"invalid_scene_ending_plan", "retained source reading mismatch")
+	var expected: Array = []
+	if plan.next_step_index == 1: expected.append("step:0")
+	if plan.playback_stage == "GALLERY_RECORDED": expected.append("gallery")
+	if not SCENE_TERMINAL_CONTRACT._keys(plan.playback_receipts, expected):
+		return _fail(&"invalid_scene_ending_plan", "completion receipts disagree with cursor")
+	if plan.next_step_index == 1:
+		var physical: Variant = plan.playback_receipts["step:0"]
+		if not SCENE_TERMINAL_CONTRACT._keys(physical, ["value"]) \
+				or not SCENE_TERMINAL_CONTRACT._keys(physical.value, ["outcome", "timeline_completion_receipt_id"]) \
+				or physical.value.outcome != "completed" \
+				or not SCENE_TERMINAL_CONTRACT._id(physical.value.timeline_completion_receipt_id):
+			return _fail(&"invalid_scene_ending_plan", "physical completion receipt invalid")
+	if plan.playback_stage == "GALLERY_RECORDED":
+		var gallery: Variant = plan.playback_receipts.gallery
+		if not SCENE_TERMINAL_CONTRACT._keys(gallery, ["value"]) \
+				or not SCENE_TERMINAL_CONTRACT._keys(gallery.value, ["step:0"]) \
+				or not gallery.value["step:0"] is Dictionary or gallery.value["step:0"].is_empty():
+			return _fail(&"invalid_scene_ending_plan", "gallery receipt invalid")
+	return {"ok": true}

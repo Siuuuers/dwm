@@ -248,14 +248,17 @@ var _scene_challenge_validator: Callable
 var _scene_challenge: Dictionary = {}
 
 func configure_scene_challenge_authority(authority: Object, validator: Callable) -> Dictionary:
-	if not _configured or _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy \
-			or not _scene_entry.is_empty() or not _scene_control.is_empty() \
-			or not is_instance_valid(authority) or not validator.is_valid() \
+	if not is_instance_valid(authority) or not validator.is_valid() \
 			or validator.get_object() != authority or validator.get_argument_count() != 3:
-		return _fail(&"scene_challenge_authority_invalid", "configure the Run owner while idle")
+		return _fail(&"scene_challenge_authority_invalid", "valid Run owner required")
 	if _scene_challenge_authority != null:
+		# Exact replay changes no authority or custody. A failed control write
+		# deliberately retains its operation; retry must not require clearing it.
 		if _scene_challenge_authority == authority and _scene_challenge_validator == validator: return {"ok": true}
 		return _fail(&"scene_challenge_authority_invalid", "authority replacement refused")
+	if not _configured or _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy \
+			or not _scene_entry.is_empty() or not _scene_control.is_empty():
+		return _fail(&"scene_challenge_authority_invalid", "configure the Run owner while idle")
 	_scene_challenge_authority = authority
 	_scene_challenge_validator = validator
 	return {"ok": true}

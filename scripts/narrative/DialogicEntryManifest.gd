@@ -89,34 +89,56 @@ static var _scene_bundle: Dictionary = {}
 static var _registration_used := false
 static var _startup_selection_checked := false
 static var _startup_selection_error: Dictionary = {}
+const SCENE_STORY_BUNDLE_PATH := "res://data/manifests/scene_story_registration.json"
+const SCENE_STORY_ORDER_PATH := "res://tests/templates/scene_sequence/seven_day_order.json"
+static var _first_target_id := ""
 const SCENE_TEST_FLAG := "--scene-reading-fixture"
 const SCENE_TEST_BUNDLE_PATH := "res://tests/fixtures/dialogic/scene_reading_registration.json"
 
 ## First owner access precedes consumers' caches, including autoload consumers.
-## Only the explicit debug process switch selects this one shipped TEST fixture.
+## Normal startup selects the shipped story; the explicit debug switch selects the test fixture.
 ## The exact environment value supports GUT, which rejects unknown CLI flags.
 static func _select_startup_fixture() -> Dictionary:
 	if _startup_selection_checked:
 		return {"ok": true} if _startup_selection_error.is_empty() else _startup_selection_error.duplicate(true)
 	_startup_selection_checked = true
-	if not OS.get_cmdline_user_args().has(SCENE_TEST_FLAG) and not OS.get_cmdline_args().has(SCENE_TEST_FLAG) \
-			and OS.get_environment("DWM_SCENE_READING_FIXTURE") != "1":
-		return {"ok": true}
-	if not OS.has_feature("debug"):
+	if not _scene_bundle.is_empty(): return {"ok": true}
+	var fixture: bool = OS.get_cmdline_user_args().has(SCENE_TEST_FLAG) or OS.get_cmdline_args().has(SCENE_TEST_FLAG) or OS.get_environment("DWM_SCENE_READING_FIXTURE") == "1"
+	if fixture and not OS.has_feature("debug"):
 		_startup_selection_error = _scene_fail("test_only")
 		return _startup_selection_error.duplicate(true)
-	var parsed := STRICT_JSON.parse_object(FileAccess.get_file_as_string(SCENE_TEST_BUNDLE_PATH))
+	var path: String = SCENE_TEST_BUNDLE_PATH if fixture else SCENE_STORY_BUNDLE_PATH
+	var parsed := STRICT_JSON.parse_object(FileAccess.get_file_as_string(path))
 	if not parsed.ok:
-		_startup_selection_error = _scene_fail("startup fixture unavailable")
+		_startup_selection_error = _scene_fail("startup registration unavailable: " + path)
 		return _startup_selection_error.duplicate(true)
-	var selected := configure_test_scene_registration(parsed.value)
+	var selected := _configure_scene_registration(parsed.value)
+	if selected.ok:
+		if fixture: _first_target_id = "target_a"
+		else:
+			var order := STRICT_JSON.parse_object(FileAccess.get_file_as_string(SCENE_STORY_ORDER_PATH))
+			if not order.ok or not order.value.get("order") is Array or order.value.order.is_empty():
+				selected = _scene_fail("story order unavailable")
+			else:
+				_first_target_id = str(order.value.bindings.get(order.value.order[0], {}).get("target_id", ""))
+				var found := false
+				for row: Dictionary in _scene_bundle.targets:
+					if row.target_id == _first_target_id and row.target.kind == "scene": found = true
+				if not found: selected = _scene_fail("story first target unavailable")
 	if not selected.ok: _startup_selection_error = selected.duplicate(true)
 	return selected
+
+static func first_target_id() -> String:
+	if not _select_startup_fixture().ok: return ""
+	return _first_target_id
 
 ## Process-local engineering seam. Save data is never a configuration source.
 static func configure_test_scene_registration(bundle: Dictionary) -> Dictionary:
 	if not OS.has_feature("debug"):
 		return _scene_fail("test_only")
+	return _configure_scene_registration(bundle)
+
+static func _configure_scene_registration(bundle: Dictionary) -> Dictionary:
 	if _registration_used or not _scene_bundle.is_empty():
 		return _scene_fail("registration_already_selected")
 	var checked := validate_scene_registration(bundle)
@@ -129,7 +151,7 @@ static func scene_registration() -> Dictionary:
 	var startup := _select_startup_fixture()
 	if not startup.ok: return startup
 	_registration_used = true
-	if _scene_bundle.is_empty(): return _fail(&"scene_registration_absent", "no TEST scene registration selected")
+	if _scene_bundle.is_empty(): return _fail(&"scene_registration_absent", "no scene registration selected")
 	return {"ok": true, "value": _scene_bundle.duplicate(true)}
 
 static func scene_registration_fingerprint() -> String:
@@ -173,6 +195,13 @@ static func _scene_table(value: Variant, id: String, keys: Array) -> Dictionary:
 		rows[row[id]] = row
 	return {"ok": true, "value": rows}
 
+static func _registered_alone_row(path: String, field: String) -> Dictionary:
+	var parsed := STRICT_JSON.parse_object(FileAccess.get_file_as_string(path))
+	if not parsed.ok: return {}
+	for row: Dictionary in parsed.value.get(field, []):
+		if row.entry_id == "ending.alone.normal": return row.duplicate(true)
+	return {}
+
 static func _validate_scene_manifest(document: Dictionary) -> Dictionary:
 	var parsed := STRICT_JSON.parse_object(FileAccess.get_file_as_string(SCENE_SCHEMA_PATH))
 	if not parsed.ok: return _scene_fail("scene schema missing")
@@ -185,9 +214,17 @@ static func _validate_scene_manifest(document: Dictionary) -> Dictionary:
 	for row: Dictionary in document.entries:
 		if row.entry_id <= previous or not _scene_version(row.content_version): return _scene_fail("entry order/version")
 		previous = row.entry_id
-		if row.context_schema_id != "context.scene." + row.entry_id + ".v1" \
+		if row.context_schema_id != "context." + row.role + "." + row.entry_id + ".v1" \
 				or row.line_namespace != "line." + row.entry_id or row.atom_namespace != "atom." + row.entry_id:
 			return _scene_fail("namespace")
+		if row.role == "alone_step":
+			var canonical := _registered_alone_row("res://data/manifests/dialogic_entries.json", "entries")
+			var comparison: Dictionary = row.duplicate(true)
+			comparison.erase("locators")
+			canonical.erase("locators")
+			if canonical.is_empty() or comparison != canonical: return _scene_fail("ending presentation definition")
+		elif row.has("day") or row.has("ending_id") or row.has("allowed_ending_forms"):
+			return _scene_fail("scene ending metadata")
 		var locator: Dictionary = row.locators.en
 		if not _locator_is_usable(locator, row.entry_id) or not locator.path.begins_with("res://tests/fixtures/dialogic/") \
 				or ".." in locator.path or not locator.path.ends_with(".dtl"): return _scene_fail("TEST locator")
@@ -215,9 +252,12 @@ static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 	if not schemas.ok or schemas.value.size() != entries.size(): return _scene_fail("context coverage")
 	for id: String in entries:
 		var row: Dictionary = schemas.value.get(id, {})
-		if row.get("schema_id") != entries[id].context_schema_id or typeof(row.get("schema_version")) != TYPE_INT \
+		if entries[id].role == "alone_step":
+			if row != _registered_alone_row("res://data/manifests/dialogic_contexts.json", "schemas"):
+				return _scene_fail("ending context fields")
+		elif row.get("schema_id") != entries[id].context_schema_id or typeof(row.get("schema_version")) != TYPE_INT \
 				or row.schema_version != 1 or row.get("fields") != {"entry_id": {"const": id},
-				"entry_role": {"const": "scene"}, "occurrence_id": "id", "admission_receipt_id": "id"}:
+					"entry_role": {"const": "scene"}, "occurrence_id": "id", "admission_receipt_id": "id"}:
 			return _scene_fail("context fields")
 	var captions: Dictionary = bundle.caption_registry
 	if not _scene_exact(captions, ["kind", "schema_version", "entries"]) or captions.kind != "scene_caption_registry" \
@@ -244,8 +284,9 @@ static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 	if not ids_lines.ok or not signals.ok or ids_lines.value.size() != lines.size(): return _scene_fail("ids coverage")
 	for id: String in lines:
 		if ids_lines.value.get(id, {}).get("owning_entry_id") != lines[id]: return _scene_fail("line owner")
-	var payloads := {"scene.transition": ["target_id"], "challenge.playable": ["challenge_id"],
+	var payloads := {"thought.pass": ["opportunity_id", "yes_target_id", "pass_target_id"], "scene.transition": ["target_id"], "challenge.playable": ["challenge_id"],
 		"challenge.end": ["challenge_id"], "contact.enter": ["contact_event_id"], "contact.return": ["contact_event_id"],
+		"challenge.recall": ["challenge_id", "never_started_target_id", "unfinished_target_id", "won_target_id", "lost_target_id", "perfect_target_id"],
 		"history.line.witness": ["entry_id", "line_id", "playback_token", "receipt_id"]}
 	for id: String in signals.value:
 		if not payloads.has(id) or signals.value[id].payload_fields != payloads[id]: return _scene_fail("signal shape")
@@ -384,6 +425,8 @@ static func _validate_scene_tables(bundle: Dictionary, entries: Dictionary, prog
 		if not _scene_exact(target, ["kind", "entry_id", "label", "content_version", "program_sha256"]) \
 				or target.kind not in ["local", "scene", "ending", "contact", "return"] \
 				or not entries.has(target.entry_id): return _scene_fail("target shape")
+		if entries[target.entry_id].role == "alone_step" and target.kind != "ending": return _scene_fail("ending target kind")
+		if target.kind == "ending" and entries[target.entry_id].role != "alone_step": return _scene_fail("ending target role")
 		if not _scene_version(target.content_version) or target.content_version != programmes[target.entry_id].content_version \
 				or target.program_sha256 != programmes[target.entry_id].program_sha256: return _scene_fail("target version")
 		if target.kind in ["scene", "ending", "contact"]:
@@ -406,7 +449,8 @@ static func _validate_scene_tables(bundle: Dictionary, entries: Dictionary, prog
 				or row.capability_policy_id != "owned_inventory_v1": return _scene_fail("unsupported board policy")
 	for row: Dictionary in challenges.value.values():
 		if not entries.has(row.entry_id) or not profiles.value.has(row.board_profile_id) \
-				or not _scene_exact(row.targets, ["never_started", "unfinished", "lost", "won"]):
+				or not (_scene_exact(row.targets, ["never_started", "unfinished", "lost", "won"]) \
+					or _scene_exact(row.targets, ["never_started", "unfinished", "lost", "won", "perfect"])):
 			return _scene_fail("challenge shape")
 		for pair: Array in [["playable_marker_id", "challenge.playable"], ["end_marker_id", "challenge.end"]]:
 			var marker: Dictionary = markers.get(row[pair[0]], {})
@@ -427,13 +471,28 @@ static func _validate_scene_tables(bundle: Dictionary, entries: Dictionary, prog
 		for fact: Variant in row.source_fact_ids:
 			if not _scene_id(fact) or fact <= previous: return _scene_fail("contact facts")
 			previous = fact
+	var opportunities := {}
 	for value: Dictionary in markers.values():
 		var marker: Dictionary = value.row
 		match marker.kind:
+			"thought.accept": return _scene_fail("Yes is intent, not an authored boundary")
+			"thought.pass":
+				if opportunities.has(marker.payload.opportunity_id) or marker.payload.yes_target_id == marker.payload.pass_target_id:
+					return _scene_fail("duplicate thought binding or target")
+				opportunities[marker.payload.opportunity_id] = true
+				for target_id: String in [marker.payload.yes_target_id, marker.payload.pass_target_id]:
+					if not targets.value.has(target_id) or targets.value[target_id].target.kind != "scene":
+						return _scene_fail("dangling thought target")
 			"scene.transition":
 				if not targets.value.has(marker.payload.target_id): return _scene_fail("dangling transition")
 				var target: Dictionary = targets.value[marker.payload.target_id].target
 				if target.kind == "local" and target.entry_id != value.entry_id: return _scene_fail("local transition target")
+			"challenge.recall":
+				if not challenges.value.has(marker.payload.challenge_id): return _scene_fail("dangling challenge recall")
+				for outcome: String in ["never_started", "unfinished", "lost", "won", "perfect"]:
+					var target_id: String = marker.payload[outcome + "_target_id"]
+					if not targets.value.has(target_id) or targets.value[target_id].target.kind != "scene":
+						return _scene_fail("dangling challenge recall target")
 			"challenge.playable", "challenge.end":
 				if not challenges.value.has(marker.payload.challenge_id): return _scene_fail("dangling challenge")
 			"contact.enter", "contact.return":

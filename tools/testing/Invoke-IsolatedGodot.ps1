@@ -14,6 +14,10 @@ param(
     [string[]]$NextGodotArgs = @(),
     [string]$NextLogName,
 
+    # Optional third process continues the same proven isolation root.
+    [string[]]$ThirdGodotArgs = @(),
+    [string]$ThirdLogName,
+
     # Existing long-running evidence callers retain their own watchdogs unless
     # they opt in. Cloud focused suites set a limit below their step timeout.
     [ValidateRange(0, 86400)]
@@ -228,7 +232,10 @@ try {
     if ([string]::IsNullOrWhiteSpace($LogName) -or [IO.Path]::GetFileName($LogName) -cne $LogName) { throw 'LOG_NAME_INVALID' }
     if (($NextGodotArgs.Count -gt 0) -ne (-not [string]::IsNullOrWhiteSpace($NextLogName))) { throw 'NEXT_CHILD_INCOMPLETE' }
     if ($NextGodotArgs.Count -gt 0 -and ([IO.Path]::GetFileName($NextLogName) -cne $NextLogName -or $NextLogName -ieq $LogName)) { throw 'NEXT_LOG_NAME_INVALID' }
-    foreach ($argument in (@($GodotArgs) + @($NextGodotArgs))) {
+    if (($ThirdGodotArgs.Count -gt 0) -ne (-not [string]::IsNullOrWhiteSpace($ThirdLogName))) { throw 'THIRD_CHILD_INCOMPLETE' }
+    if ($ThirdGodotArgs.Count -gt 0 -and $NextGodotArgs.Count -eq 0) { throw 'THIRD_CHILD_REQUIRES_SECOND' }
+    if ($ThirdGodotArgs.Count -gt 0 -and ([IO.Path]::GetFileName($ThirdLogName) -cne $ThirdLogName -or $ThirdLogName -ieq $LogName -or $ThirdLogName -ieq $NextLogName)) { throw 'THIRD_LOG_NAME_INVALID' }
+    foreach ($argument in (@($GodotArgs) + @($NextGodotArgs) + @($ThirdGodotArgs))) {
         if ([string]$argument -match '^(?i)--(?:path|headless|log-file)(?:=|$)') { throw "FORBIDDEN_GODOT_ARG: $argument" }
     }
     if ([string]::IsNullOrWhiteSpace($env:APPDATA)) { throw 'PARENT_APPDATA_MISSING' }
@@ -301,6 +308,7 @@ try {
 
     $childPlans = @([pscustomobject]@{Arguments=@($GodotArgs); Log=$LogName})
     if ($NextGodotArgs.Count -gt 0) { $childPlans += [pscustomobject]@{Arguments=@($NextGodotArgs); Log=$NextLogName} }
+    if ($ThirdGodotArgs.Count -gt 0) { $childPlans += [pscustomobject]@{Arguments=@($ThirdGodotArgs); Log=$ThirdLogName} }
     foreach ($childPlan in $childPlans) {
         $phase = 'execution'
         $logPath = Get-CanonicalPath (Join-Path $logsRoot $childPlan.Log)

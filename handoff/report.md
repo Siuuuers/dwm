@@ -6,7 +6,7 @@ behavior_authority: false
 verification_authority: false
 ---
 
-# Coordinator A — Contacts and TEST title template accepted
+# Coordinator A — Optional Challenge verified; PR36 qualification pending
 
 Updated 15 October 2026 (Hong Kong), continuing Director6177016339.
 This is a continuation/evidence record, not new product authority or live Beads.
@@ -21,7 +21,48 @@ helpers preserve that default; independent source review found no blocker.
 PR30 is the draft controller PR, not the product source. Master remains
 0c8b2384415d71bd3de4ff7408640bbf60b63740; no master merge or release.
 
+## Current CI qualification — 16 October 2026
+
+PR36 now also retains a two-file future-save-version fixture correction, verified
+in cloud run38766739347: **33 tests / 613 assertions**. Runtime validators and the
+previously accepted optional-Challenge implementation are unchanged. This is a
+separate focused result, not whole-project acceptance.
+
+Paired instrumented cloud diagnostics reproduced the same legacy/scene snapshot
+mismatch at desktop first Reveal on integration3ae6d913 and the candidate. Both
+children correctly exited1. The original broader CI run is still failed; its
+provenance, fixture, integration and cancelled-job blockers remain explicit.
+See [a-ci-qualification-20261016.md](a-ci-qualification-20261016.md) for exact
+sources, evidence, baseline limits and next owner-wiring task. Keep PR36 draft;
+master and integration were not moved. B's later-caption diagnosis is received;
+C's separate reconciliation lane remains reserved. Local source inspection is
+available again; all engine/PowerShell execution remains cloud-only.
+
 ## Current continuation and ownership — 15 October 2026
+
+The latest bounded TEST optional-Challenge work is on draft PR #36,
+`codex/a-optional-challenge-20261015`. User decision: every Minesweeper is optional;
+after Computer closes, existing Accept/Next can leave an unstarted or unfinished
+challenge. Closing alone does not advance.
+
+Exact published runtime source 0d3464691bfa13f4cd0fdfe368906b0de2079e53, tree
+a4cb2a7694df188b6c863f807dfe91987f4dea6e, has **77 focused tests / 1868 assertions**
+across cloud runs102 and103 on that identical tree. Run102 passed32 cases before
+an absence-suite timeout; run103 passed the remaining45 with a longer bounded budget.
+Original evidence, exact source, generated UIDs/inventories and disposition are retained.
+See [a-optional-challenge-result.md](a-optional-challenge-result.md).
+
+**Integration is pending broader CI qualification.** Generic run38725742391 passed
+public API contracts but has other failures. Earliest desktop/schema/Notes failures
+have direct baseline incompatibility evidence, not baseline execution; later
+GameState provenance hashes and the remaining broad failures are not cleared.
+PR36 stays draft. Integration remains3ae6d9138fb53c388380c78550cf6082eafc0ea3;
+master remains0c8b2384415d71bd3de4ff7408640bbf60b63740.
+No local Godot/PowerShell ran. The local exec environment disconnected after source
+publication; continue from the remote product branch and retained evidence.
+A retains integration/controller/inventory ownership and existing external B/C
+reservations remain separate. Do not redo accepted Contacts/audio/title work.
+
 
 Contacts PR #34 is integrated at 03f606ce490a292eb22edb39cb41f1b57066b0d8.
 The earlier readiness-only assignment below is superseded: the GameState

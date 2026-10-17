@@ -499,7 +499,7 @@ func test_presentation_matrix_preserves_live_reveal_history_and_event_position()
 						await _settle()
 						var projection: Dictionary = caption.get_caption_projection()
 						var height: int = {100:208,125:264,150:328}[percent]
-						assert_eq(projection.field_rect,Rect2(0,656-height,1280,height))
+						assert_eq(projection.field_rect,Rect2(0,592-height,1280,height))
 						assert_eq(projection.font_size,int(24*percent/100.0))
 						assert_true(projection.field_rect.encloses(projection.caption_visible_rect))
 						assert_true(projection.caption_visible_rect.has_area(),"current caption intersects the common viewport")
@@ -911,8 +911,9 @@ func test_clear_holds_empty_without_finishing_a_hidden_incomplete_reveal() -> vo
 	assert_eq(runtime.current_event_idx,0,"the actual timeline remains valid during the clear hold")
 	assert_eq(_ended,0)
 	assert_true(caption.transport_rail.is_visible_in_tree(), "a silent hold keeps the stationary rail")
-	assert_eq(caption.transport_rail.position, Vector2(0,656))
-	for button: Button in caption.transport_rail.get_children():
+	assert_eq(caption.transport_rail.position, Vector2(0,592))
+	for id: StringName in caption.transport_rail.CONTROL_IDS:
+		var button: Button = caption.transport_rail.get_node(String(id).capitalize())
 		assert_true(button.disabled, "no narrative command is admitted without current prose")
 		assert_eq(button.focus_mode, Control.FOCUS_NONE)
 		assert_false(button.has_focus())
@@ -2054,3 +2055,30 @@ func test_assistive_caption_action_retired_by_real_input_custody_roundtrip() -> 
 	await _settle()
 	assert_eq(_finished, 1)
 	assert_eq(runtime.current_event_idx, 0)
+
+func test_full_scrollback_reprojection_keeps_native_state_and_three_caption_window() -> void:
+	if not _mount(): return
+	runtime.start(_timeline("Current."))
+	await _settle()
+	caption.caption_text.finish_text()
+	await _settle()
+	var before := _stack_invariants()
+	var speech_generation: int = caption._speech_generation
+	var older: Array = ["One.", "Two.", "Three.", "Four."]
+	assert_true(caption.reproject_retained_captions(older, true))
+	await _settle()
+	_assert_passive_stack(["Three.", "Four."])
+	assert_eq(caption._speech_generation, speech_generation, "older-copy refresh does not cancel current speech")
+	assert_eq(caption._scrollback, older)
+	assert_eq(caption.get_caption_projection().caption_window, ["Three.", "Four.", "Current."])
+	caption._set_review_offset(2)
+	assert_eq(caption.get_caption_projection().caption_window, ["One.", "Two.", "Three."])
+	assert_true(caption.reproject_retained_captions(older, true))
+	await _settle()
+	assert_eq(caption._review_offset, 0)
+	assert_eq(caption._scrollback, older)
+	assert_eq(_stack_invariants(), before)
+	assert_true(caption.reproject_retained_captions([], true))
+	assert_eq(caption._scrollback, [])
+	assert_eq(caption.get_caption_projection().retained_captions, [])
+	assert_eq(_stack_invariants(), before)

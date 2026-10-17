@@ -527,6 +527,10 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 			if save_manager == null or not save_manager.has_method("initialize"):
 				return _failure(&"missing_stage_adapter", "SaveManager initializer is unavailable")
 			_saves_storage = JSON_STORAGE.new(_selected_root.path_join("saves"))
+			# The issuer stage already ran; bind the hook only after this storage exists.
+			# Flush deferred identity receipts before initialization or later save writes.
+			var gated: Dictionary = _saves_storage.configure_before_write(Callable(self, "_flush_before_run_save"))
+			if not gated.get("ok", false): return gated
 			var save_initialized: Dictionary = save_manager.call(&"initialize", _saves_storage)
 			if not save_initialized.get("ok", false):
 				return save_initialized
@@ -737,14 +741,6 @@ func _construct_identity_issuer_and_contact_commands() -> Dictionary:
 			_desktop_issuer_root_store)
 		if not issuer_configured.get("ok", false):
 			return issuer_configured
-	# dwm-634.1: routine board receipts live in memory until the board itself is saved. Every run
-	# save goes through this storage root, so it persists the ledger first and fails closed.
-	# dwm-634.2: the Dating owner's uncommitted routine progress flushes to Profile the same way.
-	if _saves_storage != null and _saves_storage.has_method("configure_before_write"):
-		var gated: Dictionary = _saves_storage.call(&"configure_before_write",
-			Callable(self, "_flush_before_run_save"))
-		if not gated.get("ok", false):
-			return gated
 	var injected: Dictionary = game_state.call(
 		&"configure_identity_issuer", _desktop_identity_nonce_issuer)
 	if not injected.get("ok", false):
@@ -953,11 +949,11 @@ func _capture_paused_checkpoint_inputs() -> Dictionary:
 	var route: String = router.get_current_route_id()
 	if route not in ["main", "dating", "hospital", "ending", "scene"]:
 		return _failure(&"backup_capture_unavailable", "The paused source has no qualified gameplay capture")
-	if route == "scene":
+	if route == "scene" or (route == "ending" and game._run_lifecycle.to_dict().has("scene_assignment")):
 		var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
 		if not checkpoint.get("ok", false): return checkpoint
 		return {"ok": true, "value": {"snapshot_input": game.capture_run_snapshot_input(),
-			"dialogic_checkpoint": checkpoint.value, "route_id": "scene", "active_app_id": null,
+			"dialogic_checkpoint": checkpoint.value, "route_id": route, "active_app_id": null,
 			"audio_context": _target(&"AudioManager").get_semantic_audio_context(),
 			"content_version": NARRATIVE_CONTENT_VERSION}}
 	var narrative := _capture_dating_reading_checkpoint(bridge, route)
@@ -1528,7 +1524,12 @@ func _configure_registered_scene_creation() -> Dictionary:
 	var selected: Dictionary = DIALOGIC_ENTRY_MANIFEST.scene_registration()
 	if not selected.get("ok", false):
 		return {"ok": true} if selected.get("code") == &"scene_registration_absent" else selected
-	return _target(&"SaveManager").configure_scene_new_run(_target(&"DialogicBridge"))
+	var saves := _target(&"SaveManager")
+	var configured: Dictionary = saves.configure_scene_new_run(_target(&"DialogicBridge"))
+	if not configured.get("ok", false): return configured
+	var first_target: String = DIALOGIC_ENTRY_MANIFEST.first_target_id()
+	if first_target.is_empty() or selected.value.get("schema_version") != 3: return {"ok": true} # Older test registrations configure their own opening.
+	return saves.configure_scene_title_new_run(first_target)
 
 ## Complete existing scene owners only for an explicitly installed registration.
 ## The retained participant map still serves historical saves; scene transactions
@@ -1537,6 +1538,12 @@ func _configure_registered_scene_runtime() -> Dictionary:
 	var selected: Dictionary = DIALOGIC_ENTRY_MANIFEST.scene_registration()
 	if not selected.get("ok", false):
 		return {"ok": true} if selected.get("code") == &"scene_registration_absent" else selected
+	if not DIALOGIC_ENTRY_MANIFEST.first_target_id().is_empty() and FileAccess.file_exists("res://data/manifests/scene_ending_reading_catalogue.json") and OS.get_environment("DWM_SCENE_READING_FIXTURE") != "1" and not OS.get_cmdline_user_args().has(DIALOGIC_ENTRY_MANIFEST.SCENE_TEST_FLAG) and not OS.get_cmdline_args().has(DIALOGIC_ENTRY_MANIFEST.SCENE_TEST_FLAG):
+		var catalogue: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(
+			FileAccess.get_file_as_string("res://data/manifests/scene_ending_reading_catalogue.json"))
+		if not catalogue.get("ok", false): return catalogue
+		var configured: Dictionary = _target(&"DialogicBridge").configure_reading_catalogue(catalogue.value)
+		if not configured.get("ok", false): return configured
 	var saves := _target(&"SaveManager")
 	var game := _target(&"GameState")
 	var router := _target(&"SceneRouter")
@@ -1638,6 +1645,9 @@ func _configure_desktop_production_graph() -> Dictionary:
 		var save_audio: Dictionary = save_board_port.configure_audio_context_capture(
 			Callable(_target(&"AudioManager"), &"get_semantic_audio_context"))
 		if not save_audio.get("ok", false): return save_audio
+		var save_scene: Dictionary = save_board_port.configure_scene_context_capture(
+			Callable(self, "_capture_desktop_board_scene_context"))
+		if not save_scene.get("ok", false): return save_scene
 		_retained_save_manager_desktop_board_port = save_board_port
 		var durable: Dictionary = round_coordinator.configure_durable_checkpoint(
 			save_board_port, DESKTOP_FIRST_REVEAL_SNAPSHOT_COMPOSER, _desktop_consequence_state)
@@ -2252,6 +2262,27 @@ func _flush_before_run_save() -> Dictionary:
 
 
 func _commit_ending_checkpoint() -> Dictionary:
+	var game := _target(&"GameState")
+	var lifecycle: Dictionary = game._run_lifecycle.to_dict()
+	if lifecycle.get("ending_plan") is Dictionary and lifecycle.ending_plan.get("source_kind") == "scene":
+		if _retained_checkpoint_port == null: return _failure(&"presentation_checkpoint_unavailable", "")
+		var bridge := _target(&"DialogicBridge")
+		var reading: Dictionary = bridge.capture_ending_physical_checkpoint()
+		if not reading.get("ok", false): return reading
+		var inputs := {"snapshot_input": game.capture_run_snapshot_input(), "route_id": "ending",
+			"dialogic_checkpoint": reading.value, "active_app_id": null,
+			"audio_context": _target(&"AudioManager").get_semantic_audio_context(),
+			"content_version": NARRATIVE_CONTENT_VERSION}
+		var backup: Dictionary = _retained_checkpoint_port.capture()
+		if not backup.get("ok", false): return backup
+		var prepared: Dictionary = _retained_checkpoint_port.prepare(inputs, &"safe_marker", {"kind": &"autosave", "reason": &"automatic"})
+		if not prepared.get("ok", false): return prepared
+		var committed: Dictionary = _retained_checkpoint_port.commit(prepared.value.candidate)
+		if not committed.get("ok", false) and not committed.get("committed", false):
+			var rolled: Dictionary = _retained_checkpoint_port.rollback({"journal_backup": backup.value.backup,
+				"storage_backup": prepared.value.candidate.storage_backup})
+			if not rolled.get("ok", false): return rolled
+		return committed
 	return _commit_presentation_checkpoint("ending")
 
 
@@ -2711,6 +2742,38 @@ func _scene_host_admitted(host: Control) -> bool:
 	return is_instance_valid(host) and host == get_tree().current_scene \
 		and _state.get("ready", false) and _target(&"SceneRouter").get_current_route_id() == "scene" \
 		and not _target(&"SceneRouter").is_restore_publication_held()
+
+## Preserve the real reading frontier while the first-Reveal composer owns its detached board.
+func _capture_desktop_board_scene_context(projected_input: Dictionary) -> Dictionary:
+	var host: Node = get_tree().current_scene
+	if not host is Control or host.scene_file_path != "res://scenes/narrative/SceneHost.tscn" \
+			or not _scene_host_admitted(host):
+		return _failure(&"scene_host_unavailable", "")
+	var game := _target(&"GameState")
+	var bridge := _target(&"DialogicBridge")
+	var session: Dictionary = game.capture_live_session()
+	if not session.get("ok", false): return session
+	# Cost-free desktop markers already own the causal transaction lease. Keep that
+	# internal read available while refusing Restore/NewRun and every external busy gate.
+	var internal: bool = _application_gate.is_internal_owner_active(&"causal_transaction")
+	var admitted: Dictionary = game.capture_desktop_identity_context() if internal else game.validate_live_session(session.value)
+	if not admitted.get("ok", false): return admitted
+	var live: Dictionary = game.capture_run_snapshot_input()
+	for key: String in ["lifecycle", "scene", "contacts", "command_receipts",
+			"applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
+		if not projected_input.has(key) or projected_input[key] != live.get(key):
+			return _failure(&"stale_scene_checkpoint_source", key)
+	var active_app: Variant = _active_app_id_context()
+	var reading: Dictionary = bridge.capture_reading_checkpoint(false)
+	if not reading.get("ok", false): return reading
+	admitted = game.capture_desktop_identity_context() if internal else game.validate_live_session(session.value)
+	if not admitted.get("ok", false): return admitted
+	if game.capture_live_session() != session or game.capture_run_snapshot_input() != live \
+			or internal != _application_gate.is_internal_owner_active(&"causal_transaction") \
+			or active_app != _active_app_id_context() or not _scene_host_admitted(host):
+		return _failure(&"stale_scene_checkpoint_source", "")
+	return {"ok": true, "value": {"route_id": "scene", "active_app_id": active_app,
+		"content_version": NARRATIVE_CONTENT_VERSION, "dialogic_checkpoint": reading.value}}
 
 func open_scene_computer(host: Control) -> Dictionary:
 	if not _scene_host_admitted(host): return _failure(&"scene_host_unavailable", "")

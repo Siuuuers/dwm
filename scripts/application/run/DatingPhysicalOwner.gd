@@ -202,6 +202,7 @@ func pull_scene_panel(physical_token: String) -> Dictionary:
 
 func dispatch_scene_panel_action(physical_token: String, action: String, cell_index: int,
 		expected_revision: int) -> Dictionary:
+	if not _scene_input_open(): return _fail(&"scene_challenge_command_refused")
 	var view: Dictionary = pull_scene_panel(physical_token)
 	if not view.get("ok", false): return view
 	if view.value.get("phase") == "never_started":
@@ -644,7 +645,7 @@ func flush_pending_attempt() -> Dictionary:
 	if _record.get("schema_version") == 4 and not _scene_command():
 		# A selected completed save keeps its historical closure. There is no
 		# playable input to re-admit and no new physical progress to flush.
-		if _record.get("phase") == "terminal" and not _routine_pending and _pending_checkpoint.is_empty() \
+		if not _routine_pending and _pending_checkpoint.is_empty() \
 				and is_instance_valid(_game_state) and _game_state.has_method("capture_scene_challenge_closure"):
 			var closed: Dictionary = _game_state.capture_scene_challenge_closure(_record.context)
 			var digest: Dictionary = CANONICAL.canonical_sha256(_record)
@@ -1517,6 +1518,27 @@ func _scene_authorize(command: Dictionary) -> Dictionary:
 		return _fail(&"scene_challenge_registration_mismatch")
 	return _scene_authority.validate_scene_challenge_command(command.duplicate(true), _scene_bundle.duplicate(true))
 
+## Admission alone creates no attempt. Preserve already admitted in-memory moves
+## before a manual departure; readmission must not replace them with Profile's prefix.
+func admit_scene_continuation(command: Dictionary) -> Dictionary:
+	var admitted := _scene_authorize(command)
+	if not admitted.ok: return admitted
+	if not _scene_command() or _admitted_command != command: return _begin_scene(command)
+	return _ok({})
+
+func prepare_scene_departure(command: Dictionary) -> Dictionary:
+	var admitted := admit_scene_continuation(command)
+	if not admitted.ok: return admitted
+	return flush_pending_attempt()
+
+func _scene_input_open() -> bool:
+	# Injected unit authorities own their own control admission. Real GameState
+	# exposes the exact live control; retained End custody cannot authorize input.
+	if not is_instance_valid(_scene_authority): return false
+	if not _scene_authority.has_method("capture_scene_challenge_command"): return true
+	var current: Dictionary = _scene_authority.capture_scene_challenge_command()
+	return current.get("ok", false) and current.value.command == _admitted_command
+
 func _scene_closed() -> Dictionary:
 	return _scene_authority.capture_scene_challenge_closure(_admitted_command.context.duplicate(true))
 
@@ -1638,6 +1660,7 @@ func _scene_duplicate_first_reveal(cell_index: int, expected_revision: int) -> D
 	return {"matched": true, "result": _pull_scene(_record.physical_token)}
 
 func _dispatch_scene_first_reveal(token: String, index: int) -> Dictionary:
+	if not _scene_input_open(): return _fail(&"scene_challenge_command_refused")
 	var current: Dictionary = _pull_scene(token)
 	if not current.get("ok", false) or current.value.get("phase") != "never_started":
 		return _fail(&"scene_challenge_command_refused")
@@ -1651,6 +1674,7 @@ func _dispatch_scene_first_reveal(token: String, index: int) -> Dictionary:
 	return result if released.get("ok", false) else released
 
 func _dispatch_scene(token: String, action: String, index: int, revision: int) -> Dictionary:
+	if not _scene_input_open(): return _fail(&"scene_challenge_command_refused")
 	if _scene_absence_busy:
 		_scene_absence_reentered = true
 		return _fail(&"scene_absence_reentry")
@@ -1872,6 +1896,15 @@ func close_scene_challenge_owned(lease: String) -> Dictionary:
 	_scene_lease = ""
 	return result
 
+## Classify only the closure projection; schema-4 board state and scoring stay owned.
+## Historical four-target registrations deliberately keep Perfect under won.
+static func scene_closure_outcome(record: Dictionary, targets: Dictionary) -> String:
+	if record.is_empty(): return "never_started"
+	if record.state == "in_progress": return "unfinished"
+	if record.state == "won" and targets.has("perfect") and not RULES.perfect_reasons(record.board, 4).is_empty():
+		return "perfect"
+	return str(record.state)
+
 func _close_scene_locked() -> Dictionary:
 	var end: Dictionary = _scene_authority.validate_scene_challenge_end(_admitted_command.duplicate(true))
 	if not end.get("ok", false): return end
@@ -1921,6 +1954,7 @@ func _close_scene_locked() -> Dictionary:
 	var challenge := {}
 	for row: Dictionary in _scene_bundle.challenges:
 		if row.challenge_id == _admitted_command.context.challenge_id: challenge = row
+	outcome = scene_closure_outcome(_record, challenge.get("targets", {}))
 	if not challenge.get("targets", {}).has(outcome): return _fail(&"scene_challenge_target_missing")
 	var result := {"kind": "challenge_closed", "challenge_occurrence": ATTEMPTS.semantic_slot(_admitted_command.context).trim_prefix("scene.challenge."),
 		"playable_command_id": _admitted_command.context.playable_command_id, "attempt_proof": proof,

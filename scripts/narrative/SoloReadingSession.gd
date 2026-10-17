@@ -99,6 +99,32 @@ func admit_scene(entry_id: String, context: Dictionary, index: int = 0) -> Dicti
 	next_operation = {}
 	return {"ok": true}
 
+## Ordinary native publication may cross jumps, but never skip another caption
+## or a control owned by the durable traversal transaction.
+func accept_scene_publication(index: int, frontier: Dictionary) -> Dictionary:
+	if family != "scene" or boundary != "line" or ledger == null \
+			or not _scene_nodes.has(latest_entry) \
+			or not ledger.is_current_occurrence(command_id, latest_entry, frontier, scene_occurrence):
+		return _fail(&"reading_frontier_invalid")
+	var nodes: Array = _scene_nodes[latest_entry]
+	if scene_index < 0 or scene_index >= nodes.size() or index < 0 or index >= nodes.size() \
+			or nodes[scene_index].kind != "caption" or nodes[index].kind != "caption" \
+			or nodes[index].line_id != frontier.line_id:
+		return _fail(&"reading_frontier_invalid")
+	var cursor: int = nodes[scene_index].next
+	var visited := {}
+	while cursor >= 0 and cursor < nodes.size():
+		var node: Dictionary = nodes[cursor]
+		if node.kind == "caption":
+			if cursor != index: return _fail(&"reading_frontier_invalid")
+			scene_index = index
+			next_operation = {}
+			return {"ok": true}
+		if node.kind != "jump" or visited.has(cursor): break
+		visited[cursor] = true
+		cursor = node.next
+	return _fail(&"reading_frontier_invalid")
+
 func _capture_scene(frontier: Dictionary) -> Dictionary:
 	if ledger == null or latest_entry.is_empty(): return _fail(&"reading_session_unavailable")
 	var saved := {"schema_version": 5, "registration_sha256": fingerprint, "entry_id": latest_entry,
@@ -230,6 +256,26 @@ func _project_scene(frontier: Dictionary) -> Dictionary:
 				rows.append({"publication_id": row.publication_id, "beat_id": row.beat.beat_id,
 					"line_id": line.line_id, "entry_id": row.beat.owning_entry_id, "text": line.text})
 	return {"ok": true, "value": {"captions": rows, "frontier": frontier.duplicate(true), "session_id": command_id}}
+
+
+## Presentation memory uses authenticated publication/occurrence identities, never
+## text equality or entry name alone. The full History projection stays unchanged.
+func project_scene_caption_memory(frontier: Dictionary) -> Dictionary:
+	if family != "scene" or boundary != "line": return _fail(&"reading_frontier_unavailable")
+	var projected := _project_scene(frontier)
+	if not projected.ok: return projected
+	var publications := {}
+	for row: Dictionary in ledger.snapshot().captions:
+		if row.occurrence_id == scene_occurrence and row.beat.owning_entry_id == latest_entry:
+			publications[row.publication_id] = true
+	var rows: Array[Dictionary] = []
+	for row: Dictionary in projected.value.captions:
+		if publications.has(row.publication_id): rows.append(row.duplicate(true))
+	if rows.is_empty() or rows.back().publication_id != frontier.get("publication_id") \
+			or rows.back().line_id != frontier.get("line_id"):
+		return _fail(&"reading_frontier_invalid")
+	return {"ok": true, "value": {"captions": rows, "frontier": frontier.duplicate(true),
+		"session_id": command_id, "occurrence_id": scene_occurrence}}
 
 
 func configure(document: Dictionary) -> Dictionary:

@@ -23,6 +23,7 @@ signal ending_playback_retired(playback_token: String, ending_id: String)
 signal scene_art_changed
 signal computer_hold_changed
 signal reading_session_changed
+signal scene_terminal_retired(admission_id: String)
 signal scene_activation_confirmed(operation_id: String)
 signal scene_activation_failed(operation_id: String, result: Dictionary)
 ## Exact command retained by the Hospital physical owner; emitted only by its native end.
@@ -99,6 +100,39 @@ func hold_scene_entry_source() -> Dictionary:
 	var held: Dictionary = _runtime_adapter.hold_scene_source(_reading_session)
 	_scene_stage_busy = false
 	return held
+
+## Only a durably admitted terminal plan may retire the source scene. Clear the
+## old native token before stopping so its late callbacks cannot complete it.
+func retire_scene_for_ending(admission_id: String) -> Dictionary:
+	var game := get_node_or_null("/root/GameState")
+	if game == null or not game.has_method("capture_run_snapshot_input"):
+		return _command_failure(&"scene_terminal_unavailable")
+	var snapshot: Dictionary = game.capture_run_snapshot_input()
+	var plan: Variant = snapshot.get("lifecycle", {}).get("ending_plan")
+	if not plan is Dictionary or plan.get("source_kind") != "scene":
+		return _command_failure(&"scene_terminal_unavailable")
+	if plan.admission.admission_id != admission_id:
+		return _command_failure(&"scene_terminal_admission_mismatch")
+	if not has_reading_session():
+		_publish_scene_terminal_retirement(admission_id)
+		return {"ok": true}
+	if _reading_session.family != "scene" or _reading_session.scene_occurrence != plan.admission.source_occurrence_id:
+		return _command_failure(&"scene_terminal_source_changed")
+	if not _active_entry.is_empty():
+		var retired := abort_current_entry(&"scene_terminal_admitted")
+		if not retired.ok: return retired
+	retire_reading_session()
+	_publish_scene_terminal_retirement(admission_id)
+	return {"ok": true}
+
+
+func _publish_scene_terminal_retirement(admission_id: String) -> void:
+	# Native end_timeline awaits resource cleanup. Its qualified notification is
+	# the only proof that the old reader no longer owns the playback slot.
+	if _runtime_adapter != null and _runtime_adapter.has_active_playback():
+		await _runtime_adapter.timeline_ended_signal
+	scene_terminal_retired.emit(admission_id)
+
 
 func prepare_day_entry(entry_id: String, context: Dictionary) -> Dictionary:
 	if _scene_stage_busy: return _command_failure(&"scene_staging_busy")
@@ -1906,6 +1940,8 @@ func can_skip_current_line() -> bool:
 ## Next is opt-in to the complete fixed Solo programme and existing durable
 ## checkpoint owner. Capability queries do not allocate History or write Profile.
 func can_next_current_line() -> bool:
+	if has_reading_session() and _reading_session.family == "scene" and _reading_session.boundary == "control":
+		return not _next_active and not _next_admitting and capture_scene_optional_frontier().get("ok", false)
 	if _marker_entry_active():
 		return not _next_active and not _next_admitting and capture_next_frontier().get("ok", false)
 	if _next_active or _line_ack_in_progress or _auto_step_in_progress or _skip_step_in_progress \
@@ -1941,7 +1977,14 @@ func _perform_next(expected_frontier: Dictionary) -> Dictionary:
 	_next_admitting = true
 	_admitting_frontier = expected_frontier.duplicate(true)
 	var result: Dictionary
-	if _marker_entry_active():
+	if has_reading_session() and _reading_session.family == "scene" and _reading_session.boundary == "control":
+		var current := capture_scene_optional_frontier()
+		result = _scene_event_context_provider.get_object().continue_optional_scene_challenge() if current.get("ok", false) and current == expected_frontier else _command_failure(&"presentation_frontier_changed")
+		# A real board flush may durably advance Profile before its Run write
+		# refuses. Keep retry fenced to the unchanged native control and new revision.
+		if not result.get("ok", false) and capture_scene_optional_frontier(false) == expected_frontier:
+			result["scene_departure_profile_revision"] = _skip_profile.get_profile_revision()
+	elif _marker_entry_active():
 		result = await _perform_marker_next(expected_frontier)
 	else:
 		result = await _perform_caption_next(expected_frontier)
@@ -2105,6 +2148,8 @@ func is_current_line_presentation_acknowledged() -> bool:
 
 ## Opaque proof of the rendered source, even while a transaction temporarily owns writes.
 func capture_current_line_presentation_frontier() -> Dictionary:
+	if has_reading_session() and _reading_session.family == "scene" and _reading_session.boundary == "control":
+		return capture_scene_optional_frontier(false)
 	if _reached_replay.has("caption_ledger"): return _reached_caption_frontier({}, false)
 	return _line_presentation_context({}, false)
 
@@ -2758,6 +2803,19 @@ func get_ending_caption_memory() -> Dictionary:
 	return _reading_session.project(frontier)
 
 
+## Read-only display reconstruction bound to the renderer's exact live proof.
+func get_scene_caption_memory(expected_presentation: Dictionary) -> Dictionary:
+	if expected_presentation.is_empty() or not has_reading_session() \
+			or _reading_session.family != "scene" or _reading_session.boundary != "line":
+		return _command_failure(&"reading_frontier_unavailable")
+	var current := _line_presentation_context(expected_presentation)
+	if not current.ok: return current
+	var projected: Dictionary = _reading_session.project_scene_caption_memory(current.value.caption_publication)
+	if not projected.ok: return projected
+	projected.value["presentation"] = current.duplicate(true)
+	return projected
+
+
 func get_reading_history() -> Dictionary:
 	if not can_capture_reading_checkpoint(): return _command_failure(&"reading_frontier_unavailable")
 	var frontier := {}
@@ -2900,13 +2958,92 @@ func stage_scene_reading_restore(checkpoint: Dictionary, operation_id: String) -
 	_reading_restore_pending = checkpoint.duplicate(true)
 	return {"ok": true}
 
+## The Run participant authenticates the terminal admission before staging this reader.
+## Retain the installed lifecycle so semantic-only readiness cannot outlive its owner.
+func stage_scene_terminal_restore(checkpoint: Dictionary, operation_id: String) -> Dictionary:
+	if operation_id.strip_edges().is_empty() or not _scene_stage.is_empty() \
+			or (not _scene_restore.is_empty() and not _scene_restore.get("confirmed", false)):
+		return _command_failure(&"scene_restore_staging_invalid")
+	var gs := get_node_or_null("/root/GameState")
+	if gs == null or not gs.has_method("capture_run_snapshot_input"):
+		return _command_failure(&"scene_terminal_owner_unavailable")
+	var live: Dictionary = gs.capture_run_snapshot_input()
+	var lifecycle: Dictionary = live.get("lifecycle", {})
+	var plan: Dictionary = lifecycle.get("ending_plan", {})
+	if plan.get("source_kind") != "scene": return _command_failure(&"scene_terminal_owner_unavailable")
+	var candidate: RefCounted = null
+	if checkpoint.is_empty():
+		if plan.get("playback_stage") != "PRIMARY_PENDING" or plan.get("next_step_index") != 0:
+			return _command_failure(&"reading_checkpoint_invalid")
+	else:
+		var checked := validate_reading_checkpoint(checkpoint)
+		if not checked.ok: return checked
+		if checkpoint.reading_session.family != "ending" or checkpoint.reading_session.boundary not in ["line", "between_entries"]:
+			return _command_failure(&"reading_checkpoint_invalid")
+		candidate = _READING_SESSION.new()
+		var configured: Dictionary = candidate.configure(_ending_reading_catalogue_document)
+		if not configured.ok: return configured
+		var restored: Dictionary = candidate.restore(checkpoint.reading_session, checkpoint.entry_id)
+		if not restored.ok: return restored
+	if has_active_playback() and not is_pause_restore_pending(): return _command_failure(&"narrative_playback_active")
+	if is_pause_restore_pending():
+		var staged := stage_pause_restore(checkpoint, true)
+		if not staged.ok: return staged
+	_scene_restore = {"operation_id": operation_id, "terminal": true, "lifecycle": lifecycle.duplicate(true),
+		"checkpoint": checkpoint.duplicate(true), "digest": _scene_digest(checkpoint),
+		"candidate": candidate, "runtime": _runtime_adapter, "started": false,
+		"in_call": false, "native_started": false, "proof": false, "confirmed": false}
+	_reading_restore_pending = checkpoint.duplicate(true)
+	return {"ok": true}
+
+func _start_terminal_restore_native() -> void:
+	var checkpoint: Dictionary = _scene_restore.checkpoint
+	_reading_session = _scene_restore.candidate
+	_reading_restore_pending = {}
+	_reading_restore_adoption = false
+	_reading_adoption_checkpoint = checkpoint.duplicate(true)
+	_ending_reading.clear()
+	if checkpoint.is_empty() or checkpoint.reading_session.boundary == "between_entries":
+		# No physical caption exists at these authenticated boundaries.
+		_active_entry = {}
+		_scene_restore.proof = true
+		_confirm_scene_activation()
+		return
+	var entry: Dictionary = _PRESENTATION_SIGNATURE.entry_record(checkpoint.entry_id).value
+	var ending_id := str(entry.ending_id)
+	if ".observer." in str(checkpoint.entry_id): ending_id = str(checkpoint.entry_id)
+	_bind_ending_reading(ending_id, checkpoint.frozen_context)
+	_reading_restore_adoption = true
+	_reading_resume_frontier = checkpoint.reading_session.frontier.duplicate(true)
+	_scene_restore.native_started = true
+	_scene_restore.in_call = true
+	var installed := _begin_entry_playback(checkpoint.entry_id, checkpoint.frozen_context,
+		&"canonical", "resume", checkpoint.content_version, _scene_restore.operation_id)
+	_reading_resume_frontier = {}
+	_scene_restore.in_call = false
+	if not installed.get("ok", false):
+		_fail_scene_activation(installed)
+		return
+	_scene_restore["playback_token"] = _active_entry.get("token", "")
+	if _scene_restore.proof: _confirm_scene_activation()
+
+func _terminal_restore_current() -> bool:
+	var gs := get_node_or_null("/root/GameState")
+	if gs == null or not gs.has_method("capture_run_snapshot_input"): return false
+	var live: Dictionary = gs.capture_run_snapshot_input()
+	if not _READING_TRAVERSAL._same(live.get("lifecycle"), _scene_restore.lifecycle): return false
+	var checkpoint: Dictionary = _scene_restore.checkpoint
+	if checkpoint.is_empty(): return _scene_restore.candidate == null
+	var captured: Dictionary = _scene_restore.candidate.capture(checkpoint.reading_session.frontier)
+	return captured.get("ok", false) and _READING_TRAVERSAL._same(captured.value, checkpoint.reading_session)
+
 func begin_scene_activation(operation_id: String) -> Dictionary:
 	if _scene_restore.is_empty() or _scene_restore.operation_id != operation_id:
 		return _command_failure(&"scene_activation_operation_invalid")
 	if _scene_restore.has("failure"): return _scene_restore.failure.duplicate(true)
 	if _scene_restore.confirmed: return validate_scene_activation(operation_id)
 	if _scene_restore.started: return {"ok": true, "value": {"pending": true}}
-	if _runtime_adapter == null or not _runtime_adapter.has_method("restore_scene_frontier") \
+	if _runtime_adapter == null or not _runtime_adapter.has_method("start_reading_frontier" if _scene_restore.get("terminal", false) else "restore_scene_frontier") \
 			or not _runtime_adapter.has_signal("reading_frontier_restored") \
 			or not _runtime_adapter.has_signal("playback_start_failed"):
 		return _command_failure(&"scene_restore_native_unavailable")
@@ -2939,6 +3076,9 @@ func _start_scene_restore_native(operation_id: String) -> void:
 		if not _scene_restore.is_empty() and _scene_restore.operation_id == operation_id:
 			_fail_scene_activation(_command_failure(&"scene_activation_changed"))
 		return
+	if _scene_restore.get("terminal", false):
+		_start_terminal_restore_native()
+		return
 	_scene_restore.native_started = true
 	_scene_restore.in_call = true
 	var installed: Dictionary = _runtime_adapter.restore_scene_frontier(_scene_restore.candidate,
@@ -2954,6 +3094,7 @@ func _scene_restore_current() -> bool:
 	if _scene_restore.is_empty() or _runtime_adapter != _scene_restore.runtime \
 			or _scene_digest(_scene_restore.checkpoint) != _scene_restore.digest:
 		return false
+	if _scene_restore.get("terminal", false): return _terminal_restore_current()
 	var checkpoint: Dictionary = _scene_restore.checkpoint
 	var captured: Dictionary = _scene_restore.candidate.capture(checkpoint.reading_session.frontier)
 	return captured.get("ok", false) and _READING_TRAVERSAL._same(captured.value, checkpoint.reading_session) \
@@ -2974,6 +3115,12 @@ func _confirm_scene_activation() -> void:
 			or not _READING_TRAVERSAL._same(captured.value, _expected_scene_restore_position()):
 		_fail_scene_activation(_command_failure(&"scene_activation_frontier_changed"))
 		return
+	if _scene_restore.get("terminal", false):
+		_reading_restore_pending = {}
+		_pause_restore.clear()
+		_scene_restore.confirmed = true
+		scene_activation_confirmed.emit(_scene_restore.operation_id)
+		return
 	var checkpoint: Dictionary = _scene_restore.checkpoint
 	_reading_session = _scene_restore.candidate
 	_active_entry = {"entry_id": checkpoint.entry_id, "token": "scene-restore:" + _scene_restore.operation_id,
@@ -2992,7 +3139,7 @@ func validate_scene_activation(operation_id: String) -> Dictionary:
 			or not _scene_restore.confirmed or _scene_restore.has("failure") \
 			or _scene_restore.in_call or not _scene_restore.proof or not _scene_restore_current() \
 			or _reading_session != _scene_restore.candidate \
-			or _active_entry.get("token") != "scene-restore:" + operation_id:
+			or (not _scene_restore.get("terminal", false) and _active_entry.get("token") != "scene-restore:" + operation_id):
 		return _command_failure(&"scene_activation_unconfirmed")
 	var captured := _capture_scene_restore_position()
 	if not captured.get("ok", false) or not _READING_TRAVERSAL._same(captured.value, _expected_scene_restore_position()):
@@ -3001,12 +3148,19 @@ func validate_scene_activation(operation_id: String) -> Dictionary:
 
 
 func _expected_scene_restore_position() -> Dictionary:
+	if _scene_restore.get("terminal", false) and (_scene_restore.checkpoint.is_empty() or _scene_restore.checkpoint.reading_session.boundary == "between_entries"):
+		return {}
 	var reading: Dictionary = _scene_restore.checkpoint.reading_session
 	return reading if reading.boundary == "control" else reading.frontier
 
 func _capture_scene_restore_position() -> Dictionary:
 	if not _scene_restore_current() or not is_instance_valid(_runtime_adapter):
 		return _command_failure(&"scene_activation_changed")
+	if _scene_restore.get("terminal", false):
+		if _scene_restore.checkpoint.is_empty() or _scene_restore.checkpoint.reading_session.boundary == "between_entries":
+			return {"ok": true, "value": {}} if not _has_physical_playback() else _command_failure(&"scene_activation_changed")
+		if _scene_restore.get("confirmed", false) and _active_entry.get("token") != _scene_restore.get("playback_token"):
+			return _command_failure(&"scene_activation_changed")
 	if _scene_restore.checkpoint.reading_session.boundary == "control":
 		if not _runtime_adapter.has_method("capture_scene_control_position"):
 			return _command_failure(&"scene_restore_control_unproven")
@@ -3141,6 +3295,11 @@ func _on_reading_publication(result: Dictionary) -> void:
 	if has_reading_session() and not result.get("ok", false):
 		_on_playback_start_failed(result, true)
 	elif has_reading_session() and not _next_active and not result.get("value", {}).get("duplicate", false):
+		if _reading_session.family == "scene":
+			var reconciled: Dictionary = _runtime_adapter.reconcile_scene_publication(_reading_session)
+			if not reconciled.ok:
+				_on_playback_start_failed(reconciled, true)
+			return
 		# Ordinary playback after a completed/refused Next starts a new frontier.
 		# Keep the prior operation in its already durable retained checkpoint.
 		_reading_session.next_operation = {}
@@ -3223,6 +3382,12 @@ func validate_resume_checkpoint(checkpoint: Dictionary,
 ## has ONE copy rather than two that can drift apart.
 func has_active_playback() -> bool:
 	if not _scene_restore.is_empty() and not _scene_restore.get("confirmed", false): return true
+	return _has_physical_playback()
+
+
+## Restore custody fences ordinary callers before physical playback exists.
+## Its retained activation owner must still prove the physical channel is empty.
+func _has_physical_playback() -> bool:
 	if _reached_replay.has("surface"): return true
 	return _start_in_progress or not (_ordinary_playback.is_empty() and _active_entry.is_empty() and _active_playback.is_empty()) \
 		or (_runtime_adapter != null and _runtime_adapter.has_method("has_active_playback") and _runtime_adapter.has_active_playback())
@@ -3570,11 +3735,23 @@ func _context_fingerprint(context: Dictionary) -> Dictionary:
 ## playback-%d for starts, resume-%d for restores - both monotonic and process-local, so an
 ## old-process token can never equal a live one (staleness is exact string equality).
 func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode: StringName,
-		token_kind: String, expected_version: int = -1) -> Dictionary:
+		token_kind: String, expected_version: int = -1, scene_restore_operation: String = "") -> Dictionary:
 	var presentation := _validate_frozen_projection(entry_id, context)
 	if not presentation.ok: return presentation
 	if not _pause_handle.is_empty(): return _playback_failure(&"narrative_suspended", "Pause retains playback custody")
-	if has_active_playback():
+	var owns_terminal_restore: bool = not scene_restore_operation.is_empty() \
+		and _scene_restore.get("operation_id") == scene_restore_operation \
+		and _scene_restore.get("terminal", false) and _scene_restore.get("in_call", false) \
+		and _scene_restore.get("native_started", false) and not _scene_restore.get("confirmed", false) \
+		and not _scene_restore.has("failure") and _scene_restore_current() \
+		and token_kind == "resume" and execution_mode == &"canonical" \
+		and _scene_restore.checkpoint.get("entry_id") == entry_id \
+		and _scene_restore.checkpoint.get("content_version") == expected_version \
+		and _READING_TRAVERSAL._same(_scene_restore.checkpoint.get("frozen_context"), context)
+	if not scene_restore_operation.is_empty() and not owns_terminal_restore:
+		return _playback_failure(&"scene_activation_operation_invalid", "retained terminal activation required")
+	var occupied: bool = _has_physical_playback() if owns_terminal_restore else has_active_playback()
+	if occupied:
 		var standing := str(_active_entry.get("token", _active_playback.get("token", "")))
 		return _playback_failure(&"entry_already_active", "%s is still active" % standing)
 	var resolved := _resolve_entry_for_playback(entry_id, expected_version)
@@ -4105,8 +4282,8 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 		return {"ok": false, "code": &"scene_playable_native_mismatch", "committed": true}
 	_reading_session = _scene_playable.candidate
 	_scene_playable = {}
-	# The caption and its publication did not change. GameState adopts the receipt
-	# before returning the command result; no intermediate reading signal is sent.
+	# GameState must adopt the receipt before the UI observes this new control.
+	# dispatch_scene_event publishes after the command port releases its lease.
 	return {"ok": true, "value": {"checkpoint": checkpoint, "checkpoint_reference": value.target_checkpoint}}
 
 func validate_scene_control_authority(token: RefCounted, material: Dictionary, phase: String) -> Dictionary:
@@ -4164,13 +4341,19 @@ func dispatch_scene_event(live_session: Dictionary, envelope: Dictionary) -> Dic
 		return _command_failure(&"event_dependency_invalid")
 	_scene_event_dispatching = true
 	var result: Dictionary
-	if typeof(envelope.get("schema_version")) == TYPE_INT and envelope.schema_version == 2 and envelope.get("kind") in ["challenge.playable", "challenge.end"]:
+	if typeof(envelope.get("schema_version")) == TYPE_INT and envelope.schema_version == 2 and envelope.get("kind") in ["challenge.playable", "challenge.end", "challenge.recall", "thought.accept", "thought.pass"]:
 		# This path holds the actual native caption instead of pausing/resuming it.
 		result = _scene_event_port.dispatch(envelope.duplicate(true))
 	else:
 		result = _runtime_adapter.dispatch_scene_event_acknowledged(
 			envelope, Callable(_scene_event_port, "dispatch"))
 	_scene_event_dispatching = false
+	if result.get("ok", false) and envelope.get("kind") == "challenge.playable" \
+			and not result.get("duplicate", false) and not result.get("found", false):
+		# Both native control and GameState receipt are now adopted, and the
+		# command port has released its causal lease. Refresh Accept/Next's
+		# frontier without republishing or witnessing the retained caption.
+		reading_session_changed.emit()
 	if result.get("committed", false) and not result.get("ok", false):
 		_mutation_gate.latch_fatal({"source": &"scene_event", "phase": &"acknowledgement",
 			"code": result.get("code", &"event_ack_interrupted"), "details": {"committed": true}})
@@ -4190,9 +4373,37 @@ func capture_scene_pending_marker() -> Dictionary:
 		return _command_failure(&"scene_marker_unavailable")
 	var source: Dictionary = _runtime_adapter._scene_source_boundary(_reading_session)
 	if not source.get("ok", false): return source
-	if source.value.marker.kind not in ["challenge.playable", "challenge.end", "contact.enter", "contact.return"]:
+	if source.value.marker.kind not in ["scene.transition", "challenge.playable", "challenge.end", "contact.enter", "contact.return", "thought.pass", "challenge.recall"]:
 		return _command_failure(&"scene_marker_unavailable")
 	return {"ok": true, "value": source.value.marker.duplicate(true)}
+
+## Manual departure uses the held control identity, never a new caption witness.
+## Auto and Skip retain their ordinary-line admission and cannot use this capability.
+## The current registered cursor must lie beyond this exact playable control.
+## Receipt/source validation belongs to GameState; this supplies native position.
+func is_scene_challenge_departed(marker_id: String) -> bool:
+	if not has_reading_session() or _reading_session.family != "scene" or _reading_session.boundary != "line": return false
+	var captured := capture_reading_checkpoint(false)
+	if not captured.get("ok", false): return false
+	var reading: Dictionary = captured.value.reading_session
+	var nodes: Array = _reading_session._scene_nodes.get(reading.entry_id, [])
+	for index: int in nodes.size():
+		if nodes[index].get("marker_id") == marker_id:
+			return index < int(reading.program_index)
+	return false
+
+func capture_scene_optional_frontier(guard_mutation: bool = true) -> Dictionary:
+	if guard_mutation and is_computer_caption_held(): return _command_failure(&"computer_caption_held")
+	if not _pause_handle.is_empty() or _pause_changing or is_pause_restore_pending() \
+			or not _active_transaction.is_empty() or (is_inside_tree() and get_tree().paused) \
+			or not _scene_event_context_provider.is_valid(): return _command_failure(&"narrative_suspended")
+	if guard_mutation:
+		var guarded: Dictionary = _mutation_gate.guard_external(&"scene_challenge_continuation")
+		if not guarded.get("ok", false): return guarded
+	var held := capture_scene_challenge_control()
+	if not held.get("ok", false): return held
+	return {"ok": true, "value": {"kind": "scene_optional_control", "token": str(_active_entry.token),
+		"marker_id": held.value.marker_id, "reading": held.value.checkpoint.reading_session}}
 
 func capture_scene_challenge_control() -> Dictionary:
 	var boundary := capture_scene_event_boundary()

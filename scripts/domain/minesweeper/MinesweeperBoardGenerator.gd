@@ -30,6 +30,15 @@ const _VERIFIER := preload("res://scripts/domain/minesweeper/MinesweeperNoGuessV
 const _RNG := preload("res://scripts/domain/minesweeper/DeterministicRng32.gd")
 const _STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 
+# A single successful parse/schema result. Every read still checks exact current
+# bytes and every caller still revalidates source freshness before using budgets.
+static var _budget_manifest_bytes := PackedByteArray()
+static var _budget_manifest_cache: Dictionary = {}
+
+# Exact-byte parse/schema cache only; adoption still independently verifies records.
+static var _fallback_manifest_bytes := PackedByteArray()
+static var _fallback_manifest_cache: Dictionary = {}
+
 const _DISPOSITIONS: Array[String] = ["hatred", "upset", "amused"]
 
 const BUDGET_MANIFEST_PATH := "res://data/manifests/minesweeper_generator_budget.v1.json"
@@ -377,19 +386,26 @@ static func _adopt_fallback(current: Dictionary, budget: Dictionary, fallback_re
 static func _read_budget_manifest() -> Dictionary:
 	if not FileAccess.file_exists(BUDGET_MANIFEST_PATH):
 		return _fail(&"generator_budget_unavailable", "the generator budget manifest is absent", {})
-	var parsed: Dictionary = _STRICT_JSON.parse_object(
-		FileAccess.get_file_as_bytes(BUDGET_MANIFEST_PATH).get_string_from_utf8())
-	if not parsed.get("ok", false):
-		return _fail(&"generator_budget_unavailable", "the generator budget manifest is not strict JSON", {})
-	var budget: Dictionary = parsed["value"]
-	var schema_check := validate_budget_schema(budget)
-	if not schema_check.get("ok", false):
-		return _fail(&"generator_budget_unavailable", "the generator budget manifest failed schema validation",
-			{"cause": schema_check.get("code", &"")})
+	var bytes := FileAccess.get_file_as_bytes(BUDGET_MANIFEST_PATH)
+	var budget: Dictionary
+	if not _budget_manifest_cache.is_empty() and bytes == _budget_manifest_bytes:
+		budget = _budget_manifest_cache.duplicate(true)
+	else:
+		var parsed: Dictionary = _STRICT_JSON.parse_object(bytes.get_string_from_utf8())
+		if not parsed.get("ok", false):
+			return _fail(&"generator_budget_unavailable", "the generator budget manifest is not strict JSON", {})
+		budget = parsed["value"]
+		var schema_check := validate_budget_schema(budget)
+		if not schema_check.get("ok", false):
+			return _fail(&"generator_budget_unavailable", "the generator budget manifest failed schema validation",
+				{"cause": schema_check.get("code", &"")})
 	var freshness_check := _validate_budget_freshness(budget)
 	if not freshness_check.get("ok", false):
 		return _fail(&"generator_budget_unavailable", "the generator budget manifest is stale",
 			{"cause": freshness_check.get("code", &"")})
+	if bytes != _budget_manifest_bytes or _budget_manifest_cache.is_empty():
+		_budget_manifest_bytes = bytes.duplicate()
+		_budget_manifest_cache = budget.duplicate(true)
 	return {"ok": true, "value": budget}
 
 
@@ -512,8 +528,10 @@ static func _validate_budget_freshness(budget: Dictionary) -> Dictionary:
 static func _read_fallback_manifest() -> Dictionary:
 	if not FileAccess.file_exists(FALLBACK_MANIFEST_PATH):
 		return _fail(&"generator_budget_unavailable", "the certified fallback manifest is absent", {})
-	var parsed: Dictionary = _STRICT_JSON.parse_object(
-		FileAccess.get_file_as_bytes(FALLBACK_MANIFEST_PATH).get_string_from_utf8())
+	var bytes := FileAccess.get_file_as_bytes(FALLBACK_MANIFEST_PATH)
+	if not _fallback_manifest_cache.is_empty() and bytes == _fallback_manifest_bytes:
+		return {"ok": true, "value": _fallback_manifest_cache.duplicate(true)}
+	var parsed: Dictionary = _STRICT_JSON.parse_object(bytes.get_string_from_utf8())
 	if not parsed.get("ok", false):
 		return _fail(&"generator_budget_unavailable", "the certified fallback manifest is not strict JSON", {})
 	var artifact: Dictionary = parsed["value"]
@@ -521,7 +539,10 @@ static func _read_fallback_manifest() -> Dictionary:
 	if not schema_check.get("ok", false):
 		return _fail(&"generator_budget_unavailable", "the certified fallback manifest failed schema validation",
 			{"cause": schema_check.get("code", &"")})
-	return {"ok": true, "value": {"records": artifact["records"]}}
+	var value: Dictionary = {"records": artifact["records"]}
+	_fallback_manifest_bytes = bytes.duplicate()
+	_fallback_manifest_cache = value.duplicate(true)
+	return {"ok": true, "value": value}
 
 
 ## Pure structural schema validation of a fallback manifest dictionary. Directly testable with a

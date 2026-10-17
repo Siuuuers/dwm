@@ -38,6 +38,16 @@ const HOSPITAL_KEY := "hospital_frozen_contexts_v1"
 const ENDING_KEY := "ending_frozen_contexts_v1"
 
 static func validate(snapshot: Dictionary, require_complete: bool = false) -> Dictionary:
+	if _scene_terminal_plan(snapshot):
+		var terminal := _validate_scene_terminal(snapshot)
+		if not terminal.ok: return terminal
+		var checkpoint: Variant = snapshot.get("narrative_checkpoint")
+		if checkpoint == {}:
+			var lifecycle: Dictionary = snapshot.lifecycle
+			return _ok() if lifecycle.state == "ENDING" and lifecycle.ending_plan.next_step_index == 0 \
+				and lifecycle.ending_plan.playback_stage == "PRIMARY_PENDING" else _fail(&"reading_physical_boundary_mismatch")
+		if not checkpoint is Dictionary: return _fail(&"reading_session_invalid")
+		return validate_reading_checkpoint(checkpoint, snapshot)
 	# Scene reading must never enter the historical day/Contacts owner branches.
 	# This nonwired slice deliberately cannot establish G's issuer/NewRun/trigger
 	# authority from presentation copies or a caller-provided success Boolean.
@@ -78,6 +88,9 @@ static func validate(snapshot: Dictionary, require_complete: bool = false) -> Di
 ## replace an earlier entry's immutable frame while retaining a valid frontier.
 ## Catalogue, exact signatures and stable-line availability remain bridge-owned.
 static func validate_reading_checkpoint(checkpoint: Dictionary, snapshot: Dictionary) -> Dictionary:
+	if _scene_terminal_plan(snapshot):
+		var terminal := _validate_scene_terminal(snapshot)
+		if not terminal.ok: return terminal
 	# Save capture reaches this pure boundary before a Run is serialized, while
 	# restore also has the participant's exact envelope checks. Both paths must
 	# refuse bytes that would be unwritable by the versioned reading producer.
@@ -93,7 +106,7 @@ static func validate_reading_checkpoint(checkpoint: Dictionary, snapshot: Dictio
 		if not scene.ok: return scene
 		if snapshot.get("schema_version") != 9 or snapshot.get("route_id") != "scene" \
 				or not snapshot.get("command_receipts") is Dictionary or not snapshot.get("scene") is Dictionary:
-			return _fail(&"reading_saved_run_required")
+			return _saved_run_failure(snapshot, "scene_envelope")
 		var registered := SCENE_ENTRIES.scene_registration()
 		if not registered.ok: return registered
 		var receipts: Dictionary = SCENE_CONTRACT.validate_scene_receipts(snapshot.command_receipts, registered.value, _scene_issuer, _scene_creation_owner, snapshot.contacts)
@@ -108,13 +121,14 @@ static func validate_reading_checkpoint(checkpoint: Dictionary, snapshot: Dictio
 		return frames
 
 	if not snapshot.get("lifecycle") is Dictionary or not snapshot.get("gameplay") is Dictionary \
-			or not snapshot.get("contacts") is Dictionary or not snapshot.gameplay.get("route_context") is Dictionary:
-		return _fail(&"reading_saved_run_required")
+			or not snapshot.get("contacts") is Dictionary \
+			or (not _scene_terminal_plan(snapshot) and not snapshot.gameplay.get("route_context") is Dictionary):
+		return _saved_run_failure(snapshot, "saved_owner_sections")
 	var reading: Variant = checkpoint.get("reading_session")
 	if reading is Dictionary and typeof(reading.get("schema_version")) == TYPE_INT and reading.schema_version == 3:
 		if reading.get("family") == "ending": return _ending_reading(checkpoint, snapshot, reading)
 		return _hospital_reading(checkpoint, snapshot, reading)
-	if snapshot.get("route_id") != "dating": return _fail(&"reading_saved_run_required")
+	if snapshot.get("route_id") != "dating": return _saved_run_failure(snapshot, "dating_route")
 	if reading is Dictionary and typeof(reading.get("schema_version")) == TYPE_INT \
 			and reading.schema_version == 4:
 		if not READING_NEXT.valid_marker_reading_shape(reading): return _fail(&"reading_session_invalid")
@@ -321,7 +335,7 @@ static func _scene_checkpoint_reference(value: Variant) -> bool:
 ## just-completed tail while the durable cursor (and frozen cache) move forward.
 ## A future cached presentation is not an admitted History frame.
 static func _ending_reading(checkpoint: Dictionary, snapshot: Dictionary, reading: Dictionary) -> Dictionary:
-	if snapshot.get("route_id") != "ending": return _fail(&"reading_saved_run_required")
+	if snapshot.get("route_id") != "ending": return _saved_run_failure(snapshot, "ending_route")
 	if not _exact(reading, ["schema_version", "family", "catalogue_fingerprint", "boundary", "ledger", "frontier"]) \
 			or reading.family != "ending" or not FROZEN._field(reading.catalogue_fingerprint, "id") \
 			or reading.boundary not in ["line", "between_entries"] or not reading.frontier is Dictionary:
@@ -341,16 +355,21 @@ static func _ending_reading(checkpoint: Dictionary, snapshot: Dictionary, readin
 		return _fail(&"reading_physical_owner_mismatch")
 	for step: Variant in plan.steps:
 		if not step is Dictionary: return _fail(&"reading_physical_owner_mismatch")
-	var route: Dictionary = snapshot.gameplay.route_context
+	var scene_terminal: bool = plan.get("source_kind") == "scene"
+	var route: Dictionary = {} if scene_terminal else snapshot.gameplay.route_context
 	var checked := _ending(route, lifecycle, true)
 	if not checked.ok: return checked
-	var cache: Dictionary = route[ENDING_KEY]
+	var cache: Dictionary = route.get(ENDING_KEY, {})
 	var admitted := {}
 	var indices := {}
 	var first_entry := ""
 	var tail := -1
 	for index: int in range(plan.steps.size()):
-		var signature := ENDING.signature_for_step(plan, index, cache.seed)
+		var playback_id := "%s:ending:%d" % [lifecycle.run_id, index]
+		var scene_frozen := ENDING.build_scene(plan, playback_id) if scene_terminal else {}
+		if scene_terminal and not scene_frozen.ok: return scene_frozen
+		var signature := {"ok": true, "value": scene_frozen.value.signature} if scene_terminal \
+			else ENDING.signature_for_step(plan, index, cache.seed)
 		if not signature.ok: return signature
 		var entry: String = signature.value.entry_id
 		if indices.has(entry): return _fail(&"reading_entry_context_mismatch")
@@ -358,8 +377,7 @@ static func _ending_reading(checkpoint: Dictionary, snapshot: Dictionary, readin
 		if index == 0: first_entry = entry
 		if not ledger.entry_contexts.has(entry): continue
 		if index != admitted.size(): return _fail(&"reading_entry_context_mismatch")
-		var playback_id := "%s:ending:%d" % [lifecycle.run_id, index]
-		var retained: Variant = cache.presentations.get(playback_id)
+		var retained: Variant = scene_frozen.value if scene_terminal else cache.presentations.get(playback_id)
 		if not retained is Dictionary: return _fail(&"reading_entry_context_mismatch")
 		var frame := {"expected_stage": "PRIMARY_PENDING", "playback_id": playback_id,
 			"role": plan.steps[index].role, "transaction_id": playback_id + ":complete",
@@ -407,7 +425,7 @@ static func _ending_reading(checkpoint: Dictionary, snapshot: Dictionary, readin
 ## command identity. A completed anchor is needed by the coordinator's produced
 ## checkpoints, including those after increment_day; it is not a playable line.
 static func _hospital_reading(checkpoint: Dictionary, snapshot: Dictionary, reading: Dictionary) -> Dictionary:
-	if snapshot.get("route_id") != "hospital": return _fail(&"reading_saved_run_required")
+	if snapshot.get("route_id") != "hospital": return _saved_run_failure(snapshot, "hospital_route")
 	if not _exact(reading, ["schema_version", "family", "catalogue_fingerprint", "boundary", "ledger", "frontier"]) \
 			or reading.family != "hospital" or not FROZEN._field(reading.catalogue_fingerprint, "id") \
 			or reading.boundary not in ["line", "between_entries"] or not reading.frontier is Dictionary:
@@ -824,6 +842,10 @@ static func _condition_hospital(plan: Dictionary, contacts: Dictionary, required
 	return _hospital_sources(context, contacts)
 
 static func _ending(route: Dictionary, lifecycle: Dictionary, required: bool) -> Dictionary:
+	if _dictionary(lifecycle.get("ending_plan")).get("source_kind") == "scene":
+		if route.has(ENDING_KEY): return _fail(&"ending_scene_plan_invalid")
+		var checked := ENDING.build_scene(lifecycle.ending_plan, str(lifecycle.get("run_id", "")) + ":ending:0")
+		return _ok() if checked.ok else checked
 	if not route.has(ENDING_KEY):
 		return _fail(&"ending_frozen_seed_required") if required and lifecycle.get("state") in ["ENDING", "COMPLETED"] else _ok()
 	var checked := ENDING.validate_cache(route[ENDING_KEY], lifecycle)
@@ -839,6 +861,33 @@ static func _ending(route: Dictionary, lifecycle: Dictionary, required: bool) ->
 		if step.get("role") == "pair_coda" and step.get("pair_form") != seed.presentation_by_scope.pair_form:
 			return _fail(&"ending_frozen_seed_mismatch")
 	return _ok()
+
+static func _scene_terminal_plan(snapshot: Dictionary) -> bool:
+	return _dictionary(_dictionary(snapshot.get("lifecycle")).get("ending_plan")).get("source_kind") == "scene"
+
+static func _validate_scene_terminal(snapshot: Dictionary) -> Dictionary:
+	if snapshot.get("schema_version") != 9 or snapshot.get("route_id") != "ending" \
+			or not snapshot.get("command_receipts") is Dictionary or not snapshot.get("contacts") is Dictionary \
+			or not snapshot.get("scene") is Dictionary:
+		return _saved_run_failure(snapshot, "scene_terminal_envelope")
+	var plan: Dictionary = snapshot.lifecycle.ending_plan
+	var projected := ENDING.build_scene(plan, str(snapshot.lifecycle.get("run_id", "")) + ":ending:0")
+	if not projected.ok: return projected
+	if not plan.get("source_reading_checkpoint") is Dictionary or not plan.get("admission") is Dictionary:
+		return _fail(&"reading_scene_admission_invalid")
+	var registered := SCENE_ENTRIES.scene_registration()
+	if not registered.ok: return registered
+	var authenticated: Dictionary = SCENE_CONTRACT.validate_scene_terminal_admission(plan.admission,
+		registered.value, _scene_issuer, snapshot.command_receipts, _scene_creation_owner, snapshot.contacts)
+	if not authenticated.get("ok", false): return authenticated
+	if plan.admission.source_occurrence_id != snapshot.scene.get("active_occurrence_id") \
+			or plan.admission.source_admission_receipt_id != snapshot.scene.get("active_admission_receipt_id"):
+		return _fail(&"reading_scene_admission_invalid")
+	var source: Dictionary = snapshot.duplicate(true)
+	source.route_id = "scene"
+	source.lifecycle.ending_plan = null
+	# Validate the retained source with its existing scene receipt/frame owner.
+	return validate_reading_checkpoint(plan.source_reading_checkpoint, source)
 
 static func _stage(plan: Dictionary, id: String) -> Dictionary:
 	for stage: Dictionary in plan.get("stages", []):
@@ -870,3 +919,10 @@ static func _fail(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code, "message": str(code), "details": {}}
 
 
+
+static func _saved_run_failure(snapshot: Dictionary, phase: String) -> Dictionary:
+	var result := _fail(&"reading_saved_run_required")
+	result["details"] = {"phase": phase, "schema_version": snapshot.get("schema_version"),
+		"route_id": snapshot.get("route_id"), "scene_terminal": _scene_terminal_plan(snapshot),
+		"sections": snapshot.keys()}
+	return result

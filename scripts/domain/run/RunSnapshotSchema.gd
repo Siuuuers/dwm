@@ -93,7 +93,7 @@ static func build(
 		content_version: int,
 		checkpoint_sequence: int
 ) -> Dictionary:
-	if route_id == "scene":
+	if snapshot_input.has("scene"):
 		return build_scene(snapshot_input, dialogic_checkpoint, route_id, active_app_id,
 			audio_context, content_version, checkpoint_sequence)
 	for member: String in ["lifecycle", "gameplay", "contacts", "committed_schedule", "dating",
@@ -385,10 +385,11 @@ static func derive_route_restore_context(snapshot: Dictionary) -> Dictionary:
 	var candidate: Dictionary = validated["value"]["candidate"]
 	var lifecycle: Dictionary = candidate["lifecycle"]
 	if candidate.schema_version == SCENE_SCHEMA_VERSION:
-		return {"ok": true, "code": &"ok", "value": {
-			"run_id": candidate.run_id, "lifecycle_state": lifecycle.state,
+		var context := {"run_id": candidate.run_id, "lifecycle_state": lifecycle.state,
 			"active_app_id": candidate.active_app_id, "scene": candidate.scene.duplicate(true),
-			"contacts": candidate.contacts.duplicate(true)}}
+			"contacts": candidate.contacts.duplicate(true)}
+		if is_scene_terminal(candidate): context["ending_plan"] = lifecycle.ending_plan.duplicate(true)
+		return {"ok": true, "code": &"ok", "value": context}
 	return {"ok": true, "code": &"ok", "value": {
 		"run_id": str(candidate["run_id"]),
 		"day": int(lifecycle["day"]),
@@ -642,7 +643,7 @@ static func configure_scene_validation(issuer: Object, authority: Object, creati
 
 static func build_scene(snapshot_input: Dictionary, dialogic_checkpoint: Dictionary, route_id: String,
 		active_app_id: Variant, audio_context: Dictionary, content_version: int, checkpoint_sequence: int) -> Dictionary:
-	if route_id != "scene" or not _scene_keys(snapshot_input, SCENE_INPUT_KEYS) \
+	if route_id not in ["scene", "ending"] or not _scene_keys(snapshot_input, SCENE_INPUT_KEYS) \
 			or not snapshot_input.lifecycle is Dictionary:
 		return _fail(&"invalid_snapshot_input", "scene input requires its exact complete owner shape")
 	var snapshot: Dictionary = snapshot_input.duplicate(true)
@@ -803,18 +804,20 @@ static func validate_scene(snapshot: Dictionary, bundle: Dictionary) -> Dictiona
 	var primitive := validate_primitive_tree(candidate)
 	if not primitive.ok: return primitive
 	if not _scene_keys(candidate, SCENE_TOP_KEYS) or typeof(candidate.schema_version) != TYPE_INT \
-			or candidate.schema_version != SCENE_SCHEMA_VERSION or candidate.route_id != "scene" \
+			or candidate.schema_version != SCENE_SCHEMA_VERSION or candidate.route_id not in ["scene", "ending"] \
 			or not _scene_id(candidate.run_id) or not _scene_int(candidate.content_version, 1) \
 			or not _scene_int(candidate.checkpoint_sequence, 0) \
 			or candidate.checkpoint_id != "%s:%d" % [candidate.run_id, candidate.checkpoint_sequence]:
 		return _fail(&"invalid_snapshot_shape", "invalid Run9 header or member set")
-	if not _scene_keys(candidate.lifecycle, SCENE_LIFECYCLE_KEYS) \
-			or candidate.lifecycle.run_id != candidate.run_id or candidate.lifecycle.state != "PLAYING":
-		return _fail(&"invalid_lifecycle", "scene lifecycle requires its exact eight members and PLAYING")
-	var assignment: Dictionary = SCENE_ASSIGNMENT.validate_scene(candidate.lifecycle.scene_assignment)
-	if not assignment.ok: return assignment
+	if not candidate.lifecycle is Dictionary or candidate.lifecycle.get("run_id") != candidate.run_id:
+		return _fail(&"invalid_lifecycle", "scene lifecycle must belong to its Run")
+	var terminal := is_scene_terminal(candidate)
+	if (candidate.route_id == "ending") != terminal:
+		return _fail(&"invalid_lifecycle", "terminal route and lifecycle must agree")
 	var lifecycle: Dictionary = RUN_LIFECYCLE.validate_scene(candidate.lifecycle, _scene_issuer)
 	if not lifecycle.ok: return lifecycle
+	var assignment: Dictionary = SCENE_ASSIGNMENT.validate_scene(candidate.lifecycle.scene_assignment)
+	if not assignment.ok: return assignment
 	if candidate.active_app_id != null and (not candidate.active_app_id is String \
 			or candidate.active_app_id == "logout" or not DESKTOP_APP_REGISTRY.new().has_app(StringName(candidate.active_app_id))):
 		return _fail(&"invalid_snapshot_shape", "invalid active content app")
@@ -867,7 +870,39 @@ static func validate_scene(snapshot: Dictionary, bundle: Dictionary) -> Dictiona
 		return semantic if semantic is Dictionary else _fail(&"scene_validation_invalid_result", "semantic owner must return a result")
 	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
 
+static func is_scene_terminal(snapshot: Dictionary) -> bool:
+	var lifecycle: Variant = snapshot.get("lifecycle")
+	return lifecycle is Dictionary and lifecycle.get("ending_plan") is Dictionary \
+		and lifecycle.ending_plan.get("source_kind") == "scene" \
+		and lifecycle.get("state") in ["ENDING", "COMPLETED"]
+
 static func _validate_scene_reading(candidate: Dictionary) -> Dictionary:
+	if not candidate.get("narrative_checkpoint") is Dictionary:
+		return _fail(&"reading_checkpoint_invalid", "narrative checkpoint must be an object")
+	if is_scene_terminal(candidate):
+		var plan: Dictionary = candidate.lifecycle.ending_plan
+		if not plan.get("source_reading_checkpoint") is Dictionary:
+			return _fail(&"reading_checkpoint_invalid", "terminal source reading is required")
+		var source := candidate.duplicate(true)
+		source.lifecycle.erase("ending_plan")
+		source.lifecycle.state = "PLAYING"
+		source.route_id = "scene"
+		source.narrative_checkpoint = plan.source_reading_checkpoint
+		var checked := _validate_scene_reading(source)
+		if not checked.ok: return checked
+		var admission := SCENE_EVENT_CONTRACT.validate_scene_terminal_admission(plan.admission,
+			SCENE_MANIFEST.scene_registration().value, _scene_issuer, candidate.command_receipts,
+			_scene_creation_owner, candidate.contacts)
+		if not admission.ok: return admission
+		if plan.admission.source_occurrence_id != candidate.scene.active_occurrence_id \
+				or plan.admission.source_admission_receipt_id != candidate.scene.active_admission_receipt_id:
+			return _fail(&"reading_context_invalid", "terminal source admission changed")
+		if candidate.narrative_checkpoint.is_empty():
+			return {"ok": true} if candidate.lifecycle.state == "ENDING" \
+				and plan.next_step_index == 0 and plan.playback_stage == "PRIMARY_PENDING" \
+				else _fail(&"reading_checkpoint_invalid", "only the admitted pre-playback boundary can be empty")
+		return preload("res://scripts/narrative/FrozenRunContext.gd").validate_reading_checkpoint(
+			candidate.narrative_checkpoint, candidate)
 	var checkpoint: Variant = candidate.narrative_checkpoint
 	if not _scene_keys(checkpoint, SCENE_CHECKPOINT_KEYS) or checkpoint.stage != "scene" \
 			or not _scene_id(checkpoint.entry_id) or not _scene_id(checkpoint.transaction_id) \
@@ -911,7 +946,7 @@ static func validate_scene_input_fields(input: Dictionary, bundle: Dictionary) -
 	var selected: Dictionary = SCENE_MANIFEST.scene_registration()
 	if not selected.ok: return selected
 	if not _scene_equal(selected.value, bundle): return _fail(&"scene_registration_mismatch", "unselected bundle")
-	if not _scene_keys(input.lifecycle, SCENE_LIFECYCLE_KEYS): return _fail(&"invalid_lifecycle", "invalid scene lifecycle keys")
+	if not input.lifecycle is Dictionary: return _fail(&"invalid_lifecycle", "invalid scene lifecycle")
 	var lifecycle: Dictionary = RUN_LIFECYCLE.validate_scene(input.lifecycle, _scene_issuer)
 	if not lifecycle.ok: return lifecycle
 	if not _scene_keys(input.scene, ["registration_sha256", "active_occurrence_id", "active_admission_receipt_id"]) \

@@ -26,6 +26,7 @@ const _JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
 var _checkpoint_port: Object = null
 var _audio_context_capture := Callable()
+var _scene_context_capture := Callable()
 
 
 func _init(checkpoint_port: Object = null) -> void:
@@ -55,6 +56,16 @@ func configure_audio_context_capture(capture_context: Callable) -> Dictionary:
 	return {"ok": true, "value": {"already_configured": already}}
 
 
+## Bootstrap supplies the current authenticated scene frontier, never a journal fallback.
+func configure_scene_context_capture(capture_context: Callable) -> Dictionary:
+	if not capture_context.is_valid(): return _fail(&"invalid_scene_context_capture", "")
+	if _scene_context_capture.is_valid() and _scene_context_capture != capture_context:
+		return _fail(&"scene_context_capture_already_configured", "")
+	var already := _scene_context_capture.is_valid()
+	_scene_context_capture = capture_context
+	return {"ok": true, "value": {"already_configured": already}}
+
+
 func capture() -> Dictionary:
 	var ready := _readiness()
 	if not ready.is_empty():
@@ -77,7 +88,8 @@ func preview_checkpoint_id(run_id: String) -> Dictionary:
 ## DialogicBridge, and supplied by the DAY-RESOLUTION checkpoint path's own injected providers --
 ## see GameStateDayResolutionPort.configure_checkpoint_providers()). Audio is captured from
 ## its retained live owner: an empty object is not a valid semantic restore snapshot. The
-## desktop route remains main; no Dialogic command is manufactured for a board checkpoint.
+## scene route captures its authentic reading frontier through Bootstrap; legacy desktop
+## checkpoints retain main. Neither path manufactures a Dialogic command.
 func prepare_checkpoint(post_commit_snapshot_input: Dictionary, checkpoint_kind: StringName,
 		disk_write: Dictionary) -> Dictionary:
 	var ready := _readiness()
@@ -104,6 +116,24 @@ func prepare_checkpoint(post_commit_snapshot_input: Dictionary, checkpoint_kind:
 		"dialogic_checkpoint": {}, "route_id": "main",
 		"snapshot_input": post_commit_snapshot_input,
 	}
+	if post_commit_snapshot_input.has("scene"):
+		if not _scene_context_capture.is_valid(): return _fail(&"scene_context_capture_unavailable", "")
+		var captured_scene: Variant = _scene_context_capture.call(post_commit_snapshot_input.duplicate(true))
+		if not captured_scene is Dictionary: return _fail(&"invalid_scene_checkpoint_context", "")
+		if not captured_scene.get("ok", false): return captured_scene
+		var semantic: Variant = captured_scene.get("value")
+		if not semantic is Dictionary: return _fail(&"invalid_scene_checkpoint_context", "")
+		var semantic_keys: Array = semantic.keys()
+		semantic_keys.sort()
+		if semantic_keys != ["active_app_id", "content_version", "dialogic_checkpoint", "route_id"] \
+				or semantic.route_id != "scene" \
+				or (semantic.active_app_id != null and not semantic.active_app_id is String) \
+				or typeof(semantic.content_version) != TYPE_INT or semantic.content_version <= 0 \
+				or not semantic.dialogic_checkpoint is Dictionary or semantic.dialogic_checkpoint.is_empty():
+			return _fail(&"invalid_scene_checkpoint_context", "")
+		for key: String in semantic:
+			checkpoint_inputs[key] = semantic[key]
+		# The detached post-Reveal board/accounting projection remains the sole snapshot input.
 	return _checkpoint_port.call(&"prepare", checkpoint_inputs, checkpoint_kind, disk_write)
 
 

@@ -31,7 +31,7 @@ extends RefCounted
 const _GAME_STATE_CANDIDATE_KEYS: Array[String] = ["transaction_id", "rounds_left", "starts_today"]
 const _BOARD_CANDIDATE_KEYS: Array[String] = [
 	"kind", "transaction_id", "request_fingerprint", "identity_fingerprint", "pre_revision",
-	"phase_after", "identity_after", "candidate_after", "board_after", "settlement_after",
+	"phase_after", "identity_after", "candidate_after", "board_after", "settlement_after", "result_override",
 ]
 const _SNAPSHOT_INPUT_KEYS: Array[String] = [
 	"lifecycle", "gameplay", "contacts", "desktop", "scene",
@@ -73,6 +73,9 @@ static func compose(base_snapshot_input: Dictionary, game_state_candidate: Dicti
 	if str(board_candidate["transaction_id"]) != str(game_state_candidate["transaction_id"]):
 		return _fail(&"first_reveal_candidate_transaction_mismatch",
 			"game_state_candidate and board_candidate must share one transaction_id")
+
+	var result_check := _validate_result(board_candidate)
+	if not result_check.ok: return result_check
 
 	var base_desktop: Dictionary = base_snapshot_input["desktop"]
 	var desktop_shape := _exact_keys(base_desktop, ["board", "consequence"], &"invalid_base_snapshot_input")
@@ -126,11 +129,7 @@ static func _project_board(base_board: Dictionary, candidate: Dictionary) -> Dic
 		"identity_fingerprint": str(candidate["identity_fingerprint"]),
 		"pre_revision": int(candidate["pre_revision"]), "post_revision": post_revision,
 		"command_kind": str(candidate["kind"]),
-		"result": {
-			"phase": str(candidate["phase_after"]), "revision": post_revision,
-			"identity": candidate.get("identity_after"), "candidate": candidate.get("candidate_after"),
-			"board": board_after.duplicate(true), "settlement": candidate.get("settlement_after"),
-		},
+		"result": candidate.result_override.duplicate(true),
 	}
 	return {"ok": true, "value": {"board": {
 		"schema_version": 1, "phase": str(candidate["phase_after"]), "revision": post_revision,
@@ -139,6 +138,29 @@ static func _project_board(base_board: Dictionary, candidate: Dictionary) -> Dic
 		"command_receipts": receipts,
 		"terminal_receipts": (base_board.get("terminal_receipts", {}) as Dictionary).duplicate(true),
 	}}}
+
+
+## The coordinator owns the payment/publication result. Project it unchanged; the board
+## and Run owners still authenticate payment provenance before any durable write.
+static func _validate_result(candidate: Dictionary) -> Dictionary:
+	var result: Variant = candidate.get("result_override")
+	if not result is Dictionary or not _exact_keys(result, ["ok", "code", "value", "receipt"], &"invalid_board_result").ok:
+		return _fail(&"invalid_board_result", "complete first-Reveal result required")
+	if typeof(result.ok) != TYPE_BOOL or not result.ok \
+			or typeof(result.code) not in [TYPE_STRING, TYPE_STRING_NAME] or result.code != &"first_reveal_committed" \
+			or not result.receipt is Dictionary or not result.receipt.is_empty() \
+			or not result.value is Dictionary or not _exact_keys(result.value, ["receipt", "publication"], &"invalid_board_result").ok:
+		return _fail(&"invalid_board_result", "successful first-Reveal envelope required")
+	var payment: Variant = result.value.receipt
+	var publication: Variant = result.value.publication
+	if not payment is Dictionary or payment.is_empty() \
+			or not publication is Dictionary or not _exact_keys(publication, ["transaction_id", "receipt"], &"invalid_board_result").ok:
+		return _fail(&"invalid_board_result", "payment and publication required")
+	if typeof(payment.get("transaction_id")) != TYPE_STRING or payment.transaction_id != candidate.transaction_id \
+			or typeof(publication.transaction_id) != TYPE_STRING or publication.transaction_id != candidate.transaction_id \
+			or publication.receipt != payment or candidate.board_after.get("paid_start_receipt") != payment:
+		return _fail(&"invalid_board_result", "candidate, payment and publication must agree")
+	return {"ok": true}
 
 
 static func _exact_keys(value: Dictionary, expected: Array[String], code: StringName) -> Dictionary:

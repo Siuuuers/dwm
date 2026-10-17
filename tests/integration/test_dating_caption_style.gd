@@ -817,7 +817,7 @@ func test_long_dating_caption_stays_centered_and_scrollable_with_both_scrollbar_
 		bar.value = projection.scroll_extent
 		await _settle()
 		projection = caption.get_caption_projection()
-		assert_almost_eq(projection.caption_rect.end.y, 656.0, 0.01, "the final words remain reachable above controls")
+		assert_almost_eq(projection.caption_rect.end.y, 592.0, 0.01, "the final words remain reachable above controls")
 		assert_gt(projection.visible_leaf_rects.size(), 0)
 		for rect: Rect2 in projection.visible_leaf_rects:
 			assert_true(projection.field_rect.encloses(rect))

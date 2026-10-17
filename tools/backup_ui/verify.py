@@ -47,7 +47,7 @@ while pending:
     shutil.copyfile(source, target)
     if source.suffix in {'.gd', '.tscn', '.tres'}:
         content = source.read_text(encoding='utf-8-sig')
-        pending.extend(re.findall(r'res://([^"\s]+)', content))
+        pending.extend(re.findall(r'''res://([^"\'\r\n]+)''', content))
         # Addon global classes and relative script resources belong to the same
         # real dependency closure; no autoload or replacement class is installed.
         for local in re.findall(r'(?:preload|load|@icon)\(\s*[\"\']([^\"\']+)[\"\']', content):
