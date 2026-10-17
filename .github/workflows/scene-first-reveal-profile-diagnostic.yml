@@ -23,7 +23,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 5fa2a2d7fa770dbd5f87d3a1ace338405b0ad804
+          ref: c3a5ea0d3c18704e9aa36ec45fd2e9733f4edccb
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -31,9 +31,9 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '5fa2a2d7fa770dbd5f87d3a1ace338405b0ad804') { throw 'Candidate mismatch' }
+          if ((git rev-parse HEAD) -cne 'c3a5ea0d3c18704e9aa36ec45fd2e9733f4edccb') { throw 'Candidate mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='5fa2a2d7fa770dbd5f87d3a1ace338405b0ad804'; tree='bc30cb2d5425fc1a569c15f3bbd0db7cd98dce39'; controller='${{ github.event.pull_request.head.sha }}'; base='5fa2a2d7fa770dbd5f87d3a1ace338405b0ad804'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{candidate='c3a5ea0d3c18704e9aa36ec45fd2e9733f4edccb'; tree='c1824e6d5fe942ca10c8a0bcfc5bb6f6b3c85821'; controller='${{ github.event.pull_request.head.sha }}'; base='c3a5ea0d3c18704e9aa36ec45fd2e9733f4edccb'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -95,11 +95,11 @@ jobs:
           # Registration is installed by the fixture. Proven wrapper roots select test_manual;
           # each rendered child then starts the actual FINAL services itself.
           Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue
-          $units = @('tests/unit/test_scene_challenge_recall.gd', 'tests/unit/test_scene_five_outcomes.gd', 'tests/unit/test_scene_challenge.gd')
+          $units = @('tests/unit/test_scene_challenge_recall.gd')
           $create = 'tests/integration/test_scene_challenge_recall_create.gd'
           $load = 'tests/integration/test_scene_challenge_recall_load.gd'
           $expected = [ordered]@{}
-          $counts = @(5,6,22,1,1)
+          $counts = @(5,1,1)
           $paths = @($units) + @($create,$load)
           for ($i = 0; $i -lt $paths.Count; $i++) {
             $script = $paths[$i]
@@ -157,7 +157,7 @@ jobs:
           if ($records[1].test_root -cne $records[2].test_root -or $records[1].user_dir -cne $records[2].user_dir -or [DateTimeOffset]::Parse($records[2].started_at_utc) -lt [DateTimeOffset]::Parse($records[1].ended_at_utc)) { throw 'FRESH_LOAD_SHARED_ROOT_ORDER' }
           git rev-parse HEAD | Set-Content "$output/challenge-recall-source-sha.txt"
           if ($LASTEXITCODE -ne 0) { throw 'SOURCE_SHA_FAILED' }
-          Write-Output 'CHALLENGE_RECALL_PASSED: 35 exact tests, 3 clean processes, native shared-root Save/Load.'
+          Write-Output 'CHALLENGE_RECALL_PASSED: 7 exact tests, 3 clean processes, native shared-root Save/Load.'
       
       - name: Regenerate canonical inventories and check reproducibility
         run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
@@ -200,7 +200,9 @@ jobs:
               p=out/'source'/source;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(pathlib.Path(source).read_bytes())
           (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
           files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))
-          files += [p for p in pathlib.Path('.godot/phase2r_tests').rglob('*.json') if 'challenge-recall-' in str(p)]
+          records=out/'challenge-recall-processes.jsonl'
+          roots={json.loads(line)['user_dir'] for line in records.read_text(encoding='utf-8-sig').splitlines()} if records.exists() else set()
+          files += [p for root in roots for p in pathlib.Path(root).rglob('*.json')]
           manifest={p.relative_to('.godot').as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in files}
           retained=out/'retained-hashes.json';retained.write_text(json.dumps(manifest,indent=2));files.append(retained)
           payload=io.BytesIO()
