@@ -208,6 +208,7 @@ const SCENE_PAYLOAD_KEYS := {
 	"thought.accept": ["opportunity_id", "yes_target_id", "pass_target_id"],
 	"scene.transition": ["target_id"], "challenge.playable": ["challenge_id"],
 	"challenge.end": ["challenge_id"], "contact.enter": ["contact_event_id"],
+	"challenge.recall": ["challenge_id", "never_started_target_id", "unfinished_target_id", "won_target_id", "lost_target_id", "perfect_target_id"],
 	"contact.return": ["contact_event_id"],
 	"notification.set": ["notification_id", "content_id", "parameters"],
 	"notification.clear": ["notification_id"],
@@ -216,7 +217,8 @@ const TARGET_KEYS := ["kind", "entry_id", "label", "content_version", "program_s
 const PROGRAMME_ENTRY_KEYS := ["entry_id", "content_version", "content_sha256", "program_sha256", "markers"]
 const MARKER_KEYS := ["marker_id", "label", "after_line_id", "kind", "payload"]
 const CHECKPOINT_KEYS := ["checkpoint_id", "checkpoint_sequence", "snapshot_sha256"]
-const OUTCOMES := ["never_started", "unfinished", "lost", "won"]
+const LEGACY_OUTCOMES := ["never_started", "unfinished", "lost", "won"]
+const OUTCOMES := ["never_started", "unfinished", "lost", "won", "perfect"]
 
 static func _inspect_scene_shape(envelope: Variant) -> Dictionary:
 	if not _json_data(envelope) or not _keys(envelope, ENVELOPE_KEYS) or not _keys(envelope.source, SOURCE_KEYS):
@@ -301,7 +303,7 @@ static func validate_bundle_structure(bundle: Variant) -> Dictionary:
 			return _fail(&"scene_board_profile_invalid")
 	for challenge: Dictionary in tables.challenges.values():
 		if not _keys(challenge, ["challenge_id", "entry_id", "playable_marker_id", "end_marker_id", "board_profile_id", "targets"]) \
-				or not _keys(challenge.targets, OUTCOMES): return _fail(&"scene_challenge_registration_invalid")
+				or not (_keys(challenge.targets, LEGACY_OUTCOMES) or _keys(challenge.targets, OUTCOMES)): return _fail(&"scene_challenge_registration_invalid")
 		if not _table_has(tables.entries, challenge.entry_id) or not _table_has(tables.board_profiles, challenge.board_profile_id):
 			return _fail(&"scene_challenge_registration_invalid")
 		for pair: Array in [["playable_marker_id", "challenge.playable"], ["end_marker_id", "challenge.end"]]:
@@ -331,6 +333,12 @@ static func validate_bundle_structure(bundle: Variant) -> Dictionary:
 						return _fail(&"scene_thought_targets_invalid")
 			"scene.transition":
 				if not _table_has(tables.targets, marker.payload.target_id): return _fail(&"scene_target_unregistered")
+			"challenge.recall":
+				if not _table_has(tables.challenges, marker.payload.challenge_id): return _fail(&"scene_challenge_registration_invalid")
+				for outcome: String in OUTCOMES:
+					var target_id: String = marker.payload[outcome + "_target_id"]
+					if not _table_has(tables.targets, target_id) or tables.targets[target_id].target.kind != "scene":
+						return _fail(&"scene_target_unregistered")
 			"challenge.playable", "challenge.end":
 				if not _table_has(tables.challenges, marker.payload.challenge_id): return _fail(&"scene_challenge_registration_invalid")
 				var challenge: Dictionary = tables.challenges[marker.payload.challenge_id]
@@ -464,10 +472,17 @@ static func validate_scene_result(envelope: Dictionary, result: Variant, bundle:
 			var challenge: Dictionary = registered.value.challenges[envelope.payload.challenge_id]
 			var occurrence := _sha([envelope.source.scene_occurrence, envelope.payload.challenge_id])
 			if result.challenge_occurrence != occurrence or not _id(result.playable_command_id) \
-					or result.target_id != challenge.targets[result.outcome]: return _fail(&"scene_result_invalid")
+					or not challenge.targets.has(result.outcome) or result.target_id != challenge.targets[result.outcome]: return _fail(&"scene_result_invalid")
 			if result.outcome == "never_started":
 				if result.attempt_proof != null: return _fail(&"scene_attempt_proof_invalid")
 			elif not _attempt_proof(result.attempt_proof, envelope.source.run_id, occurrence): return _fail(&"scene_attempt_proof_invalid")
+		"challenge_recalled":
+			if not _keys(result, ["kind", "closure_command_id", "outcome", "target_id"]) \
+					or envelope.kind != "challenge.recall" or not _id(result.closure_command_id) \
+					or typeof(result.outcome) != TYPE_STRING or result.outcome not in OUTCOMES \
+					or result.target_id != envelope.payload[result.outcome + "_target_id"] \
+					or not _table_has(targets, result.target_id) or targets[result.target_id].target.kind != "scene":
+				return _fail(&"scene_result_invalid")
 		"contact_entry_accepted":
 			if not _keys(result, ["kind", "target_id", "source_fact_ids"]) or envelope.kind != "contact.enter":
 				return _fail(&"scene_result_invalid")
@@ -488,6 +503,39 @@ static func validate_scene_result(envelope: Dictionary, result: Variant, bundle:
 		_:
 			return _fail(&"scene_result_unsupported")
 	return {"ok": true}
+
+## Resolve only a saved closure in this Run; callers authenticate the receipt ledger.
+## Never closes a board, consults a newer Profile attempt, or reapplies its effects.
+static func resolve_scene_challenge_recall(event: Dictionary, receipts: Dictionary, bundle: Dictionary) -> Dictionary:
+	var checked := inspect_scene(event, bundle)
+	if not checked.ok: return checked
+	if event.kind != "challenge.recall" or not _positive_int(event.issuer_receipt.get("counter")):
+		return _fail(&"scene_challenge_recall_invalid")
+	var found := {}
+	for receipt: Variant in receipts.values():
+		if not receipt is Dictionary or receipt.get("kind") != "scene_event": continue
+		var saved: Variant = receipt.get("scene_event", {})
+		if not saved is Dictionary or not saved.get("result") is Dictionary \
+				or saved.result.get("kind") != "challenge_closed": continue
+		var semantic: Variant = saved.get("semantic")
+		if not semantic is Dictionary or not semantic.get("source") is Dictionary \
+				or not semantic.get("payload") is Dictionary: return _fail(&"scene_challenge_recall_invalid")
+		if semantic.source.get("run_id") != event.source.run_id \
+				or semantic.payload.get("challenge_id") != event.payload.challenge_id: continue
+		if not semantic.get("issuer_receipt") is Dictionary \
+				or not _positive_int(semantic.issuer_receipt.get("counter")):
+			return _fail(&"scene_challenge_recall_invalid")
+		if semantic.issuer_receipt.counter >= event.issuer_receipt.counter: continue
+		var envelope: Dictionary = semantic.duplicate(true)
+		envelope["playback_token"] = "recall.validation"
+		var rebuilt := make_scene_receipt(envelope, saved.get("reading_anchor", {}), saved.result, bundle)
+		if not rebuilt.ok: return rebuilt
+		if not _equal(receipt, rebuilt.value): return _fail(&"scene_receipt_mismatch")
+		if not found.is_empty(): return _fail(&"scene_challenge_recall_ambiguous")
+		found = {"kind": "challenge_recalled", "closure_command_id": semantic.command_id,
+			"outcome": saved.result.outcome, "target_id": event.payload[saved.result.outcome + "_target_id"]}
+	if found.is_empty(): return _fail(&"scene_challenge_recall_missing")
+	return {"ok": true, "value": found}
 
 static func _completion_matches(parent: Dictionary, request: Dictionary, completion: Dictionary) -> bool:
 	if not _id(parent.get("namespace")) or not _positive_int(parent.get("counter")): return false
@@ -620,9 +668,9 @@ static func validate_scene_receipts(receipts: Dictionary, bundle: Dictionary, is
 				return _fail(&"event_notification_clear_invalid")
 			if semantic.kind in ["notification.set", "notification.clear"]:
 				group.notification = receipt.scene_event.result.notification.duplicate(true)
-			if contact_child and semantic.kind in ["contact.enter", "scene.transition", "challenge.end", "thought.accept", "thought.pass"]:
+			if contact_child and semantic.kind in ["contact.enter", "scene.transition", "challenge.end", "challenge.recall", "thought.accept", "thought.pass"]:
 				return _fail(&"scene_contact_exit_refused")
-			transitioned = semantic.kind in ["scene.transition", "contact.return", "thought.accept", "thought.pass"]
+			transitioned = semantic.kind in ["scene.transition", "contact.return", "challenge.recall", "thought.accept", "thought.pass"]
 			seen[semantic.event_id] = true
 			group.next_ordinal += 1
 			group.predecessor = semantic.event_id
@@ -637,6 +685,12 @@ static func validate_scene_receipts(receipts: Dictionary, bundle: Dictionary, is
 					or playable.payload.challenge_id != semantic.payload.challenge_id or playable.ordinal >= semantic.ordinal \
 					or playable_result.kind != "challenge_playable" or playable_result.challenge_occurrence != result.challenge_occurrence:
 				return _fail(&"scene_playable_receipt_mismatch")
+		elif result.kind == "challenge_recalled":
+			var envelope: Dictionary = semantic.duplicate(true)
+			envelope["playback_token"] = "recall.validation"
+			var recalled := resolve_scene_challenge_recall(envelope, commands, bundle)
+			if not recalled.ok: return recalled
+			if not _equal(result, recalled.value): return _fail(&"scene_challenge_recall_mismatch")
 		elif result.kind == "contact_entry_accepted":
 			var contact_owner: Script = load("res://scripts/domain/contact/ContactInvitationState.gd")
 			if contact_owner == null: return _fail(&"scene_contact_owner_unavailable")
@@ -690,7 +744,7 @@ static func validate_scene_receipts(receipts: Dictionary, bundle: Dictionary, is
 					or not _equal(back.source_checkpoint, admission.source_checkpoint) \
 					or back.target_id != registered.value.contacts[trigger.semantic.payload.contact_event_id].return_target_id:
 				return _fail(&"scene_contact_parent_mismatch")
-		elif trigger.result.kind not in ["scene_transition_accepted", "challenge_closed", "thought_resolved"] or trigger.result.target_id != admission.target_id:
+		elif trigger.result.kind not in ["scene_transition_accepted", "challenge_closed", "challenge_recalled", "thought_resolved"] or trigger.result.target_id != admission.target_id:
 			return _fail(&"scene_admission_trigger_mismatch")
 		var source_admission: Dictionary = admission_receipts.get(trigger.semantic.source.scene_occurrence, {})
 		if source_admission.is_empty() or source_admission.scene_admission.issuer_receipt.counter >= admission_receipts[admission_id].scene_admission.issuer_receipt.counter:
@@ -710,7 +764,7 @@ static func validate_scene_receipts(receipts: Dictionary, bundle: Dictionary, is
 		for receipt: Dictionary in commands.values():
 			var event: Dictionary = receipt.scene_event.semantic
 			if event.source.scene_occurrence != entered.source.scene_occurrence or event.ordinal <= entered.ordinal: continue
-			if event.kind in ["contact.enter", "scene.transition", "challenge.end", "thought.accept", "thought.pass"] \
+			if event.kind in ["contact.enter", "scene.transition", "challenge.end", "challenge.recall", "thought.accept", "thought.pass"] \
 					and (returned_counter < 0 or event.issuer_receipt.counter <= returned_counter):
 				return _fail(&"scene_contact_exit_refused")
 	for receipt: Dictionary in admission_receipts.values():

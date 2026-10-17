@@ -286,6 +286,7 @@ static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 		if ids_lines.value.get(id, {}).get("owning_entry_id") != lines[id]: return _scene_fail("line owner")
 	var payloads := {"thought.pass": ["opportunity_id", "yes_target_id", "pass_target_id"], "scene.transition": ["target_id"], "challenge.playable": ["challenge_id"],
 		"challenge.end": ["challenge_id"], "contact.enter": ["contact_event_id"], "contact.return": ["contact_event_id"],
+		"challenge.recall": ["challenge_id", "never_started_target_id", "unfinished_target_id", "won_target_id", "lost_target_id", "perfect_target_id"],
 		"history.line.witness": ["entry_id", "line_id", "playback_token", "receipt_id"]}
 	for id: String in signals.value:
 		if not payloads.has(id) or signals.value[id].payload_fields != payloads[id]: return _scene_fail("signal shape")
@@ -448,7 +449,8 @@ static func _validate_scene_tables(bundle: Dictionary, entries: Dictionary, prog
 				or row.capability_policy_id != "owned_inventory_v1": return _scene_fail("unsupported board policy")
 	for row: Dictionary in challenges.value.values():
 		if not entries.has(row.entry_id) or not profiles.value.has(row.board_profile_id) \
-				or not _scene_exact(row.targets, ["never_started", "unfinished", "lost", "won"]):
+				or not (_scene_exact(row.targets, ["never_started", "unfinished", "lost", "won"]) \
+					or _scene_exact(row.targets, ["never_started", "unfinished", "lost", "won", "perfect"])):
 			return _scene_fail("challenge shape")
 		for pair: Array in [["playable_marker_id", "challenge.playable"], ["end_marker_id", "challenge.end"]]:
 			var marker: Dictionary = markers.get(row[pair[0]], {})
@@ -485,6 +487,12 @@ static func _validate_scene_tables(bundle: Dictionary, entries: Dictionary, prog
 				if not targets.value.has(marker.payload.target_id): return _scene_fail("dangling transition")
 				var target: Dictionary = targets.value[marker.payload.target_id].target
 				if target.kind == "local" and target.entry_id != value.entry_id: return _scene_fail("local transition target")
+			"challenge.recall":
+				if not challenges.value.has(marker.payload.challenge_id): return _scene_fail("dangling challenge recall")
+				for outcome: String in ["never_started", "unfinished", "lost", "won", "perfect"]:
+					var target_id: String = marker.payload[outcome + "_target_id"]
+					if not targets.value.has(target_id) or targets.value[target_id].target.kind != "scene":
+						return _scene_fail("dangling challenge recall target")
 			"challenge.playable", "challenge.end":
 				if not challenges.value.has(marker.payload.challenge_id): return _scene_fail("dangling challenge")
 			"contact.enter", "contact.return":

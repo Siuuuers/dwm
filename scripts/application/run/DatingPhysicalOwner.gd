@@ -1896,6 +1896,15 @@ func close_scene_challenge_owned(lease: String) -> Dictionary:
 	_scene_lease = ""
 	return result
 
+## Classify only the closure projection; schema-4 board state and scoring stay owned.
+## Historical four-target registrations deliberately keep Perfect under won.
+static func scene_closure_outcome(record: Dictionary, targets: Dictionary) -> String:
+	if record.is_empty(): return "never_started"
+	if record.state == "in_progress": return "unfinished"
+	if record.state == "won" and targets.has("perfect") and not RULES.perfect_reasons(record.board, 4).is_empty():
+		return "perfect"
+	return str(record.state)
+
 func _close_scene_locked() -> Dictionary:
 	var end: Dictionary = _scene_authority.validate_scene_challenge_end(_admitted_command.duplicate(true))
 	if not end.get("ok", false): return end
@@ -1945,6 +1954,7 @@ func _close_scene_locked() -> Dictionary:
 	var challenge := {}
 	for row: Dictionary in _scene_bundle.challenges:
 		if row.challenge_id == _admitted_command.context.challenge_id: challenge = row
+	outcome = scene_closure_outcome(_record, challenge.get("targets", {}))
 	if not challenge.get("targets", {}).has(outcome): return _fail(&"scene_challenge_target_missing")
 	var result := {"kind": "challenge_closed", "challenge_occurrence": ATTEMPTS.semantic_slot(_admitted_command.context).trim_prefix("scene.challenge."),
 		"playable_command_id": _admitted_command.context.playable_command_id, "attempt_proof": proof,
