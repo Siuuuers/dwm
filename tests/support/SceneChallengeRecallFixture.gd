@@ -56,6 +56,7 @@ static func bundle() -> Dictionary:
 		"playable_marker_id": START + ".playable", "end_marker_id": START + ".end",
 		"board_profile_id": "TEST.profile", "targets": targets}]
 	entries.sort()
+	value.entry_manifest.entry_count = entries.size()
 	for id: String in entries:
 		var markers: Array = []
 		if id == START:
