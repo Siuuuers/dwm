@@ -195,14 +195,19 @@ jobs:
         run: |
           @'
           import base64,hashlib,io,json,pathlib,subprocess,zipfile
+          import xml.etree.ElementTree as ET
           out=pathlib.Path('.godot/ci')
+          for report in out.glob('challenge-recall-*.xml'):
+              tree=ET.parse(report)
+              for case in tree.iter('testcase'):
+                  if case.find('failure') is not None: print('FAILED_CASE',case.attrib,ET.tostring(case,encoding='unicode'))
           for source in ["autoload/DialogicBridge.gd","autoload/GameState.gd","scripts/application/run/DatingPhysicalOwner.gd","scripts/domain/narrative/SceneEventContract.gd","scripts/narrative/DialogicEntryManifest.gd","tests/fixtures/dialogic/scene_challenge_recall.dtl","tests/integration/scene_challenge_recall_child.gd","tests/integration/test_scene_challenge_recall_create.gd","tests/integration/test_scene_challenge_recall_load.gd","tests/support/SceneChallengeRecallFixture.gd","tests/unit/test_scene_challenge_recall.gd","tests/unit/test_scene_five_outcomes.gd"] + ['tools/runtime/PublicSurfaceInventory.gd','tools/runtime/generate_public_surface_inventory.gd','tools/testing/Invoke-PublicSurfaceValidation.ps1','tests/unit/tooling/test_public_surface_inventory.gd','evidence/phase_2r/runtime/game_state_required_surface.json','evidence/phase_2r/runtime/save_manager_required_surface.json','evidence/phase_2r/runtime/game_state_surface.json','evidence/phase_2r/runtime/save_manager_surface.json']:
               p=out/'source'/source;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(pathlib.Path(source).read_bytes())
           (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
           files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))
           records=out/'challenge-recall-processes.jsonl'
           roots={json.loads(line)['user_dir'] for line in records.read_text(encoding='utf-8-sig').splitlines()} if records.exists() else set()
-          files += [p for root in roots for p in pathlib.Path(root).rglob('*.json')]
+          files += [p for root in roots for p in pathlib.Path(root).relative_to(pathlib.Path.cwd()).rglob('*.json')]
           manifest={p.relative_to('.godot').as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in files}
           retained=out/'retained-hashes.json';retained.write_text(json.dumps(manifest,indent=2));files.append(retained)
           payload=io.BytesIO()
