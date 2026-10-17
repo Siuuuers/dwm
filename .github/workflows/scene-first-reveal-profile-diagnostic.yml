@@ -1,4 +1,4 @@
-name: Load caption memory qualification
+name: Partner fork qualification
 on:
   pull_request:
     paths:
@@ -12,7 +12,7 @@ concurrency:
 jobs:
   authority-audit:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
-    name: Windows / Load caption memory
+    name: Windows / Partner fork
     runs-on: windows-2022
     timeout-minutes: 20
     defaults:
@@ -23,7 +23,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 21239126c2faa3bda37c74409b99cac5530696bc
+          ref: 8c51e25a82fbb7e7d55373df892edea993f61b0b
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -31,9 +31,9 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '21239126c2faa3bda37c74409b99cac5530696bc') { throw 'Candidate mismatch' }
+          if ((git rev-parse HEAD) -cne '8c51e25a82fbb7e7d55373df892edea993f61b0b') { throw 'Candidate mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='21239126c2faa3bda37c74409b99cac5530696bc'; tree='282650ee183366702f3449967b34e22e78921c9b'; controller='${{ github.event.pull_request.head.sha }}'; base='b86414491c5d9d865ae716d342461a2cc8ea70fa'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{candidate='8c51e25a82fbb7e7d55373df892edea993f61b0b'; tree='9b5acfeb0f967486dcb6445edfd3c15f24da916f'; controller='${{ github.event.pull_request.head.sha }}'; base='b86414491c5d9d865ae716d342461a2cc8ea70fa'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -81,24 +81,19 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Run focused caption memory and Day4 Load checks
+      - name: Run focused partner contract and three rendered processes
         run: |
           $ErrorActionPreference = 'Stop'
-          $lanes = @(
-            @{Name='memory'; Script='tests/unit/test_scene_caption_memory.gd'; Filter='test_memory_is_current_occurrence_only_and_projection_is_pure'; Rendered=$false},
-            @{Name='scrollback'; Script='tests/integration/test_witnessed_caption_runtime.gd'; Filter='test_full_scrollback_reprojection_keeps_native_state_and_three_caption_window'; Rendered=$false},
-            @{Name='retained'; Script='tests/integration/test_witnessed_caption_runtime.gd'; Filter='test_silent_retained_reprojection_and_remeasurement_preserve_reveal_history_and_manual_scroll'; Rendered=$false}
-          )
           $failed = $false
-          foreach ($lane in $lanes) {
-            $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$($lane.Script)",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$($lane.Name).xml")
-            if ($lane.Filter) { $args += "-gunit_test_name=$($lane.Filter)" }
-            & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId $lane.Name -LogName "$($lane.Name).log" -GodotArgs $args -EvidenceLogPath ".godot/ci/$($lane.Name).jsonl" -TimeoutSeconds 240 -Rendered:$lane.Rendered
+          foreach ($name in @('contract','fork_template')) {
+            $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://tests/unit/test_scene_partner_$name.gd",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$name.xml")
+            & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId $name -LogName "$name.log" -GodotArgs $args -EvidenceLogPath ".godot/ci/$name.jsonl" -TimeoutSeconds 240
             if ($LASTEXITCODE -ne 0) { $failed = $true }
           }
-          $createArgs = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_seven_day_connected_create.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/day4-create.xml')
-          $loadArgs = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_seven_day_connected_load.gd','-gunit_test_name=test_fresh_load_restores_day4_caption_window_only','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/day4-load.xml')
-          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'day4' -LogName 'day4-create.log' -GodotArgs $createArgs -NextGodotArgs $loadArgs -NextLogName 'day4-load.log' -EvidenceLogPath '.godot/ci/day4.jsonl' -TimeoutSeconds 240 -Rendered
+          $createArgs = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_partner_create.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/partner-create.xml')
+          $manualArgs = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_partner_manual.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/partner-manual.xml')
+          $autoArgs = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_partner_auto.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/partner-auto.xml')
+          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'partner' -LogName 'partner-create.log' -GodotArgs $createArgs -NextGodotArgs $manualArgs -NextLogName 'partner-manual.log' -ThirdGodotArgs $autoArgs -ThirdLogName 'partner-auto.log' -EvidenceLogPath '.godot/ci/partner.jsonl' -TimeoutSeconds 240 -Rendered
           if ($LASTEXITCODE -ne 0) { $failed = $true }
           if ($failed) { exit 1 }
       - name: Verify exact selected census and source
@@ -107,8 +102,8 @@ jobs:
           @'
           import collections,json,pathlib,re,subprocess,xml.etree.ElementTree as ET
           out=pathlib.Path('.godot/ci')
-          lanes=[('memory', 'tests/unit/test_scene_caption_memory.gd', 'test_memory_is_current_occurrence_only_and_projection_is_pure'), ('scrollback', 'tests/integration/test_witnessed_caption_runtime.gd', 'test_full_scrollback_reprojection_keeps_native_state_and_three_caption_window'), ('retained', 'tests/integration/test_witnessed_caption_runtime.gd', 'test_silent_retained_reprojection_and_remeasurement_preserve_reveal_history_and_manual_scroll'), ('day4-create', 'tests/integration/test_scene_seven_day_connected_create.gd', ''), ('day4-load', 'tests/integration/test_scene_seven_day_connected_load.gd', 'test_fresh_load_restores_day4_caption_window_only')]
-          result={'source':'21239126c2faa3bda37c74409b99cac5530696bc','tree':'282650ee183366702f3449967b34e22e78921c9b','tests':0,'assertions':0,'suites':[]}
+          lanes=[('contract','tests/unit/test_scene_partner_contract.gd',''),('fork_template','tests/unit/test_scene_partner_fork_template.gd',''),('partner-create','tests/integration/test_scene_partner_create.gd',''),('partner-manual','tests/integration/test_scene_partner_manual.gd',''),('partner-auto','tests/integration/test_scene_partner_auto.gd','')]
+          result={'source':'8c51e25a82fbb7e7d55373df892edea993f61b0b','tree':'9b5acfeb0f967486dcb6445edfd3c15f24da916f','tests':0,'assertions':0,'suites':[]}
           assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==result['source']
           assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()==result['tree']
           changed=subprocess.check_output(['git','diff','HEAD','--name-only'],text=True).splitlines()
@@ -121,25 +116,25 @@ jobs:
               assert all(r.attrib.get('status')=='pass' and int(r.attrib.get('assertions','0'))>0 for r in rows),name
               log=pathlib.Path('.godot/phase2r_logs',name+'.log').read_text(encoding='utf-8-sig')
               assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',log),name
-              children=[json.loads(s) for s in (out/(('day4' if name.startswith('day4-') else name)+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
-              assert len(children)==(2 if name.startswith('day4-') else 1) and all(c['exit_code']==0 for c in children),name
+              children=[json.loads(s) for s in (out/(('partner' if name.startswith('partner-') else name)+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
+              assert len(children)==(3 if name.startswith('partner-') else 1) and all(c['exit_code']==0 for c in children),name
               count=sum(int(r.attrib['assertions']) for r in rows)
               result['tests']+=len(rows);result['assertions']+=count
               result['suites'].append({'name':name,'script':script,'filter':select,'tests':len(rows),'assertions':count})
-          assert result['tests']==5
-          assert (out/'computer-seven-day-day4-restored-full.png').is_file()
+          assert result['tests']==6
+          assert (out/'computer-partner-auto-lavinia.png').is_file()
           (out/'gate.json').write_text(json.dumps(result,indent=2))
           print(json.dumps(result))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Retain bounded Load evidence
+      - name: Retain bounded partner evidence
         if: always()
         run: |
           $ErrorActionPreference = 'Stop'
           @'
           import base64,hashlib,io,json,pathlib,subprocess,zipfile
           out=pathlib.Path('.godot/ci')
-          for source in ["autoload/DialogicBridge.gd", "scripts/narrative/SoloReadingSession.gd", "scripts/ui/witnessed/WitnessedCaptionLayer.gd", "tests/unit/test_scene_caption_memory.gd", "tests/unit/test_scene_publication_cursor.gd", "tests/support/SceneDayReadingFixture.gd", "tests/integration/test_witnessed_caption_runtime.gd", "tests/integration/scene_seven_day_connected_child.gd", "tests/integration/scene_later_caption_child.gd", "tests/integration/test_scene_seven_day_connected_create.gd", "tests/integration/test_scene_seven_day_connected_load.gd"]:
+          for source in ["autoload/DialogicBridge.gd","autoload/GameState.gd","evidence/phase_2r/runtime/game_state_required_surface.json","localization/ui/en.json","localization/ui/ja.json","localization/ui/ko.json","localization/ui/zh_CN.json","localization/ui/zh_HK.json","scenes/narrative/SceneHost.tscn","scripts/domain/narrative/SceneEventContract.gd","scripts/narrative/DialogicEntryManifest.gd","scripts/ui/SceneHost.gd","tests/fixtures/dialogic/scene_partner_fork_template.dtl","tests/integration/scene_partner_fork_child.gd","tests/integration/test_scene_partner_auto.gd","tests/integration/test_scene_partner_create.gd","tests/integration/test_scene_partner_manual.gd","tests/support/ScenePartnerForkFixture.gd","tests/templates/partner_fork/README.md","tests/unit/test_scene_partner_contract.gd","tests/unit/test_scene_partner_fork_template.gd","tests/integration/scene_later_caption_child.gd","tests/integration/scene_bootstrap_restart_child.gd","tests/support/ScenePlayableFixture.gd"]:
               p=out/'source'/source;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(pathlib.Path(source).read_bytes())
           (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
           files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))
@@ -162,7 +157,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: scene-load-memory-${{ github.run_id }}-${{ github.run_attempt }}
+          name: scene-partner-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             .godot/ci
             .godot/phase2r_logs
