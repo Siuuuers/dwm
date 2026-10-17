@@ -1,4 +1,4 @@
-name: Partner fork qualification
+name: Public inventory reconciliation
 on:
   pull_request:
     paths:
@@ -12,7 +12,7 @@ concurrency:
 jobs:
   authority-audit:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
-    name: Windows / Partner fork
+    name: Windows / Public inventory reconciliation
     runs-on: windows-2022
     timeout-minutes: 20
     defaults:
@@ -23,7 +23,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: f613bbff8533ea0f043ba90164e6144145be5ef4
+          ref: dd8f349a9f18ac3ea9901666c6db5d53056ad15f
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -31,9 +31,9 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne 'f613bbff8533ea0f043ba90164e6144145be5ef4') { throw 'Candidate mismatch' }
+          if ((git rev-parse HEAD) -cne 'dd8f349a9f18ac3ea9901666c6db5d53056ad15f') { throw 'Candidate mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='f613bbff8533ea0f043ba90164e6144145be5ef4'; tree='9840ea5608c1b387d261efefb3a4286639cd153e'; controller='${{ github.event.pull_request.head.sha }}'; base='c408409060fffdff1d58667cc45a6955540f340c'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{candidate='dd8f349a9f18ac3ea9901666c6db5d53056ad15f'; tree='a5bd964adccd50073225d4b833f17988724f7ff1'; controller='${{ github.event.pull_request.head.sha }}'; base='dd8f349a9f18ac3ea9901666c6db5d53056ad15f'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -81,57 +81,44 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Run remaining Auto and fatal-ack cases with fresh slot creator
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $failed = $false
-          $createArgs = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_partner_create.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/partner-create.xml')
-          $autoArgs = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_partner_auto.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/partner-auto.xml')
-          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'partner' -LogName 'partner-create.log' -GodotArgs $createArgs -NextGodotArgs $autoArgs -NextLogName 'partner-auto.log' -EvidenceLogPath '.godot/ci/partner.jsonl' -TimeoutSeconds 240 -Rendered
-          if ($LASTEXITCODE -ne 0) { $failed = $true }
-          $uncertainArgs = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_partner_uncertain.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/uncertain.xml')
-          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'uncertain' -LogName 'uncertain.log' -GodotArgs $uncertainArgs -EvidenceLogPath '.godot/ci/uncertain.jsonl' -TimeoutSeconds 240 -Rendered
-          if ($LASTEXITCODE -ne 0) { $failed = $true }
-          if ($failed) { exit 1 }
-      - name: Verify exact selected census and source
+      - name: Regenerate canonical inventories and check reproducibility
+        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
+      - name: Verify inventory drift and read-only contracts
+        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite public_surfaces
+      - name: Verify bounded source changes and exact census
         run: |
           $ErrorActionPreference = 'Stop'
           @'
           import collections,json,pathlib,re,subprocess,xml.etree.ElementTree as ET
           out=pathlib.Path('.godot/ci')
-          lanes=[('partner-create','tests/integration/test_scene_partner_create.gd',''),('partner-auto','tests/integration/test_scene_partner_auto.gd',''),('uncertain','tests/integration/test_scene_partner_uncertain.gd','')]
-          result={'source':'f613bbff8533ea0f043ba90164e6144145be5ef4','tree':'9840ea5608c1b387d261efefb3a4286639cd153e','tests':0,'assertions':0,'suites':[]}
-          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==result['source']
-          assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()==result['tree']
-          changed=subprocess.check_output(['git','diff','HEAD','--name-only'],text=True).splitlines()
-          assert not set(changed)-{'.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1'},changed
-          for name,script,select in lanes:
-              expected=[n for n in re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(encoding="utf-8"),re.M) if select in n]
-              root=ET.parse(out/(name+'.xml')).getroot();rows=list(root.iter('testcase'))
-              assert expected and collections.Counter((r.attrib['classname'],r.attrib['name']) for r in rows)==collections.Counter((script,n) for n in expected),name
-              assert not any(list(root.iter(tag)) for tag in ['failure','error','skipped']),name
-              assert all(r.attrib.get('status')=='pass' and int(r.attrib.get('assertions','0'))>0 for r in rows),name
-              log=pathlib.Path('.godot/phase2r_logs',name+'.log').read_text(encoding='utf-8-sig')
-              assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',log),name
-              children=[json.loads(s) for s in (out/(('partner' if name.startswith('partner-') else name)+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
-              assert len(children)==(2 if name.startswith('partner-') else 1) and all(c['exit_code']==0 for c in children),name
-              count=sum(int(r.attrib['assertions']) for r in rows)
-              result['tests']+=len(rows);result['assertions']+=count
-              result['suites'].append({'name':name,'script':script,'filter':select,'tests':len(rows),'assertions':count})
-          assert result['tests']==3
-          assert (out/'computer-partner-auto-lavinia.png').is_file()
-          (out/'gate.json').write_text(json.dumps(result,indent=2))
-          print(json.dumps(result))
+          script='tests/unit/tooling/test_public_surface_inventory.gd'
+          expected=re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(encoding='utf-8'),re.M)
+          root=ET.parse(out/'public_surfaces.xml').getroot(); rows=list(root.iter('testcase'))
+          assert collections.Counter((r.attrib['classname'],r.attrib['name']) for r in rows)==collections.Counter((script,n) for n in expected)
+          assert not any(list(root.iter(t)) for t in ['failure','error','skipped'])
+          assert all(r.attrib.get('status')=='pass' and int(r.attrib.get('assertions','0'))>0 for r in rows)
+          allowed={'.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1','evidence/phase_2r/runtime/game_state_surface.json','evidence/phase_2r/runtime/save_manager_surface.json'}
+          changed=set(subprocess.check_output(['git','diff','HEAD','--name-only'],text=True).splitlines())
+          assert not changed-allowed,changed
+          for p in pathlib.Path('.godot/phase2r_logs').glob('*.log'):
+              assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',p.read_text(encoding='utf-8-sig')),str(p)
+          exits=[]
+          for p in out.rglob('*.jsonl'):
+              for line in p.read_text(encoding='utf-8-sig').splitlines():
+                  if line.strip():
+                      item=json.loads(line); assert item['exit_code']==0,item; exits.append(item)
+          assert len(exits)==5,len(exits)
+          report={'source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'tests':len(rows),'assertions':sum(int(r.attrib['assertions']) for r in rows),'clean_exits':len(exits),'changed':sorted(changed)}
+          (out/'gate.json').write_text(json.dumps(report,indent=2));print(json.dumps(report))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Retain bounded partner evidence
+      - name: Retain original bounded evidence
         if: always()
         run: |
-          $ErrorActionPreference = 'Stop'
           @'
           import base64,hashlib,io,json,pathlib,subprocess,zipfile
           out=pathlib.Path('.godot/ci')
-          for source in ["autoload/DialogicBridge.gd","autoload/GameState.gd","evidence/phase_2r/runtime/game_state_required_surface.json","localization/ui/en.json","localization/ui/ja.json","localization/ui/ko.json","localization/ui/zh_CN.json","localization/ui/zh_HK.json","scenes/narrative/SceneHost.tscn","scripts/domain/narrative/SceneEventContract.gd","scripts/narrative/DialogicEntryManifest.gd","scripts/ui/SceneHost.gd","tests/fixtures/dialogic/scene_partner_fork_template.dtl","tests/integration/scene_partner_fork_child.gd","tests/integration/test_scene_partner_auto.gd","tests/integration/test_scene_partner_create.gd","tests/integration/test_scene_partner_manual.gd","tests/support/ScenePartnerForkFixture.gd","tests/templates/partner_fork/README.md","tests/unit/test_scene_partner_contract.gd","tests/unit/test_scene_partner_fork_template.gd","tests/integration/test_scene_partner_pending.gd","tests/integration/test_scene_partner_recover.gd","tests/integration/test_scene_partner_uncertain.gd","tests/integration/scene_later_caption_child.gd","tests/integration/scene_bootstrap_restart_child.gd","tests/support/ScenePlayableFixture.gd"]:
+          for source in ['tools/runtime/PublicSurfaceInventory.gd','tools/runtime/generate_public_surface_inventory.gd','tools/testing/Invoke-PublicSurfaceValidation.ps1','tests/unit/tooling/test_public_surface_inventory.gd','evidence/phase_2r/runtime/game_state_required_surface.json','evidence/phase_2r/runtime/save_manager_required_surface.json','evidence/phase_2r/runtime/game_state_surface.json','evidence/phase_2r/runtime/save_manager_surface.json']:
               p=out/'source'/source;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(pathlib.Path(source).read_bytes())
           (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
           files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))
@@ -144,21 +131,7 @@ jobs:
           if len(data)>8*1024*1024:raise RuntimeError('Bounded evidence too large')
           print('DWM_EVIDENCE_BEGIN '+json.dumps({'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}))
           encoded=base64.b64encode(data).decode()
-          for offset in range(0,len(encoded),3000):print('DWM_EVIDENCE_CHUNK '+encoded[offset:offset+3000])
+          for i in range(0,len(encoded),4096):print('DWM_EVIDENCE_CHUNK '+encoded[i:i+4096])
           print('DWM_EVIDENCE_END')
-          for p in pathlib.Path('.godot/phase2r_logs').glob('*.log'):
-              for line in p.read_text(encoding='utf-8-sig').splitlines():
-                  if any(s in line for s in ['[Failed]','SCRIPT ERROR:','ERROR:','Passing Tests','Failing Tests','Asserts','Exiting with code']):print(p.name,line[:1500])
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: scene-partner-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            .godot/ci
-            .godot/phase2r_logs
-            !.godot/ci/import-user
-          include-hidden-files: true
-          retention-days: 30
-          if-no-files-found: error
