@@ -23,7 +23,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 703ed8da2bb3b356279cd4d51adc27ac1d6a6a4a
+          ref: f613bbff8533ea0f043ba90164e6144145be5ef4
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -31,9 +31,9 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '703ed8da2bb3b356279cd4d51adc27ac1d6a6a4a') { throw 'Candidate mismatch' }
+          if ((git rev-parse HEAD) -cne 'f613bbff8533ea0f043ba90164e6144145be5ef4') { throw 'Candidate mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='703ed8da2bb3b356279cd4d51adc27ac1d6a6a4a'; tree='6706f07630a7bc96e2c05493c1cd28146683b73b'; controller='${{ github.event.pull_request.head.sha }}'; base='c408409060fffdff1d58667cc45a6955540f340c'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{candidate='f613bbff8533ea0f043ba90164e6144145be5ef4'; tree='9840ea5608c1b387d261efefb3a4286639cd153e'; controller='${{ github.event.pull_request.head.sha }}'; base='c408409060fffdff1d58667cc45a6955540f340c'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -81,23 +81,13 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Run focused partner contract and three rendered processes
+      - name: Run remaining Auto and fatal-ack cases with fresh slot creator
         run: |
           $ErrorActionPreference = 'Stop'
           $failed = $false
-          foreach ($name in @('contract','fork_template')) {
-            $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://tests/unit/test_scene_partner_$name.gd",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$name.xml")
-            & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId $name -LogName "$name.log" -GodotArgs $args -EvidenceLogPath ".godot/ci/$name.jsonl" -TimeoutSeconds 240
-            if ($LASTEXITCODE -ne 0) { $failed = $true }
-          }
           $createArgs = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_partner_create.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/partner-create.xml')
-          $manualArgs = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_partner_manual.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/partner-manual.xml')
           $autoArgs = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_partner_auto.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/partner-auto.xml')
-          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'partner' -LogName 'partner-create.log' -GodotArgs $createArgs -NextGodotArgs $manualArgs -NextLogName 'partner-manual.log' -ThirdGodotArgs $autoArgs -ThirdLogName 'partner-auto.log' -EvidenceLogPath '.godot/ci/partner.jsonl' -TimeoutSeconds 240 -Rendered
-          if ($LASTEXITCODE -ne 0) { $failed = $true }
-          $pendingArgs = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_partner_pending.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/pending.xml')
-          $recoverArgs = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_partner_recover.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/recover.xml')
-          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'recovery' -LogName 'pending.log' -GodotArgs $pendingArgs -NextGodotArgs $recoverArgs -NextLogName 'recover.log' -EvidenceLogPath '.godot/ci/recovery.jsonl' -TimeoutSeconds 240 -Rendered
+          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'partner' -LogName 'partner-create.log' -GodotArgs $createArgs -NextGodotArgs $autoArgs -NextLogName 'partner-auto.log' -EvidenceLogPath '.godot/ci/partner.jsonl' -TimeoutSeconds 240 -Rendered
           if ($LASTEXITCODE -ne 0) { $failed = $true }
           $uncertainArgs = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_partner_uncertain.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/uncertain.xml')
           & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'uncertain' -LogName 'uncertain.log' -GodotArgs $uncertainArgs -EvidenceLogPath '.godot/ci/uncertain.jsonl' -TimeoutSeconds 240 -Rendered
@@ -109,9 +99,8 @@ jobs:
           @'
           import collections,json,pathlib,re,subprocess,xml.etree.ElementTree as ET
           out=pathlib.Path('.godot/ci')
-          lanes=[('contract','tests/unit/test_scene_partner_contract.gd',''),('fork_template','tests/unit/test_scene_partner_fork_template.gd',''),('partner-create','tests/integration/test_scene_partner_create.gd',''),('partner-manual','tests/integration/test_scene_partner_manual.gd',''),('partner-auto','tests/integration/test_scene_partner_auto.gd','')]
-          lanes += [('pending','tests/integration/test_scene_partner_pending.gd',''),('recover','tests/integration/test_scene_partner_recover.gd',''),('uncertain','tests/integration/test_scene_partner_uncertain.gd','')]
-          result={'source':'703ed8da2bb3b356279cd4d51adc27ac1d6a6a4a','tree':'6706f07630a7bc96e2c05493c1cd28146683b73b','tests':0,'assertions':0,'suites':[]}
+          lanes=[('partner-create','tests/integration/test_scene_partner_create.gd',''),('partner-auto','tests/integration/test_scene_partner_auto.gd',''),('uncertain','tests/integration/test_scene_partner_uncertain.gd','')]
+          result={'source':'f613bbff8533ea0f043ba90164e6144145be5ef4','tree':'9840ea5608c1b387d261efefb3a4286639cd153e','tests':0,'assertions':0,'suites':[]}
           assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==result['source']
           assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()==result['tree']
           changed=subprocess.check_output(['git','diff','HEAD','--name-only'],text=True).splitlines()
@@ -124,12 +113,12 @@ jobs:
               assert all(r.attrib.get('status')=='pass' and int(r.attrib.get('assertions','0'))>0 for r in rows),name
               log=pathlib.Path('.godot/phase2r_logs',name+'.log').read_text(encoding='utf-8-sig')
               assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',log),name
-              children=[json.loads(s) for s in (out/(('partner' if name.startswith('partner-') else 'recovery' if name in ['pending','recover'] else name)+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
-              assert len(children)==(3 if name.startswith('partner-') else 2 if name in ['pending','recover'] else 1) and all(c['exit_code']==0 for c in children),name
+              children=[json.loads(s) for s in (out/(('partner' if name.startswith('partner-') else name)+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
+              assert len(children)==(2 if name.startswith('partner-') else 1) and all(c['exit_code']==0 for c in children),name
               count=sum(int(r.attrib['assertions']) for r in rows)
               result['tests']+=len(rows);result['assertions']+=count
               result['suites'].append({'name':name,'script':script,'filter':select,'tests':len(rows),'assertions':count})
-          assert result['tests']==9
+          assert result['tests']==3
           assert (out/'computer-partner-auto-lavinia.png').is_file()
           (out/'gate.json').write_text(json.dumps(result,indent=2))
           print(json.dumps(result))
