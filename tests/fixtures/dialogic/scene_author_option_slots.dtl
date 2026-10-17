@@ -1,0 +1,12 @@
+# TEST ONLY: two optional author-used content slots, not a choice menu.
+# Registration selects their role; names do not create choices or daily quotas.
+return
+
+label scene.test.option_a_day1
+TEST replaceable slot A. #id:line.scene.test.option_a_day1.one
+label scene.test.option_a_day1.next
+return
+
+label scene.test.option_b_day1
+TEST replaceable slot B. #id:line.scene.test.option_b_day1.one
+return
