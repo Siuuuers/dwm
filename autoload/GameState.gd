@@ -4563,6 +4563,14 @@ func _accept_scene_runtime_event(event: Dictionary, digest: String, lease: Strin
 		result = {"kind": "scene_transition_accepted", "source_scene_occurrence": event.source.scene_occurrence,
 			"target_id": event.payload.target_id, "target": tables.value.targets[event.payload.target_id].target,
 			"resolution_receipt": {"receipt_id": child.value.child_id, "provenance": child.value.provenance}}
+	elif event.kind in ["thought.accept", "thought.pass"]:
+		var marker: Dictionary = _scene_event_bridge.capture_scene_pending_marker()
+		if not marker.get("ok", false) or marker.value.marker_id != event.event_id or marker.value.kind != "thought.pass":
+			return _transaction_failure(&"scene_thought_unavailable", "")
+		var accepted: bool = event.kind == "thought.accept"
+		result = {"kind": "thought_resolved", "opportunity_id": event.payload.opportunity_id,
+			"choice": "yes" if accepted else "pass",
+			"target_id": event.payload.yes_target_id if accepted else event.payload.pass_target_id}
 	elif event.kind == "contact.enter":
 		var tables := _SCENE_EVENT.validate_bundle_structure(registered.value)
 		if not tables.ok: return tables
@@ -4871,8 +4879,19 @@ func capture_scene_challenge_closure(context: Dictionary) -> Dictionary:
 var _scene_end_operation: Dictionary = {}
 
 func advance_scene_registered_marker() -> Dictionary:
+	return _advance_scene_registered_marker(false)
+
+## Yes receives only a live presentation proof; registered targets remain owner data.
+func accept_scene_thought(expected: Dictionary) -> Dictionary:
+	if expected.is_empty(): return _transaction_failure(&"presentation_frontier_changed", "")
+	var current: Dictionary = _scene_event_bridge._line_presentation_context(expected)
+	if not current.get("ok", false): return current
+	return _advance_scene_registered_marker(true)
+
+func _advance_scene_registered_marker(accept_thought: bool) -> Dictionary:
 	var marker: Dictionary = _scene_event_bridge.capture_scene_pending_marker()
 	if not marker.get("ok", false): return marker
+	if accept_thought and marker.value.kind != "thought.pass": return _transaction_failure(&"scene_thought_unavailable", "")
 	var current := _scene_runtime_event_context()
 	if not current.ok: return current
 	# A saved closure can retry target admission without applying End again.
@@ -4880,13 +4899,14 @@ func advance_scene_registered_marker() -> Dictionary:
 		var saved: Dictionary = receipt.get("scene_event", {})
 		if saved.get("semantic", {}).get("event_id") == marker.value.marker_id \
 				and _SCENE_EVENT._equal(saved.semantic.source, current.value.source):
-			if saved.result.kind in ["scene_transition_accepted", "challenge_closed", "contact_entry_accepted", "contact_returned"]:
+			if accept_thought and saved.result.get("choice") != "yes": return _transaction_failure(&"scene_thought_conflict", "")
+			if saved.result.kind in ["scene_transition_accepted", "challenge_closed", "contact_entry_accepted", "contact_returned", "thought_resolved"]:
 				return admit_scene_target(saved.result.target_id, receipt.transaction_id)
 			return {"ok": true, "duplicate": true, "value": saved.result}
 	var issued: Dictionary = _identity_issuer.issue(&"transaction_id")
 	if not issued.get("ok", false): return issued
 	var event := {"schema_version": 2, "source": current.value.source.duplicate(true),
-		"event_id": marker.value.marker_id, "kind": marker.value.kind, "payload": marker.value.payload.duplicate(true),
+		"event_id": marker.value.marker_id, "kind": "thought.accept" if accept_thought else marker.value.kind, "payload": marker.value.payload.duplicate(true),
 		"ordinal": current.value.next_ordinal, "predecessor": current.value.predecessor,
 		"command_id": issued.value.token, "issuer_receipt": issued.value.issuer_receipt,
 		"playback_token": current.value.playback_token}
@@ -4894,7 +4914,7 @@ func advance_scene_registered_marker() -> Dictionary:
 	if not session.ok: return session
 	var accepted: Dictionary = _scene_event_bridge.dispatch_scene_event(session.value, event)
 	if not accepted.get("ok", false): return accepted
-	if accepted.value.kind in ["scene_transition_accepted", "challenge_closed", "contact_entry_accepted", "contact_returned"]: return admit_scene_target(accepted.value.target_id, event.command_id)
+	if accepted.value.kind in ["scene_transition_accepted", "challenge_closed", "contact_entry_accepted", "contact_returned", "thought_resolved"]: return admit_scene_target(accepted.value.target_id, event.command_id)
 	return accepted
 
 func _accept_scene_end(event: Dictionary, digest: String, lease: String) -> Dictionary:
@@ -5140,7 +5160,7 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 	var ledger := _SCENE_EVENT.validate_scene_receipts(_command_receipts, registration.value, _identity_issuer, get_node_or_null("/root/SaveManager"), contacts)
 	if not ledger.ok: return ledger
 	var trigger: Variant = ledger.value.commands.get(trigger_command_id)
-	if not trigger is Dictionary or trigger.scene_event.result.get("kind") not in ["scene_transition_accepted", "challenge_closed", "contact_entry_accepted", "contact_returned"] \
+	if not trigger is Dictionary or trigger.scene_event.result.get("kind") not in ["scene_transition_accepted", "challenge_closed", "contact_entry_accepted", "contact_returned", "thought_resolved"] \
 			or trigger.scene_event.result.target_id != target_id \
 			or trigger.scene_event.semantic.source.scene_occurrence != _scene_snapshot_references.get("active_occurrence_id"):
 		return _transaction_failure(&"scene_admission_trigger_mismatch", "")

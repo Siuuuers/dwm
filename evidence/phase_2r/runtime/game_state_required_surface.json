@@ -2236,6 +2236,14 @@
       "disposition": "retain",
       "replacement": "",
       "contract_test": "test_message_and_read_refusal_preserve_state_and_allow_exact_retry"
+    },
+    {
+      "symbol": "accept_scene_thought",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_yes_and_unresolved_save"
     }
   ]
 }

@@ -4341,7 +4341,7 @@ func dispatch_scene_event(live_session: Dictionary, envelope: Dictionary) -> Dic
 		return _command_failure(&"event_dependency_invalid")
 	_scene_event_dispatching = true
 	var result: Dictionary
-	if typeof(envelope.get("schema_version")) == TYPE_INT and envelope.schema_version == 2 and envelope.get("kind") in ["challenge.playable", "challenge.end"]:
+	if typeof(envelope.get("schema_version")) == TYPE_INT and envelope.schema_version == 2 and envelope.get("kind") in ["challenge.playable", "challenge.end", "thought.accept", "thought.pass"]:
 		# This path holds the actual native caption instead of pausing/resuming it.
 		result = _scene_event_port.dispatch(envelope.duplicate(true))
 	else:
@@ -4373,7 +4373,7 @@ func capture_scene_pending_marker() -> Dictionary:
 		return _command_failure(&"scene_marker_unavailable")
 	var source: Dictionary = _runtime_adapter._scene_source_boundary(_reading_session)
 	if not source.get("ok", false): return source
-	if source.value.marker.kind not in ["scene.transition", "challenge.playable", "challenge.end", "contact.enter", "contact.return"]:
+	if source.value.marker.kind not in ["scene.transition", "challenge.playable", "challenge.end", "contact.enter", "contact.return", "thought.pass"]:
 		return _command_failure(&"scene_marker_unavailable")
 	return {"ok": true, "value": source.value.marker.duplicate(true)}
 

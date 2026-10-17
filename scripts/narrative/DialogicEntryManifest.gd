@@ -284,7 +284,7 @@ static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 	if not ids_lines.ok or not signals.ok or ids_lines.value.size() != lines.size(): return _scene_fail("ids coverage")
 	for id: String in lines:
 		if ids_lines.value.get(id, {}).get("owning_entry_id") != lines[id]: return _scene_fail("line owner")
-	var payloads := {"scene.transition": ["target_id"], "challenge.playable": ["challenge_id"],
+	var payloads := {"thought.pass": ["opportunity_id", "yes_target_id", "pass_target_id"], "scene.transition": ["target_id"], "challenge.playable": ["challenge_id"],
 		"challenge.end": ["challenge_id"], "contact.enter": ["contact_event_id"], "contact.return": ["contact_event_id"],
 		"history.line.witness": ["entry_id", "line_id", "playback_token", "receipt_id"]}
 	for id: String in signals.value:
@@ -472,6 +472,11 @@ static func _validate_scene_tables(bundle: Dictionary, entries: Dictionary, prog
 	for value: Dictionary in markers.values():
 		var marker: Dictionary = value.row
 		match marker.kind:
+			"thought.accept": return _scene_fail("Yes is intent, not an authored boundary")
+			"thought.pass":
+				for target_id: String in [marker.payload.yes_target_id, marker.payload.pass_target_id]:
+					if not targets.value.has(target_id) or targets.value[target_id].target.kind != "scene":
+						return _scene_fail("dangling thought target")
 			"scene.transition":
 				if not targets.value.has(marker.payload.target_id): return _scene_fail("dangling transition")
 				var target: Dictionary = targets.value[marker.payload.target_id].target
