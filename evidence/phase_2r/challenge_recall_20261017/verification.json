@@ -1,0 +1,55 @@
+{
+  "final_source": "7f0e5ca0703257b0b1b4689ad5b3e7f082b3add4",
+  "final_source_tree": "bb3c89f3c73a4f180e70acae250f2ae5e93153a8",
+  "controller": "dd2dcfd9fc8fa5a905e9313ccacf3e1dc9e1353f",
+  "final_run": 39052548944,
+  "final_job": 117453896358,
+  "final_cases": 13,
+  "final_assertions": 480,
+  "final_clean_process_exits": 7,
+  "retained_subsets": [
+    {
+      "run": 39051925174,
+      "cases": 28,
+      "assertions": 339,
+      "whole_run": "failure",
+      "grouped_process_exit": 1,
+      "reason": "separate recall fixture census failure; no script errors"
+    },
+    {
+      "run": 39052328437,
+      "cases": 5,
+      "assertions": 70,
+      "whole_run": "failure",
+      "selected_unit_process_exit": 0,
+      "reason": "subsequent native creator expected one input to cross two boundaries"
+    }
+  ],
+  "distinct_behavior_cases": 35,
+  "distinct_behavior_assertions": 537,
+  "inventory_cases": 11,
+  "inventory_assertions": 352,
+  "archives": {
+    "run158-failed.zip": {
+      "bytes": 337416,
+      "sha256": "9995042848752fd735b53b3f37af880e7959758795688d947af0b1de1dab6e6e",
+      "verified_manifest_members": 27
+    },
+    "run161-qualified.zip": {
+      "bytes": 544869,
+      "sha256": "23e50ea4efdc54a5a2fff71cb621a55b2b159bc7d0cb7ebded485fe3428abcee",
+      "verified_manifest_members": 56
+    },
+    "run160-failed.zip": {
+      "bytes": 363484,
+      "sha256": "007089796e509968323ee395bd1b6427bdacd607b5306106d472867cde24fae5",
+      "verified_manifest_members": 36
+    }
+  },
+  "visual_review": "Three 992x558 English pixel-font captures: saved source and selected recall caption before/after fresh Load are fully visible; no wider layout qualification.",
+  "limits": [
+    "Five outcomes through physical-owner and pure resolver tests; native fresh Load covers never_started only.",
+    "No production prose/placement, arbitrary-content save migration, performance, all-interruption or whole-game claim.",
+    "Broad CI remains separate and unresolved."
+  ]
+}
