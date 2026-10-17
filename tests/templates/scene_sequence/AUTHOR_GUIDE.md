@@ -230,7 +230,7 @@ declare/allow `scene.transition` and `history.line.witness`. Do not copy the
 Challenge row or its recall signals into an ordinary two-slot example.
 
 If a slot is used as the destination of an optional thought instead, use the
-existing [partner-fork template](../partner_fork/README.md) and
+existing [partner-fork template](https://github.com/Siuuuers/dwm/blob/77df47a73c5c2b69978cf2df74ecf8ac4e9294a9/tests/templates/partner_fork/README.md) and
 [actual thought registration example](https://github.com/Siuuuers/dwm/blob/77df47a73c5c2b69978cf2df74ecf8ac4e9294a9/tests/support/ScenePartnerForkFixture.gd).
 That control has one Yes; passage across its authored boundary follows the default,
 including normal Auto. The names option_a/b alone never create such a control.
@@ -289,7 +289,7 @@ relinking. It is not a repair tool for malformed registration.
 Keep and link the existing content:
 [seven-day builder/guide](https://github.com/Siuuuers/dwm/blob/77df47a73c5c2b69978cf2df74ecf8ac4e9294a9/tests/templates/seven_day/README.md),
 [seven-day order](seven_day_order.json),
-[partner template](../partner_fork/README.md),
+[partner template](https://github.com/Siuuuers/dwm/blob/77df47a73c5c2b69978cf2df74ecf8ac4e9294a9/tests/templates/partner_fork/README.md),
 [ending DTL](https://github.com/Siuuuers/dwm/blob/77df47a73c5c2b69978cf2df74ecf8ac4e9294a9/tests/fixtures/dialogic/scene_seven_day_ending.dtl).
 The seven-day builder registers Day7.end→ending.alone.normal through the existing
 terminal owner. A bare return is not a replacement for that contract.
