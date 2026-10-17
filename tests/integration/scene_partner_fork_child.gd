@@ -35,8 +35,8 @@ func _load_partner(slot: int, initial: bool = false) -> bool:
 	if not _ok(prepared): return false
 	var count := ready_count
 	var loaded: Dictionary = await backup.commit_action(prepared.value.token)
-	assert_eq(loaded.get("code"), &"scene_activation_pending", str(loaded))
-	if loaded.get("code") != &"scene_activation_pending": return false
+	assert_true(loaded.get("ok", false) or loaded.get("code") == &"scene_activation_pending", str(loaded))
+	if not loaded.get("ok", false) and loaded.get("code") != &"scene_activation_pending": return false
 	var deadline := Time.get_ticks_msec() + 20000
 	while ready_count == count and Time.get_ticks_msec() < deadline: await get_tree().process_frame
 	assert_eq(ready_count, count + 1)

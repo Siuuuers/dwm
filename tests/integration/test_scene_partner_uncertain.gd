@@ -21,7 +21,8 @@ func test_committed_acknowledgement_loss_blocks_both_choices() -> void:
 	game._narrative_checkpoint_port = fault
 	var result: Dictionary = game.accept_scene_thought(frontier)
 	assert_false(result.ok)
-	assert_true(result.get("committed", false))
+	assert_eq(result.get("code"), &"APPLICATION_FATAL", str(result))
+	assert_true(result.get("details", {}).get("failure", {}).get("details", {}).get("committed", false))
 	assert_false(game._mutation_gate.guard_external(&"TEST.retry").ok)
 	assert_false(game.accept_scene_thought(frontier).ok)
 	assert_false(game.advance_scene_registered_marker().ok)
