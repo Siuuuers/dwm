@@ -23,7 +23,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 1ecf0d1e145281a188492b81bd03fb476ff48d37
+          ref: 21239126c2faa3bda37c74409b99cac5530696bc
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -31,9 +31,9 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '1ecf0d1e145281a188492b81bd03fb476ff48d37') { throw 'Candidate mismatch' }
+          if ((git rev-parse HEAD) -cne '21239126c2faa3bda37c74409b99cac5530696bc') { throw 'Candidate mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='1ecf0d1e145281a188492b81bd03fb476ff48d37'; tree='14e994c26e3562d4df780c3df1cbac1147f65d86'; controller='${{ github.event.pull_request.head.sha }}'; base='b86414491c5d9d865ae716d342461a2cc8ea70fa'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{candidate='21239126c2faa3bda37c74409b99cac5530696bc'; tree='282650ee183366702f3449967b34e22e78921c9b'; controller='${{ github.event.pull_request.head.sha }}'; base='b86414491c5d9d865ae716d342461a2cc8ea70fa'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -108,7 +108,7 @@ jobs:
           import collections,json,pathlib,re,subprocess,xml.etree.ElementTree as ET
           out=pathlib.Path('.godot/ci')
           lanes=[('memory', 'tests/unit/test_scene_caption_memory.gd', 'test_memory_is_current_occurrence_only_and_projection_is_pure'), ('scrollback', 'tests/integration/test_witnessed_caption_runtime.gd', 'test_full_scrollback_reprojection_keeps_native_state_and_three_caption_window'), ('retained', 'tests/integration/test_witnessed_caption_runtime.gd', 'test_silent_retained_reprojection_and_remeasurement_preserve_reveal_history_and_manual_scroll'), ('day4-create', 'tests/integration/test_scene_seven_day_connected_create.gd', ''), ('day4-load', 'tests/integration/test_scene_seven_day_connected_load.gd', 'test_fresh_load_restores_day4_caption_window_only')]
-          result={'source':'1ecf0d1e145281a188492b81bd03fb476ff48d37','tree':'14e994c26e3562d4df780c3df1cbac1147f65d86','tests':0,'assertions':0,'suites':[]}
+          result={'source':'21239126c2faa3bda37c74409b99cac5530696bc','tree':'282650ee183366702f3449967b34e22e78921c9b','tests':0,'assertions':0,'suites':[]}
           assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==result['source']
           assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()==result['tree']
           changed=subprocess.check_output(['git','diff','HEAD','--name-only'],text=True).splitlines()
