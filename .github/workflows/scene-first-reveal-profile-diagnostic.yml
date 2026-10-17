@@ -1,4 +1,4 @@
-name: Direct ending input readiness qualification
+name: Load caption memory qualification
 on:
   pull_request:
     paths:
@@ -12,7 +12,7 @@ concurrency:
 jobs:
   authority-audit:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
-    name: Windows / direct ending return
+    name: Windows / Load caption memory
     runs-on: windows-2022
     timeout-minutes: 20
     defaults:
@@ -23,7 +23,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 48b2aeefc2fe2c5dc8ddec4a00716598cc62e14e
+          ref: 1ecf0d1e145281a188492b81bd03fb476ff48d37
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -31,9 +31,9 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '48b2aeefc2fe2c5dc8ddec4a00716598cc62e14e') { throw 'Candidate mismatch' }
+          if ((git rev-parse HEAD) -cne '1ecf0d1e145281a188492b81bd03fb476ff48d37') { throw 'Candidate mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='48b2aeefc2fe2c5dc8ddec4a00716598cc62e14e'; tree='f95ed1f94cb39069e8801894eb7bd89907dea190'; controller='${{ github.event.pull_request.head.sha }}'; base='a18f28931ede72bbf228f08592481228e2fbb0bb'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{candidate='1ecf0d1e145281a188492b81bd03fb476ff48d37'; tree='14e994c26e3562d4df780c3df1cbac1147f65d86'; controller='${{ github.event.pull_request.head.sha }}'; base='b86414491c5d9d865ae716d342461a2cc8ea70fa'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -81,11 +81,13 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Run affected clock and caption checks
+      - name: Run focused caption memory and Day4 Load checks
         run: |
           $ErrorActionPreference = 'Stop'
           $lanes = @(
-            @{Name='ending-direct'; Script='tests/integration/test_scene_ending_direct_return.gd'; Filter='test_direct_ending_accept_returns_without_save'; Rendered=$true}
+            @{Name='memory'; Script='tests/unit/test_scene_caption_memory.gd'; Filter='test_memory_is_current_occurrence_only_and_projection_is_pure'; Rendered=$false},
+            @{Name='scrollback'; Script='tests/integration/test_witnessed_caption_runtime.gd'; Filter='test_full_scrollback_reprojection_keeps_native_state_and_three_caption_window'; Rendered=$false},
+            @{Name='retained'; Script='tests/integration/test_witnessed_caption_runtime.gd'; Filter='test_silent_retained_reprojection_and_remeasurement_preserve_reveal_history_and_manual_scroll'; Rendered=$false}
           )
           $failed = $false
           foreach ($lane in $lanes) {
@@ -94,6 +96,10 @@ jobs:
             & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId $lane.Name -LogName "$($lane.Name).log" -GodotArgs $args -EvidenceLogPath ".godot/ci/$($lane.Name).jsonl" -TimeoutSeconds 240 -Rendered:$lane.Rendered
             if ($LASTEXITCODE -ne 0) { $failed = $true }
           }
+          $createArgs = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_seven_day_connected_create.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/day4-create.xml')
+          $loadArgs = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_seven_day_connected_load.gd','-gunit_test_name=test_fresh_load_restores_day4_caption_window_only','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/day4-load.xml')
+          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'day4' -LogName 'day4-create.log' -GodotArgs $createArgs -NextGodotArgs $loadArgs -NextLogName 'day4-load.log' -EvidenceLogPath '.godot/ci/day4.jsonl' -TimeoutSeconds 240 -Rendered
+          if ($LASTEXITCODE -ne 0) { $failed = $true }
           if ($failed) { exit 1 }
       - name: Verify exact selected census and source
         run: |
@@ -101,8 +107,8 @@ jobs:
           @'
           import collections,json,pathlib,re,subprocess,xml.etree.ElementTree as ET
           out=pathlib.Path('.godot/ci')
-          lanes=[('ending-direct','tests/integration/test_scene_ending_direct_return.gd','test_direct_ending_accept_returns_without_save')]
-          result={'source':'48b2aeefc2fe2c5dc8ddec4a00716598cc62e14e','tree':'f95ed1f94cb39069e8801894eb7bd89907dea190','tests':0,'assertions':0,'suites':[]}
+          lanes=[('memory', 'tests/unit/test_scene_caption_memory.gd', 'test_memory_is_current_occurrence_only_and_projection_is_pure'), ('scrollback', 'tests/integration/test_witnessed_caption_runtime.gd', 'test_full_scrollback_reprojection_keeps_native_state_and_three_caption_window'), ('retained', 'tests/integration/test_witnessed_caption_runtime.gd', 'test_silent_retained_reprojection_and_remeasurement_preserve_reveal_history_and_manual_scroll'), ('day4-create', 'tests/integration/test_scene_seven_day_connected_create.gd', ''), ('day4-load', 'tests/integration/test_scene_seven_day_connected_load.gd', 'test_fresh_load_restores_day4_caption_window_only')]
+          result={'source':'1ecf0d1e145281a188492b81bd03fb476ff48d37','tree':'14e994c26e3562d4df780c3df1cbac1147f65d86','tests':0,'assertions':0,'suites':[]}
           assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==result['source']
           assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()==result['tree']
           changed=subprocess.check_output(['git','diff','HEAD','--name-only'],text=True).splitlines()
@@ -115,24 +121,25 @@ jobs:
               assert all(r.attrib.get('status')=='pass' and int(r.attrib.get('assertions','0'))>0 for r in rows),name
               log=pathlib.Path('.godot/phase2r_logs',name+'.log').read_text(encoding='utf-8-sig')
               assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',log),name
-              children=[json.loads(s) for s in (out/(name+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
-              assert len(children)==1 and children[0]['exit_code']==0,name
+              children=[json.loads(s) for s in (out/(('day4' if name.startswith('day4-') else name)+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
+              assert len(children)==(2 if name.startswith('day4-') else 1) and all(c['exit_code']==0 for c in children),name
               count=sum(int(r.attrib['assertions']) for r in rows)
               result['tests']+=len(rows);result['assertions']+=count
               result['suites'].append({'name':name,'script':script,'filter':select,'tests':len(rows),'assertions':count})
-          assert result['tests']==1
+          assert result['tests']==5
+          assert (out/'computer-seven-day-day4-restored-full.png').is_file()
           (out/'gate.json').write_text(json.dumps(result,indent=2))
           print(json.dumps(result))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Retain bounded clock evidence
+      - name: Retain bounded Load evidence
         if: always()
         run: |
           $ErrorActionPreference = 'Stop'
           @'
           import base64,hashlib,io,json,pathlib,subprocess,zipfile
           out=pathlib.Path('.godot/ci')
-          for source in ["tests/integration/scene_later_caption_child.gd","tests/integration/test_scene_ending_direct_return.gd","scenes/menu/MenuScene.tscn","scenes/ui/witnessed/WitnessedCaptionLayer.tscn","scripts/ui/MenuScene.gd","scripts/ui/witnessed/WitnessedCaptionLayer.gd","scripts/ui/witnessed/WitnessedTransportRail.gd","tests/title_shell/test_title_shell.gd","tests/unit/test_witnessed_transport_rail.gd","tests/integration/test_scene_clock_layout.gd","tests/integration/test_witnessed_caption_runtime.gd","tests/integration/test_dating_caption_style.gd","tests/manual/witnessed_transport_capture.gd","tools/backup_ui/verify.py"]:
+          for source in ["autoload/DialogicBridge.gd", "scripts/narrative/SoloReadingSession.gd", "scripts/ui/witnessed/WitnessedCaptionLayer.gd", "tests/unit/test_scene_caption_memory.gd", "tests/unit/test_scene_publication_cursor.gd", "tests/support/SceneDayReadingFixture.gd", "tests/integration/test_witnessed_caption_runtime.gd", "tests/integration/scene_seven_day_connected_child.gd", "tests/integration/scene_later_caption_child.gd", "tests/integration/test_scene_seven_day_connected_create.gd", "tests/integration/test_scene_seven_day_connected_load.gd"]:
               p=out/'source'/source;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(pathlib.Path(source).read_bytes())
           (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
           files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))
@@ -155,7 +162,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: scene-ending-direct-${{ github.run_id }}-${{ github.run_attempt }}
+          name: scene-load-memory-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             .godot/ci
             .godot/phase2r_logs
