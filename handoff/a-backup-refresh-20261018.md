@@ -343,3 +343,10 @@ Decision: retain all three ordinary authentication calls. Production wiring alig
 Next A measurement: split the existing SceneEventContract receipt owner into bundle/shape, committed initial admission, other admissions, event reconstruction/authentication and final chain passes. Time SaveManager creation capture within initial-admission work if needed; do not double-count it. This seeks a smaller internal optimization while preserving the public validation boundaries. Repeated pure bundle reconstruction is a source-level hypothesis, not yet a measured cause.
 
 Keep the existing post-failure hierarchy discriminator for the next run that reaches ending. Latest exported result still fails at Day7. Ending/Gallery/normal exit, B's scoped fixtures and relevant integration qualification remain open. Product is draft/unmerged; no master/integration change.
+
+
+## New-session checkpoint — 19 October 2026 Hong Kong time
+
+**Start with [a-resume-20261019.md](a-resume-20261019.md).** It records the completed receipt-internal diagnostic39145021649, exact source/controller/evidence hashes,8 tests/173 assertions, failed ending gate and independently reviewed provider hierarchy. Event reconstruction/authentication/group work measured56.2984% of the outer receipt-call phases; no optimization or matched speedup is accepted.
+
+The small internal reconstruction change is a proposal only: user requested handoff before edits were written, local status was clean, and no optimized candidate was published. Next session implements/reviews/tests that bounded candidate while preserving standalone public validators. Original evidence is retained under evidence/phase_2r/receipt_internal_profile_20261018/. Product remains draft/unmerged, master/integration unchanged.
