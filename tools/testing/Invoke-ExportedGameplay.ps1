@@ -204,8 +204,9 @@ function Advance([string]$From, [string]$To, [string]$Stage) {
     Observe-Line $To $Stage
 }
 function Backup-Scope {
-    # Find the nearest common accessible ancestor containing all nine uniquely named drawers.
-    # If the provider flattens away the surface, refuse instead of falling back to a global match.
+    # Prefer a common Backup ancestor. The observed native provider flattens this
+    # surface, so a window-bound fallback requires the exact unique 3x3 drawer grid.
+    # Action selection still uses the dock geometry, never a first global name match.
     $slots = @(Nodes $window | Where-Object {
         (Visible $_) -and $_.Current.ControlType -eq [Windows.Automation.ControlType]::Button -and
             $_.Current.Name -cmatch '^Slot 1, '
@@ -213,7 +214,6 @@ function Backup-Scope {
     Require ($slots.Count -eq 1) 'BACKUP_SLOT1_UNAVAILABLE_OR_AMBIGUOUS'
     $ancestor = [Windows.Automation.TreeWalker]::RawViewWalker.GetParent($slots[0])
     for ($i = 0; $i -lt 32 -and $null -ne $ancestor; $i++) {
-        Require (-not [Windows.Automation.Automation]::Compare($ancestor, $window)) 'BACKUP_PROVIDER_SURFACE_NOT_EXPOSED'
         $descendants = @(Nodes $ancestor)
         $matched = @($descendants | Where-Object {
             (Visible $_) -and $_.Current.ControlType -eq [Windows.Automation.ControlType]::Button -and
@@ -222,6 +222,12 @@ function Backup-Scope {
         if ($matched.Count -eq 9) {
             $identities = @($matched | ForEach-Object { ($_.Current.Name -split ', ', 2)[0] } | Sort-Object -Unique)
             Require ($identities.Count -eq 9) 'BACKUP_DRAWERS_NOT_UNIQUE'
+            $lefts = @($matched | ForEach-Object { $_.Current.BoundingRectangle.Left } | Sort-Object -Unique)
+            $tops = @($matched | ForEach-Object { $_.Current.BoundingRectangle.Top } | Sort-Object -Unique)
+            Require ($lefts.Count -eq 3 -and $tops.Count -eq 3) 'BACKUP_DRAWER_GRID_UNEXPECTED'
+            $cells = @($matched | ForEach-Object { "$($_.Current.BoundingRectangle.Left):$($_.Current.BoundingRectangle.Top)" } | Sort-Object -Unique)
+            Require ($cells.Count -eq 9) 'BACKUP_DRAWER_GRID_OVERLAP'
+            Record 'backup-provider-scope' @{ flattened = [Windows.Automation.Automation]::Compare($ancestor, $window); drawer_names = $identities; columns = $lefts; rows = $tops }
             return $ancestor
         }
         $ancestor = [Windows.Automation.TreeWalker]::RawViewWalker.GetParent($ancestor)
@@ -249,7 +255,8 @@ function Backup-Action([string]$Name) {
     $bottom = ($drawers | ForEach-Object { $_.Current.BoundingRectangle.Bottom } | Measure-Object -Maximum).Maximum
     $top = ($drawers | ForEach-Object { $_.Current.BoundingRectangle.Top } | Measure-Object -Minimum).Minimum
     $actions = @(Actions $scope $Name | Where-Object {
-        $_.Current.BoundingRectangle.Left -ge $right -and $_.Current.BoundingRectangle.Top -ge ($top + $bottom) / 2
+        $_.Current.BoundingRectangle.Left -ge $right -and $_.Current.BoundingRectangle.Top -ge ($top + $bottom) / 2 -and
+            $_.Current.BoundingRectangle.Bottom -le $bottom
     })
     Require ($actions.Count -eq 1) "BACKUP_ACTION_UNAVAILABLE_OR_AMBIGUOUS: $Name"
     Record 'backup-action-scope' @{ action = $Name; surface = (Describe $scope); target = (Describe $actions[0]) }
