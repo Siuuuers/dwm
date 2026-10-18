@@ -63,7 +63,6 @@ try {
         if ($root.Current.ProcessId -ne $TargetProcessId) { throw 'DIAGNOSTIC_UIA_OWNER_MISMATCH' }
         $record.root_name = $root.Current.Name
         $record.root_type = $root.Current.ControlType.ProgrammaticName
-        $record.provider = $root.GetCurrentPropertyValue([Windows.Automation.AutomationElement]::ProviderDescriptionProperty)
         $record.uia_phase = 'descendants'
         Flush-Report
         $nodes = $root.FindAll([Windows.Automation.TreeScope]::Descendants,[Windows.Automation.Condition]::TrueCondition)

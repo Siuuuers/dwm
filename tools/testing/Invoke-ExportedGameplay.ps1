@@ -311,6 +311,32 @@ function Save-Slot([int]$Number) {
     return $document
 }
 
+function Capture-FailureStacks {
+    if ($null -eq $child -or $child.HasExited -or [string]::IsNullOrWhiteSpace($env:DWM_CDB_PATH)) { return }
+    Check-Live
+    $start = [Diagnostics.ProcessStartInfo]::new()
+    $start.FileName = $env:DWM_CDB_PATH
+    $start.UseShellExecute = $false
+    $start.RedirectStandardOutput = $true
+    $start.RedirectStandardError = $true
+    $symbols = 'srv*' + (Join-Path $env:RUNNER_TEMP 'dwm-symbols') + '*https://msdl.microsoft.com/download/symbols'
+    foreach ($arg in @('-pv','-p',[string]$child.Id,'-y',$symbols,'-c','!runaway; ~* kv 24; lm; q')) { $start.ArgumentList.Add($arg) }
+    $debugger = [Diagnostics.Process]::new()
+    $debugger.StartInfo = $start
+    try {
+        Require ($debugger.Start()) 'STACK_DIAGNOSTIC_START_FAILED'
+        $stdout = $debugger.StandardOutput.ReadToEndAsync()
+        $stderr = $debugger.StandardError.ReadToEndAsync()
+        $complete = $debugger.WaitForExit(55000)
+        if (-not $complete) { $debugger.Kill($true); [void]$debugger.WaitForExit(3000) }
+        $result.stack_probe_completed = $complete
+        if ([Threading.Tasks.Task]::WaitAll([Threading.Tasks.Task[]]@($stdout,$stderr),3000)) {
+            [IO.File]::WriteAllText((Join-Path $output 'failure-stacks.stdout.log'),$stdout.GetAwaiter().GetResult(),$utf8)
+            [IO.File]::WriteAllText((Join-Path $output 'failure-stacks.stderr.log'),$stderr.GetAwaiter().GetResult(),$utf8)
+        }
+    } finally { $debugger.Dispose() }
+}
+
 function Capture-FailureWindow {
     if ($null -eq $child -or $child.HasExited) { return }
     $start = [Diagnostics.ProcessStartInfo]::new()
@@ -609,6 +635,7 @@ try {
     $result.failure = $_.Exception.Message
     try { Capture-FailureSaves } catch { $result.save_capture_failure = $_.Exception.Message }
     try { Capture-FailureWindow } catch { $result.native_probe_failure = $_.Exception.Message }
+    try { Capture-FailureStacks } catch { $result.stack_probe_failure = $_.Exception.Message }
     try { if ($null -ne $child -and -not $child.HasExited) { Capture 'failure' } } catch { $result.capture_failure = $_.Exception.Message }
     throw
 } finally {
