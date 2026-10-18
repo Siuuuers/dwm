@@ -809,11 +809,12 @@ func read_pending_consequence_checkpoint() -> Dictionary:
 	}}
 
 static func _normalize_outgoing_document(value: Variant, spliced: bool) -> Variant:
-	# A successful splice writes journal-owned, byte-proven bundles, not this document's journal.
-	# validate_outgoing() replaces it with those exact proofs. Normalize only the envelope/current
-	# bundle that it will actually read; the empty Array preserves its existing container check.
-	# Cold/missing-proof paths still normalize and validate the entire caller document unchanged.
-	if spliced and value is Dictionary and value.get("recovery_journal") is Array:
+	# A successful splice writes journal-owned, byte-proven bundles. Legacy validation
+	# replaces the caller journal with those proofs and needs only its container.
+	# Save9 additionally binds each caller entry to its proof before composition, so
+	# preserve and normalize that history for the existing count/value checks.
+	if spliced and value is Dictionary and value.get("schema_version") != SAVE_DOCUMENT_SCHEMA.SCENE_DOCUMENT_VERSION \
+			and value.get("recovery_journal") is Array:
 		var envelope: Dictionary = value.duplicate()
 		envelope["recovery_journal"] = []
 		return _normalize_json_string_types(envelope)

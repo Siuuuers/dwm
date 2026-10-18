@@ -87,3 +87,92 @@ func test_other_occurrence_anchor_is_refused_by_authenticated_source_binding() -
 	assert_false(RUN.validate(candidate).ok, "public Run also refuses unrebuilt foreign occurrence")
 	assert_false(SAVE.validate(fixture.document_for(candidate)).ok, "public Save preserves receipt refusal")
 	assert_eq(fixture.observed_state(), before)
+
+
+const CHECKPOINT_PORT := preload("res://scripts/application/run/SaveManagerCheckpointPort.gd")
+const CANONICAL := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+
+# Reuse the admitted owner-backed fixture, retaining its original valid checkpoint
+# as history under a later current checkpoint. No new story/issuer fixture is invented.
+func _scene_document_with_retained_history() -> Dictionary:
+	if not _ready_fixture(): return {}
+	var document: Dictionary = fixture.document.duplicate(true)
+	var previous: Dictionary = document.current_snapshot.duplicate(true)
+	document.current_snapshot.snapshot.checkpoint_sequence += 1
+	document.current_snapshot.snapshot.checkpoint_id = "%s:%d" % [
+		document.current_snapshot.snapshot.run_id, document.current_snapshot.snapshot.checkpoint_sequence]
+	document.recovery_journal = [previous]
+	var admitted: Dictionary = SAVE.validate(document)
+	assert_true(admitted.get("ok", false), "positive complete Save9 history prerequisite: " + str(admitted))
+	return document if admitted.get("ok", false) else {}
+
+func _scene_canonical(value: Variant) -> String:
+	var encoded: Dictionary = CANONICAL.stringify(value)
+	assert_true(encoded.get("ok", false), str(encoded))
+	return str(encoded.get("value", ""))
+
+func test_warm_scene_splice_preserves_history_and_admits_exact_document_proofs() -> void:
+	var document := _scene_document_with_retained_history()
+	if document.is_empty(): return
+	var raw_proofs: Array = document.recovery_journal.duplicate(true)
+	var normalized_proofs: Array = document.recovery_journal.duplicate(true)
+	var before := _scene_canonical(document)
+	var raw_before := _scene_canonical(raw_proofs)
+	var proofs_before := _scene_canonical(normalized_proofs)
+	var normalized: Dictionary = CHECKPOINT_PORT._normalize_outgoing_document(document, true)
+	var outgoing: Dictionary = SAVE._validate_outgoing_document_proofs(normalized, raw_proofs, normalized_proofs)
+	# Baseline fails specifically with scene journal proof count mismatch because
+	# its shared splice normalizer replaces Save9's retained journal with [].
+	assert_true(outgoing.get("ok", false), "warm Save9 must keep its proof-count binding: " + str(outgoing))
+	if not outgoing.get("ok", false): return
+	assert_eq(normalized.recovery_journal.size(), raw_proofs.size())
+	assert_eq(_scene_canonical(normalized.recovery_journal), raw_before)
+	var full: Dictionary = SAVE.validate(CHECKPOINT_PORT._normalize_json_string_types(document))
+	assert_true(full.get("ok", false), str(full))
+	if not full.get("ok", false): return
+	assert_eq(_scene_canonical(outgoing.value.candidate), _scene_canonical(full.value.candidate),
+		"optimized proof admission describes the same exact bytes as full validation")
+	assert_eq(_scene_canonical(document), before, "normalization/admission leaves caller values unchanged")
+	assert_eq(_scene_canonical(raw_proofs), raw_before)
+	assert_eq(_scene_canonical(normalized_proofs), proofs_before)
+	outgoing.value.candidate.recovery_journal[0].snapshot.gameplay.coins += 1
+	outgoing.value.candidate.current_snapshot.snapshot.gameplay.coins += 1
+	assert_eq(_scene_canonical(document), before, "returned current/history do not alias caller")
+	assert_eq(_scene_canonical(raw_proofs), raw_before, "returned history does not alias raw proof")
+	assert_eq(_scene_canonical(normalized_proofs), proofs_before, "returned history does not alias document proof")
+
+func test_scene_splice_still_refuses_missing_or_substituted_history_proofs() -> void:
+	var document := _scene_document_with_retained_history()
+	if document.is_empty(): return
+	var before := _scene_canonical(document)
+	var normalized: Dictionary = CHECKPOINT_PORT._normalize_outgoing_document(document, true)
+	var missing: Dictionary = SAVE._validate_outgoing_document_proofs(normalized, [], [])
+	assert_false(missing.get("ok", false))
+	assert_eq(missing.get("code"), &"invalid_recovery_journal")
+	assert_eq(missing.get("message"), "scene journal proof count mismatch")
+	var substituted: Array = document.recovery_journal.duplicate(true)
+	substituted[0].snapshot.gameplay.coins += 1
+	var substituted_before := _scene_canonical(substituted)
+	var refused: Dictionary = SAVE._validate_outgoing_document_proofs(normalized, substituted, substituted.duplicate(true))
+	assert_false(refused.get("ok", false))
+	assert_eq(refused.get("code"), &"invalid_recovery_journal")
+	assert_eq(refused.get("message"), "scene journal proof does not match its bundle")
+	assert_eq(_scene_canonical(document), before)
+	assert_eq(_scene_canonical(substituted), substituted_before, "refusal never repairs a substituted proof")
+
+func test_legacy_splice_normalization_keeps_empty_history_shortcut_and_cold_path() -> void:
+	# A normalization-only wire value; full legacy schema/byte acceptance remains
+	# covered by test_save_manager_checkpoint_port's existing splice tests.
+	var document := {"schema_version": 8, "current_snapshot": {"marker": &"current"},
+		"recovery_journal": [{"marker": &"history"}]}
+	var before := document.duplicate(true)
+	var warm: Dictionary = CHECKPOINT_PORT._normalize_outgoing_document(document, true)
+	assert_eq(warm.recovery_journal, [])
+	assert_eq(typeof(warm.current_snapshot.marker), TYPE_STRING)
+	var cold: Dictionary = CHECKPOINT_PORT._normalize_outgoing_document(document, false)
+	assert_eq(cold, CHECKPOINT_PORT._normalize_json_string_types(document))
+	assert_eq(cold.recovery_journal.size(), 1)
+	assert_eq(typeof(cold.recovery_journal[0].marker), TYPE_STRING)
+	assert_eq(document, before)
+	assert_eq(typeof(document.current_snapshot.marker), TYPE_STRING_NAME)
+	assert_eq(typeof(document.recovery_journal[0].marker), TYPE_STRING_NAME)

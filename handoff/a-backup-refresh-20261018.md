@@ -182,3 +182,47 @@ Concrete defect independently source-confirmed: SaveManagerCheckpointPort._norma
 Smallest candidate correction: preserve ordinary full normalization for Save9, keeping the empty-history shortcut for legacy families. No proof/validation rule is removed. In-flight isolated candidate75aecb404cba8c2531cb5b944fd8ae75f2990347/treeadffc2682d6ecf5fb1b6d35ee7595672123c3b74 also adds three tests to the existing owner-backed scene-anchor suite: positive warm proof/full-validation byte equivalence and detachment, missing/substituted proof refusal, and unchanged legacy normalization. Controller75b9fd18e8090c805f5050916e59b37d8160378a requires the original code to fail the selected regression for the exact count mismatch, then runs candidate scene-anchor/checkpoint-port suites and same-host baseline/candidate exported journeys. Baseline failure is retained, never converted to candidate success. Fixed-order comparison supports bounded evidence only. **At this handoff checkpoint the correction is not yet qualified or promoted.**
 
 Original1041039-byte ZIP SHA256839fefe9232367290fd3ef4ae12f9720e4ac24223d4843ac20a61f10e6548b7a;154 outer members and22/57/45 per-mode manifest members independently verified, along with both retained checkpoint-port sources. [Lower-phase evidence and replayable verifier](../evidence/phase_2r/checkpoint_profile_20261018/) preserve the original failed run. Save/transition latency, ending/Gallery/normal exit and B's bounded fixtures remain open.
+
+## Coordinator A continuation — Save9 splice correction qualified within scope
+
+[Run39132455733](https://github.com/Siuuuers/dwm/actions/runs/39132455733), job117690225862, completed the focused qualification and same-host exported comparison. Overall workflow remains **failed at the candidate ending deadline**. The earlier in-flight status above is superseded by this section.
+
+Promote only scripts/application/run/SaveManagerCheckpointPort.gd's Save9 normalization predicate/comment correction and the three additive tests in tests/integration/test_scene_saved_event_anchor.gd. Keep the diagnostic driver, deadline experiment and GameState/DialogicBridge timing wrappers isolated. No persisted schema, checkpoint count, caller/proof equality check, serializer, atomic write, reread, rollback or proof-retention gate changed. Genuine caller/proof mismatch still declines the optimization and falls back to strict validation of the actual spliced bytes.
+
+### Focused qualification
+
+The selected new regression ran with the original checkpoint port substituted byte-for-byte, failed with exactly one assertion for `scene journal proof count mismatch`, then the candidate bytes were restored in finally. The failure was not a parse/setup error. Candidate tests ran against the restored correction in isolated Windows cloud processes.
+
+| Suite | Executed tests | XML testcase assertions | Exit |
+| --- | ---: | ---: | ---: |
+| Expected original-code regression | 1 | 6, one failure | 1, expected |
+| Scene saved-event anchor, including3 new tests | 7 | 89 | 0 |
+| Checkpoint port, including existing mutation/write/reread/history-proof checks | 42 | 1268 | 0 |
+| Candidate total | 49 | 1357 | |
+
+Four separate PowerShell deadline checks also passed. The new scene tests use the existing owner-backed fixture: valid complete Save9 history, exact canonical equivalence with full validation, output detachment, missing/substituted proof refusal and unchanged legacy/cold normalization. They do not independently exercise a deliberately mutated Save9 caller through a complete physical write; legacy full-port tests cover that fallback structure and the exported journey covers actual unmodified Save9 writes. No leak-free or broad-CI completion claim.
+
+### Same-host comparison and limits
+
+Both builds used the same external driver, standard4.6.3 Windows renderer/accessibility/audio settings, profiling flags and original30s caption deadline, with separate user roots. Baseline source193691f9 used artifact12137690574; candidate75aecb404 used a freshly exported package. Baseline ran first: this is one bounded fixed-order comparison, not general performance statistics.
+
+| Measured first Day4→Day5 operation | Baseline | Correction |
+| --- | ---: | ---: |
+| Whole forward operation | 30.530s | 28.701s |
+| Target narrative checkpoint call | 11.872s | 10.410s |
+| Target lower commit | 6.266s | 5.075s |
+| Target outgoing schema work | 0.979s, optimization refused | 4.102s, accepted |
+| Target atomic-write phase, including validator | 4.234s | 0.007s |
+| Target fallback text-validator calls | 1 | 0 |
+
+The whole-operation difference is1.830s (~6.0%). Do not advertise the4.227s write-phase difference as net savings:3.123s moves into successful outgoing-schema work. Candidate warm checkpoints11–17 all report outgoing_validation_ok=true with zero fallback text-validator calls. The cold source checkpoint still performs its original validation.
+
+Baseline Load failed at Day5. Candidate Load reached Day5, Day6 and full Day7 opening/closing, then failed waiting for the ending; both required forced cleanup-1. Capability/Create passed with normal exits0 for both packages. Candidate ordinary forward totals after the first transition were25.581s and29.249s. Ending forward work took36.363s, including19.439s in its distinct admission branch. Lower checkpoint17 prepare9.245s/commit9.278s occur in that ending sequence; do not rename the whole admission as the ordinary target-commit scope. Actual Day7 closing and later ending-failure captures were independently viewed. The late visible ending does not qualify in-budget action readiness, durable Gallery award, title return or normal loader exit.
+
+Candidate diagnostic package artifact12138174416 (`forward-profile-package-39132455733-1`), expires25October, source75aecb404cba8c2531cb5b944fd8ae75f2990347/treeadffc2682d6ecf5fb1b6d35ee7595672123c3b74. Inner ZIP99454506bytes/SHA2566b59c85c9b05e4de97c14b14267b4b80354d683727be5f65892ce8736fca017f. Original evidence ZIP3017358bytes/SHA256c252c20ac31060426673326155da93def6a4298cb570d8e1edc7445bb752f004;329 outer members and272 inner mode members independently verified. Source pins: corrected port9306b21bd1e92e1c81c25a709c89470b4e2d8179; scene tests0c104ca0edb62f07baa5092af0f487e335e48fd3. [Original comparison, XML, screenshots and replayable verifier](../evidence/phase_2r/scene_splice_fix_20261018/) retain both failed loaders without rewriting their outcomes.
+
+### Next owned work
+
+Keep this demonstrated correction. Remaining warm preparation/outgoing-schema work is still expensive: checkpoint17 document build6.846s includes4.424s in the combined scene-family/history metadata phase, while outgoing schema is6.913s. Inspect the existing Run9/history-validation owners and proof obligations before selecting another change; these timings do not authorize bypassing historical validation or introducing a cache. The source cold path and observed Backup Save latency also remain limitations. Reuse existing profiles and the retained package for any harness-only follow-up; do not repeat equivalent UIA polling.
+
+A retains runtime/controller/dispatch ownership, C reviews new evidence/proposals, and B's two scoped fixtures remain queued behind this exported boundary. Ending/Gallery/normal loader exit and relevant integration qualification remain open. No merge, release, master/integration update, new feature or architecture decision was made.
