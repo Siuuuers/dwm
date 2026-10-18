@@ -47,6 +47,7 @@ var _info_text: Label
 var _info_margin: MarginContainer
 var _info_overlay: Control
 var _body: Control
+var _displayed_projection_revision := -1
 var _port: Object
 var _localization: Object
 var _profile: Object
@@ -190,28 +191,31 @@ func configure_scene_backup(port: Object, localization: Object = null,
 	var candidate := _presentation_candidate(palette, null, localization, profile, true)
 	if candidate.is_empty():
 		return {"ok": false, "code": &"invalid_backup_presentation"}
+	var revision := _projection_revision(port)
 	var result: Variant = port.get_projection()
 	var next := _projection_records(result, true)
 	if next.is_empty():
 		return {"ok": false, "code": &"invalid_backup_projection"}
 	# The validated snapshot is adopted once, without a second port read.
-	for binding in [[_port, "projection_changed", refresh_view],
+	for binding in [[_port, "projection_changed", _on_projection_changed],
 			[_localization, "locale_changed", _on_locale_changed],
 			[_profile, "preference_changed", _on_preference_changed]]:
 		var previous: Object = binding[0]
 		if is_instance_valid(previous) and previous.has_signal(binding[1]) and previous.is_connected(binding[1], binding[2]):
 			previous.disconnect(binding[1], binding[2])
 	_port = port
+	_displayed_projection_revision = -1
 	_localization = localization
 	_profile = profile
 	_run_palette = palette
 	_day = null
 	_scene_presentation = true
 	_records = next
+	_displayed_projection_revision = revision
 	_projection_valid = true
 	_status_key = ""
 	last_result = result.duplicate(true)
-	for binding in [[_port, "projection_changed", refresh_view],
+	for binding in [[_port, "projection_changed", _on_projection_changed],
 			[_localization, "locale_changed", _on_locale_changed],
 			[_profile, "preference_changed", _on_preference_changed]]:
 		var source: Object = binding[0]
@@ -239,14 +243,15 @@ func configure_backup(port: Object, localization: Object = null, profile: Object
 	_run_palette = palette
 	_day = day
 	_port = port
+	_displayed_projection_revision = -1
 	_localization = localization
 	_profile = profile
 	if localization != null and localization.has_signal("locale_changed") and not localization.is_connected("locale_changed", _on_locale_changed):
 		localization.connect("locale_changed", _on_locale_changed)
 	if profile != null and profile.has_signal("preference_changed") and not profile.is_connected("preference_changed", _on_preference_changed):
 		profile.connect("preference_changed", _on_preference_changed)
-	if port.has_signal("projection_changed") and not port.is_connected("projection_changed", refresh_view):
-		port.connect("projection_changed", refresh_view)
+	if port.has_signal("projection_changed") and not port.is_connected("projection_changed", _on_projection_changed):
+		port.connect("projection_changed", _on_projection_changed)
 	_ready_result = refresh_view() if is_node_ready() else {"ok": true}
 	return _ready_result
 
@@ -293,6 +298,19 @@ func focus_entry(mode: StringName = &"") -> bool:
 	show_window()
 	return true
 
+## Only skip a notification already covered by this view's successful read.
+## Explicit refreshes still inspect; other subscribers retain their own state.
+func _on_projection_changed() -> void:
+	var revision := _projection_revision(_port)
+	if _projection_valid and revision >= 0 and revision == _displayed_projection_revision:
+		return
+	refresh_view()
+
+func _projection_revision(port: Object) -> int:
+	if is_instance_valid(port) and port.has_method("get_projection_change_revision"):
+		return int(port.get_projection_change_revision())
+	return -1
+
 func refresh_view() -> Dictionary:
 	if not is_inside_tree():
 		return {"ok": false, "code": &"backup_view_unmounted"}
@@ -300,6 +318,7 @@ func refresh_view() -> Dictionary:
 		return {"ok": false, "code": &"backup_unconfigured"}
 	if is_instance_valid(confirmation):
 		confirmation._finish(false)
+	var revision := _projection_revision(_port)
 	var result: Variant = _port.get_projection()
 	if not result is Dictionary:
 		_projection_failure()
@@ -313,6 +332,7 @@ func refresh_view() -> Dictionary:
 		_projection_failure()
 		return {"ok": false, "code": &"invalid_backup_projection"}
 	_records = next
+	_displayed_projection_revision = revision
 	_projection_valid = true
 	if _recovering:
 		_retry_enabled = bool(_records[selected_locator].actions.get(_source_action, false))

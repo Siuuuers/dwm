@@ -12,6 +12,7 @@ var _admission := Callable()
 var _admission_required := false
 var _pending: Dictionary = {}
 var _projection_change_queued := false
+var _projection_change_revision := 0
 
 func configure(save_manager: Object, context: String = "in_run",
 		admission: Callable = Callable()) -> Dictionary:
@@ -39,7 +40,12 @@ func configure(save_manager: Object, context: String = "in_run",
 func _on_capability_changed(_capability: Dictionary) -> void:
 	_queue_projection_changed()
 
+## Presentation invalidation only; never a file revision or action authority.
+func get_projection_change_revision() -> int:
+	return _projection_change_revision
+
 func _queue_projection_changed() -> void:
+	_projection_change_revision += 1
 	if not _projection_change_queued:
 		_projection_change_queued = true
 		call_deferred("_publish_projection_changed")

@@ -1,5 +1,118 @@
 extends "res://addons/gut/test.gd"
 
+class RevisionPort extends FakePort:
+	signal projection_changed()
+	var revision := 0
+	var queued := false
+	var invalidate_on_read := false
+	var fail_read := false
+	func get_projection_change_revision() -> int:
+		return revision
+	func invalidate() -> void:
+		revision += 1
+		if not queued:
+			queued = true
+			call_deferred("_publish")
+	func _publish() -> void:
+		queued = false
+		projection_changed.emit()
+	func get_projection() -> Dictionary:
+		var result := super.get_projection()
+		if invalidate_on_read:
+			invalidate_on_read = false
+			invalidate()
+		return {"ok": false, "code": &"unavailable"} if fail_read else result
+	func commit_action(value: String) -> Dictionary:
+		var result := super.commit_action(value)
+		if result.get("ok", false):
+			invalidate()
+		return result
+
+class UnversionedPort extends FakePort:
+	signal projection_changed()
+
+func test_save_refresh_consumes_only_its_views_queued_notification() -> void:
+	var port := RevisionPort.new()
+	var app: BackupApp = load("res://scenes/apps/BackupApp.tscn").instantiate()
+	var other: BackupApp = load("res://scenes/apps/BackupApp.tscn").instantiate()
+	add_child_autofree(app)
+	add_child_autofree(other)
+	assert_true(app.configure_backup(port).ok)
+	assert_true(other.configure_backup(port).ok)
+	var publications := [0]
+	port.projection_changed.connect(func(): publications[0] += 1)
+	var before := port.projections
+	port.token = "save"
+	app._pending_token = "save"
+	app._source_action = "save"
+	await app._commit_pending()
+	assert_eq(port.commits, 1)
+	assert_eq(port.projections, before + 1, "successful Save reads immediately")
+	assert_eq(app.status_label.text, "Saved")
+	await get_tree().process_frame
+	assert_eq(publications[0], 1, "other subscribers still receive the notification")
+	assert_eq(port.projections, before + 2, "only the stale second view reads")
+	assert_eq(app.status_label.text, "Saved")
+	assert_true(app.refresh_view().ok)
+	assert_eq(port.projections, before + 3, "explicit refresh always inspects")
+
+func test_projection_changes_during_and_after_read_are_not_acknowledged_early() -> void:
+	var port := RevisionPort.new()
+	var app: BackupApp = load("res://scenes/apps/BackupApp.tscn").instantiate()
+	add_child_autofree(app)
+	assert_true(app.configure_backup(port).ok)
+	port.invalidate()
+	port.invalidate_on_read = true
+	var before := port.projections
+	assert_true(app.refresh_view().ok)
+	await get_tree().process_frame
+	assert_eq(port.projections, before + 2, "invalidation during read needs another projection")
+	before = port.projections
+	assert_true(app.refresh_view().ok)
+	port.invalidate()
+	await get_tree().process_frame
+	assert_eq(port.projections, before + 2, "post-read invalidation must reach the view")
+
+func test_failed_projection_and_equal_revision_replacement_do_not_skip_refresh() -> void:
+	var port := RevisionPort.new()
+	var app: BackupApp = load("res://scenes/apps/BackupApp.tscn").instantiate()
+	add_child_autofree(app)
+	assert_true(app.configure_backup(port).ok)
+	port.invalidate()
+	assert_true(app.refresh_view().ok)
+	port.fail_read = true
+	assert_false(app.refresh_view().ok)
+	var before := port.projections
+	port.fail_read = false
+	await get_tree().process_frame
+	assert_eq(port.projections, before + 1, "invalid view retries despite equal revision")
+	var replacement := RevisionPort.new()
+	replacement.revision = port.revision
+	assert_true(app.configure_backup(replacement).ok)
+	assert_eq(replacement.projections, 1, "new port is adopted even at equal revision")
+
+func test_getterless_port_keeps_signal_refresh() -> void:
+	var port := UnversionedPort.new()
+	var app: BackupApp = load("res://scenes/apps/BackupApp.tscn").instantiate()
+	add_child_autofree(app)
+	assert_true(app.configure_backup(port).ok)
+	var before := port.projections
+	port.projection_changed.emit()
+	assert_eq(port.projections, before + 1)
+
+func test_real_port_counts_each_invalidation_while_publication_is_queued() -> void:
+	var port := BackupPresentationPort.new()
+	var publications := [0]
+	port.projection_changed.connect(func(): publications[0] += 1)
+	var before := port.get_projection_change_revision()
+	port._queue_projection_changed()
+	port._queue_projection_changed()
+	assert_eq(port.get_projection_change_revision(), before + 2)
+	assert_eq(publications[0], 0)
+	await get_tree().process_frame
+	assert_eq(publications[0], 1)
+
+
 const BACKUP_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
 const DESKTOP_THEME := preload("res://scripts/ui/desktop/DesktopTheme.gd")
 const PALETTES := preload("res://scripts/settings/SettingsPaletteRegistry.gd")
