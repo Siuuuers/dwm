@@ -52,7 +52,9 @@ The passive observer requires the existing profile flag and exact Load context; 
 
 The original failure is `UIA_UNAVAILABLE_OR_TIMEOUT: TEST Seven-day ending.` The final raw gate retains both `load failed its original gate` and `Load driver process or step failed`. `continue-on-error` can normalize the individual Actions step conclusions to success; those conclusions do not replace original `result.json`, driver process receipts, or `diagnostic-acceptance.json`. The final workflow failed correctly.
 
-The original ending wait expired after **30.0165036 seconds**. Its **47 ending action enumerations all returned zero matches**. Query completion times extend from **18.9534239 to 29.9973096 seconds** within that original wait. This failed before the connected ending → Gallery → normal exit journey could qualify. Sources inside the ZIP are `ci/exported-load/events.json`, `ci/exported-load/result.json`, `ci/load-process.json`, and `ci/diagnostic-acceptance.json`.
+The original ending wait expired after **30.0165036 seconds**. Its **47 ending action enumerations all returned zero matches**. Query completion times extend from **18.9534239 to 29.9973096 seconds** within that original wait. This failed before the connected ending → durable Gallery award → Title → normal shutdown journey could qualify. Sources inside the ZIP are `ci/exported-load/events.json`, `ci/exported-load/result.json`, `ci/load-process.json`, and `ci/diagnostic-acceptance.json`.
+
+The unchanged Load tail checks completed lifecycle, `GALLERY_RECORDED`, exactly one new durable Gallery transaction and unlock, and preservation of all prior Gallery receipt values. It observes Title and requests normal shutdown. Gallery UI interaction is outside this driver path.
 
 ## Six bounded publication observations
 
@@ -78,7 +80,7 @@ At the settled follow-up, the root children end with `EndingScene` at index **15
 
 The recorded live owner state and natural setter calls narrow the next investigation to publication around the surrounding root-node order. A separate isolated candidate may test whether the EndingScene/layout sibling order at their confirmed mounting boundary affects exposure to the unchanged native action query. Existing EndingScene ownership is the bounded edit location; a new manager or broad recovery rewrite is not justified by these observations.
 
-This is an experiment hypothesis, not a proven ordering defect or fix. Preserve the original driver, exact action names, process/window checks, 30/480-second deadlines, recovery controls, save/history guarantees, and raw failure reporting. Any focused owner/recovery check supplements the decisive original exported Load → ending → Gallery → clean-exit journey. Do not repeat the completed RawView/FindAll discriminator simply to restate the prior omission. Distinguish changes to sibling order from changes that explicitly request publication when assessing causality.
+This is an experiment hypothesis, not a proven ordering defect or fix. Preserve the original driver, exact action names, process/window checks, 30/480-second deadlines, recovery controls, save/history guarantees, and raw failure reporting. Any focused owner/recovery check supplements the decisive original exported Load → ending → durable Gallery award → Title → clean-exit journey. Do not repeat the completed RawView/FindAll discriminator simply to restate the prior omission. Distinguish changes to sibling order from changes that explicitly request publication when assessing causality.
 
 ## Verification and custody
 
@@ -106,4 +108,4 @@ The accompanying [engine-source-identity-note.md](engine-source-identity-note.md
 
 This folder contains the original evidence ZIP, external archive receipt, independent verification report, self-contained verifier, this README, and the engine-source qualification note. The exact executable ZIP remains in the separately retained Actions artifact. No focused XML is expected from this passive run.
 
-Original ending, Gallery, and normal Load exit acceptance remain missing. The next bounded order hypothesis has no result in this bundle. Runtime promotion, merge, broad CI acceptance, and source-to-engine causality are not established. No Godot or PowerShell ran locally while preparing or verifying this retention bundle; root remains the sole publisher.
+Original ending, durable Gallery award, Title return, and normal Load exit acceptance remain missing. The next bounded order hypothesis has no result in this bundle. Runtime promotion, merge, broad CI acceptance, and source-to-engine causality are not established. No Godot or PowerShell ran locally while preparing or verifying this retention bundle; root remains the sole publisher.

@@ -2,7 +2,7 @@
 
 Updated 19 October 2026 Hong Kong time (18 October UTC).
 
-**Decision: retain the candidate as a promising isolated experiment. Do not promote its runtime to PR36 yet.** The exact new guard tests pass on both the original contract and candidate. All four measured complete forward operations are faster in this one same-host pair. Both original exported Load journeys still fail the ending gate, so ending, Gallery and normal Load exit remain unqualified.
+**Decision: retain the candidate as a promising isolated experiment. Do not promote its runtime to PR36 yet.** The exact new guard tests pass on both the original contract and candidate. All four measured complete forward operations are faster in this one same-host pair. Both original exported Load journeys still fail the ending gate, so ending, the durable Gallery award, Title return and normal Load exit remain unqualified.
 
 ## Observable outcome and ownership
 
@@ -77,7 +77,7 @@ The new multi-fault coverage checks five invalid envelope/registration combinati
 
 Both Load failures are UIA_UNAVAILABLE_OR_TIMEOUT: TEST Seven-day ending. Original Load process elapsed times are 275.1382115 seconds baseline and 228.0628225 seconds candidate. Those totals include diagnostics and forced cleanup, and are not successful journey durations.
 
-In each variant, the created slot1 is byte-identical in the quiet-before, quiet-after and failure snapshots. Slot2 is byte-identical across quiet-before, quiet-after, restored and failure snapshots. These concrete immutable-slot observations do not establish arbitrary saved documents are identical. The ending failure occurs before the requested Gallery/Title/normal-exit journey is accepted.
+In each variant, the created slot1 is byte-identical in the quiet-before, quiet-after and failure snapshots. Slot2 is byte-identical across quiet-before, quiet-after, restored and failure snapshots. These concrete immutable-slot observations do not establish arbitrary saved documents are identical. The ending failure occurs before the requested durable Gallery award/Title/normal-exit checks are accepted. The unchanged driver verifies completed lifecycle, the persisted Gallery award and prior receipt preservation; it does not open the Gallery UI.
 
 ## Timing results
 
