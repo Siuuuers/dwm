@@ -1,4 +1,4 @@
-name: Challenge outcome clean-process qualification
+name: Canonical public inventory refresh
 on:
   pull_request:
     paths:
@@ -12,7 +12,7 @@ concurrency:
 jobs:
   authority-audit:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
-    name: Windows / Challenge outcome clean-process qualification
+    name: Windows / Canonical public inventory refresh
     runs-on: windows-2022
     timeout-minutes: 20
     defaults:
@@ -81,29 +81,33 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Validate existing physical outcomes and legacy scene challenges
+      - name: Regenerate canonical inventories and check reproducibility
+        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
+      - name: Verify inventory drift and read-only contracts
+        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite public_surfaces
+      - name: Verify bounded source changes and exact census
         run: |
           $ErrorActionPreference = 'Stop'
-          $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/unit/test_scene_five_outcomes.gd,res://tests/unit/test_scene_challenge.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/challenge-outcomes.xml')
-          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'challenge-outcomes' -LogName 'challenge-outcomes.log' -GodotArgs $arguments -EvidenceLogPath '.godot/ci/challenge-outcomes.jsonl' -TimeoutSeconds 600
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Verify exact source census and clean execution
-        run: |
           @'
           import collections,json,pathlib,re,subprocess,xml.etree.ElementTree as ET
-          out=pathlib.Path('.godot/ci');scripts=['tests/unit/test_scene_five_outcomes.gd','tests/unit/test_scene_challenge.gd']
-          root=ET.parse(out/'challenge-outcomes.xml').getroot();rows=list(root.iter('testcase'))
-          expected=[(script,n) for script in scripts for n in re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(encoding='utf-8'),re.M)]
-          assert collections.Counter(s for s,n in expected)==collections.Counter({scripts[0]:6,scripts[1]:22})
-          assert collections.Counter((r.attrib['classname'],r.attrib['name']) for r in rows)==collections.Counter(expected)
+          out=pathlib.Path('.godot/ci')
+          script='tests/unit/tooling/test_public_surface_inventory.gd'
+          expected=re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(encoding='utf-8'),re.M)
+          root=ET.parse(out/'public_surfaces.xml').getroot(); rows=list(root.iter('testcase'))
+          assert collections.Counter((r.attrib['classname'],r.attrib['name']) for r in rows)==collections.Counter((script,n) for n in expected)
           assert not any(list(root.iter(t)) for t in ['failure','error','skipped'])
           assert all(r.attrib.get('status')=='pass' and int(r.attrib.get('assertions','0'))>0 for r in rows)
-          exits=[json.loads(l) for l in (out/'challenge-outcomes.jsonl').read_text(encoding='utf-8-sig').splitlines()]
-          assert len(exits)==1 and exits[0]['exit_code']==0
-          log=pathlib.Path('.godot/phase2r_logs/challenge-outcomes.log').read_text(encoding='utf-8-sig')
-          assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',log)
+          allowed={'.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1','evidence/phase_2r/runtime/game_state_surface.json','evidence/phase_2r/runtime/save_manager_surface.json'}
           changed=set(subprocess.check_output(['git','diff','HEAD','--name-only'],text=True).splitlines())
-          assert not changed-{'.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1'},changed
+          assert not changed-allowed,changed
+          for p in pathlib.Path('.godot/phase2r_logs').glob('*.log'):
+              assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',p.read_text(encoding='utf-8-sig')),str(p)
+          exits=[]
+          for p in out.rglob('*.jsonl'):
+              for line in p.read_text(encoding='utf-8-sig').splitlines():
+                  if line.strip():
+                      item=json.loads(line); assert item['exit_code']==0,item; exits.append(item)
+          assert len(exits)==5,len(exits)
           report={'source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'tests':len(rows),'assertions':sum(int(r.attrib['assertions']) for r in rows),'clean_exits':len(exits),'changed':sorted(changed)}
           (out/'gate.json').write_text(json.dumps(report,indent=2));print(json.dumps(report))
           '@ | python -
@@ -114,7 +118,7 @@ jobs:
           @'
           import base64,hashlib,io,json,pathlib,subprocess,zipfile
           out=pathlib.Path('.godot/ci')
-          for source in ["tests/unit/test_scene_five_outcomes.gd","tests/unit/test_scene_challenge.gd","tests/support/SceneChallengeFixture.gd","scripts/application/run/DatingPhysicalOwner.gd","tools/testing/Invoke-IsolatedGodot.ps1"]:
+          for source in ["tools/runtime/PublicSurfaceInventory.gd","tools/runtime/generate_public_surface_inventory.gd","tools/testing/Invoke-PublicSurfaceValidation.ps1","tests/unit/tooling/test_public_surface_inventory.gd","evidence/phase_2r/runtime/game_state_required_surface.json","evidence/phase_2r/runtime/save_manager_required_surface.json","evidence/phase_2r/runtime/game_state_surface.json","evidence/phase_2r/runtime/save_manager_surface.json"]:
               p=out/'source'/source;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(pathlib.Path(source).read_bytes())
           (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
           files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))
