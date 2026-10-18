@@ -107,3 +107,23 @@ Original999043-byte evidence archive SHA25671e6adb85945fc705cfb7e7b6b7f0834e2e7f
 A retains driver/controller/dispatch ownership. Use the same retained corrected package for a matched boundary experiment: while the original window is unresponsive, take bounded native-only samples instead of repeatedly calling Window/UIA. Once responsive, apply the same fresh actionable-caption gate within the same30-second deadline. Record process CPU delta and bracket Window acquisition separately if needed. This is a discriminator for observation-related contention versus long application work, not permission to bypass readiness, lengthen the timeout or call provider presence a pass. If the stall remains, profile the existing scene-event/target-admission owners before selecting a runtime change; the existing Save/Load phase hooks do not cover these forward day-transition phases.
 
 Retain the observed Save latency limitation and accepted Backup correction. After this boundary is resolved, finish ending/Gallery/normal exit, apply B's two existing bounded fixture corrections with negative/cache-teardown checks, and consolidate the existing author guide. No extra inventory, retired-feature restoration, merge, master/integration change or release.
+
+## Coordinator A continuation — native-only discriminator, 18 October 2026
+
+[Run39128530440](https://github.com/Siuuuers/dwm/actions/runs/39128530440), job117678690818, controllerbf53dcf82ba290d220756767563961ca5d4b17fc, again failed at `UIA_UNAVAILABLE_OR_TIMEOUT: TEST Day7 opening.` Isolated candidateb59b9d548f352895ac89b6aa55b80822358f8b69/tree82cafaf91f939be1545d7cd61c8770e687273e97 reused corrected artifact12135278742 and the same package hash. No runtime rebuild, product driver replacement or timeout increase occurred.
+
+The driver withholds Window/UIA queries while bounded native probes cannot obtain a response from the original game window. Once responsive it retains the fresh exact-name, visible, enabled, InvokePattern and unique-match gate. It also rechecks the original deadline after blocking Window and Find operations and before returning a match. Four focused tests of the actual Wait-One definition passed in Windows cloud: late root refused before enumeration, late match refused, timely unique match accepted, and ambiguous match refused. These mocked boundaries qualify the deadline logic, not the game.
+
+| Initial caption wait | Elapsed | Process CPU delta | UIA acquisition |
+| --- | ---: | ---: | --- |
+| Day5 opening | 29.301s | 29.672s | Window took45.94ms, after29.149s of the wait |
+| Day6 opening | 27.630s | 27.891s | Window took17.43ms, after27.502s of the wait |
+| Day7 opening | 30.011s, failed | 30.000s | None;261 native samples, zero responsive |
+
+Repeated UIA queries during the wait are not necessary for this stall. CPU is aggregate process time; this does not identify a thread, function, or exclusively CPU-bound cause. Native probes and diagnostics still affect timing. The failure screenshot visibly contains the Day7 opening caption, but pixels do not qualify readiness. Capability and Create passed with normal exit0; Load required forced cleanup-1. Ending/Gallery/normal loader exit remain unqualified, and the existing Save latency limitation remains.
+
+Original1017512-byte ZIP SHA2566a88d9bd84a0cc6cab2c79b6696964d1f42057260bb20df34e0c3e9d1076a0f0, all166 outer manifest members, inner mode manifests, exact source pins and deadline results verified. Separate read-only review independently checked archive hashes and the native-only/CPU interpretation. [Original evidence, verifier and full telemetry](../evidence/phase_2r/native_readiness_20261018/) preserve this failed run. No prior snapshot or custody audit was repeated.
+
+### Next owned action after the matched failure
+
+Per Director issuecomment-6250026410, stop equivalent polling experiments and profile forward scene-event/target-admission owners. A owns an isolated opt-in timing candidate, fresh cloud export and dispatch; this runtime instrumentation cannot use the prior binary. Measure source checkpoint, admission preparation, target checkpoint, runtime installation and reading adoption separately, with nested totals identified. Preserve both durable checkpoint calls, return values and persisted data. No optimization is selected until measured evidence identifies the cost. B's scoped fixture work remains queued after the exported boundary; C reviews evidence. Product runtime and ordinary driver remain unchanged by this evidence update.
