@@ -67,6 +67,8 @@ $user = [IO.Path]::GetFullPath($UserRoot)
 $archive = [IO.Path]::GetFullPath($ArchivePath)
 $utf8 = [Text.UTF8Encoding]::new($false)
 $child = $null
+$stdoutRead = $null
+$stderrRead = $null
 $window = $null
 $clock = [Diagnostics.Stopwatch]::StartNew()
 $events = [Collections.Generic.List[object]]::new()
@@ -404,6 +406,8 @@ try {
     $start.FileName = $executable
     $start.WorkingDirectory = $package
     $start.UseShellExecute = $false
+    $start.RedirectStandardOutput = $true
+    $start.RedirectStandardError = $true
     foreach ($argument in @('--windowed', '--resolution', '1280x720', '--log-file', $log)) { $start.ArgumentList.Add($argument) }
     if ($Renderer -ne 'ProjectDefault') { $start.ArgumentList.Add('--rendering-method'); $start.ArgumentList.Add($Renderer) }
     if ($Accessibility -eq 'Always') { $start.ArgumentList.Add('--accessibility'); $start.ArgumentList.Add('always') }
@@ -416,6 +420,8 @@ try {
     }
     $child = [Diagnostics.Process]::new(); $child.StartInfo = $start
     Require ($child.Start()) 'EXPORT_LAUNCH_FAILED'
+    $stdoutRead = $child.StandardOutput.ReadToEndAsync()
+    $stderrRead = $child.StandardError.ReadToEndAsync()
     # Also bounds a blocking native UIA provider call, not just polling loops.
     [DwmExportWindow]::Arm($child, [int][Math]::Max(1, ($JourneyTimeoutSeconds - $clock.Elapsed.TotalSeconds) * 1000))
     $result.process = @{ pid = $child.Id; started_utc = $child.StartTime.ToUniversalTime().ToString('o'); executable = $executable; arguments = @($start.ArgumentList) }
@@ -517,7 +523,7 @@ try {
     if ($Mode -eq 'Load') { Require ((Hash $slotPath) -ceq $creator.source_slot_sha256) 'SOURCE_SLOT_MUTATED' }
     if ($Mode -eq 'Create') { Require ((Hash $slotPath) -ceq $result.source_slot_sha256) 'SOURCE_SLOT_MUTATED_ON_EXIT' }
     Require (Test-Path -LiteralPath $log -PathType Leaf) 'GAME_LOG_MISSING'
-    $logText = Get-Content -LiteralPath $log -Raw -Encoding utf8
+    $logText = (Get-Content -LiteralPath $log -Raw -Encoding utf8) + "`n" + $stdoutRead.GetAwaiter().GetResult() + "`n" + $stderrRead.GetAwaiter().GetResult()
     Require ($logText -notmatch '(?m)SCRIPT ERROR:|^\s*ERROR:|STARTUP_FAILED|Unicode parsing error|Unexpected NUL character') 'GAME_ERROR_LOG'
     $result.renderer_log = @($logText -split '\r?\n' | Where-Object { $_ -match 'Vulkan|OpenGL|D3D12|Direct3D|Rendering' })
     if (Test-Path -LiteralPath $profilePath) { Copy-Item -LiteralPath $profilePath -Destination (Join-Path $output 'profile-after.json') }
@@ -532,12 +538,16 @@ try {
     [DwmExportWindow]::Disarm()
     if ([DwmExportWindow]::Expired) { $result.forced_cleanup = $true; $result.ok = $false; $result.watchdog_expired = $true }
     if ($null -ne $child) {
+        $result.child_exited_before_cleanup = $child.HasExited
         if (-not $child.HasExited) {
             $result.forced_cleanup = $true
             $result.ok = $false
             $child.Kill($true)
             [void]$child.WaitForExit(10000)
         }
+        if ($child.HasExited) { $result.exit_code = $child.ExitCode }
+        if ($null -ne $stdoutRead) { [IO.File]::WriteAllText((Join-Path $output 'game.stdout.log'), $stdoutRead.GetAwaiter().GetResult(), $utf8) }
+        if ($null -ne $stderrRead) { [IO.File]::WriteAllText((Join-Path $output 'game.stderr.log'), $stderrRead.GetAwaiter().GetResult(), $utf8) }
         $child.Dispose()
     }
     $result.elapsed_seconds = $clock.Elapsed.TotalSeconds
