@@ -1,4 +1,4 @@
-name: Receipt internal cost diagnostic
+name: Scene receipt reconstruction comparison
 on:
   pull_request:
     paths:
@@ -12,7 +12,7 @@ concurrency:
 jobs:
   authority-audit:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
-    name: Windows / Receipt internal cost diagnostic
+    name: Windows / Scene receipt reconstruction comparison
     runs-on: windows-2022
     timeout-minutes: 30
     defaults:
@@ -23,7 +23,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 7d427a8bd2ef94210662c3dbfa0b1c3b958f1ab1
+          ref: 4963a847f0a7e2da82a87f29d1a27a7b8256eae1
           fetch-depth: 3
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -31,10 +31,10 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '7d427a8bd2ef94210662c3dbfa0b1c3b958f1ab1') { throw 'Candidate mismatch' }
-          if ((git rev-parse 'HEAD^{tree}') -cne 'c11bcd745193342bbc3270cb103a5be7ce90e234') { throw 'Candidate tree mismatch' }
+          if ((git rev-parse HEAD) -cne '4963a847f0a7e2da82a87f29d1a27a7b8256eae1') { throw 'Candidate mismatch' }
+          if ((git rev-parse 'HEAD^{tree}') -cne '588074015df4dec61b01941c4db08efd4d379911') { throw 'Candidate tree mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='7d427a8bd2ef94210662c3dbfa0b1c3b958f1ab1'; tree='c11bcd745193342bbc3270cb103a5be7ce90e234'; controller='${{ github.event.pull_request.head.sha }}'; base='79993841eb1b060d3254b360b647275f35863c7f'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{candidate='4963a847f0a7e2da82a87f29d1a27a7b8256eae1'; tree='588074015df4dec61b01941c4db08efd4d379911'; controller='${{ github.event.pull_request.head.sha }}'; baseline='7d427a8bd2ef94210662c3dbfa0b1c3b958f1ab1'; baseline_tree='c11bcd745193342bbc3270cb103a5be7ce90e234'; baseline_run=39145021649; baseline_artifact=12142044709; baseline_archive_sha256='61b04151e54ccb379de9cb0e199715c83002ab0cf7025c7ccfeeb2340ef820f3'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -44,6 +44,36 @@ jobs:
           git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           git submodule foreach --recursive 'true'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Bind baseline source and unchanged comparison drivers
+        run: |
+          $ErrorActionPreference = 'Stop'
+          git fetch --no-tags --depth=1 origin 7d427a8bd2ef94210662c3dbfa0b1c3b958f1ab1 '${{ github.event.pull_request.head.sha }}'
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned comparison source fetch failed' }
+          if ((git rev-parse '7d427a8bd2ef94210662c3dbfa0b1c3b958f1ab1^{tree}') -cne 'c11bcd745193342bbc3270cb103a5be7ce90e234') { throw 'Baseline tree mismatch' }
+          @'
+          import hashlib,json,pathlib,subprocess
+          out=pathlib.Path('.godot/ci')
+          baseline='7d427a8bd2ef94210662c3dbfa0b1c3b958f1ab1'
+          candidate='4963a847f0a7e2da82a87f29d1a27a7b8256eae1'
+          controller='${{ github.event.pull_request.head.sha }}'
+          common=['tools/testing/Invoke-ExportedGameplay.ps1','tools/testing/Invoke-IsolatedGodot.ps1','tools/testing/Invoke-WindowsExportValidation.ps1','tests/tooling/Test-ExportedGameplayDeadline.ps1','project.godot','export_presets.cfg']
+          origins={}
+          for source in common:
+              old=subprocess.check_output(['git','show',baseline+':'+source])
+              current=pathlib.Path(source).read_bytes()
+              if current!=old:raise RuntimeError('Comparison harness changed: '+source)
+              origins[source]={'sha256':hashlib.sha256(current).hexdigest(),'git_blob':subprocess.check_output(['git','rev-parse',baseline+':'+source],text=True).strip()}
+          sources=common+['scripts/domain/narrative/SceneEventContract.gd','scripts/domain/run/RunSnapshotSchema.gd','scripts/application/run/SaveManagerCheckpointPort.gd','scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd','scripts/infrastructure/save/SaveDocumentSchema.gd','autoload/GameState.gd','autoload/DialogicBridge.gd','autoload/SaveManager.gd','scripts/application/backup/BackupPresentationPort.gd','scripts/ui/BackupApp.gd','tools/testing/Probe-ExportedWindow.ps1','tests/unit/test_save_manager_checkpoint_port.gd','tests/unit/test_save_document_schema.gd','tests/unit/test_backup_presentation.gd','tests/unit/test_scene_event_contract.gd','tests/unit/test_scene_receipt_validation.gd','tests/unit/test_scene_transition_identity.gd','tests/unit/test_scene_terminal_lifecycle.gd','tests/integration/test_scene_saved_event_anchor.gd']
+          for role,commit in [('baseline',baseline),('candidate',candidate)]:
+              for source in sources:
+                  content=subprocess.check_output(['git','show',commit+':'+source])
+                  target=out/'source'/role/source;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(content)
+          target=out/'source/controller/scene-first-reveal-profile-diagnostic.yml'
+          target.parent.mkdir(parents=True,exist_ok=True)
+          target.write_bytes(subprocess.check_output(['git','show',controller+':.github/workflows/scene-first-reveal-profile-diagnostic.yml']))
+          (out/'comparison-harness.json').write_text(json.dumps({'baseline':baseline,'candidate':candidate,'controller':controller,'shared_files':origins,'runner':'windows-2022','order':['baseline','candidate'],'step_timeout_seconds':30,'journey_timeout_seconds':480,'renderer':'ProjectDefault','accessibility':'Always','audio':'Dummy','load_flags':['ProfileSaveLoad','ContinueAfterQuiet','TraceDay5','NativeReadyCaptions'],'load_environment':{'DWM_SAVE_LOAD_PROFILE':'1','DWM_CHECKPOINT_PROFILE':'1','DWM_SAVE_LOAD_CONTEXT':'exported-load-phase-diagnostic'}},indent=2))
+          '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Parse external driver without execution
         run: |
@@ -99,15 +129,58 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Verify diagnostic equivalence with owner-backed scene history
-        timeout-minutes: 5
+      - name: Verify baseline guards and candidate behavior with original suite limits
+        timeout-minutes: 8
         run: |
           $ErrorActionPreference = 'Stop'
-          $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_saved_event_anchor.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/scene-splice.xml')
-          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId scene-splice -LogName scene-splice.log -EvidenceLogPath .godot/ci/scene-splice.jsonl -TimeoutSeconds 180 -GodotArgs $arguments
-          if ($LASTEXITCODE -ne 0) { throw 'Scene diagnostic equivalence suite failed' }
-          [xml]$xml = Get-Content '.godot/ci/scene-splice.xml' -Raw
-          if ($xml.SelectNodes('//testcase').Count -ne 8 -or $xml.SelectNodes('//failure | //error | //skipped').Count -ne 0) { throw 'Scene XML incomplete or failed' }
+          $PSNativeCommandUseErrorActionPreference = $false
+          # The same new guard test bodies run against both contract revisions.
+          # Only this pure contract file is substituted; the exact baseline
+          # executable used below remains the retained, independently pinned ZIP.
+          $suites = @'
+          [
+            {"id":"event-contract","path":"tests/unit/test_scene_event_contract.gd","tests":28,"baseline":true},
+            {"id":"receipt-validation","path":"tests/unit/test_scene_receipt_validation.gd","tests":9,"baseline":true},
+            {"id":"transition-identity","path":"tests/unit/test_scene_transition_identity.gd","tests":7,"baseline":false},
+            {"id":"terminal-lifecycle","path":"tests/unit/test_scene_terminal_lifecycle.gd","tests":5,"baseline":false},
+            {"id":"scene-splice","path":"tests/integration/test_scene_saved_event_anchor.gd","tests":8,"baseline":false}
+          ]
+          '@ | ConvertFrom-Json
+          $suites | ConvertTo-Json -Depth 5 | Set-Content '.godot/ci/focused-plan.json'
+          $records = [Collections.Generic.List[object]]::new()
+          function Invoke-FocusedSuite($suite, [string]$role) {
+            $id = "$role-$($suite.id)"
+            $xmlPath = ".godot/ci/$id.xml"
+            $record = [ordered]@{ id=$id; role=$role; path=$suite.path; expected_tests=$suite.tests; tests=0; failures=0; errors=0; skipped=0; exit_code=$null; ok=$false; timeout_seconds=180; contract_sha256=(Get-FileHash 'scripts/domain/narrative/SceneEventContract.gd' -Algorithm SHA256).Hash.ToLowerInvariant(); test_sha256=(Get-FileHash $suite.path -Algorithm SHA256).Hash.ToLowerInvariant() }
+            try {
+              $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$($suite.path)",'-gexit','-glog=2',"-gjunit_xml_file=res://$xmlPath")
+              & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId $id -LogName "$id.log" -EvidenceLogPath ".godot/ci/$id.jsonl" -TimeoutSeconds 180 -GodotArgs $arguments
+              $record.exit_code = $LASTEXITCODE
+              if (Test-Path -LiteralPath $xmlPath) {
+                [xml]$xml = Get-Content -LiteralPath $xmlPath -Raw
+                $record.tests = $xml.SelectNodes('//testcase').Count
+                $record.failures = $xml.SelectNodes('//failure').Count
+                $record.errors = $xml.SelectNodes('//error').Count
+                $record.skipped = $xml.SelectNodes('//skipped').Count
+              }
+              $record.ok = $record.exit_code -eq 0 -and $record.tests -eq $suite.tests -and ($record.failures + $record.errors + $record.skipped) -eq 0
+            } catch { $record.failure = $_.Exception.Message }
+            $records.Add($record)
+            ConvertTo-Json -InputObject $records.ToArray() -Depth 8 | Set-Content '.godot/ci/focused-results.json'
+          }
+          $path = Join-Path $env:GITHUB_WORKSPACE 'scripts/domain/narrative/SceneEventContract.gd'
+          $candidateBytes = [IO.File]::ReadAllBytes($path)
+          try {
+            @'
+          import pathlib,subprocess
+          source='scripts/domain/narrative/SceneEventContract.gd'
+          pathlib.Path(source).write_bytes(subprocess.check_output(['git','show','7d427a8bd2ef94210662c3dbfa0b1c3b958f1ab1:'+source]))
+          '@ | python -
+            if ($LASTEXITCODE -ne 0) { throw 'Baseline contract substitution failed' }
+            foreach ($suite in @($suites | Where-Object { $_.baseline })) { Invoke-FocusedSuite $suite 'baseline-contract' }
+          } finally { [IO.File]::WriteAllBytes($path, $candidateBytes) }
+          foreach ($suite in $suites) { Invoke-FocusedSuite $suite 'candidate' }
+          if (@($records | Where-Object { -not $_.ok }).Count -ne 0) { throw 'Focused behavior guard failed; all completed results retained' }
       - name: Cache pinned export templates
         id: export-templates-cache
         uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
@@ -142,72 +215,105 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $receipt = Get-Content '.godot/ci/windows-export/validation.json' -Raw | ConvertFrom-Json
-          if (-not $receipt.ok -or $receipt.commit -cne '7d427a8bd2ef94210662c3dbfa0b1c3b958f1ab1') { throw 'New export receipt mismatch' }
+          if (-not $receipt.ok -or $receipt.commit -cne '4963a847f0a7e2da82a87f29d1a27a7b8256eae1') { throw 'New export receipt mismatch' }
           "DWM_EXPORT_SHA=$($receipt.archive.sha256)" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
       - name: Retain exact executable package
+        id: candidate-package
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: forward-profile-package-${{ github.run_id }}-${{ github.run_attempt }}
           path: .godot/ci/windows-export/
           include-hidden-files: true
           retention-days: 7
-      - name: Probe explicit cloud accessibility and audio
+      - name: Download exact diagnostic baseline for same-host comparison
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: 12142044709
+          run-id: 39145021649
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          merge-multiple: true
+          path: .godot/ci/baseline-export
+      - name: Verify retained baseline package and source receipt
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $folder = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/baseline-export'
+          $receipt = Get-Content (Join-Path $folder 'validation.json') -Raw | ConvertFrom-Json
+          $sha = '61b04151e54ccb379de9cb0e199715c83002ab0cf7025c7ccfeeb2340ef820f3'
+          if (-not $receipt.ok -or $receipt.commit -cne '7d427a8bd2ef94210662c3dbfa0b1c3b958f1ab1' -or $receipt.engine -cne '4.6.3.stable' -or $receipt.archive.sha256 -cne $sha -or $receipt.archive.file -cne 'DWM-windows-x86_64-validation.zip') { throw 'Baseline export receipt mismatch' }
+          if ((Get-FileHash (Join-Path $folder $receipt.archive.file) -Algorithm SHA256).Hash.ToLowerInvariant() -cne $sha) { throw 'Baseline package hash mismatch' }
+      - name: Run baseline Capability Create and Load without replacing a failed gate
+        id: baseline-journey
+        continue-on-error: true
         timeout-minutes: 10
         run: |
           $ErrorActionPreference = 'Stop'
-          $export = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export'
-          $receipt = Get-Content (Join-Path $export 'validation.json') -Raw | ConvertFrom-Json
-          if (-not $receipt.ok -or $receipt.commit -cne '7d427a8bd2ef94210662c3dbfa0b1c3b958f1ab1' -or $receipt.archive.sha256 -cne $env:DWM_EXPORT_SHA) { throw 'Export receipt mismatch' }
-          & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Capability -ArchivePath (Join-Path $export $receipt.archive.file) -ExpectedArchiveSha256 $receipt.archive.sha256 -ExpectedCommit '7d427a8bd2ef94210662c3dbfa0b1c3b958f1ab1' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-capability-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-capability') -Accessibility Always -Audio Dummy
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $result = Get-Content '.godot/ci/exported-capability/result.json' -Raw | ConvertFrom-Json
-          if (-not $result.ok -or -not $result.clean_player_exit -or $result.forced_cleanup) { throw 'Capability not successful' }
-      - name: Create Day4 save through the exported UI
-        timeout-minutes: 10
-        run: |
-          $ErrorActionPreference = 'Stop'
-          & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Create -ArchivePath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export/DWM-windows-x86_64-validation.zip') -ExpectedArchiveSha256 $env:DWM_EXPORT_SHA -ExpectedCommit '7d427a8bd2ef94210662c3dbfa0b1c3b958f1ab1' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-journey-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-create') -CapabilityReceipt (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-capability/result.json') -Accessibility Always -Audio Dummy
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Fresh Load, witness Save, Back, ending and normal exit
-        timeout-minutes: 10
-        run: |
-          $ErrorActionPreference = 'Stop'
-          & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Load -ArchivePath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export/DWM-windows-x86_64-validation.zip') -ExpectedArchiveSha256 $env:DWM_EXPORT_SHA -ExpectedCommit '7d427a8bd2ef94210662c3dbfa0b1c3b958f1ab1' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-journey-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-load') -CreatorReceipt (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-create/result.json') -Accessibility Always -Audio Dummy -ProfileSaveLoad -ContinueAfterQuiet -TraceDay5 -NativeReadyCaptions
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Verify three bounded player exits and source cleanliness
-        run: |
-          $ErrorActionPreference = 'Stop'
-          foreach ($mode in @('capability','create','load')) {
-            $result = Get-Content ".godot/ci/exported-$mode/result.json" -Raw | ConvertFrom-Json
-            if (-not $result.ok -or -not $result.clean_player_exit -or $result.forced_cleanup -or $result.exit_code -ne 0) { throw "Exported $mode did not pass" }
+          $PSNativeCommandUseErrorActionPreference = $false
+          $archive = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/baseline-export/DWM-windows-x86_64-validation.zip'
+          $sha = '61b04151e54ccb379de9cb0e199715c83002ab0cf7025c7ccfeeb2340ef820f3'
+          foreach ($mode in @('Capability','Create','Load')) {
+            $folder = '.godot/ci/baseline-' + $mode.ToLowerInvariant()
+            $user = if ($mode -eq 'Capability') { 'dwm-baseline-capability-user' } else { 'dwm-baseline-journey-user' }
+            $arguments = @('-NoProfile','-File','./tools/testing/Invoke-ExportedGameplay.ps1','-Mode',$mode,'-ArchivePath',$archive,'-ExpectedArchiveSha256',$sha,'-ExpectedCommit','7d427a8bd2ef94210662c3dbfa0b1c3b958f1ab1','-UserRoot',(Join-Path $env:RUNNER_TEMP $user),'-OutputPath',(Join-Path $env:GITHUB_WORKSPACE $folder),'-Accessibility','Always','-Audio','Dummy')
+            if ($mode -eq 'Create') { $arguments += @('-CapabilityReceipt',(Join-Path $env:GITHUB_WORKSPACE '.godot/ci/baseline-capability/result.json')) }
+            if ($mode -eq 'Load') { $arguments += @('-CreatorReceipt',(Join-Path $env:GITHUB_WORKSPACE '.godot/ci/baseline-create/result.json'),'-ProfileSaveLoad','-ContinueAfterQuiet','-TraceDay5','-NativeReadyCaptions') }
+            $watch = [Diagnostics.Stopwatch]::StartNew()
+            & pwsh @arguments
+            $code = $LASTEXITCODE
+            $watch.Stop()
+            @{mode=$mode; exit_code=$code; elapsed_seconds=$watch.Elapsed.TotalSeconds; expected_source='7d427a8bd2ef94210662c3dbfa0b1c3b958f1ab1'; unchanged_result="$folder/result.json"} | ConvertTo-Json | Set-Content ".godot/ci/baseline-$($mode.ToLowerInvariant())-process.json"
+            if ($code -ne 0) { exit $code }
+            if (-not (Test-Path "$folder/result.json")) { throw "Baseline $mode result missing" }
+            $result = Get-Content "$folder/result.json" -Raw | ConvertFrom-Json
+            if (-not $result.ok -or -not $result.clean_player_exit -or $result.forced_cleanup -or $result.exit_code -ne 0) { throw "Baseline $mode did not pass" }
           }
-          $allowed = @('.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1')
-          foreach ($path in @(git diff HEAD --name-only)) { if ($path -notin $allowed) { throw "Unexpected tracked change: $path" } }
-      - name: Analyze native crash evidence without altering the failed result
+      - name: Run candidate Capability Create and Load with identical driver settings
+        id: candidate-journey
+        continue-on-error: true
+        timeout-minutes: 10
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $false
+          $archive = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export/DWM-windows-x86_64-validation.zip'
+          foreach ($mode in @('Capability','Create','Load')) {
+            $folder = '.godot/ci/exported-' + $mode.ToLowerInvariant()
+            $user = if ($mode -eq 'Capability') { 'dwm-capability-user' } else { 'dwm-journey-user' }
+            $arguments = @('-NoProfile','-File','./tools/testing/Invoke-ExportedGameplay.ps1','-Mode',$mode,'-ArchivePath',$archive,'-ExpectedArchiveSha256',$env:DWM_EXPORT_SHA,'-ExpectedCommit','4963a847f0a7e2da82a87f29d1a27a7b8256eae1','-UserRoot',(Join-Path $env:RUNNER_TEMP $user),'-OutputPath',(Join-Path $env:GITHUB_WORKSPACE $folder),'-Accessibility','Always','-Audio','Dummy')
+            if ($mode -eq 'Create') { $arguments += @('-CapabilityReceipt',(Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-capability/result.json')) }
+            if ($mode -eq 'Load') { $arguments += @('-CreatorReceipt',(Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-create/result.json'),'-ProfileSaveLoad','-ContinueAfterQuiet','-TraceDay5','-NativeReadyCaptions') }
+            $watch = [Diagnostics.Stopwatch]::StartNew()
+            & pwsh @arguments
+            $code = $LASTEXITCODE
+            $watch.Stop()
+            @{mode=$mode; exit_code=$code; elapsed_seconds=$watch.Elapsed.TotalSeconds; expected_source='4963a847f0a7e2da82a87f29d1a27a7b8256eae1'; unchanged_result="$folder/result.json"} | ConvertTo-Json | Set-Content ".godot/ci/candidate-$($mode.ToLowerInvariant())-process.json"
+            if ($code -ne 0) { exit $code }
+            if (-not (Test-Path "$folder/result.json")) { throw "Candidate $mode result missing" }
+            $result = Get-Content "$folder/result.json" -Raw | ConvertFrom-Json
+            if (-not $result.ok -or -not $result.clean_player_exit -or $result.forced_cleanup -or $result.exit_code -ne 0) { throw "Candidate $mode did not pass" }
+          }
+      - name: Keep original six player outcomes and source cleanliness as acceptance gates
         if: always()
-        timeout-minutes: 6
         run: |
           $ErrorActionPreference = 'Stop'
-          $out = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/native-crash'
-          if (-not (Test-Path $out)) { exit 0 }
-          $events = @(Get-WinEvent -FilterHashtable @{ LogName='Application'; StartTime=(Get-Date).AddMinutes(-25); Id=1000,1001 } -ErrorAction SilentlyContinue | Where-Object { $_.Message -match 'DWM.exe' } | ForEach-Object { @{ id=$_.Id; time=$_.TimeCreated.ToUniversalTime().ToString('o'); message=$_.Message; xml=$_.ToXml() } })
-          ConvertTo-Json -InputObject $events -Depth 8 | Set-Content (Join-Path $out 'application-events.json')
-          $dumps = @(Get-ChildItem $out -Filter '*.dmp' -File)
-          $manifest = @($dumps | ForEach-Object { @{file=$_.Name; bytes=$_.Length; sha256=(Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()} })
-          ConvertTo-Json -InputObject $manifest -Depth 5 | Set-Content (Join-Path $out 'dumps.json')
-          if ($dumps.Count -eq 0) { Write-Host 'NO_NATIVE_DUMP_CAPTURED'; exit 0 }
-          foreach ($dump in $dumps) {
-            $stdout = Join-Path $out ($dump.BaseName + '.cdb.stdout.log')
-            $stderr = Join-Path $out ($dump.BaseName + '.cdb.stderr.log')
-            $symbols = Join-Path $env:RUNNER_TEMP 'dwm-symbols'
-            $images = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-load/package'
-            $arguments = @('-z',('"'+$dump.FullName+'"'),'-y',('"srv*'+$symbols+'*https://msdl.microsoft.com/download/symbols"'),'-i',('"'+$images+'"'),'-c','".symopt+ 0x40; !analyze -v; .ecxr; kv 40; lm; u @rip-20 @rip+40; q"')
-            $probe = Start-Process -FilePath $env:DWM_CDB_PATH -ArgumentList $arguments -PassThru -RedirectStandardOutput $stdout -RedirectStandardError $stderr
-            $completed = $probe.WaitForExit(180000)
-            if (-not $completed) { $probe.Kill($true); $probe.WaitForExit() }
-            @{ completed=$completed; exit_code=$probe.ExitCode; dump=$dump.Name } | ConvertTo-Json | Set-Content (Join-Path $out ($dump.BaseName+'.analysis.json'))
-            Get-Content $stdout | Select-Object -Last 160 | Write-Host
+          $failures = [Collections.Generic.List[string]]::new()
+          $outcomes = [Collections.Generic.List[object]]::new()
+          foreach ($role in @('baseline','exported')) {
+            foreach ($mode in @('capability','create','load')) {
+              $path = ".godot/ci/$role-$mode/result.json"
+              if (-not (Test-Path -LiteralPath $path)) { $failures.Add("Missing $role $mode result"); continue }
+              $result = Get-Content -LiteralPath $path -Raw | ConvertFrom-Json
+              $outcomes.Add(@{role=$role; mode=$mode; result=$path; ok=$result.ok; exit_code=$result.exit_code; clean_player_exit=$result.clean_player_exit; forced_cleanup=$result.forced_cleanup})
+              if (-not $result.ok -or -not $result.clean_player_exit -or $result.forced_cleanup -or $result.exit_code -ne 0) { $failures.Add("$role $mode failed its original gate") }
+            }
           }
+          if ('${{ steps.baseline-journey.outcome }}' -ne 'success') { $failures.Add('Baseline driver process or step failed') }
+          if ('${{ steps.candidate-journey.outcome }}' -ne 'success') { $failures.Add('Candidate driver process or step failed') }
+          if ('${{ steps.candidate-package.outcome }}' -ne 'success') { $failures.Add('Candidate executable package retention failed') }
+          $allowed = @('.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1')
+          foreach ($path in @(git diff HEAD --name-only)) { if ($path -notin $allowed) { $failures.Add("Unexpected tracked change: $path") } }
+          New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
+          @{ok=($failures.Count -eq 0); original_outcomes=$outcomes.ToArray(); failures=$failures.ToArray()} | ConvertTo-Json -Depth 8 | Set-Content '.godot/ci/comparison-acceptance.json'
+          if ($failures.Count -ne 0) { throw ($failures -join '; ') }
       - name: Retain original native dump and diagnostic evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -217,19 +323,51 @@ jobs:
           include-hidden-files: true
           if-no-files-found: warn
           retention-days: 7
-      - name: Retain original bounded capability evidence
+      - name: Retain complete comparison source logs counts exits and timings
         if: always()
         run: |
           @'
-          import base64,hashlib,io,json,pathlib,subprocess,zipfile
-          out=pathlib.Path('.godot/ci')
-          for source in ['scripts/application/run/SaveManagerCheckpointPort.gd','scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd','scripts/infrastructure/save/SaveDocumentSchema.gd','scripts/domain/run/RunSnapshotSchema.gd','scripts/domain/narrative/SceneEventContract.gd','tests/integration/test_scene_saved_event_anchor.gd','tests/unit/test_save_manager_checkpoint_port.gd','tests/unit/test_save_document_schema.gd','autoload/GameState.gd','autoload/DialogicBridge.gd','tests/tooling/Test-ExportedGameplayDeadline.ps1','scripts/application/backup/BackupPresentationPort.gd','autoload/SaveManager.gd','tools/testing/Probe-ExportedWindow.ps1','scripts/ui/BackupApp.gd','tests/unit/test_backup_presentation.gd','tools/testing/Invoke-ExportedGameplay.ps1','tools/testing/Invoke-WindowsExportValidation.ps1','project.godot','export_presets.cfg']:
-              p=out/'source'/source;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(pathlib.Path(source).read_bytes())
-          (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
-          for p in pathlib.Path('.godot/phase2r_logs').glob('*.log'):
-              if p.name in ['proof-baseline.log','scene-splice.log','checkpoint-port.log','document-schema.log']:
+          import base64,hashlib,io,json,pathlib,re,subprocess,zipfile
+          out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
+          status=subprocess.run(['git','status','--porcelain'],capture_output=True,text=True)
+          (out/'final-status.txt').write_text(status.stdout+status.stderr)
+          for p in pathlib.Path('.godot/phase2r_logs').glob('*'):
+              if p.is_file():
                   target=out/'focused-logs'/p.name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(p.read_bytes())
-          files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts and 'package' not in p.parts and p.suffix!='.zip']
+          metrics={'scope':'Single same-host baseline/candidate pair; raw original outcomes remain acceptance authority','order':['baseline','candidate'],'variants':[],'summary_parse_errors':[]}
+          def read_json(path):
+              if not path.is_file():return None
+              try:return json.loads(path.read_text(encoding='utf-8-sig'))
+              except (OSError,ValueError) as error:
+                  metrics['summary_parse_errors'].append({'path':path.relative_to(out).as_posix(),'error':str(error)})
+                  return None
+          for role,prefix,commit in [('baseline','baseline','7d427a8bd2ef94210662c3dbfa0b1c3b958f1ab1'),('candidate','exported','4963a847f0a7e2da82a87f29d1a27a7b8256eae1')]:
+              variant={'role':role,'source_commit':commit,'modes':[],'profile_records':[],'timing_events':[]}
+              for mode in ['capability','create','load']:
+                  folder=out/(prefix+'-'+mode)
+                  result=folder/'result.json'
+                  value=read_json(result)
+                  if value is not None:variant['modes'].append({'mode':mode,'result_path':result.relative_to(out).as_posix(),'result':value})
+              log=out/(prefix+'-load')/'game.stdout.log'
+              variant['profile_source_path']=log.relative_to(out).as_posix()
+              if log.is_file():
+                  for line_number,line in enumerate(log.read_text(encoding='utf-8-sig',errors='replace').splitlines(),1):
+                      matched=re.search(r'(DWM_(?:CHECKPOINT|SAVE_LOAD)_PROFILE) (\{.*\})',line)
+                      if matched:
+                          try:variant['profile_records'].append({'line':line_number,'marker':matched[1],'data':json.loads(matched[2])})
+                          except json.JSONDecodeError:variant.setdefault('profile_parse_failures',[]).append({'line':line_number,'text':line})
+              events=out/(prefix+'-load')/'events.json'
+              value=read_json(events)
+              if isinstance(value,list):
+                  for event in value:
+                      if event.get('kind') in ['invoke','save-invoke-start','save-invoke-return','save-file-wait-start','save-file-wait-return','quiet-native-start','quiet-fresh-uia-start','quiet-fresh-uia-result','native-caption-wait-start','native-caption-wait-end','native-boundary','caption-window-acquisition','caption-action-enumeration','wait-deadline-expired','day5-wait-start','day5-wait-end','window-close']:
+                          variant['timing_events'].append(event)
+              metrics['variants'].append(variant)
+          (out/'matched-metrics.json').write_text(json.dumps(metrics,indent=2))
+          # Executable ZIPs and any native dumps have their own artifact paths.
+          # Retain all ordinary evidence bytes, including failure boundaries,
+          # screenshots, source saves, source snapshots, XML, and complete logs.
+          files=sorted(p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts and 'package' not in p.parts and p.suffix not in ['.zip','.dmp'] and p.name!='retained-hashes.json')
           manifest={p.relative_to('.godot').as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in files}
           retained=out/'retained-hashes.json';retained.write_text(json.dumps(manifest,indent=2));files.append(retained)
           payload=io.BytesIO()
