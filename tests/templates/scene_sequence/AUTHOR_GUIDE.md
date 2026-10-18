@@ -193,7 +193,11 @@ focused validation; it is not an already-executed variant of A's example.
 [scene_author_option_slots.dtl](../../fixtures/dialogic/scene_author_option_slots.dtl)
 contains only `scene.test.option_a_day1` and `scene.test.option_b_day1`.
 There is no required option_c, no simultaneous three-button choice and no daily
-quota. This new DTL is uninstalled preparation; its role is assigned by registration.
+quota. Its role is assigned by registration. The composed
+[OptionSlotTemplates.gd](OptionSlotTemplates.gd) now supplies the complete offline
+A→B registration. Preload that script as the builder constant and call its
+`bundle()` method, then validate the returned `value` as in the example above.
+It does not select normal startup.
 
 For an ordinary A→B sequence, use this marker in A's programme:
 
@@ -301,6 +305,11 @@ five-outcome recall selection, and native Not-started recall after fresh Load.
 It does not establish native fresh Load for every outcome. C owns the finite
 coverage/example review. B inspected the actual DTL/builder and statically checked
 this guide and the two-slot DTL; B ran no Godot/PowerShell and claims no new
-runtime acceptance. The new two-slot adaptation still needs A's complete registration
-and focused compiler validation if installed. No production story, placement,
+runtime acceptance. A subsequently composed the complete two-slot builder and
+qualified it through the existing compiler and full-registration validators:
+[run162](https://github.com/Siuuuers/dwm/actions/runs/39088365076), two tests /
+22 assertions / one clean process exit. The missing-referenced-target case is
+rejected without mutating its input. See [integration evidence](../../../handoff/a-author-slots-20261018.md).
+This is offline authoring validation; the example remains outside normal startup,
+and it adds no rendered or Save/Load claim. No production story, placement,
 awareness thresholds or ending catalogue is selected here.

@@ -1,0 +1,14 @@
+{
+  "run": 39088365076,
+  "job": 117559609008,
+  "source": "92ff43931a8915f2f8ca7d96fb9733dd065e7e31",
+  "source_tree": "2e7cd4fff65b6b1ba8e3f3f10411c527a4a2cbea",
+  "tests": 2,
+  "assertions": 22,
+  "clean_exits": 1,
+  "archive_bytes": 29630,
+  "archive_sha256": "3d04e745a83285795a95e497484e9ac736dff69d2c8530573af3c23ff26fbc2b",
+  "verified_manifest_members": 11,
+  "source_bytes_match": true,
+  "scope": "Offline compiler/full-registration checks only; no runtime/default installation or fresh gameplay evidence."
+}
