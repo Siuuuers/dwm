@@ -92,6 +92,16 @@ var _speech_token := 0
 var _speech_identity: Dictionary = {}
 var _speech_status: Label
 
+# Isolated passive ending diagnosis, enabled only by the existing exported Load profile context.
+# The follow-up observes the existing process loop; it creates no timer or deferred work.
+const ENDING_PUBLICATION_FOLLOWUP_US := 2_000_000
+var _ending_trace_enabled := false
+var _ending_trace_started_us := -1
+var _ending_trace_text_finished_us := -1
+var _ending_trace_followup_written := false
+var _ending_trace_counts: Dictionary = {}
+var _ending_trace_last: Dictionary = {}
+
 @onready var canvas: Control = $Canvas
 @onready var scroll: ScrollContainer = $Canvas/Scroll
 @onready var stack: Control = $Canvas/Scroll/Stack
@@ -110,6 +120,11 @@ var _speech_status: Label
 
 func _ready() -> void:
 	super._ready()
+	_ending_trace_enabled = OS.get_environment("DWM_SAVE_LOAD_PROFILE") == "1" \
+		and OS.get_environment("DWM_SAVE_LOAD_CONTEXT") == "exported-load-phase-diagnostic"
+	if _ending_trace_enabled:
+		canvas.set("ending_publication_observer", _trace_ending_publication)
+		caption_text.set("ending_publication_observer", _trace_ending_publication)
 	if caption_text.gui_input.is_connected(caption_text.on_gui_input):
 		caption_text.gui_input.disconnect(caption_text.on_gui_input)
 	caption_text.gui_input.connect(_on_caption_input)
@@ -633,6 +648,7 @@ func _on_auto_state_changed() -> void:
 
 func _on_text_finished(_info: Dictionary) -> void:
 	_on_auto_state_changed()
+	_trace_ending_publication("text_finished")
 
 func _on_auto_requested() -> void:
 	if _auto_button_admitted():
@@ -1293,6 +1309,7 @@ func _on_about_to_show_text(_info: Dictionary) -> void:
 	_speech_candidate = true
 
 func _on_text_started(info: Dictionary) -> void:
+	_trace_ending_publication("text_started_enter")
 	if _ending_caption_handoff and get_node("/root/Dialogic").current_timeline == null: return
 	_sync_timed_hold_projection()
 	if not _has_caption():
@@ -1401,6 +1418,7 @@ func _on_preference_changed(path: StringName, _value: Variant) -> void:
 		_configure_recovery_presentation()
 
 func _process(_delta: float) -> void:
+	_finish_ending_publication_trace_if_due()
 	_sync_timed_hold_projection()
 	if (_speech_pending or not _speech_source.is_empty()) and not _speech_admitted(): _cancel_speech()
 	if not _reading_recovery.is_empty() and not _reading_request_matches(_reading_recovery):
@@ -1421,6 +1439,87 @@ func _process(_delta: float) -> void:
 	if caption_text.text != _last_text or caption_text.get_content_height() != _last_content_height:
 		_request_layout()
 	_sync_focus()
+
+# Only natural caption/source-canvas notifications supply element IDs. This observer
+# never obtains an accessibility element, requests an update, or evaluates an action.
+func _trace_ending_publication(event: String, fields: Dictionary = {}) -> void:
+	if not _ending_trace_enabled or not is_inside_tree(): return
+	if not get_tree().current_scene is EndingScene: return
+	var now := Time.get_ticks_usec()
+	if _ending_trace_started_us < 0: _ending_trace_started_us = now
+	if event == "text_finished" and _ending_trace_text_finished_us < 0:
+		_ending_trace_text_finished_us = now
+	_ending_trace_counts[event] = int(_ending_trace_counts.get(event, 0)) + 1
+	if not fields.is_empty():
+		_ending_trace_last[event] = {"ticks_us": now, "fields": fields}
+	# At most two natural updates per observed node, one of each text boundary,
+	# and one follow-up: seven output records per caption-layer instance. The
+	# follow-up never closes natural observation; late first updates remain eligible.
+	var limit := 2 if event in ["caption_accessibility", "canvas_accessibility"] else 1
+	if int(_ending_trace_counts[event]) <= limit: _write_ending_publication_trace(event)
+
+func _finish_ending_publication_trace_if_due() -> void:
+	if not _ending_trace_enabled or _ending_trace_followup_written or _ending_trace_text_finished_us < 0: return
+	if Time.get_ticks_usec() - _ending_trace_text_finished_us < ENDING_PUBLICATION_FOLLOWUP_US: return
+	_ending_trace_followup_written = true
+	_write_ending_publication_trace("text_finished_followup")
+
+func _write_ending_publication_trace(event: String) -> void:
+	var root_children: Array = []
+	for child: Node in get_tree().root.get_children(true):
+		root_children.append(_ending_trace_node(child))
+	var ancestors: Array = []
+	var ancestor: Node = caption_text
+	while ancestor != null:
+		ancestors.append(_ending_trace_node(ancestor))
+		ancestor = ancestor.get_parent()
+	# The existing bridge getter returns its stored _next_active Boolean only.
+	var bridge_next: Variant = null
+	if is_instance_valid(_transport_bridge) and _transport_bridge.has_method("is_next_traversal_active"):
+		bridge_next = _transport_bridge.call("is_next_traversal_active")
+	var now := Time.get_ticks_usec()
+	print("DWM_ENDING_PUBLICATION_TRACE " + JSON.stringify({
+		"schema_version": 1, "event": event, "pid": OS.get_process_id(),
+		"ticks_us": now, "unix_seconds": Time.get_unix_time_from_system(),
+		"elapsed_us": now - _ending_trace_started_us, "followup_after_us": ENDING_PUBLICATION_FOLLOWUP_US,
+		"text_finished_ticks_us": _ending_trace_text_finished_us,
+		"natural_update_output_limit_per_kind": 2,
+		"window_id": get_window().get_window_id(), "process_frame": Engine.get_process_frames(),
+		"scene": _ending_trace_node(get_tree().current_scene), "layer": _ending_trace_node(self),
+		"root_children": root_children, "caption_ancestors": ancestors,
+		"canvas": _ending_trace_node(canvas), "rail": _ending_trace_node(transport_rail),
+		"caption_text": caption_text.get_parsed_text(), "caption_revealing": caption_text.revealing,
+		"layout_generation": _layout_generation, "reading_owner_generation": _reading_owner_generation,
+		"next_request_generation": _next_request_generation,
+		"state": {"canvas_withdrawn": canvas.get("accessibility_withdrawn"),
+			"next_pending": _next_pending, "next_canvas_state_empty": _next_canvas_state.is_empty(),
+			"bridge_id": _transport_bridge.get_instance_id() if is_instance_valid(_transport_bridge) else 0,
+			"bridge_next_active": bridge_next, "reading_recovery_empty": _reading_recovery.is_empty(),
+			"pause_covered": _pause_covered, "ending_caption_handoff": _ending_caption_handoff,
+			"line_waiting_for_text": _line_waiting_for_text, "presented_line_ok": _presented_line.get("ok", false),
+			"timed_hold_empty": _timed_hold_frontier.is_empty(), "load_pending": _load_pending,
+			"history_pending": _history_pending, "history_open": _history_open,
+			"layout_pending": _layout_pending, "publication_pending": _publication_pending,
+			"canvas_focus_behavior": canvas.focus_behavior_recursive,
+			"canvas_mouse_behavior": canvas.mouse_behavior_recursive},
+		"event_counts": _ending_trace_counts, "last_accessibility_updates": _ending_trace_last}))
+
+func _ending_trace_node(node: Node) -> Dictionary:
+	if not is_instance_valid(node): return {}
+	var parent := node.get_parent()
+	var observed: Dictionary = {"id": node.get_instance_id(), "name": str(node.name),
+		"class": node.get_class(), "path": str(node.get_path()) if node.is_inside_tree() else "",
+		"parent_id": parent.get_instance_id() if parent != null else 0,
+		"index_including_internal": node.get_index(true) if parent != null else -1, "inside_tree": node.is_inside_tree(),
+		"queued_for_deletion": node.is_queued_for_deletion()}
+	if node is CanvasItem:
+		observed["visible"] = node.visible
+		observed["visible_in_tree"] = node.is_visible_in_tree()
+	if node is Window: observed["visible"] = node.visible
+	if node is Control:
+		var rect: Rect2 = node.get_global_rect()
+		observed["rect"] = [rect.position.x, rect.position.y, rect.size.x, rect.size.y]
+	return observed
 
 func _request_layout() -> void:
 	if _layout_pending:
