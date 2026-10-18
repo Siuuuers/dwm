@@ -1,4 +1,4 @@
-name: Five-outcome challenge and saved recall
+name: Author option-slot registration
 on:
   pull_request:
     paths:
@@ -12,7 +12,7 @@ concurrency:
 jobs:
   authority-audit:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
-    name: Windows / Five-outcome challenge and saved recall
+    name: Windows / Author option-slot registration
     runs-on: windows-2022
     timeout-minutes: 20
     defaults:
@@ -23,7 +23,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 7f0e5ca0703257b0b1b4689ad5b3e7f082b3add4
+          ref: 92ff43931a8915f2f8ca7d96fb9733dd065e7e31
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -31,9 +31,9 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '7f0e5ca0703257b0b1b4689ad5b3e7f082b3add4') { throw 'Candidate mismatch' }
+          if ((git rev-parse HEAD) -cne '92ff43931a8915f2f8ca7d96fb9733dd065e7e31') { throw 'Candidate mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='7f0e5ca0703257b0b1b4689ad5b3e7f082b3add4'; tree='bb3c89f3c73a4f180e70acae250f2ae5e93153a8'; controller='${{ github.event.pull_request.head.sha }}'; base='7f0e5ca0703257b0b1b4689ad5b3e7f082b3add4'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{candidate='92ff43931a8915f2f8ca7d96fb9733dd065e7e31'; tree='2e7cd4fff65b6b1ba8e3f3f10411c527a4a2cbea'; controller='${{ github.event.pull_request.head.sha }}'; base='92ff43931a8915f2f8ca7d96fb9733dd065e7e31'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -81,107 +81,29 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Qualify five outcomes and retained recall on isolated Windows processes
-        timeout-minutes: 15
-        shell: pwsh
-        run: |
-          Set-StrictMode -Version Latest
-          $ErrorActionPreference = 'Stop'
-          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
-          New-Item -ItemType Directory -Force -Path $output | Out-Null
-          $runner = Join-Path $env:GITHUB_WORKSPACE 'tools/testing/Invoke-IsolatedGodot.ps1'
-          $evidence = '.godot/ci/challenge-recall-processes.jsonl'
-          Remove-Item (Join-Path $env:GITHUB_WORKSPACE $evidence) -Force -ErrorAction SilentlyContinue
-          # Registration is installed by the fixture. Proven wrapper roots select test_manual;
-          # each rendered child then starts the actual FINAL services itself.
-          Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue
-          $units = @()
-          $create = 'tests/integration/test_scene_challenge_recall_create.gd'
-          $load = 'tests/integration/test_scene_challenge_recall_load.gd'
-          $expected = [ordered]@{}
-          $counts = @(1,1)
-          $paths = @($units) + @($create,$load)
-          for ($i = 0; $i -lt $paths.Count; $i++) {
-            $script = $paths[$i]
-            $names = @(Select-String -LiteralPath $script -Pattern '^func (test_[A-Za-z0-9_]+)\(' | ForEach-Object { $_.Matches[0].Groups[1].Value })
-            if ($names.Count -ne $counts[$i]) { throw "SOURCE_CENSUS_CHANGED: $script" }
-            $expected[$script] = $names
-          }
-          $expected | ConvertTo-Json -Depth 5 | Set-Content "$output/challenge-recall-census.json"
-          function Args-For([string[]]$Scripts, [string]$Report) {
-            @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=', ('-gtest=' + (($Scripts | ForEach-Object { 'res://' + $_ }) -join ',')), '-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$Report.xml")
-          }
-          $createArgs = @(Args-For @($create) 'challenge-recall-create')
-          $loadArgs = @(Args-For @($load) 'challenge-recall-load')
-          & $runner -SuiteId 'challenge-recall-native' -LogName 'challenge-recall-create.log' -GodotArgs $createArgs -NextLogName 'challenge-recall-load.log' -NextGodotArgs $loadArgs -EvidenceLogPath $evidence -TimeoutSeconds 240 -KeepRoot -Rendered
-          if ($LASTEXITCODE -ne 0) { throw "NATIVE_PROCESS_EXIT: $LASTEXITCODE" }
-          function Assert-Report([string]$Report, [string[]]$Scripts) {
-            [xml]$xml = Get-Content -LiteralPath "$output/$Report.xml" -Raw
-            $suites = @($xml.SelectNodes('//testsuite'))
-            if ($suites.Count -ne $Scripts.Count) { throw "SUITE_COUNT: $Report" }
-            if ($xml.SelectNodes('//failure | //error | //skipped').Count -ne 0 -or $xml.SelectNodes('//*[@failures != "0" or @errors != "0" or @skipped != "0"]').Count -ne 0) { throw "UNCLEAN_REPORT: $Report" }
-            $total = 0
-            foreach ($script in $Scripts) {
-              $suite = @($suites | Where-Object { $_.GetAttribute('name') -ceq $script })
-              if ($suite.Count -ne 1) { throw "SUITE_IDENTITY: $script" }
-              $cases = @($suite[0].SelectNodes('./testcase'))
-              $names = @($expected[$script])
-              if ($cases.Count -ne $names.Count -or [int]$suite[0].GetAttribute('tests') -ne $names.Count) { throw "CASE_COUNT: $script" }
-              foreach ($name in $names) {
-                $case = @($cases | Where-Object { $_.GetAttribute('name') -ceq $name })
-                if ($case.Count -ne 1 -or $case[0].GetAttribute('classname') -cne $script -or $case[0].GetAttribute('status') -cne 'pass' -or [int]$case[0].GetAttribute('assertions') -le 0) { throw "CASE_IDENTITY_OR_STATUS: $script/$name" }
-              }
-              $total += $names.Count
-            }
-            if ($xml.SelectNodes('//testcase').Count -ne $total) { throw "UNEXPECTED_CASES: $Report" }
-          }
-          Assert-Report 'challenge-recall-create' @($create)
-          Assert-Report 'challenge-recall-load' @($load)
-          $records = @(Get-Content (Join-Path $env:GITHUB_WORKSPACE $evidence) | ForEach-Object { ConvertFrom-Json $_ })
-          if ($records.Count -ne 2) { throw 'PROCESS_CENSUS' }
-          $labels = @('create','load')
-          $scriptsByProcess = @(@($create), @($load))
-          for ($i = 0; $i -lt 2; $i++) {
-            $record = $records[$i]
-            $expectedSuite = 'challenge-recall-native'
-            $log = Join-Path $env:GITHUB_WORKSPACE ('.godot/phase2r_logs/challenge-recall-' + $labels[$i] + '.log')
-            $gtest = '-gtest=' + (($scriptsByProcess[$i] | ForEach-Object { 'res://' + $_ }) -join ',')
-            if ($record.suite_id -cne $expectedSuite -or [int]$record.exit_code -ne 0 -or [IO.Path]::GetFullPath($record.log_path) -cne [IO.Path]::GetFullPath($log) -or @($record.argv | Where-Object { $_ -ceq $gtest }).Count -ne 1) { throw "PROCESS_MAPPING: $i" }
-            if ([DateTimeOffset]::Parse($record.ended_at_utc) -lt [DateTimeOffset]::Parse($record.started_at_utc)) { throw 'PROCESS_TIME_ORDER' }
-            if (Select-String -LiteralPath $log -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character|crash|Segmentation fault' -Quiet) { throw "PROCESS_ERROR_LOG: $log" }
-          }
-          if ($records[0].test_root -cne $records[1].test_root -or $records[0].user_dir -cne $records[1].user_dir -or [DateTimeOffset]::Parse($records[1].started_at_utc) -lt [DateTimeOffset]::Parse($records[0].ended_at_utc)) { throw 'FRESH_LOAD_SHARED_ROOT_ORDER' }
-          git rev-parse HEAD | Set-Content "$output/challenge-recall-source-sha.txt"
-          if ($LASTEXITCODE -ne 0) { throw 'SOURCE_SHA_FAILED' }
-          Write-Output 'CHALLENGE_RECALL_PASSED: 2 exact tests, 2 clean processes, native shared-root Save/Load.'
-      
-      - name: Regenerate canonical inventories and check reproducibility
-        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
-      - name: Verify inventory drift and read-only contracts
-        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite public_surfaces
-      - name: Verify bounded source changes and exact census
+      - name: Validate B option slots through existing compiler and registration
         run: |
           $ErrorActionPreference = 'Stop'
+          $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/unit/test_scene_author_option_slots.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/author-slots.xml')
+          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'author-slots' -LogName 'author-slots.log' -GodotArgs $arguments -EvidenceLogPath '.godot/ci/author-slots.jsonl' -TimeoutSeconds 180
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify exact source census and clean execution
+        run: |
           @'
           import collections,json,pathlib,re,subprocess,xml.etree.ElementTree as ET
-          out=pathlib.Path('.godot/ci')
-          script='tests/unit/tooling/test_public_surface_inventory.gd'
+          out=pathlib.Path('.godot/ci');script='tests/unit/test_scene_author_option_slots.gd'
+          root=ET.parse(out/'author-slots.xml').getroot();rows=list(root.iter('testcase'))
           expected=re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(encoding='utf-8'),re.M)
-          root=ET.parse(out/'public_surfaces.xml').getroot(); rows=list(root.iter('testcase'))
+          assert len(expected)==2
           assert collections.Counter((r.attrib['classname'],r.attrib['name']) for r in rows)==collections.Counter((script,n) for n in expected)
           assert not any(list(root.iter(t)) for t in ['failure','error','skipped'])
           assert all(r.attrib.get('status')=='pass' and int(r.attrib.get('assertions','0'))>0 for r in rows)
-          allowed={'.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1','evidence/phase_2r/runtime/game_state_surface.json','evidence/phase_2r/runtime/save_manager_surface.json'}
+          exits=[json.loads(l) for l in (out/'author-slots.jsonl').read_text(encoding='utf-8-sig').splitlines()]
+          assert len(exits)==1 and exits[0]['exit_code']==0
+          log=pathlib.Path('.godot/phase2r_logs/author-slots.log').read_text(encoding='utf-8-sig')
+          assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',log)
           changed=set(subprocess.check_output(['git','diff','HEAD','--name-only'],text=True).splitlines())
-          assert not changed-allowed,changed
-          for p in pathlib.Path('.godot/phase2r_logs').glob('*.log'):
-              assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',p.read_text(encoding='utf-8-sig')),str(p)
-          exits=[]
-          for p in out.rglob('*.jsonl'):
-              for line in p.read_text(encoding='utf-8-sig').splitlines():
-                  if line.strip():
-                      item=json.loads(line); assert item['exit_code']==0,item; exits.append(item)
-          assert len(exits)==7,len(exits)
+          assert not changed-{'.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1'},changed
           report={'source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'tests':len(rows),'assertions':sum(int(r.attrib['assertions']) for r in rows),'clean_exits':len(exits),'changed':sorted(changed)}
           (out/'gate.json').write_text(json.dumps(report,indent=2));print(json.dumps(report))
           '@ | python -
@@ -191,19 +113,11 @@ jobs:
         run: |
           @'
           import base64,hashlib,io,json,pathlib,subprocess,zipfile
-          import xml.etree.ElementTree as ET
           out=pathlib.Path('.godot/ci')
-          for report in out.glob('challenge-recall-*.xml'):
-              tree=ET.parse(report)
-              for case in tree.iter('testcase'):
-                  if case.find('failure') is not None: print('FAILED_CASE',case.attrib,ET.tostring(case,encoding='unicode'))
-          for source in ["autoload/DialogicBridge.gd","autoload/GameState.gd","scripts/application/run/DatingPhysicalOwner.gd","scripts/domain/narrative/SceneEventContract.gd","scripts/narrative/DialogicEntryManifest.gd","tests/fixtures/dialogic/scene_challenge_recall.dtl","tests/integration/scene_challenge_recall_child.gd","tests/integration/test_scene_challenge_recall_create.gd","tests/integration/test_scene_challenge_recall_load.gd","tests/support/SceneChallengeRecallFixture.gd","tests/unit/test_scene_challenge_recall.gd","tests/unit/test_scene_five_outcomes.gd"] + ['tools/runtime/PublicSurfaceInventory.gd','tools/runtime/generate_public_surface_inventory.gd','tools/testing/Invoke-PublicSurfaceValidation.ps1','tests/unit/tooling/test_public_surface_inventory.gd','evidence/phase_2r/runtime/game_state_required_surface.json','evidence/phase_2r/runtime/save_manager_required_surface.json','evidence/phase_2r/runtime/game_state_surface.json','evidence/phase_2r/runtime/save_manager_surface.json']:
+          for source in ["tests/templates/scene_sequence/AUTHOR_GUIDE.md","tests/fixtures/dialogic/scene_author_option_slots.dtl","tests/templates/scene_sequence/OptionSlotTemplates.gd","tests/unit/test_scene_author_option_slots.gd"]:
               p=out/'source'/source;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(pathlib.Path(source).read_bytes())
           (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
           files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))
-          records=out/'challenge-recall-processes.jsonl'
-          roots={json.loads(line)['user_dir'] for line in records.read_text(encoding='utf-8-sig').splitlines()} if records.exists() else set()
-          files += [p for root in roots for p in pathlib.Path(root).relative_to(pathlib.Path.cwd()).rglob('*.json')]
           manifest={p.relative_to('.godot').as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in files}
           retained=out/'retained-hashes.json';retained.write_text(json.dumps(manifest,indent=2));files.append(retained)
           payload=io.BytesIO()
