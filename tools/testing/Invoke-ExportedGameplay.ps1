@@ -113,6 +113,9 @@ function Window {
     Check-Live
     $handle = $child.MainWindowHandle
     if ($handle -eq [IntPtr]::Zero) { return $null }
+    if ($result.Contains('native_baseline_handle')) {
+        Require ($handle.ToInt64() -eq $result.native_baseline_handle) 'UIA_BASELINE_WINDOW_CHANGED'
+    }
     $owner = [uint32]0
     [void][DwmExportWindow]::GetWindowThreadProcessId($handle, [ref]$owner)
     Require ($owner -eq $child.Id) 'WINDOW_PID_MISMATCH'
