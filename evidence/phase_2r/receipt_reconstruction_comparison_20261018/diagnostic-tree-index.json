@@ -1,0 +1,127 @@
+[
+  {
+    "path": "autoload/DialogicBridge.gd",
+    "sha": "6542701617c214f5de9486e7558da03c3c2b6787",
+    "size": 272465
+  },
+  {
+    "path": "autoload/GameState.gd",
+    "sha": "f3ad6905609566025e356747f5873da7ad2290ba",
+    "size": 296738
+  },
+  {
+    "path": "autoload/SaveManager.gd",
+    "sha": "319449c17e7d3859076d7ba20e362b775f096802",
+    "size": 189349
+  },
+  {
+    "path": "export_presets.cfg",
+    "sha": "ccb9409ac1054d0b4b52e78df823c33f532e83fb",
+    "size": 1117
+  },
+  {
+    "path": "project.godot",
+    "sha": "b3e4ec92242535d81845bdc2dc7537e9e3ec122e",
+    "size": 14532
+  },
+  {
+    "path": "scripts/application/backup/BackupPresentationPort.gd",
+    "sha": "4524984d3ef3e74bdcbab1c296232a603f0eb040",
+    "size": 10807
+  },
+  {
+    "path": "scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd",
+    "sha": "5cb4ada73c8faa8ad22405447266ad566f1aa87e",
+    "size": 61503
+  },
+  {
+    "path": "scripts/application/run/SaveManagerCheckpointPort.gd",
+    "sha": "9306b21bd1e92e1c81c25a709c89470b4e2d8179",
+    "size": 59778
+  },
+  {
+    "path": "scripts/domain/narrative/SceneEventContract.gd",
+    "sha": "2b30989675e9ce450ee30e38cecf2c1fcf01f5ab",
+    "size": 80003
+  },
+  {
+    "path": "scripts/domain/run/RunSnapshotSchema.gd",
+    "sha": "b9608a523f788b90f87d8e556f88d485394b6e8b",
+    "size": 74097
+  },
+  {
+    "path": "scripts/infrastructure/save/SaveDocumentSchema.gd",
+    "sha": "05be052983999d0757e16a942f38a6b7358286f7",
+    "size": 28931
+  },
+  {
+    "path": "scripts/ui/BackupApp.gd",
+    "sha": "69be339643d27ab6e35efb945e3505915ad2cbb1",
+    "size": 48775
+  },
+  {
+    "path": "tests/integration/test_scene_saved_event_anchor.gd",
+    "sha": "4d41738a0d6d5f9c7790e0363ae7e427d0a02d82",
+    "size": 15119
+  },
+  {
+    "path": "tests/tooling/Test-ExportedGameplayDeadline.ps1",
+    "sha": "436c73a380baec1a3bc6ba64d273ff052e316d78",
+    "size": 3023
+  },
+  {
+    "path": "tests/unit/test_backup_presentation.gd",
+    "sha": "3c5029d294bf29027e0cf662354d13c0b6ff209a",
+    "size": 18872
+  },
+  {
+    "path": "tests/unit/test_save_document_schema.gd",
+    "sha": "4d5eae755e49da9d14ed1b003b2ce8190b9b92e1",
+    "size": 49202
+  },
+  {
+    "path": "tests/unit/test_save_manager_checkpoint_port.gd",
+    "sha": "899458c00949a5da0c56ea9f582fdfd89ce4e67e",
+    "size": 88364
+  },
+  {
+    "path": "tests/unit/test_scene_event_contract.gd",
+    "sha": "9c9a06551ec3fa9b230575395f55a161e412c024",
+    "size": 25277
+  },
+  {
+    "path": "tests/unit/test_scene_receipt_validation.gd",
+    "sha": "089e33bcb42ddb9a01d20011166645c403331dd2",
+    "size": 10604
+  },
+  {
+    "path": "tests/unit/test_scene_terminal_lifecycle.gd",
+    "sha": "64be622a49ca0d089787d410c107da652ee25680",
+    "size": 12094
+  },
+  {
+    "path": "tests/unit/test_scene_transition_identity.gd",
+    "sha": "2ce6e7d81a38eebac6d84328f3b6005583b11a4f",
+    "size": 10548
+  },
+  {
+    "path": "tools/testing/Invoke-ExportedGameplay.ps1",
+    "sha": "e91f912d8351ba7e38401b261d0fb2f0aa3032dc",
+    "size": 52927
+  },
+  {
+    "path": "tools/testing/Invoke-IsolatedGodot.ps1",
+    "sha": "14b379880b4ad26935ad953d141df8c19e399cf3",
+    "size": 19919
+  },
+  {
+    "path": "tools/testing/Invoke-WindowsExportValidation.ps1",
+    "sha": "322d02bbe72d8e2e3c1e5b637fd9ac253ef31fff",
+    "size": 19523
+  },
+  {
+    "path": "tools/testing/Probe-ExportedWindow.ps1",
+    "sha": "4d678892e911e205a498af5be21afe4ed0242e24",
+    "size": 11121
+  }
+]
