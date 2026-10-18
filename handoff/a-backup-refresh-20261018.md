@@ -226,3 +226,37 @@ Candidate diagnostic package artifact12138174416 (`forward-profile-package-39132
 Keep this demonstrated correction. Remaining warm preparation/outgoing-schema work is still expensive: checkpoint17 document build6.846s includes4.424s in the combined scene-family/history metadata phase, while outgoing schema is6.913s. Inspect the existing Run9/history-validation owners and proof obligations before selecting another change; these timings do not authorize bypassing historical validation or introducing a cache. The source cold path and observed Backup Save latency also remain limitations. Reuse existing profiles and the retained package for any harness-only follow-up; do not repeat equivalent UIA polling.
 
 A retains runtime/controller/dispatch ownership, C reviews new evidence/proposals, and B's two scoped fixtures remain queued behind this exported boundary. Ending/Gallery/normal loader exit and relevant integration qualification remain open. No merge, release, master/integration update, new feature or architecture decision was made.
+
+## Coordinator A continuation — proof-normalization experiment rejected
+
+Continued from d9e5720fdc421ce1faacef7fdf4b4ba2c3c05d35 after checking PR30/36 decisions and unchanged master0c8b2384415d71bd3de4ff7408640bbf60b63740. Observable target: reduce the existing Save9 proof-comparison work without changing accepted bytes, refusal, history validation, detachment or persistence. No architecture question was needed.
+
+The direct-equality shortcut was discarded during source review because mixed numeric conversion can affect equivalence. Instead, isolated candidate3ef4639194f9aed2e892d792cd76134e209364cc/treeac0135ef11730c66db167d264dc719f86d5afe94 fused the existing text and integral-float normalization walks only in _scene_proof_error, using the existing copy-on-change normalizer. It retained exact finite/floor/int conversion, caller/proof comparison, full _scene_journal_error and document composition. Two tests added only to the isolated candidate compare the original double-walk reference over typed containers, StringName keys/values, numeric boundaries, mismatches and nonmutation; matching malformed history still fails full outgoing validation. Independent source review finished before dispatch.
+
+**Decision: do not promote this runtime change or its experimental test additions.** [Cloud run39135371406](https://github.com/Siuuuers/dwm/actions/runs/39135371406), job117698694622, controller65e2f0adf3197d56e3bb6f9155367a76b2002d3c, demonstrates equivalent tested behavior but no meaningful complete-operation improvement. Keep the previously qualified Save9 splice correction from d9e5720. This update contains evidence and this handoff only.
+
+### Qualification and matched comparison
+
+Godot4.6.3 standard and PowerShell ran only on Windows cloud. The expanded scene suite first ran with the original schema substituted, then with the candidate schema restored byte-for-byte. Baseline9 tests/169 XML testcase assertions passed. Candidate scene9/169, checkpoint-port42/1268 and document-schema21/272 passed: **72 candidate tests/1709 assertions**, three candidate exits0 and baseline exit0. Four deadline harness cases also passed. No broad-CI or leak-free claim.
+
+The same host and external driver ran retained baseline artifact12138174416/source75aecb404 first, then the fresh candidate, with separate user roots, identical flags and original30s caption/480s journey limits. One fixed-order comparison is bounded evidence, not statistical proof of equivalence or general performance.
+
+| Complete measured operation | Baseline | Candidate |
+| --- | ---: | ---: |
+| Day4 to Day5 forward | 29.375865s | 29.420472s |
+| Next ordinary forward | 26.304563s | 26.133161s |
+| Final ordinary forward | 29.733051s | 29.440518s |
+| Ending forward | 36.802421s | 36.838025s |
+| Ending admission, nested within ending forward | 19.643982s | 19.750064s |
+
+Checkpoint17 build metadata remains4.444904s versus4.417169s; outgoing proven-journal composition remains4.618180s versus4.664001s. These inclusive phases still combine proof binding with complete historical Run9 validation. Do not add them to their enclosing totals or claim the removed walk was the dominant cost. Warm checkpoints11–17 retain outgoing validation success and zero fallback text-validator calls in both builds. Cold checkpoint10 still follows its original validation path.
+
+Both Capability/Create modes pass with normal exits0. Both Load modes reach Day7 and then fail `UIA_UNAVAILABLE_OR_TIMEOUT: TEST Seven-day ending.`, with forced cleanup/exit-1; elapsed281.790214s baseline and279.790804s candidate are not successful journey durations. Actual candidate Day7-closing and failure PNGs were reviewed independently: full Day7 captions and later full ending caption are visible. Late pixels do not establish ending readiness, durable Gallery award, title return or normal loader exit. The final three-exit/source-cleanliness acceptance step was skipped after Load failed, not passed.
+
+### Retained evidence and next boundary
+
+[Original evidence, verification report and replayable verifier](../evidence/phase_2r/proof_normalization_20261018/) contain the unchanged4072258-byte ZIP, SHA256d697d91450e15124f5bfa3104b2baef99434aa99d4edfd620133d2159410cc08. Independently verified356 outer manifest entries plus the manifest itself, and296 inner mode manifest entries. Primary timing stream is each Load's game.stdout.log only. Candidate schema blob3e34199514319b5bc464836f78007c465f5aebc8; test blobc3fc877d77f874e006107c39f0543c95d602af1a. Candidate package artifact12139163286, expires25October, inner ZIP99454641bytes/SHA2567f8cac35a74a0f2f1be6846c15b4aae226bd8514a81ee514af14a026d64bf212, is **experimental and rejected for promotion**. Baseline artifact12138174416 remains the retained package corresponding to the qualified runtime.
+
+Next useful investigation: distinguish proof binding from full _scene_journal_error/Run9 validation within the existing schema profile dictionaries and timing helper, then identify the expensive validation owner before another mutation. No new profiler framework/cache/manager, history-validation bypass, timeout inflation or equivalent UIA polling campaign. The current combined timings do not identify an individual historical validation subcall. The source cold path and observed Backup Save latency remain limitations.
+
+A retains controller/runtime/dispatch ownership. Independent internal review agreed with rejecting the optimization; external C review has not been claimed. Ending/Gallery/normal exit, B's two bounded fixture corrections, relevant integration triage and the existing inventory/author-guide handoff remain open. No merge, release, master/integration update or new feature.
