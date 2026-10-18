@@ -112,7 +112,7 @@ func _mount_root_ending(playback: DeferredLayoutPlayback) -> RetryState:
 	var tree := get_tree()
 	_saved_current_scene = tree.current_scene
 	_had_layout_meta = tree.has_meta("dialogic_layout_node")
-	_saved_layout_meta = tree.get_meta("dialogic_layout_node", null)
+	_saved_layout_meta = tree.get_meta("dialogic_layout_node") if _had_layout_meta else null
 	_root_case = true
 	tree.remove_meta("dialogic_layout_node")
 	_root_layout = CanvasLayer.new()

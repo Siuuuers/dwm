@@ -139,6 +139,7 @@ func _sync_recovery_root_order() -> void:
 	if not is_inside_tree() or is_queued_for_deletion(): return
 	var tree := get_tree()
 	if tree.current_scene != self or get_parent() != tree.root: return
+	if not tree.has_meta("dialogic_layout_node"): return
 	var layout: Variant = tree.get_meta("dialogic_layout_node", null)
 	if not is_instance_valid(layout) or not layout is CanvasLayer or layout.is_queued_for_deletion() \
 			or layout.get_parent() != tree.root: return
