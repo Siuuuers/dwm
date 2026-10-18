@@ -1,4 +1,4 @@
-name: Exported compatibility renderer comparison
+name: Post-Save foreground diagnosis
 on:
   pull_request:
     paths:
@@ -12,7 +12,7 @@ concurrency:
 jobs:
   authority-audit:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
-    name: Windows / Exported compatibility renderer comparison
+    name: Windows / Post-Save foreground diagnosis
     runs-on: windows-2022
     timeout-minutes: 30
     defaults:
@@ -23,7 +23,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: d099ca1ad8a6286530d765b5fc5b6d83664fa559
+          ref: abd78970fc803e81f7cb838dc5eef09e7d99a2b0
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -31,9 +31,9 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne 'd099ca1ad8a6286530d765b5fc5b6d83664fa559') { throw 'Candidate mismatch' }
+          if ((git rev-parse HEAD) -cne 'abd78970fc803e81f7cb838dc5eef09e7d99a2b0') { throw 'Candidate mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='d099ca1ad8a6286530d765b5fc5b6d83664fa559'; tree='35e3b5a61f151fdb454476eecfebcd3824249bc9'; controller='${{ github.event.pull_request.head.sha }}'; base='d099ca1ad8a6286530d765b5fc5b6d83664fa559'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{candidate='abd78970fc803e81f7cb838dc5eef09e7d99a2b0'; tree='2a82d38dcdf47f4d14f7f5ee0ba0e215d4b02fd2'; controller='${{ github.event.pull_request.head.sha }}'; base='abd78970fc803e81f7cb838dc5eef09e7d99a2b0'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -98,7 +98,7 @@ jobs:
           $export = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export'
           $receipt = Get-Content (Join-Path $export 'validation.json') -Raw | ConvertFrom-Json
           if (-not $receipt.ok -or $receipt.commit -cne 'bb167aa1b5692f6bf5ceb6789201f38d4f86360a' -or $receipt.archive.sha256 -cne '625fad0d7ab746c6413192f82db6b461e9db05f40634772e0b1e387dcdb017bf') { throw 'Export receipt mismatch' }
-          & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Capability -ArchivePath (Join-Path $export $receipt.archive.file) -ExpectedArchiveSha256 $receipt.archive.sha256 -ExpectedCommit 'bb167aa1b5692f6bf5ceb6789201f38d4f86360a' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-capability-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-capability') -Renderer gl_compatibility -Accessibility Always -Audio Dummy
+          & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Capability -ArchivePath (Join-Path $export $receipt.archive.file) -ExpectedArchiveSha256 $receipt.archive.sha256 -ExpectedCommit 'bb167aa1b5692f6bf5ceb6789201f38d4f86360a' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-capability-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-capability') -Accessibility Always -Audio Dummy
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $result = Get-Content '.godot/ci/exported-capability/result.json' -Raw | ConvertFrom-Json
           if (-not $result.ok -or -not $result.clean_player_exit -or $result.forced_cleanup) { throw 'Capability not successful' }
@@ -106,13 +106,13 @@ jobs:
         timeout-minutes: 10
         run: |
           $ErrorActionPreference = 'Stop'
-          & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Create -ArchivePath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export/DWM-windows-x86_64-validation.zip') -ExpectedArchiveSha256 '625fad0d7ab746c6413192f82db6b461e9db05f40634772e0b1e387dcdb017bf' -ExpectedCommit 'bb167aa1b5692f6bf5ceb6789201f38d4f86360a' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-journey-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-create') -CapabilityReceipt (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-capability/result.json') -Renderer gl_compatibility -Accessibility Always -Audio Dummy
+          & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Create -ArchivePath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export/DWM-windows-x86_64-validation.zip') -ExpectedArchiveSha256 '625fad0d7ab746c6413192f82db6b461e9db05f40634772e0b1e387dcdb017bf' -ExpectedCommit 'bb167aa1b5692f6bf5ceb6789201f38d4f86360a' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-journey-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-create') -CapabilityReceipt (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-capability/result.json') -Accessibility Always -Audio Dummy
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Fresh-process selected-slot Load and ending journey
         timeout-minutes: 10
         run: |
           $ErrorActionPreference = 'Stop'
-          & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Load -ArchivePath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export/DWM-windows-x86_64-validation.zip') -ExpectedArchiveSha256 '625fad0d7ab746c6413192f82db6b461e9db05f40634772e0b1e387dcdb017bf' -ExpectedCommit 'bb167aa1b5692f6bf5ceb6789201f38d4f86360a' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-journey-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-load') -CreatorReceipt (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-create/result.json') -Renderer gl_compatibility -Accessibility Always -Audio Dummy
+          & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Load -ArchivePath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export/DWM-windows-x86_64-validation.zip') -ExpectedArchiveSha256 '625fad0d7ab746c6413192f82db6b461e9db05f40634772e0b1e387dcdb017bf' -ExpectedCommit 'bb167aa1b5692f6bf5ceb6789201f38d4f86360a' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-journey-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-load') -CreatorReceipt (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-create/result.json') -Accessibility Always -Audio Dummy
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Verify three bounded player exits and source cleanliness
         run: |
