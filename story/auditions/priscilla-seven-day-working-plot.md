@@ -1,5 +1,45 @@
 # Priscilla: current seven-day working plot and discussion checkpoint
 
+## Current Day 1 audition and self-talk checkpoint, 2026-10-19
+
+**Scope and source:** the visible owner requests to review Day 1, consider full
+DTL versus further planning, place self-talk alongside plot, and now “make the
+full audition with the variations” while checking and challenging the bibles.
+The preceding same-scene source recommendation is available in this conversation.
+Earlier unavailable assistant passages are not reconstructed as exact wording,
+measured pacing or additional approvals.
+
+The complete current prose and its review live in the existing
+[Day 1 owner](day-1-photo-book-working-draft.md), replacing its fragment-only
+readiness status. The exact earlier packet remains retrievable at the Git
+revision linked there. This checkpoint links the prose instead of duplicating it.
+
+| Item | Current scope and attribution |
+|---|---|
+| Complete Day 1 with variations | Explicit owner request. The resulting scene wording, photo action, five-way mapping and coda remain assistant-authored AUDITIONING material. |
+| Self-talk beside plot | Earlier assistant recommendation, developed in the requested audition. Same scene source, one reading order, explicit display designation; no new runtime syntax or field implementation is certified. |
+| Photo variation | One ordinary Yes/default audition, reconverging before the book. It is neither the later relationship fork nor a Challenge. |
+| Five Challenge continuations | All are fully written for comparison and preserve the approved result meanings. D is the present Dark-development reading; C's softer action and E's first recognition retain their own meaning. |
+| Later call | A new request for continued company, reached through an opening matching each afternoon. D's unwithdrawn objection survives outside the call's frame. |
+| Book custody | This candidate leaves the copy with Sylvia in all outcomes. Same-copy Day 2 use remains possible only with an actual future transfer and compatible invented novel. |
+| Bible challenge | Narrow Handbook craft clarification: judge characteristic exchanges, allowing plain replies and shared performance. Protected fictional truth, the five meanings and the one P–L endpoint are unchanged. |
+| Length | Derive a provisional reading estimate from the assembled prose and an explicitly stated rate assumption; no previously discussed minute figure is treated as a measured result. |
+
+The [Day 1 review](day-1-photo-book-working-draft.md#7-review-against-and-challenge-to-the-bibles)
+names the inspected 6e2184aa121631c55f42b3b072b9e68d2713c523 source sections,
+candidate decisions, removal tests and actual review limits. Narrative
+inspection is distinct from rendering, recording, runtime tests and approval.
+
+**Open:** exact scene/option/result selection, recognition staging, Day 2
+continuity choices, the whole-week causal fit and production self-talk routing.
+The protected offscreen umbrella core and residence/bar/residue holds remain.
+The current P–L finale is still identical across compatible incoming histories;
+an earlier kind act or breach remains real.
+
+**Capture destination:** the existing documentation draft PR #41. Publication
+and merge state come from GitHub metadata. This completed document is the new
+substantive checkpoint; no fixed fact or whole scene is promoted by saving it.
+
 ## Current P–L direction and development checkpoint, 2026-10-18
 
 **Scope:** earlier U1–A3 development plus the owner's U4 clarification about
@@ -428,7 +468,7 @@ No new jealousy/sanity/observer-personality meter, affection leaderboard, global
 
 | Day | Latest useful direction | Open dependency |
 |---|---|---|
-| 1 | Selfie with Sylvia; Lavinia's message prompts an expression Sylvia captures; book performance becomes a consequential message game; possible private follow-up. | Assemble one coherent sequence, choose message wording and response, settle optional opportunity and custody. |
+| 1 | Complete photo/book/message audition with integrated self-talk, five alternative local exits and a private call. | Exact selection, first-recognition staging and Day 2 carry remain open; current copy stays with Sylvia. |
 | 2 | Lavinia returns; protected umbrella history remains outside the released reconstruction; later bar encounter changes from pleasure to conflict, with distinct softer/darker alternatives. | Same-book loan and novel synopsis; credible escalation; choose one aftermath; lawful coda and board family. |
 | 3 | A later shared relationship fork remains a candidate here. | Day 4 was an earlier audition. Neither day is selected. Yes → Sylvia, passing → Lavinia remains settled. |
 | 4 | Trace/message and competing expectations may pressure the selected relationship. | Depends on actual fork placement, prior intimacy and information access; no forced jealousy response. |

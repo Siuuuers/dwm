@@ -9,7 +9,7 @@ first. Older cast, Group and calendar references below keep historical scope.
 | Current working unit | Record | Status |
 |---|---|---|
 | Week direction, source scope and dependencies | [Working plot](priscilla-seven-day-working-plot.md) | AUDITIONING; not a second Matrix. |
-| Day 1 | [Photo and book](day-1-photo-book-working-draft.md) | Fragments and unselected local outcomes. |
+| Day 1 | [Photo and book](day-1-photo-book-working-draft.md) | Complete AUDITIONING reading copy: integrated self-talk, photo Yes/default, five continuations, private coda and bounded review; not executable DTL. |
 | Day 2 | [Return and bar](../relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md) | Candidate structure; escalation and response family open. |
 
 Exact approval remains with the owning sources and selection lifecycle.

@@ -324,7 +324,7 @@ A failed gate requires mutation or rejection. A dossier constrains performance b
 
 ## Cross-Character Dialogue Tests
 
-Before accepting a line, remove its speaker name and test whether vocabulary, strategy, and rhythm still identify her:
+Test characteristic exchanges with the speaker names removed: do vocabulary, strategy, and rhythm remain differentiated across the exchange? Ordinary replies, shared idiom, and temporary imitation may be interchangeable. Do not rewrite a useful plain answer merely to display a signature trait. The questions below are scene-level diagnostics, not requirements for every line:
 
 - **Angela:** Does the line compress emotion, ask for verification, or use one precise absurd/technical turn without becoming robotic?
 - **Priscilla:** Does the line interpret or refine language while revealing who she believes should author the outcome?

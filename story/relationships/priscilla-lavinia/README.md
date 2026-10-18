@@ -19,9 +19,13 @@ leading motive audition. The document violation remains real; an excuse need
 not be a fabricated event. Exact violence, disclosures, witnesses, final lines
 and the whole week remain unselected.
 
-The next scene work develops the encounter and Priscilla's attention through the
-current Day 2 packet without concatenating older aftermath alternatives. Historical
-residence, admission, bar/residue and chronological-audit holds survive.
+The [complete Day 1 audition](../../auditions/day-1-photo-book-working-draft.md)
+now supplies integrated self-talk, five alternative local continuations and a
+private P–L coda. Its acts, dialogue and mapping remain AUDITIONING. Review its
+carry into the current Day 2 packet without concatenating older aftermath
+alternatives; this Day 1 copy stays with Sylvia, so a same-book Day 2 scene still
+needs an actual transfer. Historical residence, admission, bar/residue and
+chronological-audit holds survive.
 Capture and source coverage are centralized in the checkpoint; [PR #41](https://github.com/Siuuuers/dwm/pull/41)
 provides actual publication/merge metadata.
 

@@ -1,5 +1,32 @@
 # Story workspace
 
+## Current Day 1 audition checkpoint, 2026-10-19
+
+The [complete Day 1 reading copy](auditions/day-1-photo-book-working-draft.md)
+now joins the photograph, chosen book performance, consequential messages,
+integrated private self-talk, both responses to one optional photo thought, all
+five local Challenge continuations, and the matching private-call openings.
+Read one continuation at a time; the Dark-development reading begins with D.
+
+**Status:** AUDITIONING. This is a complete narrative audition, with exact
+dialogue and mapping still unselected. It is not executable DTL or a completed
+week. The [bounded review](auditions/day-1-photo-book-working-draft.md#7-review-against-and-challenge-to-the-bibles)
+tests action/access, consequence, voice and the scope of existing rules.
+The Handbook's voice test now operates across characteristic exchanges, allowing
+ordinary replies and shared performance without erasing distinct voices.
+
+**Capture:** the owner's full-audition request, same-scene self-talk development,
+new prose and variations, source challenges, and remaining Day 2 dependencies
+are recorded in the [working checkpoint](auditions/priscilla-seven-day-working-plot.md#current-day-1-audition-and-self-talk-checkpoint-2026-10-19).
+[PR #41](https://github.com/Siuuuers/dwm/pull/41) is the repository destination;
+its metadata establishes publication and merge state. Exact self-talk routing,
+the first-recognition wording, Day 2's same-book possibility, the full week,
+and the older residence/bar/residue audit retain their stated open scope.
+
+**Next writing unit:** judge the complete Day 1 readings and their carry into
+the current Day 2 candidate. The whole-week plot gate still precedes complete
+production DTL; it does not prevent this narrative audition.
+
 ## Current P–L ending direction, 2026-10-18
 
 Priscilla–Lavinia now targets one identically presented Dark ending; earlier
@@ -22,7 +49,7 @@ and jealous-testing refinement, followed by the 2026-10-19 clarification about
 working notes, selective disclosure and perceptual self-talk. [PR #41](https://github.com/Siuuuers/dwm/pull/41) is the documentation
 destination; its metadata determines draft/merge status.
 
-## Current chapter development checkpoint, 2026-10-10
+## Retained chapter development checkpoint, 2026-10-10
 
 The [working plot register](auditions/priscilla-seven-day-working-plot.md)
 captures recoverable post-foundation discussion and distinguishes author
