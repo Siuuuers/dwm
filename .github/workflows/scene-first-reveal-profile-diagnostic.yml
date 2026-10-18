@@ -1,4 +1,4 @@
-name: Author option-slot registration
+name: Challenge outcome clean-process qualification
 on:
   pull_request:
     paths:
@@ -12,7 +12,7 @@ concurrency:
 jobs:
   authority-audit:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
-    name: Windows / Author option-slot registration
+    name: Windows / Challenge outcome clean-process qualification
     runs-on: windows-2022
     timeout-minutes: 20
     defaults:
@@ -23,7 +23,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 92ff43931a8915f2f8ca7d96fb9733dd065e7e31
+          ref: 7097bd3bcaca3f2d522fd5e8a0ca9319c2843820
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -31,9 +31,9 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '92ff43931a8915f2f8ca7d96fb9733dd065e7e31') { throw 'Candidate mismatch' }
+          if ((git rev-parse HEAD) -cne '7097bd3bcaca3f2d522fd5e8a0ca9319c2843820') { throw 'Candidate mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='92ff43931a8915f2f8ca7d96fb9733dd065e7e31'; tree='2e7cd4fff65b6b1ba8e3f3f10411c527a4a2cbea'; controller='${{ github.event.pull_request.head.sha }}'; base='92ff43931a8915f2f8ca7d96fb9733dd065e7e31'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{candidate='7097bd3bcaca3f2d522fd5e8a0ca9319c2843820'; tree='7a73b324b70671dca7eafd8df273deb0615d3d50'; controller='${{ github.event.pull_request.head.sha }}'; base='7097bd3bcaca3f2d522fd5e8a0ca9319c2843820'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -81,26 +81,26 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Validate B option slots through existing compiler and registration
+      - name: Validate existing physical outcomes and legacy scene challenges
         run: |
           $ErrorActionPreference = 'Stop'
-          $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/unit/test_scene_author_option_slots.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/author-slots.xml')
-          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'author-slots' -LogName 'author-slots.log' -GodotArgs $arguments -EvidenceLogPath '.godot/ci/author-slots.jsonl' -TimeoutSeconds 180
+          $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/unit/test_scene_five_outcomes.gd,res://tests/unit/test_scene_challenge.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/challenge-outcomes.xml')
+          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'challenge-outcomes' -LogName 'challenge-outcomes.log' -GodotArgs $arguments -EvidenceLogPath '.godot/ci/challenge-outcomes.jsonl' -TimeoutSeconds 600
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Verify exact source census and clean execution
         run: |
           @'
           import collections,json,pathlib,re,subprocess,xml.etree.ElementTree as ET
-          out=pathlib.Path('.godot/ci');script='tests/unit/test_scene_author_option_slots.gd'
-          root=ET.parse(out/'author-slots.xml').getroot();rows=list(root.iter('testcase'))
-          expected=re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(encoding='utf-8'),re.M)
-          assert len(expected)==2
-          assert collections.Counter((r.attrib['classname'],r.attrib['name']) for r in rows)==collections.Counter((script,n) for n in expected)
+          out=pathlib.Path('.godot/ci');scripts=['tests/unit/test_scene_five_outcomes.gd','tests/unit/test_scene_challenge.gd']
+          root=ET.parse(out/'challenge-outcomes.xml').getroot();rows=list(root.iter('testcase'))
+          expected=[(script,n) for script in scripts for n in re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(encoding='utf-8'),re.M)]
+          assert collections.Counter(s for s,n in expected)==collections.Counter({scripts[0]:6,scripts[1]:22})
+          assert collections.Counter((r.attrib['classname'],r.attrib['name']) for r in rows)==collections.Counter(expected)
           assert not any(list(root.iter(t)) for t in ['failure','error','skipped'])
           assert all(r.attrib.get('status')=='pass' and int(r.attrib.get('assertions','0'))>0 for r in rows)
-          exits=[json.loads(l) for l in (out/'author-slots.jsonl').read_text(encoding='utf-8-sig').splitlines()]
+          exits=[json.loads(l) for l in (out/'challenge-outcomes.jsonl').read_text(encoding='utf-8-sig').splitlines()]
           assert len(exits)==1 and exits[0]['exit_code']==0
-          log=pathlib.Path('.godot/phase2r_logs/author-slots.log').read_text(encoding='utf-8-sig')
+          log=pathlib.Path('.godot/phase2r_logs/challenge-outcomes.log').read_text(encoding='utf-8-sig')
           assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',log)
           changed=set(subprocess.check_output(['git','diff','HEAD','--name-only'],text=True).splitlines())
           assert not changed-{'.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1'},changed
@@ -114,7 +114,7 @@ jobs:
           @'
           import base64,hashlib,io,json,pathlib,subprocess,zipfile
           out=pathlib.Path('.godot/ci')
-          for source in ["tests/templates/scene_sequence/AUTHOR_GUIDE.md","tests/fixtures/dialogic/scene_author_option_slots.dtl","tests/templates/scene_sequence/OptionSlotTemplates.gd","tests/unit/test_scene_author_option_slots.gd"]:
+          for source in ["tests/unit/test_scene_five_outcomes.gd","tests/unit/test_scene_challenge.gd","tests/support/SceneChallengeFixture.gd","scripts/application/run/DatingPhysicalOwner.gd","tools/testing/Invoke-IsolatedGodot.ps1"]:
               p=out/'source'/source;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(pathlib.Path(source).read_bytes())
           (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
           files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))
