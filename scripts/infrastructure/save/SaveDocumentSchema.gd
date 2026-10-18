@@ -115,7 +115,7 @@ static func build(
 			_profile_phase(profile, "document_schema_proof_binding_us", proof_tick)
 			if not proof_error.is_empty(): return _fail(&"invalid_recovery_journal", proof_error)
 		var scene_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
-		var scene_error := _scene_journal_error(document.current_snapshot, document.recovery_journal)
+		var scene_error := _scene_journal_error(document.current_snapshot, document.recovery_journal, profile)
 		_profile_phase(profile, "document_schema_scene_journal_us", scene_tick)
 		if not scene_error.is_empty(): return _fail(&"invalid_recovery_journal", scene_error)
 	if not saved_time.is_empty():
@@ -282,7 +282,7 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 		if not composed_family_error.is_empty(): return _fail(&"invalid_recovery_journal", composed_family_error)
 		if candidate.schema_version == SCENE_DOCUMENT_VERSION:
 			var scene_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
-			var scene_error := _scene_journal_error(candidate.current_snapshot, composed)
+			var scene_error := _scene_journal_error(candidate.current_snapshot, composed, profile)
 			_profile_phase(profile, "outgoing_schema_scene_journal_us", scene_tick)
 			if not scene_error.is_empty(): return _fail(&"invalid_recovery_journal", scene_error)
 		_profile_phase(profile, "outgoing_schema_compose_proven_journal_us", tick)
@@ -295,7 +295,7 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 	if not family_error.is_empty(): return _fail(&"invalid_recovery_journal", family_error)
 	if candidate.schema_version == SCENE_DOCUMENT_VERSION:
 		var scene_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
-		var scene_error := _scene_journal_error(candidate.current_snapshot, candidate.recovery_journal)
+		var scene_error := _scene_journal_error(candidate.current_snapshot, candidate.recovery_journal, profile)
 		_profile_phase(profile, "outgoing_schema_scene_journal_us", scene_tick)
 		if not scene_error.is_empty(): return _fail(&"invalid_recovery_journal", scene_error)
 	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
@@ -325,12 +325,12 @@ static func _journal_family_error(version: int, journal: Array) -> String:
 			return "Run9 recovery cannot belong to Save8"
 	return ""
 
-static func _scene_journal_error(current: Dictionary, journal: Array) -> String:
+static func _scene_journal_error(current: Dictionary, journal: Array, profile: Dictionary = {}) -> String:
 	var source: Dictionary = current.snapshot
 	var seen := {source.checkpoint_id: true}
 	for raw: Variant in journal:
 		if not raw is Dictionary: return "scene journal bundle must be an object"
-		var checked := _validate_bundle(raw)
+		var checked := _validate_bundle(raw, profile)
 		if not checked.ok: return str(checked.get("code", "invalid scene journal bundle"))
 		var saved: Dictionary = checked.value.candidate
 		if saved.schema_version != SCENE_DOCUMENT_VERSION or saved.run_id != source.run_id \
@@ -402,7 +402,7 @@ static func _validate_discriminators(kind: String, slot_id: Variant, save_reason
 			return "unknown document kind: " + kind
 	return ""
 
-static func _validate_bundle(bundle: Dictionary) -> Dictionary:
+static func _validate_bundle(bundle: Dictionary, profile: Dictionary = {}) -> Dictionary:
 	var keys: Array = bundle.keys()
 	keys.sort()
 	if keys != ["checkpoint_kind", "snapshot"]:
@@ -411,7 +411,7 @@ static func _validate_bundle(bundle: Dictionary) -> Dictionary:
 		return _fail(&"invalid_bundle_shape", "unknown checkpoint_kind: " + str(bundle["checkpoint_kind"]))
 	if typeof(bundle["snapshot"]) != TYPE_DICTIONARY:
 		return _fail(&"invalid_bundle_shape", "snapshot must be an object")
-	var snapshot := RUN_SNAPSHOT_SCHEMA.validate(bundle["snapshot"])
+	var snapshot := RUN_SNAPSHOT_SCHEMA.validate(bundle["snapshot"], profile)
 	if not snapshot.get("ok", false):
 		return snapshot
 	return {"ok": true, "code": &"ok", "value": {"candidate": snapshot["value"]["candidate"]}}

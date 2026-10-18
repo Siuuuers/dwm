@@ -199,6 +199,8 @@ func test_scene_profile_preserves_success_refusal_bytes_and_detachment() -> void
 		assert_true(enabled.has("outgoing_schema_proof_binding_us"))
 		assert_eq(enabled.has("outgoing_schema_scene_journal_us"), mode != "mismatched_proof")
 		if measured.ok:
+			assert_true(enabled.has("history_run9_semantic_owner_us"))
+			assert_true(enabled.has("history_semantic_reading_anchors_us"))
 			assert_eq(_scene_canonical(measured.value.candidate), _scene_canonical(plain.value.candidate))
 			measured.value.candidate.recovery_journal[0].snapshot.gameplay.coins += 1
 		assert_eq(_scene_canonical(document), before)

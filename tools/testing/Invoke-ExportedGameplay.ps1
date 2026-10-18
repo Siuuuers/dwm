@@ -529,20 +529,39 @@ function Capture-FailureWindow {
         '-ExpectedStartedUtc',$result.process.started_utc,'-OutputFile',(Join-Path $output 'failure-native-window.json'))) {
         $start.ArgumentList.Add($arg)
     }
+    if ($result.Contains('native_baseline_handle')) {
+        $start.ArgumentList.Add('-ExpectedWindowHandle')
+        $start.ArgumentList.Add([string]$result.native_baseline_handle)
+    }
     $probe = [Diagnostics.Process]::new()
     $probe.StartInfo = $start
+    $probeStarted = $false
+    $result.native_probe_started_utc = [DateTime]::UtcNow.ToString('o')
+    $result.native_probe_timeout_seconds = 15
     try {
-        Require ($probe.Start()) 'DIAGNOSTIC_START_FAILED'
+        $probeStarted = $probe.Start()
+        Require $probeStarted 'DIAGNOSTIC_START_FAILED'
         $stdout = $probe.StandardOutput.ReadToEndAsync()
         $stderr = $probe.StandardError.ReadToEndAsync()
         $complete = $probe.WaitForExit(15000)
         if (-not $complete) { $probe.Kill($true); [void]$probe.WaitForExit(3000) }
         $result.native_probe_completed = $complete
+        $result.native_probe_timed_out = -not $complete
         if ([Threading.Tasks.Task]::WaitAll([Threading.Tasks.Task[]]@($stdout,$stderr),3000)) {
             [IO.File]::WriteAllText((Join-Path $output 'failure-native-probe.stdout.log'),$stdout.GetAwaiter().GetResult(),$utf8)
             [IO.File]::WriteAllText((Join-Path $output 'failure-native-probe.stderr.log'),$stderr.GetAwaiter().GetResult(),$utf8)
         }
-    } finally { $probe.Dispose() }
+    } finally {
+        # Also contain the diagnostic child if collection itself throws.
+        try {
+            if ($probeStarted -and -not $probe.HasExited) {
+                $probe.Kill($true); [void]$probe.WaitForExit(3000)
+            }
+        } finally {
+            $result.native_probe_finished_utc = [DateTime]::UtcNow.ToString('o')
+            $probe.Dispose()
+        }
+    }
 }
 
 function Capture-FailureSaves([string]$Prefix = 'failure') {
@@ -819,6 +838,15 @@ try {
     $result.ok = $true
 } catch {
     $result.failure = $_.Exception.Message
+    # Preserve the failed gate before any post-failure provider call can block.
+    try {
+        Write-Json (Join-Path $output 'failure-boundary.json') ([ordered]@{
+            utc=[DateTime]::UtcNow.ToString('o'); failure=$result.failure; diagnostic_only=$true
+            process=$(if ($result.Contains('process')) { $result.process } else { $null })
+            original_window_handle=$(if ($result.Contains('native_baseline_handle')) { $result.native_baseline_handle } else { $null })
+            cleanup_state='not-yet-observed'
+        })
+    } catch { $result.failure_boundary_error = $_.Exception.Message }
     try { Capture-FailureSaves } catch { $result.save_capture_failure = $_.Exception.Message }
     # The quiet experiment permits exactly one UIA enumeration; generic diagnostics
     # would add a fresh-client enumeration and foreground/capture intervention.

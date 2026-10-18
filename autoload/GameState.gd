@@ -4247,13 +4247,16 @@ func apply_scene_new_run_silent(plan: Dictionary, creation_owner: Object) -> Dic
 		_scene_new_run_plan_owner = null
 	return installed
 
-func validate_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary) -> Dictionary:
+func validate_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary, diagnostics: Dictionary = {}) -> Dictionary:
+	var diagnostic_tick := Time.get_ticks_usec() if not diagnostics.is_empty() else 0
 	if _identity_issuer == null: return _transaction_failure(&"scene_identity_issuer_required", "")
 	var selected := _SCENE_MANIFEST.scene_registration()
 	if not selected.ok: return selected
 	if not _SCENE_EVENT._equal(bundle, selected.value): return _transaction_failure(&"scene_registration_mismatch", "")
+	diagnostic_tick = _NARRATIVE_VARIABLE_SCHEMA._scene_profile_phase(diagnostics, "history_semantic_registration_us", diagnostic_tick)
 	var checked: Dictionary = _SCENE_EVENT.validate_scene_receipts(snapshot.command_receipts, bundle, _identity_issuer, get_node_or_null("/root/SaveManager"), snapshot.contacts)
 	if not checked.get("ok", false): return checked
+	diagnostic_tick = _NARRATIVE_VARIABLE_SCHEMA._scene_profile_phase(diagnostics, "history_semantic_receipts_us", diagnostic_tick)
 	var profile: Node = get_node_or_null("/root/ProfileManager")
 	if profile == null or not profile.has_method("get_pair_deck_draw"):
 		return _transaction_failure(&"scene_profile_owner_required", "")
@@ -4261,10 +4264,13 @@ func validate_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary)
 	if not assignment.get("ok", false): return assignment
 	if not _SCENE_EVENT._equal(assignment.get("value"), snapshot.lifecycle.scene_assignment):
 		return _transaction_failure(&"scene_assignment_profile_mismatch", "")
+	diagnostic_tick = _NARRATIVE_VARIABLE_SCHEMA._scene_profile_phase(diagnostics, "history_semantic_assignment_profile_us", diagnostic_tick)
 	var physical := _validate_scene_profile_references(snapshot, profile)
 	if not physical.ok: return physical
+	diagnostic_tick = _NARRATIVE_VARIABLE_SCHEMA._scene_profile_phase(diagnostics, "history_semantic_physical_references_us", diagnostic_tick)
 	var frozen: Dictionary = _SCENE_FROZEN.validate(snapshot, true)
 	if not frozen.get("ok", false): return frozen
+	diagnostic_tick = _NARRATIVE_VARIABLE_SCHEMA._scene_profile_phase(diagnostics, "history_semantic_frozen_context_us", diagnostic_tick)
 	# Receipt authentication and frozen frame derivation are independent proofs.
 	# Join every authenticated event to the actual retained reading ledger as well:
 	# historical occurrences remain valid, but invented publications never do.
@@ -4277,6 +4283,7 @@ func validate_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary)
 				receipt.scene_event.reading_anchor, snapshot.lifecycle.ending_plan.source_reading_checkpoint
 				if snapshot.lifecycle.get("ending_plan") is Dictionary and snapshot.lifecycle.ending_plan.get("source_kind") == "scene" else snapshot.narrative_checkpoint)
 			if not anchored.get("ok", false): return anchored
+	diagnostic_tick = _NARRATIVE_VARIABLE_SCHEMA._scene_profile_phase(diagnostics, "history_semantic_reading_anchors_us", diagnostic_tick)
 	return {"ok": true}
 
 func _install_scene_snapshot_silent(snapshot: Dictionary) -> Dictionary:

@@ -136,7 +136,7 @@ static func build(
 		return validated
 	return {"ok": true, "code": &"ok", "value": {"snapshot": validated["value"]["candidate"]}}
 
-static func validate(snapshot: Dictionary) -> Dictionary:
+static func validate(snapshot: Dictionary, profile: Dictionary = {}) -> Dictionary:
 	var version: Variant = snapshot.get("schema_version")
 	if typeof(version) == TYPE_FLOAT and is_finite(version) and version == floorf(version): version = int(version)
 	if version == SCENE_SCHEMA_VERSION:
@@ -144,7 +144,7 @@ static func validate(snapshot: Dictionary) -> Dictionary:
 		if not run_join.is_empty(): return _fail(&"scene_receipt_run_changed", run_join)
 		var selected: Dictionary = SCENE_MANIFEST.scene_registration()
 		if not selected.ok: return selected
-		return validate_scene(snapshot, selected.value)
+		return validate_scene(snapshot, selected.value, profile)
 	# `_normalize_integral_floats()` allocates a FRESH Dictionary/Array at every container node,
 	# so the candidate never aliases the caller and a `duplicate(true)` ahead of it only rebuilt
 	# the same tree a second time. Proof obligation for the leaves the normalizer passes through
@@ -789,7 +789,9 @@ static func _scene_initial_types_error(snapshot: Dictionary) -> String:
 static func _scene_exact_value(left: Variant, right: Variant) -> bool:
 	return SCENE_EVENT_CONTRACT._same_types(left, right) and _scene_equal(left, right)
 
-static func validate_scene(snapshot: Dictionary, bundle: Dictionary) -> Dictionary:
+static func validate_scene(snapshot: Dictionary, bundle: Dictionary, profile: Dictionary = {}) -> Dictionary:
+	# Caller-owned diagnostics accumulate only for the retained history being validated.
+	var profile_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
 	var type_error := _scene_initial_types_error(snapshot)
 	if not type_error.is_empty(): return _fail(&"scene_initial_types_invalid", type_error)
 	var run_join := _validate_scene_history_run(snapshot.get("command_receipts"), snapshot.get("run_id"))
@@ -814,10 +816,12 @@ static func validate_scene(snapshot: Dictionary, bundle: Dictionary) -> Dictiona
 	var terminal := is_scene_terminal(candidate)
 	if (candidate.route_id == "ending") != terminal:
 		return _fail(&"invalid_lifecycle", "terminal route and lifecycle must agree")
+	profile_tick = _scene_profile_phase(profile, "history_run9_header_normalization_us", profile_tick)
 	var lifecycle: Dictionary = RUN_LIFECYCLE.validate_scene(candidate.lifecycle, _scene_issuer)
 	if not lifecycle.ok: return lifecycle
 	var assignment: Dictionary = SCENE_ASSIGNMENT.validate_scene(candidate.lifecycle.scene_assignment)
 	if not assignment.ok: return assignment
+	profile_tick = _scene_profile_phase(profile, "history_run9_lifecycle_assignment_us", profile_tick)
 	if candidate.active_app_id != null and (not candidate.active_app_id is String \
 			or candidate.active_app_id == "logout" or not DESKTOP_APP_REGISTRY.new().has_app(StringName(candidate.active_app_id))):
 		return _fail(&"invalid_snapshot_shape", "invalid active content app")
@@ -830,8 +834,10 @@ static func validate_scene(snapshot: Dictionary, bundle: Dictionary) -> Dictiona
 		return _fail(&"scene_registration_mismatch", "active scene reference must use installed registration")
 	var gameplay_error := _validate_scene_gameplay(candidate.gameplay)
 	if not gameplay_error.is_empty(): return _fail(&"invalid_gameplay", gameplay_error)
+	profile_tick = _scene_profile_phase(profile, "history_run9_gameplay_shape_us", profile_tick)
 	var contacts: Dictionary = SCENE_CONTACTS.validate_scene_state(candidate.contacts, candidate.scene.registration_sha256, _scene_issuer)
 	if not contacts.ok: return contacts
+	profile_tick = _scene_profile_phase(profile, "history_run9_contacts_us", profile_tick)
 	for receipt: Dictionary in candidate.contacts.transaction_receipts.values():
 		if receipt.context.identity.run_id != candidate.run_id:
 			return _fail(&"scene_contact_run_changed", "Contacts receipt belongs to another run")
@@ -847,12 +853,16 @@ static func validate_scene(snapshot: Dictionary, bundle: Dictionary) -> Dictiona
 		if not ids_error.is_empty(): return _fail(&"invalid_transaction_ids", ids_error)
 	var receipts_error := _validate_scene_receipt_shapes(candidate)
 	if not receipts_error.is_empty(): return _fail(&"invalid_command_receipts", receipts_error)
+	profile_tick = _scene_profile_phase(profile, "history_run9_desktop_receipt_shape_us", profile_tick)
 	var scene_receipts: Dictionary = SCENE_EVENT_CONTRACT.validate_scene_receipts(candidate.command_receipts, bundle, _scene_issuer, _scene_creation_owner, candidate.contacts)
 	if not scene_receipts.ok: return scene_receipts
+	profile_tick = _scene_profile_phase(profile, "history_run9_receipt_contract_us", profile_tick)
 	var audio := _validate_scene_audio(candidate, bundle)
 	if not audio.ok: return audio
+	profile_tick = _scene_profile_phase(profile, "history_run9_audio_us", profile_tick)
 	var reading := _validate_scene_reading(candidate)
 	if not reading.ok: return reading
+	profile_tick = _scene_profile_phase(profile, "history_run9_reading_us", profile_tick)
 	# The real live owner authenticates historical/current admissions, issuer
 	# chains, physical Profile references, assignment creation and Frozen frames.
 	# It must not call Run.validate again. A Boolean supplied by saved data is
@@ -861,14 +871,25 @@ static func validate_scene(snapshot: Dictionary, bundle: Dictionary) -> Dictiona
 	var detached := candidate.duplicate(true)
 	var detached_bundle := bundle.duplicate(true)
 	var bundle_before := _scene_hash(detached_bundle)
+	profile_tick = _scene_profile_phase(profile, "history_run9_detach_hash_before_us", profile_tick)
 	_scene_semantic_busy = true
-	var semantic: Variant = _scene_authority.call("validate_scene_snapshot_semantics", detached, detached_bundle)
+	var semantic: Variant = _scene_authority.call("validate_scene_snapshot_semantics", detached, detached_bundle) if profile.is_empty() else _scene_authority.call("validate_scene_snapshot_semantics", detached, detached_bundle, profile)
 	_scene_semantic_busy = false
+	profile_tick = _scene_profile_phase(profile, "history_run9_semantic_owner_us", profile_tick)
 	if _scene_hash(detached) != before or _scene_hash(detached_bundle) != bundle_before:
 		return _fail(&"scene_validation_mutated", "semantic owner mutated validation input")
+	profile_tick = _scene_profile_phase(profile, "history_run9_hash_after_us", profile_tick)
 	if not semantic is Dictionary or semantic.get("ok") != true:
 		return semantic if semantic is Dictionary else _fail(&"scene_validation_invalid_result", "semantic owner must return a result")
 	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
+
+## Same caller-owned opt-in timing convention as SaveDocumentSchema; these
+## accumulated children are nested inside its complete scene-journal timer.
+static func _scene_profile_phase(profile: Dictionary, phase: String, started_us: int) -> int:
+	if profile.is_empty(): return 0
+	var now := Time.get_ticks_usec()
+	profile[phase] = int(profile.get(phase, 0)) + now - started_us
+	return now
 
 static func is_scene_terminal(snapshot: Dictionary) -> bool:
 	var lifecycle: Variant = snapshot.get("lifecycle")
