@@ -14,6 +14,8 @@ Then Create with a different UserRoot/OutputPath, then Load with that creator Us
 a third OutputPath and -CreatorReceipt <create-output>/result.json. Pass the successful
 capability result.json as -CapabilityReceipt to Create. Renderer defaults to the project's
 renderer; an explicit gl_compatibility run is separately scoped and recorded.
+Accessibility Always and Audio Dummy are explicit cloud harness settings, not default
+accessibility or audio-output qualification. Receipts bind these settings across modes.
 Success means bounded machine checks passed. Screenshots require independent visual review;
 UIA names alone do not prove full-line pixels. Capability is not Save/Load acceptance.
 #>
@@ -28,6 +30,8 @@ param(
     [string]$CapabilityReceipt,
     [string]$CreatorReceipt,
     [ValidateSet('ProjectDefault', 'gl_compatibility')][string]$Renderer = 'ProjectDefault',
+    [ValidateSet('ProjectDefault', 'Always')][string]$Accessibility = 'ProjectDefault',
+    [ValidateSet('ProjectDefault', 'Dummy')][string]$Audio = 'ProjectDefault',
     [ValidateRange(10, 60)][int]$StepTimeoutSeconds = 30,
     [ValidateRange(120, 900)][int]$JourneyTimeoutSeconds = 480
 )
@@ -69,6 +73,7 @@ $events = [Collections.Generic.List[object]]::new()
 $result = [ordered]@{
     schema_version = 1; mode = $Mode; ok = $false; visual_review_required = $true
     source_commit = $ExpectedCommit.ToLowerInvariant(); archive_sha256 = $ExpectedArchiveSha256.ToLowerInvariant()
+    accessibility_request = $Accessibility; audio_request = $Audio
     renderer_request = $Renderer; user_root = $user; output_path = $output
     scope = 'Ordinary release UI; normal packaged seven-day TEST story; no Challenge registration'
     forced_cleanup = $false; clean_player_exit = $false
@@ -326,6 +331,7 @@ function Receipt([string]$Path, [string]$ExpectedMode) {
     Require ($r.ok -and $r.clean_player_exit -and -not $r.forced_cleanup -and $r.mode -ceq $ExpectedMode) 'PREREQUISITE_NOT_SUCCESSFUL'
     Require ($r.archive_sha256 -ceq $result.archive_sha256 -and $r.source_commit -ceq $result.source_commit -and
         $r.renderer_request -ceq $Renderer) 'PREREQUISITE_PACKAGE_OR_RENDERER_MISMATCH'
+    Require ($r.accessibility_request -ceq $Accessibility -and $r.audio_request -ceq $Audio) 'PREREQUISITE_ACCESSIBILITY_OR_AUDIO_MISMATCH'
     return $r
 }
 
@@ -393,6 +399,8 @@ try {
     $start.UseShellExecute = $false
     foreach ($argument in @('--windowed', '--resolution', '1280x720', '--log-file', $log)) { $start.ArgumentList.Add($argument) }
     if ($Renderer -ne 'ProjectDefault') { $start.ArgumentList.Add('--rendering-method'); $start.ArgumentList.Add($Renderer) }
+    if ($Accessibility -eq 'Always') { $start.ArgumentList.Add('--accessibility'); $start.ArgumentList.Add('always') }
+    if ($Audio -eq 'Dummy') { $start.ArgumentList.Add('--audio-driver'); $start.ArgumentList.Add('Dummy') }
     foreach ($name in @($start.Environment.Keys | Where-Object { $_ -like 'DWM_*' })) { [void]$start.Environment.Remove($name) }
     foreach ($name in @('APPDATA', 'LOCALAPPDATA')) {
         $directory = Join-Path $user $name.ToLowerInvariant()
