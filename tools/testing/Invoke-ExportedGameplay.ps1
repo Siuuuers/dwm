@@ -230,6 +230,7 @@ function Backup-Scope {
             Record 'backup-provider-scope' @{ flattened = [Windows.Automation.Automation]::Compare($ancestor, $window); drawer_names = $identities; columns = $lefts; rows = $tops }
             return $ancestor
         }
+        if ([Windows.Automation.Automation]::Compare($ancestor, $window)) { break }
         $ancestor = [Windows.Automation.TreeWalker]::RawViewWalker.GetParent($ancestor)
     }
     throw 'BACKUP_PROVIDER_SURFACE_NOT_EXPOSED'
