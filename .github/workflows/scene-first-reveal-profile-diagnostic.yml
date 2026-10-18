@@ -1,4 +1,4 @@
-name: Ending root order experiment
+name: Ending submitted graph diagnostic
 on:
   pull_request:
     paths:
@@ -12,9 +12,10 @@ concurrency:
 jobs:
   authority-audit:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
-    name: Windows / Ending root order experiment
+    name: Windows / prepared AccessKit parent graph
     runs-on: windows-2022
-    timeout-minutes: 30
+    # Native compilation has a separate ceiling. Original player deadlines below are unchanged.
+    timeout-minutes: 150
     defaults:
       run:
         shell: pwsh
@@ -23,240 +24,130 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 81847d8b1560340a3a7769223cee0b46c6bdc0f9
-          fetch-depth: 3
-          # Defer credential removal until the post-job cleanup, after the
-          # malformed gitlinks are removed from this disposable runner's index.
+          ref: c24934929e3d2c8c013f335309620525e2f64d61
+          fetch-depth: 2
           persist-credentials: true
-      - name: Record pinned source
+      - name: Bind the diagnostic tools and unchanged game harness
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '81847d8b1560340a3a7769223cee0b46c6bdc0f9') { throw 'Candidate mismatch' }
-          if ((git rev-parse 'HEAD^{tree}') -cne '4581a9f12d63684836c722f72cffd533491f3c06') { throw 'Candidate tree mismatch' }
+          if ((git rev-parse HEAD) -cne 'c24934929e3d2c8c013f335309620525e2f64d61') { throw 'Diagnostic tool source mismatch' }
+          if ((git rev-parse 'HEAD^{tree}') -cne 'afa5000416f0320aa3d2134982111b7082693e1d') { throw 'Diagnostic tool tree mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='81847d8b1560340a3a7769223cee0b46c6bdc0f9'; tree='4581a9f12d63684836c722f72cffd533491f3c06'; controller='${{ github.event.pull_request.head.sha }}'; reference='337c2d43e9ff508575f772b1c1b7cf5679be8d0f'; reference_tree='1e4e752bd8e532f2e731dfc483be40fcff3bd3fc'; reference_run=39152708408; diagnostic='Ending root order experiment; original player gates remain authoritative'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
-      - name: Prepare disposable checkout for credential cleanup
-        run: |
-          $ErrorActionPreference = 'Stop'
-          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
-          # submodule foreach reads the index even with sparse checkout.
-          # The source commit and working files remain unchanged.
           git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           git submodule foreach --recursive 'true'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Bind order source and unchanged trace and driver settings
-        run: |
-          $ErrorActionPreference = 'Stop'
-          git fetch --no-tags --depth=1 origin 337c2d43e9ff508575f772b1c1b7cf5679be8d0f '${{ github.event.pull_request.head.sha }}'
-          if ($LASTEXITCODE -ne 0) { throw 'Pinned diagnostic source fetch failed' }
-          if ((git rev-parse '337c2d43e9ff508575f772b1c1b7cf5679be8d0f^{tree}') -cne '1e4e752bd8e532f2e731dfc483be40fcff3bd3fc') { throw 'Reference tree mismatch' }
+          git fetch --no-tags --depth=1 origin 81847d8b1560340a3a7769223cee0b46c6bdc0f9 '${{ github.event.pull_request.head.sha }}'
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned original/controller source fetch failed' }
           @'
-          import hashlib,json,pathlib,re,subprocess
-          out=pathlib.Path('.godot/ci')
-          reference='337c2d43e9ff508575f772b1c1b7cf5679be8d0f'
-          candidate='81847d8b1560340a3a7769223cee0b46c6bdc0f9'
+          import hashlib,json,pathlib,subprocess
+          game='81847d8b1560340a3a7769223cee0b46c6bdc0f9'
+          tools='c24934929e3d2c8c013f335309620525e2f64d61'
           controller='${{ github.event.pull_request.head.sha }}'
-          common=['tools/testing/Invoke-ExportedGameplay.ps1','tools/testing/Invoke-IsolatedGodot.ps1','tools/testing/Invoke-WindowsExportValidation.ps1','tests/tooling/Test-ExportedGameplayDeadline.ps1','project.godot','export_presets.cfg']
-          origins={}
-          for source in common:
-              old=subprocess.check_output(['git','show',reference+':'+source])
-              current=pathlib.Path(source).read_bytes()
-              if current!=old:raise RuntimeError('Original diagnostic harness changed: '+source)
-              origins[source]={'sha256':hashlib.sha256(current).hexdigest(),'git_blob':subprocess.check_output(['git','rev-parse',reference+':'+source],text=True).strip()}
-          trace_sources=['scripts/ui/witnessed/WitnessedCaptionLayer.gd','scripts/ui/witnessed/WitnessedAccessibleCaption.gd','scripts/ui/witnessed/WitnessedSourceCanvas.gd']
-          trace_origins={}
-          for source in trace_sources:
-              old=subprocess.check_output(['git','show',reference+':'+source])
-              current=pathlib.Path(source).read_bytes()
-              if current!=old:raise RuntimeError('Passive trace changed: '+source)
-              trace_origins[source]={'sha256':hashlib.sha256(current).hexdigest(),'git_blob':subprocess.check_output(['git','rev-parse',reference+':'+source],text=True).strip()}
-          ending_source='scripts/ui/EndingScene.gd'
-          test_source='tests/scene/test_ending_recovery_localization.gd'
-          changed=sorted(subprocess.check_output(['git','diff','--name-only',reference,candidate],text=True).splitlines())
-          if changed!=sorted([ending_source,test_source]):raise RuntimeError('Unexpected order experiment source delta: '+repr(changed))
-          test_bytes=pathlib.Path(test_source).read_bytes()
-          methods=re.findall(r'^func\s+(test_[A-Za-z0-9_]+)\s*\(',test_bytes.decode('utf-8-sig'),re.M)
-          if len(methods)!=11 or len(methods)!=len(set(methods)):raise RuntimeError('Focused source method census differs from the reviewed 11 methods')
-          focused={'id':'ending-recovery','role':'candidate','path':test_source,'source_commit':candidate,'source_path':ending_source,'expected_tests':11,'expected_methods':methods,'timeout_seconds':180,'headless':True,'scope':'Headless scene integration with simulated input/focus; original exported journey remains native acceptance','test_sha256':hashlib.sha256(test_bytes).hexdigest(),'source_sha256':hashlib.sha256(pathlib.Path(ending_source).read_bytes()).hexdigest()}
-          (out/'focused-plan.json').write_text(json.dumps(focused,indent=2))
-          sources=common+trace_sources+['scripts/domain/narrative/SceneEventContract.gd','scripts/domain/run/RunSnapshotSchema.gd','scripts/application/run/SaveManagerCheckpointPort.gd','scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd','scripts/infrastructure/save/SaveDocumentSchema.gd','autoload/GameState.gd','autoload/DialogicBridge.gd','autoload/SaveManager.gd','scripts/application/backup/BackupPresentationPort.gd','scripts/ui/BackupApp.gd','tools/testing/Probe-ExportedWindow.ps1','tests/unit/test_save_manager_checkpoint_port.gd','tests/unit/test_save_document_schema.gd','tests/unit/test_backup_presentation.gd','tests/unit/test_scene_event_contract.gd','tests/unit/test_scene_receipt_validation.gd','tests/unit/test_scene_transition_identity.gd','tests/unit/test_scene_terminal_lifecycle.gd','tests/integration/test_scene_saved_event_anchor.gd']
-          sources += [ending_source,test_source]
-          for role,commit in [('reference',reference),('candidate',candidate)]:
-              for source in sources:
-                  content=subprocess.check_output(['git','show',commit+':'+source])
-                  target=out/'source'/role/source;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(content)
-          target=out/'source/controller/scene-first-reveal-profile-diagnostic.yml'
-          target.parent.mkdir(parents=True,exist_ok=True)
-          target.write_bytes(subprocess.check_output(['git','show',controller+':.github/workflows/scene-first-reveal-profile-diagnostic.yml']))
-          (out/'order-source-delta.patch').write_bytes(subprocess.check_output(['git','diff','--no-ext-diff',reference,candidate]))
-          (out/'diagnostic-harness.json').write_text(json.dumps({'reference':reference,'candidate':candidate,'controller':controller,'shared_files':origins,'trace_sources':trace_sources,'unchanged_trace_files':trace_origins,'changed_paths':changed,'focused_suite':focused,'source_snapshot_count_per_role':len(sources),'trace_marker':'DWM_ENDING_PUBLICATION_TRACE','passive_trace_gate':{'DWM_SAVE_LOAD_PROFILE':'1','DWM_SAVE_LOAD_CONTEXT':'exported-load-phase-diagnostic'},'runner':'windows-2022','modes':['Capability','Create','Load'],'outer_timeout_minutes_per_mode':10,'step_timeout_seconds':30,'journey_timeout_seconds':480,'renderer':'ProjectDefault','accessibility':'Always','audio':'Dummy','load_flags':['ProfileSaveLoad','ContinueAfterQuiet','TraceDay5','NativeReadyCaptions'],'load_environment':{'DWM_SAVE_LOAD_PROFILE':'1','DWM_CHECKPOINT_PROFILE':'1','DWM_SAVE_LOAD_CONTEXT':'exported-load-phase-diagnostic'},'scope':'One isolated EndingScene order experiment; focused recovery and original player gates remain separate'},indent=2))
+          prefix='tools/diagnostics/ending-publication-20261019/'
+          out=pathlib.Path('.godot/ci')
+          game_tree=subprocess.check_output(['git','rev-parse',game+'^{tree}'],text=True).strip()
+          if game_tree!='4581a9f12d63684836c722f72cffd533491f3c06':raise RuntimeError('Frozen game tree mismatch')
+          changed=subprocess.check_output(['git','diff','--name-only',game,tools],text=True).splitlines()
+          if not changed or any(not name.startswith(prefix) for name in changed):raise RuntimeError('Diagnostic tools alter frozen game/harness paths')
+          shared=['tools/testing/Invoke-ExportedGameplay.ps1','tools/testing/Probe-ExportedWindow.ps1','tools/testing/Invoke-IsolatedGodot.ps1','tools/testing/Invoke-WindowsExportValidation.ps1','tests/tooling/Test-ExportedGameplayDeadline.ps1','project.godot','export_presets.cfg','scripts/ui/EndingScene.gd','scripts/ui/witnessed/WitnessedCaptionLayer.gd','scripts/ui/witnessed/WitnessedAccessibleCaption.gd','scripts/ui/witnessed/WitnessedSourceCanvas.gd']
+          pins={}
+          for name in shared+changed:
+              data=pathlib.Path(name).read_bytes()
+              source=game if name in shared else tools
+              committed=subprocess.check_output(['git','show',source+':'+name])
+              if data!=committed:raise RuntimeError('Working bytes differ from pin: '+name)
+              target=out/'source'/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data)
+              pins[name]={'source_commit':source,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest(),'git_blob':subprocess.check_output(['git','rev-parse',source+':'+name],text=True).strip()}
+          source=out/'source/controller.yml'
+          source.write_bytes(subprocess.check_output(['git','show',controller+':.github/workflows/scene-first-reveal-profile-diagnostic.yml']))
+          origin={'game_commit':game,'game_tree':game_tree,'tool_source':tools,'tool_tree':'afa5000416f0320aa3d2134982111b7082693e1d','controller':controller,'engine_base':'35e80b3a8822a9df9be390814b62f44c0a9c69e8','engine_tree':'499fa231ee5d21878988a4a9cb881749def3946d','original_run':39155624496,'original_artifact':12146662424,'diagnostic':'Separately built native observer; original official Load remains failed','shared_source_pins':pins,'changed_paths':changed,'driver_modes':['Capability','Create','Load'],'step_timeout_seconds':30,'journey_timeout_seconds':480,'outer_timeout_minutes_per_mode':10,'renderer':'ProjectDefault','accessibility':'Always','audio':'Dummy','load_flags':['ProfileSaveLoad','ContinueAfterQuiet','TraceDay5','NativeReadyCaptions'],'trace_environment':'GODOT_ACCESSKIT_PUBLICATION_TRACE_PATH','trace_scope':'Load only, from process construction; initial plus natural deltas; no refresh or new observer RID'}
+          (out/'audit-origin.json').write_text(json.dumps(origin,indent=2))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Parse external driver without execution
+      - name: Set the diagnostic tool path
         run: |
-          $tokens = $null
-          $errors = $null
-          $null = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $env:GITHUB_WORKSPACE 'tools/testing/Invoke-ExportedGameplay.ps1'), [ref]$tokens, [ref]$errors)
-          @{ ok=($errors.Count -eq 0); errors=@($errors | ForEach-Object { @{ message=$_.Message; line=$_.Extent.StartLineNumber; text=$_.Extent.Text } }) } | ConvertTo-Json -Depth 5 | Set-Content '.godot/ci/driver-parse.json'
-          if ($errors.Count -ne 0) { $errors | Format-List; throw 'Driver parse failed' }
-      - name: Parse separate native diagnostic
+          "PUBLICATION_TOOLS=$env:GITHUB_WORKSPACE/tools/diagnostics/ending-publication-20261019" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12.10'
+          architecture: x64
+      - name: Parse all new PowerShell and the unchanged native driver
         run: |
-          $tokens = $null
-          $errors = $null
-          $null = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $env:GITHUB_WORKSPACE 'tools/testing/Probe-ExportedWindow.ps1'), [ref]$tokens, [ref]$errors)
-          if ($errors.Count -ne 0) { $errors | Format-List; throw 'Native diagnostic parse failed' }
-      - name: Verify original-deadline acceptance boundaries
+          $ErrorActionPreference = 'Stop'
+          $records = @()
+          $paths = @('tools/testing/Invoke-ExportedGameplay.ps1','tools/testing/Probe-ExportedWindow.ps1',"$env:PUBLICATION_TOOLS/Build-NativePublicationProbe.ps1","$env:PUBLICATION_TOOLS/New-NativeDiagnosticPackage.ps1")
+          foreach ($path in $paths) {
+            $tokens=$null; $errors=$null
+            $null=[Management.Automation.Language.Parser]::ParseFile([IO.Path]::GetFullPath($path),[ref]$tokens,[ref]$errors)
+            $records += @{path=$path;ok=($errors.Count -eq 0);errors=@($errors | ForEach-Object { @{message=$_.Message;line=$_.Extent.StartLineNumber;text=$_.Extent.Text} })}
+          }
+          $records | ConvertTo-Json -Depth 6 | Set-Content '.godot/ci/powershell-parse.json' -Encoding utf8NoBOM
+          if (@($records | Where-Object { -not $_.ok }).Count -ne 0) { throw 'PowerShell source parsing failed' }
+      - name: Check the independent reader and synthetic evidence binding
+        run: |
+          & python "$env:PUBLICATION_TOOLS/replay/test_read_trace.py" 2>&1 | Tee-Object -FilePath '.godot/ci/reader-tests.log'
+          $readerCode = $LASTEXITCODE
+          if ($readerCode -ne 0) { exit $readerCode }
+          & python "$env:PUBLICATION_TOOLS/tests/test_bind_trace.py" --output .godot/ci/binder-tests-result.json 2>&1 | Tee-Object -FilePath '.godot/ci/binder-tests.log'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify unchanged original player deadlines
         run: |
           & pwsh -NoProfile -File ./tests/tooling/Test-ExportedGameplayDeadline.ps1 -DriverPath ./tools/testing/Invoke-ExportedGameplay.ps1 -OutputPath .godot/ci/deadline-tests.json
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Install Godot 4.6.3 standard
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
-          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
-          # SHA256 published with the official 4.6.3-stable release asset.
-          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
-          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
-            throw 'Godot archive checksum mismatch.'
-          }
-          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
-          Expand-Archive -LiteralPath $archive -DestinationPath $editor
-          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
-          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
-          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          & $console --version
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Import project
-        timeout-minutes: 8
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
-          $env:APPDATA = Join-Path $output 'import-user/appdata'
-          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
-          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
-          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
-          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
-            throw 'Project import reported script errors; inspect import.log.'
-          }
-      - name: Restore committed project settings after editor import
-        run: |
-          # Dialogic's editor scan rewrites its timeline lookup during import.
-          # Execute the committed configuration with the freshly imported assets.
-          git restore -- project.godot
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Verify focused ending recovery and deferred root custody
-        id: ending-recovery
-        timeout-minutes: 5
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $PSNativeCommandUseErrorActionPreference = $false
-          $suite = Get-Content '.godot/ci/focused-plan.json' -Raw | ConvertFrom-Json
-          $code = $null
-          $failure = $null
-          $watch = [Diagnostics.Stopwatch]::StartNew()
-          try {
-            $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$($suite.path)",'-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/ending-recovery.xml')
-            & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'ending-recovery' -LogName 'ending-recovery.log' -EvidenceLogPath '.godot/ci/ending-recovery.jsonl' -TimeoutSeconds 180 -GodotArgs $arguments
-            $code = $LASTEXITCODE
-          } catch { $failure = $_.Exception.Message }
-          $watch.Stop()
-          @{id='ending-recovery'; exit_code=$code; failure=$failure; elapsed_seconds=$watch.Elapsed.TotalSeconds; timeout_seconds=180; source_commit='81847d8b1560340a3a7769223cee0b46c6bdc0f9'} | ConvertTo-Json | Set-Content '.godot/ci/ending-recovery-process.json'
-          @'
-          import hashlib,json,pathlib,re,xml.etree.ElementTree as ET
-          out=pathlib.Path('.godot/ci')
-          plan=json.loads((out/'focused-plan.json').read_text(encoding='utf-8-sig'))
-          record={**plan,'ok':False,'exit_code':None,'tests':0,'failures':0,'errors':0,'skipped':0,'assertions':0,'method_assertions':{},'verification_failures':[]}
-          def require(condition,message):
-              if not condition:record['verification_failures'].append(message)
-          try:
-              test_bytes=pathlib.Path(plan['path']).read_bytes()
-              source_bytes=pathlib.Path(plan['source_path']).read_bytes()
-              methods=re.findall(r'^func\s+(test_[A-Za-z0-9_]+)\s*\(',test_bytes.decode('utf-8-sig'),re.M)
-              require(methods==plan['expected_methods'] and len(methods)==11 and len(methods)==len(set(methods)),'Focused source census changed')
-              require(hashlib.sha256(test_bytes).hexdigest()==plan['test_sha256'],'Focused test source hash changed')
-              require(hashlib.sha256(source_bytes).hexdigest()==plan['source_sha256'],'Focused EndingScene source hash changed')
-              process=json.loads((out/'ending-recovery-process.json').read_text(encoding='utf-8-sig'))
-              record['exit_code']=process.get('exit_code')
-              require(process.get('exit_code')==0 and not process.get('failure') and process.get('timeout_seconds')==180 and process.get('source_commit')==plan['source_commit'],'Focused outer process failed or source/timeout mismatch')
-              wrappers=[json.loads(line) for line in (out/'ending-recovery.jsonl').read_text(encoding='utf-8-sig').splitlines() if line.strip()]
-              require(len(wrappers)==1,'Expected one isolated focused execution')
-              wrapper=wrappers[0] if len(wrappers)==1 else {}
-              require(wrapper.get('suite_id')=='ending-recovery' and wrapper.get('exit_code')==0,'Isolated focused process did not exit cleanly')
-              argv=wrapper.get('argv',[])
-              require('--headless' in argv and plan.get('headless') is True,'Focused suite did not retain its declared headless scope')
-              require([arg for arg in argv if arg.startswith('-gtest=')]==['-gtest=res://'+plan['path']] and '-gconfig=' in argv and '-gjunit_xml_file=res://.godot/ci/ending-recovery.xml' in argv,'Isolated focused argv does not select the exact suite/XML')
-              record['isolated_process']=wrapper
-              xml=ET.fromstring((out/'ending-recovery.xml').read_bytes())
-              cases=list(xml.iter('testcase'))
-              names=[case.attrib.get('name') for case in cases]
-              record['tests']=len(cases)
-              record['failures']=len(list(xml.iter('failure')))
-              record['errors']=len(list(xml.iter('error')))
-              record['skipped']=len(list(xml.iter('skipped')))
-              require(len(cases)==11 and len(names)==len(set(names)) and sorted(names)==sorted(methods),'XML does not cover exactly the 11 source test methods')
-              require(record['failures']+record['errors']+record['skipped']==0,'Focused XML has failed, errored or skipped cases')
-              record['method_assertions']={case.attrib['name']:int(case.attrib.get('assertions',0)) for case in cases}
-              record['assertions']=sum(record['method_assertions'].values())
-              require(all(count>0 for count in record['method_assertions'].values()),'Focused XML has a zero-assertion method')
-              log=pathlib.Path('.godot/phase2r_logs/ending-recovery.log').read_text(encoding='utf-8-sig',errors='replace')
-              require(re.search(r'ERROR:|Unicode parsing error|Unexpected NUL character',log) is None,'Focused Godot log reports a script/engine error')
-          except Exception as error:
-              record['verification_failures'].append(type(error).__name__+': '+str(error))
-          record['ok']=not record['verification_failures']
-          (out/'focused-results.json').write_text(json.dumps([record],indent=2))
-          print(json.dumps({key:record[key] for key in ['id','ok','tests','assertions','exit_code','verification_failures']}))
-          if not record['ok']:raise SystemExit(1)
-          '@ | python -
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Cache pinned export templates
-        id: export-templates-cache
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+      - name: Fetch the exact public source for the separate native build
+        uses: actions/checkout@v7
         with:
-          path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
-          key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
-      - name: Download verified Godot export templates
-        timeout-minutes: 10
+          repository: godotengine/godot
+          ref: 35e80b3a8822a9df9be390814b62f44c0a9c69e8
+          path: .godot/native-engine
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Compile the reviewed opt-in native observer
+        id: native-build
+        timeout-minutes: 100
         run: |
-          $ErrorActionPreference = 'Stop'
-          $folder = Join-Path $env:RUNNER_TEMP 'dwm-godot-templates'
-          New-Item -ItemType Directory -Force -Path $folder | Out-Null
-          $archive = Join-Path $folder 'Godot_v4.6.3-stable_export_templates.tpz'
-          if (-not (Test-Path -LiteralPath $archive)) {
-            Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_export_templates.tpz' -OutFile $archive
-          }
-          $expected = '3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8'
-          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
-            throw 'Godot export templates checksum mismatch.'
-          }
-          "GODOT_EXPORT_TEMPLATES_ARCHIVE=$archive" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-      - name: Retain verified export templates for subsequent runs
-        if: steps.export-templates-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-        with:
-          path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
-          key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
-      - name: Export and launch isolated Windows executable
-        timeout-minutes: 12
-        run: ./tools/testing/Invoke-WindowsExportValidation.ps1
-      - name: Bind the freshly built package
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $receipt = Get-Content '.godot/ci/windows-export/validation.json' -Raw | ConvertFrom-Json
-          if (-not $receipt.ok -or $receipt.commit -cne '81847d8b1560340a3a7769223cee0b46c6bdc0f9') { throw 'New export receipt mismatch' }
-          "DWM_EXPORT_SHA=$($receipt.archive.sha256)" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
-      - name: Retain exact executable package
-        id: candidate-package
-        continue-on-error: true
+          & "$env:PUBLICATION_TOOLS/Build-NativePublicationProbe.ps1" -EngineRoot .godot/native-engine -ProbeRoot "$env:PUBLICATION_TOOLS/native-probe" -OutputPath .godot/ci/native-build -DependencyPath "$env:RUNNER_TEMP/dwm-native-publication-deps"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Retain the built native template before packaging
+        id: template-retention
         uses: actions/upload-artifact@v4
         with:
-          name: forward-profile-package-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .godot/ci/windows-export/
+          name: native-publication-template-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .godot/native-engine/bin/*
+            !.godot/native-engine/bin/obj/**
+            .godot/ci/native-build/
           include-hidden-files: true
+          if-no-files-found: error
           retention-days: 7
-      - name: Probe original cloud capability on the isolated order package
+      - name: Download the frozen original game package
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          artifact-ids: '12146662424'
+          run-id: '39155624496'
+          github-token: ${{ github.token }}
+          repository: Siuuuers/dwm
+          path: .godot/original-game-artifact
+      - name: Build and validate the explicitly diagnostic package
+        id: package
+        timeout-minutes: 5
+        run: |
+          & "$env:PUBLICATION_TOOLS/New-NativeDiagnosticPackage.ps1" -OriginalArtifactPath .godot/original-game-artifact -EngineRoot .godot/native-engine -OutputPath .godot/ci/native-diagnostic -BuildReceipt .godot/ci/native-build/build-receipt.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $receipt = Get-Content '.godot/ci/native-diagnostic/validation.json' -Raw | ConvertFrom-Json
+          if (-not $receipt.ok -or -not $receipt.diagnostic -or $receipt.commit -cne '81847d8b1560340a3a7769223cee0b46c6bdc0f9') { throw 'Diagnostic package receipt mismatch' }
+          "DWM_EXPORT_SHA=$($receipt.archive.sha256)" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Retain exact diagnostic executable package
+        id: package-retention
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-publication-package-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .godot/ci/native-diagnostic/DWM-windows-x86_64-diagnostic.zip
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+      - name: Run original capability gates on the diagnostic native package
         id: capability
         continue-on-error: true
         timeout-minutes: 10
@@ -264,14 +155,13 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $PSNativeCommandUseErrorActionPreference = $false
           $watch = [Diagnostics.Stopwatch]::StartNew()
-          & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Capability -ArchivePath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export/DWM-windows-x86_64-validation.zip') -ExpectedArchiveSha256 $env:DWM_EXPORT_SHA -ExpectedCommit '81847d8b1560340a3a7769223cee0b46c6bdc0f9' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-capability-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-capability') -Accessibility Always -Audio Dummy
-          $code = $LASTEXITCODE
-          $watch.Stop()
-          @{mode='Capability'; exit_code=$code; elapsed_seconds=$watch.Elapsed.TotalSeconds; expected_source='81847d8b1560340a3a7769223cee0b46c6bdc0f9'; unchanged_result='.godot/ci/exported-capability/result.json'} | ConvertTo-Json | Set-Content '.godot/ci/capability-process.json'
+          & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Capability -ArchivePath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/native-diagnostic/DWM-windows-x86_64-diagnostic.zip') -ExpectedArchiveSha256 $env:DWM_EXPORT_SHA -ExpectedCommit '81847d8b1560340a3a7769223cee0b46c6bdc0f9' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-capability-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-capability') -Accessibility Always -Audio Dummy
+          $code = $LASTEXITCODE; $watch.Stop()
+          @{mode='Capability';exit_code=$code;elapsed_seconds=$watch.Elapsed.TotalSeconds;diagnostic_native=$true;trace_enabled=$false} | ConvertTo-Json | Set-Content '.godot/ci/capability-process.json'
           if ($code -ne 0) { exit $code }
-          $result = Get-Content '.godot/ci/exported-capability/result.json' -Raw | ConvertFrom-Json
-          if (-not $result.ok -or -not $result.clean_player_exit -or $result.forced_cleanup -or $result.exit_code -ne 0) { throw 'Capability did not pass its original gate' }
-      - name: Create original Day4 save through the exported UI
+          $result=Get-Content '.godot/ci/exported-capability/result.json' -Raw | ConvertFrom-Json
+          if (-not $result.ok -or -not $result.clean_player_exit -or $result.forced_cleanup -or $result.exit_code -ne 0) { throw 'Capability failed its original gate' }
+      - name: Create the original Day4 save on the diagnostic native package
         id: create
         if: ${{ !cancelled() && steps.capability.outcome == 'success' }}
         continue-on-error: true
@@ -280,14 +170,13 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $PSNativeCommandUseErrorActionPreference = $false
           $watch = [Diagnostics.Stopwatch]::StartNew()
-          & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Create -ArchivePath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export/DWM-windows-x86_64-validation.zip') -ExpectedArchiveSha256 $env:DWM_EXPORT_SHA -ExpectedCommit '81847d8b1560340a3a7769223cee0b46c6bdc0f9' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-journey-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-create') -Accessibility Always -Audio Dummy -CapabilityReceipt (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-capability/result.json')
-          $code = $LASTEXITCODE
-          $watch.Stop()
-          @{mode='Create'; exit_code=$code; elapsed_seconds=$watch.Elapsed.TotalSeconds; expected_source='81847d8b1560340a3a7769223cee0b46c6bdc0f9'; unchanged_result='.godot/ci/exported-create/result.json'} | ConvertTo-Json | Set-Content '.godot/ci/create-process.json'
+          & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Create -ArchivePath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/native-diagnostic/DWM-windows-x86_64-diagnostic.zip') -ExpectedArchiveSha256 $env:DWM_EXPORT_SHA -ExpectedCommit '81847d8b1560340a3a7769223cee0b46c6bdc0f9' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-journey-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-create') -Accessibility Always -Audio Dummy -CapabilityReceipt (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-capability/result.json')
+          $code = $LASTEXITCODE; $watch.Stop()
+          @{mode='Create';exit_code=$code;elapsed_seconds=$watch.Elapsed.TotalSeconds;diagnostic_native=$true;trace_enabled=$false} | ConvertTo-Json | Set-Content '.godot/ci/create-process.json'
           if ($code -ne 0) { exit $code }
-          $result = Get-Content '.godot/ci/exported-create/result.json' -Raw | ConvertFrom-Json
-          if (-not $result.ok -or -not $result.clean_player_exit -or $result.forced_cleanup -or $result.exit_code -ne 0) { throw 'Create did not pass its original gate' }
-      - name: Observe ending exposure during the original Load journey
+          $result=Get-Content '.godot/ci/exported-create/result.json' -Raw | ConvertFrom-Json
+          if (-not $result.ok -or -not $result.clean_player_exit -or $result.forced_cleanup -or $result.exit_code -ne 0) { throw 'Create failed its original gate' }
+      - name: Capture natural prepared edges during the original Load journey
         id: load
         if: ${{ !cancelled() && steps.create.outcome == 'success' }}
         continue-on-error: true
@@ -295,15 +184,28 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $PSNativeCommandUseErrorActionPreference = $false
+          $traceRoot = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/native-trace'
+          New-Item -ItemType Directory -Path $traceRoot | Out-Null
+          $env:GODOT_ACCESSKIT_PUBLICATION_TRACE_PATH = Join-Path $traceRoot 'trace-{pid}.jsonl'
           $watch = [Diagnostics.Stopwatch]::StartNew()
-          & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Load -ArchivePath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export/DWM-windows-x86_64-validation.zip') -ExpectedArchiveSha256 $env:DWM_EXPORT_SHA -ExpectedCommit '81847d8b1560340a3a7769223cee0b46c6bdc0f9' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-journey-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-load') -Accessibility Always -Audio Dummy -CreatorReceipt (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-create/result.json') -ProfileSaveLoad -ContinueAfterQuiet -TraceDay5 -NativeReadyCaptions
-          $code = $LASTEXITCODE
-          $watch.Stop()
-          @{mode='Load'; exit_code=$code; elapsed_seconds=$watch.Elapsed.TotalSeconds; expected_source='81847d8b1560340a3a7769223cee0b46c6bdc0f9'; unchanged_result='.godot/ci/exported-load/result.json'} | ConvertTo-Json | Set-Content '.godot/ci/load-process.json'
+          try {
+            & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Load -ArchivePath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/native-diagnostic/DWM-windows-x86_64-diagnostic.zip') -ExpectedArchiveSha256 $env:DWM_EXPORT_SHA -ExpectedCommit '81847d8b1560340a3a7769223cee0b46c6bdc0f9' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-journey-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-load') -Accessibility Always -Audio Dummy -CreatorReceipt (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-create/result.json') -ProfileSaveLoad -ContinueAfterQuiet -TraceDay5 -NativeReadyCaptions
+            $code = $LASTEXITCODE
+          } finally {
+            Remove-Item Env:GODOT_ACCESSKIT_PUBLICATION_TRACE_PATH
+            $watch.Stop()
+          }
+          @{mode='Load';exit_code=$code;elapsed_seconds=$watch.Elapsed.TotalSeconds;diagnostic_native=$true;trace_enabled=$true;trace_pattern='native-trace/trace-{pid}.jsonl'} | ConvertTo-Json | Set-Content '.godot/ci/load-process.json'
           if ($code -ne 0) { exit $code }
-          $result = Get-Content '.godot/ci/exported-load/result.json' -Raw | ConvertFrom-Json
-          if (-not $result.ok -or -not $result.clean_player_exit -or $result.forced_cleanup -or $result.exit_code -ne 0) { throw 'Load did not pass its original gate' }
-      - name: Preserve original player outcomes and source cleanliness
+          $result=Get-Content '.godot/ci/exported-load/result.json' -Raw | ConvertFrom-Json
+          if (-not $result.ok -or -not $result.clean_player_exit -or $result.forced_cleanup -or $result.exit_code -ne 0) { throw 'Load failed its original gate' }
+      - name: Bind and replay prepared parent edges without changing original outcomes
+        id: replay
+        if: always()
+        run: |
+          & python "$env:PUBLICATION_TOOLS/bind_trace.py" --evidence .godot/ci --reader "$env:PUBLICATION_TOOLS/replay/read_trace.py"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Preserve original player gates and diagnostic source custody
         if: always()
         run: |
           $ErrorActionPreference = 'Stop'
@@ -311,77 +213,34 @@ jobs:
           $outcomes = [Collections.Generic.List[object]]::new()
           foreach ($mode in @('capability','create','load')) {
             $path = ".godot/ci/exported-$mode/result.json"
-            if (-not (Test-Path -LiteralPath $path)) { $failures.Add("Missing $mode result"); continue }
-            $result = Get-Content -LiteralPath $path -Raw | ConvertFrom-Json
-            $outcomes.Add(@{mode=$mode; result=$path; ok=$result.ok; exit_code=$result.exit_code; clean_player_exit=$result.clean_player_exit; forced_cleanup=$result.forced_cleanup})
-            if (-not $result.ok -or -not $result.clean_player_exit -or $result.forced_cleanup -or $result.exit_code -ne 0) { $failures.Add("$mode failed its original gate") }
+            if (-not (Test-Path -LiteralPath $path)) { $failures.Add("Unexecuted or missing $mode result"); continue }
+            $result=Get-Content -LiteralPath $path -Raw | ConvertFrom-Json
+            $outcomes.Add(@{mode=$mode;result=$path;ok=$result.ok;exit_code=$result.exit_code;clean_player_exit=$result.clean_player_exit;forced_cleanup=$result.forced_cleanup})
+            if (-not $result.ok -or -not $result.clean_player_exit -or $result.forced_cleanup -or $result.exit_code -ne 0) { $failures.Add("$mode failed its original gate on diagnostic native") }
           }
-          if ('${{ steps.capability.outcome }}' -ne 'success') { $failures.Add('Capability driver process or step failed') }
-          if ('${{ steps.create.outcome }}' -ne 'success') { $failures.Add('Create driver process or step failed') }
-          if ('${{ steps.load.outcome }}' -ne 'success') { $failures.Add('Load driver process or step failed') }
-          if ('${{ steps.ending-recovery.outcome }}' -ne 'success') { $failures.Add('Focused ending recovery or method/XML gate failed') }
-          $focusedPath = '.godot/ci/focused-results.json'
-          if (-not (Test-Path -LiteralPath $focusedPath)) { $failures.Add('Missing focused ending recovery result') }
-          else {
-            $focused = @(Get-Content -LiteralPath $focusedPath -Raw | ConvertFrom-Json)
-            if ($focused.Count -ne 1 -or $focused[0].id -cne 'ending-recovery' -or -not $focused[0].ok -or $focused[0].exit_code -ne 0 -or $focused[0].tests -ne 11 -or $focused[0].timeout_seconds -ne 180) { $failures.Add('Focused ending recovery result failed its original suite gate') }
+          foreach ($step in @(@{name='native-build';outcome='${{ steps.native-build.outcome }}'},@{name='template-retention';outcome='${{ steps.template-retention.outcome }}'},@{name='package';outcome='${{ steps.package.outcome }}'},@{name='package-retention';outcome='${{ steps.package-retention.outcome }}'},@{name='capability';outcome='${{ steps.capability.outcome }}'},@{name='create';outcome='${{ steps.create.outcome }}'},@{name='load';outcome='${{ steps.load.outcome }}'},@{name='replay';outcome='${{ steps.replay.outcome }}'})) {
+            if ($step.outcome -ne 'success') { $failures.Add("$($step.name) step did not succeed") }
           }
-          if ('${{ steps.candidate-package.outcome }}' -ne 'success') { $failures.Add('Diagnostic executable package retention failed') }
           $allowed = @('.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1')
-          foreach ($path in @(git diff HEAD --name-only)) { if ($path -notin $allowed) { $failures.Add("Unexpected tracked change: $path") } }
+          foreach ($path in @(git diff HEAD --name-only)) { if ($path -notin $allowed) { $failures.Add("Unexpected tracked game/tools change: $path") } }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{ok=($failures.Count -eq 0); scope='Original bounded driver gates; passive traces are diagnostic evidence'; original_outcomes=$outcomes.ToArray(); failures=$failures.ToArray()} | ConvertTo-Json -Depth 8 | Set-Content '.godot/ci/diagnostic-acceptance.json'
+          @{ok=($failures.Count -eq 0);scope='Unchanged original player gates on a separately built diagnostic native executable';official_original_load_ok=$false;official_acceptance_established=$false;original_gate_outcomes_on_diagnostic_native=$outcomes.ToArray();failures=$failures.ToArray()} | ConvertTo-Json -Depth 8 | Set-Content '.godot/ci/diagnostic-acceptance.json'
           if ($failures.Count -ne 0) { throw ($failures -join '; ') }
-      - name: Retain original native dump and diagnostic evidence
+      - name: Seal original evidence for durable retention
+        if: always()
+        run: |
+          & python "$env:PUBLICATION_TOOLS/retain_evidence.py" --evidence .godot/ci
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Retain complete diagnostic evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: native-load-crash-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .godot/ci/native-crash/
+          name: native-publication-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .godot/ci/
+            !.godot/ci/**/package/**
+            !.godot/ci/**/smoke-user/**
+            !.godot/ci/**/*.zip
           include-hidden-files: true
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 7
-      - name: Retain original outcomes focused tests and publication evidence
-        if: always()
-        run: |
-          @'
-          import base64,hashlib,io,json,pathlib,re,subprocess,zipfile
-          out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
-          status=subprocess.run(['git','status','--porcelain'],capture_output=True,text=True)
-          (out/'final-status.txt').write_text(status.stdout+status.stderr)
-          for p in pathlib.Path('.godot/phase2r_logs').glob('*'):
-              if p.is_file():
-                  target=out/'focused-logs'/p.name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(p.read_bytes())
-          primary=out/'exported-load/game.stdout.log'
-          summary={'scope':'Passive ending publication; original result.json remains authoritative','candidate':'81847d8b1560340a3a7769223cee0b46c6bdc0f9','reference':'337c2d43e9ff508575f772b1c1b7cf5679be8d0f','primary_stream':primary.relative_to(out).as_posix(),'passive_trace_gate':{'DWM_SAVE_LOAD_PROFILE':'1','DWM_SAVE_LOAD_CONTEXT':'exported-load-phase-diagnostic'},'publication_records':[],'profile_records':[],'parse_errors':[]}
-          if primary.is_file():
-              raw=primary.read_bytes()
-              summary['primary_stream_bytes']=len(raw)
-              summary['primary_stream_sha256']=hashlib.sha256(raw).hexdigest()
-              for line_number,line in enumerate(raw.decode('utf-8-sig',errors='replace').splitlines(),1):
-                  matched=re.search(r'(DWM_(?:CHECKPOINT_PROFILE|SAVE_LOAD_PROFILE|ENDING_PUBLICATION_TRACE)) (\{.*\})',line)
-                  if matched:
-                      try:
-                          record={'line':line_number,'marker':matched[1],'data':json.loads(matched[2])}
-                          bucket='publication_records' if matched[1]=='DWM_ENDING_PUBLICATION_TRACE' else 'profile_records'
-                          summary[bucket].append(record)
-                      except json.JSONDecodeError as error:summary['parse_errors'].append({'line':line_number,'text':line,'error':str(error)})
-          summary['publication_record_count']=len(summary['publication_records'])
-          summary['profile_record_count']=len(summary['profile_records'])
-          (out/'ending-publication-trace.json').write_text(json.dumps(summary,indent=2))
-          # Retain all original evidence streams and full source snapshots.
-          # Only the primary stdout stream is projected above; no duplicate sums.
-          files=sorted(p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts and 'package' not in p.parts and p.suffix not in ['.zip','.dmp'] and p.name!='retained-hashes.json')
-          manifest={p.relative_to('.godot').as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in files}
-          retained=out/'retained-hashes.json';retained.write_text(json.dumps(manifest,indent=2));files.append(retained)
-          payload=io.BytesIO()
-          with zipfile.ZipFile(payload,'w',zipfile.ZIP_DEFLATED) as z:
-              for p in files:z.write(p,p.relative_to('.godot').as_posix())
-          data=payload.getvalue()
-          if len(data)>16*1024*1024:raise RuntimeError('Bounded evidence too large')
-          print('DWM_EVIDENCE_BEGIN '+json.dumps({'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}))
-          encoded=base64.b64encode(data).decode()
-          for i in range(0,len(encoded),4096):print('DWM_EVIDENCE_CHUNK '+encoded[i:i+4096])
-          print('DWM_EVIDENCE_END')
-          '@ | python -
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
