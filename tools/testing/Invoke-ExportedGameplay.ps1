@@ -50,6 +50,9 @@ public static class DwmExportWindow {
     [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
     [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr h, out uint pid);
     [DllImport("user32.dll")] public static extern IntPtr SetThreadDpiAwarenessContext(IntPtr context);
+    [DllImport("user32.dll")] public static extern bool IsHungAppWindow(IntPtr h);
+    [DllImport("user32.dll", SetLastError=true)] private static extern IntPtr SendMessageTimeout(IntPtr h, uint msg, IntPtr wp, IntPtr lp, uint flags, uint timeout, out IntPtr result);
+    public static bool Responds(IntPtr h, uint timeout) { IntPtr result; return SendMessageTimeout(h,0,IntPtr.Zero,IntPtr.Zero,2,timeout,out result)!=IntPtr.Zero; }
     private static System.Threading.Timer watchdog;
     public static volatile bool Expired;
     public static void Arm(System.Diagnostics.Process child, int milliseconds) {
@@ -305,6 +308,40 @@ function Save-Slot([int]$Number) {
     Invoke-UI (Backup-Action 'Save') "commit empty slot $Number"
     $path = Join-Path $dataRoot "saves/slot_$Number.json"
     $document = Wait-File $path
+    if ($Mode -eq 'Load' -and $Number -eq 2) {
+        # Diagnostic only: preserve the original observation budget, without repeated UIA.
+        $result.diagnostic_only = $true
+        $quiet = [Diagnostics.Stopwatch]::StartNew()
+        Record 'quiet-native-start' @{ deadline_seconds=$StepTimeoutSeconds; traversal_policy='one fresh UIA observation after native-only sampling' }
+        Capture-FailureSaves 'quiet-before'
+        while ($quiet.Elapsed.TotalSeconds -lt $StepTimeoutSeconds) {
+            Check-Live
+            $handle = $child.MainWindowHandle
+            Require ($handle -ne [IntPtr]::Zero) 'QUIET_NATIVE_WINDOW_MISSING'
+            $owner = [uint32]0
+            [void][DwmExportWindow]::GetWindowThreadProcessId($handle, [ref]$owner)
+            Require ($owner -eq $child.Id) 'QUIET_NATIVE_WINDOW_PID_MISMATCH'
+            $remaining = [int][Math]::Floor(($StepTimeoutSeconds - $quiet.Elapsed.TotalSeconds) * 1000)
+            if ($remaining -le 0) { break }
+            $responds = [DwmExportWindow]::Responds($handle, [uint32][Math]::Min(250, $remaining))
+            Record 'quiet-native-sample' @{ elapsed_seconds=$quiet.Elapsed.TotalSeconds; handle=$handle.ToInt64(); pid=$owner;
+                hung=[DwmExportWindow]::IsHungAppWindow($handle); responds=$responds; foreground=([DwmExportWindow]::GetForegroundWindow() -eq $handle) }
+            $remaining = [int][Math]::Floor(($StepTimeoutSeconds - $quiet.Elapsed.TotalSeconds) * 1000)
+            if ($remaining -gt 0) { Start-Sleep -Milliseconds ([Math]::Min(750, $remaining)) }
+        }
+        Capture-FailureSaves 'quiet-after'
+        Record 'quiet-fresh-uia-start' @{ elapsed_seconds=$quiet.Elapsed.TotalSeconds }
+        $script:window = Window
+        Require ($null -ne $window) 'QUIET_FRESH_WINDOW_MISSING'
+        $observed = @(Nodes $window)
+        $saved = @($observed | Where-Object { (Visible $_) -and $_.Current.Name.TrimEnd() -ceq 'Saved' })
+        Write-Json (Join-Path $output 'quiet-fresh-uia.json') @($observed | ForEach-Object { Describe $_ })
+        Record 'quiet-fresh-uia-result' @{ elapsed_seconds=$quiet.Elapsed.TotalSeconds; descendants=$observed.Count; saved_count=$saved.Count }
+        $result.quiet_observation_completed = $true
+        $result.quiet_saved_count = $saved.Count
+        # Never promote later recovery or this diagnostic into normal journey acceptance.
+        throw 'DIAGNOSTIC_ONLY_QUIET_OBSERVATION_COMPLETE'
+    }
     $null = Wait-One 'Saved status' { Nodes $window | Where-Object { (Visible $_) -and $_.Current.Name.TrimEnd() -ceq 'Saved' } }
     Capture "save-$Number-complete"
     Invoke-UI (Button 'Back') 'close direct Backup host'
@@ -365,7 +402,7 @@ function Capture-FailureWindow {
     } finally { $probe.Dispose() }
 }
 
-function Capture-FailureSaves {
+function Capture-FailureSaves([string]$Prefix = 'failure') {
     # Read-only live observations, not an atomic checkpoint or acceptance evidence.
     # Capture before UIA: a provider call may block until the process watchdog fires.
     if ([string]::IsNullOrWhiteSpace($dataRoot)) { return }
@@ -386,7 +423,7 @@ function Capture-FailureSaves {
                     $offset += $count
                 }
                 Require ($stream.ReadByte() -eq -1) 'FAILURE_SAVE_GREW_DURING_READ'
-                $name = 'failure-' + ($relative -replace '/', '-')
+                $name = $Prefix + '-' + ($relative -replace '/', '-')
                 $destination = Join-Path $output $name
                 [IO.File]::WriteAllBytes($destination, $bytes)
                 $entry.status = 'copied'
@@ -398,7 +435,7 @@ function Capture-FailureSaves {
         finally { if ($null -ne $stream) { $stream.Dispose() } }
         $observations += $entry
     }
-    Write-Json (Join-Path $output 'failure-save-observations.json') $observations
+    Write-Json (Join-Path $output "$Prefix-save-observations.json") $observations
 }
 
 function Snapshot($Document) {
@@ -634,9 +671,13 @@ try {
 } catch {
     $result.failure = $_.Exception.Message
     try { Capture-FailureSaves } catch { $result.save_capture_failure = $_.Exception.Message }
-    try { Capture-FailureWindow } catch { $result.native_probe_failure = $_.Exception.Message }
-    try { Capture-FailureStacks } catch { $result.stack_probe_failure = $_.Exception.Message }
-    try { if ($null -ne $child -and -not $child.HasExited) { Capture 'failure' } } catch { $result.capture_failure = $_.Exception.Message }
+    # The quiet experiment permits exactly one UIA enumeration; generic diagnostics
+    # would add a fresh-client enumeration and foreground/capture intervention.
+    if (-not $result.Contains('diagnostic_only')) {
+        try { Capture-FailureWindow } catch { $result.native_probe_failure = $_.Exception.Message }
+        try { Capture-FailureStacks } catch { $result.stack_probe_failure = $_.Exception.Message }
+        try { if ($null -ne $child -and -not $child.HasExited) { Capture 'failure' } } catch { $result.capture_failure = $_.Exception.Message }
+    }
     throw
 } finally {
     [DwmExportWindow]::Disarm()
