@@ -1,4 +1,4 @@
-name: Day5 readiness observation
+name: Native-ready caption observation
 on:
   pull_request:
     paths:
@@ -12,7 +12,7 @@ concurrency:
 jobs:
   authority-audit:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
-    name: Windows / Day5 readiness observation
+    name: Windows / Native-ready caption observation
     runs-on: windows-2022
     timeout-minutes: 30
     defaults:
@@ -23,7 +23,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 2195d5dfc399ef3d40db905d8ec89e48f6ea7c90
+          ref: b59b9d548f352895ac89b6aa55b80822358f8b69
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -31,10 +31,10 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '2195d5dfc399ef3d40db905d8ec89e48f6ea7c90') { throw 'Candidate mismatch' }
-          if ((git rev-parse 'HEAD^{tree}') -cne '1cdd5dafa2a004ec52c1cc264559516404bccf80') { throw 'Candidate tree mismatch' }
+          if ((git rev-parse HEAD) -cne 'b59b9d548f352895ac89b6aa55b80822358f8b69') { throw 'Candidate mismatch' }
+          if ((git rev-parse 'HEAD^{tree}') -cne '82cafaf91f939be1545d7cd61c8770e687273e97') { throw 'Candidate tree mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='2195d5dfc399ef3d40db905d8ec89e48f6ea7c90'; tree='1cdd5dafa2a004ec52c1cc264559516404bccf80'; controller='${{ github.event.pull_request.head.sha }}'; base='7b7a68963c640615901931428dcc4798ee13cd7b'; package_source='63f1e4dbfe649039881d138541abd377a8639778'; package_artifact=12135278742} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{candidate='b59b9d548f352895ac89b6aa55b80822358f8b69'; tree='82cafaf91f939be1545d7cd61c8770e687273e97'; controller='${{ github.event.pull_request.head.sha }}'; base='459dbe5ea8fb40f28388876f512145c7c2f26774'; package_source='63f1e4dbfe649039881d138541abd377a8639778'; package_artifact=12135278742} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -58,6 +58,10 @@ jobs:
           $errors = $null
           $null = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $env:GITHUB_WORKSPACE 'tools/testing/Probe-ExportedWindow.ps1'), [ref]$tokens, [ref]$errors)
           if ($errors.Count -ne 0) { $errors | Format-List; throw 'Native diagnostic parse failed' }
+      - name: Verify original-deadline acceptance boundaries
+        run: |
+          & pwsh -NoProfile -File ./tests/tooling/Test-ExportedGameplayDeadline.ps1 -DriverPath ./tools/testing/Invoke-ExportedGameplay.ps1 -OutputPath .godot/ci/deadline-tests.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Download the retained corrected package
         uses: actions/download-artifact@v4
         with:
@@ -97,7 +101,7 @@ jobs:
         timeout-minutes: 10
         run: |
           $ErrorActionPreference = 'Stop'
-          & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Load -ArchivePath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export/DWM-windows-x86_64-validation.zip') -ExpectedArchiveSha256 $env:DWM_EXPORT_SHA -ExpectedCommit '63f1e4dbfe649039881d138541abd377a8639778' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-journey-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-load') -CreatorReceipt (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-create/result.json') -Accessibility Always -Audio Dummy -ProfileSaveLoad -ContinueAfterQuiet -TraceDay5
+          & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Load -ArchivePath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export/DWM-windows-x86_64-validation.zip') -ExpectedArchiveSha256 $env:DWM_EXPORT_SHA -ExpectedCommit '63f1e4dbfe649039881d138541abd377a8639778' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-journey-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-load') -CreatorReceipt (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-create/result.json') -Accessibility Always -Audio Dummy -ProfileSaveLoad -ContinueAfterQuiet -TraceDay5 -NativeReadyCaptions
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Verify three bounded player exits and source cleanliness
         run: |
@@ -114,7 +118,7 @@ jobs:
           @'
           import base64,hashlib,io,json,pathlib,subprocess,zipfile
           out=pathlib.Path('.godot/ci')
-          for source in ['scripts/application/backup/BackupPresentationPort.gd','autoload/SaveManager.gd','tools/testing/Probe-ExportedWindow.ps1','scripts/ui/BackupApp.gd','tests/unit/test_backup_presentation.gd','tools/testing/Invoke-ExportedGameplay.ps1','tools/testing/Invoke-WindowsExportValidation.ps1','project.godot','export_presets.cfg']:
+          for source in ['tests/tooling/Test-ExportedGameplayDeadline.ps1','scripts/application/backup/BackupPresentationPort.gd','autoload/SaveManager.gd','tools/testing/Probe-ExportedWindow.ps1','scripts/ui/BackupApp.gd','tests/unit/test_backup_presentation.gd','tools/testing/Invoke-ExportedGameplay.ps1','tools/testing/Invoke-WindowsExportValidation.ps1','project.godot','export_presets.cfg']:
               p=out/'source'/source;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(pathlib.Path(source).read_bytes())
           (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
           files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts and 'package' not in p.parts and p.suffix!='.zip']
