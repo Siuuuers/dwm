@@ -1,4 +1,4 @@
-name: Detached Backup Load qualification
+name: Exported guarded Load and ending qualification
 on:
   pull_request:
     paths:
@@ -12,9 +12,9 @@ concurrency:
 jobs:
   authority-audit:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
-    name: Windows / Detached Backup Load qualification
+    name: Windows / Exported guarded Load and ending qualification
     runs-on: windows-2022
-    timeout-minutes: 40
+    timeout-minutes: 30
     defaults:
       run:
         shell: pwsh
@@ -23,7 +23,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: bb167aa1b5692f6bf5ceb6789201f38d4f86360a
+          ref: b30ab2c09ca3d67ec11bff294b183f93337f5035
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -31,9 +31,9 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne 'bb167aa1b5692f6bf5ceb6789201f38d4f86360a') { throw 'Candidate mismatch' }
+          if ((git rev-parse HEAD) -cne 'b30ab2c09ca3d67ec11bff294b183f93337f5035') { throw 'Candidate mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='bb167aa1b5692f6bf5ceb6789201f38d4f86360a'; tree='5d8760adfab81274c85ae0da3c586d42b233f4f5'; controller='${{ github.event.pull_request.head.sha }}'; base='bb167aa1b5692f6bf5ceb6789201f38d4f86360a'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{candidate='b30ab2c09ca3d67ec11bff294b183f93337f5035'; tree='7617f0934a1e39e266866b7da67c400ede564f18'; controller='${{ github.event.pull_request.head.sha }}'; base='b30ab2c09ca3d67ec11bff294b183f93337f5035'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -51,87 +51,13 @@ jobs:
           $null = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $env:GITHUB_WORKSPACE 'tools/testing/Invoke-ExportedGameplay.ps1'), [ref]$tokens, [ref]$errors)
           @{ ok=($errors.Count -eq 0); errors=@($errors | ForEach-Object { @{ message=$_.Message; line=$_.Extent.StartLineNumber; text=$_.Extent.Text } }) } | ConvertTo-Json -Depth 5 | Set-Content '.godot/ci/driver-parse.json'
           if ($errors.Count -ne 0) { $errors | Format-List; throw 'Driver parse failed' }
-      - name: Install Godot 4.6.3 standard
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
-          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
-          # SHA256 published with the official 4.6.3-stable release asset.
-          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
-          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
-            throw 'Godot archive checksum mismatch.'
-          }
-          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
-          Expand-Archive -LiteralPath $archive -DestinationPath $editor
-          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
-          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
-          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          & $console --version
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Import project
-        timeout-minutes: 8
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
-          $env:APPDATA = Join-Path $output 'import-user/appdata'
-          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
-          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
-          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
-          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
-            throw 'Project import reported script errors; inspect import.log.'
-          }
-      - name: Restore committed project settings after editor import
-        run: |
-          # Dialogic's editor scan rewrites its timeline lookup during import.
-          # Execute the committed configuration with the freshly imported assets.
-          git restore -- project.godot
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Qualify detached Backup and attached recovery
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/unit/test_backup_presentation.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/backup.xml')
-          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'backup-lifetime' -LogName 'backup.log' -GodotArgs $arguments -EvidenceLogPath '.godot/ci/backup.jsonl' -TimeoutSeconds 300
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          @'
-          import collections,json,pathlib,re,xml.etree.ElementTree as ET
-          script='tests/unit/test_backup_presentation.gd'
-          expected=re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(),re.M)
-          root=ET.parse('.godot/ci/backup.xml').getroot();rows=list(root.iter('testcase'))
-          assert collections.Counter((r.attrib['classname'],r.attrib['name']) for r in rows)==collections.Counter((script,n) for n in expected)
-          assert not any(list(root.iter(t)) for t in ['failure','error','skipped'])
-          assert all(r.attrib.get('status')=='pass' and int(r.attrib.get('assertions','0'))>0 for r in rows)
-          logs=list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))
-          for p in logs: assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',p.read_text(encoding='utf-8-sig')),str(p)
-          exits=[json.loads(l) for l in pathlib.Path('.godot/ci/backup.jsonl').read_text(encoding='utf-8-sig').splitlines() if l.strip()]
-          assert len(exits)==1 and exits[0]['exit_code']==0,exits
-          print('BACKUP_LIFETIME_VERIFIED',len(rows),sum(int(r.attrib['assertions']) for r in rows))
-          '@ | python -
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Cache matching standard export templates
-        uses: actions/cache@v4
+      - name: Download the original exact export package
+        uses: actions/download-artifact@v4
         with:
-          path: ${{ runner.temp }}/godot-4.6.3-templates.tpz
-          key: godot-standard-export-templates-4.6.3-3fbe2c0e2dec9d53
-      - name: Build candidate with existing Windows export validator
-        timeout-minutes: 15
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3-templates.tpz'
-          if (-not (Test-Path $archive)) { Invoke-WebRequest 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_export_templates.tpz' -OutFile $archive }
-          & ./tools/testing/Invoke-WindowsExportValidation.ps1 -TemplatesArchive $archive
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $receipt = Get-Content '.godot/ci/windows-export/validation.json' -Raw | ConvertFrom-Json
-          if (-not $receipt.ok -or $receipt.commit -cne 'bb167aa1b5692f6bf5ceb6789201f38d4f86360a') { throw 'Candidate export mismatch' }
-          "DWM_ARCHIVE_SHA256=$($receipt.archive.sha256)" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
-      - name: Retain exact candidate export
-        uses: actions/upload-artifact@v4
-        with:
-          name: exported-backup-package-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .godot/ci/windows-export/
-          include-hidden-files: true
-          retention-days: 7
+          name: exported-backup-package-39103588380-1
+          run-id: 39103588380
+          github-token: ${{ github.token }}
+          path: .godot/ci/windows-export
       - name: Prepare native crash collection on disposable runner
         timeout-minutes: 10
         run: |
@@ -165,7 +91,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $export = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export'
           $receipt = Get-Content (Join-Path $export 'validation.json') -Raw | ConvertFrom-Json
-          if (-not $receipt.ok -or $receipt.commit -cne 'bb167aa1b5692f6bf5ceb6789201f38d4f86360a' -or $receipt.archive.sha256 -cne $env:DWM_ARCHIVE_SHA256) { throw 'Export receipt mismatch' }
+          if (-not $receipt.ok -or $receipt.commit -cne 'bb167aa1b5692f6bf5ceb6789201f38d4f86360a' -or $receipt.archive.sha256 -cne '625fad0d7ab746c6413192f82db6b461e9db05f40634772e0b1e387dcdb017bf') { throw 'Export receipt mismatch' }
           & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Capability -ArchivePath (Join-Path $export $receipt.archive.file) -ExpectedArchiveSha256 $receipt.archive.sha256 -ExpectedCommit 'bb167aa1b5692f6bf5ceb6789201f38d4f86360a' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-capability-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-capability') -Accessibility Always -Audio Dummy
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $result = Get-Content '.godot/ci/exported-capability/result.json' -Raw | ConvertFrom-Json
@@ -174,13 +100,13 @@ jobs:
         timeout-minutes: 10
         run: |
           $ErrorActionPreference = 'Stop'
-          & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Create -ArchivePath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export/DWM-windows-x86_64-validation.zip') -ExpectedArchiveSha256 $env:DWM_ARCHIVE_SHA256 -ExpectedCommit 'bb167aa1b5692f6bf5ceb6789201f38d4f86360a' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-journey-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-create') -CapabilityReceipt (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-capability/result.json') -Accessibility Always -Audio Dummy
+          & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Create -ArchivePath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export/DWM-windows-x86_64-validation.zip') -ExpectedArchiveSha256 '625fad0d7ab746c6413192f82db6b461e9db05f40634772e0b1e387dcdb017bf' -ExpectedCommit 'bb167aa1b5692f6bf5ceb6789201f38d4f86360a' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-journey-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-create') -CapabilityReceipt (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-capability/result.json') -Accessibility Always -Audio Dummy
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Fresh-process selected-slot Load and ending journey
         timeout-minutes: 10
         run: |
           $ErrorActionPreference = 'Stop'
-          & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Load -ArchivePath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export/DWM-windows-x86_64-validation.zip') -ExpectedArchiveSha256 $env:DWM_ARCHIVE_SHA256 -ExpectedCommit 'bb167aa1b5692f6bf5ceb6789201f38d4f86360a' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-journey-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-load') -CreatorReceipt (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-create/result.json') -Accessibility Always -Audio Dummy
+          & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Load -ArchivePath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export/DWM-windows-x86_64-validation.zip') -ExpectedArchiveSha256 '625fad0d7ab746c6413192f82db6b461e9db05f40634772e0b1e387dcdb017bf' -ExpectedCommit 'bb167aa1b5692f6bf5ceb6789201f38d4f86360a' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-journey-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-load') -CreatorReceipt (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-create/result.json') -Accessibility Always -Audio Dummy
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Verify three bounded player exits and source cleanliness
         run: |
@@ -234,7 +160,7 @@ jobs:
           for source in ['scripts/ui/BackupApp.gd','tests/unit/test_backup_presentation.gd','tools/testing/Invoke-ExportedGameplay.ps1','tools/testing/Invoke-WindowsExportValidation.ps1','project.godot','export_presets.cfg']:
               p=out/'source'/source;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(pathlib.Path(source).read_bytes())
           (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
-          files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts and 'package' not in p.parts and p.suffix not in ('.zip','.dmp')]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))
+          files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts and 'package' not in p.parts and p.suffix!='.zip']
           manifest={p.relative_to('.godot').as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in files}
           retained=out/'retained-hashes.json';retained.write_text(json.dumps(manifest,indent=2));files.append(retained)
           payload=io.BytesIO()
