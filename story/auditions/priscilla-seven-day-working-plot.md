@@ -2,37 +2,162 @@
 
 ## Current P–L direction and development checkpoint, 2026-10-18
 
-**Scope:** the two substantive exchanges visible in this story discussion,
-including the owner's single-ending clarification and the assistant's response
-to the requested independent recommendations. **Baseline inspected:**
-`0c8b2384415d71bd3de4ff7408640bbf60b63740`. This checkpoint preserves direction and
-development; the scene/motive proposals below remain **AUDITIONING**.
+**Scope:** the earlier U1–A2 development checkpoint plus the owner's later U3
+refinement and this response A3. **Current source inspected:** PR #41 at
+`940dab31233f940b637808fc6c86b1cfd47b0ad8`; its inspected master base remains
+`0c8b2384415d71bd3de4ff7408640bbf60b63740`. The record separates accepted
+directions from exact scene and motive auditions. It is not a complete raw
+conversation or whole-week audit.
 
-### Owner directions and unresolved choices
+### Owner directions and current scope
 
-The owner now confirms **one P–L ending**, with only small differences from local
-self-talk/Challenge choices, and asks to consider the **all-Dark-options
-continuation first**. The exact quote is: “there is only one P-L ending” and “We
-are now only consider the all dark options.” This is a P–L endpoint change, not
-removal of Sylvia or selection of every act in a darker route. The scoped
-[foundation amendment](../09-priscilla-foundation-amendment.md#pl-specific-ending-amendment-2026-10-18)
+The owner first confirmed “there is only one P-L ending” and “We are now only
+consider the all dark options.” U3 refines this to “Just one same ending”:
+earlier choices can change audience feeling or recognition without different
+ending presentation. The [foundation amendment](../09-priscilla-foundation-amendment.md#pl-specific-ending-amendment-2026-10-18)
 and [behavior correction](../../docs/design/2026-10-09-priscilla-flow-behavior-amendment.md#pl-ending-scope-correction-2026-10-18)
-own that change.
+own that scoped P–L change. Small displayed ending variants are no longer a
+requirement. Sylvia and the relationship fork are not removed.
 
-The owner asks whether to retain Sweet choices, make their sweetness conceal
-darkness, or use different Dark possibilities. No answer is selected by the
-question. Existing local result meanings remain until explicitly amended.
+U3 says “Let's go with all the roads/methods that you want especially the 7.”
+This endorses the previous approaches for development, including real local
+tenderness and particularly bounded audience certainty about Lavinia's tests.
+It does not combine alternative endings or approve every sample line, witness,
+disclosure, physical act, placement or complete scene. The all-Dark continuation
+remains the current writing target; particular later Sweet variations still need
+authorship and selection under the existing local result meanings.
 
-The opening direction foregrounds Lavinia's revenge/testing and Priscilla's
-return-driven, compliant but possessive pursuit. It explicitly calls the
-pre-England disclosure occasion a Lavinia test. What Lavinia intended to elicit,
-what she anticipated, and what remained unauthorized are still unresolved. The
-broader wording that Priscilla never considers anything she does wrong is also
-open as a potential expansion of the existing intervention-specific judgment.
-The owner requested the assistant's own view on questions 2–7 before offering
-further decisions; the recommendations below are not inferred approval.
+The owner explicitly corrects Priscilla's characterization: she may cater to
+Lavinia against her own wishes, or stop harmful conduct she still wants because
+Lavinia may dislike it, while not judging herself morally wrong. She may also
+choose to do it. The [Bible refinement](../01-core-story-bible.md#current-pl-judgment-2026-10-18)
+owns this expansion. The assistant's earlier intervention-only recommendation
+below is superseded in that scope.
 
-### Assistant recommendation: real tenderness within one dark trajectory
+The owner requests more emotionally impulsive and abusive testing by Lavinia,
+including possible physical partner violence, with endurance treated by Lavinia
+as proof and retaliation rationalized as deserved. Specific acts, injury,
+frequency and the older held strike remain unselected. The author also offers
+jealousy of Priscilla's social popularity and attention to others as the deeper
+motive; the document intervention need not explain the whole week and might be
+used as an excuse or misleading explanation. That exact motive/history is a
+development proposal. The assistant recommends keeping the real unauthorized
+intervention while auditioning the jealousy mechanism below. Deleting the event
+or declaring Lavinia's professional fear false is not selected.
+
+### One identical finale, different actual histories and readings
+
+The final authored text and staging can be identical. Earlier continuations
+still change actions, consequences and available evidence; they are not reduced
+to clue delivery. A respected departure remains respected, a withheld harmful
+act remains withheld, and a disclosed confidence remains disclosed even when
+none is mentioned in the ending.
+
+Build sufficient common consequential development to earn the endpoint in
+every reachable version. The final passage may leave some consequences outside
+its frame, but must not contradict a variant-specific injury, absence, rupture,
+disclosure, object location or permission. A genuinely repaired whole
+relationship cannot acquire an unrelated catastrophe merely because there is
+one finale. Character knowledge is particular to that continuation; audience
+replay recognition never transfers automatically to Priscilla.
+
+An ordinary offered place beside Lavinia, accepted by Priscilla, is a possible
+closing gesture to audition after a consequential climax. Earlier evidence could
+make the same action read as companionship, costly obedience or an expected
+return. The gesture alone does not establish abuse, the location/prop is
+unselected, and no new final line is fixed. The costly-admission/disclosure
+climax below remains the leading developmental candidate; the false-account
+mechanism remains a separate alternative.
+
+### Jealousy and preference-based restraint: current assistant audition
+
+**AUDITIONING:** make Lavinia jealous of Priscilla distributing forms of exact
+attention Lavinia experienced as singular: remembering a minor preference,
+anticipating a need, or using a familiar attentive tone with someone else.
+No secret affair or prior exclusivity agreement is needed. A perceived
+betrayal must not silently become a fact that a promise was broken.
+
+Priscilla's popularity should have ordinary substance: wit, competence, genuine
+enjoyment and some sincere outside attachments alongside manipulation. Showing
+that other people like her does not by itself demonstrate a scheme. Outsiders
+should matter enough that restricting or harming those relationships has a cost.
+
+Track what Priscilla wants, what she thinks Lavinia wants, and what she actually
+does. The three may differ. The assistant favors a recurring pressure in which
+Priscilla follows a disliked instruction to preserve closeness, but may choose
+intrusion when she thinks obedience threatens that closeness. This is a proposed
+motive pattern, not an invariant algorithm or proof she knows Lavinia's wishes.
+Actual restraint can remain actual; do not invent covert repetition by default.
+
+The assistant favors jealousy that predates or exceeds the document conflict.
+The real intervention gives Lavinia a defensible grievance she can invoke
+opportunistically when attention moves elsewhere. She can resent that violation,
+be moved by the precise care, and use the grievance for another purpose.
+Do not resolve the protected proportions of Priscilla's concern and possessive
+wish or make Lavinia foresee every institutional consequence. The limited
+pre-England attention/admission test remains useful development, not a private
+answer certifying the whole incident.
+
+Lavinia can enjoy a test's success before a new occasion threatens it. Her local
+desired victory may be unmistakable prioritization rather than a completed moral
+repair. This qualifies the earlier revenge criterion: an admission of personal
+desire still matters, but may not answer the jealous concern about that attention
+being available to others. Avoid a week in which every success automatically
+fails or every reaction was secretly planned.
+
+Some tests can be deliberate and some angry acts impulsive. A later claim that
+an impulse was a test can itself be auditioned as self-protection; do not make
+that explanation author-certified whenever Lavinia uses it. Her discipline,
+humor, ordinary preferences and genuine invitations remain important.
+
+If physical violence is selected later, author one particular nonsexual act and
+its observable consequence at the scene's proper scope. Do not use intensity of
+injury as a devotion score, write a compulsory severity ladder, or eroticize the
+harm. Priscilla's continued presence does not establish permission or emotional
+invulnerability; Lavinia's belief that it is deserved does not settle the act.
+Their different harms do not cancel each other. Wanted later closeness needs its
+own invitation and does not rewrite previous conduct. No domestic residence,
+diagnosis or older Day 2 strike is fixed by this capability.
+
+### Audience method accepted in U3: evidence before interpretation
+
+Preserve Priscilla as sole viewpoint. Build an observable sequence without
+certifying every motive:
+
+| Evidence to author | What it supports | What it does not settle |
+|---|---|---|
+| Lavinia expresses an ordinary preference or request in a low-pressure encounter. | A particular fact the audience and Priscilla can know. | That the preference can never change. |
+| Lavinia proposes an inconsistent alternative or reacts differently when a third person is present. | A discrepancy worth noticing. | That every inconsistency is a test. |
+| Conduct and a narrow admission confirm one deliberate test. | This particular occasion was intentional. | Every intended result or later test. |
+| Repeated hostility tracks Priscilla's attention elsewhere, including an incident the document grievance cannot explain alone. | Jealousy becomes an evidence-supported interpretation. | A fabricated original violation or an omniscient Lavinia. |
+| The final ordinary action repeats unchanged. | Earlier evidence can transform its significance. | That the histories or consequences were identical. |
+
+Possible local mechanism: a document-focused acknowledgment produces little
+change, while a decision to prioritize Lavinia over another encounter brings
+visible satisfaction. One instance suggests; recurrence can support the reading.
+These are competing scene auditions, not a mandatory repeated experiment.
+Another passage may show genuine hurt about the document with no rival present,
+so discovery of jealousy need not erase that grievance.
+
+A Dark interruption candidate could have Priscilla treat an ordinary acquaintance
+cruelly to demonstrate priority, with that acquaintance's subsequent withdrawal
+remaining real. A Sweet local response can handle the same interruption
+considerately. These possibilities do not select exact Challenge mapping or
+make a Perfect reveal Lavinia's interior; successful conduct and Observer
+recognition retain their owning contract.
+
+**Bounded conceptual comparison:** retaining the real document violation
+preserves both Priscilla's act and Lavinia's possible opportunism; removing its
+reality would require an additional retcon. Withholding versus supplying a
+bounded test confirmation can change audience inference without changing the
+final gesture, but does not by itself earn the dark endpoint. Universal covert
+violation would make sincere restraint meaningless; local real restraint keeps
+that distinction available. This is a paper-level craft comparison, not measured
+audience research, a completed scene-family test or runtime validation.
+
+### Retained tenderness method, now endorsed for development
+
+**Direction accepted in U3; exact local passages remain AUDITIONING.**
 
 Retain some sincerely tender local actions while developing the all-Dark
 continuation first. Felt affection, actual conduct, and the ending's material
@@ -57,8 +182,9 @@ wanted company and ordinary competence inside the current Dark path.
 
 ### Assistant climax audition: costly admission and further disclosure
 
-**UNSELECTED:** build toward a bounded public or socially witnessed admission,
-then a specifically invited private moment of closeness. Earlier scenes must
+**AUDITIONING, with developmental go-ahead in U3:** build toward a bounded
+public or socially witnessed admission, then a specifically invited private
+moment of closeness. Earlier scenes must
 establish the listener's relevance, what that person already knows, the
 particular fact that remains private, and the limited admission Lavinia asks
 Priscilla to make. No tribunal, witness, diagnosis, image, disclosure wording or
@@ -89,10 +215,14 @@ audition's horror depends on the concrete prior act and continued attachment;
 absence of an apology alone would be insufficient.
 
 The final pleasure may coexist with a visible reminder that another person now
-knows the private fact. Lavinia obtains an unguarded admission and loses further
+knows the private fact. Under the identical-ending refinement, any reminder
+shown in that finale must be supported by all incoming histories. Lavinia obtains an unguarded admission and loses further
 control of her account; Priscilla obtains chosen closeness while retaining the
 principle that led her to interfere. Exact ending staging and the way local
-variations reach it remain open.
+variations reach it remain open. The newer jealousy audition adds a question:
+whether publicly declared preference gives Lavinia the exception she wanted
+while the further disclosure invites outside attention she cannot control.
+This is a proposed development of the same climax, not an approved new act.
 
 The preceding assistant response's jointly maintained personal explanation is
 retained as a different ending mechanism, not appended as an additional act.
@@ -113,18 +243,20 @@ had endorsed another account. Neither ending mechanism is selected.
   forgiveness bargain. Lavinia can enjoy a real but temporary satisfaction,
   then discover that exposure does not make Priscilla safely controllable.
   Do not turn every pleasure into an automatically failed test.
-- **Priscilla's judgment:** retain the specific lack of moral remorse for the
-  intervention rather than a universal inability to recognize wrong conduct.
-  She can sincerely regret a different insult, misjudgment, or injury without
-  recanting this intervention. No moral conversion is proposed for the current
-  Dark continuation.
+- **Priscilla's judgment, superseded recommendation:** A2 favored retaining
+  intervention-only scope and allowing separate moral remorse. U3 instead
+  broadens her self-justifying, preference-based accommodation for current P–L
+  conduct. Apply the later Bible clarification. Factual/tactical error remains
+  possible; neither genuine concession nor fear of losing Lavinia implies
+  moral conversion.
 - **Sincere departure:** keep genuine refusals. In the hypothetical where
   Priscilla obeys a sincere request to go, let the absence be real. Lavinia may
   feel relief followed by disappointment, anger or longing, and later initiate
   a new invitation. That later invitation does not rewrite the earlier refusal.
   This is character guidance under audition, not selection of a held Day 2
   departure/obstruction variant.
-- **Audience certainty:** establish that some tests are intentional through
+- **Audience certainty, explicitly endorsed in U3:** establish that some tests
+  are intentional through
   observable conduct or a bounded admission, while leaving the intended result
   and foresight of other incidents uncertain. Priscilla remains the sole
   viewpoint; her inference is not Lavinia's revealed interior. Clear actions
@@ -146,18 +278,30 @@ question/answer strategies and locked-room-like Observer Pressure.
 including an explicitly provisional week sketch and shared-account ending.
 **U2:** the reply beginning “Ohhhh, my one and only rose…” with numbered answer 1
 confirming one P–L ending and requesting independent answers to questions 2–7.
-**A2:** the assistant's recommendations recorded above and supplied with this
-checkpoint. These are visible exchange locators, not fabricated timestamps or
-claims to possess older unavailable conversations.
+**A2:** the assistant's previous recommendations, retained above with later
+supersession/status notes. The initial checkpoint is preserved at
+[`940dab31233f940b637808fc6c86b1cfd47b0ad8`](https://github.com/Siuuuers/dwm/blob/940dab31233f940b637808fc6c86b1cfd47b0ad8/story/auditions/priscilla-seven-day-working-plot.md).
+**U3:** the later reply beginning “Yayyy, my wonderful friend!!” accepting the
+previous methods, particularly question 7, and refining the identical ending,
+Priscilla's accommodation and Lavinia's jealousy/abusive testing.
+**A3:** the assistant's current recommendations: adopt identical presentation;
+accept the broader Priscilla correction; audition jealousy over distributed
+attention while preserving the real document violation; distinguish chosen
+abuse from invitation; and use the evidence progression recorded above.
+The earlier U1–A2 attribution is retained from the inspected checkpoint.
+These exchange locators are not fabricated timestamps or a claim to have
+reopened unavailable raw conversation.
 
 This is a documentation PR checkpoint. Its actual metadata determines
 publication and merge status. It does not close the chronological bar/residue
 audit, resolve residence/admission/key holds, select earlier strike or touch
 candidates, approve a complete week, or certify runtime behavior.
 
-**Next creative unit:** compare the proposed endpoint and character motives at
-the author's chosen scope, then use the selected target to assemble the
-all-Dark Day 2 encounter and its later consequences. Retain the existing Day
+**Next creative unit:** develop the jealousy/evidence target through the current
+all-Dark Day 2 encounter at scene scope, comparing the actual act, consequence
+and continuation. Carry the selected findings into the common climax and
+identical finale; do not repeatedly substitute isolated clue polishing for
+that assembly. Retain the existing Day
 1–7 plot gate before complete DTL. Capture future changes in these owners,
 rather than making another ending Bible or one document per exchange.
 

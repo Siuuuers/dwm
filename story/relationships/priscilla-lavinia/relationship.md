@@ -41,13 +41,19 @@ The Bible continues to govern narrative truth, and the Handbook continues to gov
 
 ## 2. The correction that must not drift
 
-**Explicit owner clarification, already recorded in the repository:** Priscilla does not morally regret the unauthorized disclosure intervention. She may understand the authorization exceeded and Lavinia's anger, adapt her conduct, and want a more effective way to retain Lavinia without accepting that the intervention itself was wrong. Genuine concern and genuine affection remain real. This is not a rule that she can never recognize wrongdoing in any other context.
+**Explicit owner clarification, already recorded in the repository:** Priscilla does not morally regret the unauthorized disclosure intervention. She may understand the authorization exceeded and Lavinia's anger, adapt her conduct, and want a more effective way to retain Lavinia without accepting that the intervention itself was wrong. Genuine concern and genuine affection remain real. The later [2026-10-18 Bible refinement](../../01-core-story-bible.md#current-pl-judgment-2026-10-18) broadens preference-based accommodation without moral self-condemnation into the current P–L portrayal. The earlier intervention-only restriction is retained as provenance, not the latest character direction.
 
 The owner later redirected the developing Dark visit toward **Priscilla actively courting Lavinia**, rather than repeatedly making Lavinia ask her to remain. That is a local scene direction, not a new rule that Priscilla always initiates every relationship action. Lavinia's surviving attraction, willingness to share company, and trust in Priscilla's choices are different things.
 
 The Day 2 strike, where that candidate occurs, is a real harm. Its impulsivity does not make it harmless or deserved. It does not erase the disclosure violation, make the women “even,” or require all later scenes to turn Lavinia into the only pursuer. A subsequent welcomed touch cannot change an earlier refusal. No continuing cheek symptom has been selected by this document.
 
 **Source basis:** working record Section 2.1, supplied Handbook pair guidance, and visible user turns beginning “Priscilla should be the one…” and the subsequent explicit request for more P–L-oriented courtship. Exact disputed scene versions are retained in the [Dark candidate's development history](auditions/day-6-dark-notebook.md).
+
+The [current development checkpoint](../../auditions/priscilla-seven-day-working-plot.md#current-pl-direction-and-development-checkpoint-2026-10-18)
+records the author's newer jealousy and abusive-testing direction. Exact acts
+remain auditions. A test can be deliberate, an impulse can be unplanned, and a
+later explanation need not disclose its complete cause. No older strike or
+Observer-caused act is selected by that direction.
 
 ## 3. Why the company is worth wanting
 
@@ -191,7 +197,7 @@ Use [early contact and seven-day options](seven-day-options.md) for the conditio
 
 **Retained assistant possibility, not a fixed inner monologue:** Lavinia might experience a newly bounded offer as recognition of why the earlier intervention hurt. Priscilla might experience the same act as a more effective way to retain closeness. The concession can be real and limited without becoming moral repentance or proving that all kindness is a deception. A later choice could test the mismatch; no particular follow-up is scheduled here.
 
-The owner explicitly rejected the earlier proposed flashes of remorse **about the amendment**. That correction does not decide how Priscilla evaluates every other act. Lavinia’s accusation that she was only entertainment can identify a real hurt without becoming the narrator’s entire account of their beginning. Borrowed information may aid an approach; it does not supply their subsequent shared enjoyment or omniscience.
+The owner explicitly rejected the earlier proposed flashes of remorse **about the amendment**. That earlier correction was intervention-specific; the [later owner clarification](../../01-core-story-bible.md#current-pl-judgment-2026-10-18) now governs her broader current P–L self-justification. Lavinia’s accusation that she was only entertainment can identify a real hurt without becoming the narrator’s entire account of their beginning. Borrowed information may aid an approach; it does not supply their subsequent shared enjoyment or omniscience.
 
 <a id="legacy-checkpoint-map"></a>
 ## Earlier checkpoint: current topic owners

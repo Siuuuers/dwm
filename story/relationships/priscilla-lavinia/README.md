@@ -2,24 +2,26 @@
 
 ## Current single-ending development, 2026-10-18
 
-Read the [P–L-specific foundation amendment](../../09-priscilla-foundation-amendment.md#pl-specific-ending-amendment-2026-10-18)
+Read the [ending amendment](../../09-priscilla-foundation-amendment.md#pl-specific-ending-amendment-2026-10-18),
+[Bible judgment refinement](../../01-core-story-bible.md#current-pl-judgment-2026-10-18),
 and [current development checkpoint](../../auditions/priscilla-seven-day-working-plot.md#current-pl-direction-and-development-checkpoint-2026-10-18).
-The owner confirms one Dark P–L ending with small variations from local choices;
-the current writing target is the all-Dark-options continuation. This does not
-select a final scene, broaden bodily permission, remove P–S, or replace local
-Challenge meanings.
+The owner refines P–L to one identically presented Dark ending, with earlier
+variation affecting actual events and audience interpretation. The current
+writing target takes the available Dark options.
 
-The assistant recommends real local tenderness, a limited pre-England test,
-scoped lack of remorse, genuine refusals, and a costly-admission/further-disclosure
-climax audition. All of these new recommendations remain unselected. Exact
-motives, local Sweet alternatives and compatible whole-week development await
-further author decisions. The next scene unit follows the selected endpoint and
-the current Day 2 packet rather than concatenating older aftermath alternatives.
+The previous methods are endorsed for development, particularly showing that
+some tests are intentional without revealing every private motive. The owner
+broadens Priscilla's preference-based restraint and self-justification, and
+requests darker Lavinia testing. Jealousy over Priscilla's wider attention is a
+leading motive audition. The document violation remains real; an excuse need
+not be a fabricated event. Exact violence, disclosures, witnesses, final lines
+and the whole week remain unselected.
 
-Capture, source coverage and publication scope are centralized in the linked
-checkpoint. Historical Sweet/Dark and calendar guidance below does not restore
-a separate Sweet P–L endpoint. Existing residence, admission, bar/residue and
-chronological-audit holds survive.
+The next scene work develops that motive/evidence target through the current
+Day 2 packet without concatenating older aftermath alternatives. Historical
+residence, admission, bar/residue and chronological-audit holds survive.
+Capture and source coverage are centralized in the checkpoint; [PR #41](https://github.com/Siuuuers/dwm/pull/41)
+provides actual publication/merge metadata.
 
 ## Current Day 2 development, 2026-10-10
 
@@ -85,7 +87,7 @@ Read [the photograph working record](auditions/day-6-dark-photograph.md). It dis
 
 Ambiguous means recognized attraction with unresolved larger meaning, not ignorance or less affection. The author particularly values photographic tension without an automatic kiss; partial satisfactions should increase the stakes rather than repeat the same almost-confession. Hypothetical nude-portrait and extreme-intimacy explorations remain **outside Day 6**, not missing historical events.
 
-Priscilla urgently wants a chosen place in Lavinia's life after her return from England. Planning and genuine enjoyment coexist; the actual Lavinia can surprise her. Priscilla does **not** morally regret the disclosure amendment. That scoped correction does not decide her judgment of every other act. Lavinia contributes taste, preparation, wit, devotion, and choices of her own.
+Priscilla urgently wants a chosen place in Lavinia's life after her return from England. Planning and genuine enjoyment coexist; the actual Lavinia can surprise her. Priscilla does **not** morally regret the disclosure amendment. The later [Bible clarification](../../01-core-story-bible.md#current-pl-judgment-2026-10-18) now broadens preference-based restraint without moral self-condemnation for current P–L conduct. Lavinia contributes taste, preparation, wit, devotion, and choices of her own.
 
 The author values how a photograph reveals both the photographer's attention and the subject's response to that particular photographer. An offered expression can be genuine without proving a complete motive. Phone/camera ownership, taking, keeping, sending, and deleting are separate actions. Do not invent technical recovery or a secret archive to rescue a preferred interpretation.
 

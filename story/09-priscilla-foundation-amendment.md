@@ -20,7 +20,7 @@ Priscilla is the sole viewpoint. Self-talk includes her private thoughts, observ
 
 Sylvia is Priscilla's childhood friend, not her sister. A Priscilla-Sylvia romantic storyline is permitted. Former Angela-related functions may be reconsidered, but no entire personality, dossier, rescue debt or family access transfers by name replacement. The exact replacement childhood incident remains OPEN. In particular, the assistant's suggestion that Sylvia discovers fabricated evidence later has not been selected.
 
-Priscilla and Lavinia can be accomplice-like and understand each other's darker capacities. This approves no specific conspiracy, injury, coercion, permission or unseen act. Their history does not make P-L the compulsory dominant attachment in a P-S storyline. The existing scoped disclosure-intervention clarification, including Priscilla's lack of moral remorse for that intervention, is preserved.
+Priscilla and Lavinia can be accomplice-like and understand each other's darker capacities. This approves no specific conspiracy, injury, coercion, permission or unseen act. Their history does not make P-L the compulsory dominant attachment in a P-S storyline. The disclosure-intervention history and lack of moral remorse remain. Apply the later [Bible judgment refinement](01-core-story-bible.md#current-pl-judgment-2026-10-18), which broadens Priscilla's preference-based accommodation and self-justification for current P–L conduct.
 
 Lavinia-Sylvia interaction can remain subtle and partly unknown through Priscilla. No independent third romance route, secret affair, omniscient explanation or agreed three-person relationship is fixed.
 
@@ -45,29 +45,35 @@ The fork's exact action, wording, placement, chapter and labels are OPEN. Exampl
 
 ### P–L-specific ending amendment, 2026-10-18
 
-**Owner-confirmed direction:** Priscilla–Lavinia has **one Dark relationship
-ending**, with small differences that may preserve consequences of local
-self-talk and Challenge choices. The current writing target is the continuation
-that takes the available Dark options. This supersedes the separate healing
-Sweet versus Dark **P–L endpoints** in the retained paragraphs below; it does not
-remove the P–S storyline or change the existing relationship fork.
+**Owner-directed refinement:** Priscilla–Lavinia has **one identically presented
+Dark relationship ending**. Earlier self-talk and Challenge variations can
+change what happened, what the audience knows, and how the same final passage
+feels. They do not require altered ending text or staging. This refines the
+earlier allowance for small displayed ending differences. The current writing
+target is the continuation that takes the available Dark options.
 
-The author is still considering whether local choices should retain sincere
-Sweet conduct, use sweetness concealing darker methods, or offer different Dark
-possibilities. The ending-count decision does not select an answer to that
-question, replace the five local Challenge meanings, or make every P–L act Dark.
-Particular consequential facts must remain compatible with the ending; small
-variations cannot erase a substantial intrusion, refusal, injury, or disclosure.
+This supersedes separate healing Sweet versus Dark **P–L endpoints** in the
+retained paragraphs below. Its P–S scope and the existing relationship fork
+remain. The author accepts development with sincere local tenderness and
+particularly endorses the audience method: establish some intentional tests,
+while leaving other motives and degrees of foresight uncertain. Particular
+Sweet passages, clues, private motives and exact ending acts still need their
+own selection.
 
-No concrete final act, complete week, disclosure-test intention, remorse
-expansion, new bodily permission, or Observer power is selected here. The
-author asked for the assistant's independent recommendations on those matters
-before supplying further answers. Read the attributed [current development
-checkpoint](auditions/priscilla-seven-day-working-plot.md#current-pl-direction-and-development-checkpoint-2026-10-18).
-The [behavior amendment](../docs/design/2026-10-09-priscilla-flow-behavior-amendment.md#pl-ending-scope-correction-2026-10-18)
-carries the same narrow exception without asserting implementation.
+The final passage must be compatible with every actual incoming history.
+Earlier intrusion, refusal, injury, disclosure or lost contact remains true
+even when outside its frame. Shared scenes must earn the dark outcome; an
+identical finale does not reduce all earlier choices to information delivery
+or erase a considerate action. Preserve character knowledge and the five local
+Challenge meanings.
 
-The following retained Sweet/Dark statements continue to govern their compatible
+Read the attributed [current development checkpoint](auditions/priscilla-seven-day-working-plot.md#current-pl-direction-and-development-checkpoint-2026-10-18)
+for accepted directions, the owner's Priscilla correction, and unselected
+jealousy/violence/climax implications. The [behavior amendment](../docs/design/2026-10-09-priscilla-flow-behavior-amendment.md#pl-ending-scope-correction-2026-10-18)
+carries the same ending exception without asserting implementation. No complete
+week, final script, exact physical act, or new Observer power is selected here.
+
+The following retained Sweet/Dark statements continue to govern compatible
 scope, including P–S; they no longer require a separate Sweet P–L ending.
 
 Retain start-of-run selection for the larger **Sweet/Dark ending form**, not for the partner. It provides a coherent authored direction and necessary preparation; it does not justify an ending that contradicts what happened. Exact identifiers, draw/witnessing policy, ending catalogue and storage representation remain OPEN.

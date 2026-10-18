@@ -109,6 +109,12 @@ Every complete dossier answers all of the following fields:
 
 ## Priscilla
 
+**Current P–L performance, 2026-10-18:** apply the Bible's [judgment refinement](01-core-story-bible.md#current-pl-judgment-2026-10-18).
+Compliance may cost Priscilla something she wants while leaving her moral
+self-justification intact. The performance categories below do not require guilt,
+and the Growth test is a diagnostic possibility, not a promised conversion in
+the current Dark continuation.
+
 - **Public surface:** Twenty, Hong Kong-born, an English literature student with institutional credibility. She is polished, useful, composed, and trusted with programme language, communications, and student organization.
 - **Human kernel:** She genuinely wants the people she loves to be safe, understood, and spared preventable humiliation. Her terror begins where care becomes indistinguishable from acquisition.
 - **Wound:** The childhood incident rewarded a correct conclusion reached through fabricated evidence and private punishment. It taught her that making the record legible could justify controlling it.
@@ -137,6 +143,13 @@ Every complete dossier answers all of the following fields:
 **Dependency-preservation capability:** This is a threatened strategy, not a fixed list of acts Priscilla has already committed. When frightened, she may preserve a manageable dependency by answering a question the other woman could answer, omitting that other workable choices existed, discouraging an alternate source of support, or solving a problem before independent judgment becomes necessary. She then risks interpreting the resulting reliance as proof of intimacy. Her deepest fear is not merely departure but informed independence: if someone became completely capable of leaving, that person might discover that she preferred an imperfect life without Priscilla.
 
 ## Lavinia
+
+**Current Dark-development scope, 2026-10-18:** apply the Bible's [character
+direction](01-core-story-bible.md#lavinia). The [working motive
+audition](auditions/priscilla-seven-day-working-plot.md#current-pl-direction-and-development-checkpoint-2026-10-18)
+develops jealousy over Priscilla's wider attention. The real conflict named under
+Wound below need not explain every test; using it as an excuse would not make the
+original violation or professional fear unreal.
 
 - **Public surface:** Twenty-two, Romanian, from a wealthy Bucharest family, and a conservatory ballet student. She brings embodied vitality, professional discipline, fluency in English, private Romanian, and developing Cantonese.
 - **Human kernel:** She wants attention that feels chosen, immediate, and strong enough to survive inconvenience. She is capable of direct devotion but fears that unprovoked affection cannot be trusted. Her parents' generous freedom and material support taught her that being believed can feel respectful and, irrationally, like being unseen.

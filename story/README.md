@@ -2,18 +2,23 @@
 
 ## Current P–L ending direction, 2026-10-18
 
-Priscilla–Lavinia now has one Dark relationship ending with small local
-variations; the current plotting target takes the available Dark options.
-Read the [scoped foundation amendment](09-priscilla-foundation-amendment.md#pl-specific-ending-amendment-2026-10-18)
+Priscilla–Lavinia now targets one identically presented Dark ending; earlier
+variations change events and interpretation without requiring different final
+text or staging. The current plotting target takes the available Dark options.
+Read the [scoped ending amendment](09-priscilla-foundation-amendment.md#pl-specific-ending-amendment-2026-10-18),
+[Priscilla judgment refinement](01-core-story-bible.md#current-pl-judgment-2026-10-18),
 and [attributed development checkpoint](auditions/priscilla-seven-day-working-plot.md#current-pl-direction-and-development-checkpoint-2026-10-18).
-Local Sweet choices, exact climax, test motives and their full-week consequences
-remain under discussion; the assistant's recommendations are AUDITIONING.
-P–S and the relationship fork remain in their existing scope.
 
-The older restart instructions below retain their historical scope. They do
-not require a separate healing Sweet P–L endpoint. The Day 1–2 packets and
-residence/bar/residue holds remain at their recorded status. This checkpoint
-belongs to its documentation PR; consult the PR's metadata for merge status.
+The author endorses the previous methods for development, especially bounded
+audience certainty about tests. Exact scenes and the jealousy/climax applications
+remain AUDITIONING. The new character direction does not select an older strike
+or resolve Day 1–2, residence, bar/residue or chronology holds. P–S and the fork
+retain their scope; the older restart text cannot restore a Sweet P–L endpoint.
+
+**Capture:** the checkpoint now includes the author's later same-ending,
+preference-based-restraint and jealous-testing refinement and the assistant's
+response. [PR #41](https://github.com/Siuuuers/dwm/pull/41) is the documentation
+destination; its metadata determines draft/merge status.
 
 ## Current chapter development checkpoint, 2026-10-10
 

@@ -15,17 +15,22 @@ The older universal Angela-absent explosion cutoff (September Section 2.2.1) and
 ### P–L ending scope correction, 2026-10-18
 
 Apply the [P–L-specific narrative amendment](../../story/09-priscilla-foundation-amendment.md#pl-specific-ending-amendment-2026-10-18):
-P–L has one Dark relationship ending with small, causally compatible local
-variations. The available Dark-options continuation is the present plotting
-target. The retained run-level Sweet/Dark wording below cannot require two P–L
-endpoints. Its compatible P–S scope and the Yes-to-P–S / default-to-P–L fork
-remain unchanged.
+P–L has one identically presented Dark relationship ending. Earlier local
+variations may change actual conduct, consequences and audience interpretation;
+the ending need not vary its text or staging. Every depicted final fact must
+remain compatible with each incoming history. The available Dark-options
+continuation is the present plotting target. The retained run-level Sweet/Dark
+wording cannot require two P–L endpoints. Compatible P–S scope and the
+Yes-to-P–S / default-to-P–L fork remain.
 
-This ending decision does not replace the five Challenge meanings in Section 3,
-select whether all future local choices must be Dark, or define new result IDs,
-selection policy, save migration, or dispatch code. The handling of any retained
-run-level form for P–L remains open until needed by the selected story. Preserve
-actual local consequences; this documentation is not runtime implementation.
+Keep the five Challenge meanings in Section 3. Evidence differences are an
+additional effect of authored continuations, not a global replacement of their
+conduct or awareness consequences. A Perfect does not reveal Lavinia's private
+mind; Priscilla cannot use knowledge acquired only in another playthrough.
+One common ending selects no new result IDs, selection policy, save migration,
+dispatch code or optional Observer epilogue. The handling of any retained
+run-level form for P–L remains open until needed by the selected story.
+This is intended narrative behavior, not runtime implementation.
 
 Start narrative play directly in Day 1 DTL. Dating/schedule allocation, Angela attendance, old solo/pair activation and Angela-specific ending invitations must not gate the new story. Ordinary device functions are not deleted merely because their former narrative obligations retire.
 

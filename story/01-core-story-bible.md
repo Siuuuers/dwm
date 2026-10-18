@@ -193,9 +193,39 @@ Recognition is not classification. Angela may accurately notice an abnormality, 
 
 Priscilla is 20, Hong Kong-born, and an English literature student with institutional credibility. She speaks polished Cantonese and English, selecting public language for control of nuance. Care appears as management, correction, anticipation, and selective truth; her attention inventory includes preferences, walking pace, silence patterns, stress tells, familiar routes, and habits. She overreads language and patterns but is not a mind reader, and desire makes her most likely to overfit or use the right lever at the wrong moment precisely when accuracy matters most. Her deepest fear is not dramatic abandonment but informed independence: someone becoming completely capable of leaving and calmly preferring an imperfect life outside her management. Her love is genuine; its coexistence with acquisition and control makes it frightening.
 
+#### Current P–L judgment, 2026-10-18
+
+**Owner-confirmed character refinement:** in the current P–L portrayal, Priscilla
+does not regard her own conduct as morally wrong. She may do something she does
+not want to do to cater to Lavinia, or stop a harmful act she still wants, because
+Lavinia may dislike it. The accommodation can be sincere and costly without
+changing Priscilla's judgment. She can also choose the harmful conduct; obedience
+is not an infallible command or a promise that every act is secretly repeated.
+
+She can understand a rule, another person's objection, or a factual/tactical
+mistake without accepting moral fault. This is her self-justification, not the
+story's verdict, a diagnosis, or perfect knowledge of Lavinia. It broadens the
+09/26 intervention-only clarification for current P–L conduct and supersedes the
+assistant's earlier recommendation to retain only that narrow scope. The fixed
+intervention, its two real motives and their unresolved proportions remain.
+The [current development checkpoint](auditions/priscilla-seven-day-working-plot.md#current-pl-direction-and-development-checkpoint-2026-10-18)
+records the author's correction and the still-unselected scene implications.
+
 ### Lavinia
 
 Lavinia is 22, Romanian, from a wealthy Bucharest family, and a conservatory ballet student. She is fluent in English, uses Romanian in private, and is developing Cantonese without comic incompetence. She treats powerful reaction as evidence of importance and may provoke attention rather than ask directly. Her parents’ generous freedom and material support do not always feel like precise attunement; she may administer tests other people do not know exist and associate resistance with attention. Her professional discipline coexists with physical and emotional boldness. Her persistent load-related lower-limb pain is symptom-based canon; no exact diagnosis is fixed.
+
+**Current Dark-development direction, 2026-10-18:** the author requests stronger
+emotionally impulsive testing, including psychological/emotional abuse and
+possible physical partner violence that Lavinia may rationalize as deserved.
+This authorizes development of that capacity, not a specific past or future
+incident, injury, frequency, or bodily permission. Her allegation of betrayal
+does not establish a broken exclusivity agreement. Her professional discipline
+and ordinary pleasures remain part of the same person. Jealousy over Priscilla's
+wider attention as the principal week motive is a leading [development
+proposal](auditions/priscilla-seven-day-working-plot.md#current-pl-direction-and-development-checkpoint-2026-10-18),
+not a replacement of the real disclosure history or an author-certified account
+of every earlier test.
 
 ### Sylvia
 
@@ -255,7 +285,7 @@ Before departure, Lavinia authorized Priscilla to polish and submit institutiona
 
 Priscilla acted from two true motives at once. She genuinely feared that continued training could turn Lavinia’s condition into lasting injury, and she also welcomed any legitimate institutional consequence that might delay Lavinia’s departure. She selected the defensible wording most likely to make assessment mandatory and thereby create a credible risk of delay, then ensured the consequence occurred before Lavinia could object. Had protection been her only aim, she could have confronted Lavinia, refused to submit the minimized account, or insisted upon assessment openly; secrecy converted legitimate care into control. Lavinia was legitimately violated and professionally frightened, but also affected by Priscilla noticing what she had tried not to admit. Being moved by the care never reduces the violation. Lavinia ultimately left, so the intervention failed to keep her in Hong Kong but contaminated the departure psychologically. The writing must never settle whether Priscilla wanted someone to stop the injury or stop Lavinia from leaving.
 
-**Owner clarification recorded 2026-09-26: Priscilla's judgment of this intervention.** Priscilla does not regard her unauthorized substantive amendment and submission as an act she ought not to have committed. She knows what she changed and can understand Lavinia's objection without accepting that the intervention was wrong. Her dissatisfaction concerns how imperfectly she secured the outcome and retained Lavinia's closeness; she may adapt her manner and conduct to Lavinia's wishes without revising that judgment. Genuine affection and protective concern remain present, and neither cancels the violation. Do not recast tactical adaptation, tenderness, acknowledgment of hurt, or regret about the resulting distance as moral remorse for the amendment. This clarification concerns this intervention, not a universal inability to recognize wrongdoing or a predetermined judgment of another act.
+**Owner clarification recorded 2026-09-26: Priscilla's judgment of this intervention.** Priscilla does not regard her unauthorized substantive amendment and submission as an act she ought not to have committed. She knows what she changed and can understand Lavinia's objection without accepting that the intervention was wrong. Her dissatisfaction concerns how imperfectly she secured the outcome and retained Lavinia's closeness; she may adapt her manner and conduct to Lavinia's wishes without revising that judgment. Genuine affection and protective concern remain present, and neither cancels the violation. Do not recast tactical adaptation, tenderness, acknowledgment of hurt, or regret about the resulting distance as moral remorse for the amendment. That was the scope of the 2026-09-26 clarification. Apply the later [current P–L judgment refinement](#current-pl-judgment-2026-10-18) for the broader forward portrayal; the historical intervention itself is unchanged.
 
 This records the owner's explicit correction, not the promotion of a new scene. It supersedes remorse-based interpretations of the amendment in derived guidance and older bar auditions, including the old shame formulation to that extent only. It does not change the event's medical particulars, grant prior physical or sexual intimacy, resolve residence history, select a Day 2/Day 6 encounter, or change an ending rule. The [bounded working record](relationships/priscilla-lavinia/relationship.md#2-the-correction-that-must-not-drift) preserves the correction's scope separately from unplaced relationship and intimacy exploration.
 
