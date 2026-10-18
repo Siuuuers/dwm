@@ -311,6 +311,34 @@ function Save-Slot([int]$Number) {
     return $document
 }
 
+function Capture-FailureWindow {
+    if ($null -eq $child -or $child.HasExited) { return }
+    $start = [Diagnostics.ProcessStartInfo]::new()
+    $start.FileName = (Get-Command pwsh).Source
+    $start.UseShellExecute = $false
+    $start.RedirectStandardOutput = $true
+    $start.RedirectStandardError = $true
+    foreach ($arg in @('-NoProfile','-File',(Join-Path $PSScriptRoot 'Probe-ExportedWindow.ps1'),
+        '-TargetProcessId',[string]$child.Id,'-ExpectedExecutable',$executable,
+        '-ExpectedStartedUtc',$result.process.started_utc,'-OutputFile',(Join-Path $output 'failure-native-window.json'))) {
+        $start.ArgumentList.Add($arg)
+    }
+    $probe = [Diagnostics.Process]::new()
+    $probe.StartInfo = $start
+    try {
+        Require ($probe.Start()) 'DIAGNOSTIC_START_FAILED'
+        $stdout = $probe.StandardOutput.ReadToEndAsync()
+        $stderr = $probe.StandardError.ReadToEndAsync()
+        $complete = $probe.WaitForExit(15000)
+        if (-not $complete) { $probe.Kill($true); [void]$probe.WaitForExit(3000) }
+        $result.native_probe_completed = $complete
+        if ([Threading.Tasks.Task]::WaitAll([Threading.Tasks.Task[]]@($stdout,$stderr),3000)) {
+            [IO.File]::WriteAllText((Join-Path $output 'failure-native-probe.stdout.log'),$stdout.GetAwaiter().GetResult(),$utf8)
+            [IO.File]::WriteAllText((Join-Path $output 'failure-native-probe.stderr.log'),$stderr.GetAwaiter().GetResult(),$utf8)
+        }
+    } finally { $probe.Dispose() }
+}
+
 function Capture-FailureSaves {
     # Read-only live observations, not an atomic checkpoint or acceptance evidence.
     # Capture before UIA: a provider call may block until the process watchdog fires.
@@ -580,6 +608,7 @@ try {
 } catch {
     $result.failure = $_.Exception.Message
     try { Capture-FailureSaves } catch { $result.save_capture_failure = $_.Exception.Message }
+    try { Capture-FailureWindow } catch { $result.native_probe_failure = $_.Exception.Message }
     try { if ($null -ne $child -and -not $child.HasExited) { Capture 'failure' } } catch { $result.capture_failure = $_.Exception.Message }
     throw
 } finally {
