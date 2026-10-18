@@ -256,11 +256,10 @@ function Backup-Action([string]$Name) {
     return $actions[0]
 }
 function Reading-Save {
-    # SceneHost also has a left Save control. Select only the lower-right reading rail.
+    # SceneHost also has a left Save control. Select the unique bottom reading rail action.
     return Wait-One 'reading Save rail' {
         $r = $window.Current.BoundingRectangle
         Actions $window 'Save' | Where-Object {
-            $_.Current.BoundingRectangle.Left -gt $r.Left + $r.Width / 2 -and
                 $_.Current.BoundingRectangle.Top -gt $r.Top + $r.Height * 0.7
         }
     }
@@ -279,14 +278,14 @@ function Wait-File([string]$Path) {
 function Save-Slot([int]$Number) {
     Invoke-UI (Reading-Save) "open Save for slot $Number"
     $null = Wait-One 'Backup drawers' {
-        Nodes $window | Where-Object { (Visible $_) -and $_.Current.ControlType -eq [Windows.Automation.ControlType]::Button -and $_.Current.Name -ceq "Slot $Number, Empty" }
+        Nodes $window | Where-Object { (Visible $_) -and $_.Current.ControlType -eq [Windows.Automation.ControlType]::Button -and $_.Current.Name.TrimEnd() -ceq "Slot $Number, Empty" }
     }
     Select-Slot $Number
     Capture "save-$Number-selected"
     Invoke-UI (Backup-Action 'Save') "commit empty slot $Number"
     $path = Join-Path $dataRoot "saves/slot_$Number.json"
     $document = Wait-File $path
-    $null = Wait-One 'Saved status' { Nodes $window | Where-Object { (Visible $_) -and $_.Current.Name -ceq 'Saved' } }
+    $null = Wait-One 'Saved status' { Nodes $window | Where-Object { (Visible $_) -and $_.Current.Name.TrimEnd() -ceq 'Saved' } }
     Capture "save-$Number-complete"
     Invoke-UI (Button 'Back') 'close direct Backup host'
     return $document
@@ -310,7 +309,7 @@ function End-Process([bool]$AtTitle) {
     if ($AtTitle) {
         Invoke-UI (Button 'Shut down') 'request normal shutdown'
         $sheet = Wait-One 'Shut down confirmation' {
-            Nodes $window | Where-Object { (Visible $_) -and $_.Current.Name -ceq 'Shut down?' -and @(Actions $_ 'Shut down').Count -eq 1 }
+            Nodes $window | Where-Object { (Visible $_) -and $_.Current.Name.TrimEnd() -ceq 'Shut down?' -and @(Actions $_ 'Shut down').Count -eq 1 }
         }
         Invoke-UI (@(Actions $sheet 'Shut down')[0]) 'confirm normal shutdown'
     } else {
@@ -429,7 +428,7 @@ try {
         while ($watch.Elapsed.TotalSeconds -lt $StepTimeoutSeconds) {
             $script:window = Window
             if (@(Actions $window 'TEST Day4 closing.').Count -eq 1) { break }
-            $sheets = @(Nodes $window | Where-Object { (Visible $_) -and $_.Current.Name -ceq 'Load Slot 1?' -and @(Actions $_ 'Load').Count -eq 1 })
+            $sheets = @(Nodes $window | Where-Object { (Visible $_) -and $_.Current.Name.TrimEnd() -ceq 'Load Slot 1?' -and @(Actions $_ 'Load').Count -eq 1 })
             Require ($sheets.Count -le 1) 'LOAD_CONFIRMATION_AMBIGUOUS'
             if ($sheets.Count -eq 1) { Invoke-UI (@(Actions $sheets[0] 'Load')[0]) 'confirm source slot Load'; break }
             Start-Sleep -Milliseconds 100
@@ -483,7 +482,7 @@ try {
         Observe-Line 'TEST Day1 opening.' 'computer-closed-same-caption'
         if ($Mode -eq 'Capability') {
             Invoke-UI (Reading-Save) 'discover Backup without saving'
-            $null = Wait-One 'empty slot drawer' { Nodes $window | Where-Object { (Visible $_) -and $_.Current.ControlType -eq [Windows.Automation.ControlType]::Button -and $_.Current.Name -ceq 'Slot 1, Empty' } }
+            $null = Wait-One 'empty slot drawer' { Nodes $window | Where-Object { (Visible $_) -and $_.Current.ControlType -eq [Windows.Automation.ControlType]::Button -and $_.Current.Name.TrimEnd() -ceq 'Slot 1, Empty' } }
             Select-Slot 1
             $null = Backup-Action 'Save'
             Capture 'capability-backup-action'
