@@ -292,3 +292,43 @@ The ending wait lasts30.0117116s. Late in-budget native probes report the origin
 Next: use existing timing helpers to split complete Run9 validation at concrete owner boundaries before selecting a runtime correction. In parallel, read-only inspection can identify the smallest observation separating the ending's missing UIA subtree from native responsiveness. Keep original deadlines, exact actionable gates, both durable checkpoints, validation/refusal/history/detachment guarantees. A remains sole driver/runtime/controller/dispatch owner; independent review only, no duplicate run. B's scoped fixtures remain queued; ending/Gallery/normal exit and relevant integration work remain open. This product-branch publication retains evidence/handoff only; diagnostic runtime and test stay isolated. Master/integration unchanged; draft/unmerged; no release.
 
 Read-only ending-source review identifies the23 nodes as persistent PauseSurface plus audio nodes. EndingScene and its Dialogic caption layout share the same native root; no separate Window/SubViewport was found. GalleryScene and WitnessedSourceCanvas already document hidden-container sibling omission in Godot4.6, but this does not prove the ending cause. Smallest harness discriminator: after preserving the unchanged failed30-second result, collect a bounded RawViewWalker hierarchy (parent/depth/runtime ID/name/offscreen) on the same verified HWND and compare with existing FindAll descendants. Do not change caption acceptance, timeout, or lifecycle ownership to make the diagnostic pass.
+
+
+## 18 October continuation — Run9 owner costs and post-failure hierarchy
+
+Observable outcome: attribute full historical Run9 validation to concrete existing owners, and compare RawViewWalker with unfiltered FindAll on the original HWND after preserving the unchanged failed gate. This is diagnostic evidence, not a runtime optimization or exported-journey acceptance.
+
+Source `b1ec16613d3450f48e49a50ef739df517360c3d8`, tree `caf3e2cb5f8c8e570b00d8326fa4703415044645`; controller `deb35674b05af8a091166709940ef417c8851df2`. [Cloud run39142114567](https://github.com/Siuuuers/dwm/actions/runs/39142114567), job117718486123, used Godot4.6.3 standard GDScript and cloud PowerShell only. Diagnostic source remains isolated on codex/a-run9-owner-profile-20261018; this product update retains evidence only.
+
+### Verification and limits
+
+Import/parser checks, four deadline cases, and eight scene tests / 135 XML assertions passed, with zero test failures/skips. Fresh export succeeded. Capability and Create exited0 (28.2104521s and116.0578671s). Load failed at **TEST Day7 opening.**, after239.2106352s overall, forced cleanup/exit-1. It never reached ending. The unchanged caption gate ended at30.0105372s; complete forward durations were29.603874s,26.329651s,30.370814s. Different-run observations do not establish a speedup.
+
+Original archive1318178bytes, SHA256 `cf5848846011e6f80cabbb8702374cf754e38e7cc7efc1c9aa60849b7c7763a9`;180 outer and141 inner manifest entries verified with source pins. Artifact12142351379 expires25 October; retained archive avoids depending on expiry. Inner package SHA256 `dea30f936b07374a6e99a53820dc05a4ee78536ea27ce9206c7097f545d552b5`. Independent review rehashed all141 inner members, parsed XML and primary Load stdout directly, and confirmed the timing census and hierarchy chronology.
+
+### Concrete timing owners
+
+Twelve distinct primary Load checkpoint records (six prepare, six commit) contain42.847325s summed disjoint Run9 phase time across historical entries. These percentages describe that measured validation work, not whole-transition time.
+
+| Disjoint phase | Seconds | Share |
+| --- | ---: | ---: |
+| Semantic owner | 28.726061 | 67.043% |
+| Outer receipt contract | 11.200384 | 26.140% |
+| Reading | 1.537864 | 3.589% |
+| Remaining phases combined | 1.383016 | 3.228% |
+
+Inside semantic-owner time: frozen context11.584263s (40.327% of parent), receipt authentication11.188358s (38.948%), reading anchors5.556247s (19.342%). **Nested values must not be added to the parent total.** Copying/hashing and physical-reference checks are smaller in this sample. Diagnostic timers preserve existing validation order, refusal behavior, copies and default call paths; failed stages can return before their timer is accumulated, so these are not a complete failed-stage census.
+
+### Failure and hierarchy chronology
+
+The original Day7 failure was persisted at15:57:34.3518166Z after wait-end15:57:34.3436809Z, before diagnostics/cleanup. All261 native wait samples reported nonresponsive. Original HWND1049056/PID4908 was later responsive/not hung at15:57:35.7468Z. Executable, process-start, PID and original HWND identity checks recorded no mismatch.
+
+Raw traversal ran15:57:36.0177–36.8773Z (0.85744s), yielding41 nodes including root without errors/truncation. Day7 caption hierarchy was root → pane → button → text. Subsequent FindAll at15:57:36.8813–36.9396Z returned the same40 descendants, with identical runtime IDs/names/types. The isolated probe completed in3.261055s under its unchanged15s hard bound; timeout cleanup was not exercised. The screenshot also shows Day7 opening.
+
+These sequential post-deadline observations establish later recovery and agreement between enumeration methods. They do not establish caption readiness within the original deadline, an ending provider diagnosis, Gallery completion or clean exit. Previous ending-subtree evidence remains a separate unresolved observation.
+
+### Next bounded work
+
+Audit receipt authentication at RunSnapshotSchema, GameState semantic validation and FrozenRunContext for exact input/authority equivalence, including the scene-creation owner versus actual SaveManager. Only consider sharing authenticated work within a single validation call after proving refusal ordering, detached-input guarantees and all independent caller obligations. Do not remove checks merely because their names repeat. Correlate Day6→Day7 checkpoint work with the original polling deadline. No new cache/manager, timeout expansion or guessed UI correction follows from this run.
+
+Preserve both durable checkpoints and save/recovery/history contracts. Product remains draft/unmerged; master and integration unchanged. Ending/Gallery/normal exit and queued fixture work remain open.
