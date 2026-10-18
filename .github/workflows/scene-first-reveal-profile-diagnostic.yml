@@ -23,7 +23,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: eb33c854965ba8b1c9905abced10f104e278a599
+          ref: 855aaa5151e8368e38298974e1986cd7975b0f76
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -31,9 +31,9 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne 'eb33c854965ba8b1c9905abced10f104e278a599') { throw 'Candidate mismatch' }
+          if ((git rev-parse HEAD) -cne '855aaa5151e8368e38298974e1986cd7975b0f76') { throw 'Candidate mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='eb33c854965ba8b1c9905abced10f104e278a599'; tree='3070cbb624250b8f7f2d9251acdaccdb903f7459'; controller='${{ github.event.pull_request.head.sha }}'; base='eb33c854965ba8b1c9905abced10f104e278a599'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{candidate='855aaa5151e8368e38298974e1986cd7975b0f76'; tree='423c5bb35566999cf9e770cdea3e22c5f9070b6b'; controller='${{ github.event.pull_request.head.sha }}'; base='855aaa5151e8368e38298974e1986cd7975b0f76'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
