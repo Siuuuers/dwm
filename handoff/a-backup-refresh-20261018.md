@@ -157,3 +157,28 @@ Use the existing `DWM_CHECKPOINT_PROFILE=1` hooks in SaveManagerCheckpointPort.p
 Owner chain: scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd commit_scene_event → _commit_scene_event_autosave → scripts/application/run/SaveManagerCheckpointPort.gd capture/prepare/commit → retained journal/storage. Existing lower hook emits save_checkpoint_prepare/save_checkpoint with diagnostics_version2, including snapshot build, document validation/serialization, atomic write/reread and journal phases. The current run did not enable that separate flag. The ending's16.109s admission remains a distinct unresolved branch and must not be labeled target_checkpoint_commit by inference.
 
 Choose a minimal runtime correction only after this decomposition, then compare the complete matched operation and run relevant negative/retry/recovery checks. Keep B's already-scoped fixtures and ending/Gallery/normal-exit acceptance outstanding. No new architecture choice requires user input at this point; no merge, release or master/integration change.
+
+## Coordinator A continuation — lower checkpoint phases, 18 October 2026
+
+Director6250380703 and C6250326930 confirmed the next scope. [Run39131596323](https://github.com/Siuuuers/dwm/actions/runs/39131596323), job117687721524, controllerb93ccbb73eed31dc7770298a27dd26642b52cb01, reused instrumented artifact12137690574 without rebuilding. Isolated candidateafbaeb0994bba9070df2c18e17cd8d474b666b09/tree35549a89ffa36d40a951035df0a7cc915947b112 adds only explicit child DWM_CHECKPOINT_PROFILE=1 and its receipt field to the prior profiling driver. Same package hash, original action deadlines and caption gates. Capability/Create and four deadline cases pass; Load **fails at Day5 opening**, forced cleanup-1. Earlier Day7 progress is not deterministic acceptance.
+
+Primary stream is only exported-load/game.stdout.log (87 profile records total). The two completed checkpoint calls inside the Day4→Day5 operation show:
+
+| Scope | Source checkpoint10 | Target checkpoint11 |
+| --- | ---: | ---: |
+| Lower prepare total | 8.778s | 5.162s |
+| Lower commit total | 7.841s | 6.185s |
+| Enclosing narrative checkpoint call | 16.758s | 11.651s |
+| Prepare document build | 3.924s | 4.205s |
+| Prepare storage preimage capture/validation | 3.951s | 0.002s |
+| Commit outgoing schema | 3.904s | 0.961s, refused optimization |
+| Commit write_atomic | 0.006s | 4.261s, includes4.251s full text validation |
+| Commit retained-history proof work | 3.009s | 0.001s |
+
+Source has0/4 retained-document proof hits and no splice; target has4/4 hits and a successful splice. Target outgoing_validation_ok=false forces strict text validation inside storage. Top-level and nested timers are not additive: text_validator_us_since_prepare is cumulative/overlapping. `document_schema_metadata_us` contains scene family/history validation, not merely saved-time formatting; its3.009/3.226s must not be described as trivial metadata overhead. Whole forward operation30.262s. No new ending-admission measurements in this failed run.
+
+Concrete defect independently source-confirmed: SaveManagerCheckpointPort._normalize_outgoing_document empties recovery_journal on the splice path. SaveDocumentSchema._validate_document's Save9 proof path then requires the caller journal and retained proofs to have equal counts and values. Empty history versus four proofs necessarily returns `scene journal proof count mismatch` after validating the current snapshot. The actual spliced bytes still include the retained history, so full parsing accepts them. This explains the measured warm fallback without implying corrupt saved bytes.
+
+Smallest candidate correction: preserve ordinary full normalization for Save9, keeping the empty-history shortcut for legacy families. No proof/validation rule is removed. In-flight isolated candidate75aecb404cba8c2531cb5b944fd8ae75f2990347/treeadffc2682d6ecf5fb1b6d35ee7595672123c3b74 also adds three tests to the existing owner-backed scene-anchor suite: positive warm proof/full-validation byte equivalence and detachment, missing/substituted proof refusal, and unchanged legacy normalization. Controller75b9fd18e8090c805f5050916e59b37d8160378a requires the original code to fail the selected regression for the exact count mismatch, then runs candidate scene-anchor/checkpoint-port suites and same-host baseline/candidate exported journeys. Baseline failure is retained, never converted to candidate success. Fixed-order comparison supports bounded evidence only. **At this handoff checkpoint the correction is not yet qualified or promoted.**
+
+Original1041039-byte ZIP SHA256839fefe9232367290fd3ef4ae12f9720e4ac24223d4843ac20a61f10e6548b7a;154 outer members and22/57/45 per-mode manifest members independently verified, along with both retained checkpoint-port sources. [Lower-phase evidence and replayable verifier](../evidence/phase_2r/checkpoint_profile_20261018/) preserve the original failed run. Save/transition latency, ending/Gallery/normal exit and B's bounded fixtures remain open.
