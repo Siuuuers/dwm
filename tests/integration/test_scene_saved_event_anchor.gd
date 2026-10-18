@@ -176,3 +176,40 @@ func test_legacy_splice_normalization_keeps_empty_history_shortcut_and_cold_path
 	assert_eq(document, before)
 	assert_eq(typeof(document.current_snapshot.marker), TYPE_STRING_NAME)
 	assert_eq(typeof(document.recovery_journal[0].marker), TYPE_STRING_NAME)
+
+func test_scene_profile_preserves_success_refusal_bytes_and_detachment() -> void:
+	var valid := _scene_document_with_retained_history()
+	if valid.is_empty(): return
+	for mode: String in ["valid", "mismatched_proof", "malformed_history"]:
+		var document: Dictionary = valid.duplicate(true)
+		if mode == "malformed_history":
+			document.recovery_journal[0].snapshot.checkpoint_sequence = document.current_snapshot.snapshot.checkpoint_sequence
+			document.recovery_journal[0].snapshot.checkpoint_id = document.current_snapshot.snapshot.checkpoint_id
+		var proofs: Array = document.recovery_journal.duplicate(true)
+		if mode == "mismatched_proof": proofs[0].snapshot.gameplay.coins += 1
+		var before := _scene_canonical(document)
+		var proofs_before := _scene_canonical(proofs)
+		var disabled := {}
+		var enabled := {"diagnostic": true}
+		var plain: Dictionary = SAVE._validate_outgoing_document_proofs(document, proofs, proofs, disabled)
+		var measured: Dictionary = SAVE._validate_outgoing_document_proofs(document, proofs, proofs, enabled)
+		assert_eq(measured, plain, mode + ": diagnostic flag preserves full result")
+		assert_eq(measured.ok, mode == "valid", mode)
+		assert_true(disabled.is_empty(), "disabled profiling remains empty")
+		assert_true(enabled.has("outgoing_schema_proof_binding_us"))
+		assert_eq(enabled.has("outgoing_schema_scene_journal_us"), mode != "mismatched_proof")
+		if measured.ok:
+			assert_eq(_scene_canonical(measured.value.candidate), _scene_canonical(plain.value.candidate))
+			measured.value.candidate.recovery_journal[0].snapshot.gameplay.coins += 1
+		assert_eq(_scene_canonical(document), before)
+		assert_eq(_scene_canonical(proofs), proofs_before)
+	var profile := {"diagnostic": true}
+	var built: Dictionary = SAVE.build(&"autosave", null, &"automatic", valid.current_snapshot, valid.recovery_journal, {}, valid.recovery_journal)
+	var timed: Dictionary = SAVE.build(&"autosave", null, &"automatic", valid.current_snapshot, valid.recovery_journal, {}, valid.recovery_journal, profile)
+	assert_true(timed.ok, str(timed))
+	assert_eq(timed, built)
+	assert_true(profile.has("document_schema_proof_binding_us"))
+	assert_true(profile.has("document_schema_scene_journal_us"))
+	var cold_profile := {"diagnostic": true}
+	assert_eq(SAVE.validate(valid, cold_profile), SAVE.validate(valid))
+	assert_true(cold_profile.has("outgoing_schema_scene_journal_us"))

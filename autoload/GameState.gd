@@ -4540,6 +4540,10 @@ func _continue_completed_scene_challenge_owned(lease: String, optional: bool = f
 	return continued
 
 func _accept_scene_runtime_event(event: Dictionary, digest: String, lease: String) -> Dictionary:
+	var profile := _forward_profile_begin("scene_forward_event")
+	return _forward_profile_finish(profile, _accept_scene_runtime_event_profiled(event, digest, lease, profile))
+
+func _accept_scene_runtime_event_profiled(event: Dictionary, digest: String, lease: String, profile: Dictionary) -> Dictionary:
 	if event.get("kind") == "challenge.playable": return _accept_scene_playable_event(event, digest, lease)
 	if event.get("kind") == "challenge.end": return _accept_scene_end(event, digest, lease)
 	if not is_instance_valid(_mutation_gate) or not _mutation_gate.is_lease_active(&"causal_transaction", lease):
@@ -4619,7 +4623,9 @@ func _accept_scene_runtime_event(event: Dictionary, digest: String, lease: Strin
 	var ledger := _SCENE_EVENT.validate_scene_receipts(candidate.command_receipts, registered.value,
 		_identity_issuer, _scene_save_owner, candidate.contacts)
 	if not ledger.ok: return ledger
+	_forward_profile_phase(profile, "event_validation_us")
 	var committed: Dictionary = _narrative_checkpoint_port.commit_scene_event(candidate, current.value.checkpoint)
+	_forward_profile_phase(profile, "source_checkpoint_commit_us")
 	if not committed.get("ok", false):
 		if committed.get("committed", false): return _scene_event_fatal(&"event_commit_ack_invalid")
 		return committed
@@ -4628,6 +4634,7 @@ func _accept_scene_runtime_event(event: Dictionary, digest: String, lease: Strin
 			or not _mutation_gate.is_lease_active(&"causal_transaction", lease):
 		return _scene_event_fatal(&"event_adoption_source_changed")
 	_command_receipts = candidate.command_receipts.duplicate(true)
+	_forward_profile_phase(profile, "event_adoption_us")
 	return {"ok": true, "value": result.duplicate(true), "duplicate": false}
 
 var _scene_save_owner: Object
@@ -4898,6 +4905,10 @@ func accept_scene_thought(expected: Dictionary) -> Dictionary:
 	return _advance_scene_registered_marker(true)
 
 func _advance_scene_registered_marker(accept_thought: bool) -> Dictionary:
+	var profile := _forward_profile_begin("scene_forward_total")
+	return _forward_profile_finish(profile, _advance_scene_registered_marker_profiled(accept_thought, profile))
+
+func _advance_scene_registered_marker_profiled(accept_thought: bool, profile: Dictionary) -> Dictionary:
 	if not is_instance_valid(_mutation_gate) or not is_instance_valid(_scene_event_bridge):
 		return _transaction_failure(&"scene_event_unavailable", "")
 	var guarded: Dictionary = _mutation_gate.guard_external(&"scene_event")
@@ -4925,7 +4936,9 @@ func _advance_scene_registered_marker(accept_thought: bool) -> Dictionary:
 		"playback_token": current.value.playback_token}
 	var session := capture_live_session()
 	if not session.ok: return session
+	_forward_profile_phase(profile, "request_prepare_us")
 	var accepted: Dictionary = _scene_event_bridge.dispatch_scene_event(session.value, event)
+	_forward_profile_phase(profile, "dispatch_us")
 	if not accepted.get("ok", false): return accepted
 	if accepted.value.kind in ["scene_transition_accepted", "challenge_closed", "contact_entry_accepted", "contact_returned", "thought_resolved", "challenge_recalled"]: return admit_scene_target(accepted.value.target_id, event.command_id)
 	return accepted
@@ -5164,6 +5177,10 @@ func _on_scene_terminal_retired(admission_id: String, session: Dictionary) -> vo
 	router.goto_ending()
 
 func _admit_scene_target_owned(target_id: String, trigger_command_id: String, lease: String) -> Dictionary:
+	var profile := _forward_profile_begin("scene_forward_admission")
+	return _forward_profile_finish(profile, _admit_scene_target_owned_profiled(target_id, trigger_command_id, lease, profile))
+
+func _admit_scene_target_owned_profiled(target_id: String, trigger_command_id: String, lease: String, profile: Dictionary) -> Dictionary:
 	var session := capture_live_session()
 	if not session.ok: return session
 	var identity := capture_desktop_identity_context()
@@ -5243,10 +5260,12 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 	if registration.value.get("schema_version") == 3:
 		_scene_entry_operation["audio_context"] = audio_context
 		_scene_entry_operation["audio_plan"] = audio_plan
+	_forward_profile_phase(profile, "admission_prepare_us")
 	var held: Dictionary = _scene_event_bridge.hold_scene_entry_source()
 	if not held.get("ok", false): return held
 	var staged: Dictionary = _scene_event_bridge.prepare_day_entry(admitted.entry_id, frame)
 	if not staged.get("ok", false): return staged
+	_forward_profile_phase(profile, "bridge_stage_us")
 	var candidate := capture_run_snapshot_input()
 	candidate.command_receipts[admission.value.transaction_id] = admission.value.duplicate(true)
 	candidate.scene = {"registration_sha256": binding.registration_sha256,
@@ -5254,15 +5273,24 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 	_scene_entry_operation["candidate"] = candidate.duplicate(true)
 	_scene_entry_operation["staged"] = staged.value.duplicate(true)
 	_scene_entry_operation["admitted"] = admitted.duplicate(true)
-	return _commit_scene_target_owned()
+	_forward_profile_phase(profile, "candidate_prepare_us")
+	var result := _commit_scene_target_owned()
+	_forward_profile_phase(profile, "target_commit_inclusive_us")
+	return result
 
 func _commit_scene_target_owned() -> Dictionary:
+	var profile := _forward_profile_begin("scene_forward_target_commit")
+	return _forward_profile_finish(profile, _commit_scene_target_owned_profiled(profile))
+
+func _commit_scene_target_owned_profiled(profile: Dictionary) -> Dictionary:
 	var source := validate_scene_entry_staging_source(_scene_entry_operation.binding)
 	if not source.ok: return source
 	var candidate: Dictionary = _scene_entry_operation.candidate.duplicate(true)
 	var staged: Dictionary = _scene_entry_operation.staged.duplicate(true)
 	var admitted: Dictionary = _scene_entry_operation.admitted.duplicate(true)
+	_forward_profile_phase(profile, "target_source_validation_us")
 	var committed: Dictionary = _narrative_checkpoint_port.commit_scene_event(candidate, staged.narrative_checkpoint)
+	_forward_profile_phase(profile, "target_checkpoint_commit_us")
 	if not committed.get("ok", false):
 		if committed.get("committed", false): return _scene_event_fatal(&"scene_entry_commit_uncertain")
 		return committed
@@ -5275,7 +5303,9 @@ func _commit_scene_target_owned() -> Dictionary:
 			return _scene_event_fatal(&"scene_audio_activation_unavailable")
 		var adopted: Dictionary = audio.call("apply_scene_admission", _scene_entry_operation.audio_plan)
 		if not adopted.get("ok", false): return _scene_event_fatal(&"scene_audio_activation_failed")
+	_forward_profile_phase(profile, "target_state_audio_adoption_us")
 	var activated: Dictionary = _scene_event_bridge.commit_day_entry(staged)
+	_forward_profile_phase(profile, "bridge_install_inclusive_us")
 	if not activated.get("ok", false): return _scene_event_fatal(&"scene_entry_activation_failed")
 	_scene_entry_operation.clear()
 	return {"ok": true, "value": admitted.duplicate(true)}
@@ -5464,3 +5494,30 @@ func _admit_scene_ending_owned(target_id: String, trigger: Dictionary, source: D
 		return saved if rolled.get("ok", false) else rolled
 	_scene_terminal_operation.clear()
 	return {"ok": true, "committed": true, "value": {"route": "ending", "admission_id": plan.admission.admission_id}}
+
+
+# Isolated opt-in forward-scene timing. Nested scopes are inclusive, never additive.
+# Detached/fake owners and disabled runs acquire no profiling dependency or clock.
+func _forward_profile_owner() -> Object:
+	if OS.get_environment("DWM_SAVE_LOAD_PROFILE") != "1" or not is_inside_tree(): return null
+	var owner := get_node_or_null("/root/SaveManager")
+	if owner == null: return null
+	for method: String in ["_save_load_profile_begin", "_save_load_profile_phase", "_save_load_profile_finish"]:
+		if not owner.has_method(method): return null
+	return owner
+
+func _forward_profile_begin(scope: String) -> Dictionary:
+	var owner := _forward_profile_owner()
+	if owner == null: return {}
+	return owner.call("_save_load_profile_begin", scope, "scene_forward")
+
+func _forward_profile_phase(profile: Dictionary, phase: String) -> void:
+	if profile.is_empty(): return
+	var owner := _forward_profile_owner()
+	if owner != null: owner.call("_save_load_profile_phase", profile, phase)
+
+func _forward_profile_finish(profile: Dictionary, result: Dictionary) -> Dictionary:
+	if profile.is_empty(): return result
+	var owner := _forward_profile_owner()
+	if owner == null: return result
+	return owner.call("_save_load_profile_finish", profile, result)

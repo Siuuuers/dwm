@@ -397,6 +397,10 @@ func _scene_candidate_current() -> bool:
 	return captured.ok and _READING_TRAVERSAL._same(captured.value, checkpoint.reading_session)
 
 func _adopt_scene_target() -> Dictionary:
+	var profile := _forward_profile_begin("scene_forward_bridge_adoption")
+	return _forward_profile_finish(profile, _adopt_scene_target_profiled(profile))
+
+func _adopt_scene_target_profiled(profile: Dictionary) -> Dictionary:
 	if _scene_stage.is_empty() or not _scene_stage.get("installing", false) \
 			or _scene_stage.has("native_failure") or not _scene_candidate_current():
 		return _command_failure(&"scene_staging_native_failed")
@@ -406,6 +410,7 @@ func _adopt_scene_target() -> Dictionary:
 		var frontier: Dictionary = _runtime_adapter.capture_reading_frontier()
 		if not frontier.ok or not _READING_TRAVERSAL._same(frontier.value, checkpoint.reading_session.frontier):
 			return _command_failure(&"scene_staging_native_failed")
+	_forward_profile_phase(profile, "native_frontier_proof_us")
 	var target: Dictionary = _scene_stage.target
 	_reading_session = _scene_stage.candidate
 	_active_entry = {"entry_id": checkpoint.entry_id, "token": _scene_stage.transport.capability_id,
@@ -415,7 +420,9 @@ func _adopt_scene_target() -> Dictionary:
 		"label": target.label, "used_fallback": false, "content_locale": "en", "suppress_first_speech": false}
 	_scene_stage.clear()
 	_scene_stage_fatal = false
+	_forward_profile_phase(profile, "bridge_adoption_us")
 	reading_session_changed.emit()
+	_forward_profile_phase(profile, "reading_session_changed_us")
 	return {"ok": true}
 
 static func _scene_checkpoint_ref(value: Variant) -> bool:
@@ -4817,3 +4824,30 @@ func release_computer_captions(host: Node) -> Dictionary:
 	# The caption reconciles its other holds; no runtime resume is performed here.
 	computer_hold_changed.emit()
 	return {"ok": true}
+
+
+# Isolated opt-in forward-scene timing. Nested scopes are inclusive, never additive.
+# Detached/fake owners and disabled runs acquire no profiling dependency or clock.
+func _forward_profile_owner() -> Object:
+	if OS.get_environment("DWM_SAVE_LOAD_PROFILE") != "1" or not is_inside_tree(): return null
+	var owner := get_node_or_null("/root/SaveManager")
+	if owner == null: return null
+	for method: String in ["_save_load_profile_begin", "_save_load_profile_phase", "_save_load_profile_finish"]:
+		if not owner.has_method(method): return null
+	return owner
+
+func _forward_profile_begin(scope: String) -> Dictionary:
+	var owner := _forward_profile_owner()
+	if owner == null: return {}
+	return owner.call("_save_load_profile_begin", scope, "scene_forward")
+
+func _forward_profile_phase(profile: Dictionary, phase: String) -> void:
+	if profile.is_empty(): return
+	var owner := _forward_profile_owner()
+	if owner != null: owner.call("_save_load_profile_phase", profile, phase)
+
+func _forward_profile_finish(profile: Dictionary, result: Dictionary) -> Dictionary:
+	if profile.is_empty(): return result
+	var owner := _forward_profile_owner()
+	if owner == null: return result
+	return owner.call("_save_load_profile_finish", profile, result)

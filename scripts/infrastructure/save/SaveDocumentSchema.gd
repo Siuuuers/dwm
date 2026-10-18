@@ -110,9 +110,13 @@ static func build(
 	if not family_error.is_empty(): return _fail(&"invalid_recovery_journal", family_error)
 	if document.schema_version == SCENE_DOCUMENT_VERSION:
 		if proven:
+			var proof_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
 			var proof_error := _scene_proof_error(journal, proven_journal)
+			_profile_phase(profile, "document_schema_proof_binding_us", proof_tick)
 			if not proof_error.is_empty(): return _fail(&"invalid_recovery_journal", proof_error)
+		var scene_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
 		var scene_error := _scene_journal_error(document.current_snapshot, document.recovery_journal)
+		_profile_phase(profile, "document_schema_scene_journal_us", scene_tick)
 		if not scene_error.is_empty(): return _fail(&"invalid_recovery_journal", scene_error)
 	if not saved_time.is_empty():
 		document["saved_time"] = RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(
@@ -260,7 +264,9 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 	tick = _profile_phase(profile, "outgoing_schema_compose_current_us", tick)
 	if use_proven_journal:
 		if candidate.schema_version == SCENE_DOCUMENT_VERSION:
+			var proof_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
 			var proof_error := _scene_proof_error(candidate.recovery_journal, proven_journal)
+			_profile_phase(profile, "outgoing_schema_proof_binding_us", proof_tick)
 			if not proof_error.is_empty(): return _fail(&"invalid_recovery_journal", proof_error)
 		# The document's own entries are not validated here because they are not what is being
 		# written: the caller's proven bundles are, one per entry, in this order. See
@@ -275,7 +281,9 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 		var composed_family_error := _journal_family_error(candidate.schema_version, composed)
 		if not composed_family_error.is_empty(): return _fail(&"invalid_recovery_journal", composed_family_error)
 		if candidate.schema_version == SCENE_DOCUMENT_VERSION:
+			var scene_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
 			var scene_error := _scene_journal_error(candidate.current_snapshot, composed)
+			_profile_phase(profile, "outgoing_schema_scene_journal_us", scene_tick)
 			if not scene_error.is_empty(): return _fail(&"invalid_recovery_journal", scene_error)
 		_profile_phase(profile, "outgoing_schema_compose_proven_journal_us", tick)
 		return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
@@ -286,7 +294,9 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 	var family_error := _journal_family_error(candidate.schema_version, candidate.recovery_journal)
 	if not family_error.is_empty(): return _fail(&"invalid_recovery_journal", family_error)
 	if candidate.schema_version == SCENE_DOCUMENT_VERSION:
+		var scene_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
 		var scene_error := _scene_journal_error(candidate.current_snapshot, candidate.recovery_journal)
+		_profile_phase(profile, "outgoing_schema_scene_journal_us", scene_tick)
 		if not scene_error.is_empty(): return _fail(&"invalid_recovery_journal", scene_error)
 	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
 
