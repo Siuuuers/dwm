@@ -67,3 +67,43 @@ Original evidence ZIP894954bytes, SHA256c3d9e119c986c1ca54b47705cfced62232d6b3b0
 Keep this runtime correction. Reuse artifact12135278742 if still available; no rebuild is needed for harness-only work. At the Day4→Day5 boundary, retain bounded polling diagnostics for candidate caption name, enabled state, bounds and InvokePattern together with native responsiveness. Separate observed caption from actionable caption diagnostically while preserving the existing acceptance gate. This will distinguish delayed transition/readiness from stale observation before another correction.
 
 Do not repeat completed unit/custody campaigns or prior snapshot audits merely to restate them. Once the observation boundary is resolved, finish ending/Gallery/normal-exit checks, then B's existing scoped fixture corrections and the established framework/author-guide handoff.
+
+
+## Coordinator A continuation — Day5 readiness observed, 18 October 2026
+
+### Driver ancestry reconciliation
+
+The ordinary product head7b7a689 and tested continuation63f1e4d are siblings, both parented by8a431447. The former did not remove the latter's diagnostics. The intentionally stopping quiet experiment remains separate from the normal driver, as required by [the quiet diagnostic handoff](a-post-save-quiet-uia-20261018.md). Earlier conversational wording implying a dropped-driver regression is corrected here. No ordinary driver replacement is justified by that comparison.
+
+The new isolated diagnostic candidate2195d5dfc399ef3d40db905d8ec89e48f6ea7c90, tree1cdd5dafa2a004ec52c1cc264559516404bccf80, composes the retained continuation harness with one-shot Day5 telemetry. It records actual short-circuit acceptance decisions plus diagnostic candidate fields. Diagnostic-only stale-node reads are caught; exact-name, visible, enabled, InvokePattern and uniqueness requirements remain. No game runtime or persisted data definition changed. This candidate is not the ordinary PR36 driver.
+
+### New cloud evidence
+
+[Run39127084942](https://github.com/Siuuuers/dwm/actions/runs/39127084942), job117674367387, controllerb00319a5bcfb85c996648f479c9310c4b5fa5623, completed **failure** at `UIA_UNAVAILABLE_OR_TIMEOUT: TEST Day7 opening.` The original failure remains a failure.
+
+The run reused artifact12135278742 without rebuilding: package source63f1e4dbfe649039881d138541abd377a8639778, inner ZIP SHA256ef5f3f19980064080a84a28bcae9f97db4feb41934a9f007bc828172394f3431. Candidate commit/tree, driver parse, package receipt/hash and per-mode package identity were checked. Standard Godot4.6.3 Windows export, ProjectDefault renderer, Always accessibility and Dummy audio remain the scope; existing Save/Load timing hooks were enabled for Load. All PowerShell/game execution was cloud-only.
+
+Capability and Create passed with normal exits0. Create made the Day4 save through ordinary UI. Load reached witness Save, Back, restored Day4, Day5 opening/closing and Day6 opening/closing; it then timed out waiting for Day7. Its forced cleanup exit-1 is not a native crash or clean shutdown. Ending/Gallery/normal loader exit remain unqualified. No new GUT census or broad-CI completion claim.
+
+At the first Day5 wait, with the original30-second deadline:
+
+| Elapsed from wait start | Observation |
+| --- | --- |
+|0.001s native sample begins|Original Engine HWND524740/PID6016 does not answer the50ms native probe; hung=false.|
+|15.056s|Actions begins only after the preceding Window call; enumeration returns0 descendants in about0.0005s.|
+|15.158s native sample begins|Same game window hung/unresponsive; foreground is a distinct Ghost window.|
+|29.164s|Next Actions call again returns0 descendants in about0.0005s.|
+|29.273s native sample begins|Original game window responds and is foreground; hung=false.|
+|29.409s wait ends|One visible/enabled exact-name Button with InvokePattern passes; the separate Text node is correctly rejected for lacking InvokePattern.|
+
+Thus this run observed Day5 actionable within the deadline. It does not prove a deterministic fix or establish that telemetry caused recovery. The long intervals precede Actions, within the Window/check-live/native/UIA root-acquisition path; they are **not**15-second FindAll durations. We did not time its individual FromHandle/Current.ProcessId subcalls. Additional diagnostic reads/native probes/log writes affect timing and do not qualify ordinary-play performance.
+
+The later Day7 failure probe still reports the original HWND hung/unresponsive despite exposing40 descendants including Day7. The failure screenshot visibly shows the complete Day7 opening. Provider text/pixels alone therefore do not establish timely native readiness or successful interaction. Independent review confirmed Day5 opening, Day6 closing and Day7 failure captures without redoing the earlier snapshot audit.
+
+Original999043-byte evidence archive SHA25671e6adb85945fc705cfb7e7b6b7f0834e2e7ffa43c4c507c663e34d125fb6b30 and all164 outer manifest members plus per-mode manifests were verified, including retained driver blob9e78a5ab72c137e73749c10b77e9f7777326dd6c. A separate read-only review independently verified the archive/manifest and interpretation. [Archive, verifier and recorded telemetry](../evidence/phase_2r/day5_readiness_20261018/) preserve the actual failed run. This adds bounded readiness evidence, not new saved-state or recovery qualification.
+
+### Next owned action
+
+A retains driver/controller/dispatch ownership. Use the same retained corrected package for a matched boundary experiment: while the original window is unresponsive, take bounded native-only samples instead of repeatedly calling Window/UIA. Once responsive, apply the same fresh actionable-caption gate within the same30-second deadline. Record process CPU delta and bracket Window acquisition separately if needed. This is a discriminator for observation-related contention versus long application work, not permission to bypass readiness, lengthen the timeout or call provider presence a pass. If the stall remains, profile the existing scene-event/target-admission owners before selecting a runtime change; the existing Save/Load phase hooks do not cover these forward day-transition phases.
+
+Retain the observed Save latency limitation and accepted Backup correction. After this boundary is resolved, finish ending/Gallery/normal exit, apply B's two existing bounded fixture corrections with negative/cache-teardown checks, and consolidate the existing author guide. No extra inventory, retired-feature restoration, merge, master/integration change or release.
