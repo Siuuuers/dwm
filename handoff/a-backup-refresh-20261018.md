@@ -260,3 +260,35 @@ Both Capability/Create modes pass with normal exits0. Both Load modes reach Day7
 Next useful investigation: distinguish proof binding from full _scene_journal_error/Run9 validation within the existing schema profile dictionaries and timing helper, then identify the expensive validation owner before another mutation. No new profiler framework/cache/manager, history-validation bypass, timeout inflation or equivalent UIA polling campaign. The current combined timings do not identify an individual historical validation subcall. The source cold path and observed Backup Save latency remain limitations.
 
 A retains controller/runtime/dispatch ownership. Independent internal review agreed with rejecting the optimization; external C review has not been claimed. Ending/Gallery/normal exit, B's two bounded fixture corrections, relevant integration triage and the existing inventory/author-guide handoff remain open. No merge, release, master/integration update or new feature.
+
+
+## Coordinator A continuation — proof versus complete journal attribution
+
+Following Director6251298922, isolated diagnostic source `de5daf8abdd0b4c6c89ab66c9d044dfe8301c72f`, tree `9642c21e8d727015b639c96536fe333e31f3a2eb`, adds ten opt-in timing lines to SaveDocumentSchema and one owner-backed equivalence test. Removing those ten lines reproduces the retained schema byte-for-byte. Existing forward timing/driver/deadline diagnostic files are reused unchanged from75aecb404. No rejected normalization optimization or new cache is included. Source review preceded cloud dispatch.
+
+[Run39138156844](https://github.com/Siuuuers/dwm/actions/runs/39138156844), job117706838606, controller173144984778d3788dbdfab2728b100e19d2a60d, ran Godot4.6.3 standard and PowerShell only on Windows cloud. Import, **8 scene tests /133 XML assertions**, four separate deadline cases, fresh export, Capability and Create passed. Both successful exported modes exited0. Load reached Day7 but **failed** the ending-caption deadline and was forcibly cleaned up(exit-1). No whole-game, speedup, ending/Gallery or normal-loader-exit acceptance.
+
+### Measured attribution
+
+Primary stream: only exported-load/game.stdout.log. Seven warm checkpoints11–17 carry both proof and complete history timings:
+
+| Nested phase | Proof binding | Complete scene-journal validation | Journal share of inclusive parent, summed |
+| --- | ---: | ---: | ---: |
+| Document build metadata | 8.103–10.572ms | 2.031245–2.772526s | 99.605% |
+| Outgoing proven-journal composition | 8.381–11.287ms | 2.009854–2.810937s | 99.578% |
+
+Parent tick semantics remain unchanged. These nested costs must not be added to their inclusive parents or checkpoint/forward totals. Complete ordinary forward operations are18.359026s,16.493696s,19.015039s; ending forward23.456110s includes12.369270s ending admission. This different-run timing is **not** a matched performance improvement: no behavior optimization was made. Warm outgoing validation remains successful with zero fallback text-validator calls.
+
+The result attributes the dominant combined cost to `_scene_journal_error`, which revalidates retained Run9 bundles and checks their family/registration/order. It does not yet isolate receipt authentication, Profile references, frozen-frame derivation, reading validation, copying or hashing within Run9 and its live semantic owner. Repeating proof-normalization experiments is unsupported.
+
+### Ending boundary remains distinct
+
+The ending wait lasts30.0117116s. Late in-budget native probes report the original game window responding;33 root-acquisition attempts are recorded, and final action enumeration finishes29.9932742s with zero matches. The later failure screenshot visibly shows the complete ending caption and six bottom controls, but failure.uia.json contains23 nodes: background Continue/Backup/Settings/Return to Title and audio nodes, no ending caption/rail. This is a concrete provider-tree/presentation discrepancy worth discriminating; do not infer a particular caching or viewport cause, or equate23.456s instrumented forward work with full UI readiness. The original failure is unchanged.
+
+### Retained evidence and next ownership
+
+[Original archive, receipt, verifier and complete parsed timings](../evidence/phase_2r/scene_validation_attribution_20261018/) retain2140195 bytes, SHA256 b1f9c9ce1be27d78b8e7ca6b73947058943e9bfb61e1118858702e336b70edd3. Verified186 outer members,148 inner manifest members, exact source pins and the eight source-derived test names. New diagnostic package artifact12139978428 expires25October; inner package SHA256 b8fbcdaf06f3c71fd48e38b32262431228bda4bb986c37f0bdbf4cc1a6603cba. Reuse only for matching harness-only diagnostics; another source change requires another export.
+
+Next: use existing timing helpers to split complete Run9 validation at concrete owner boundaries before selecting a runtime correction. In parallel, read-only inspection can identify the smallest observation separating the ending's missing UIA subtree from native responsiveness. Keep original deadlines, exact actionable gates, both durable checkpoints, validation/refusal/history/detachment guarantees. A remains sole driver/runtime/controller/dispatch owner; independent review only, no duplicate run. B's scoped fixtures remain queued; ending/Gallery/normal exit and relevant integration work remain open. This product-branch publication retains evidence/handoff only; diagnostic runtime and test stay isolated. Master/integration unchanged; draft/unmerged; no release.
+
+Read-only ending-source review identifies the23 nodes as persistent PauseSurface plus audio nodes. EndingScene and its Dialogic caption layout share the same native root; no separate Window/SubViewport was found. GalleryScene and WitnessedSourceCanvas already document hidden-container sibling omission in Godot4.6, but this does not prove the ending cause. Smallest harness discriminator: after preserving the unchanged failed30-second result, collect a bounded RawViewWalker hierarchy (parent/depth/runtime ID/name/offscreen) on the same verified HWND and compare with existing FindAll descendants. Do not change caption acceptance, timeout, or lifecycle ownership to make the diagnostic pass.
