@@ -392,15 +392,21 @@ static func scene_completion_request(envelope: Dictionary, anchor: Dictionary, b
 	if not checked.ok: return checked
 	if envelope.kind != "scene.transition" or not _valid_anchor(anchor, envelope.source): return _fail(&"scene_completion_source_invalid")
 	var registered := validate_bundle_structure(bundle)
-	var target: Dictionary = registered.value.targets[envelope.payload.target_id].target
-	if anchor.line_id != registered.value.markers[envelope.event_id].marker.after_line_id:
+	return _scene_completion_request_fields(envelope, anchor, checked.value, registered.value)
+
+# Pure tails consume only values computed within the calling validation. Public
+# entry points retain their own inspection; no issuer or persistence result is shared.
+static func _scene_completion_request_fields(envelope: Dictionary, anchor: Dictionary,
+		inspection: Dictionary, tables: Dictionary) -> Dictionary:
+	var target: Dictionary = tables.targets[envelope.payload.target_id].target
+	if anchor.line_id != tables.markers[envelope.event_id].marker.after_line_id:
 		return _fail(&"event_anchor_invalid")
 	if target.kind not in ["scene", "ending"]: return _fail(&"scene_completion_target_invalid")
 	if not _id(envelope.issuer_receipt.get("receipt_id")): return _fail(&"event_issuer_invalid")
 	var projections := {"command_id": envelope.command_id,
-		"content_sha256": checked.value.programme_entry.content_sha256, "event_digest": checked.value.digest,
-		"marker_program_fingerprint": _sha(checked.value.programme_entry), "reading_anchor_sha256": _sha(anchor),
-		"registration_fingerprint": checked.value.registration_fingerprint,
+		"content_sha256": inspection.programme_entry.content_sha256, "event_digest": inspection.digest,
+		"marker_program_fingerprint": _sha(inspection.programme_entry), "reading_anchor_sha256": _sha(anchor),
+		"registration_fingerprint": inspection.registration_fingerprint,
 		"role": "scene_terminal_complete" if target.kind == "ending" else "scene_day_complete",
 		"source_scene_occurrence": envelope.source.scene_occurrence, "successor_id": envelope.payload.target_id}
 	var source_ids: Array[String] = []
@@ -417,10 +423,12 @@ static func make_scene_receipt(envelope: Dictionary, anchor: Dictionary, result:
 	var registered := validate_bundle_structure(bundle)
 	if anchor.line_id != registered.value.markers[envelope.event_id].marker.after_line_id:
 		return _fail(&"event_anchor_invalid")
-	var validated := validate_scene_result(envelope, result, bundle)
+	if not _json_data(result) or not result is Dictionary or typeof(result.get("kind")) != TYPE_STRING: return _fail(&"scene_result_invalid")
+	var validated := _validate_scene_result_fields(envelope, result, registered.value)
 	if not validated.ok: return validated
 	if result.kind == "scene_transition_accepted":
-		var request := scene_completion_request(envelope, anchor, bundle)
+		if envelope.kind != "scene.transition" or not _valid_anchor(anchor, envelope.source): return _fail(&"scene_completion_source_invalid")
+		var request := _scene_completion_request_fields(envelope, anchor, checked.value, registered.value)
 		if not request.ok: return request
 		if not _completion_matches(envelope.issuer_receipt, request.value, result.resolution_receipt):
 			return _fail(&"scene_completion_mismatch")
@@ -434,7 +442,10 @@ static func validate_scene_result(envelope: Dictionary, result: Variant, bundle:
 	if not checked.ok: return checked
 	if not _json_data(result) or not result is Dictionary or typeof(result.get("kind")) != TYPE_STRING: return _fail(&"scene_result_invalid")
 	var registered := validate_bundle_structure(bundle)
-	var targets: Dictionary = registered.value.targets
+	return _validate_scene_result_fields(envelope, result, registered.value)
+
+static func _validate_scene_result_fields(envelope: Dictionary, result: Dictionary, tables: Dictionary) -> Dictionary:
+	var targets: Dictionary = tables.targets
 	match result.kind:
 		"thought_resolved":
 			if not _keys(result, ["kind", "opportunity_id", "choice", "target_id"]) or envelope.kind not in ["thought.accept", "thought.pass"]:
@@ -469,7 +480,7 @@ static func validate_scene_result(envelope: Dictionary, result: Variant, bundle:
 					or envelope.kind != "challenge.end" or typeof(result.outcome) != TYPE_STRING \
 					or result.outcome not in OUTCOMES or not _id(result.target_id) or not _hash(result.challenge_occurrence):
 				return _fail(&"scene_result_invalid")
-			var challenge: Dictionary = registered.value.challenges[envelope.payload.challenge_id]
+			var challenge: Dictionary = tables.challenges[envelope.payload.challenge_id]
 			var occurrence := _sha([envelope.source.scene_occurrence, envelope.payload.challenge_id])
 			if result.challenge_occurrence != occurrence or not _id(result.playable_command_id) \
 					or not challenge.targets.has(result.outcome) or result.target_id != challenge.targets[result.outcome]: return _fail(&"scene_result_invalid")
@@ -486,7 +497,7 @@ static func validate_scene_result(envelope: Dictionary, result: Variant, bundle:
 		"contact_entry_accepted":
 			if not _keys(result, ["kind", "target_id", "source_fact_ids"]) or envelope.kind != "contact.enter":
 				return _fail(&"scene_result_invalid")
-			var contact: Dictionary = registered.value.contacts[envelope.payload.contact_event_id]
+			var contact: Dictionary = tables.contacts[envelope.payload.contact_event_id]
 			var target_id := ""
 			for id: String in targets:
 				if targets[id].target.kind == "contact" and targets[id].target.entry_id == contact.entry_id:
@@ -498,7 +509,7 @@ static func validate_scene_result(envelope: Dictionary, result: Variant, bundle:
 			if not _keys(result, ["kind", "contact_admission_receipt_id", "target_id", "parent_occurrence_id"]) \
 					or envelope.kind != "contact.return" or not _id(result.contact_admission_receipt_id) \
 					or not _id(result.parent_occurrence_id) or not _id(result.target_id): return _fail(&"scene_result_invalid")
-			if result.target_id != registered.value.contacts[envelope.payload.contact_event_id].return_target_id:
+			if result.target_id != tables.contacts[envelope.payload.contact_event_id].return_target_id:
 				return _fail(&"scene_result_invalid")
 		_:
 			return _fail(&"scene_result_unsupported")

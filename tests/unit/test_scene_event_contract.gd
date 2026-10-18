@@ -202,11 +202,21 @@ func test_original_scene_completion_has_exact_nine_canonical_projections() -> vo
 	var anchor := _scene_anchor()
 	anchor.publication_id = "TEST.other"
 	assert_ne(CONTRACT.scene_completion_request(event, anchor, _scene_bundle()), request)
+	var ending_bundle := _scene_bundle()
+	ending_bundle.targets[0].target.kind = "ending"
+	var terminal: Dictionary = CONTRACT.scene_completion_request(event, _scene_anchor(), ending_bundle)
+	assert_true(terminal.ok, str(terminal))
+	if not terminal.ok: return
+	assert_eq(terminal.value.child_kind, "scene_day_completion")
+	assert_eq(terminal.value.source_ids.size(), 9)
+	assert_has(terminal.value.source_ids, 'role="scene_terminal_complete"')
+	assert_false(terminal.value.source_ids.has('role="scene_day_complete"'))
 
 func test_transition_receipt_rederives_c0_instead_of_accepting_an_arbitrary_child() -> void:
 	var event := _scene_event()
 	var bundle := _scene_bundle()
-	var request: Dictionary = CONTRACT.scene_completion_request(event, _scene_anchor(), bundle).value
+	var anchor := _scene_anchor()
+	var request: Dictionary = CONTRACT.scene_completion_request(event, anchor, bundle).value
 	var parent: Dictionary = event.issuer_receipt
 	var encoded: Dictionary = CONTRACT.WRITER.stringify(request.source_ids)
 	var child := "scene_day_completion." + ("desktop_child_v1\n%s\n%d\n%s\n%s\n%d\n%s" % [
@@ -215,12 +225,28 @@ func test_transition_receipt_rederives_c0_instead_of_accepting_an_arbitrary_chil
 		"target_id": "TEST.target", "target": bundle.targets[0].target.duplicate(true), "resolution_receipt": {
 			"receipt_id": child, "provenance": {"schema_version": 1, "parent_receipt_id": request.parent_receipt_id,
 				"child_kind": request.child_kind, "ordinal": 0, "source_ids": request.source_ids, "child_id": child}}}
-	var accepted: Dictionary = CONTRACT.make_scene_receipt(event, _scene_anchor(), result, bundle)
+	var before: Array = [event, anchor, result, bundle].duplicate(true)
+	var accepted: Dictionary = CONTRACT.make_scene_receipt(event, anchor, result, bundle)
 	assert_true(accepted.ok)
+	if not accepted.ok: return
+	assert_eq([event, anchor, result, bundle], before, "success leaves all caller inputs unchanged")
 	assert_eq(accepted.value.scene_event.schema_version, 2)
+	var retained: Dictionary = accepted.value.duplicate(true)
 	result.resolution_receipt.provenance.source_ids[0] = 'command_id="TEST.forged"'
-	assert_false(CONTRACT.make_scene_receipt(event, _scene_anchor(), result, bundle).ok)
-	assert_ne(accepted.value.scene_event.result, result, "returned canonical receipt is detached")
+	assert_eq(CONTRACT.make_scene_receipt(event, anchor, result, bundle).get("code"), &"scene_completion_mismatch")
+	event.source.branch_id = "TEST.changed.branch"
+	event.issuer_receipt.counter += 1
+	anchor.publication_id = "TEST.changed.publication"
+	bundle.targets[0].target.kind = "ending"
+	result.target.label = "TEST.changed.target"
+	assert_eq(accepted.value, retained, "nested caller mutations cannot rewrite a returned transition")
+	before = [event, anchor, result, bundle].duplicate(true)
+	accepted.value.scene_event.semantic.payload.target_id = "TEST.changed.payload"
+	accepted.value.scene_event.semantic.issuer_receipt.counter += 1
+	accepted.value.scene_event.reading_anchor.line_id = "TEST.changed.line"
+	accepted.value.scene_event.result.target.entry_id = "TEST.changed.entry"
+	accepted.value.scene_event.result.resolution_receipt.provenance.source_ids.clear()
+	assert_eq([event, anchor, result, bundle], before, "returned nested dictionaries and arrays cannot edit inputs")
 
 func test_scene_tables_reject_dangling_markers_unsorted_ids_and_untyped_hashes() -> void:
 	var bundle := _scene_bundle()
@@ -438,13 +464,23 @@ func test_playable_receipt_requires_exact_predecessor_anchor_and_detaches_result
 	var anchor := _scene_anchor()
 	var original_event: Dictionary = event.duplicate(true)
 	var original_bundle: Dictionary = bundle.duplicate(true)
+	var original_anchor: Dictionary = anchor.duplicate(true)
 	var first: Dictionary = CONTRACT.make_scene_receipt(event, anchor, result, bundle)
 	assert_true(first.ok)
 	if not first.ok: return
+	var retained: Dictionary = first.value.duplicate(true)
 	first.value.scene_event.result.challenge_occurrence = "0".repeat(64)
+	first.value.scene_event.semantic.source.branch_id = "TEST.changed.branch"
+	first.value.scene_event.semantic.payload.challenge_id = "TEST.changed.challenge"
+	first.value.scene_event.reading_anchor.line_id = "TEST.changed.line"
 	assert_eq(result, _playable_result())
 	assert_eq(event, original_event)
 	assert_eq(bundle, original_bundle)
+	assert_eq(anchor, original_anchor)
+	var again: Dictionary = CONTRACT.make_scene_receipt(event, anchor, result, bundle)
+	assert_true(again.ok, str(again))
+	if not again.ok: return
+	assert_eq(again.value, retained, "mutating the first receipt cannot alter a retry")
 	anchor.line_id = "TEST.other.line"
 	assert_false(CONTRACT.make_scene_receipt(event, anchor, result, bundle).ok)
 	anchor = _scene_anchor()
@@ -452,3 +488,90 @@ func test_playable_receipt_requires_exact_predecessor_anchor_and_detaches_result
 	assert_false(CONTRACT.make_scene_receipt(event, anchor, result, bundle).ok)
 	assert_eq(event, original_event)
 	assert_eq(bundle, original_bundle)
+	event.source.branch_id = "TEST.changed.branch"
+	result.challenge_occurrence = "0".repeat(64)
+	bundle.scene_programme.entries[0].markers[1].payload.challenge_id = "TEST.changed.challenge"
+	assert_eq(again.value, retained, "caller mutations cannot rewrite an ordinary receipt")
+
+func test_scene_receipt_public_entry_points_validate_envelope_and_registration_first() -> void:
+	var cases := {"version": &"scene_event_version_invalid", "shape": &"scene_event_shape_invalid",
+		"bundle": &"scene_bundle_nested_invalid", "unregistered": &"scene_marker_unregistered",
+		"mismatched": &"scene_marker_mismatch"}
+	for mode: String in cases:
+		var event := _scene_event()
+		var bundle := _scene_bundle()
+		# These later inputs also fail, so skipping or moving admission changes the refusal.
+		var anchor := {}
+		var result := {}
+		match mode:
+			"version":
+				event.schema_version = 1
+				bundle.clear()
+			"shape":
+				event.erase("command_id")
+				bundle.clear()
+			"bundle":
+				bundle.entry_manifest.clear()
+				event.event_id = "TEST.unregistered"
+			"unregistered": event.event_id = "TEST.unregistered"
+			"mismatched": event.source.content_version = 2
+		var before: Array = [event, anchor, result, bundle].duplicate(true)
+		for refused: Dictionary in [CONTRACT.make_scene_receipt(event, anchor, result, bundle),
+				CONTRACT.validate_scene_result(event, result, bundle),
+				CONTRACT.scene_completion_request(event, anchor, bundle)]:
+			assert_eq(refused, {"ok": false, "code": cases[mode]}, mode)
+		assert_eq([event, anchor, result, bundle], before, mode + ": refusal must not repair its inputs")
+
+func test_scene_receipt_orders_anchor_result_issuer_and_completion_refusals() -> void:
+	var cases := {"source_anchor": &"event_anchor_invalid", "line_anchor": &"event_anchor_invalid",
+		"result_shape": &"scene_result_invalid", "result_binding": &"scene_result_invalid",
+		"issuer": &"event_issuer_invalid", "completion": &"scene_completion_mismatch"}
+	for mode: String in cases:
+		var event := _scene_event()
+		var bundle := _scene_bundle()
+		var anchor := _scene_anchor()
+		# Structurally valid result, but the arbitrary child must fail completion matching.
+		var result := {"kind": "scene_transition_accepted", "source_scene_occurrence": event.source.scene_occurrence,
+			"target_id": "TEST.target", "target": bundle.targets[0].target.duplicate(true),
+			"resolution_receipt": {"receipt_id": "TEST.arbitrary.child", "provenance": {}}}
+		match mode:
+			"source_anchor":
+				anchor.session_id = "TEST.other.occurrence"
+				result.clear()
+			"line_anchor":
+				anchor.line_id = "TEST.other.line"
+				result.clear()
+			"result_shape":
+				result.kind = &"scene_transition_accepted"
+				event.issuer_receipt.erase("receipt_id")
+			"result_binding":
+				result.target_id = "TEST.other.target"
+				event.issuer_receipt.erase("receipt_id")
+			"issuer": event.issuer_receipt.erase("receipt_id")
+		var before: Array = [event, anchor, result, bundle].duplicate(true)
+		assert_eq(CONTRACT.make_scene_receipt(event, anchor, result, bundle),
+			{"ok": false, "code": cases[mode]}, mode)
+		assert_eq([event, anchor, result, bundle], before, mode + ": refusal leaves all inputs unchanged")
+
+func test_scene_completion_public_request_preserves_source_anchor_target_and_issuer_checks() -> void:
+	var cases := {"wrong_kind": &"scene_completion_source_invalid", "source_anchor": &"scene_completion_source_invalid",
+		"line_anchor": &"event_anchor_invalid", "target": &"scene_completion_target_invalid",
+		"issuer": &"event_issuer_invalid"}
+	for mode: String in cases:
+		var event := _scene_event()
+		var bundle := _scene_bundle()
+		var anchor := _scene_anchor()
+		if mode == "wrong_kind":
+			event = _playable_event()
+			bundle = _challenge_bundle()
+		elif mode != "issuer":
+			# A local target is registered, but cannot own a scene-completion child.
+			bundle.targets[0].target.kind = "local"
+			bundle.targets[0].target.label = "TEST.internal"
+		if mode == "source_anchor": anchor.session_id = "TEST.other.occurrence"
+		if mode == "line_anchor": anchor.line_id = "TEST.other.line"
+		event.issuer_receipt.erase("receipt_id")
+		var before: Array = [event, anchor, bundle].duplicate(true)
+		assert_eq(CONTRACT.scene_completion_request(event, anchor, bundle),
+			{"ok": false, "code": cases[mode]}, mode)
+		assert_eq([event, anchor, bundle], before, mode + ": standalone refusal leaves inputs unchanged")
