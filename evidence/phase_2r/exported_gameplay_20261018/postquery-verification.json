@@ -1,0 +1,1037 @@
+{
+  "run": 39122098427,
+  "job": 117659591995,
+  "archive_sha256": "27496880509b2046af5026ae0730accb064ba51b55a52a41d73d5ce6f4aa6fab",
+  "archive_bytes": 751445,
+  "verified_members": 137,
+  "origin": {
+    "tree": "aac85d329d300cba86df88b42627fe3314596451",
+    "controller": "2cfb7fe04cd1ac375a421431244552ebd74dc273",
+    "candidate": "aba8cf9a4674d5bebe3193ffb5e0be8c88793197",
+    "base": "aba8cf9a4674d5bebe3193ffb5e0be8c88793197"
+  },
+  "outcomes": {
+    "capability": {
+      "schema_version": 1,
+      "mode": "Capability",
+      "ok": true,
+      "visual_review_required": true,
+      "source_commit": "bb167aa1b5692f6bf5ceb6789201f38d4f86360a",
+      "archive_sha256": "625fad0d7ab746c6413192f82db6b461e9db05f40634772e0b1e387dcdb017bf",
+      "accessibility_request": "Always",
+      "audio_request": "Dummy",
+      "renderer_request": "ProjectDefault",
+      "user_root": "D:\\a\\_temp\\dwm-capability-user",
+      "output_path": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability",
+      "scope": "Ordinary release UI; normal packaged seven-day TEST story; no Challenge registration",
+      "forced_cleanup": false,
+      "clean_player_exit": true,
+      "executable_sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+      "pck_sha256": "e6fe5dab1eb7588704c24ae5d7eb231f7e475dff62cb663b637cbd5ea1baa22d",
+      "process": {
+        "arguments": [
+          "--windowed",
+          "--resolution",
+          "1280x720",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\game.log",
+          "--accessibility",
+          "always",
+          "--audio-driver",
+          "Dummy"
+        ],
+        "pid": 776,
+        "started_utc": "2026-10-18T11:10:06.5527350Z",
+        "observed_command_line": "\"D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\package\\DWM.exe\" --windowed --resolution 1280x720 --log-file D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\game.log --accessibility always --audio-driver Dummy",
+        "executable": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\package\\DWM.exe"
+      },
+      "exit_code": 0,
+      "renderer_log": [
+        "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver",
+        "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver"
+      ],
+      "child_exited_before_cleanup": true,
+      "elapsed_seconds": 28.2959668
+    },
+    "create": {
+      "schema_version": 1,
+      "mode": "Create",
+      "ok": true,
+      "visual_review_required": true,
+      "source_commit": "bb167aa1b5692f6bf5ceb6789201f38d4f86360a",
+      "archive_sha256": "625fad0d7ab746c6413192f82db6b461e9db05f40634772e0b1e387dcdb017bf",
+      "accessibility_request": "Always",
+      "audio_request": "Dummy",
+      "renderer_request": "ProjectDefault",
+      "user_root": "D:\\a\\_temp\\dwm-journey-user",
+      "output_path": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create",
+      "scope": "Ordinary release UI; normal packaged seven-day TEST story; no Challenge registration",
+      "forced_cleanup": false,
+      "clean_player_exit": true,
+      "capability": {
+        "schema_version": 1,
+        "mode": "Capability",
+        "ok": true,
+        "visual_review_required": true,
+        "source_commit": "bb167aa1b5692f6bf5ceb6789201f38d4f86360a",
+        "archive_sha256": "625fad0d7ab746c6413192f82db6b461e9db05f40634772e0b1e387dcdb017bf",
+        "accessibility_request": "Always",
+        "audio_request": "Dummy",
+        "renderer_request": "ProjectDefault",
+        "user_root": "D:\\a\\_temp\\dwm-capability-user",
+        "output_path": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability",
+        "scope": "Ordinary release UI; normal packaged seven-day TEST story; no Challenge registration",
+        "forced_cleanup": false,
+        "clean_player_exit": true,
+        "executable_sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+        "pck_sha256": "e6fe5dab1eb7588704c24ae5d7eb231f7e475dff62cb663b637cbd5ea1baa22d",
+        "process": {
+          "arguments": [
+            "--windowed",
+            "--resolution",
+            "1280x720",
+            "--log-file",
+            "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\game.log",
+            "--accessibility",
+            "always",
+            "--audio-driver",
+            "Dummy"
+          ],
+          "pid": 776,
+          "started_utc": "2026-10-18T11:10:06.552735Z",
+          "observed_command_line": "\"D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\package\\DWM.exe\" --windowed --resolution 1280x720 --log-file D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\game.log --accessibility always --audio-driver Dummy",
+          "executable": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\package\\DWM.exe"
+        },
+        "exit_code": 0,
+        "renderer_log": [
+          "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver",
+          "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver"
+        ],
+        "child_exited_before_cleanup": true,
+        "elapsed_seconds": 28.2959668
+      },
+      "executable_sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+      "pck_sha256": "e6fe5dab1eb7588704c24ae5d7eb231f7e475dff62cb663b637cbd5ea1baa22d",
+      "process": {
+        "pid": 7416,
+        "arguments": [
+          "--windowed",
+          "--resolution",
+          "1280x720",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create\\game.log",
+          "--accessibility",
+          "always",
+          "--audio-driver",
+          "Dummy"
+        ],
+        "executable": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create\\package\\DWM.exe",
+        "started_utc": "2026-10-18T11:10:36.1110104Z",
+        "observed_command_line": "\"D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create\\package\\DWM.exe\" --windowed --resolution 1280x720 --log-file D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create\\game.log --accessibility always --audio-driver Dummy"
+      },
+      "source_slot_sha256": "24f03e8ff54514c11bd8454f4f6ac4d2d3b5e25daa2496e382328481b000d3ff",
+      "exit_code": 0,
+      "renderer_log": [
+        "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver",
+        "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver"
+      ],
+      "source_profile_sha256": "f0b8016e02ebb02d7f900930d586da634ec37b8c1389b926c310c45c275c4750",
+      "child_exited_before_cleanup": true,
+      "elapsed_seconds": 131.6590568
+    },
+    "load": {
+      "schema_version": 1,
+      "mode": "Load",
+      "ok": false,
+      "visual_review_required": true,
+      "source_commit": "bb167aa1b5692f6bf5ceb6789201f38d4f86360a",
+      "archive_sha256": "625fad0d7ab746c6413192f82db6b461e9db05f40634772e0b1e387dcdb017bf",
+      "accessibility_request": "Always",
+      "audio_request": "Dummy",
+      "renderer_request": "ProjectDefault",
+      "user_root": "D:\\a\\_temp\\dwm-journey-user",
+      "output_path": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load",
+      "scope": "Ordinary release UI; normal packaged seven-day TEST story; no Challenge registration",
+      "forced_cleanup": true,
+      "clean_player_exit": false,
+      "executable_sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+      "pck_sha256": "e6fe5dab1eb7588704c24ae5d7eb231f7e475dff62cb663b637cbd5ea1baa22d",
+      "process": {
+        "executable": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\package\\DWM.exe",
+        "observed_command_line": "\"D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\package\\DWM.exe\" --windowed --resolution 1280x720 --log-file D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\game.log --accessibility always --audio-driver Dummy",
+        "arguments": [
+          "--windowed",
+          "--resolution",
+          "1280x720",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\game.log",
+          "--accessibility",
+          "always",
+          "--audio-driver",
+          "Dummy"
+        ],
+        "started_utc": "2026-10-18T11:12:48.9919706Z",
+        "pid": 6572
+      },
+      "diagnostic_only": true,
+      "native_baseline_handle": 327942,
+      "quiet_observation_completed": true,
+      "quiet_saved_count": 0,
+      "failure": "DIAGNOSTIC_ONLY_QUIET_OBSERVATION_COMPLETE",
+      "child_exited_before_cleanup": false,
+      "exit_code": -1,
+      "elapsed_seconds": 146.5634825
+    }
+  },
+  "diagnostic_live_comparisons": {
+    "quiet-before": {
+      "equal_fields": {
+        "narrative_checkpoint": true,
+        "gameplay": true,
+        "scene": true,
+        "command_receipts": true,
+        "applied_effect_transaction_ids": true,
+        "applied_variable_transaction_ids": true
+      },
+      "same_run": true,
+      "different_branch": true,
+      "profile_equal": true,
+      "source_slot_byte_identical": true
+    },
+    "quiet-after": {
+      "equal_fields": {
+        "narrative_checkpoint": true,
+        "gameplay": true,
+        "scene": true,
+        "command_receipts": true,
+        "applied_effect_transaction_ids": true,
+        "applied_variable_transaction_ids": true
+      },
+      "same_run": true,
+      "different_branch": true,
+      "profile_equal": true,
+      "source_slot_byte_identical": true
+    },
+    "failure": {
+      "equal_fields": {
+        "narrative_checkpoint": true,
+        "gameplay": true,
+        "scene": true,
+        "command_receipts": true,
+        "applied_effect_transaction_ids": true,
+        "applied_variable_transaction_ids": true
+      },
+      "same_run": true,
+      "different_branch": true,
+      "profile_equal": true,
+      "source_slot_byte_identical": true
+    }
+  },
+  "quiet_events": [
+    {
+      "utc": "2026-10-18T11:14:17.3518959Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 327942,
+        "pid": 6572,
+        "foreground_is_game": true,
+        "class": "Engine",
+        "elapsed_seconds": 0.0,
+        "stage": "before-save-invoke",
+        "foreground_class": "Engine",
+        "handle": 327942,
+        "foreground_pid": 6572,
+        "hung": false,
+        "responds": true
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:17.3535463Z",
+      "kind": "save-invoke-start",
+      "data": {}
+    },
+    {
+      "utc": "2026-10-18T11:14:17.3547765Z",
+      "kind": "save-invoke-return",
+      "data": {
+        "elapsed_seconds": 0.0005351
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:17.3644129Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 327942,
+        "pid": 6572,
+        "foreground_is_game": true,
+        "class": "Engine",
+        "elapsed_seconds": 0.0012831,
+        "stage": "after-save-invoke",
+        "foreground_class": "Engine",
+        "handle": 327942,
+        "foreground_pid": 6572,
+        "hung": false,
+        "responds": true
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:17.5864819Z",
+      "kind": "save-file-wait-start",
+      "data": {}
+    },
+    {
+      "utc": "2026-10-18T11:14:28.9232236Z",
+      "kind": "save-file-wait-return",
+      "data": {
+        "elapsed_seconds": 11.335929
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:28.9247508Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 327942,
+        "pid": 6572,
+        "foreground_is_game": true,
+        "class": "Engine",
+        "elapsed_seconds": 11.3368171,
+        "stage": "after-save-file",
+        "foreground_class": "Engine",
+        "handle": 327942,
+        "foreground_pid": 6572,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:28.9264978Z",
+      "kind": "quiet-native-start",
+      "data": {
+        "deadline_seconds": 30,
+        "traversal_policy": "one fresh UIA observation after native-only sampling"
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:28.9744752Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 0.0456171,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:29.7262203Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 0.7992767,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:30.4778149Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 1.5508918,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:31.2288683Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 2.3019135,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:31.9804163Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 3.0534209,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:32.7321432Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 3.8050291,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:33.4850491Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 4.5580278,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:34.2376919Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 5.3108866,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:34.9900355Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 6.0629188,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:35.7419758Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 6.8150577,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:36.4941885Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 7.567083,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:37.2467118Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 8.3198172,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:37.9987213Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 9.0718353,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:38.7515186Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 9.8247992,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:39.5026936Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 10.5758764,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:40.2542867Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 11.3274783,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:41.0068463Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 12.0799116,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:41.7590692Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 12.8322954,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:42.5107808Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 13.5841129,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:43.2620480Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 14.335408,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:44.0131995Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 15.086431,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:44.7647523Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 15.8379902,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:45.5175255Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 16.5907122,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:46.2703752Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 17.3437329,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:47.0218607Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 18.0951241,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:47.7738427Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 18.8471273,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:48.5250195Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 19.5982768,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:49.2780625Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 20.3513142,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:50.0311214Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 21.1042918,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:50.7841323Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 21.857217,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:51.5359506Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 22.6092878,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:52.2876105Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 23.3609892,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:53.0405717Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 24.1140099,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:53.7916066Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 24.8650142,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:54.5490238Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 25.6181795,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:55.3095579Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 26.3829837,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:56.0615483Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 27.1349541,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:56.8142962Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 27.8876993,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:57.5666796Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 28.6400584,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:58.3195568Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 29.3930805,
+        "stage": "quiet-sample",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    },
+    {
+      "utc": "2026-10-18T11:14:58.9314479Z",
+      "kind": "quiet-fresh-uia-start",
+      "data": {
+        "elapsed_seconds": 30.0055548
+      }
+    },
+    {
+      "utc": "2026-10-18T11:15:13.9362520Z",
+      "kind": "quiet-fresh-uia-result",
+      "data": {
+        "descendants": 0,
+        "saved_count": 0,
+        "elapsed_seconds": 45.0104384
+      }
+    },
+    {
+      "utc": "2026-10-18T11:15:13.9380337Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_handle": 393726,
+        "pid": 6572,
+        "foreground_is_game": false,
+        "class": "Engine",
+        "elapsed_seconds": 45.0117211,
+        "stage": "after-fresh-uia",
+        "foreground_class": "Ghost",
+        "handle": 327942,
+        "foreground_pid": 6396,
+        "hung": true,
+        "responds": false
+      }
+    }
+  ],
+  "source_blobs": {
+    "export_presets.cfg": "ccb9409ac1054d0b4b52e78df823c33f532e83fb",
+    "project.godot": "b3e4ec92242535d81845bdc2dc7537e9e3ec122e",
+    "scripts/ui/BackupApp.gd": "e856148cef98795a460e0bd637f1a2b3c48d0e35",
+    "tests/unit/test_backup_presentation.gd": "adb96818754d9026d29c686102177b2c36065d80",
+    "tools/testing/Invoke-ExportedGameplay.ps1": "3551260da0402a21449976df9a4f7c608ea6b0ec",
+    "tools/testing/Invoke-WindowsExportValidation.ps1": "322d02bbe72d8e2e3c1e5b637fd9ac253ef31fff",
+    "tools/testing/Probe-ExportedWindow.ps1": "78d2d9e5e3961f7bc6ffec642d6eb9c4b1d90b8e"
+  }
+}
