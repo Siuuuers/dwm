@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-10-18 19:42:00 UTC",
+  "scope": "Read-only build feasibility source snapshots; no build or binary downloads performed. Branch-named documentation/image files are observed snapshots, not immutable future runner guarantees.",
+  "files": [
+    {
+      "path": "sources/godot/windows_builds.yml",
+      "source_url": "https://github.com/godotengine/godot/blob/35e80b3a8822a9df9be390814b62f44c0a9c69e8/.github/workflows/windows_builds.yml",
+      "git_blob": "809955b9062b2587e376811fbc24a2c2d2660a66",
+      "returned_encoding": "utf-8",
+      "bytes": 4469,
+      "sha256": "cd7fb82b7e634f7e4722d588e4e15a24c048deb9395d07762cb1d66f0c25a3b7"
+    },
+    {
+      "path": "sources/godot/install_d3d12_sdk_windows.py",
+      "source_url": "https://github.com/godotengine/godot/blob/35e80b3a8822a9df9be390814b62f44c0a9c69e8/misc/scripts/install_d3d12_sdk_windows.py",
+      "git_blob": "e449248df658ab79657d2ecbfceb18ead8593570",
+      "returned_encoding": "utf-8",
+      "bytes": 6282,
+      "sha256": "01efa055ed400219f16f9d7c19978319df4e191f4523c1ff5859b6e93d24b269"
+    },
+    {
+      "path": "sources/godot/godot-deps-action.yml",
+      "source_url": "https://github.com/godotengine/godot/blob/35e80b3a8822a9df9be390814b62f44c0a9c69e8/.github/actions/godot-deps/action.yml",
+      "git_blob": "a980849d3836490d66ccd83739e25742115f66f2",
+      "returned_encoding": "utf-8",
+      "bytes": 1003,
+      "sha256": "b8f81d5ab5200be1615d4b781f7dfe178033670719bc9ac2a7ab76e74cac0199"
+    },
+    {
+      "path": "sources/godot/godot-build-action.yml",
+      "source_url": "https://github.com/godotengine/godot/blob/35e80b3a8822a9df9be390814b62f44c0a9c69e8/.github/actions/godot-build/action.yml",
+      "git_blob": "721bf5250cb242a37d197b74e38a8705ab9dee74",
+      "returned_encoding": "utf-8",
+      "bytes": 1428,
+      "sha256": "3f13d212ec290cf9aef15b36c8dd3a52f9dde68b9735f11afa084587ffd55dcb"
+    },
+    {
+      "path": "sources/godot/d3d12-SCsub",
+      "source_url": "https://github.com/godotengine/godot/blob/35e80b3a8822a9df9be390814b62f44c0a9c69e8/drivers/d3d12/SCsub",
+      "git_blob": "767afcfed02d76b811ed4f5d1c8961aea37f1151",
+      "returned_encoding": "utf-8",
+      "bytes": 7427,
+      "sha256": "543170d551109ead734677fb27a4ea5093d3928a20842bdac398a6b56c2f43dc"
+    },
+    {
+      "path": "sources/accesskit/publish.yml",
+      "source_url": "https://github.com/godotengine/godot-accesskit-c-static/blob/0.21.2/.github/workflows/publish.yml",
+      "git_blob": "873d3c07bdef5630d2536b73e8a5cb55692f323f",
+      "returned_encoding": "utf-8",
+      "bytes": 8712,
+      "sha256": "94451f30754f001e755a28a4ecc78a57dd524c8c218ae8839cb87ed4cfb68394"
+    },
+    {
+      "path": "sources/dwm/windows-tests-81847d8b.yml",
+      "source_url": "https://github.com/Siuuuers/dwm/blob/81847d8b1560340a3a7769223cee0b46c6bdc0f9/.github/workflows/windows-tests.yml",
+      "git_blob": "6efb7ab714a39a3e2672f0eab9da0e01d13c5695",
+      "returned_encoding": "utf-8",
+      "bytes": 74530,
+      "sha256": "7a51ac9c4ad49c1d11bee64dfecc99e00a4ddd270669aa8f7e1abe8a5ca5c8a8"
+    },
+    {
+      "path": "sources/godot-docs/compiling_for_windows.rst",
+      "source_url": "https://github.com/godotengine/godot-docs/blob/4.6/engine_details/development/compiling/compiling_for_windows.rst",
+      "git_blob": "73f76519defd67cf7b5284b41fb59153b4a82176",
+      "returned_encoding": "utf-8",
+      "bytes": 24014,
+      "sha256": "5d25a8578e339e2bac317ee0418e1821e47323398fb2bbbdce6b13200cb819be"
+    },
+    {
+      "path": "sources/runner-images/Windows2022-Readme.md",
+      "source_url": "https://github.com/actions/runner-images/blob/main/images/windows/Windows2022-Readme.md",
+      "git_blob": "f7747719ddecef37b3c8b3d7e029de3895740c5c",
+      "returned_encoding": "utf-8",
+      "bytes": 38883,
+      "sha256": "eee34ad1795f7a3c66eae157006b4247e000b8a2597c680d0c6c43fba89d6c91"
+    },
+    {
+      "path": "metadata/godot-source-commit-35e80b3a.json",
+      "source_url": "https://api.github.com/repos/godotengine/godot/git/commits/35e80b3a8822a9df9be390814b62f44c0a9c69e8",
+      "git_blob": null,
+      "returned_encoding": "UTF-8 JSON string",
+      "bytes": 1822,
+      "sha256": "3744c8f848df293773011885f8f919fb740d11c4d347cc8f959724c4a83b6eb4"
+    },
+    {
+      "path": "metadata/mesa-nir-25.3.1-1-release.json",
+      "source_url": "https://api.github.com/repos/godotengine/godot-nir-static/releases/tags/25.3.1-1",
+      "git_blob": null,
+      "returned_encoding": "UTF-8 JSON string",
+      "bytes": 15728,
+      "sha256": "ff0404563390ccf852e982639d8f38ad520aa60d4737d827cc754402eba16d35"
+    },
+    {
+      "path": "metadata/angle-chromium-6601.2-release.json",
+      "source_url": "https://api.github.com/repos/godotengine/godot-angle-static/releases/tags/chromium/6601.2",
+      "git_blob": null,
+      "returned_encoding": "UTF-8 JSON string",
+      "bytes": 23285,
+      "sha256": "cfb0106a2a15f6c94c54595a5be0f8abfce64f1c53fdb8977f9a5cde371220dd"
+    },
+    {
+      "path": "metadata/accesskit-c-static-0.21.2-release.json",
+      "source_url": "https://api.github.com/repos/godotengine/godot-accesskit-c-static/releases/tags/0.21.2",
+      "git_blob": null,
+      "returned_encoding": "UTF-8 JSON string",
+      "source_title": "0.21.2",
+      "source_modified_date": null,
+      "bytes": 3617,
+      "sha256": "ac0438daf33750162f7a7a95cd227cad3628074226ceb0ebbe3041c57cb882f5",
+      "computed_git_blob": null,
+      "copied_from_parent": "metadata/accesskit-c-static-0.21.2-release.json"
+    },
+    {
+      "path": "sources/godot/SConstruct",
+      "source_url": "https://github.com/godotengine/godot/blob/35e80b3a8822a9df9be390814b62f44c0a9c69e8/SConstruct",
+      "git_blob": "58c895bfe51b6fc53b04d5a9b11677aa3e615f0d",
+      "returned_encoding": "utf-8",
+      "source_title": "SConstruct",
+      "source_modified_date": null,
+      "bytes": 51856,
+      "sha256": "f82375ba2c73fe86a54db19cc05e4dcb7e2d9c70687d84b80b9710673f3da829",
+      "computed_git_blob": "58c895bfe51b6fc53b04d5a9b11677aa3e615f0d",
+      "copied_from_parent": "source/godot-35e80b3a/SConstruct"
+    },
+    {
+      "path": "sources/godot/windows-detect.py",
+      "source_url": "https://github.com/godotengine/godot/blob/35e80b3a8822a9df9be390814b62f44c0a9c69e8/platform/windows/detect.py",
+      "git_blob": "011cdade4c62387e54dee255d5faa003a4ac669c",
+      "returned_encoding": "utf-8",
+      "source_title": "detect.py",
+      "source_modified_date": null,
+      "bytes": 32764,
+      "sha256": "ba37468d3af9b751285210dcfd25e4b150048c809ff21e2df1421bb80859c1a3",
+      "computed_git_blob": "011cdade4c62387e54dee255d5faa003a4ac669c",
+      "copied_from_parent": "source/godot-35e80b3a/platform/windows/detect.py"
+    },
+    {
+      "path": "sources/godot/windows-SCsub",
+      "source_url": "https://github.com/godotengine/godot/blob/35e80b3a8822a9df9be390814b62f44c0a9c69e8/platform/windows/SCsub",
+      "git_blob": "aefb04818a0ad9f3d0c83966648d1879c1c1d234",
+      "returned_encoding": "utf-8",
+      "source_title": "SCsub",
+      "source_modified_date": null,
+      "bytes": 5540,
+      "sha256": "d0f569ad7f63330c338ec988c08f103fdc4542df5cf113bf72350a08804af90b",
+      "computed_git_blob": "aefb04818a0ad9f3d0c83966648d1879c1c1d234",
+      "copied_from_parent": "source/godot-35e80b3a/platform/windows/SCsub"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "mode": "Capability",
+  "ok": true,
+  "visual_review_required": true,
+  "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+  "archive_sha256": "7c3053d2073fc3caee98dc5c038e720d5e860952375039d0db054dcd14812eb8",
+  "accessibility_request": "Always",
+  "audio_request": "Dummy",
+  "save_load_profile": false,
+  "checkpoint_profile": false,
+  "renderer_request": "ProjectDefault",
+  "user_root": "D:\\a\\_temp\\dwm-capability-user",
+  "output_path": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability",
+  "scope": "Ordinary release UI; normal packaged seven-day TEST story; no Challenge registration",
+  "forced_cleanup": false,
+  "clean_player_exit": true,
+  "executable_sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+  "pck_sha256": "1bbe3794a2febb54960929984556421e04df621f0e21a095f71ea25603147d26",
+  "process": {
+    "arguments": [
+      "--windowed",
+      "--resolution",
+      "1280x720",
+      "--log-file",
+      "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\game.log",
+      "--accessibility",
+      "always",
+      "--audio-driver",
+      "Dummy"
+    ],
+    "executable": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\package\\DWM.exe",
+    "started_utc": "2026-10-18T18:48:30.4910507Z",
+    "observed_command_line": "\"D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\package\\DWM.exe\" --windowed --resolution 1280x720 --log-file D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\game.log --accessibility always --audio-driver Dummy",
+    "pid": 1352
+  },
+  "exit_code": 0,
+  "renderer_log": [
+    "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver",
+    "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver"
+  ],
+  "child_exited_before_cleanup": true,
+  "elapsed_seconds": 29.4804151
+}

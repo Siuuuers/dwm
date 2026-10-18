@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "source": {
+    "repository": "godotengine/godot",
+    "commit": "35e80b3a8822a9df9be390814b62f44c0a9c69e8",
+    "tree": "499fa231ee5d21878988a4a9cb881749def3946d",
+    "build_name": "dwm_publication_probe_v1"
+  },
+  "runner": {
+    "label": "windows-2022",
+    "observed_image_version": "20261012.333.1",
+    "observed_vs_version": "17.14.37710.0",
+    "observed_python_version": "3.12.10",
+    "qualification": "Image readme snapshot only; record actual runner/tool versions at build time."
+  },
+  "scons": {
+    "version": "4.10.1",
+    "wheel": "scons-4.10.1-py3-none-any.whl",
+    "sha256": "bd9d1c52f908d874eba92a8c0c0a8dcf2ed9f3b88ab956d0fce1da479c4e7126",
+    "source_url": "https://pypi.org/project/SCons/4.10.1/#files",
+    "retrieval": "Published PyPI file metadata observed via web; package not downloaded."
+  },
+  "native_assets": [
+    {
+      "name": "accesskit-c-0.21.2.zip",
+      "repository": "godotengine/godot-accesskit-c-static",
+      "tag": "0.21.2",
+      "asset_id": 372219312,
+      "bytes": 95929259,
+      "sha256": "02a08691b78fc6f8f88f6546e997b9f90b4ecbedf5ca5c621dbab144a4b18964",
+      "download_url": "https://github.com/godotengine/godot-accesskit-c-static/releases/download/0.21.2/accesskit-c-0.21.2.zip",
+      "metadata_url": "https://api.github.com/repos/godotengine/godot-accesskit-c-static/releases/assets/372219312",
+      "extract_into": "<deps>",
+      "scons_root": "<deps>/accesskit-c-0.21.2",
+      "expected_relative_inputs": [
+        "include/accesskit.h",
+        "lib/windows/x86_64/msvc/static/accesskit.lib"
+      ],
+      "qualification": "Version and hash pin the prebuilt SDK asset; no Cargo resolution or local Rust rebuild."
+    },
+    {
+      "name": "godot-nir-static-x86_64-msvc-release.zip",
+      "repository": "godotengine/godot-nir-static",
+      "tag": "25.3.1-1",
+      "asset_id": 329280734,
+      "bytes": 6040119,
+      "sha256": "abfbdf03316d65381f4c32d1f724c8a1dbeb74a7e801923b71656f186e54dcdf",
+      "download_url": "https://github.com/godotengine/godot-nir-static/releases/download/25.3.1-1/godot-nir-static-x86_64-msvc-release.zip",
+      "metadata_url": "https://api.github.com/repos/godotengine/godot-nir-static/releases/assets/329280734",
+      "extract_into": "<deps>/mesa-x86_64-msvc",
+      "scons_root": "<deps>/mesa-x86_64-msvc",
+      "expected_relative_inputs": [
+        "bin/libNIR.windows.x86_64.lib",
+        "godot-mesa"
+      ],
+      "qualification": "Retain extracted source/generated headers as well as static lib. Godot's pinned D3D12 driver requires Mesa major25, minor>=3."
+    },
+    {
+      "name": "godot-angle-static-x86_64-msvc-release.zip",
+      "repository": "godotengine/godot-angle-static",
+      "tag": "chromium/6601.2",
+      "asset_id": 182726748,
+      "bytes": 32507833,
+      "sha256": null,
+      "download_url": "https://github.com/godotengine/godot-angle-static/releases/download/chromium/6601.2/godot-angle-static-x86_64-msvc-release.zip",
+      "metadata_url": "https://api.github.com/repos/godotengine/godot-angle-static/releases/assets/182726748",
+      "extract_into": "<deps>/angle",
+      "scons_root": "<deps>/angle",
+      "expected_relative_inputs": [
+        "libANGLE.windows.x86_64.lib",
+        "libEGL.windows.x86_64.lib",
+        "libGLES.windows.x86_64.lib"
+      ],
+      "qualification": "Published release metadata has digest:null and no checksum asset. Bind exact asset ID/name/size and record downloaded SHA256; no upstream hash verification claim."
+    }
+  ],
+  "output": {
+    "expected_template": "bin/godot.windows.template_release.x86_64.exe",
+    "expected_wrapper": "bin/godot.windows.template_release.x86_64.console.exe",
+    "expected_bundled_dll_sidecars": [],
+    "qualification": "Expected from pinned source and explicit empty Agility/PIX paths with static dependencies; actual bin inventory and bounded smoke must verify outputs. Windows system DLL imports remain normal."
+  },
+  "timeouts": {
+    "job_minutes": 120,
+    "compile_minutes": 100,
+    "qualification": "Conservative cold-build ceilings based on upstream120-minute Windows jobs, not a measured completion estimate. Root may keep native diagnostic execution in a separate job."
+  }
+}

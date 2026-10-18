@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "source": {
+    "repository": "godotengine/godot",
+    "commit": "35e80b3a8822a9df9be390814b62f44c0a9c69e8",
+    "tree": "499fa231ee5d21878988a4a9cb881749def3946d"
+  },
+  "probe_id": "publication-native-v1",
+  "environment_key": "GODOT_ACCESSKIT_PUBLICATION_TRACE_PATH",
+  "platform": "Windows",
+  "files": [
+    {
+      "path": "drivers/accesskit/accessibility_driver_accesskit.cpp",
+      "base": {
+        "bytes": 74291,
+        "git_blob": "f0dfc5e056c4cf6341cda93763e294b7e5fe3df6",
+        "sha256": "9fe069e718b13d06cced39b3fd098198911fab3c3c46dc74910cfc413646811c"
+      },
+      "candidate": {
+        "bytes": 83200,
+        "git_blob": "40b0f7fcfb45c78c27855eaab438679155647d50",
+        "sha256": "59ecabf7ef34ced32990a3dccbf113e169f9f5766ccd2fae3f62f9bfbdb2aa42"
+      }
+    },
+    {
+      "path": "drivers/accesskit/accessibility_driver_accesskit.h",
+      "base": {
+        "bytes": 12450,
+        "git_blob": "a4196c6bcb67a12cf8f279207ebc92e623f816ff",
+        "sha256": "22e723e9b99f5e84ba947242c8073640f5fad735bf406d02988d77284b1d8dd8"
+      },
+      "candidate": {
+        "bytes": 12524,
+        "git_blob": "75ce466f993862e60eed5a9626eb734c2b715e26",
+        "sha256": "c601717080df43b36f10a4a0f38110cae0f5ee5d77970081bf730c5f27095827"
+      }
+    }
+  ],
+  "reference_header": {
+    "path": "thirdparty/accesskit/include/accesskit.h",
+    "bytes": 90877,
+    "git_blob": "eab9e353703e0881f36187cf8721fd565e4c2ca5",
+    "sha256": "ad663585317feb694494fe1544d356feb186b74c8169717a067e0a254960270b"
+  },
+  "accesskit_c": {
+    "version": "0.21.2",
+    "commit": "72460cd52d1b24492393cdf54a6f19d2fd63e258",
+    "locked_crates": {
+      "accesskit": "0.24.0",
+      "accesskit_consumer": "0.35.0",
+      "accesskit_windows": "0.32.1"
+    }
+  },
+  "patch": {
+    "path": "publication-native-probe.patch",
+    "bytes": 12076,
+    "git_blob": "435e5a4ac0afca7fa5128af6305960474cdb06e3",
+    "sha256": "63e2b4090e881a191783ed641530d0c066eaa1193ef513dd0db33ec09bf51065"
+  },
+  "protocol": {
+    "path": "PROTOCOL.md",
+    "bytes": 11253,
+    "git_blob": "0b2c6e4de244491fa372b9807cab3e2eaf836806",
+    "sha256": "29a598e0a733e14d2ae849e21d62f9d7b52fa9d4db5f4b3ae5168f7d92cde37c"
+  },
+  "static_preservation": {
+    "existing_lines_removed": 0,
+    "exact_call_site_counts": {
+      "get_accessibility_element": {
+        "base": 0,
+        "candidate": 0
+      },
+      "queue_accessibility_update": {
+        "base": 0,
+        "candidate": 0
+      },
+      "accessibility_update_add_child": {
+        "base": 1,
+        "candidate": 1
+      },
+      "accesskit_node_push_child": {
+        "base": 2,
+        "candidate": 2
+      },
+      "accesskit_tree_update_push_node": {
+        "base": 2,
+        "candidate": 2
+      },
+      "rid_owner.make_rid": {
+        "base": 5,
+        "candidate": 5
+      },
+      "rid_owner.free": {
+        "base": 2,
+        "candidate": 2
+      },
+      "wd.update.clear": {
+        "base": 1,
+        "candidate": 1
+      }
+    },
+    "runtime_or_compiler_validation": "not_run"
+  }
+}

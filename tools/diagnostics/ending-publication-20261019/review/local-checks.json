@@ -1,0 +1,12 @@
+{
+  "scope": "Local Python/static validation after independent source and fixture review; not Godot, PowerShell or native evidence",
+  "reader_methods": 11,
+  "binder_methods": 5,
+  "binder_cases": 14,
+  "failures": 0,
+  "errors": 0,
+  "skips": 0,
+  "reader_exit_code": 0,
+  "binder_exit_code": 0,
+  "official_acceptance_established": false
+}

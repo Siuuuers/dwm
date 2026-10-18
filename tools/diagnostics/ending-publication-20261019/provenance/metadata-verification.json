@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "scope": "Offline saved-metadata and copied-evidence consistency only. This is not gameplay or engine-source/binary equivalence acceptance.",
+  "snapshot_manifest_sha256": "d965874d889e41c4bb92d721e113336518fda3a4d76d654e227060a3f40f0685",
+  "original_files_checked": 32,
+  "git_blobs_checked": 13,
+  "both_release_asset_digest_matches": true,
+  "both_release_symbol_inventory_android_only": true,
+  "original_controller_and_export_receipt_consistent": true,
+  "original_banner_retained": true,
+  "original_load_failure_retained": true,
+  "binary_symbols_inspected": false,
+  "exact_source_build_equivalence_established": false,
+  "stock_private_graph_reader_established": false,
+  "ok_for_metadata_retention": true
+}

@@ -1,0 +1,356 @@
+--- a/drivers/accesskit/accessibility_driver_accesskit.cpp
++++ b/drivers/accesskit/accessibility_driver_accesskit.cpp
+@@ -34,11 +34,261 @@
+ 
+ #include "core/config/project_settings.h"
+ #include "core/io/file_access.h"
++#include "core/io/json.h"
++#include "core/os/os.h"
++#include "core/os/thread.h"
++#include "core/string/print_string.h"
+ #include "core/version.h"
+ 
+ #include "servers/text/text_server.h"
+ 
+ AccessibilityDriverAccessKit *AccessibilityDriverAccessKit::singleton = nullptr;
++
++struct AccessibilityDriverAccessKit::PublicationProbe {
++	static constexpr uint64_t MAX_BYTES = 64 * 1024 * 1024;
++	static constexpr uint64_t MAX_ROW_BYTES = 4 * 1024 * 1024;
++	static constexpr uint64_t MAX_UPDATES = 65536;
++	static constexpr uint64_t MAX_NODES = 4096;
++	static constexpr uint64_t MAX_EDGES = 16384;
++	static constexpr uint64_t MAX_LABEL_BYTES = 8192;
++	static constexpr uint64_t MAX_UPDATE_LABEL_BYTES = 1024 * 1024;
++	struct WindowEpoch {
++		uint64_t open_seq = 0;
++		uint64_t epoch = 0;
++	};
++	Ref<FileAccess> file;
++	HashMap<DisplayServer::WindowID, WindowEpoch> epochs;
++	Dictionary current;
++	Array nodes;
++	uint64_t seq = 0, update_seq = 0, bytes = 0, edges = 0, label_bytes = 0;
++	uint64_t node_copy_us = 0, write_us = 0, previous_write_us = 0;
++	bool stopped = false;
++
++	static String id(uint64_t p_value) { return String::num_uint64(p_value); }
++	static uint64_t ticks() { return OS::get_singleton()->get_ticks_usec(); }
++	static uint64_t unix_us() { return uint64_t(OS::get_singleton()->get_unix_time() * 1000000.0); }
++
++	bool emit(Dictionary p_row, bool p_terminal = false) {
++		if (file.is_null() || (stopped && !p_terminal)) {
++			return false;
++		}
++		uint64_t start = ticks();
++		p_row["schema"] = 1;
++		p_row["seq"] = int64_t(seq + 1);
++		p_row["ticks_us"] = id(start);
++		p_row["unix_us"] = id(unix_us());
++		p_row["thread_id"] = id(Thread::get_caller_id());
++		p_row["node_copy_us_total"] = id(node_copy_us);
++		p_row["write_us_total_before_record"] = id(write_us);
++		p_row["previous_write_us"] = id(previous_write_us);
++		CharString line = (JSON::stringify(p_row, "", true, true) + "\n").utf8();
++		if (!p_terminal && (uint64_t(line.length()) > MAX_ROW_BYTES || bytes + line.length() > MAX_BYTES)) {
++			stop("byte_limit");
++			return false;
++		}
++		bool ok = file->store_buffer((const uint8_t *)line.get_data(), line.length());
++		file->flush();
++		previous_write_us = ticks() - start;
++		write_us += previous_write_us;
++		if (!ok || file->get_error() != OK) {
++			if (!p_terminal) {
++				stop("write_failed");
++			}
++			return false;
++		}
++		bytes += line.length();
++		seq++;
++		return true;
++	}
++
++	void stop(const String &p_reason) {
++		if (stopped) {
++			return;
++		}
++		stopped = true;
++		Dictionary row;
++		row["event"] = "stopped";
++		row["reason"] = p_reason;
++		row["complete"] = false;
++		row["attempted_update_seq"] = int64_t(update_seq);
++		row["last_complete_record_seq"] = int64_t(seq);
++		emit(row, true); // Reserved terminal row may exceed the normal file budget.
++		print_line("GODOT_ACCESSKIT_PUBLICATION_TRACE_STOP " + p_reason);
++		current.clear();
++		nodes.clear();
++	}
++
++	explicit PublicationProbe(const String &p_pattern) {
++		if (!p_pattern.is_absolute_path() || !p_pattern.contains("{pid}")) {
++			stop("path_requires_absolute_pid_pattern");
++			return;
++		}
++		String path = p_pattern.replace("{pid}", id(OS::get_singleton()->get_process_id()));
++		file = FileAccess::open(path, FileAccess::WRITE);
++		if (file.is_null()) {
++			stop("open_failed");
++			return;
++		}
++		Dictionary row;
++		row["event"] = "session";
++		row["source_base_commit"] = "35e80b3a8822a9df9be390814b62f44c0a9c69e8";
++		row["probe_id"] = "publication-native-v1";
++		row["engine_version"] = GODOT_VERSION_FULL_BUILD;
++		row["engine_hash"] = GODOT_VERSION_HASH;
++		row["pid"] = id(OS::get_singleton()->get_process_id());
++		row["boundary"] = "completed-node-before-transfer/factory-prepared";
++		row["tree_id"] = "root";
++		row["grafts_supported"] = false;
++		Dictionary limits;
++		limits["file_bytes"] = int64_t(MAX_BYTES);
++		limits["row_bytes"] = int64_t(MAX_ROW_BYTES);
++		limits["updates"] = int64_t(MAX_UPDATES);
++		limits["nodes_per_update"] = int64_t(MAX_NODES);
++		limits["edges_per_update"] = int64_t(MAX_EDGES);
++		limits["label_bytes_per_node"] = int64_t(MAX_LABEL_BYTES);
++		limits["label_bytes_per_update"] = int64_t(MAX_UPDATE_LABEL_BYTES);
++		row["limits"] = limits;
++		emit(row);
++	}
++
++	void window_open(DisplayServer::WindowID p_window, uint64_t p_root, void *p_handle) {
++		if (stopped) {
++			return;
++		}
++		WindowEpoch &epoch = epochs[p_window];
++		epoch.open_seq = seq + 1;
++		epoch.epoch = 0;
++		Dictionary row;
++		row["event"] = "window_open";
++		row["window_id"] = int64_t(p_window);
++		row["window_open_seq"] = int64_t(epoch.open_seq);
++		row["root_id"] = id(p_root);
++		row["native_handle"] = id((uint64_t)(uintptr_t)p_handle);
++		emit(row);
++	}
++
++	void window_close(DisplayServer::WindowID p_window) {
++		if (stopped) {
++			return;
++		}
++		if (!epochs.has(p_window) || !current.is_empty()) {
++			stop("invalid_window_close");
++			return;
++		}
++		Dictionary row;
++		row["event"] = "window_close";
++		row["window_id"] = int64_t(p_window);
++		row["window_open_seq"] = int64_t(epochs[p_window].open_seq);
++		row["epoch"] = int64_t(epochs[p_window].epoch);
++		emit(row);
++		epochs.erase(p_window);
++	}
++
++	void begin(DisplayServer::WindowID p_window, uint64_t p_root, uint64_t p_focus, bool p_initial) {
++		if (stopped) {
++			return;
++		}
++		if (!current.is_empty() || !epochs.has(p_window)) {
++			stop("nested_or_unowned_update");
++			return;
++		}
++		if (++update_seq > MAX_UPDATES) {
++			stop("update_limit");
++			return;
++		}
++		WindowEpoch &epoch = epochs[p_window];
++		if (p_initial) {
++			epoch.epoch++;
++		} else if (epoch.epoch == 0) {
++			stop("delta_without_initial");
++			return;
++		}
++		current["event"] = "update";
++		current["update_kind"] = p_initial ? "initial" : "delta";
++		current["update_seq"] = int64_t(update_seq);
++		current["window_id"] = int64_t(p_window);
++		current["window_open_seq"] = int64_t(epoch.open_seq);
++		current["epoch"] = int64_t(epoch.epoch);
++		current["root_id"] = id(p_root);
++		current["focus_id"] = id(p_focus);
++		current["capture_start_ticks_us"] = id(ticks());
++		current["capture_start_unix_us"] = id(unix_us());
++		current["capture_thread_id"] = id(Thread::get_caller_id());
++		edges = 0;
++		label_bytes = 0;
++	}
++
++	void node(uint64_t p_id, const accesskit_node *p_node) {
++		if (stopped) {
++			return;
++		}
++		uint64_t start = ticks();
++		accesskit_node_ids children = accesskit_node_children(p_node); // Borrowed; copy before transfer.
++		if (uint64_t(nodes.size()) >= MAX_NODES || uint64_t(children.length) > MAX_EDGES - edges) {
++			stop("node_or_edge_limit");
++			return;
++		}
++		char *label = accesskit_node_label(p_node); // Returned copy must be freed.
++		uint64_t length = 0;
++		if (label) {
++			while (length <= MAX_LABEL_BYTES && label[length] != '\0') {
++				length++;
++			}
++		}
++		if (length > MAX_LABEL_BYTES || label_bytes + length > MAX_UPDATE_LABEL_BYTES) {
++			if (label) {
++				accesskit_string_free(label);
++			}
++			stop("label_limit");
++			return;
++		}
++		Dictionary row;
++		row["id"] = id(p_id);
++		row["role"] = int64_t(accesskit_node_role(p_node));
++		row["hidden"] = accesskit_node_is_hidden(p_node);
++		row["label"] = label ? Variant(String::utf8(label, int(length))) : Variant();
++		if (label) {
++			accesskit_string_free(label);
++		}
++		Array child_ids;
++		child_ids.resize(int64_t(children.length));
++		for (uint64_t i = 0; i < children.length; i++) {
++			child_ids[i] = id(children.values[i]);
++		}
++		row["children"] = child_ids;
++		nodes.push_back(row);
++		edges += children.length;
++		label_bytes += length;
++		node_copy_us += ticks() - start;
++	}
++
++	void end() {
++		if (stopped) {
++			return;
++		}
++		current["capture_end_ticks_us"] = id(ticks());
++		current["capture_end_unix_us"] = id(unix_us());
++		current["complete"] = true;
++		current["nodes"] = nodes;
++		current["node_count"] = nodes.size();
++		current["edge_count"] = int64_t(edges);
++		emit(current); // Write and flush the completed batch before factory return, not adapter acceptance.
++		current.clear();
++		nodes.clear();
++	}
++
++	~PublicationProbe() {
++		if (!stopped) {
++			Dictionary row;
++			row["event"] = "session_end";
++			row["complete"] = current.is_empty();
++			row["updates"] = int64_t(update_seq);
++			row["open_windows"] = int64_t(epochs.size());
++			emit(row);
++		}
++	}
++};
++
+ 
+ _FORCE_INLINE_ accesskit_role AccessibilityDriverAccessKit::_accessibility_role(DisplayServer::AccessibilityRole p_role) const {
+ 	if (role_map.has(p_role)) {
+@@ -63,6 +313,9 @@
+ 	ae->role = ACCESSKIT_ROLE_WINDOW;
+ 	ae->window_id = p_window_id;
+ 	wd.root_id = rid_owner.make_rid(ae);
++	if (publication_probe) {
++		publication_probe->window_open(p_window_id, wd.root_id.get_id(), p_handle);
++	}
+ 
+ #ifdef WINDOWS_ENABLED
+ 	wd.adapter = accesskit_windows_subclassing_adapter_new(static_cast<HWND>(p_handle), &_accessibility_initial_tree_update_callback, (void *)(size_t)p_window_id, &_accessibility_action_callback, (void *)(size_t)p_window_id);
+@@ -102,6 +355,9 @@
+ 	accesskit_unix_adapter_free(wd->adapter);
+ #endif
+ 	accessibility_free_element(wd->root_id);
++	if (publication_probe) {
++		publication_probe->window_close(p_window_id);
++	}
+ 
+ 	windows.erase(p_window_id);
+ }
+@@ -231,7 +487,14 @@
+ 	accesskit_tree_update *tree_update = accesskit_tree_update_with_capacity_and_focus(1, win_id);
+ 
+ 	accesskit_tree_update_set_tree(tree_update, accesskit_tree_new(win_id));
++	if (singleton->publication_probe) {
++		singleton->publication_probe->begin(window_id, win_id, win_id, true);
++		singleton->publication_probe->node(win_id, win_node);
++	}
+ 	accesskit_tree_update_push_node(tree_update, win_id, win_node);
++	if (singleton->publication_probe) {
++		singleton->publication_probe->end();
++	}
+ 
+ 	print_verbose(vformat("Accessibility: window %d adapter activated.", window_id));
+ 
+@@ -661,17 +924,26 @@
+ 	}
+ 
+ 	accesskit_tree_update *tree_update = (update_size > 0) ? accesskit_tree_update_with_capacity_and_focus(update_size, ac_focus) : accesskit_tree_update_with_focus(ac_focus);
++	if (singleton->publication_probe) {
++		singleton->publication_probe->begin(window_id, wd.root_id.get_id(), ac_focus, false);
++	}
+ 	for (const RID &rid : wd.update) {
+ 		AccessibilityElement *ae = singleton->rid_owner.get_or_null(rid);
+ 		if (ae && ae->node) {
+ 			for (const RID &child_rid : ae->children) {
+ 				accesskit_node_push_child(ae->node, (accesskit_node_id)child_rid.get_id());
+ 			}
++			if (singleton->publication_probe) {
++				singleton->publication_probe->node(rid.get_id(), ae->node);
++			}
+ 			accesskit_tree_update_push_node(tree_update, (accesskit_node_id)rid.get_id(), ae->node);
+ 			ae->node = nullptr;
+ 		}
+ 	}
+ 	wd.update.clear();
++	if (singleton->publication_probe) {
++		singleton->publication_probe->end();
++	}
+ 
+ 	return tree_update;
+ }
+@@ -1802,9 +2074,18 @@
+ 	action_map[DisplayServer::AccessibilityAction::ACTION_SET_VALUE] = ACCESSKIT_ACTION_SET_VALUE;
+ 	action_map[DisplayServer::AccessibilityAction::ACTION_SHOW_CONTEXT_MENU] = ACCESSKIT_ACTION_SHOW_CONTEXT_MENU;
+ 	action_map[DisplayServer::AccessibilityAction::ACTION_CUSTOM] = ACCESSKIT_ACTION_CUSTOM_ACTION;
++#ifdef WINDOWS_ENABLED
++	String trace_path = OS::get_singleton()->get_environment("GODOT_ACCESSKIT_PUBLICATION_TRACE_PATH");
++	if (!trace_path.is_empty()) {
++		publication_probe = memnew(PublicationProbe(trace_path));
++	}
++#endif
+ }
+ 
+ AccessibilityDriverAccessKit::~AccessibilityDriverAccessKit() {
++	if (publication_probe) {
++		memdelete(publication_probe);
++	}
+ 	singleton = nullptr;
+ }
+ 
+--- a/drivers/accesskit/accessibility_driver_accesskit.h
++++ b/drivers/accesskit/accessibility_driver_accesskit.h
+@@ -51,6 +51,8 @@
+ 
+ class AccessibilityDriverAccessKit : public AccessibilityDriver {
+ 	static AccessibilityDriverAccessKit *singleton;
++	struct PublicationProbe;
++	PublicationProbe *publication_probe = nullptr;
+ 
+ 	struct AccessibilityElement {
+ 		HashMap<accesskit_action, Callable> actions;

@@ -1,0 +1,10 @@
+test_absent_or_unknown_trace_never_qualifies_a_graph (__main__.BinderIntegrationTests.test_absent_or_unknown_trace_never_qualifies_a_graph) ... ok
+test_clock_and_original_failure_boundary_require_actual_observation (__main__.BinderIntegrationTests.test_clock_and_original_failure_boundary_require_actual_observation) ... ok
+test_complete_missing_target_is_a_diagnostic_finding_not_missing_evidence (__main__.BinderIntegrationTests.test_complete_missing_target_is_a_diagnostic_finding_not_missing_evidence) ... ok
+test_connected_retained_ancestors_bind_to_current_caption_without_native_acceptance (__main__.BinderIntegrationTests.test_connected_retained_ancestors_bind_to_current_caption_without_native_acceptance) ... ok
+test_identity_and_source_swaps_refuse_cross_file_qualification (__main__.BinderIntegrationTests.test_identity_and_source_swaps_refuse_cross_file_qualification) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.917s
+
+OK

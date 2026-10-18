@@ -1,0 +1,16 @@
+{
+  "scope": "Local Python/static checks only; no Godot, PowerShell, MSVC or native execution",
+  "python_sources_parsed": 7,
+  "embedded_python_blocks_parsed": 1,
+  "yaml_parsed": true,
+  "source_hashes": {
+    "retain_evidence.py": "33c6c80bdb12363f7ef61a52e9c4c8c9eb59c2d245e349da2692cc39553c1128",
+    "prepare_package.py": "b345a42df207f33ba6ff963d6c85ad81f401c4d1e380ea50e0c1170f665c96ac",
+    "bind_trace.py": "82ed542a4e3f06d8855138cf029c5a6488fe7fc41970f3ece95e95ca34902298",
+    "tests/test_bind_trace.py": "47be4e0f4d668d03f99c098f37193bb1172c269a6d3fd604faea31c3256a388c",
+    "tests/synthetic_fixture.py": "c5d637ab88cd510d0c566ed81ed2d13471e468a474e8cae270361bb19dde76b0",
+    "replay/read_trace.py": "b4c21e1cf4c344246191be00cb435a4b55f683df2ee3d169a14496e9cc023a4b",
+    "replay/test_read_trace.py": "8aa10621e1bfd8d05142c1bffeb3df044c5abe763a0b75219d2dd251b76dc24a",
+    "controller-template.yml": "1bc1e296322cd054cb7d0432045d32a8568325a80629ac8522907f64c1d4b58f"
+  }
+}

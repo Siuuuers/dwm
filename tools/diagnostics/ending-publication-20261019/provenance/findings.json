@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-10-18 19:29:19 UTC",
+  "scope": "Read-only official metadata/source and existing archived evidence. No gameplay rerun, binary download, binary inspection, engine change, or mutation of tests/controllers.",
+  "observed_binary": {
+    "run_id": 39155624496,
+    "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+    "banner": "4.6.3.stable.official.7d41c59c4",
+    "exe": {
+      "name": "DWM.exe",
+      "bytes": 104659456,
+      "sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6"
+    },
+    "editor_zip": {
+      "name": "Godot_v4.6.3-stable_win64.exe.zip",
+      "bytes": 79844616,
+      "sha256": "e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90",
+      "godot_builds_asset_id": 425485542,
+      "mirror_asset_id": 425559552
+    },
+    "templates_tpz": {
+      "name": "Godot_v4.6.3-stable_export_templates.tpz",
+      "bytes": 1255918323,
+      "sha256": "3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8",
+      "godot_builds_asset_id": 425482597,
+      "mirror_asset_id": 425557321
+    },
+    "assertions": [
+      "Both official release inventories publish the same editor and template byte counts and SHA256 digests used by the existing controller.",
+      "Original export validation and all three original mode results bind the same exported DWM.exe hash.",
+      "This establishes recorded official-asset and local archive custody, not reproducible engine source-to-binary equivalence."
+    ]
+  },
+  "source_identity": {
+    "public_release_source_commit": "35e80b3a8822a9df9be390814b62f44c0a9c69e8",
+    "hosting_tag_commit": "4aa5b4950f650adc0aac8cb465479570b60c8122",
+    "hosting_tag_tree": "ebdda167b6aa7d3d62db25299e6691ddd1633631",
+    "release_index_blob": "d8fed792a2d884b1fe4a291c4ac80fa135821fc8",
+    "release_index_git_reference": "4.6.3-stable",
+    "exact_banner_revision_to_source_tree": "unresolved",
+    "release_immutable": false,
+    "qualifications": [
+      "The hosting repository tag is release metadata, not Godot engine source.",
+      "The release index names a tag and does not resolve the differing banner/source hashes.",
+      "The pinned engine forms the banner suffix from the first nine compile-time GODOT_VERSION_HASH characters.",
+      "The pinned tarball builder stores a resolved source revision in synthetic .git/HEAD; the released source tarball was not downloaded or inspected.",
+      "Prior failed source-identity lookups are retained without repetition in prior-engine-source-identity-note.md.",
+      "Historical build script revisions are the last public changes to these paths before asset publication, not an attestation of the exact build inputs used."
+    ]
+  },
+  "symbols": {
+    "published_windows_symbol_asset_found": false,
+    "original_exe_proven_symbol_free": false,
+    "original_pe_debug_directory_inspected": false,
+    "published_symbol_asset_platforms": [
+      "android"
+    ],
+    "historical_windows_build_commit": "039345862ec0a5476044076ca7414cb92f3b99c1",
+    "historical_windows_build_blob": "afcf18947f4d96b3db77737f87273d9f97293542",
+    "historical_release_packaging_commit": "b3289deb5d8750c06f792dc197d068829445e10b",
+    "historical_release_packaging_blob": "8d7c408436b2a7e599582cc940d7131d98067c45",
+    "pinned_sconstruct_blob": "58c895bfe51b6fc53b04d5a9b11677aa3e615f0d",
+    "configuration_inference": "Public pre-release Windows configuration selects production=yes and use_mingw=yes without native-symbol overrides for the editor, template_debug and template_release. Pinned SConstruct defaults native symbols off in production and passes -s without symbols. The expected public configuration strips Windows targets; exact tested-EXE symbol absence is not proven.",
+    "debug_template_qualification": "template_debug sets DEBUG_ENABLED game-development features, separately from native debug_symbols. A debug target name does not establish retained PDB/DWARF symbols, and its different executable cannot supply exact symbols for the tested release executable.",
+    "matching_symbol_prerequisites": [
+      "Exact original module identity and matching native debug information; PDB GUID/age if using a CodeView/PDB path, or the corresponding matching DWARF/debuglink information for MinGW.",
+      "Private AccessKit types/layout or an independently validated decoder for the relevant Rust implementation in the loaded module(s). Godot C++ symbols alone may not decode an opaque Rust adapter.",
+      "No matching Windows symbol set for the tested release executable was identified in the inspected official release inventories."
+    ]
+  },
+  "stock_reader": {
+    "supported_emitted_parent_chain_dump_identified": false,
+    "reference_source_only": true,
+    "verbose_output": "Adapter lifecycle messages, including activation, deactivation and initial-update completion; no emitted edge graph or parent chain.",
+    "cli_output": "Pinned main.cpp has accessibility mode selection and general verbose/script-debug options; no accessibility-tree dump switch was identified.",
+    "dormant_existing_failure_hook": {
+      "environment_gate": "DWM_CDB_PATH",
+      "command_arguments": [
+        "-pv",
+        "-p",
+        "<existing player PID>",
+        "-y",
+        "Microsoft symbol server",
+        "-c",
+        "!runaway; ~* kv 24; lm; q"
+      ],
+      "timeout_seconds": 55,
+      "captured": "Thread stacks and loaded modules, not a heap/tree snapshot",
+      "executed_in_this_audit": false
+    },
+    "memory_snapshot_feasibility": "No actionable supported exact-symbol graph-decoding route is established from current metadata. A later read-only snapshot could only establish capture-time state if matching symbols/schema and a coherent snapshot are available; it cannot establish the earlier natural in-budget tree update.",
+    "boundaries": [
+      "No standard binary was executed with help, debug, verbose or a tree-dump flag in this audit.",
+      "No breakpoints, injection, recompilation or symbols downloaded.",
+      "A live noninvasive read is not guaranteed to provide an atomic graph; inconsistent private pointers/edges would be inconclusive.",
+      "UIA client projection is not the private AccessKit graph and does not supply a Godot RID mapping."
+    ]
+  },
+  "journey_status": {
+    "capability": "passed in retained original run",
+    "create": "passed in retained original run",
+    "load": "failed in retained original run",
+    "original_failure": "UIA_UNAVAILABLE_OR_TIMEOUT: TEST Seven-day ending.",
+    "player_exit_code": -1,
+    "forced_cleanup": true,
+    "original_journey_accepted": false,
+    "experiment_promoted": false
+  },
+  "recommendation": "Retain stronger official-asset provenance and the unresolved exact-source qualification. Do not dispatch another stock logging or debug-template run as an emitted-parent-chain discriminator. A future original-binary private-memory plan first needs demonstrably matching symbol/schema availability and a bounded capture protocol; those prerequisites are not supplied by this audit."
+}
