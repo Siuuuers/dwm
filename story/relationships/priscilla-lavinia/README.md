@@ -9,16 +9,18 @@ The owner refines P–L to one identically presented Dark ending, with earlier
 variation affecting actual events and audience interpretation. The current
 writing target takes the available Dark options.
 
-The previous methods are endorsed for development, particularly showing that
-some tests are intentional without revealing every private motive. The owner
+The previous methods are endorsed for development. The 2026-10-19 clarification
+allows motives/tests to remain in working notes without audience proof; use
+[selective Priscilla perception](../../08-narrative-style-manual.md#42-unmarked-focal-presence)
+and offer evidence only when the encounter gives it a useful occasion. The owner
 broadens Priscilla's preference-based restraint and self-justification, and
 requests darker Lavinia testing. Jealousy over Priscilla's wider attention is a
 leading motive audition. The document violation remains real; an excuse need
 not be a fabricated event. Exact violence, disclosures, witnesses, final lines
 and the whole week remain unselected.
 
-The next scene work develops that motive/evidence target through the current
-Day 2 packet without concatenating older aftermath alternatives. Historical
+The next scene work develops the encounter and Priscilla's attention through the
+current Day 2 packet without concatenating older aftermath alternatives. Historical
 residence, admission, bar/residue and chronological-audit holds survive.
 Capture and source coverage are centralized in the checkpoint; [PR #41](https://github.com/Siuuuers/dwm/pull/41)
 provides actual publication/merge metadata.

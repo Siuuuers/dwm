@@ -291,9 +291,33 @@ event.
 
 ### 4.2 Unmarked focal presence
 
-**Owner-approved current authorization: the attended Day 6
-Priscilla–Lavinia Group presentation.** Other uses require their own scene-level
-approval; this is not a universal filter.
+**Current Priscilla application, owner clarification 2026-10-19
+(Asia/Hong_Kong):** use selective perception within Priscilla's existing
+self-talk when the encounter benefits from it. The audience may know that she
+is the perceiver; borrowing this method does not require concealing her identity
+or introducing another narrator. The foundation's sole-Priscilla viewpoint
+governs the retained historical construction below.
+
+What she notices, measures, revisits or neglects can disclose the pressure of
+her attention without explaining its cause or proving Lavinia's intention.
+Precise description is not neutral testimony. An interpretation remains
+Priscilla's, even when she is confident. Keep her lawful access and selected
+physical continuity clear to the writers.
+
+The owner's current preference is selective disclosure, not a sequence of
+proof obligations. Working notes may retain selected but unrevealed facts,
+unselected hypotheses, or deliberately unresolved causes at their actual status.
+Do not turn an audition into secret canon or privately solve a protected
+unresolved cause. Writer certainty applies to the passage's perceptual access
+and selected continuity; it is not a demand to know every motive. No note
+requires a matching audience clue, explanatory self-talk or eventual reveal.
+See [mystery fairness](#103-mystery-fairness) for scenes that actually promise
+causal reconstruction.
+
+**Retained 2026-09-06 authorization: the attended Day 6
+Priscilla–Lavinia Group presentation.** Its old cast, placement and viewpoint
+scope are superseded where the foundation says so; its particular staging
+does not transfer into the current week.
 
 The writers register Angela as the stable anchor, while the audience-facing
 text and UI never certify whose perceptual limit they occupy. Do not use
@@ -490,8 +514,10 @@ misidentification. A recurring object is not a fixed symbol; its meaning may
 change with custody, context, angle, and knowledge.
 
 A detail may be psychologically active without becoming a clue, foreshadowing
-device, metric change, or later payoff. Conversely, a conspicuous object or
-procedure designed chiefly to announce a theme should be reduced or removed.
+device, metric change, or later payoff. Its immediate value may be the amount
+of attention it receives; it need not diagnose Lavinia, invite decoding or
+return later. Conversely, a conspicuous object or procedure designed chiefly
+to announce a theme should be reduced or removed.
 
 ### 7.3 Repetition and discrepancy
 
@@ -499,7 +525,9 @@ Repetition earns its place when an exact object, phrase, action, or spatial
 relation establishes continuity the audience will need, or recurs from an
 altered position and changes the available evidence or pressure. Once the
 baseline is legible, unchanged recurrence should be compressed unless its
-rhythmic duration is itself the active pressure. Do not duplicate prose merely
+rhythmic duration is itself the active pressure. Recurrence may change the
+pressure of Priscilla's attention while the observed object stays the same;
+it need not advance a chain of evidence. Do not duplicate prose merely
 to imitate *La Jalousie*. The work may permit incompatible readings; it may not
 secretly decree one observation wrong without supplying a lawful basis for
 revision.
@@ -727,6 +755,13 @@ serve continuity while selected facts remain intentionally unrecoverable.
 Where no single answer exists, authenticated facts and the limits of each live
 account must still remain coherent rather than becoming arbitrary possibility.
 
+A relationship scene does not promise reconstruction of a private motive simply
+by withholding it. A selected motive or test may remain in working notes without
+a released clue or final certification. Selected actions, physical continuity
+and information access still cohere; notes cannot overturn authenticated
+released facts. If a private fact never affects the presented experience, its
+unavailability is not a failure by the audience to understand it.
+
 - A materially incriminating clue needs a released counter-facet that supports
   or constrains its lawful provenance.
 - When a fixed causal history exists, the complete clue constellation must fit
@@ -736,8 +771,9 @@ account must still remain coherent rather than becoming arbitrary possibility.
   genuinely unresolved steps.
 - A fallible report must be recognizable as a report or record; authenticated
   physical fact cannot later be demoted merely to save a theory.
-- Omission may preserve uncertainty, but it may not hide every necessary causal
-  step.
+- Omission may preserve uncertainty, but it may not hide every causal step
+  necessary for the understanding or reconstruction the scene actually promises.
+  This does not require disclosing every psychological cause.
 - Each route must remain physically and causally coherent on its own.
   Cross-route synthesis may add facets or change the weight of an inference;
   it cannot repair a local contradiction or supply every missing causal step.

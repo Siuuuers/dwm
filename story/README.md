@@ -9,15 +9,17 @@ Read the [scoped ending amendment](09-priscilla-foundation-amendment.md#pl-speci
 [Priscilla judgment refinement](01-core-story-bible.md#current-pl-judgment-2026-10-18),
 and [attributed development checkpoint](auditions/priscilla-seven-day-working-plot.md#current-pl-direction-and-development-checkpoint-2026-10-18).
 
-The author endorses the previous methods for development, especially bounded
-audience certainty about tests. Exact scenes and the jealousy/climax applications
+The author endorses the previous methods for development. The 2026-10-19
+refinement makes motive/test disclosure selective, with Priscilla's perceptual
+self-talk available when useful; read the [current style guidance](08-narrative-style-manual.md#42-unmarked-focal-presence).
+Exact scenes and the jealousy/climax applications
 remain AUDITIONING. The new character direction does not select an older strike
 or resolve Day 1–2, residence, bar/residue or chronology holds. P–S and the fork
 retain their scope; the older restart text cannot restore a Sweet P–L endpoint.
 
-**Capture:** the checkpoint now includes the author's later same-ending,
-preference-based-restraint and jealous-testing refinement and the assistant's
-response. [PR #41](https://github.com/Siuuuers/dwm/pull/41) is the documentation
+**Capture:** the checkpoint includes the same-ending, preference-based-restraint
+and jealous-testing refinement, followed by the 2026-10-19 clarification about
+working notes, selective disclosure and perceptual self-talk. [PR #41](https://github.com/Siuuuers/dwm/pull/41) is the documentation
 destination; its metadata determines draft/merge status.
 
 ## Current chapter development checkpoint, 2026-10-10

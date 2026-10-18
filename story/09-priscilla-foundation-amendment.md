@@ -55,8 +55,10 @@ target is the continuation that takes the available Dark options.
 This supersedes separate healing Sweet versus Dark **P–L endpoints** in the
 retained paragraphs below. Its P–S scope and the existing relationship fork
 remain. The author accepts development with sincere local tenderness and
-particularly endorses the audience method: establish some intentional tests,
-while leaving other motives and degrees of foresight uncertain. Particular
+particularly endorses the audience method, refined on 2026-10-19: private
+motives and tests need not receive audience proof. Offer a discrepancy or
+confirmation when the encounter makes it valuable; use selective Priscilla
+perception without a mandatory evidence sequence. Particular
 Sweet passages, clues, private motives and exact ending acts still need their
 own selection.
 
