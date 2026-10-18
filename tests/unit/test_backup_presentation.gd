@@ -233,3 +233,67 @@ func test_font_style_change_keeps_backup_selection_and_owner_idle() -> void:
 		assert_eq(port.preparations,0)
 		assert_eq(port.commits,0)
 		await get_tree().process_frame
+
+class TransitionPort extends FakePort:
+	var app: BackupApp
+	var detach_on_commit := true
+	var result := {"ok": false, "code": &"scene_activation_pending", "recovery_required": true}
+	func prepare_action(action: String, locator: String) -> Dictionary:
+		var prepared := super.prepare_action(action, locator)
+		prepared.value.confirmation_required = false
+		prepared.value.confirmation_kind = "none"
+		return prepared
+	func commit_action(value: String) -> Dictionary:
+		if value != token:
+			return {"ok": false, "code": &"stale"}
+		commits += 1
+		token = ""
+		if detach_on_commit:
+			app.get_parent().remove_child(app)
+		return result.duplicate(true)
+
+
+func test_pending_load_does_not_rebuild_or_focus_detached_backup_actions() -> void:
+	var app: BackupApp = load("res://scenes/apps/BackupApp.tscn").instantiate()
+	add_child_autofree(app)
+	var port := TransitionPort.new()
+	port.app = app
+	assert_true(app.configure_backup(port).ok)
+	app._set_mode("load")
+	await get_tree().process_frame
+	var action: Button = app.action_buttons.load
+	var projections := port.projections
+	action.pressed.emit()
+	assert_false(app.is_inside_tree(), "activation detached the outgoing view")
+	assert_eq(port.preparations, 1)
+	assert_eq(port.commits, 1)
+	assert_eq(port.cancellations, 0, "consumed token is not cancelled during tree exit")
+	assert_eq(app.last_result, port.result, "pending activation remains pending")
+	assert_false(app._in_operation)
+	assert_false(app._recovering, "detached view cannot offer a retry")
+	assert_eq(port.projections, projections, "outgoing view cannot query a replacement projection")
+	assert_same(app.action_buttons.load, action)
+	assert_false(action.is_queued_for_deletion(), "pressed control is not rebuilt by the failure path")
+	assert_false(app.action_buttons.has("cancel"))
+	assert_false(app.action_buttons.has("retry"))
+
+
+func test_attached_load_refusal_still_presents_recovery_actions() -> void:
+	var app: BackupApp = load("res://scenes/apps/BackupApp.tscn").instantiate()
+	add_child_autofree(app)
+	var port := TransitionPort.new()
+	port.app = app
+	port.detach_on_commit = false
+	port.result = {"ok": false, "code": &"write_refused"}
+	assert_true(app.configure_backup(port).ok)
+	app._set_mode("load")
+	await get_tree().process_frame
+	app.action_buttons.load.pressed.emit()
+	assert_true(app.is_inside_tree())
+	assert_eq(port.commits, 1)
+	assert_eq(app.last_result, port.result)
+	assert_true(app._recovering)
+	assert_true(app.action_buttons.has("cancel"))
+	assert_true(app.action_buttons.has("retry"))
+	assert_false(app.action_buttons.retry.disabled)
+	assert_true(app.action_buttons.cancel.has_focus())

@@ -619,6 +619,10 @@ func _commit_pending() -> void:
 	var result: Dictionary = await _port.commit_action(token)
 	_in_operation = false
 	last_result = result.duplicate(true)
+	# Scene activation can return a pending failure after detaching this view.
+	# Neither successful nor failed results may rebuild or focus outgoing controls.
+	if is_queued_for_deletion() or not is_inside_tree():
+		return
 	if not result.get("ok", false):
 		if _pending_presentation and is_inside_tree():
 			_refresh_appearance()
@@ -626,9 +630,6 @@ func _commit_pending() -> void:
 		return
 	_recovering = false
 	_status_key = "saved" if _source_action == "save" else ""
-	# SceneTree removes the outgoing scene immediately and frees it later.
-	if is_queued_for_deletion() or not is_inside_tree():
-		return
 	refresh_view()
 	if _pending_presentation:
 		_refresh_appearance()
