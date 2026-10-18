@@ -70,6 +70,7 @@ $child = $null
 $stdoutRead = $null
 $stderrRead = $null
 $window = $null
+$dataRoot = $null
 $clock = [Diagnostics.Stopwatch]::StartNew()
 $events = [Collections.Generic.List[object]]::new()
 $result = [ordered]@{
@@ -309,6 +310,43 @@ function Save-Slot([int]$Number) {
     Invoke-UI (Button 'Back') 'close direct Backup host'
     return $document
 }
+
+function Capture-FailureSaves {
+    # Read-only live observations, not an atomic checkpoint or acceptance evidence.
+    # Capture before UIA: a provider call may block until the process watchdog fires.
+    if ([string]::IsNullOrWhiteSpace($dataRoot)) { return }
+    $observations = @()
+    foreach ($relative in @('profile.json', 'saves/slot_1.json', 'saves/slot_2.json', 'saves/autosave.json')) {
+        $entry = [ordered]@{ source = $relative; utc = [DateTime]::UtcNow.ToString('o'); status = 'missing' }
+        $stream = $null
+        try {
+            $source = Join-Path $dataRoot $relative
+            if (Test-Path -LiteralPath $source -PathType Leaf) {
+                $stream = [IO.File]::Open($source, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::ReadWrite)
+                Require ($stream.Length -le 16MB) 'FAILURE_SAVE_CAPTURE_SIZE_LIMIT'
+                $bytes = [byte[]]::new([int]$stream.Length)
+                $offset = 0
+                while ($offset -lt $bytes.Length) {
+                    $count = $stream.Read($bytes, $offset, $bytes.Length - $offset)
+                    Require ($count -gt 0) 'FAILURE_SAVE_CHANGED_DURING_READ'
+                    $offset += $count
+                }
+                Require ($stream.ReadByte() -eq -1) 'FAILURE_SAVE_GREW_DURING_READ'
+                $name = 'failure-' + ($relative -replace '/', '-')
+                $destination = Join-Path $output $name
+                [IO.File]::WriteAllBytes($destination, $bytes)
+                $entry.status = 'copied'
+                $entry.file = $name
+                $entry.bytes = $bytes.Length
+                $entry.sha256 = Hash $destination
+            }
+        } catch { $entry.status = 'error'; $entry.error = $_.Exception.Message }
+        finally { if ($null -ne $stream) { $stream.Dispose() } }
+        $observations += $entry
+    }
+    Write-Json (Join-Path $output 'failure-save-observations.json') $observations
+}
+
 function Snapshot($Document) {
     Require ($Document.Contains('current_snapshot') -and $Document.current_snapshot.Contains('snapshot')) 'SAVE_ENVELOPE_UNEXPECTED'
     return $Document.current_snapshot.snapshot
@@ -541,6 +579,7 @@ try {
     $result.ok = $true
 } catch {
     $result.failure = $_.Exception.Message
+    try { Capture-FailureSaves } catch { $result.save_capture_failure = $_.Exception.Message }
     try { if ($null -ne $child -and -not $child.HasExited) { Capture 'failure' } } catch { $result.capture_failure = $_.Exception.Message }
     throw
 } finally {
