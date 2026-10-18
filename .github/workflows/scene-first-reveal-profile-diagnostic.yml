@@ -1,4 +1,4 @@
-name: Canonical public inventory refresh
+name: Private Gallery rehearsal integration
 on:
   pull_request:
     paths:
@@ -12,7 +12,7 @@ concurrency:
 jobs:
   authority-audit:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
-    name: Windows / Canonical public inventory refresh
+    name: Windows / Private Gallery rehearsal integration
     runs-on: windows-2022
     timeout-minutes: 20
     defaults:
@@ -23,7 +23,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 7097bd3bcaca3f2d522fd5e8a0ca9319c2843820
+          ref: 8ecac286bcb2c5396c71009d80d5ec34e267c2d3
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -31,9 +31,9 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '7097bd3bcaca3f2d522fd5e8a0ca9319c2843820') { throw 'Candidate mismatch' }
+          if ((git rev-parse HEAD) -cne '8ecac286bcb2c5396c71009d80d5ec34e267c2d3') { throw 'Candidate mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='7097bd3bcaca3f2d522fd5e8a0ca9319c2843820'; tree='7a73b324b70671dca7eafd8df273deb0615d3d50'; controller='${{ github.event.pull_request.head.sha }}'; base='7097bd3bcaca3f2d522fd5e8a0ca9319c2843820'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{candidate='8ecac286bcb2c5396c71009d80d5ec34e267c2d3'; tree='7c0546cc9c4dc0416ac63773820d2811eb4da85c'; controller='${{ github.event.pull_request.head.sha }}'; base='8ecac286bcb2c5396c71009d80d5ec34e267c2d3'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -81,6 +81,12 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Qualify private rehearsal owner and mounted host
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/unit/test_dating_rehearsal_owner.gd,res://tests/unit/test_gallery_rehearsal_host.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/rehearsal.xml')
+          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'rehearsal' -LogName 'rehearsal.log' -GodotArgs $arguments -EvidenceLogPath '.godot/ci/rehearsal.jsonl' -TimeoutSeconds 600
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Regenerate canonical inventories and check reproducibility
         run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
       - name: Verify inventory drift and read-only contracts
@@ -107,8 +113,16 @@ jobs:
               for line in p.read_text(encoding='utf-8-sig').splitlines():
                   if line.strip():
                       item=json.loads(line); assert item['exit_code']==0,item; exits.append(item)
-          assert len(exits)==5,len(exits)
+          assert len(exits)==6,len(exits)
           report={'source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'tests':len(rows),'assertions':sum(int(r.attrib['assertions']) for r in rows),'clean_exits':len(exits),'changed':sorted(changed)}
+          scripts=['tests/unit/test_dating_rehearsal_owner.gd','tests/unit/test_gallery_rehearsal_host.gd']
+          expected_rehearsal=[(s,n) for s in scripts for n in re.findall(r'^func (test_\w+)\(',pathlib.Path(s).read_text(encoding='utf-8'),re.M)]
+          assert collections.Counter(s for s,n in expected_rehearsal)==collections.Counter({scripts[0]:7,scripts[1]:4})
+          rr=ET.parse(out/'rehearsal.xml').getroot(); cases=list(rr.iter('testcase'))
+          assert collections.Counter((r.attrib['classname'],r.attrib['name']) for r in cases)==collections.Counter(expected_rehearsal)
+          assert not any(list(rr.iter(t)) for t in ['failure','error','skipped'])
+          assert all(r.attrib.get('status')=='pass' and int(r.attrib.get('assertions','0'))>0 for r in cases)
+          report['rehearsal_tests']=len(cases);report['rehearsal_assertions']=sum(int(r.attrib['assertions']) for r in cases)
           (out/'gate.json').write_text(json.dumps(report,indent=2));print(json.dumps(report))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -118,7 +132,7 @@ jobs:
           @'
           import base64,hashlib,io,json,pathlib,subprocess,zipfile
           out=pathlib.Path('.godot/ci')
-          for source in ["tools/runtime/PublicSurfaceInventory.gd","tools/runtime/generate_public_surface_inventory.gd","tools/testing/Invoke-PublicSurfaceValidation.ps1","tests/unit/tooling/test_public_surface_inventory.gd","evidence/phase_2r/runtime/game_state_required_surface.json","evidence/phase_2r/runtime/save_manager_required_surface.json","evidence/phase_2r/runtime/game_state_surface.json","evidence/phase_2r/runtime/save_manager_surface.json"]:
+          for source in ["scripts/application/run/DatingRehearsalOwner.gd","tests/unit/test_dating_rehearsal_owner.gd","tests/unit/test_gallery_rehearsal_host.gd","data/manifests/dialogic_entries.json","tools/runtime/PublicSurfaceInventory.gd","tools/runtime/generate_public_surface_inventory.gd","tools/testing/Invoke-PublicSurfaceValidation.ps1","tests/unit/tooling/test_public_surface_inventory.gd","evidence/phase_2r/runtime/game_state_required_surface.json","evidence/phase_2r/runtime/save_manager_required_surface.json","evidence/phase_2r/runtime/game_state_surface.json","evidence/phase_2r/runtime/save_manager_surface.json"]:
               p=out/'source'/source;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(pathlib.Path(source).read_bytes())
           (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
           files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))
