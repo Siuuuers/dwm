@@ -120,8 +120,17 @@ function Nodes($Root) {
 }
 function Visible($Element) {
     $c = $Element.Current
-    return (-not $c.IsOffscreen -and -not $c.BoundingRectangle.IsEmpty -and
-        $c.BoundingRectangle.Width -gt 1 -and $c.BoundingRectangle.Height -gt 1)
+    $bounds = $c.BoundingRectangle
+    # Scene replacement can invalidate an enumerated provider before its bounds read.
+    # It is not an actionable target; bounded discovery must obtain fresh controls.
+    if ($bounds -isnot [Windows.Rect]) {
+        Record 'uia-unavailable-bounds' @{ name = $c.Name; type = $(if ($null -eq $bounds) { 'null' } else { $bounds.GetType().FullName }) }
+        return $false
+    }
+    return (-not $c.IsOffscreen -and -not $bounds.IsEmpty -and
+        [double]::IsFinite($bounds.X) -and [double]::IsFinite($bounds.Y) -and
+        [double]::IsFinite($bounds.Width) -and [double]::IsFinite($bounds.Height) -and
+        $bounds.Width -gt 1 -and $bounds.Height -gt 1)
 }
 function Actions($Root, [string]$Name) {
     return @(Nodes $Root | Where-Object {
