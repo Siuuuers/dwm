@@ -1,4 +1,4 @@
-name: Private Gallery rehearsal integration
+name: Exported gameplay capability
 on:
   pull_request:
     paths:
@@ -12,9 +12,9 @@ concurrency:
 jobs:
   authority-audit:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
-    name: Windows / Private Gallery rehearsal integration
+    name: Windows / Exported gameplay capability
     runs-on: windows-2022
-    timeout-minutes: 20
+    timeout-minutes: 30
     defaults:
       run:
         shell: pwsh
@@ -23,7 +23,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 8ecac286bcb2c5396c71009d80d5ec34e267c2d3
+          ref: c97ba59ff08644b3aeca82ab567dc39d623327eb
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -31,9 +31,9 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '8ecac286bcb2c5396c71009d80d5ec34e267c2d3') { throw 'Candidate mismatch' }
+          if ((git rev-parse HEAD) -cne 'c97ba59ff08644b3aeca82ab567dc39d623327eb') { throw 'Candidate mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='8ecac286bcb2c5396c71009d80d5ec34e267c2d3'; tree='7c0546cc9c4dc0416ac63773820d2811eb4da85c'; controller='${{ github.event.pull_request.head.sha }}'; base='8ecac286bcb2c5396c71009d80d5ec34e267c2d3'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{candidate='c97ba59ff08644b3aeca82ab567dc39d623327eb'; tree='c5bd38fde14896c0708269101abde24d8b8fe20f'; controller='${{ github.event.pull_request.head.sha }}'; base='c97ba59ff08644b3aeca82ab567dc39d623327eb'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -44,6 +44,13 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           git submodule foreach --recursive 'true'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Parse external driver without execution
+        run: |
+          $tokens = $null
+          $errors = $null
+          $null = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $env:GITHUB_WORKSPACE 'tools/testing/Invoke-ExportedGameplay.ps1'), [ref]$tokens, [ref]$errors)
+          @($errors | ForEach-Object { @{ message=$_.Message; line=$_.Extent.StartLineNumber; text=$_.Extent.Text } }) | ConvertTo-Json -AsArray | Set-Content '.godot/ci/driver-parse.json'
+          if ($errors.Count -ne 0) { $errors | Format-List; throw 'Driver parse failed' }
       - name: Install Godot 4.6.3 standard
         run: |
           $ErrorActionPreference = 'Stop'
@@ -81,68 +88,73 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Qualify private rehearsal owner and mounted host
+      - name: Cache pinned export templates
+        id: export-templates-cache
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
+          key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
+      - name: Download verified Godot export templates
+        timeout-minutes: 10
         run: |
           $ErrorActionPreference = 'Stop'
-          $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/unit/test_dating_rehearsal_owner.gd,res://tests/unit/test_gallery_rehearsal_host.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/rehearsal.xml')
-          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'rehearsal' -LogName 'rehearsal.log' -GodotArgs $arguments -EvidenceLogPath '.godot/ci/rehearsal.jsonl' -TimeoutSeconds 600
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Regenerate canonical inventories and check reproducibility
-        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
-      - name: Verify inventory drift and read-only contracts
-        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite public_surfaces
-      - name: Verify bounded source changes and exact census
+          $folder = Join-Path $env:RUNNER_TEMP 'dwm-godot-templates'
+          New-Item -ItemType Directory -Force -Path $folder | Out-Null
+          $archive = Join-Path $folder 'Godot_v4.6.3-stable_export_templates.tpz'
+          if (-not (Test-Path -LiteralPath $archive)) {
+            Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_export_templates.tpz' -OutFile $archive
+          }
+          $expected = '3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8'
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
+            throw 'Godot export templates checksum mismatch.'
+          }
+          "GODOT_EXPORT_TEMPLATES_ARCHIVE=$archive" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Retain verified export templates for subsequent runs
+        if: steps.export-templates-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
+          key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
+      - name: Export and launch isolated Windows executable
+        timeout-minutes: 12
+        run: ./tools/testing/Invoke-WindowsExportValidation.ps1
+      - name: Probe ordinary exported Windows UI capability
+        timeout-minutes: 10
         run: |
           $ErrorActionPreference = 'Stop'
-          @'
-          import collections,json,pathlib,re,subprocess,xml.etree.ElementTree as ET
-          out=pathlib.Path('.godot/ci')
-          script='tests/unit/tooling/test_public_surface_inventory.gd'
-          expected=re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(encoding='utf-8'),re.M)
-          root=ET.parse(out/'public_surfaces.xml').getroot(); rows=list(root.iter('testcase'))
-          assert collections.Counter((r.attrib['classname'],r.attrib['name']) for r in rows)==collections.Counter((script,n) for n in expected)
-          assert not any(list(root.iter(t)) for t in ['failure','error','skipped'])
-          assert all(r.attrib.get('status')=='pass' and int(r.attrib.get('assertions','0'))>0 for r in rows)
-          allowed={'.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1','evidence/phase_2r/runtime/game_state_surface.json','evidence/phase_2r/runtime/save_manager_surface.json'}
-          changed=set(subprocess.check_output(['git','diff','HEAD','--name-only'],text=True).splitlines())
-          assert not changed-allowed,changed
-          for p in pathlib.Path('.godot/phase2r_logs').glob('*.log'):
-              assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',p.read_text(encoding='utf-8-sig')),str(p)
-          exits=[]
-          for p in out.rglob('*.jsonl'):
-              for line in p.read_text(encoding='utf-8-sig').splitlines():
-                  if line.strip():
-                      item=json.loads(line); assert item['exit_code']==0,item; exits.append(item)
-          assert len(exits)==6,len(exits)
-          report={'source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'tests':len(rows),'assertions':sum(int(r.attrib['assertions']) for r in rows),'clean_exits':len(exits),'changed':sorted(changed)}
-          scripts=['tests/unit/test_dating_rehearsal_owner.gd','tests/unit/test_gallery_rehearsal_host.gd']
-          expected_rehearsal=[(s,n) for s in scripts for n in re.findall(r'^func (test_\w+)\(',pathlib.Path(s).read_text(encoding='utf-8'),re.M)]
-          assert collections.Counter(s for s,n in expected_rehearsal)==collections.Counter({scripts[0]:7,scripts[1]:4})
-          rr=ET.parse(out/'rehearsal.xml').getroot(); cases=list(rr.iter('testcase'))
-          assert collections.Counter((r.attrib['classname'],r.attrib['name']) for r in cases)==collections.Counter(expected_rehearsal)
-          assert not any(list(rr.iter(t)) for t in ['failure','error','skipped'])
-          assert all(r.attrib.get('status')=='pass' and int(r.attrib.get('assertions','0'))>0 for r in cases)
-          report['rehearsal_tests']=len(cases);report['rehearsal_assertions']=sum(int(r.attrib['assertions']) for r in cases)
-          (out/'gate.json').write_text(json.dumps(report,indent=2));print(json.dumps(report))
-          '@ | python -
+          $export = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export'
+          $receipt = Get-Content (Join-Path $export 'validation.json') -Raw | ConvertFrom-Json
+          if (-not $receipt.ok -or $receipt.commit -cne 'c97ba59ff08644b3aeca82ab567dc39d623327eb') { throw 'Export receipt mismatch' }
+          & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Capability -ArchivePath (Join-Path $export $receipt.archive.file) -ExpectedArchiveSha256 $receipt.archive.sha256 -ExpectedCommit 'c97ba59ff08644b3aeca82ab567dc39d623327eb' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-capability-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-capability')
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Retain original bounded evidence
+          $result = Get-Content '.godot/ci/exported-capability/result.json' -Raw | ConvertFrom-Json
+          if (-not $result.ok -or -not $result.clean_player_exit -or $result.forced_cleanup) { throw 'Capability not successful' }
+      - name: Retain exact validation package
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exported-capability-package-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .godot/ci/windows-export/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Retain original bounded capability evidence
         if: always()
         run: |
           @'
           import base64,hashlib,io,json,pathlib,subprocess,zipfile
           out=pathlib.Path('.godot/ci')
-          for source in ["scripts/application/run/DatingRehearsalOwner.gd","tests/unit/test_dating_rehearsal_owner.gd","tests/unit/test_gallery_rehearsal_host.gd","data/manifests/dialogic_entries.json","tools/runtime/PublicSurfaceInventory.gd","tools/runtime/generate_public_surface_inventory.gd","tools/testing/Invoke-PublicSurfaceValidation.ps1","tests/unit/tooling/test_public_surface_inventory.gd","evidence/phase_2r/runtime/game_state_required_surface.json","evidence/phase_2r/runtime/save_manager_required_surface.json","evidence/phase_2r/runtime/game_state_surface.json","evidence/phase_2r/runtime/save_manager_surface.json"]:
+          for source in ['tools/testing/Invoke-ExportedGameplay.ps1','tools/testing/Invoke-WindowsExportValidation.ps1','project.godot','export_presets.cfg']:
               p=out/'source'/source;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(pathlib.Path(source).read_bytes())
           (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
-          files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))
+          files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts and 'package' not in p.parts and p.suffix!='.zip']
           manifest={p.relative_to('.godot').as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in files}
           retained=out/'retained-hashes.json';retained.write_text(json.dumps(manifest,indent=2));files.append(retained)
           payload=io.BytesIO()
           with zipfile.ZipFile(payload,'w',zipfile.ZIP_DEFLATED) as z:
               for p in files:z.write(p,p.relative_to('.godot').as_posix())
           data=payload.getvalue()
-          if len(data)>8*1024*1024:raise RuntimeError('Bounded evidence too large')
+          if len(data)>16*1024*1024:raise RuntimeError('Bounded evidence too large')
           print('DWM_EVIDENCE_BEGIN '+json.dumps({'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}))
           encoded=base64.b64encode(data).decode()
           for i in range(0,len(encoded),4096):print('DWM_EVIDENCE_CHUNK '+encoded[i:i+4096])
