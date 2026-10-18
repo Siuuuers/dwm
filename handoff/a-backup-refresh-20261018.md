@@ -332,3 +332,14 @@ These sequential post-deadline observations establish later recovery and agreeme
 Audit receipt authentication at RunSnapshotSchema, GameState semantic validation and FrozenRunContext for exact input/authority equivalence, including the scene-creation owner versus actual SaveManager. Only consider sharing authenticated work within a single validation call after proving refusal ordering, detached-input guarantees and all independent caller obligations. Do not remove checks merely because their names repeat. Correlate Day6→Day7 checkpoint work with the original polling deadline. No new cache/manager, timeout expansion or guessed UI correction follows from this run.
 
 Preserve both durable checkpoints and save/recovery/history contracts. Product remains draft/unmerged; master and integration unchanged. Ending/Gallery/normal exit and queued fixture work remain open.
+
+
+## Receipt-equivalence audit completed — 18 October 2026 UTC
+
+Followed Director6252085070; independent read-only source review agrees. [Detailed authority/refusal audit](a-receipt-equivalence-audit-20261018.md) maps Run, GameState and Frozen input copies, separate owner bindings, committed-creation proof reads and terminal-path obligations.
+
+Decision: retain all three ordinary authentication calls. Production wiring aligns them, but API contracts do not guarantee identical owners or stable owner state; a caller-provided validated ledger/Boolean would not preserve the proof boundary. No runtime candidate or new test run was produced, and no performance gain is claimed.
+
+Next A measurement: split the existing SceneEventContract receipt owner into bundle/shape, committed initial admission, other admissions, event reconstruction/authentication and final chain passes. Time SaveManager creation capture within initial-admission work if needed; do not double-count it. This seeks a smaller internal optimization while preserving the public validation boundaries. Repeated pure bundle reconstruction is a source-level hypothesis, not yet a measured cause.
+
+Keep the existing post-failure hierarchy discriminator for the next run that reaches ending. Latest exported result still fails at Day7. Ending/Gallery/normal exit, B's scoped fixtures and relevant integration qualification remain open. Product is draft/unmerged; no master/integration change.
