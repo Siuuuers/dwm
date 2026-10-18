@@ -201,6 +201,8 @@ func test_scene_profile_preserves_success_refusal_bytes_and_detachment() -> void
 		if measured.ok:
 			assert_true(enabled.has("history_run9_semantic_owner_us"))
 			assert_true(enabled.has("history_semantic_reading_anchors_us"))
+			assert_true(enabled.has("history_receipt_prelude_us"))
+			assert_eq(enabled.get("history_receipt_calls"), enabled.get("history_receipt_completed"))
 			assert_eq(_scene_canonical(measured.value.candidate), _scene_canonical(plain.value.candidate))
 			measured.value.candidate.recovery_journal[0].snapshot.gameplay.coins += 1
 		assert_eq(_scene_canonical(document), before)
@@ -215,3 +217,21 @@ func test_scene_profile_preserves_success_refusal_bytes_and_detachment() -> void
 	var cold_profile := {"diagnostic": true}
 	assert_eq(SAVE.validate(valid, cold_profile), SAVE.validate(valid))
 	assert_true(cold_profile.has("outgoing_schema_scene_journal_us"))
+
+	# Public receipt refusal order and detached results remain identical with timing.
+	for receipt_mode: String in ["valid", "wrong_issuer", "bad_bundle", "bad_receipt"]:
+		var receipts: Dictionary = fixture.snapshot.command_receipts.duplicate(true)
+		var bundle: Dictionary = fixture.bundle.duplicate(true)
+		var issuer: Object = fixture.issuer if receipt_mode != "wrong_issuer" else null
+		if receipt_mode == "bad_bundle": bundle.clear()
+		if receipt_mode == "bad_receipt": receipts["invalid"] = {"transaction_id": "different"}
+		var before_receipts := _scene_canonical(receipts)
+		var before_bundle := _scene_canonical(bundle)
+		var receipt_profile := {"diagnostic": true}
+		var plain_receipts: Dictionary = CONTRACT.validate_scene_receipts(receipts, bundle, issuer, null, fixture.snapshot.contacts)
+		var timed_receipts: Dictionary = CONTRACT.validate_scene_receipts(receipts, bundle, issuer, null, fixture.snapshot.contacts, receipt_profile)
+		assert_eq(timed_receipts, plain_receipts, receipt_mode)
+		assert_eq(timed_receipts.get("ok"), receipt_mode == "valid", receipt_mode)
+		assert_eq(receipt_profile.get("history_receipt_calls"), 1)
+		assert_eq(_scene_canonical(receipts), before_receipts)
+		assert_eq(_scene_canonical(bundle), before_bundle)

@@ -854,7 +854,7 @@ static func validate_scene(snapshot: Dictionary, bundle: Dictionary, profile: Di
 	var receipts_error := _validate_scene_receipt_shapes(candidate)
 	if not receipts_error.is_empty(): return _fail(&"invalid_command_receipts", receipts_error)
 	profile_tick = _scene_profile_phase(profile, "history_run9_desktop_receipt_shape_us", profile_tick)
-	var scene_receipts: Dictionary = SCENE_EVENT_CONTRACT.validate_scene_receipts(candidate.command_receipts, bundle, _scene_issuer, _scene_creation_owner, candidate.contacts)
+	var scene_receipts: Dictionary = SCENE_EVENT_CONTRACT.validate_scene_receipts(candidate.command_receipts, bundle, _scene_issuer, _scene_creation_owner, candidate.contacts, profile)
 	if not scene_receipts.ok: return scene_receipts
 	profile_tick = _scene_profile_phase(profile, "history_run9_receipt_contract_us", profile_tick)
 	var audio := _validate_scene_audio(candidate, bundle)

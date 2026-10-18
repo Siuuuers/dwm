@@ -584,7 +584,9 @@ static func _checkpoint(value: Variant) -> bool:
 ## Full scene command ledger admission. The Run owner separately checks the applied
 ## effect/variable partitions, physical Profile proofs and anchors against the actual ledger.
 static func validate_scene_receipts(receipts: Dictionary, bundle: Dictionary, issuer: Object,
-		creation_owner: Object = null, contacts: Dictionary = {}) -> Dictionary:
+		creation_owner: Object = null, contacts: Dictionary = {}, profile: Dictionary = {}) -> Dictionary:
+	var profile_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
+	_receipt_profile_count(profile, "history_receipt_calls")
 	if not _json_data(receipts): return _fail(&"scene_receipt_invalid")
 	if issuer == null or issuer.get_script() != SCENE_RECEIPT_ISSUER:
 		return _fail(&"scene_receipt_issuer_unbound")
@@ -595,24 +597,32 @@ static func validate_scene_receipts(receipts: Dictionary, bundle: Dictionary, is
 	var admissions := {}
 	var admission_receipts := {}
 	var resolved_thoughts := {}
+	profile_tick = _receipt_profile_phase(profile, "history_receipt_prelude_us", profile_tick)
 	for command: Variant in receipts:
 		var receipt: Variant = receipts[command]
 		if not _id(command) or not receipt is Dictionary or receipt.get("transaction_id") != command:
 			return _fail(&"scene_receipt_identity_invalid")
+		profile_tick = _receipt_profile_phase(profile, "history_receipt_identity_dispatch_us", profile_tick)
 		if receipt.get("kind") in ["effect_transaction", "variable_transaction"]:
 			if not _keys(receipt, ["kind", "request_fingerprint", "source_id", "transaction_id"]) \
 					or not _hash(receipt.request_fingerprint) or not _id(receipt.source_id):
 				return _fail(&"scene_receipt_invalid")
+			_receipt_profile_count(profile, "history_receipt_effect_variable_count")
+			profile_tick = _receipt_profile_phase(profile, "history_receipt_effect_variable_us", profile_tick)
 			continue
 		if receipt.get("kind") == "scene_admission":
 			var admitted: Dictionary
+			var admission_phase := "history_receipt_other_admission_us"
 			if receipt.get("scene_admission") is Dictionary and receipt.scene_admission.get("schema_version") == 3:
-				admitted = _validate_committed_initial_admission(receipt, bundle, issuer, creation_owner)
+				admission_phase = "history_receipt_initial_admission_us"
+				admitted = _validate_committed_initial_admission(receipt, bundle, issuer, creation_owner, profile)
 			else:
 				admitted = _validate_scene_admission_receipt(receipt, bundle, issuer)
 			if not admitted.ok: return admitted
 			admissions[command] = receipt.scene_admission.result.duplicate(true)
 			admission_receipts[command] = receipt.duplicate(true)
+			_receipt_profile_count(profile, "history_receipt_initial_admission_count" if admission_phase == "history_receipt_initial_admission_us" else "history_receipt_other_admission_count")
+			profile_tick = _receipt_profile_phase(profile, admission_phase, profile_tick)
 			continue
 		if receipt.get("kind") != "scene_event" or not _keys(receipt, RECEIPT_KEYS):
 			return _fail(&"scene_receipt_kind_invalid")
@@ -648,6 +658,8 @@ static func validate_scene_receipts(receipts: Dictionary, bundle: Dictionary, is
 				if not _equal(prior_anchor[field], saved.reading_anchor[field]): return _fail(&"event_anchor_changed")
 		group.receipts.append(receipt.duplicate(true))
 		commands[command] = receipt.duplicate(true)
+		_receipt_profile_count(profile, "history_receipt_event_count")
+		profile_tick = _receipt_profile_phase(profile, "history_receipt_event_auth_group_us", profile_tick)
 	for group: Dictionary in occurrences.values():
 		var occurrence: String = group.source.scene_occurrence
 		if not admissions.has(occurrence): return _fail(&"scene_admission_missing")
@@ -769,8 +781,22 @@ static func validate_scene_receipts(receipts: Dictionary, bundle: Dictionary, is
 				return _fail(&"scene_contact_exit_refused")
 	for receipt: Dictionary in admission_receipts.values():
 		if not roots.has(receipt.scene_admission.source_identity.run_id): return _fail(&"scene_admission_root_missing")
+	_receipt_profile_count(profile, "history_receipt_completed")
+	_receipt_profile_phase(profile, "history_receipt_final_chain_joins_us", profile_tick)
 	return {"ok": true, "value": {"admissions": admissions, "admission_receipts": admission_receipts,
 		"occurrences": occurrences, "commands": commands}}
+
+## Caller-owned diagnostics only. Completed phase intervals are disjoint;
+## initial_capture_us is nested inside initial_admission_us. Refusals retain
+## partial completed-work timings and never change their existing result.
+static func _receipt_profile_phase(profile: Dictionary, phase: String, started_us: int) -> int:
+	if profile.is_empty(): return 0
+	var now := Time.get_ticks_usec()
+	profile[phase] = int(profile.get(phase, 0)) + now - started_us
+	return now
+
+static func _receipt_profile_count(profile: Dictionary, counter: String) -> void:
+	if not profile.is_empty(): profile[counter] = int(profile.get(counter, 0)) + 1
 
 ## A scene admission has its own issued command root; it is not a fabricated DTL
 ## marker. The existing child derivation authenticates the complete request.
@@ -950,11 +976,13 @@ static func _validate_initial_materials(candidate: Dictionary, profile: Dictiona
 
 
 static func _validate_committed_initial_admission(receipt: Dictionary, bundle: Dictionary,
-		issuer: Object, creation_owner: Object) -> Dictionary:
+		issuer: Object, creation_owner: Object, profile: Dictionary = {}) -> Dictionary:
 	# Caller-supplied dictionaries/callbacks cannot assert durable creation authority.
 	if creation_owner == null or creation_owner.get_script() != load("res://autoload/SaveManager.gd"):
 		return _fail(&"scene_creation_owner_unbound")
+	var capture_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
 	var captured: Dictionary = creation_owner.call(&"capture_committed_scene_creation", receipt.transaction_id)
+	_receipt_profile_phase(profile, "history_receipt_initial_capture_us", capture_tick)
 	if not captured.get("ok", false): return captured
 	var proof: Variant = captured.get("value")
 	if not proof is Dictionary or not proof.get("allocation_candidate") is Dictionary \
