@@ -1,5 +1,168 @@
 # Priscilla: current seven-day working plot and discussion checkpoint
 
+## Current P–L direction and development checkpoint, 2026-10-18
+
+**Scope:** the two substantive exchanges visible in this story discussion,
+including the owner's single-ending clarification and the assistant's response
+to the requested independent recommendations. **Baseline inspected:**
+`0c8b2384415d71bd3de4ff7408640bbf60b63740`. This checkpoint preserves direction and
+development; the scene/motive proposals below remain **AUDITIONING**.
+
+### Owner directions and unresolved choices
+
+The owner now confirms **one P–L ending**, with only small differences from local
+self-talk/Challenge choices, and asks to consider the **all-Dark-options
+continuation first**. The exact quote is: “there is only one P-L ending” and “We
+are now only consider the all dark options.” This is a P–L endpoint change, not
+removal of Sylvia or selection of every act in a darker route. The scoped
+[foundation amendment](../09-priscilla-foundation-amendment.md#pl-specific-ending-amendment-2026-10-18)
+and [behavior correction](../../docs/design/2026-10-09-priscilla-flow-behavior-amendment.md#pl-ending-scope-correction-2026-10-18)
+own that change.
+
+The owner asks whether to retain Sweet choices, make their sweetness conceal
+darkness, or use different Dark possibilities. No answer is selected by the
+question. Existing local result meanings remain until explicitly amended.
+
+The opening direction foregrounds Lavinia's revenge/testing and Priscilla's
+return-driven, compliant but possessive pursuit. It explicitly calls the
+pre-England disclosure occasion a Lavinia test. What Lavinia intended to elicit,
+what she anticipated, and what remained unauthorized are still unresolved. The
+broader wording that Priscilla never considers anything she does wrong is also
+open as a potential expansion of the existing intervention-specific judgment.
+The owner requested the assistant's own view on questions 2–7 before offering
+further decisions; the recommendations below are not inferred approval.
+
+### Assistant recommendation: real tenderness within one dark trajectory
+
+Retain some sincerely tender local actions while developing the all-Dark
+continuation first. Felt affection, actual conduct, and the ending's material
+consequence are different questions. A kindness need not secretly be a trap;
+another harmful act must be shown and attributed in its own right. Keeping a
+particular confidence or respecting a particular departure does not rewrite the
+women's entire outlook.
+
+The proposed common trajectory is that Priscilla increasingly treats accurate
+care as authority to decide, while Lavinia treats a stronger reaction as proof of
+importance. The shared scenes must actually earn the eventual outcome in each
+reachable version. Do not offer a complete history of respectful, repaired
+conduct and append an unrelated catastrophe. Do not overwrite an accepted local
+choice merely to achieve convergence.
+
+Different Dark auditions can spend different interests: another person's
+privacy through exposure; Priscilla's outside life through an excessive
+sacrifice subsequently treated as an expectation; or both women's independent
+accounts through maintained deception. These are scene-design alternatives,
+not three new controls or replacements for Minesweeper states. Preserve humor,
+wanted company and ordinary competence inside the current Dark path.
+
+### Assistant climax audition: costly admission and further disclosure
+
+**UNSELECTED:** build toward a bounded public or socially witnessed admission,
+then a specifically invited private moment of closeness. Earlier scenes must
+establish the listener's relevance, what that person already knows, the
+particular fact that remains private, and the limited admission Lavinia asks
+Priscilla to make. No tribunal, witness, diagnosis, image, disclosure wording or
+calendar placement is fixed by this outline.
+
+Lavinia wants Priscilla to admit plainly that she knew the original permission
+limit and crossed it, with her desire for Lavinia to remain acknowledged.
+Priscilla accepts a real cost to her respectable self-presentation. She also
+reveals a private detail beyond the requested admission. In this audition, her
+public truthfulness repeats her belief that accurate knowledge gives her the
+right to distribute it. An ordinary listener refers to the newly shared detail,
+making the loss of privacy concrete. Do not assert career ruin or invent a
+clinical fact to increase the effect.
+
+Lavinia can stop Priscilla from answering a subsequent question addressed to
+her; Priscilla can obey this immediate instruction even though the already
+disclosed information cannot be recalled. Later Lavinia deliberately invites
+closeness. Suggested lines, replaceable and unselected:
+
+> Lavinia: “Don't call this forgiveness.”
+>
+> Priscilla: “I didn't ask for it.”
+
+Any physical contact is specifically wanted in that moment and remains
+non-graphic in this audition. It does not retrospectively authorize the
+disclosure. There is no Observer bodily override or eroticized refusal. The
+audition's horror depends on the concrete prior act and continued attachment;
+absence of an apology alone would be insufficient.
+
+The final pleasure may coexist with a visible reminder that another person now
+knows the private fact. Lavinia obtains an unguarded admission and loses further
+control of her account; Priscilla obtains chosen closeness while retaining the
+principle that led her to interfere. Exact ending staging and the way local
+variations reach it remain open.
+
+The preceding assistant response's jointly maintained personal explanation is
+retained as a different ending mechanism, not appended as an additional act.
+That proposal would make a later truthful objection costly because both women
+had endorsed another account. Neither ending mechanism is selected.
+
+### Assistant recommendations on the remaining character questions
+
+- **Pre-England test:** favor deliberate invitation of attention or a personal
+  admission, with limited foresight about the substantive submission and its
+  institutional effects. Priscilla does not know she is taking a test.
+  Lavinia can be moved by the response and genuinely frightened or angry about
+  its form. Preserve unauthorized action as unauthorized. This is a proposed
+  motive refinement, not a covert replacement of the owning history or a private
+  answer to the unresolved proportions of Priscilla's protective/possessive aims.
+- **Revenge:** favor a recognizable demand that Priscilla relinquish the account
+  of herself as merely helpful and admit her personal desire without a
+  forgiveness bargain. Lavinia can enjoy a real but temporary satisfaction,
+  then discover that exposure does not make Priscilla safely controllable.
+  Do not turn every pleasure into an automatically failed test.
+- **Priscilla's judgment:** retain the specific lack of moral remorse for the
+  intervention rather than a universal inability to recognize wrong conduct.
+  She can sincerely regret a different insult, misjudgment, or injury without
+  recanting this intervention. No moral conversion is proposed for the current
+  Dark continuation.
+- **Sincere departure:** keep genuine refusals. In the hypothetical where
+  Priscilla obeys a sincere request to go, let the absence be real. Lavinia may
+  feel relief followed by disappointment, anger or longing, and later initiate
+  a new invitation. That later invitation does not rewrite the earlier refusal.
+  This is character guidance under audition, not selection of a held Day 2
+  departure/obstruction variant.
+- **Audience certainty:** establish that some tests are intentional through
+  observable conduct or a bounded admission, while leaving the intended result
+  and foresight of other incidents uncertain. Priscilla remains the sole
+  viewpoint; her inference is not Lavinia's revealed interior. Clear actions
+  can support several live interpretations without a finale claiming Lavinia
+  secretly planned the entire week.
+
+The earlier seven-day escalation sketch remains an unselected functional
+outline: absent-person attention; return and tenderness/departure; an initially
+rewarding test; ordinary compatibility and failed interpretation; outside
+consequence; a costly chance to change the pattern; climax and aftermath. It
+does not replace current Day 1–2 candidates or assign old scenes to new dates.
+
+### Source, capture and next unit
+
+**U1:** the owner's opening message in this discussion beginning “Aww, I know my
+best friend…” and proposing toy-to-pursuit, revenge/testing, the pre-England test,
+question/answer strategies and locked-room-like Observer Pressure.
+**A1:** the assistant's bounded source review and seven interview questions,
+including an explicitly provisional week sketch and shared-account ending.
+**U2:** the reply beginning “Ohhhh, my one and only rose…” with numbered answer 1
+confirming one P–L ending and requesting independent answers to questions 2–7.
+**A2:** the assistant's recommendations recorded above and supplied with this
+checkpoint. These are visible exchange locators, not fabricated timestamps or
+claims to possess older unavailable conversations.
+
+This is a documentation PR checkpoint. Its actual metadata determines
+publication and merge status. It does not close the chronological bar/residue
+audit, resolve residence/admission/key holds, select earlier strike or touch
+candidates, approve a complete week, or certify runtime behavior.
+
+**Next creative unit:** compare the proposed endpoint and character motives at
+the author's chosen scope, then use the selected target to assemble the
+all-Dark Day 2 encounter and its later consequences. Retain the existing Day
+1–7 plot gate before complete DTL. Capture future changes in these owners,
+rather than making another ending Bible or one document per exchange.
+
+## Retained chapter-development checkpoint, 2026-10-10
+
 **Captured:** 2026-10-10. **Repository baseline inspected:** `44dda79440392d14c95ea6ce4e94d579094f76e5` (merged PR #25).
 
 **Selection status:** `AUDITIONING`. This is an attributed development checkpoint, NOT an approved week, a second Bible, or permission to produce complete DTL. Explicit author directions below retain only their stated scope. A preferred line or scene function does not approve its surrounding acts.

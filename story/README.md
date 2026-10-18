@@ -1,5 +1,20 @@
 # Story workspace
 
+## Current P–L ending direction, 2026-10-18
+
+Priscilla–Lavinia now has one Dark relationship ending with small local
+variations; the current plotting target takes the available Dark options.
+Read the [scoped foundation amendment](09-priscilla-foundation-amendment.md#pl-specific-ending-amendment-2026-10-18)
+and [attributed development checkpoint](auditions/priscilla-seven-day-working-plot.md#current-pl-direction-and-development-checkpoint-2026-10-18).
+Local Sweet choices, exact climax, test motives and their full-week consequences
+remain under discussion; the assistant's recommendations are AUDITIONING.
+P–S and the relationship fork remain in their existing scope.
+
+The older restart instructions below retain their historical scope. They do
+not require a separate healing Sweet P–L endpoint. The Day 1–2 packets and
+residence/bar/residue holds remain at their recorded status. This checkpoint
+belongs to its documentation PR; consult the PR's metadata for merge status.
+
 ## Current chapter development checkpoint, 2026-10-10
 
 The [working plot register](auditions/priscilla-seven-day-working-plot.md)

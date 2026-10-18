@@ -43,6 +43,33 @@ The fork's exact action, wording, placement, chapter and labels are OPEN. Exampl
 
 ## 3. Ending form is separate from partner and local conduct
 
+### P–L-specific ending amendment, 2026-10-18
+
+**Owner-confirmed direction:** Priscilla–Lavinia has **one Dark relationship
+ending**, with small differences that may preserve consequences of local
+self-talk and Challenge choices. The current writing target is the continuation
+that takes the available Dark options. This supersedes the separate healing
+Sweet versus Dark **P–L endpoints** in the retained paragraphs below; it does not
+remove the P–S storyline or change the existing relationship fork.
+
+The author is still considering whether local choices should retain sincere
+Sweet conduct, use sweetness concealing darker methods, or offer different Dark
+possibilities. The ending-count decision does not select an answer to that
+question, replace the five local Challenge meanings, or make every P–L act Dark.
+Particular consequential facts must remain compatible with the ending; small
+variations cannot erase a substantial intrusion, refusal, injury, or disclosure.
+
+No concrete final act, complete week, disclosure-test intention, remorse
+expansion, new bodily permission, or Observer power is selected here. The
+author asked for the assistant's independent recommendations on those matters
+before supplying further answers. Read the attributed [current development
+checkpoint](auditions/priscilla-seven-day-working-plot.md#current-pl-direction-and-development-checkpoint-2026-10-18).
+The [behavior amendment](../docs/design/2026-10-09-priscilla-flow-behavior-amendment.md#pl-ending-scope-correction-2026-10-18)
+carries the same narrow exception without asserting implementation.
+
+The following retained Sweet/Dark statements continue to govern their compatible
+scope, including P–S; they no longer require a separate Sweet P–L ending.
+
 Retain start-of-run selection for the larger **Sweet/Dark ending form**, not for the partner. It provides a coherent authored direction and necessary preparation; it does not justify an ending that contradicts what happened. Exact identifiers, draw/witnessing policy, ending catalogue and storage representation remain OPEN.
 
 Sweet endings should deliver affection, comfort, relief and a healing conclusion. They are not merely weaker horror. Dark capacities can remain without a compulsory ominous sting retracting the ending's warmth. The women need not become harmless, morally cured or perfectly agreeable.

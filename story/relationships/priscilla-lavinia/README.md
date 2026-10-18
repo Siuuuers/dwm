@@ -1,5 +1,26 @@
 # Priscilla–Lavinia: working home and restart point
 
+## Current single-ending development, 2026-10-18
+
+Read the [P–L-specific foundation amendment](../../09-priscilla-foundation-amendment.md#pl-specific-ending-amendment-2026-10-18)
+and [current development checkpoint](../../auditions/priscilla-seven-day-working-plot.md#current-pl-direction-and-development-checkpoint-2026-10-18).
+The owner confirms one Dark P–L ending with small variations from local choices;
+the current writing target is the all-Dark-options continuation. This does not
+select a final scene, broaden bodily permission, remove P–S, or replace local
+Challenge meanings.
+
+The assistant recommends real local tenderness, a limited pre-England test,
+scoped lack of remorse, genuine refusals, and a costly-admission/further-disclosure
+climax audition. All of these new recommendations remain unselected. Exact
+motives, local Sweet alternatives and compatible whole-week development await
+further author decisions. The next scene unit follows the selected endpoint and
+the current Day 2 packet rather than concatenating older aftermath alternatives.
+
+Capture, source coverage and publication scope are centralized in the linked
+checkpoint. Historical Sweet/Dark and calendar guidance below does not restore
+a separate Sweet P–L endpoint. Existing residence, admission, bar/residue and
+chronological-audit holds survive.
+
 ## Current Day 2 development, 2026-10-10
 
 Read [the current Day 2 packet](auditions/day-2-return-bar-working-draft.md)
