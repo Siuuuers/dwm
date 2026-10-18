@@ -1,4 +1,4 @@
-name: Exported capability and saved journey
+name: Exported fresh Load native crash diagnosis
 on:
   pull_request:
     paths:
@@ -12,7 +12,7 @@ concurrency:
 jobs:
   authority-audit:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
-    name: Windows / Exported capability and saved journey
+    name: Windows / Exported fresh Load native crash diagnosis
     runs-on: windows-2022
     timeout-minutes: 30
     defaults:
@@ -58,6 +58,33 @@ jobs:
           run-id: 39095028917
           github-token: ${{ github.token }}
           path: .godot/ci/windows-export
+      - name: Prepare native crash collection on disposable runner
+        timeout-minutes: 10
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $out = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/native-crash'
+          New-Item -ItemType Directory -Force -Path $out | Out-Null
+          $debugger = Join-Path ${env:ProgramFiles(x86)} 'Windows Kits/10/Debuggers/x64/cdb.exe'
+          if (-not (Test-Path -LiteralPath $debugger)) {
+            $setup = Join-Path $env:RUNNER_TEMP 'winsdksetup.exe'
+            Invoke-WebRequest 'https://download.microsoft.com/download/cb9de490-6e67-4ac6-8c2c-6dfabb824e8a/windowssdk/winsdksetup.exe' -OutFile $setup
+            $signature = Get-AuthenticodeSignature -LiteralPath $setup
+            if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notmatch 'O=Microsoft Corporation') { throw 'SDK installer signature invalid' }
+            @{ sha256=(Get-FileHash $setup -Algorithm SHA256).Hash; signer=$signature.SignerCertificate.Subject } | ConvertTo-Json | Set-Content (Join-Path $out 'installer.json')
+            $install = Start-Process -FilePath $setup -ArgumentList @('/features','OptionId.WindowsDesktopDebuggers','/quiet','/norestart') -PassThru
+            if (-not $install.WaitForExit(480000)) { $install.Kill($true); throw 'Debugger install timeout' }
+            if ($install.ExitCode -notin @(0,3010)) { throw "Debugger install failed: $($install.ExitCode)" }
+          }
+          if (-not (Test-Path -LiteralPath $debugger)) { throw 'CDB unavailable; no duplicate gameplay run without diagnostic capability' }
+          @{path=$debugger; sha256=(Get-FileHash $debugger -Algorithm SHA256).Hash; version=(Get-Item $debugger).VersionInfo.FileVersion} | ConvertTo-Json | Set-Content (Join-Path $out 'debugger.json')
+          "DWM_CDB_PATH=$debugger" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          $key = 'HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps\DWM.exe'
+          if (Test-Path $key) { throw 'Unexpected existing DWM dump configuration' }
+          New-Item -Path $key -Force | Out-Null
+          New-ItemProperty -Path $key -Name DumpFolder -Value $out -PropertyType ExpandString | Out-Null
+          New-ItemProperty -Path $key -Name DumpType -Value 1 -PropertyType DWord | Out-Null
+          New-ItemProperty -Path $key -Name DumpCount -Value 3 -PropertyType DWord | Out-Null
+          @{dump_folder=$out; dump_type=1; configured_utc=[DateTime]::UtcNow.ToString('o')} | ConvertTo-Json | Set-Content (Join-Path $out 'setup.json')
       - name: Probe explicit cloud accessibility and audio
         timeout-minutes: 10
         run: |
@@ -90,6 +117,40 @@ jobs:
           }
           $allowed = @('.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1')
           foreach ($path in @(git diff HEAD --name-only)) { if ($path -notin $allowed) { throw "Unexpected tracked change: $path" } }
+      - name: Analyze native crash evidence without altering the failed result
+        if: always()
+        timeout-minutes: 6
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $out = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/native-crash'
+          if (-not (Test-Path $out)) { exit 0 }
+          $events = @(Get-WinEvent -FilterHashtable @{ LogName='Application'; StartTime=(Get-Date).AddMinutes(-25); Id=1000,1001 } -ErrorAction SilentlyContinue | Where-Object { $_.Message -match 'DWM.exe' } | ForEach-Object { @{ id=$_.Id; time=$_.TimeCreated.ToUniversalTime().ToString('o'); message=$_.Message; xml=$_.ToXml() } })
+          ConvertTo-Json -InputObject $events -Depth 8 | Set-Content (Join-Path $out 'application-events.json')
+          $dumps = @(Get-ChildItem $out -Filter '*.dmp' -File)
+          $manifest = @($dumps | ForEach-Object { @{file=$_.Name; bytes=$_.Length; sha256=(Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()} })
+          ConvertTo-Json -InputObject $manifest -Depth 5 | Set-Content (Join-Path $out 'dumps.json')
+          if ($dumps.Count -eq 0) { Write-Host 'NO_NATIVE_DUMP_CAPTURED'; exit 0 }
+          foreach ($dump in $dumps) {
+            $stdout = Join-Path $out ($dump.BaseName + '.cdb.stdout.log')
+            $stderr = Join-Path $out ($dump.BaseName + '.cdb.stderr.log')
+            $symbols = Join-Path $env:RUNNER_TEMP 'dwm-symbols'
+            $images = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-load/package'
+            $arguments = @('-z',('"'+$dump.FullName+'"'),'-y',('"srv*'+$symbols+'*https://msdl.microsoft.com/download/symbols"'),'-i',('"'+$images+'"'),'-c','".symopt+ 0x40; !analyze -v; .ecxr; kv 40; lm; u @rip-20 @rip+40; q"')
+            $probe = Start-Process -FilePath $env:DWM_CDB_PATH -ArgumentList $arguments -PassThru -RedirectStandardOutput $stdout -RedirectStandardError $stderr
+            $completed = $probe.WaitForExit(180000)
+            if (-not $completed) { $probe.Kill($true); $probe.WaitForExit() }
+            @{ completed=$completed; exit_code=$probe.ExitCode; dump=$dump.Name } | ConvertTo-Json | Set-Content (Join-Path $out ($dump.BaseName+'.analysis.json'))
+            Get-Content $stdout | Select-Object -Last 160 | Write-Host
+          }
+      - name: Retain original native dump and diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-load-crash-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .godot/ci/native-crash/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7
       - name: Retain original bounded capability evidence
         if: always()
         run: |
