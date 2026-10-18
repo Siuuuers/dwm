@@ -29,6 +29,8 @@ param(
     [Parameter(Mandatory)][string]$OutputPath,
     [string]$CapabilityReceipt,
     [string]$CreatorReceipt,
+    [switch]$ProfileSaveLoad,
+    [switch]$ContinueAfterQuiet,
     [ValidateSet('ProjectDefault', 'gl_compatibility')][string]$Renderer = 'ProjectDefault',
     [ValidateSet('ProjectDefault', 'Always')][string]$Accessibility = 'ProjectDefault',
     [ValidateSet('ProjectDefault', 'Dummy')][string]$Audio = 'ProjectDefault',
@@ -39,6 +41,7 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 if (-not $IsWindows) { throw 'WINDOWS_CLOUD_RUNNER_REQUIRED' }
+if ($ProfileSaveLoad -and $Mode -ne 'Load') { throw 'PROFILE_REQUIRES_DIAGNOSTIC_LOAD' }
 Add-Type -AssemblyName UIAutomationClient
 Add-Type -AssemblyName UIAutomationTypes
 Add-Type -AssemblyName System.Drawing
@@ -50,6 +53,11 @@ public static class DwmExportWindow {
     [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
     [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr h, out uint pid);
     [DllImport("user32.dll")] public static extern IntPtr SetThreadDpiAwarenessContext(IntPtr context);
+    [DllImport("user32.dll")] public static extern bool IsHungAppWindow(IntPtr h);
+    [DllImport("user32.dll", CharSet=CharSet.Unicode)] private static extern int GetClassName(IntPtr h, System.Text.StringBuilder text, int count);
+    public static string ClassName(IntPtr h) { var text = new System.Text.StringBuilder(256); GetClassName(h,text,256); return text.ToString(); }
+    [DllImport("user32.dll", SetLastError=true)] private static extern IntPtr SendMessageTimeout(IntPtr h, uint msg, IntPtr wp, IntPtr lp, uint flags, uint timeout, out IntPtr result);
+    public static bool Responds(IntPtr h, uint timeout) { IntPtr result; return SendMessageTimeout(h,0,IntPtr.Zero,IntPtr.Zero,2,timeout,out result)!=IntPtr.Zero; }
     private static System.Threading.Timer watchdog;
     public static volatile bool Expired;
     public static void Arm(System.Diagnostics.Process child, int milliseconds) {
@@ -77,6 +85,7 @@ $result = [ordered]@{
     schema_version = 1; mode = $Mode; ok = $false; visual_review_required = $true
     source_commit = $ExpectedCommit.ToLowerInvariant(); archive_sha256 = $ExpectedArchiveSha256.ToLowerInvariant()
     accessibility_request = $Accessibility; audio_request = $Audio
+    save_load_profile = [bool]$ProfileSaveLoad
     renderer_request = $Renderer; user_root = $user; output_path = $output
     scope = 'Ordinary release UI; normal packaged seven-day TEST story; no Challenge registration'
     forced_cleanup = $false; clean_player_exit = $false
@@ -108,6 +117,9 @@ function Window {
     Check-Live
     $handle = $child.MainWindowHandle
     if ($handle -eq [IntPtr]::Zero) { return $null }
+    if ($result.Contains('native_baseline_handle')) {
+        Require ($handle.ToInt64() -eq $result.native_baseline_handle) 'UIA_BASELINE_WINDOW_CHANGED'
+    }
     $owner = [uint32]0
     [void][DwmExportWindow]::GetWindowThreadProcessId($handle, [ref]$owner)
     Require ($owner -eq $child.Id) 'WINDOW_PID_MISMATCH'
@@ -181,6 +193,29 @@ function Capture([string]$Stage) {
     } finally { $graphics.Dispose(); $bitmap.Dispose() }
     Record 'capture' @{ stage = $Stage; file = "$Stage.png"; sha256 = (Hash $path) }
 }
+function Observe-Native([string]$Stage, [double]$Elapsed = 0, [uint32]$Timeout = 250) {
+    Check-Live
+    $handle = $child.MainWindowHandle
+    Require ($handle -ne [IntPtr]::Zero) 'BASELINE_NATIVE_WINDOW_MISSING'
+    $owner = [uint32]0
+    [void][DwmExportWindow]::GetWindowThreadProcessId($handle, [ref]$owner)
+    Require ($owner -eq $child.Id) 'BASELINE_NATIVE_WINDOW_PID_MISMATCH'
+    if ($result.Contains('native_baseline_handle')) {
+        Require ($handle.ToInt64() -eq $result.native_baseline_handle) 'BASELINE_NATIVE_WINDOW_CHANGED'
+    } else { $result.native_baseline_handle = $handle.ToInt64() }
+    $responds = [DwmExportWindow]::Responds($handle, $Timeout)
+    $foreground = [DwmExportWindow]::GetForegroundWindow()
+    $foregroundOwner = [uint32]0
+    if ($foreground -ne [IntPtr]::Zero) {
+        [void][DwmExportWindow]::GetWindowThreadProcessId($foreground, [ref]$foregroundOwner)
+    }
+    Record 'native-boundary' @{ stage=$Stage; elapsed_seconds=$Elapsed;
+        handle=$handle.ToInt64(); pid=$owner; class=[DwmExportWindow]::ClassName($handle);
+        hung=[DwmExportWindow]::IsHungAppWindow($handle); responds=$responds;
+        foreground_handle=$foreground.ToInt64(); foreground_pid=$foregroundOwner;
+        foreground_class=[DwmExportWindow]::ClassName($foreground);
+        foreground_is_game=($foreground -eq $handle) }
+}
 function Invoke-UI($Element, [string]$Purpose) {
     Check-Live
     Require ((Visible $Element) -and $Element.Current.IsEnabled) "UIA_ACTION_DISABLED: $Purpose"
@@ -199,7 +234,18 @@ function Invoke-UI($Element, [string]$Purpose) {
     $pattern = $null
     Require ($Element.TryGetCurrentPattern([Windows.Automation.InvokePattern]::Pattern, [ref]$pattern)) 'UIA_INVOKE_UNSUPPORTED'
     Record 'invoke' @{ purpose = $Purpose; target = (Describe $Element) }
+    $timedWitness = $Mode -eq 'Load' -and $Purpose -ceq 'commit empty slot 2'
+    if ($timedWitness) {
+        $result.diagnostic_only = $true
+        Observe-Native 'before-save-invoke'
+        Record 'save-invoke-start' @{}
+        $invokeClock = [Diagnostics.Stopwatch]::StartNew()
+    }
     ([Windows.Automation.InvokePattern]$pattern).Invoke()
+    if ($timedWitness) {
+        Record 'save-invoke-return' @{ elapsed_seconds=$invokeClock.Elapsed.TotalSeconds }
+        Observe-Native 'after-save-invoke' $invokeClock.Elapsed.TotalSeconds
+    }
     Start-Sleep -Milliseconds 200
 }
 function Caption([string]$Text) { return Button $Text }
@@ -304,7 +350,44 @@ function Save-Slot([int]$Number) {
     Capture "save-$Number-selected"
     Invoke-UI (Backup-Action 'Save') "commit empty slot $Number"
     $path = Join-Path $dataRoot "saves/slot_$Number.json"
+    if ($Mode -eq 'Load' -and $Number -eq 2) {
+        Record 'save-file-wait-start' @{}
+        $fileClock = [Diagnostics.Stopwatch]::StartNew()
+    }
     $document = Wait-File $path
+    if ($Mode -eq 'Load' -and $Number -eq 2) {
+        Record 'save-file-wait-return' @{ elapsed_seconds=$fileClock.Elapsed.TotalSeconds }
+        Observe-Native 'after-save-file' $fileClock.Elapsed.TotalSeconds
+    }
+    if ($Mode -eq 'Load' -and $Number -eq 2) {
+        # Diagnostic only: preserve the original observation budget, without repeated UIA.
+        $result.diagnostic_only = $true
+        $quiet = [Diagnostics.Stopwatch]::StartNew()
+        Record 'quiet-native-start' @{ deadline_seconds=$StepTimeoutSeconds; traversal_policy='one fresh UIA observation after native-only sampling' }
+        Capture-FailureSaves 'quiet-before'
+        while ($quiet.Elapsed.TotalSeconds -lt $StepTimeoutSeconds) {
+            $remaining = [int][Math]::Floor(($StepTimeoutSeconds - $quiet.Elapsed.TotalSeconds) * 1000)
+            if ($remaining -le 0) { break }
+            Observe-Native 'quiet-sample' $quiet.Elapsed.TotalSeconds ([uint32][Math]::Min(250, $remaining))
+            $remaining = [int][Math]::Floor(($StepTimeoutSeconds - $quiet.Elapsed.TotalSeconds) * 1000)
+            if ($remaining -gt 0) { Start-Sleep -Milliseconds ([Math]::Min(750, $remaining)) }
+        }
+        Capture-FailureSaves 'quiet-after'
+        Record 'quiet-fresh-uia-start' @{ elapsed_seconds=$quiet.Elapsed.TotalSeconds }
+        $script:window = Window
+        Require ($null -ne $window) 'QUIET_FRESH_WINDOW_MISSING'
+        $observed = @(Nodes $window)
+        $saved = @($observed | Where-Object { (Visible $_) -and $_.Current.Name.TrimEnd() -ceq 'Saved' })
+        Write-Json (Join-Path $output 'quiet-fresh-uia.json') @($observed | ForEach-Object { Describe $_ })
+        Record 'quiet-fresh-uia-result' @{ elapsed_seconds=$quiet.Elapsed.TotalSeconds; descendants=$observed.Count; saved_count=$saved.Count }
+        Observe-Native 'after-fresh-uia' $quiet.Elapsed.TotalSeconds
+        $result.quiet_observation_completed = $true
+        $result.quiet_saved_count = $saved.Count
+        # Continuation still requires every ordinary UI, state and clean-exit check below.
+        if (-not $ContinueAfterQuiet) { throw 'DIAGNOSTIC_ONLY_QUIET_OBSERVATION_COMPLETE' }
+        $result.diagnostic_only = $false
+        $result.continued_after_quiet = $true
+    }
     $null = Wait-One 'Saved status' { Nodes $window | Where-Object { (Visible $_) -and $_.Current.Name.TrimEnd() -ceq 'Saved' } }
     Capture "save-$Number-complete"
     Invoke-UI (Button 'Back') 'close direct Backup host'
@@ -365,7 +448,7 @@ function Capture-FailureWindow {
     } finally { $probe.Dispose() }
 }
 
-function Capture-FailureSaves {
+function Capture-FailureSaves([string]$Prefix = 'failure') {
     # Read-only live observations, not an atomic checkpoint or acceptance evidence.
     # Capture before UIA: a provider call may block until the process watchdog fires.
     if ([string]::IsNullOrWhiteSpace($dataRoot)) { return }
@@ -386,7 +469,7 @@ function Capture-FailureSaves {
                     $offset += $count
                 }
                 Require ($stream.ReadByte() -eq -1) 'FAILURE_SAVE_GREW_DURING_READ'
-                $name = 'failure-' + ($relative -replace '/', '-')
+                $name = $Prefix + '-' + ($relative -replace '/', '-')
                 $destination = Join-Path $output $name
                 [IO.File]::WriteAllBytes($destination, $bytes)
                 $entry.status = 'copied'
@@ -398,7 +481,7 @@ function Capture-FailureSaves {
         finally { if ($null -ne $stream) { $stream.Dispose() } }
         $observations += $entry
     }
-    Write-Json (Join-Path $output 'failure-save-observations.json') $observations
+    Write-Json (Join-Path $output "$Prefix-save-observations.json") $observations
 }
 
 function Snapshot($Document) {
@@ -514,6 +597,11 @@ try {
     if ($Accessibility -eq 'Always') { $start.ArgumentList.Add('--accessibility'); $start.ArgumentList.Add('always') }
     if ($Audio -eq 'Dummy') { $start.ArgumentList.Add('--audio-driver'); $start.ArgumentList.Add('Dummy') }
     foreach ($name in @($start.Environment.Keys | Where-Object { $_ -like 'DWM_*' })) { [void]$start.Environment.Remove($name) }
+    if ($ProfileSaveLoad) {
+        # Existing read-only timing hooks in the retained package; no fixture flags.
+        $start.Environment['DWM_SAVE_LOAD_PROFILE'] = '1'
+        $start.Environment['DWM_SAVE_LOAD_CONTEXT'] = 'exported-load-phase-diagnostic'
+    }
     foreach ($name in @('APPDATA', 'LOCALAPPDATA')) {
         $directory = Join-Path $user $name.ToLowerInvariant()
         New-Item -ItemType Directory -Force -Path $directory | Out-Null
@@ -634,9 +722,13 @@ try {
 } catch {
     $result.failure = $_.Exception.Message
     try { Capture-FailureSaves } catch { $result.save_capture_failure = $_.Exception.Message }
-    try { Capture-FailureWindow } catch { $result.native_probe_failure = $_.Exception.Message }
-    try { Capture-FailureStacks } catch { $result.stack_probe_failure = $_.Exception.Message }
-    try { if ($null -ne $child -and -not $child.HasExited) { Capture 'failure' } } catch { $result.capture_failure = $_.Exception.Message }
+    # The quiet experiment permits exactly one UIA enumeration; generic diagnostics
+    # would add a fresh-client enumeration and foreground/capture intervention.
+    if (-not $result.Contains('diagnostic_only')) {
+        try { Capture-FailureWindow } catch { $result.native_probe_failure = $_.Exception.Message }
+        try { Capture-FailureStacks } catch { $result.stack_probe_failure = $_.Exception.Message }
+        try { if ($null -ne $child -and -not $child.HasExited) { Capture 'failure' } } catch { $result.capture_failure = $_.Exception.Message }
+    }
     throw
 } finally {
     [DwmExportWindow]::Disarm()
@@ -661,3 +753,4 @@ try {
     })
     Write-Json (Join-Path $output 'manifest.json') $evidence
 }
+
