@@ -127,3 +127,33 @@ Original1017512-byte ZIP SHA2566a88d9bd84a0cc6cab2c79b6696964d1f42057260bb20df34
 ### Next owned action after the matched failure
 
 Per Director issuecomment-6250026410, stop equivalent polling experiments and profile forward scene-event/target-admission owners. A owns an isolated opt-in timing candidate, fresh cloud export and dispatch; this runtime instrumentation cannot use the prior binary. Measure source checkpoint, admission preparation, target checkpoint, runtime installation and reading adoption separately, with nested totals identified. Preserve both durable checkpoint calls, return values and persisted data. No optimization is selected until measured evidence identifies the cost. B's scoped fixture work remains queued after the exported boundary; C reviews evidence. Product runtime and ordinary driver remain unchanged by this evidence update.
+
+## Coordinator A continuation — forward owner profile, 18 October 2026
+
+Observable outcome: identify which existing forward-transition owner consumes the native-unresponsive interval, without changing checkpoint, history or recovery behavior. The matched discriminator above warranted profiling; no further equivalent polling run was made.
+
+Isolated diagnostic193691f9dfa06aed698274cd1ce7346cee77857a/treef613f1299a5e1e9fa274007f1df4d8acaab5fb61 adds opt-in wrappers/phases around GameState event acceptance, marker advance, target admission/commit and DialogicBridge reading adoption. It reuses SaveManager's existing timing helpers, preserves both checkpoint calls and return values, and does not change persisted data. Disabled/detached execution uses no profiling clock or SaveManager lookup. This instrumentation and the continuation driver remain outside the ordinary product tree.
+
+[Run39129421744](https://github.com/Siuuuers/dwm/actions/runs/39129421744), job117681340781, controller59fa07283ef6c1f90aff39031e0540194c79a29a, passed cloud parsing/import, fresh standard Godot4.6.3 export, four deadline tests, Capability and Create. Load reached Day7 opening/closing and then **failed** at `UIA_UNAVAILABLE_OR_TIMEOUT: TEST Seven-day ending.` It required forced cleanup-1. This is not a complete exported-journey pass or a performance improvement claim across different cloud runs.
+
+| Forward transition | Source checkpoint commit | Target checkpoint commit | Whole forward operation | Native caption wait |
+| --- | ---: | ---: | ---: | ---: |
+| Day4 to Day5 | 12.486s | 8.503s | 22.374s | 22.409s |
+| Day5 to Day6 | 9.205s | 10.077s | 20.929s | 20.952s |
+| Day6 to Day7 | 10.723s | 11.191s | 23.906s | 24.042s |
+
+The two checkpoint calls account for about92–94% of these ordinary transition totals. Target bridge-install calls took67–83ms; later bridge-adoption scopes took1.7–2.3ms. This locates the dominant owner boundary, not the internal validation/hash/serialization/storage cause. The synchronous install return may precede pending native adoption. Profile scopes are nested/inclusive and must not be summed across levels; signal duration covers synchronous subscribers only. Use `game.stdout.log` as the primary stream: `game.log` contains a buffered partial duplicate, not extra operations.
+
+The ending branch differs: source checkpoint11.961s sits inside event total12.841s; ending admission16.109s is entirely unphased because it returns through the existing early ending path. Whole forward total29.791s. Of260 native samples one became responsive; Window completed29.873s, then enumeration completed29.938s with zero matching actions. The deadline expired30.005s. The failure capture visibly renders the ending later, but does not establish in-budget acceptance. Gallery and normal loader exit remain unqualified. Retain the Save latency limitation.
+
+Fresh diagnostic package artifact12137690574 (`forward-profile-package-39129421744-1`) is retained from this run, expires25October. Inner ZIP99454371bytes/SHA2564291ba8bcc07a1077a4cea4f5b99f20c5352c5dbe15885a1523dd2b77922f237; source193691f9dfa06aed698274cd1ce7346cee77857a. EXE SHA25691724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6; PCK SHA25651bdc630252d2bffb3994f3f92b1598b12feae3b695451824eb25dfe68c5ae9c. This is instrumented diagnostic data, not the earlier corrected product binary.
+
+Original evidence ZIP2003387bytes/SHA256d9707b161c0a69921eda4a9f1f36d4c8b1d5828dde15d11855bcce30155177f1,177 outer manifest members, inner mode manifests and both instrumented source blob pins verified. Independent read-only review confirmed hashes, transition mapping, ending native timing and failure screenshot. [Archive, replayable verifier and full telemetry](../evidence/phase_2r/forward_profile_20261018/) retain the actual failed result. The verifier accepts either the original job log or retained ZIP.
+
+### Next measurement, before runtime surgery
+
+Use the existing `DWM_CHECKPOINT_PROFILE=1` hooks in SaveManagerCheckpointPort.prepare/commit to separate measured checkpoint costs. A can reuse artifact12137690574 for this harness-only change. The exported driver deliberately removes inherited DWM_* environment variables, so enable the flag explicitly in the isolated child's environment; setting only workflow env will not work. Keep original deadlines, action gates and forced-cleanup failure semantics. Retain source SaveManagerCheckpointPort, SaveManagerNarrativeCheckpointPort and their existing profile definitions with the evidence. No additional profiler layer is needed for those lower checkpoint phases.
+
+Owner chain: scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd commit_scene_event → _commit_scene_event_autosave → scripts/application/run/SaveManagerCheckpointPort.gd capture/prepare/commit → retained journal/storage. Existing lower hook emits save_checkpoint_prepare/save_checkpoint with diagnostics_version2, including snapshot build, document validation/serialization, atomic write/reread and journal phases. The current run did not enable that separate flag. The ending's16.109s admission remains a distinct unresolved branch and must not be labeled target_checkpoint_commit by inference.
+
+Choose a minimal runtime correction only after this decomposition, then compare the complete matched operation and run relevant negative/retry/recovery checks. Keep B's already-scoped fixtures and ending/Gallery/normal-exit acceptance outstanding. No new architecture choice requires user input at this point; no merge, release or master/integration change.
