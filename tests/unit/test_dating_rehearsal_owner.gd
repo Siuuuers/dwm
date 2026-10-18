@@ -231,7 +231,7 @@ func test_only_current_rendered_line_witness_can_persist_and_variables_remain_de
 
 func test_empty_result_route_proof_rejects_source_prose_and_nonempty_selected_leaf() -> void:
 	var label := "dating.solo.priscilla.day1.post_challenge"
-	var located: Dictionary = preload("res://scripts/data/DialogicTimelineCatalog.gd").get_entry(label, "en")
+	var located: Dictionary = OWNER._locate_rehearsal_entry(label)
 	assert_true(located.ok, str(located))
 	if not located.ok: return
 	var source := FileAccess.get_file_as_string(str(located.value.path)).replace("\r\n", "\n")
@@ -245,3 +245,24 @@ func test_empty_result_route_proof_rejects_source_prose_and_nonempty_selected_le
 	assert_false(OWNER._is_empty_result_route(source.replace('if {Frozen.board_result}', 'if {Other.result}'), label, "perfect"))
 	assert_false(OWNER._is_empty_result_route(source, label, "unknown"))
 	assert_false(OWNER._is_empty_result_route(source + "\nlabel " + label + ".perfect\nreturn\n", label, "perfect"))
+
+func test_private_empty_entry_does_not_reopen_live_registration_or_accept_stale_command() -> void:
+	var catalog := preload("res://scripts/data/DialogicTimelineCatalog.gd")
+	var entry_id := "dating.solo.priscilla.day1.pre_challenge"
+	assert_false(catalog.get_entry(entry_id, "en").ok, "retained practice is not live story authority")
+	var f := _fixture()
+	var run_before: Dictionary = f.game.capture_run_snapshot_input().duplicate(true)
+	var profile_before: Dictionary = f.profile.get_profile_snapshot()
+	if not _begin(f): return
+	var ready: Dictionary = f.owner.begin_narrative_phase(f.command)
+	assert_true(ready.ok, str(ready))
+	if ready.ok:
+		assert_eq(ready.value.entry_id, entry_id)
+		assert_eq(ready.value.reason, "empty_authored_entry")
+	assert_false(OWNER._locate_rehearsal_entry(entry_id + ".unknown").ok)
+	assert_false(catalog.get_entry(entry_id, "en").ok, "private lookup cannot register retained entries")
+	var stale: Dictionary = f.command.duplicate(true)
+	assert_true(f.owner.close().ok)
+	assert_eq(f.owner.begin_narrative_phase(stale).code, &"rehearsal_identity_mismatch")
+	assert_eq(f.game.capture_run_snapshot_input(), run_before)
+	assert_eq(f.profile.get_profile_snapshot(), profile_before)

@@ -129,7 +129,7 @@ func begin_narrative_phase(command: Dictionary, _retry: bool = false) -> Diction
 			and pulled.value.outcome == "exploded":
 		return _ok({"status": "completed", "reason": "pair_explosion_cutoff"})
 	var entry_id := str(_source.signature.entry_id).trim_suffix(".pre_challenge") + "." + phase
-	var located: Dictionary = preload("res://scripts/data/DialogicTimelineCatalog.gd").get_entry(entry_id, "en")
+	var located: Dictionary = _locate_rehearsal_entry(entry_id)
 	if not located.get("ok", false): return located
 	if preload("res://autoload/DialogicBridge.gd").is_return_only_entry(
 			str(located.value.path), str(located.value.label)):
@@ -139,6 +139,19 @@ func begin_narrative_phase(command: Dictionary, _retry: bool = false) -> Diction
 		return _ok({"status": "completed", "entry_id": entry_id,
 			"reason": "empty_authored_result_route", "result_label": str(located.value.label) + "." + str(pulled.value.outcome)})
 	return _fail("rehearsal_authored_playback_unavailable")
+
+
+## Private practice uses the retained presentation vocabulary that admitted its source.
+## Do not install these entries into the live story registration or bypass its refusal.
+static func _locate_rehearsal_entry(entry_id: String) -> Dictionary:
+	var manifest := preload("res://scripts/narrative/DialogicEntryManifest.gd")
+	var parsed := preload("res://scripts/validation/StrictJson.gd").parse_object(
+		FileAccess.get_file_as_string(SIGNATURE.MANIFEST_PATH))
+	if not parsed.ok or parsed.value.get("schema_version") != 1:
+		return _fail("rehearsal_manifest_unavailable")
+	var validated: Dictionary = manifest.validate_document(parsed.value)
+	if not validated.ok: return validated
+	return manifest.resolve_entry(validated.value, entry_id, "en", {})
 
 
 ## A deliberately narrow proof, not a Dialogic interpreter. Only the complete
