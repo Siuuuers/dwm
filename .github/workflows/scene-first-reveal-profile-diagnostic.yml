@@ -1,4 +1,4 @@
-name: Post-query native responsiveness
+name: Exported Save phase profile
 on:
   pull_request:
     paths:
@@ -12,7 +12,7 @@ concurrency:
 jobs:
   authority-audit:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
-    name: Windows / Post-query native responsiveness
+    name: Windows / Exported Save phase profile
     runs-on: windows-2022
     timeout-minutes: 30
     defaults:
@@ -23,7 +23,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: aba8cf9a4674d5bebe3193ffb5e0be8c88793197
+          ref: 39990c0834d6eb94bd34aa1947245c998c42ed21
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -31,9 +31,9 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne 'aba8cf9a4674d5bebe3193ffb5e0be8c88793197') { throw 'Candidate mismatch' }
+          if ((git rev-parse HEAD) -cne '39990c0834d6eb94bd34aa1947245c998c42ed21') { throw 'Candidate mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='aba8cf9a4674d5bebe3193ffb5e0be8c88793197'; tree='aac85d329d300cba86df88b42627fe3314596451'; controller='${{ github.event.pull_request.head.sha }}'; base='aba8cf9a4674d5bebe3193ffb5e0be8c88793197'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{candidate='39990c0834d6eb94bd34aa1947245c998c42ed21'; tree='b4808a6cf95e98c24c51b791e8f7c8f9fb62abe0'; controller='${{ github.event.pull_request.head.sha }}'; base='39990c0834d6eb94bd34aa1947245c998c42ed21'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -112,7 +112,7 @@ jobs:
         timeout-minutes: 10
         run: |
           $ErrorActionPreference = 'Stop'
-          & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Load -ArchivePath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export/DWM-windows-x86_64-validation.zip') -ExpectedArchiveSha256 '625fad0d7ab746c6413192f82db6b461e9db05f40634772e0b1e387dcdb017bf' -ExpectedCommit 'bb167aa1b5692f6bf5ceb6789201f38d4f86360a' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-journey-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-load') -CreatorReceipt (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-create/result.json') -Accessibility Always -Audio Dummy
+          & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Load -ArchivePath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export/DWM-windows-x86_64-validation.zip') -ExpectedArchiveSha256 '625fad0d7ab746c6413192f82db6b461e9db05f40634772e0b1e387dcdb017bf' -ExpectedCommit 'bb167aa1b5692f6bf5ceb6789201f38d4f86360a' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-journey-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-load') -CreatorReceipt (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-create/result.json') -Accessibility Always -Audio Dummy -ProfileSaveLoad
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Verify three bounded player exits and source cleanliness
         run: |
@@ -163,7 +163,7 @@ jobs:
           @'
           import base64,hashlib,io,json,pathlib,subprocess,zipfile
           out=pathlib.Path('.godot/ci')
-          for source in ['tools/testing/Probe-ExportedWindow.ps1','scripts/ui/BackupApp.gd','tests/unit/test_backup_presentation.gd','tools/testing/Invoke-ExportedGameplay.ps1','tools/testing/Invoke-WindowsExportValidation.ps1','project.godot','export_presets.cfg']:
+          for source in ['autoload/SaveManager.gd','tools/testing/Probe-ExportedWindow.ps1','scripts/ui/BackupApp.gd','tests/unit/test_backup_presentation.gd','tools/testing/Invoke-ExportedGameplay.ps1','tools/testing/Invoke-WindowsExportValidation.ps1','project.godot','export_presets.cfg']:
               p=out/'source'/source;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(pathlib.Path(source).read_bytes())
           (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
           files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts and 'package' not in p.parts and p.suffix!='.zip']
