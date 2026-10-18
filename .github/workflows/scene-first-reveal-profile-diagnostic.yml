@@ -1,4 +1,4 @@
-name: Exported capability with explicit cloud devices
+name: Exported capability and saved journey
 on:
   pull_request:
     paths:
@@ -12,7 +12,7 @@ concurrency:
 jobs:
   authority-audit:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
-    name: Windows / Exported capability with explicit cloud devices
+    name: Windows / Exported capability and saved journey
     runs-on: windows-2022
     timeout-minutes: 30
     defaults:
@@ -23,7 +23,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 855aaa5151e8368e38298974e1986cd7975b0f76
+          ref: 707ac391d07693af7d9de3091a0e96996d460bcf
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -31,9 +31,9 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '855aaa5151e8368e38298974e1986cd7975b0f76') { throw 'Candidate mismatch' }
+          if ((git rev-parse HEAD) -cne '707ac391d07693af7d9de3091a0e96996d460bcf') { throw 'Candidate mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='855aaa5151e8368e38298974e1986cd7975b0f76'; tree='423c5bb35566999cf9e770cdea3e22c5f9070b6b'; controller='${{ github.event.pull_request.head.sha }}'; base='855aaa5151e8368e38298974e1986cd7975b0f76'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{candidate='707ac391d07693af7d9de3091a0e96996d460bcf'; tree='46e96981e7ff8def883f27ce83845f156e0280af'; controller='${{ github.event.pull_request.head.sha }}'; base='707ac391d07693af7d9de3091a0e96996d460bcf'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -69,6 +69,27 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $result = Get-Content '.godot/ci/exported-capability/result.json' -Raw | ConvertFrom-Json
           if (-not $result.ok -or -not $result.clean_player_exit -or $result.forced_cleanup) { throw 'Capability not successful' }
+      - name: Create Day4 save through the exported UI
+        timeout-minutes: 10
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Create -ArchivePath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export/DWM-windows-x86_64-validation.zip') -ExpectedArchiveSha256 'c699d28099d68500354e5d1e1e6638d444216d0eeab9db7cf04cdd729f12045d' -ExpectedCommit 'c97ba59ff08644b3aeca82ab567dc39d623327eb' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-journey-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-create') -CapabilityReceipt (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-capability/result.json') -Accessibility Always -Audio Dummy
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Fresh-process selected-slot Load and ending journey
+        timeout-minutes: 10
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Load -ArchivePath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export/DWM-windows-x86_64-validation.zip') -ExpectedArchiveSha256 'c699d28099d68500354e5d1e1e6638d444216d0eeab9db7cf04cdd729f12045d' -ExpectedCommit 'c97ba59ff08644b3aeca82ab567dc39d623327eb' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-journey-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-load') -CreatorReceipt (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-create/result.json') -Accessibility Always -Audio Dummy
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify three bounded player exits and source cleanliness
+        run: |
+          $ErrorActionPreference = 'Stop'
+          foreach ($mode in @('capability','create','load')) {
+            $result = Get-Content ".godot/ci/exported-$mode/result.json" -Raw | ConvertFrom-Json
+            if (-not $result.ok -or -not $result.clean_player_exit -or $result.forced_cleanup -or $result.exit_code -ne 0) { throw "Exported $mode did not pass" }
+          }
+          $allowed = @('.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1')
+          foreach ($path in @(git diff HEAD --name-only)) { if ($path -notin $allowed) { throw "Unexpected tracked change: $path" } }
       - name: Retain original bounded capability evidence
         if: always()
         run: |
