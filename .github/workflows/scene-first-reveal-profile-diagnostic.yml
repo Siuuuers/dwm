@@ -23,7 +23,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: c157f4eb4441763d3e1ef0377de743d4ae0ebcfe
+          ref: eb33c854965ba8b1c9905abced10f104e278a599
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -31,9 +31,9 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne 'c157f4eb4441763d3e1ef0377de743d4ae0ebcfe') { throw 'Candidate mismatch' }
+          if ((git rev-parse HEAD) -cne 'eb33c854965ba8b1c9905abced10f104e278a599') { throw 'Candidate mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='c157f4eb4441763d3e1ef0377de743d4ae0ebcfe'; tree='7bd2616b636a7a1f14e43b536c0cdd4c2034ab3f'; controller='${{ github.event.pull_request.head.sha }}'; base='c157f4eb4441763d3e1ef0377de743d4ae0ebcfe'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{candidate='eb33c854965ba8b1c9905abced10f104e278a599'; tree='3070cbb624250b8f7f2d9251acdaccdb903f7459'; controller='${{ github.event.pull_request.head.sha }}'; base='eb33c854965ba8b1c9905abced10f104e278a599'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -49,7 +49,7 @@ jobs:
           $tokens = $null
           $errors = $null
           $null = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $env:GITHUB_WORKSPACE 'tools/testing/Invoke-ExportedGameplay.ps1'), [ref]$tokens, [ref]$errors)
-          @($errors | ForEach-Object { @{ message=$_.Message; line=$_.Extent.StartLineNumber; text=$_.Extent.Text } }) | ConvertTo-Json -AsArray | Set-Content '.godot/ci/driver-parse.json'
+          @{ ok=($errors.Count -eq 0); errors=@($errors | ForEach-Object { @{ message=$_.Message; line=$_.Extent.StartLineNumber; text=$_.Extent.Text } }) } | ConvertTo-Json -Depth 5 | Set-Content '.godot/ci/driver-parse.json'
           if ($errors.Count -ne 0) { $errors | Format-List; throw 'Driver parse failed' }
       - name: Download the original exact export package
         uses: actions/download-artifact@v4
