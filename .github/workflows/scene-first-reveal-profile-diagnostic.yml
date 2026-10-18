@@ -1,4 +1,4 @@
-name: Post-Save quiet UIA diagnostic
+name: Post-Save native baseline and timing
 on:
   pull_request:
     paths:
@@ -12,7 +12,7 @@ concurrency:
 jobs:
   authority-audit:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
-    name: Windows / Post-Save quiet UIA diagnostic
+    name: Windows / Post-Save native baseline and timing
     runs-on: windows-2022
     timeout-minutes: 30
     defaults:
@@ -23,7 +23,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 146791302b2a0df4ca09a9deb5a3485ec10cb2fc
+          ref: a9faeed67a8d959172b0bbe9b94578e67162bf8c
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -31,9 +31,9 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '146791302b2a0df4ca09a9deb5a3485ec10cb2fc') { throw 'Candidate mismatch' }
+          if ((git rev-parse HEAD) -cne 'a9faeed67a8d959172b0bbe9b94578e67162bf8c') { throw 'Candidate mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='146791302b2a0df4ca09a9deb5a3485ec10cb2fc'; tree='ae2946cd542e4360e03483a8db7679c55038428d'; controller='${{ github.event.pull_request.head.sha }}'; base='146791302b2a0df4ca09a9deb5a3485ec10cb2fc'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{candidate='a9faeed67a8d959172b0bbe9b94578e67162bf8c'; tree='0b431ac8617dfbcaeb4a5089f9c4db7960eadee2'; controller='${{ github.event.pull_request.head.sha }}'; base='a9faeed67a8d959172b0bbe9b94578e67162bf8c'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
