@@ -1,0 +1,1351 @@
+{
+  "schema_version": 1,
+  "binding_ok": true,
+  "same_ending_failure_reproduced": true,
+  "official_original_load_ok": false,
+  "official_acceptance_established": false,
+  "scope": "Prepared graph at recorded capture times; no adapter acceptance claim",
+  "input_files": {
+    "audit-origin.json": {
+      "bytes": 41812,
+      "sha256": "2174184399622c72e1d84902d12bdc235e552866f011c0ec38c574e14f204b8a"
+    },
+    "native-build/build-receipt.json": {
+      "bytes": 5594,
+      "sha256": "c318abdd13a74b15178df8f91c7fc694dc8892e788c8c06a870ebe305ecc0406"
+    },
+    "native-diagnostic/validation.json": {
+      "bytes": 6154,
+      "sha256": "ae3509b1f429b6620a4c83758875d50065c11e2283109fb7a961224b0396b418"
+    },
+    "source/tools/diagnostics/ending-publication-20261019/native-probe/baseline/drivers/accesskit/accessibility_driver_accesskit.cpp": {
+      "bytes": 74291,
+      "sha256": "9fe069e718b13d06cced39b3fd098198911fab3c3c46dc74910cfc413646811c"
+    },
+    "source/tools/diagnostics/ending-publication-20261019/native-probe/candidate/drivers/accesskit/accessibility_driver_accesskit.cpp": {
+      "bytes": 83200,
+      "sha256": "59ecabf7ef34ced32990a3dccbf113e169f9f5766ccd2fae3f62f9bfbdb2aa42"
+    },
+    "source/tools/diagnostics/ending-publication-20261019/native-probe/baseline/drivers/accesskit/accessibility_driver_accesskit.h": {
+      "bytes": 12450,
+      "sha256": "22e723e9b99f5e84ba947242c8073640f5fad735bf406d02988d77284b1d8dd8"
+    },
+    "source/tools/diagnostics/ending-publication-20261019/native-probe/candidate/drivers/accesskit/accessibility_driver_accesskit.h": {
+      "bytes": 12524,
+      "sha256": "c601717080df43b36f10a4a0f38110cae0f5ee5d77970081bf730c5f27095827"
+    },
+    "source/tools/diagnostics/ending-publication-20261019/native-probe/publication-native-probe.patch": {
+      "bytes": 12076,
+      "sha256": "63e2b4090e881a191783ed641530d0c066eaa1193ef513dd0db33ec09bf51065"
+    },
+    "source/tools/diagnostics/ending-publication-20261019/native-probe/PROTOCOL.md": {
+      "bytes": 11253,
+      "sha256": "29a598e0a733e14d2ae849e21d62f9d7b52fa9d4db5f4b3ae5168f7d92cde37c"
+    },
+    "exported-capability/result.json": {
+      "bytes": 1880,
+      "sha256": "2a1fee073c8f6042509ac00c7fe05cdd239ceaf0bc428be0f35a00105bc785b3"
+    },
+    "capability-process.json": {
+      "bytes": 140,
+      "sha256": "48745d338be0e04d14ebd296b41ed2d02a4475d2b7d073b105fc58d09e9e8df5"
+    },
+    "exported-create/result.json": {
+      "bytes": 4028,
+      "sha256": "990c02366e98f758927d1ca177f05ae3f0f77d453b8603e83b1d8f6055bfd68f"
+    },
+    "create-process.json": {
+      "bytes": 136,
+      "sha256": "e8fdbb3e3b9e8b6516fca7e04a16052e097c04a7e9bd3282ecdf3b43584a79e4"
+    },
+    "exported-load/result.json": {
+      "bytes": 2107,
+      "sha256": "31bf3d9beaffa9ab95b8bf62282112b72024d1b4316bd09ed4a345764bfb03bb"
+    },
+    "load-process.json": {
+      "bytes": 187,
+      "sha256": "23e87d633a829ad3bf3cbee5300b0452d3b3c9b4c8a96791bbea7207aa2a978b"
+    },
+    "exported-load/failure-boundary.json": {
+      "bytes": 889,
+      "sha256": "80a89835584b9dbaf5422ce6b234e76c2849ab8fc75e4f680f1caffd904823a1"
+    },
+    "exported-load/events.json": {
+      "bytes": 518062,
+      "sha256": "70a8c766208c2475920d43d14f26d91efbd40cf7b25c7af46b358532d95dcb45"
+    },
+    "exported-load/game.stdout.log": {
+      "bytes": 109214,
+      "sha256": "d6606c4e601b60c105ec21c984ab2b6ecc39ee8fdf9f43c15285f3657c53f8b9"
+    },
+    "native-trace/trace-6124.jsonl": {
+      "bytes": 1252458,
+      "sha256": "81f84fce785d9630ec2a29790804665285ad0fc05c0258fcff354573679ec337"
+    },
+    "prepared-graph-replay.json": {
+      "bytes": 1844043,
+      "sha256": "f7f86f73833901e2eb9239edfe1f36ce7bb3dcf4e9ee73da4093db9aa1e11119"
+    }
+  },
+  "native_outcomes": {
+    "capability": {
+      "ok": true,
+      "exit_code": 0,
+      "failure": null,
+      "clean_player_exit": true,
+      "forced_cleanup": false,
+      "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+      "archive_sha256": "68a23de94170f18df1d2aaa137c53aa3060bcd9e1d8c71b3b40acf5dc75ba3c1",
+      "executable_sha256": "f1a8bf3c5fea1927fb1b202ba76c265f987e0e798b72835c143340a1278cbe25",
+      "pck_sha256": "1bbe3794a2febb54960929984556421e04df621f0e21a095f71ea25603147d26",
+      "process": {
+        "pid": 2904,
+        "started_utc": "2026-10-18T20:55:47.9213847Z",
+        "arguments": [
+          "--windowed",
+          "--resolution",
+          "1280x720",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\game.log",
+          "--accessibility",
+          "always",
+          "--audio-driver",
+          "Dummy"
+        ],
+        "observed_command_line": "\"D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\package\\DWM.exe\" --windowed --resolution 1280x720 --log-file D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\game.log --accessibility always --audio-driver Dummy",
+        "executable": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\package\\DWM.exe"
+      },
+      "driver_exit_code": 0
+    },
+    "create": {
+      "ok": true,
+      "exit_code": 0,
+      "failure": null,
+      "clean_player_exit": true,
+      "forced_cleanup": false,
+      "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+      "archive_sha256": "68a23de94170f18df1d2aaa137c53aa3060bcd9e1d8c71b3b40acf5dc75ba3c1",
+      "executable_sha256": "f1a8bf3c5fea1927fb1b202ba76c265f987e0e798b72835c143340a1278cbe25",
+      "pck_sha256": "1bbe3794a2febb54960929984556421e04df621f0e21a095f71ea25603147d26",
+      "process": {
+        "pid": 5776,
+        "executable": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create\\package\\DWM.exe",
+        "observed_command_line": "\"D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create\\package\\DWM.exe\" --windowed --resolution 1280x720 --log-file D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create\\game.log --accessibility always --audio-driver Dummy",
+        "started_utc": "2026-10-18T20:56:18.4251361Z",
+        "arguments": [
+          "--windowed",
+          "--resolution",
+          "1280x720",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create\\game.log",
+          "--accessibility",
+          "always",
+          "--audio-driver",
+          "Dummy"
+        ]
+      },
+      "driver_exit_code": 0
+    },
+    "load": {
+      "ok": false,
+      "exit_code": -1,
+      "failure": "UIA_UNAVAILABLE_OR_TIMEOUT: TEST Seven-day ending.",
+      "clean_player_exit": false,
+      "forced_cleanup": true,
+      "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+      "archive_sha256": "68a23de94170f18df1d2aaa137c53aa3060bcd9e1d8c71b3b40acf5dc75ba3c1",
+      "executable_sha256": "f1a8bf3c5fea1927fb1b202ba76c265f987e0e798b72835c143340a1278cbe25",
+      "pck_sha256": "1bbe3794a2febb54960929984556421e04df621f0e21a095f71ea25603147d26",
+      "process": {
+        "pid": 6124,
+        "observed_command_line": "\"D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\package\\DWM.exe\" --windowed --resolution 1280x720 --log-file D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\game.log --accessibility always --audio-driver Dummy",
+        "started_utc": "2026-10-18T20:58:10.2761811Z",
+        "arguments": [
+          "--windowed",
+          "--resolution",
+          "1280x720",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\game.log",
+          "--accessibility",
+          "always",
+          "--audio-driver",
+          "Dummy"
+        ],
+        "executable": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\package\\DWM.exe"
+      },
+      "driver_exit_code": 1
+    }
+  },
+  "errors": [],
+  "selected_observations": [
+    {
+      "seq": 1416,
+      "update_seq": 1414,
+      "update_kind": "delta",
+      "window_id": 0,
+      "window_open_seq": 2,
+      "epoch": 1,
+      "capture_start_ticks_us": "247754920",
+      "capture_end_ticks_us": "247755246",
+      "capture_start_unix_us": "1792357338053000",
+      "capture_end_unix_us": "1792357338053000",
+      "capture_thread_id": "1",
+      "thread_id": "1",
+      "node_count": 153,
+      "edge_count": 167,
+      "ticks_us": "247755249",
+      "unix_us": "1792357338053000",
+      "node_copy_us_total": "12140",
+      "write_us_total_before_record": "137727",
+      "previous_write_us": "66",
+      "target_id": "108881715921047",
+      "root_id": "12884901888",
+      "native_handle": "524608",
+      "prepared_graph_status": "connected",
+      "root_to_target": [
+        "12884901888",
+        "108649787686927",
+        "108709917229102",
+        "108787226640610",
+        "108843061215361",
+        "108855946117250",
+        "108881715921047"
+      ],
+      "edges": [
+        {
+          "parent_id": "12884901888",
+          "child_id": "108649787686927",
+          "child_index": 15,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108649787686927",
+          "child_id": "108709917229102",
+          "child_index": 3,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108709917229102",
+          "child_id": "108787226640610",
+          "child_index": 5,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108787226640610",
+          "child_id": "108843061215361",
+          "child_index": 1,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108843061215361",
+          "child_id": "108855946117250",
+          "child_index": 0,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108855946117250",
+          "child_id": "108881715921047",
+          "child_index": 0,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        }
+      ],
+      "path_nodes": [
+        {
+          "id": "12884901888",
+          "role": 133,
+          "hidden": false,
+          "label": "DWM ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108649787686927",
+          "role": 14,
+          "hidden": false,
+          "label": "DialogicLayout_WitnessedCaption ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108709917229102",
+          "role": 14,
+          "hidden": false,
+          "label": "WitnessedCaptionLayer ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108787226640610",
+          "role": 14,
+          "hidden": false,
+          "label": " ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108843061215361",
+          "role": 108,
+          "hidden": false,
+          "label": " ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108855946117250",
+          "role": 14,
+          "hidden": false,
+          "label": " ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108881715921047",
+          "role": 18,
+          "hidden": false,
+          "label": "TEST Seven-day ending. ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        }
+      ],
+      "retained_graph_nodes": 544,
+      "removed_nodes": 155,
+      "retained_nodes_not_replaced": 391,
+      "target_replaced_in_update": true,
+      "after_text_finished": false,
+      "cutoff_minus_capture_end_us": "221605",
+      "any_path_node_hidden": false,
+      "actual_target_label": "TEST Seven-day ending. ",
+      "actual_target_role": 18,
+      "caption_label_and_button_role_match": true
+    },
+    {
+      "seq": 1417,
+      "update_seq": 1415,
+      "update_kind": "delta",
+      "window_id": 0,
+      "window_open_seq": 2,
+      "epoch": 1,
+      "capture_start_ticks_us": "247795421",
+      "capture_end_ticks_us": "247795436",
+      "capture_start_unix_us": "1792357338093000",
+      "capture_end_unix_us": "1792357338093000",
+      "capture_thread_id": "1",
+      "thread_id": "1",
+      "node_count": 3,
+      "edge_count": 4,
+      "ticks_us": "247795439",
+      "unix_us": "1792357338093000",
+      "node_copy_us_total": "12151",
+      "write_us_total_before_record": "138360",
+      "previous_write_us": "633",
+      "target_id": "108881715921047",
+      "root_id": "12884901888",
+      "native_handle": "524608",
+      "prepared_graph_status": "connected",
+      "root_to_target": [
+        "12884901888",
+        "108649787686927",
+        "108709917229102",
+        "108787226640610",
+        "108843061215361",
+        "108855946117250",
+        "108881715921047"
+      ],
+      "edges": [
+        {
+          "parent_id": "12884901888",
+          "child_id": "108649787686927",
+          "child_index": 15,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108649787686927",
+          "child_id": "108709917229102",
+          "child_index": 3,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108709917229102",
+          "child_id": "108787226640610",
+          "child_index": 5,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108787226640610",
+          "child_id": "108843061215361",
+          "child_index": 1,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108843061215361",
+          "child_id": "108855946117250",
+          "child_index": 0,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108855946117250",
+          "child_id": "108881715921047",
+          "child_index": 0,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        }
+      ],
+      "path_nodes": [
+        {
+          "id": "12884901888",
+          "role": 133,
+          "hidden": false,
+          "label": "DWM ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108649787686927",
+          "role": 14,
+          "hidden": false,
+          "label": "DialogicLayout_WitnessedCaption ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108709917229102",
+          "role": 14,
+          "hidden": false,
+          "label": "WitnessedCaptionLayer ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108787226640610",
+          "role": 14,
+          "hidden": false,
+          "label": " ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108843061215361",
+          "role": 108,
+          "hidden": false,
+          "label": " ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108855946117250",
+          "role": 14,
+          "hidden": false,
+          "label": " ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108881715921047",
+          "role": 18,
+          "hidden": false,
+          "label": "TEST Seven-day ending. ",
+          "source_update_seq": 1415,
+          "source_record_seq": 1417
+        }
+      ],
+      "retained_graph_nodes": 544,
+      "removed_nodes": 0,
+      "retained_nodes_not_replaced": 541,
+      "target_replaced_in_update": true,
+      "after_text_finished": false,
+      "cutoff_minus_capture_end_us": "181605",
+      "any_path_node_hidden": false,
+      "actual_target_label": "TEST Seven-day ending. ",
+      "actual_target_role": 18,
+      "caption_label_and_button_role_match": true
+    },
+    {
+      "seq": 1418,
+      "update_seq": 1416,
+      "update_kind": "delta",
+      "window_id": 0,
+      "window_open_seq": 2,
+      "epoch": 1,
+      "capture_start_ticks_us": "247811612",
+      "capture_end_ticks_us": "247811631",
+      "capture_start_unix_us": "1792357338109000",
+      "capture_end_unix_us": "1792357338109000",
+      "capture_thread_id": "1",
+      "thread_id": "1",
+      "node_count": 3,
+      "edge_count": 4,
+      "ticks_us": "247811634",
+      "unix_us": "1792357338110000",
+      "node_copy_us_total": "12162",
+      "write_us_total_before_record": "138421",
+      "previous_write_us": "61",
+      "target_id": "108881715921047",
+      "root_id": "12884901888",
+      "native_handle": "524608",
+      "prepared_graph_status": "connected",
+      "root_to_target": [
+        "12884901888",
+        "108649787686927",
+        "108709917229102",
+        "108787226640610",
+        "108843061215361",
+        "108855946117250",
+        "108881715921047"
+      ],
+      "edges": [
+        {
+          "parent_id": "12884901888",
+          "child_id": "108649787686927",
+          "child_index": 15,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108649787686927",
+          "child_id": "108709917229102",
+          "child_index": 3,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108709917229102",
+          "child_id": "108787226640610",
+          "child_index": 5,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108787226640610",
+          "child_id": "108843061215361",
+          "child_index": 1,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108843061215361",
+          "child_id": "108855946117250",
+          "child_index": 0,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108855946117250",
+          "child_id": "108881715921047",
+          "child_index": 0,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        }
+      ],
+      "path_nodes": [
+        {
+          "id": "12884901888",
+          "role": 133,
+          "hidden": false,
+          "label": "DWM ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108649787686927",
+          "role": 14,
+          "hidden": false,
+          "label": "DialogicLayout_WitnessedCaption ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108709917229102",
+          "role": 14,
+          "hidden": false,
+          "label": "WitnessedCaptionLayer ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108787226640610",
+          "role": 14,
+          "hidden": false,
+          "label": " ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108843061215361",
+          "role": 108,
+          "hidden": false,
+          "label": " ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108855946117250",
+          "role": 14,
+          "hidden": false,
+          "label": " ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108881715921047",
+          "role": 18,
+          "hidden": false,
+          "label": "TEST Seven-day ending. ",
+          "source_update_seq": 1416,
+          "source_record_seq": 1418
+        }
+      ],
+      "retained_graph_nodes": 544,
+      "removed_nodes": 0,
+      "retained_nodes_not_replaced": 541,
+      "target_replaced_in_update": true,
+      "after_text_finished": false,
+      "cutoff_minus_capture_end_us": "165605",
+      "any_path_node_hidden": false,
+      "actual_target_label": "TEST Seven-day ending. ",
+      "actual_target_role": 18,
+      "caption_label_and_button_role_match": true
+    },
+    {
+      "seq": 1419,
+      "update_seq": 1417,
+      "update_kind": "delta",
+      "window_id": 0,
+      "window_open_seq": 2,
+      "epoch": 1,
+      "capture_start_ticks_us": "247842233",
+      "capture_end_ticks_us": "247842252",
+      "capture_start_unix_us": "1792357338140000",
+      "capture_end_unix_us": "1792357338140000",
+      "capture_thread_id": "1",
+      "thread_id": "1",
+      "node_count": 3,
+      "edge_count": 4,
+      "ticks_us": "247842256",
+      "unix_us": "1792357338140000",
+      "node_copy_us_total": "12175",
+      "write_us_total_before_record": "138536",
+      "previous_write_us": "115",
+      "target_id": "108881715921047",
+      "root_id": "12884901888",
+      "native_handle": "524608",
+      "prepared_graph_status": "connected",
+      "root_to_target": [
+        "12884901888",
+        "108649787686927",
+        "108709917229102",
+        "108787226640610",
+        "108843061215361",
+        "108855946117250",
+        "108881715921047"
+      ],
+      "edges": [
+        {
+          "parent_id": "12884901888",
+          "child_id": "108649787686927",
+          "child_index": 15,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108649787686927",
+          "child_id": "108709917229102",
+          "child_index": 3,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108709917229102",
+          "child_id": "108787226640610",
+          "child_index": 5,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108787226640610",
+          "child_id": "108843061215361",
+          "child_index": 1,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108843061215361",
+          "child_id": "108855946117250",
+          "child_index": 0,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108855946117250",
+          "child_id": "108881715921047",
+          "child_index": 0,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        }
+      ],
+      "path_nodes": [
+        {
+          "id": "12884901888",
+          "role": 133,
+          "hidden": false,
+          "label": "DWM ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108649787686927",
+          "role": 14,
+          "hidden": false,
+          "label": "DialogicLayout_WitnessedCaption ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108709917229102",
+          "role": 14,
+          "hidden": false,
+          "label": "WitnessedCaptionLayer ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108787226640610",
+          "role": 14,
+          "hidden": false,
+          "label": " ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108843061215361",
+          "role": 108,
+          "hidden": false,
+          "label": " ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108855946117250",
+          "role": 14,
+          "hidden": false,
+          "label": " ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108881715921047",
+          "role": 18,
+          "hidden": false,
+          "label": "TEST Seven-day ending. ",
+          "source_update_seq": 1417,
+          "source_record_seq": 1419
+        }
+      ],
+      "retained_graph_nodes": 544,
+      "removed_nodes": 0,
+      "retained_nodes_not_replaced": 541,
+      "target_replaced_in_update": true,
+      "after_text_finished": true,
+      "cutoff_minus_capture_end_us": "134605",
+      "any_path_node_hidden": false,
+      "actual_target_label": "TEST Seven-day ending. ",
+      "actual_target_role": 18,
+      "caption_label_and_button_role_match": true
+    },
+    {
+      "seq": 1420,
+      "update_seq": 1418,
+      "update_kind": "delta",
+      "window_id": 0,
+      "window_open_seq": 2,
+      "epoch": 1,
+      "capture_start_ticks_us": "247888410",
+      "capture_end_ticks_us": "247888434",
+      "capture_start_unix_us": "1792357338186000",
+      "capture_end_unix_us": "1792357338186000",
+      "capture_thread_id": "1",
+      "thread_id": "1",
+      "node_count": 3,
+      "edge_count": 4,
+      "ticks_us": "247888442",
+      "unix_us": "1792357338186000",
+      "node_copy_us_total": "12191",
+      "write_us_total_before_record": "138622",
+      "previous_write_us": "86",
+      "target_id": "108881715921047",
+      "root_id": "12884901888",
+      "native_handle": "524608",
+      "prepared_graph_status": "connected",
+      "root_to_target": [
+        "12884901888",
+        "108649787686927",
+        "108709917229102",
+        "108787226640610",
+        "108843061215361",
+        "108855946117250",
+        "108881715921047"
+      ],
+      "edges": [
+        {
+          "parent_id": "12884901888",
+          "child_id": "108649787686927",
+          "child_index": 15,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108649787686927",
+          "child_id": "108709917229102",
+          "child_index": 3,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108709917229102",
+          "child_id": "108787226640610",
+          "child_index": 5,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108787226640610",
+          "child_id": "108843061215361",
+          "child_index": 1,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108843061215361",
+          "child_id": "108855946117250",
+          "child_index": 0,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108855946117250",
+          "child_id": "108881715921047",
+          "child_index": 0,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        }
+      ],
+      "path_nodes": [
+        {
+          "id": "12884901888",
+          "role": 133,
+          "hidden": false,
+          "label": "DWM ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108649787686927",
+          "role": 14,
+          "hidden": false,
+          "label": "DialogicLayout_WitnessedCaption ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108709917229102",
+          "role": 14,
+          "hidden": false,
+          "label": "WitnessedCaptionLayer ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108787226640610",
+          "role": 14,
+          "hidden": false,
+          "label": " ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108843061215361",
+          "role": 108,
+          "hidden": false,
+          "label": " ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108855946117250",
+          "role": 14,
+          "hidden": false,
+          "label": " ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108881715921047",
+          "role": 18,
+          "hidden": false,
+          "label": "TEST Seven-day ending. ",
+          "source_update_seq": 1418,
+          "source_record_seq": 1420
+        }
+      ],
+      "retained_graph_nodes": 544,
+      "removed_nodes": 0,
+      "retained_nodes_not_replaced": 541,
+      "target_replaced_in_update": true,
+      "after_text_finished": true,
+      "cutoff_minus_capture_end_us": "88605",
+      "any_path_node_hidden": false,
+      "actual_target_label": "TEST Seven-day ending. ",
+      "actual_target_role": 18,
+      "caption_label_and_button_role_match": true
+    },
+    {
+      "seq": 1421,
+      "update_seq": 1419,
+      "update_kind": "delta",
+      "window_id": 0,
+      "window_open_seq": 2,
+      "epoch": 1,
+      "capture_start_ticks_us": "247936262",
+      "capture_end_ticks_us": "247936283",
+      "capture_start_unix_us": "1792357338234000",
+      "capture_end_unix_us": "1792357338234000",
+      "capture_thread_id": "1",
+      "thread_id": "1",
+      "node_count": 3,
+      "edge_count": 4,
+      "ticks_us": "247936286",
+      "unix_us": "1792357338234000",
+      "node_copy_us_total": "12206",
+      "write_us_total_before_record": "138784",
+      "previous_write_us": "162",
+      "target_id": "108881715921047",
+      "root_id": "12884901888",
+      "native_handle": "524608",
+      "prepared_graph_status": "connected",
+      "root_to_target": [
+        "12884901888",
+        "108649787686927",
+        "108709917229102",
+        "108787226640610",
+        "108843061215361",
+        "108855946117250",
+        "108881715921047"
+      ],
+      "edges": [
+        {
+          "parent_id": "12884901888",
+          "child_id": "108649787686927",
+          "child_index": 15,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108649787686927",
+          "child_id": "108709917229102",
+          "child_index": 3,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108709917229102",
+          "child_id": "108787226640610",
+          "child_index": 5,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108787226640610",
+          "child_id": "108843061215361",
+          "child_index": 1,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108843061215361",
+          "child_id": "108855946117250",
+          "child_index": 0,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "parent_id": "108855946117250",
+          "child_id": "108881715921047",
+          "child_index": 0,
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        }
+      ],
+      "path_nodes": [
+        {
+          "id": "12884901888",
+          "role": 133,
+          "hidden": false,
+          "label": "DWM ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108649787686927",
+          "role": 14,
+          "hidden": false,
+          "label": "DialogicLayout_WitnessedCaption ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108709917229102",
+          "role": 14,
+          "hidden": false,
+          "label": "WitnessedCaptionLayer ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108787226640610",
+          "role": 14,
+          "hidden": false,
+          "label": " ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108843061215361",
+          "role": 108,
+          "hidden": false,
+          "label": " ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108855946117250",
+          "role": 14,
+          "hidden": false,
+          "label": " ",
+          "source_update_seq": 1414,
+          "source_record_seq": 1416
+        },
+        {
+          "id": "108881715921047",
+          "role": 18,
+          "hidden": false,
+          "label": "TEST Seven-day ending. ",
+          "source_update_seq": 1419,
+          "source_record_seq": 1421
+        }
+      ],
+      "retained_graph_nodes": 544,
+      "removed_nodes": 0,
+      "retained_nodes_not_replaced": 541,
+      "target_replaced_in_update": true,
+      "after_text_finished": true,
+      "cutoff_minus_capture_end_us": "40605",
+      "any_path_node_hidden": false,
+      "actual_target_label": "TEST Seven-day ending. ",
+      "actual_target_role": 18,
+      "caption_label_and_button_role_match": true
+    }
+  ],
+  "timing_note": "Capture end precedes row serialization/write/flush and factory return. Wall-clock values are observations, not a clock-accuracy attestation.",
+  "coverage_note": "Missing footer permits complete-prefix observations only; no continuous or final-state guarantee.",
+  "original_wait": {
+    "start": {
+      "utc": "2026-10-18T21:01:48.2530918Z",
+      "kind": "native-caption-wait-start",
+      "data": {
+        "cpu_total_seconds": 288.890625,
+        "name": "TEST Seven-day ending.",
+        "deadline_seconds": 30
+      }
+    },
+    "end": {
+      "utc": "2026-10-18T21:02:18.2746057Z",
+      "kind": "native-caption-wait-end",
+      "data": {
+        "cpu_delta_seconds": 30.03125,
+        "elapsed_seconds": 30.0215024,
+        "name": "TEST Seven-day ending."
+      }
+    },
+    "failure_boundary": {
+      "utc": "2026-10-18T21:02:18.3068996Z",
+      "failure": "UIA_UNAVAILABLE_OR_TIMEOUT: TEST Seven-day ending.",
+      "diagnostic_only": true,
+      "process": {
+        "pid": 6124,
+        "observed_command_line": "\"D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\package\\DWM.exe\" --windowed --resolution 1280x720 --log-file D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\game.log --accessibility always --audio-driver Dummy",
+        "started_utc": "2026-10-18T20:58:10.2761811Z",
+        "arguments": [
+          "--windowed",
+          "--resolution",
+          "1280x720",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\game.log",
+          "--accessibility",
+          "always",
+          "--audio-driver",
+          "Dummy"
+        ],
+        "executable": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\package\\DWM.exe"
+      },
+      "original_window_handle": 524608,
+      "cleanup_state": "not-yet-observed"
+    },
+    "observational_cutoff_unix_us": "1792357338274605",
+    "cutoff_kind": "Logged original wait-end UTC; failure-observation interval, not independent proof of admission before the strict 30-second Stopwatch deadline"
+  },
+  "zero_query_count": 1,
+  "first_last_zero_queries": [
+    {
+      "utc": "2026-10-18T21:02:18.2206829Z",
+      "kind": "caption-action-enumeration",
+      "data": {
+        "matches": 0,
+        "started_seconds": 29.9152416,
+        "name": "TEST Seven-day ending.",
+        "finished_seconds": 29.9676575
+      }
+    },
+    {
+      "utc": "2026-10-18T21:02:18.2206829Z",
+      "kind": "caption-action-enumeration",
+      "data": {
+        "matches": 0,
+        "started_seconds": 29.9152416,
+        "name": "TEST Seven-day ending.",
+        "finished_seconds": 29.9676575
+      }
+    }
+  ],
+  "responsive_window_sample_count": 1,
+  "first_last_responsive_samples": [
+    {
+      "utc": "2026-10-18T21:02:18.1091460Z",
+      "kind": "native-boundary",
+      "data": {
+        "hung": false,
+        "cpu_total_seconds": 318.703125,
+        "pid": 6124,
+        "stage": "caption-before-query: TEST Seven-day ending.",
+        "class": "Engine",
+        "responds": true,
+        "foreground_pid": 6124,
+        "handle": 524608,
+        "foreground_class": "Engine",
+        "foreground_is_game": true,
+        "elapsed_seconds": 29.8526642,
+        "foreground_handle": 524608
+      }
+    },
+    {
+      "utc": "2026-10-18T21:02:18.1091460Z",
+      "kind": "native-boundary",
+      "data": {
+        "hung": false,
+        "cpu_total_seconds": 318.703125,
+        "pid": 6124,
+        "stage": "caption-before-query: TEST Seven-day ending.",
+        "class": "Engine",
+        "responds": true,
+        "foreground_pid": 6124,
+        "handle": 524608,
+        "foreground_class": "Engine",
+        "foreground_is_game": true,
+        "elapsed_seconds": 29.8526642,
+        "foreground_handle": 524608
+      }
+    }
+  ],
+  "observed_engine_banner": "Godot Engine v4.6.3.stable.dwm_publication_probe_v1.35e80b3a8 (2026-05-20 13:47:53 UTC) - https://godotengine.org",
+  "observed_renderer": "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver",
+  "replay_exit_code": 0,
+  "caption_native_clock_checks": [
+    {
+      "window_id": 0,
+      "rid": "108881715921047",
+      "caption_line": 118,
+      "snapshot_offset_us": "1792357090298235",
+      "serialization_consistency_tolerance_us": 2000,
+      "native_brackets": [
+        {
+          "ticks_us": "217736122",
+          "unix_us": "1792357308034000",
+          "record_seq": 1415,
+          "sample": "record_"
+        },
+        {
+          "ticks_us": "247754920",
+          "unix_us": "1792357338053000",
+          "record_seq": 1416,
+          "sample": "capture_start_"
+        }
+      ]
+    },
+    {
+      "window_id": 0,
+      "rid": "108881715921047",
+      "caption_line": 119,
+      "snapshot_offset_us": "1792357090298122",
+      "serialization_consistency_tolerance_us": 2000,
+      "native_brackets": [
+        {
+          "ticks_us": "247755249",
+          "unix_us": "1792357338053000",
+          "record_seq": 1416,
+          "sample": "record_"
+        },
+        {
+          "ticks_us": "247795421",
+          "unix_us": "1792357338093000",
+          "record_seq": 1417,
+          "sample": "capture_start_"
+        }
+      ]
+    },
+    {
+      "window_id": 0,
+      "rid": "108881715921047",
+      "caption_line": 120,
+      "snapshot_offset_us": "1792357090297886",
+      "serialization_consistency_tolerance_us": 2000,
+      "native_brackets": [
+        {
+          "ticks_us": "247811634",
+          "unix_us": "1792357338110000",
+          "record_seq": 1418,
+          "sample": "record_"
+        },
+        {
+          "ticks_us": "247842233",
+          "unix_us": "1792357338140000",
+          "record_seq": 1419,
+          "sample": "capture_start_"
+        }
+      ]
+    },
+    {
+      "window_id": 0,
+      "rid": "108881715921047",
+      "caption_line": 121,
+      "snapshot_offset_us": "1792357090297912",
+      "serialization_consistency_tolerance_us": 2000,
+      "native_brackets": [
+        {
+          "ticks_us": "249808074",
+          "unix_us": "1792357340106000",
+          "record_seq": 1460,
+          "sample": "record_"
+        },
+        {
+          "ticks_us": "249857049",
+          "unix_us": "1792357340155000",
+          "record_seq": 1461,
+          "sample": "capture_start_"
+        }
+      ]
+    }
+  ],
+  "trace_session": {
+    "boundary": "completed-node-before-transfer/factory-prepared",
+    "engine_hash": "35e80b3a8822a9df9be390814b62f44c0a9c69e8",
+    "engine_version": "4.6.3.stable.dwm_publication_probe_v1",
+    "event": "session",
+    "grafts_supported": false,
+    "limits": {
+      "edges_per_update": 16384,
+      "file_bytes": 67108864,
+      "label_bytes_per_node": 8192,
+      "label_bytes_per_update": 1048576,
+      "nodes_per_update": 4096,
+      "row_bytes": 4194304,
+      "updates": 65536
+    },
+    "node_copy_us_total": "0",
+    "pid": "6124",
+    "previous_write_us": "0",
+    "probe_id": "publication-native-v1",
+    "schema": 1,
+    "seq": 1,
+    "source_base_commit": "35e80b3a8822a9df9be390814b62f44c0a9c69e8",
+    "thread_id": "1",
+    "ticks_us": "67655",
+    "tree_id": "root",
+    "unix_us": "1792357090366000",
+    "write_us_total_before_record": "0"
+  },
+  "replay_summary": {
+    "prefix_valid": true,
+    "stream_closed": false,
+    "coverage": "complete_prefix_only",
+    "problems": [],
+    "complete_update_count": 1499,
+    "record_count": 1501,
+    "target_coverage": [
+      {
+        "window_id": 0,
+        "node_id": "108881715921047",
+        "observation_count": 1499,
+        "qualified_observation_count": 1499,
+        "coverage": "observed_updates"
+      }
+    ],
+    "node_copy_us_total": "13344",
+    "write_us_total_before_last_record": "147583"
+  },
+  "target_samples": [
+    {
+      "window_id": 0,
+      "rid": "108881715921047",
+      "samples": [
+        {
+          "line": 118,
+          "callback_ticks_us": 247753655,
+          "snapshot_ticks_us": 247753765,
+          "snapshot_unix_us": "1792357338052000",
+          "event": "caption_accessibility",
+          "node_id": 589916392131188,
+          "text_finished_ticks_us": -1
+        },
+        {
+          "line": 119,
+          "callback_ticks_us": 247794728,
+          "snapshot_ticks_us": 247794878,
+          "snapshot_unix_us": "1792357338093000",
+          "event": "caption_accessibility",
+          "node_id": 589916392131188,
+          "text_finished_ticks_us": -1
+        },
+        {
+          "line": 120,
+          "callback_ticks_us": 247811595,
+          "snapshot_ticks_us": 247841114,
+          "snapshot_unix_us": "1792357338139000",
+          "event": "text_finished",
+          "node_id": 589916392131188,
+          "text_finished_ticks_us": 247840906
+        },
+        {
+          "line": 121,
+          "callback_ticks_us": 249808030,
+          "snapshot_ticks_us": 249855088,
+          "snapshot_unix_us": "1792357340153000",
+          "event": "text_finished_followup",
+          "node_id": 589916392131188,
+          "text_finished_ticks_us": 247840906
+        }
+      ]
+    }
+  ],
+  "selected_status_counts": {
+    "connected": 6
+  }
+}

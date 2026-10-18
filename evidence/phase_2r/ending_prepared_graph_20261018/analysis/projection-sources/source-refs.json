@@ -1,0 +1,127 @@
+{
+  "schema": 1,
+  "scope": "Exact primary source bytes retained for native-owner interpretation and read-only consumer-observation feasibility; no source modifications.",
+  "sources": [
+    {
+      "repository": "AccessKit/accesskit-c",
+      "ref": "72460cd52d1b24492393cdf54a6f19d2fd63e258",
+      "path": "src/windows.rs",
+      "local_path": "accesskit-c/src/windows.rs",
+      "git_blob": "65a423d7681caf65e371154b1075efb5ceda918b",
+      "url": "https://github.com/AccessKit/accesskit-c/blob/72460cd52d1b24492393cdf54a6f19d2fd63e258/src/windows.rs",
+      "bytes": 6318,
+      "sha256": "1ffce6f3d4a90d78e0720cbd6d9e105583baaa8762aa038fbc76fb06b5d16988",
+      "git_blob_verified": true
+    },
+    {
+      "repository": "AccessKit/accesskit",
+      "ref": "1bbcf100942bac96c2c3a4a91cb67b0b20201a24",
+      "path": "platforms/windows/src/adapter.rs",
+      "local_path": "accesskit/platforms/windows/src/adapter.rs",
+      "git_blob": "7dd2afa3f54c43d6650038bc8ccc4cbfbb5952d2",
+      "url": "https://github.com/AccessKit/accesskit/blob/1bbcf100942bac96c2c3a4a91cb67b0b20201a24/platforms/windows/src/adapter.rs",
+      "bytes": 24966,
+      "sha256": "7135ef9045b907f33e675888940b90f2d967fd6a26b1484d69773f2154247187",
+      "git_blob_verified": true
+    },
+    {
+      "repository": "AccessKit/accesskit",
+      "ref": "1bbcf100942bac96c2c3a4a91cb67b0b20201a24",
+      "path": "platforms/windows/src/filters.rs",
+      "local_path": "accesskit/platforms/windows/src/filters.rs",
+      "git_blob": "e8614e8d184d4c9d51713e23a9e428461594bfd2",
+      "url": "https://github.com/AccessKit/accesskit/blob/1bbcf100942bac96c2c3a4a91cb67b0b20201a24/platforms/windows/src/filters.rs",
+      "bytes": 356,
+      "sha256": "744374b547065b153123c80028f129f5c6bb53052660205e1a2f231c3e169f64",
+      "git_blob_verified": true
+    },
+    {
+      "repository": "AccessKit/accesskit",
+      "ref": "1bbcf100942bac96c2c3a4a91cb67b0b20201a24",
+      "path": "consumer/src/filters.rs",
+      "local_path": "accesskit/consumer/src/filters.rs",
+      "git_blob": "8905bef3d6538d9744556ae8c785917a80983126",
+      "url": "https://github.com/AccessKit/accesskit/blob/1bbcf100942bac96c2c3a4a91cb67b0b20201a24/consumer/src/filters.rs",
+      "bytes": 13941,
+      "sha256": "e2df7bf15790369fbedd20030c61949292664f4d2881615c8170b42380681c10",
+      "git_blob_verified": true
+    },
+    {
+      "repository": "AccessKit/accesskit",
+      "ref": "1bbcf100942bac96c2c3a4a91cb67b0b20201a24",
+      "path": "consumer/src/node.rs",
+      "local_path": "accesskit/consumer/src/node.rs",
+      "git_blob": "6740565037f41dd3a79a2144b04a5d89877ab4a1",
+      "url": "https://github.com/AccessKit/accesskit/blob/1bbcf100942bac96c2c3a4a91cb67b0b20201a24/consumer/src/node.rs",
+      "bytes": 61508,
+      "sha256": "7ca5b53a821529e168af71f63d064ef20308a3634e019c8ce4f1c965c2b483cf",
+      "git_blob_verified": true
+    },
+    {
+      "repository": "AccessKit/accesskit",
+      "ref": "1bbcf100942bac96c2c3a4a91cb67b0b20201a24",
+      "path": "platforms/windows/src/node.rs",
+      "local_path": "accesskit/platforms/windows/src/node.rs",
+      "git_blob": "b5dbba0ba1e697cc62a33b19429e1ec2185a577f",
+      "url": "https://github.com/AccessKit/accesskit/blob/1bbcf100942bac96c2c3a4a91cb67b0b20201a24/platforms/windows/src/node.rs",
+      "bytes": 54510,
+      "sha256": "e2e558a8f7ce54cd7d5b66e95cd65f42f7ee2533ece0b7796a999348f6640e49",
+      "git_blob_verified": true
+    },
+    {
+      "repository": "AccessKit/accesskit",
+      "ref": "1bbcf100942bac96c2c3a4a91cb67b0b20201a24",
+      "path": "consumer/src/tree.rs",
+      "local_path": "accesskit/consumer/src/tree.rs",
+      "git_blob": "ce137f727a744aaac3fccfb8a0de3868bcdd7b9c",
+      "url": "https://github.com/AccessKit/accesskit/blob/1bbcf100942bac96c2c3a4a91cb67b0b20201a24/consumer/src/tree.rs",
+      "bytes": 107658,
+      "sha256": "af83cff834458f32b954f98039b816a9fa610dfe135f8b198ab1813ecef67b67",
+      "git_blob_verified": true
+    },
+    {
+      "repository": "AccessKit/accesskit-c",
+      "ref": "72460cd52d1b24492393cdf54a6f19d2fd63e258",
+      "path": "Cargo.toml",
+      "local_path": "accesskit-c/Cargo.toml",
+      "git_blob": "c550083d4193c5dc45c15d73b165bc0eaaea2fcc",
+      "url": "https://github.com/AccessKit/accesskit-c/blob/72460cd52d1b24492393cdf54a6f19d2fd63e258/Cargo.toml",
+      "bytes": 877,
+      "sha256": "af782b0a9019f3cd0cb66e9448cc3b5d09123e2f89f2508ab0766f86f17ddaa0",
+      "git_blob_verified": true
+    },
+    {
+      "repository": "AccessKit/accesskit-c",
+      "ref": "72460cd52d1b24492393cdf54a6f19d2fd63e258",
+      "path": "Cargo.lock",
+      "local_path": "accesskit-c/Cargo.lock",
+      "git_blob": "e63b6cd1379bcd3b33706f0870b5fd8e841c5877",
+      "url": "https://github.com/AccessKit/accesskit-c/blob/72460cd52d1b24492393cdf54a6f19d2fd63e258/Cargo.lock",
+      "bytes": 37038,
+      "sha256": "50a70648b398f0ee2331b37834a308e3b38d4ca7051310cb95b2ecfd04ebc2b8",
+      "git_blob_verified": true
+    },
+    {
+      "repository": "AccessKit/accesskit",
+      "ref": "1bbcf100942bac96c2c3a4a91cb67b0b20201a24",
+      "path": "platforms/windows/src/context.rs",
+      "local_path": "accesskit/platforms/windows/src/context.rs",
+      "git_blob": "7e4158752a3be02e1e567293146016d428cbff86",
+      "url": "https://github.com/AccessKit/accesskit/blob/1bbcf100942bac96c2c3a4a91cb67b0b20201a24/platforms/windows/src/context.rs",
+      "bytes": 2241,
+      "sha256": "8a45005a8c1449e4ed234bb6f041f026f2dbc6d2935e76407637adb1c127601c",
+      "git_blob_verified": true
+    },
+    {
+      "repository": "AccessKit/accesskit",
+      "ref": "1bbcf100942bac96c2c3a4a91cb67b0b20201a24",
+      "path": "platforms/windows/Cargo.toml",
+      "local_path": "accesskit/platforms/windows/Cargo.toml",
+      "git_blob": "25c53a0cb71926468a6db86e809a13ed0d676fb5",
+      "url": "https://github.com/AccessKit/accesskit/blob/1bbcf100942bac96c2c3a4a91cb67b0b20201a24/platforms/windows/Cargo.toml",
+      "bytes": 1110,
+      "sha256": "7080e3c10ece4139e7eedec8cde89a82cda31cbe40e9cd983e7ff73aa0ac4ac1",
+      "git_blob_verified": true
+    }
+  ]
+}
