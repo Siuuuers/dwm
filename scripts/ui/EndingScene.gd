@@ -99,6 +99,7 @@ func _retry_admitted() -> bool:
 
 
 func _refresh_recovery() -> void:
+	_sync_recovery_root_order.call_deferred()
 	# A locale or frontier change retires in-flight input before publishing both labels.
 	# Normal playback contributes no heading, error, or Return action to the witnessed stream.
 	_recovery_copy_ready = false
@@ -130,6 +131,23 @@ func _refresh_recovery() -> void:
 	_return_to_menu_button.show()
 	if is_instance_valid(_recovery_panel): _recovery_panel.show()
 	if restore_focus or first_exposure: _return_to_menu_button.grab_focus()
+
+
+# The scene owns technical recovery visibility; the canonical layout owns the caption.
+# Keep the active surface first in root sibling order without changing CanvasLayer draw order.
+func _sync_recovery_root_order() -> void:
+	if not is_inside_tree() or is_queued_for_deletion(): return
+	var tree := get_tree()
+	if tree.current_scene != self or get_parent() != tree.root: return
+	var layout: Variant = tree.get_meta("dialogic_layout_node", null)
+	if not is_instance_valid(layout) or not layout is CanvasLayer or layout.is_queued_for_deletion() \
+			or layout.get_parent() != tree.root: return
+	var recovery_visible := is_instance_valid(_recovery_panel) and _recovery_panel.is_visible_in_tree()
+	var scene_index := get_index()
+	var layout_index: int = layout.get_index()
+	if (recovery_visible and scene_index > layout_index) \
+			or (not recovery_visible and scene_index < layout_index):
+		tree.root.move_child(self, layout_index)
 
 
 func _style_recovery() -> void:
@@ -218,6 +236,8 @@ func resume_ending() -> Dictionary:
 				_pending_ending_command = {}
 				_set_playback_status(true)
 				return started
+			# Styles queues mounting before start returns; reorder outside root add_child/ready.
+			_sync_recovery_root_order.call_deferred()
 			return {"ok": true, "code": &"ok", "value": {"started": true}}
 		var expected := StringName(str(command.get("expected_stage", "")))
 		var applied: Dictionary = _ending_state_port.complete_ending_playback_stage("", expected, {})

@@ -13,6 +13,12 @@ const COPY := {
 
 var _localization: Node
 var _scene: Control
+var _root_layout: CanvasLayer
+var _root_marker: Node
+var _root_case := false
+var _saved_current_scene: Node
+var _saved_layout_meta: Variant
+var _had_layout_meta := false
 
 class RecordingEnding extends "res://scripts/ui/EndingScene.gd":
 	var retry_requests := 0
@@ -21,11 +27,13 @@ class RecordingEnding extends "res://scripts/ui/EndingScene.gd":
 
 
 class RetryState extends RefCounted:
+	var completion_calls := 0
 	func request_next_ending_command() -> Dictionary:
 		return {"ok": true, "value": {"kind": "play_ending", "ending_id": "ending.alone",
 			"playback_context": {"playback_id": "retry-playback", "transaction_id": "retry-transaction",
 				"expected_stage": &"PRIMARY_PENDING"}}}
 	func complete_ending_playback_stage(_transaction: String, _stage: StringName, _receipt: Dictionary) -> Dictionary:
+		completion_calls += 1
 		return {"ok": false, "code": &"fixture_unexpected_completion"}
 
 
@@ -33,10 +41,23 @@ class RetryPlayback extends RefCounted:
 	signal playback_completed(completion: Dictionary)
 	signal playback_failed(failure: Dictionary)
 	var starts: Array[Dictionary] = []
+	var start_failures := 1
 	func is_ready() -> bool: return true
 	func start_ending_id(ending_id: String, context: Dictionary) -> Dictionary:
 		starts.append({"ending_id": ending_id, "context": context.duplicate(true)})
-		return {"ok": starts.size() > 1, "code": &"ok" if starts.size() > 1 else &"fixture_temporary_start_failure"}
+		var started := starts.size() > start_failures
+		return {"ok": started, "code": &"ok" if started else &"fixture_temporary_start_failure"}
+
+
+class DeferredLayoutPlayback extends RetryPlayback:
+	var tree: SceneTree
+	var layout: CanvasLayer
+	func start_ending_id(ending_id: String, context: Dictionary) -> Dictionary:
+		# Match Styles: publish canonical identity now, attach after this start returns.
+		if not layout.is_inside_tree():
+			tree.set_meta("dialogic_layout_node", layout)
+			tree.root.add_child.call_deferred(layout)
+		return super.start_ending_id(ending_id, context)
 
 
 func before_all() -> void:
@@ -53,7 +74,22 @@ func before_all() -> void:
 
 
 func after_each() -> void:
+	if _root_case:
+		get_tree().current_scene = _saved_current_scene if is_instance_valid(_saved_current_scene) else null
+		# Preserve a live original owner; never reinsert an Object retired during the test.
+		if _had_layout_meta and (typeof(_saved_layout_meta) != TYPE_OBJECT or is_instance_valid(_saved_layout_meta)):
+			get_tree().set_meta("dialogic_layout_node", _saved_layout_meta)
+		else: get_tree().remove_meta("dialogic_layout_node")
 	if is_instance_valid(_scene): _scene.free()
+	if is_instance_valid(_root_layout): _root_layout.free()
+	if is_instance_valid(_root_marker): _root_marker.free()
+	_scene = null
+	_root_layout = null
+	_root_marker = null
+	_root_case = false
+	_saved_current_scene = null
+	_saved_layout_meta = null
+	_had_layout_meta = false
 	assert_true(_localization.set_locale("en").get("ok", false))
 	assert_true(get_node("/root/ProfileManager").set_preferences({
 		&"preferences.accessibility.text_size": 100,
@@ -70,6 +106,36 @@ func _mount(record_requests: bool = false) -> void:
 	for frame: int in 3: await get_tree().process_frame
 	# Missing ports exercise the projection only, not the classification of retryable failures.
 	assert_true(_scene.get("_retry_available"))
+
+
+func _mount_root_ending(playback: DeferredLayoutPlayback) -> RetryState:
+	var tree := get_tree()
+	_saved_current_scene = tree.current_scene
+	_had_layout_meta = tree.has_meta("dialogic_layout_node")
+	_saved_layout_meta = tree.get_meta("dialogic_layout_node", null)
+	_root_case = true
+	tree.remove_meta("dialogic_layout_node")
+	_root_layout = CanvasLayer.new()
+	_root_layout.name = "EndingOrderLayoutFixture"
+	playback.tree = tree
+	playback.layout = _root_layout
+	playback.start_failures = 0
+	_scene = ENDING.instantiate()
+	var state := RetryState.new()
+	assert_true(_scene.configure_ending_ports(state, playback).get("ok", false))
+	tree.root.add_child(_scene)
+	tree.current_scene = _scene
+	_root_marker = Node.new()
+	_root_marker.name = "EndingOrderUnrelatedSibling"
+	tree.root.add_child(_root_marker)
+	return state
+
+
+func _root_ids(exclude_ending: bool = false) -> Array[int]:
+	var ids: Array[int] = []
+	for child: Node in get_tree().root.get_children():
+		if not exclude_ending or child != _scene: ids.append(child.get_instance_id())
+	return ids
 
 
 func test_retry_copy_follows_locale_without_changing_the_pending_command() -> void:
@@ -222,3 +288,78 @@ func test_retry_focus_and_keyboard_replay_the_same_temporarily_failed_command() 
 	assert_false(_scene.get_node("%RecoveryPanel").visible)
 	assert_false(_scene.get("_retry_available"))
 	assert_false(_scene.get("_pending_ending_command").is_empty())
+
+
+func test_later_playback_failure_keeps_retry_focus_and_replays_the_same_command() -> void:
+	var playback := DeferredLayoutPlayback.new()
+	var state := _mount_root_ending(playback)
+	for frame: int in 4: await get_tree().process_frame
+	assert_eq(playback.starts.size(), 1)
+	if playback.starts.size() != 1: return
+	var command: Dictionary = _scene.get_presentation_projection()
+	var original_start: Dictionary = playback.starts[0].duplicate(true)
+	var layout_id := _root_layout.get_instance_id()
+	var other_siblings := _root_ids(true)
+	var button: Button = _scene.get_node("%ReturnToMenuButton")
+	var panel: PanelContainer = _scene.get_node("%RecoveryPanel")
+	assert_false(panel.visible, "the first admitted start needs no recovery surface")
+	assert_true(button.disabled)
+	assert_eq(button.focus_mode, Control.FOCUS_NONE)
+	assert_true(_root_layout.get_index() < _scene.get_index(),
+		"normal ending leaves its witnessed layout before the hidden recovery host")
+	var drawing_layers := [_root_layout.layer, _scene.get_node("RecoveryLayer").layer]
+	# The failure arrives after normal publication, not during the first start.
+	playback.playback_failed.emit({"playback_id": original_start.context.playback_id,
+		"transaction_id": original_start.context.transaction_id, "ending_id": original_start.ending_id,
+		"code": &"fixture_later_playback_failure"})
+	for frame: int in 3: await get_tree().process_frame
+	assert_true(panel.is_visible_in_tree())
+	assert_false(button.disabled)
+	assert_true(button.has_focus(), "later recovery still supplies the focused Retry action")
+	assert_true(_scene.get_index() < _root_layout.get_index(),
+		"the newly exposed recovery host precedes the retained layout")
+	assert_eq(_root_ids(true), other_siblings, "other root siblings retain their relative order")
+	var press := InputEventKey.new()
+	press.keycode = KEY_ENTER
+	press.physical_keycode = KEY_ENTER
+	press.pressed = true
+	Input.parse_input_event(press)
+	Input.flush_buffered_events()
+	var release := press.duplicate() as InputEventKey
+	release.pressed = false
+	Input.parse_input_event(release)
+	Input.flush_buffered_events()
+	for frame: int in 4: await get_tree().process_frame
+	assert_eq(playback.starts.size(), 2, "one keyboard contact retries once")
+	if playback.starts.size() == 2: assert_eq(playback.starts[1], original_start)
+	assert_eq(_scene.get_presentation_projection(), command, "retry preserves the exact command identity")
+	assert_false(panel.visible)
+	assert_false(_scene.get("_retry_available"))
+	assert_eq(_root_layout.get_instance_id(), layout_id, "retry reuses the canonical layout")
+	assert_true(_root_layout.get_index() < _scene.get_index())
+	assert_eq(_root_ids(true), other_siblings)
+	assert_eq([_root_layout.layer, _scene.get_node("RecoveryLayer").layer], drawing_layers)
+	assert_eq(state.completion_calls, 0, "publication and retry synthesize no ending completion")
+
+
+func test_deferred_order_refresh_ignores_retired_scene_and_freed_layout() -> void:
+	var playback := DeferredLayoutPlayback.new()
+	_mount_root_ending(playback)
+	for frame: int in 4: await get_tree().process_frame
+	var command: Dictionary = _scene.get_presentation_projection()
+	# A route can replace current_scene after the locale refresh queues its callback.
+	get_tree().root.move_child(_scene, _root_layout.get_index())
+	var before_route := _root_ids()
+	assert_true(_localization.set_locale("zh_CN").get("ok", false))
+	get_tree().current_scene = _saved_current_scene
+	for frame: int in 3: await get_tree().process_frame
+	assert_eq(_root_ids(), before_route, "a retired ending cannot reorder the current root")
+	assert_eq(_scene.get_presentation_projection(), command)
+	# A queued refresh can also outlive its canonical layout while the ending stays current.
+	get_tree().current_scene = _scene
+	assert_true(_localization.set_locale("zh_HK").get("ok", false))
+	_root_layout.free()
+	var after_retirement := _root_ids()
+	for frame: int in 3: await get_tree().process_frame
+	assert_eq(_root_ids(), after_retirement, "freed canonical metadata grants no ordering authority")
+	assert_eq(_scene.get_presentation_projection(), command)
