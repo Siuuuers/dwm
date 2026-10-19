@@ -26,7 +26,7 @@ jobs:
         fetch-depth: 2
     - uses: actions/checkout@v7
       with:
-        ref: 5e07d7075385844edbc77e01276950f186cf1dac
+        ref: d95ec53a38e8fecc859647724d5c8238b1b0112f
         path: .godot/title-packet
         sparse-checkout: evidence/phase_2r/title_timing_20261019/source
         persist-credentials: true
@@ -47,7 +47,7 @@ jobs:
         archive=out/'original-corrected-evidence.zip';archive.write_bytes(raw)\nwith zipfile.ZipFile(archive) as z:\n    assert\
         \ not z.testzip()\n    for x in z.infolist():\n        p=pathlib.PurePosixPath(x.filename)\n        assert not p.is_absolute()\
         \ and '..' not in p.parts and ':' not in x.filename and '\\\\' not in x.filename\n    z.extractall(out/'retained-corrected')\n\
-        (out/'origin.json').write_text(json.dumps({'game_commit':'81847d8b1560340a3a7769223cee0b46c6bdc0f9','tool_commit':'5e07d7075385844edbc77e01276950f186cf1dac','controller_event':'${{\
+        (out/'origin.json').write_text(json.dumps({'game_commit':'81847d8b1560340a3a7769223cee0b46c6bdc0f9','tool_commit':'d95ec53a38e8fecc859647724d5c8238b1b0112f','controller_event':'${{\
         \ github.event.pull_request.head.sha }}','retained_run':39243496974,'retained_package_artifact':12184205891,'engine_rebuilt':False,'diagnostic_only':True,'official_acceptance_established':False},indent=2))\n\
         '@ | python -\nif ($LASTEXITCODE -ne 0) { throw 'Retained evidence pin failed' }\n"
     - name: Download retained Corrected executable package
