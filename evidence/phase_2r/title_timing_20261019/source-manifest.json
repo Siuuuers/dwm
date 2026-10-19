@@ -32,8 +32,8 @@
     },
     {
       "path": "source/new-title-tools/game_patch.py",
-      "bytes": 9488,
-      "sha256": "7b6151cffff0684bf7fb035158a2d535a6a1a1126d42c1b6225810e96e957b1b"
+      "bytes": 9785,
+      "sha256": "eeb2323069fe253cb69e820d12315f68ac66625aa6b5c1da3b111766a551f9e9"
     },
     {
       "path": "source/new-title-tools/harness_patch.py",
@@ -52,8 +52,8 @@
     },
     {
       "path": "source/new-title-tools/test_game_patch.py",
-      "bytes": 3726,
-      "sha256": "de30964e49dafbea9945840e1e2b6f670a3cb9ff135a4c79571a66aa5bcb84cf"
+      "bytes": 5048,
+      "sha256": "6bf3ec789a92ef132df6946ccab4054441997470880e91ff85c8bb598bfef307"
     },
     {
       "path": "source/new-title-tools/test_harness_patch.py",
@@ -88,12 +88,12 @@
     {
       "path": "timing-inventory.json",
       "bytes": 2351,
-      "sha256": "35bb4a19758731a090b22180d83ffc91773d872b3c954074ae84e265a8766e3f"
+      "sha256": "85fa20be84ae5649ddfa3c6dc7138c27151bd4a229093f0639e127cf3400f513"
     },
     {
       "path": "timing.patch",
-      "bytes": 8261,
-      "sha256": "8cb9cbfd08820a81112e3dddc2553a1e247bc10fe499a54513af60dc2e84c054"
+      "bytes": 8263,
+      "sha256": "bab9755c37c0f0734f9085fbdce2ebbb5588be29c46e9d6ff0c72ab371b8db9f"
     },
     {
       "path": "source/new-title-tools/Test-ExportedGameplayDeadline.ps1",

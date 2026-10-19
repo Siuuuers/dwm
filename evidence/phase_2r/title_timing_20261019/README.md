@@ -1,3 +1,7 @@
+# Latest: complete-header generator correction prepared
+
+[Exact delta, regenerated overlay and source/controller review packet](header-correction/README.md).30 Python preparation tests pass; C exact review and cloud import/export remain pending. No new cloud run. Earlier result sections are retained historical evidence.
+
 # Latest outcome — four deadline cases pass; overlay import/export fails
 
 Run39270282954 is complete/failure. Windows28 Python tests and all4 deadline cases pass. Godot import/export is blocked by generated EndingScene header order; no smoke/player/Title timeline. [Retained exact evidence and smallest proposed generator correction](run39270282954/README.md). Substantive import/export stop boundary reached; no patch/retry. Earlier sections below remain historical.

@@ -23,9 +23,9 @@
     {
       "path": "scripts/ui/EndingScene.gd",
       "input_sha256": "8545f7f7b1a31e94d4a49b475ddac175aa3e37ed5816694b678e5382c6c51b5c",
-      "output_sha256": "4e8e47102d1a097a38776857233f938b90d0dbab828286f4a5ac33faa0c6db58",
+      "output_sha256": "1dc85fef93bf9720157b45c4219ae0c0767fff4cd548fc201050532307db24f3",
       "before_sha256": "8545f7f7b1a31e94d4a49b475ddac175aa3e37ed5816694b678e5382c6c51b5c",
-      "after_sha256": "4e8e47102d1a097a38776857233f938b90d0dbab828286f4a5ac33faa0c6db58",
+      "after_sha256": "1dc85fef93bf9720157b45c4219ae0c0767fff4cd548fc201050532307db24f3",
       "bytes": 16403
     },
     {
@@ -45,5 +45,5 @@
       "bytes": 2893
     }
   ],
-  "patch_sha256": "8cb9cbfd08820a81112e3dddc2553a1e247bc10fe499a54513af60dc2e84c054"
+  "patch_sha256": "bab9755c37c0f0734f9085fbdce2ebbb5588be29c46e9d6ff0c72ab371b8db9f"
 }

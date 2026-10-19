@@ -48,13 +48,14 @@
  func goto_main() -> void:
 --- a/scripts/ui/EndingScene.gd
 +++ b/scripts/ui/EndingScene.gd
-@@ -1,4 +1,6 @@
+@@ -1,5 +1,7 @@
  extends Control
+ class_name EndingScene
 +
 +const DWM_TITLE_TIMING := preload("res://scripts/diagnostics/TitleTiming.gd")
- class_name EndingScene
  
  ## Presents the exact saved ending command; only physical completion advances its cursor.
+ 
 @@ -254,6 +256,12 @@
  
  
