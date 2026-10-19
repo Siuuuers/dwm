@@ -1,5 +1,26 @@
 # Story workspace
 
+## Current book and observer experiment, 2026-10-19 at 14:03
+
+The owner's new reference suggests private facts surfacing through an ordinary
+book. Read the [current triage](auditions/priscilla-seven-day-working-plot.md#current-book-and-observer-reference-2026-10-19-at-1403)
+and the [complete Day 1 audition](auditions/day-1-photo-book-working-draft.md).
+One shared passage now repeats Lavinia's earlier message in the novel's fixed
+print; Priscilla questions Sylvia without explaining why. Exact wording and
+placement remain **AUDITIONING**, and the cause remains unresolved. First
+Perfect still supplies first Observer identification. The wider reference's
+new powers, interfaces, romances and endings remain separately evaluated
+possibilities, not a blanket amendment of the character or system owners.
+
+**Capture destination:** the existing [PR #41](https://github.com/Siuuuers/dwm/pull/41)
+branch under the owner's standing Markdown/push authorization. The preceding
+complete reading remains at `daafc6441c56b82cc27dd114d3f8fe8ac08933f5`; versions
+stay in Git. The checkpoint records a bounded same-model craft/source review,
+not audience, runtime, performed audio, full-week or historical-audit testing.
+Next judge the complete reading and its Day 2 carry; the full-week DTL gate
+and exact narrative selections remain open. PR metadata establishes the actual
+publication and merge state.
+
 ## Current Day 1 book revision, 2026-10-19 at 13:17
 
 Read the [current book checkpoint](auditions/priscilla-seven-day-working-plot.md#current-day-1-book-revision-2026-10-19-at-1317)

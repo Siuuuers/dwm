@@ -1,5 +1,150 @@
 # Priscilla: current seven-day working plot and discussion checkpoint
 
+## Current book and observer reference, 2026-10-19 at 14:03
+
+**Owner source and scope:** the owner proposes that the book can reveal facts
+about the women through Observer Pressure and offers an extensive, explicitly
+amendable set of examples. Its attraction is the progressive consumption of
+ordinary life by eerie coincidences, dangerous sweetness, absurdity and the
+three women's competing claims to control. This is a reference and invitation
+to judge; it does not approve every proposed power, diagnosis, act or ending.
+
+**Current recommendation, AUDITIONING:** retain the book's comic life and let
+one fixed printed sentence repeat Lavinia's existing private message. The
+[current complete Day 1](day-1-photo-book-working-draft.md) integrates the new
+passage after **“I wanted to see you”** and the shared laughter. Priscilla asks
+whether Sylvia has read that part before, then withholds her reason. The
+[particular scene notes](day-1-photo-book-working-draft.md#67-book-coincidence-audition)
+own the exact wording, access, unresolved cause and placement rationale. The
+[preceding complete reading at daafc644](https://github.com/Siuuuers/dwm/blob/daafc6441c56b82cc27dd114d3f8fe8ac08933f5/story/auditions/day-1-photo-book-working-draft.md)
+preserves the first funeral-novel revision without this correspondence.
+
+### What the new idea contributes
+
+The earlier revision made Sylvia's purchase, curiosity and performance more
+particular. The new reference asks for an additional effect: the book can
+disturb what Priscilla believes belongs privately to a relationship. A sentence
+may be ordinary in its printed setting yet unexpectedly familiar from another
+person. Priscilla's response can expose attention and conceal an explanation
+at the same time. A correspondence therefore changes the encounter before
+anyone correctly identifies its cause.
+
+The assistant recommends this bounded version because unrestricted divine
+insertion of any secret into any prop would recreate the replaceability
+problem. Here the aunt's demand belongs to her rehearsal and her control of
+the mourners' expressions. Sylvia can still have bought the novel because it
+pleased her. The intrusion arrives after a real pleasure; it does not prove
+that every enjoyed moment was secretly staged.
+
+The author's example of an unwritten secret becoming Lavinia's lyric remains
+a stronger later candidate. It is not weakened into a rejected idea by trying
+a private message first. Its actual information path would need a decision:
+a match does not by itself establish telepathy, altered print, exclusive
+knowledge, or who arranged it. Do not invent a diary or a complete historical
+proof merely to certify that no ordinary source was possible.
+
+### Character direction: retain different wants and fallible methods
+
+The reference combines compatible context-dependent tensions with several
+different potential character designs. Social skill can coexist with private
+withdrawal; discipline can fail during jealousy; affection can coexist with
+harm. Treating every extreme description as an invariant would make the women
+interchangeable and allow any later act to be explained after the fact.
+
+| Character | Recommended active concern and distinctive pressure | Useful failure, not a new fixed history |
+|---|---|---|
+| Priscilla | Be wanted, and control how intimacy is understood. Her attention, questions, selected explanations and accommodation can be tender or harmful without moral repentance. | She notices a real detail and misjudges its significance. A sincere fear does not prevent a deliberate harmful response. |
+| Lavinia | Be chosen unequivocally. Her directness, testing and emotional response can make an ordinary request costly to refuse. | She mistakes an intense response to a test for security, or discovers that the proof she demanded cannot answer what she wanted to know. |
+| Sylvia | Become necessary to Lavinia while obstructing P–L. Meticulous care, acting and selectively reasonable explanations retain her own taste and desire. | She mistakes conflict for progress toward separation, or fails to anticipate an attachment intensified by that conflict. |
+
+These are assistant craft recommendations, not selected incidents or a new
+diagnostic system. The owner's current S→L direction still governs: stronger
+desire for Lavinia, earlier acquaintance and a seven-day obstructive aim.
+The new reference's versions in which Sylvia primarily collects Priscilla,
+or everyone competes for Sylvia, remain alternatives that would change that
+direction. Genuine enjoyment and possible attraction with Priscilla survive;
+Lavinia's romantic response is still deliberately unresolved for the writers.
+Priscilla's later partial suspicion does not become complete early knowledge.
+
+The most useful reversal is that vulnerability and responsibility coexist.
+Priscilla can be genuinely disturbed by an intrusion and still choose how to
+use another person's attention. The assistant does not recommend the wholesale
+twist that all early private thoughts were knowingly addressed lies. Selective
+attention, rationalization and mistaken interpretation are already available;
+deliberate performance for an identified listener belongs after recognition.
+
+Likewise, preserve sincere caring, ordinary humor and limits to knowledge in
+Lavinia and Sylvia. A later revelation that every kindness was counterfeit
+would remove much of the uncertainty the owner values. The reference's idea
+that all three believe they control the relationship is more useful than
+successively declaring each the omniscient final mastermind.
+
+### Wider reference triage
+
+| Proposed material | Current disposition and reason |
+|---|---|
+| Private facts in book passages or lyrics; ordinary life acquiring an eerie correspondence | **Audition the book now.** Keep occurrence, available knowledge, human explanation and Observer identification distinct. The new shared passage is available without a board and does not itself supply first recognition. |
+| Frightened Priscilla seeking familiar company, then later testing or teasing the Observer | **Retain as character possibilities.** Early discomfort need not be innocence; later addressed performance needs the established first Perfect. Curiosity, hostility and possible ambiguous attraction do not select an obligatory observer romance. |
+| A hand/body forced to act against Priscilla's chosen movement; desire imposed by a deity | **Unselected power change.** Current influence works through circumstances and coincidences. Attributing D's actual send to bodily override would materially rewrite its agency. |
+| Save/reload migraines, cross-save awakening, timed hesitation taunts and fabricated on-screen options | **Separate unselected system experiments.** They need a defined fiction/interface contract and costs. The current thought presents one proposed action plus Yes; no such system is needed for the book audition. Sylvia's intelligence alone cannot establish control of UI. |
+| Lavinia senses an external force, Sylvia deduces one, the trio investigates together | **Retain as later encounter possibilities.** Each needs accessible observations or communication and a reason to cooperate. A plausible theory can be wrong. Neither woman inherits Priscilla's recognition or another route's events. An investigation does not automatically become the spine of the week. |
+| Deicide, assimilation, a concealed captive, shared destruction or death in a fire | **Distinct unselected references.** One identically presented Dark P–L relationship ending remains; P–S resolution remains open. The retained no-confirmed-death boundary has not been amended. Any observer epilogue would need its own selection and cannot erase a completed human ending. |
+| Forcible app crash or reversal that claims the real audience is now being watched | **No implementation selected.** Existing guidance allows a selected deliberate exit only after required state is recorded. Fictional address does not establish actual device surveillance or require a real application fault. |
+
+The governing [foundation §§4–6](../09-priscilla-foundation-amendment.md#4-local-choices-and-challenge-meaning)
+and [intended behavior](../../docs/design/2026-10-09-priscilla-flow-behavior-amendment.md)
+retain their approved scope. The first Perfect establishes identification;
+subsequent understanding remains bounded. Being aware of an Observer does not
+prove it authored every oddity. The human conduct and complete ending must
+remain consequential when the audience has not earned observer awareness.
+These dispositions recommend what to try now; unselected does not mean an
+idea is permanently forbidden or cannot motivate a later owning amendment.
+
+### Reality, evidence and prose
+
+The deity and psychic sensitivity in the reference are fictional possibilities,
+not physical-world explanations of psychological experience. For the writing,
+describe a particular sensation, observation or interpretation before imposing
+a label. Where an external force really exists in the fiction, calling every
+suspicion a delusion would prematurely decide whether it is mistaken.
+
+An assertion that a glance is measuring enough force to break a neck is an
+interpretation, not an action directly available to vision. Priscilla's prose
+can carry that disturbing inference without privately certifying Lavinia's
+intention. The story field and self-talk both remain Priscilla-bound; neither
+field guarantees truth or supplies another character's mind.
+
+Use the characters' belief that destruction proves love as their belief when
+an encounter calls for it. No diagnosis or self-destructive act is required to
+prove emotional depth, and the narrator need not certify coercion as consent.
+These distinctions support dark fiction without selecting the reference's
+graphic imagery, specific injuries or fatal acts.
+
+### Capture, bounded review and next writing unit
+
+This checkpoint covers the owner's 14:03 reference and the assistant's
+particular response, including retained attractions, reasons for restraint,
+the new scene and remaining alternatives. It uses the existing Day 1 and
+working-plot owners, with compact entry-point links; no new manuscript or
+parallel Bible is created. It does not change an approved owner merely to
+record an experiment.
+
+Two same-model readers with shared project context separately reviewed the
+craft opportunity and source/architecture scope. Their recommendations agree
+on one concrete echo, fallible human interpretations and the distinction
+between discomfort and first recognition. Review of the resulting edit and
+publication status is recorded with the [Day 1 review](day-1-photo-book-working-draft.md#7-review-against-and-challenge-to-the-bibles)
+and [PR #41](https://github.com/Siuuuers/dwm/pull/41). This is bounded document
+review, not audience, performance, runtime, whole-week or historical-audit
+verification.
+
+**Next writing unit:** judge this complete Day 1 reading with the single
+coincidence, then carry its actual facts into Day 2 if retained. Keep the
+human seven-day escalation and the condition-dependent growth of observer
+knowledge distinct. There is no need to select the full meta-horror catalogue,
+add another anomaly to the call, or restart complete DTL production to test
+this particular scene. The whole-week plot gate remains open.
+
 ## Current Day 1 book revision, 2026-10-19 at 13:17
 
 **Owner request:** the book's content feels too replaceable, insufficiently
