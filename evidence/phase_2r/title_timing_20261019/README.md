@@ -1,3 +1,7 @@
+# Latest: isolated deadline fixture correction prepared
+
+[Exact patch, source/controller pins, dependency audit and C review gate](deadline-fixture-correction/README.md). Director6269458094 authorizes reviewed continuation within this same diagnostic; no new run has been dispatched. Four deadline cases and driver/game semantics remain unchanged. Prior outcomes below are retained historical evidence.
+
 # Latest outcome — corrected Windows preflight passed; deadline fixture failed
 
 The ONE corrected retry39266748914 is complete/failure. All28 Python tests pass on Windows. Source overlay and PowerShell parsing pass; isolated deadline fixture fails before import/export/player. [Retained original evidence, verification, source diagnosis and smallest correction proposal](run39266748914/README.md). Stop-after-retry boundary reached; no further dispatch or patch. Earlier pending-review and original-failure sections below remain historical.

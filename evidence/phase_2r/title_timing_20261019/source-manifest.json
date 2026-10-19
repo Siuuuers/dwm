@@ -27,8 +27,8 @@
     },
     {
       "path": "source/new-title-tools/build_controller.py",
-      "bytes": 12190,
-      "sha256": "f8ae82df7b2a219f512e85652326914f064314c8ffa23d21842571f63ffdb25c"
+      "bytes": 12289,
+      "sha256": "e01b7c009f1e3240f116c890f73b1d4fcdabe94e3e7264d0123d98e0b6a363fb"
     },
     {
       "path": "source/new-title-tools/game_patch.py",
@@ -94,6 +94,11 @@
       "path": "timing.patch",
       "bytes": 8261,
       "sha256": "8cb9cbfd08820a81112e3dddc2553a1e247bc10fe499a54513af60dc2e84c054"
+    },
+    {
+      "path": "source/new-title-tools/Test-ExportedGameplayDeadline.ps1",
+      "bytes": 3560,
+      "sha256": "59e141352e3e525d44c84ebe66b156fa73991424c9a3fdd0ca8aa0403214c939"
     }
   ]
 }
