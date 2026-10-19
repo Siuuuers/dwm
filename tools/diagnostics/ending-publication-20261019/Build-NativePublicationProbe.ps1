@@ -4,7 +4,8 @@ param(
     [Parameter(Mandatory)][string]$EngineRoot,
     [Parameter(Mandatory)][string]$ProbeRoot,
     [Parameter(Mandatory)][string]$OutputPath,
-    [Parameter(Mandatory)][string]$DependencyPath
+    [Parameter(Mandatory)][string]$DependencyPath,
+    [string]$ConsumerSdkPath
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -25,6 +26,7 @@ $record = [ordered]@{
     runner='windows-2022'; compiler='MSVC'; dependencies=@(); changed_files=@()
     qualification='Diagnostic public-source MSVC build; not an attestation of the official 7d41c59c4 executable'
 }
+if ($ConsumerSdkPath) { $record.build_name = 'dwm_consumer_probe_v1' }
 $watch = [Diagnostics.Stopwatch]::StartNew()
 try {
     $head = (& git -C $engine rev-parse HEAD).Trim(); Check-Native 'Engine HEAD read failed'
@@ -58,6 +60,7 @@ try {
         @{name='Mesa NIR static'; file='godot-nir-static-x86_64-msvc-release.zip'; asset_id=329280734; bytes=6040119; sha256='abfbdf03316d65381f4c32d1f724c8a1dbeb74a7e801923b71656f186e54dcdf'; url='https://github.com/godotengine/godot-nir-static/releases/download/25.3.1-1/godot-nir-static-x86_64-msvc-release.zip'; destination=(Join-Path $deps 'mesa-x86_64-msvc')},
         @{name='ANGLE static'; file='godot-angle-static-x86_64-msvc-release.zip'; asset_id=182726748; bytes=32507833; sha256=$null; url='https://github.com/godotengine/godot-angle-static/releases/download/chromium/6601.2/godot-angle-static-x86_64-msvc-release.zip'; destination=(Join-Path $deps 'angle')}
     )
+    if ($ConsumerSdkPath) { $dependencies = @($dependencies | Where-Object { $_.asset_id -ne 372219312 }) }
     foreach ($dependency in $dependencies) {
         $archive = Join-Path $deps $dependency.file
         # Bind the observed download URL to the exact published asset ID, including
@@ -90,6 +93,20 @@ try {
         Expand-Archive -LiteralPath $archive -DestinationPath $dependency.destination
     }
     $sdk = Join-Path $deps 'accesskit-c-0.21.2'
+    if ($ConsumerSdkPath) {
+        $sdk = [IO.Path]::GetFullPath($ConsumerSdkPath)
+        $sdkReceiptPath = Join-Path $sdk 'sdk-receipt.json'
+        $sdkReceipt = Get-Content -LiteralPath $sdkReceiptPath -Raw | ConvertFrom-Json
+        if (-not $sdkReceipt.ok -or $sdkReceipt.source_commit -cne '72460cd52d1b24492393cdf54a6f19d2fd63e258' -or
+            $sdkReceipt.target -cne 'x86_64-pc-windows-msvc' -or $sdkReceipt.tests_exit_code -ne 0 -or $sdkReceipt.build_exit_code -ne 0 -or
+            $sdkReceipt.crate_sha256 -cne 'eff7009f1a532e917d66970a1e80c965140c6cfbbabbdde3d64e5431e6c78e21' -or
+            $sdkReceipt.library.path -cne 'lib/windows/x86_64/msvc/static/accesskit.lib' -or $sdkReceipt.header.path -cne 'include/accesskit.h' -or
+            (Hash (Join-Path $sdk $sdkReceipt.library.path)) -cne $sdkReceipt.library.sha256 -or
+            (Hash (Join-Path $sdk $sdkReceipt.header.path)) -cne $sdkReceipt.header.sha256) { throw 'Patched consumer SDK custody mismatch.' }
+        $record.consumer_sdk_receipt_sha256 = Hash $sdkReceiptPath
+        $record.consumer_sdk_library_sha256 = $sdkReceipt.library.sha256
+        Copy-Item $sdkReceiptPath (Join-Path $output 'consumer-sdk-receipt.json')
+    }
     if (-not (Test-Path -LiteralPath (Join-Path $sdk 'lib/windows/x86_64/msvc/static/accesskit.lib'))) { throw 'Pinned AccessKit static library is missing.' }
     # The archived C header must match the exact header reviewed with the probe.
     if ((Hash (Join-Path $sdk 'include/accesskit.h')) -cne (Hash (Join-Path $probe 'reference/thirdparty/accesskit/include/accesskit.h'))) { throw 'AccessKit C ABI header differs from the reviewed source.' }
@@ -130,6 +147,8 @@ try {
     foreach ($source in $record.changed_files) {
         if ((Hash (Join-Path $engine $source.path)) -cne $source.candidate_sha256) { throw 'Native source changed during compilation.' }
     }
+    if ($ConsumerSdkPath -and ((Hash (Join-Path $sdk 'lib/windows/x86_64/msvc/static/accesskit.lib')) -cne $record.consumer_sdk_library_sha256 -or
+        (Hash (Join-Path $sdk 'sdk-receipt.json')) -cne $record.consumer_sdk_receipt_sha256)) { throw 'Patched consumer SDK changed during link.' }
     $record.ok = $true
 } catch {
     $record.failure = $_.Exception.Message

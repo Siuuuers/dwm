@@ -4,7 +4,8 @@ param(
     [Parameter(Mandatory)][string]$OriginalArtifactPath,
     [Parameter(Mandatory)][string]$EngineRoot,
     [Parameter(Mandatory)][string]$OutputPath,
-    [Parameter(Mandatory)][string]$BuildReceipt
+    [Parameter(Mandatory)][string]$BuildReceipt,
+    [switch]$ConsumerProbe
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -14,6 +15,7 @@ $output = [IO.Path]::GetFullPath($OutputPath)
 $engine = [IO.Path]::GetFullPath($EngineRoot)
 $prepare = Join-Path $PSScriptRoot 'prepare_package.py'
 $arguments = @('--original', $OriginalArtifactPath, '--engine', $engine, '--output', $output, '--build-receipt', $BuildReceipt)
+if ($ConsumerProbe) { $arguments += '--consumer-probe' }
 & python $prepare stage @arguments
 if ($LASTEXITCODE -ne 0) { throw 'Diagnostic package staging failed.' }
 $package = Join-Path $output 'package'
@@ -35,7 +37,7 @@ function Invoke-SmokeProcess([string]$Name, [string[]]$CommandArguments, [int]$T
         New-Item -ItemType Directory -Force -Path $directory | Out-Null
         $start.Environment[$variableName] = $directory
     }
-    foreach ($variableName in @($start.Environment.Keys | Where-Object { $_ -like 'DWM_*' -or $_ -ceq 'GODOT_ACCESSKIT_PUBLICATION_TRACE_PATH' })) {
+    foreach ($variableName in @($start.Environment.Keys | Where-Object { $_ -like 'DWM_*' -or $_ -like 'GODOT_ACCESSKIT_*' })) {
         [void]$start.Environment.Remove($variableName)
     }
     $process = [Diagnostics.Process]::new()
@@ -89,7 +91,8 @@ $result = [ordered]@{ ok=$false; scope='Fresh isolated startup of the derived di
 try {
     $version = Invoke-SmokeProcess 'version' @('--version') 15
     $result.version = $version.stdout.Trim()
-    if ($result.version -cne '4.6.3.stable.dwm_publication_probe_v1.35e80b3a8') { throw 'Unexpected diagnostic native version.' }
+    $expectedVersion = if ($ConsumerProbe) { '4.6.3.stable.dwm_consumer_probe_v1.35e80b3a8' } else { '4.6.3.stable.dwm_publication_probe_v1.35e80b3a8' }
+    if ($result.version -cne $expectedVersion) { throw 'Unexpected diagnostic native version.' }
     $smoke = Invoke-SmokeProcess 'smoke' @('--headless', '--verbose', '--max-fps', '60', '--quit-after', '240', '--log-file', (Join-Path $output 'smoke.log')) 90
     $result.exit_code = $smoke.exit_code
     $result.timed_out = $smoke.timed_out

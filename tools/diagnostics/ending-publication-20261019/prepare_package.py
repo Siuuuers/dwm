@@ -16,6 +16,7 @@ GAME_TREE = "4581a9f12d63684836c722f72cffd533491f3c06"
 ENGINE_COMMIT = "35e80b3a8822a9df9be390814b62f44c0a9c69e8"
 ENGINE_TREE = "499fa231ee5d21878988a4a9cb881749def3946d"
 BUILD_NAME = "dwm_publication_probe_v1"
+CONSUMER_BUILD_NAME = "dwm_consumer_probe_v1"
 ORIGINAL = {
     "run": 39155624496,
     "artifact_id": 12146662424,
@@ -62,6 +63,7 @@ def checked_manifest(package, validation):
 
 
 def stage(args):
+    build_name = CONSUMER_BUILD_NAME if args.consumer_probe else BUILD_NAME
     out = args.output
     require(not out.exists(), "Diagnostic package output must be fresh")
     archives = list(args.original.rglob(ORIGINAL["archive_file"]))
@@ -99,7 +101,7 @@ def stage(args):
 
     build = read(args.build_receipt)
     require(build["ok"] is True and build["source_commit"] == ENGINE_COMMIT and
-            build["source_tree"] == ENGINE_TREE and build["build_name"] == BUILD_NAME and
+            build["source_tree"] == ENGINE_TREE and build["build_name"] == build_name and
             build["target"] == "template_release" and build["architecture"] == "x86_64",
             "Native build receipt mismatch")
     native = args.engine / "bin/godot.windows.template_release.x86_64.exe"
@@ -114,7 +116,7 @@ def stage(args):
         shutil.copyfile(args.engine / name, notices / name)
     origin = {
         "schema_version": 1,
-        "kind": "isolated_native_publication_diagnostic",
+        "kind": "isolated_native_consumer_diagnostic" if args.consumer_probe else "isolated_native_publication_diagnostic",
         "game_commit": GAME_COMMIT,
         "game_tree": GAME_TREE,
         "unchanged_original_package": ORIGINAL,
@@ -125,7 +127,7 @@ def stage(args):
             "The native executable is a separately built diagnostic template, not the official executable.",
             "Public source 35e80b3a is not independently mapped to the original 7d41c59c4 banner.",
             "MSVC production build differs from the public historical MinGW release recipe.",
-            "Native trace observes prepared AccessKit updates before factory return, not adapter acceptance.",
+            ("SDK trace observes applied consumer state, not actual UIA query delivery." if args.consumer_probe else "Native trace observes prepared AccessKit updates before factory return, not adapter acceptance."),
             "Diagnostic outcomes do not certify the official executable or authorize runtime promotion.",
         ],
     }
@@ -144,11 +146,12 @@ def stage(args):
 
 
 def finish(args):
+    build_name = CONSUMER_BUILD_NAME if args.consumer_probe else BUILD_NAME
     out = args.output
     package = out / "package"
     prepared = read(out / "stage.json")
     smoke = read(out / "smoke-result.json")
-    expected_banner = "4.6.3.stable." + BUILD_NAME + "." + ENGINE_COMMIT[:9]
+    expected_banner = "4.6.3.stable." + build_name + "." + ENGINE_COMMIT[:9]
     require(smoke["ok"] is True and smoke["version"] == expected_banner and
             smoke["exit_code"] == 0 and smoke["timed_out"] is False and
             smoke["isolated_profile_created"] is True, "Diagnostic headless smoke failed")
@@ -200,5 +203,6 @@ if __name__ == "__main__":
     parser.add_argument("--engine", type=pathlib.Path, required=True)
     parser.add_argument("--output", type=pathlib.Path, required=True)
     parser.add_argument("--build-receipt", type=pathlib.Path, required=True)
+    parser.add_argument("--consumer-probe", action="store_true")
     arguments = parser.parse_args()
     {"stage": stage, "finish": finish}[arguments.phase](arguments)
