@@ -175,7 +175,22 @@ foreach ($enabled in @($false,$true)) {
     Require ($null -eq $script:endingActionObservation) 'EXCEPTION_SCOPE_LEAK'
     Require (@($script:events | Where-Object {$_.kind -ceq 'caption-action-enumeration'}).Count -eq 0) 'FABRICATED_COMPLETED_BATCH'
 }
-Require ($failures[0] -match 'SPY_NAME_FAILURE' -and $failures[0] -ceq $failures[1] -and $sequences[0] -ceq $sequences[1]) 'PROVIDER_EXCEPTION_CHANGED'
+# Retained cloud attempt 2 showed this throwing property getter surfaces null to
+# PowerShell; the unchanged subsequent TrimEnd raises InvokeMethodOnNull. Both
+# modes had identical eight reads and RuntimeException, not the inner C# marker.
+# Assert that observed boundary exactly rather than assuming getter wrapping.
+$expectedExceptionReads='nodes|throw:current|throw:bounds|throw:offscreen|throw:current|throw:enabled|throw:current|throw:name'
+$plainFailure=$providerExceptionDiagnostics[0].caught
+$observedFailure=$providerExceptionDiagnostics[1].caught
+Require ($null -ne $plainFailure -and $null -ne $observedFailure -and
+    -not [string]::IsNullOrEmpty($failures[0]) -and
+    $plainFailure.fully_qualified_error_id -ceq 'InvokeMethodOnNull,Microsoft.PowerShell.Commands.WhereObjectCommand' -and
+    $plainFailure.fully_qualified_error_id -ceq $observedFailure.fully_qualified_error_id -and
+    $plainFailure.type -ceq 'System.Management.Automation.RuntimeException' -and
+    $plainFailure.type -ceq $observedFailure.type -and
+    $failures[0] -ceq 'You cannot call a method on a null-valued expression.' -and
+    $failures[0] -ceq $failures[1] -and
+    $sequences[0] -ceq $expectedExceptionReads -and $sequences[0] -ceq $sequences[1]) 'PROVIDER_EXCEPTION_CHANGED'
 [void]$cases.Add(@{name='provider_exception_same_reads_cleanup';ok=$true})
 @{ok=$true;scope='Actual extracted functions, fake provider boundaries; no native or UIA qualification';cases=$cases.ToArray();provider_exception_diagnostics=$providerExceptionDiagnostics.ToArray()} |
     ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $OutputPath -Encoding utf8
