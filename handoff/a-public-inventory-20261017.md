@@ -1,3 +1,114 @@
+# Source-discovery correction prepared — external C review gate (20 October 2026 Hong Kong)
+
+Director [6276663610](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6276663610) authorizes this bounded preparation and one focused cloud qualification after external C's no-blocker review. No new engine/PowerShell execution, controller installation or test dispatch occurred in this preparation.
+
+## Exact candidate and observable outcome
+
+Product remains PR36 `29d9322b537c4a1f461b24c6ff23ce75ed8aa021`. Marker-only candidate [e55254dbbafbbfe90f0adc9098e9ca2b79c14708](https://github.com/Siuuuers/dwm/commit/e55254dbbafbbfe90f0adc9098e9ca2b79c14708), tree `e166e051cc5a19c5996f6d70d5c6f0005c5d4be7`, branch `codex/a-source-discovery-20261020`, adds only the zero-byte `evidence/phase_2r/title_timing_20261019/source/.gdignore`. GitHub compare confirms one added path, zero changed lines. All pre-existing runtime, archive, test, manifest and export-helper blobs remain inherited unchanged.
+
+Expected outcome: fresh Godot discovery registers EndingScene and SaveManagerCheckpointPort only at canonical production paths; raw retained evidence remains readable with original hashes; unchanged Windows export/startup/package audit succeeds. This is a hypothesis awaiting cloud qualification, not an accepted fix. Prior evidence shows wrong discovery/class-map resolution, not proof that archived evidence scripts were packed.
+
+## Consumer review
+
+Let P be `evidence/phase_2r/title_timing_20261019`. Independent internal source review inspected these consumers at product29d9322b:
+
+| Consumer | Use of retained source |
+| --- | --- |
+| P/source/new-title-tools/game_patch.py | Four explicit original GDScript paths; read_bytes and pinned hashes before string transformation. |
+| P/source/new-title-tools/test_game_patch.py | Raw original reads/hashes; external overlay generation; source unchanged checks. |
+| P/source/new-title-tools/test_harness_patch.py | Path.read_text of retained PowerShell harness. |
+| P/source/new-title-tools/build_controller.py | Raw retained YAML and tool paths; generated separate frozen-game checkout. |
+| P/controller.yml | Historical pinned sparse checkout at d95ec53a; helpers under .godot/title-packet; separate game import/export. |
+| P/source/new-title-tools/prepare_source.py | Raw original and project reads, pinned git show, writes overlay to disposable game checkout. |
+| P/source-manifest.json | Twenty explicit historical file records with lengths/hashes; immutable and not amended to claim the new marker was historically present. |
+
+Generated TitleTiming preload targets the generated game's scripts/diagnostics path, not the retained source. PublicSurfaceInventory uses raw DirAccess/FileAccess with allowed roots autoload/scripts/scenes/tests; UiLiteralAudit roots are scenes/autoload/scripts. They do not depend on Godot importing this evidence subtree. Export preset already excludes evidence/* and unchanged export audit rejects res://evidence. No inspected consumer requires ResourceLoader discovery of retained originals.
+
+This is bounded source review, not exhaustive repository-wide absence proof: default-branch GitHub search cannot certify this exact-ref absence. The cloud probe therefore checks all20 existing manifest entries using actual Godot FileAccess after fresh import and again after export. Existing historical manifest bytes stay untouched.
+
+## Concrete focused qualification setup
+
+Prepared [controller](../evidence/phase_2r/inventory_refresh_20261020/source-discovery-controller.yml) is a review artifact, NOT installed under .github/workflows. It derives only the existing Windows export job from product's windows-tests.yml; it does not invoke broad public-surface or gameplay suites.
+
+- Pinned candidate/tree checkout with core.autocrlf=false; require .godot absent before creating evidence directories. No imported-resource cache restore. Only checksum-verified official export-template download cache remains.
+- Existing official Godot4.6.3 standard archive and template SHA256 checks retained.
+- Fresh import with actual exit receipt and strict script/error scans. Retain generated class map before evaluating import failure, when present.
+- Standalone non-class GDScript probe outside project: read generated map; exactly one canonical EndingScene and SaveManagerCheckpointPort; reject any registration from the ignored subtree; verify20 raw FileAccess length/hash records against unchanged source-manifest.json.
+- Unchanged Invoke-WindowsExportValidation.ps1 blob322d02bbe72d8e2e3c1e5b637fd9ac253ef31fff: export, native isolated empty-profile startup, actual process exit/error gates, package exclusions and runtime data hashes.
+- Require Boolean successful report/isolated smoke/pack audit and exact source commit; repeat class-map/raw-file probe after export. Retain both class maps, probe/import exit receipts/logs, original helper report, package identities and validation ZIP through always-upload.
+- Source and CI event/controller identities remain distinct. No runtime owner, save schema, history seal, timeout or strict error weakening.
+
+Local verification is YAML parsing and independent static source review only. The review found an import-failure map-retention gap; preparation now captures that map before throwing. No GDScript compiler, Godot or PowerShell pass is claimed.
+
+## Next action and acceptance boundary
+
+External Coordinator C reviews this exact marker scope, consumer analysis and prepared controller. Internal reviewers are not external C. After C no-blocker: recheck PR36/controller/integration/master heads and active runs; install the reviewed workflow once on PR30 with expected-head protection; follow its single cloud result. Do not run a second event or broad campaign. Stop and retain the first failed prerequisite.
+
+After a passing focused result, external C reviews concrete evidence before exact marker/report integration into PR36. Reconcile any intervening product changes. No merge/release or master/integration movement. PR30 remains workflow-only, draft/unmerged.
+
+Ordinary run39312901305 is now completed/failure (API inspected this turn); no active ordinary run was cancelled. Existing inventory refresh remains completed. C6276090888's ordered-ending classification is already included below: stale historical catalogue/setup, no save/reader reached, historical coverage mapping outstanding. Do not bypass the guard or restore retired UI. Known33.179067s transition, official exported ending/durable completion/Title and normal Load clean exit remain open. Startup qualification cannot close those gates.
+
+---
+
+# Director6276115633 reconciliation — discovery boundary and C ending classification
+
+20 October2026 Hong Kong. This supersedes any reading of earlier “packaging regression” shorthand as proof that retained evidence scripts were included in the PCK.
+
+**New original-log boundary evidence:** artifact12216103321/import.log lists SaveManagerCheckpointPort twice (lines405/473) and EndingScene twice (406/691) in update_scripts_classes. These lines identify class names, not their source paths. export.log performs another class update, then explicitly stores the canonical production .gdc and .gd.remap paths. Its savepack lines contain no “Storing File: res://evidence/” entry. Smoke and pack-audit resolve EndingScene to the evidence source path and fail; the exact source tree has both class declarations and no import-ignore marker around the copied subtree. Together these support discovery/class-map contamination as the bounded correction target. They do NOT establish evidence-file inclusion in the pack. The failed artifact has no PCK or global_script_class_cache.cfg for independent inspection, so that stronger claim remains unavailable. Retained discovery-boundary.json records member hashes and exact relevant lines.
+
+**Proposal remains unimplemented:** add only the empty source-subtree .gdignore, after checking consumers. Future cloud qualification must use a fresh import/cache, retain the generated class map proving canonical paths, preserve raw evidence reads/hashes, and run the unchanged export/startup/package audit. No weakening error checks, editing saved data or replacing runtime owners. This is a concrete hypothesis supported by original source/logs, not an executed successful fix.
+
+**C ordered-ending triage accepted by Director:** [C6276090888](https://github.com/Siuuuers/dwm/pull/36#issuecomment-6276090888), accepted by [Director6276115633](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6276115633). C verified artifact12216118284/SHA256935cede4f18d952f9998754507fccc519d41fd75c58c123fc6ffe096a0dbfd24 and four exact merge-source identities. First observed failure is the compound production-startup/fixture-injection assertion; writer exits1 after12.733s without timeout, save files, reader process or boundary captures. PROCESS_FAILED:write is the wrapper's process failure, not a save-write failure.
+
+Source review establishes that ordinary registered startup installs the scene ending catalogue, after which the legacy fixture attempts a different Sylvia catalogue; unchanged ownership guard refuses replacement. The exact refusal code is inferred from source, not separately logged by the compound assertion. Later unreached numeric-day/ComputerDesktop/Schedule/Pause assumptions also prevent treating this as a one-flag repair. Classification: stale legacy fixture/setup; historical coverage mapping outstanding. No demonstrated current supported scene Save/Load regression or shared Windows startup prerequisite. Do not bypass guards or restore retired UI to make it green.
+
+Prior accepted registered-scene journey run38867983987 at6eaa6a94 remains bounded25 tests/623 assertions (including three rendered cases/328 assertions); it is neither a current rerun nor coverage for all historical endings. C's assigned triage is complete and next external C action is review of A's concrete correction when authorized/available. A owns inventory/restart; no additional investigation lane or engine run is opened.
+
+Latest status inspected: Settings job118269851222 remains active; timed-hold118269851131 completed failure. Its cause has not been classified here. Product PR36 remains29d9322b and report branch is separate to avoid cancelling CI. Inventory gate remains closed; later exported lifecycle/clean exit and known diagnostic33.179067s latency remain unresolved.
+
+---
+
+# Director continuation6275999071 — original export reports reconciled
+
+Read-only follow-up to the preceding diagnosis, 20 October 2026 Hong Kong. No new test dispatch or implementation.
+
+**Exact executed source:** current validation.json records GitHub PR merge commit `3226e9032596ebc0d83eeb0acc2f2850d5f643d2`, not merely the run's head SHA. Its tree is `d8cd25d1a08f1d44156b671f38e1ad22615ad40e`, exactly equal to PR36 head29d9322b. Parents are integration3ae6d913 and product29d9322b. Thus the preceding source diagnosis applies byte-for-byte to the executed tree.
+
+**Original retained report:** artifact12216103321 from run39312901305/job118269851093, ZIP SHA256 `f759ed7779d26e045b66514698cf255b245eb4c3601aeaa5f8785bb6c1b0cf01` matches the live GitHub digest. It contains9 members and no validation-build ZIP. Report says ok=false, smoke=false, pack_audit=false. Export.log has no ERROR lines; smoke.log's first error is EndingScene resolving to the retained evidence path already identified. Pack-audit.log begins with the same class error before dependent constructor failures. Failure therefore occurs at packaged runtime class loading, not export generation and not the later native ending journey. A package byte hash was not retained in this failed report; do not invent a package identity.
+
+**Qualified comparison:** run38879107441/job116901229033 artifact12035929796, ZIP SHA256 `ab14681240dc262b2cfdc24126161dfdca4297ded4d42957bbefb33049a5fe9d` also matches GitHub. Its actual product source is `be597be59f3f06d7cc9ea6a169fbb433f1120ca3`, tree `05085de256de4ccb6d39dfd469b979330bd9f704`; report ci_event_commit1218766757 differs from controller head387d6500 and must not be substituted for product source. Report ok=true, isolated startup/profile creation=true,117 runtime data files verified. DWM.exe SHA256 `91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6`; DWM.pck `32d8d3daee6de3eb33f05c2ba7683ebdfbed363bcb5c07f84a3609da667ec8ee`.
+
+Both reports use Godot4.6.3 standard and identical official template SHA256 `3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8`. Export helper blob322d02bb and presetccb9409a are exactly unchanged between qualified and current product. The offending retained EndingScene path is absent from qualifiedbe597be5 and inspected PR1a6decec3. This supports an import/source-layout regression, with unchanged packaging test, rather than a stale assertion or previously known late-journey timeout. It is not a controlled proof that the one-file proposal clears every remaining failure.
+
+**Recommendation unchanged:** one empty `evidence/phase_2r/title_timing_20261019/source/.gdignore`, subject to source-consumer review and fresh cloud import/class-map plus existing export/startup/package audit qualification. Preserve evidence bytes and runtime/save/recovery/history owners; no broad evidence-root exclusion or error-gate weakening. Player impact: the Windows package cannot establish its normal startup dependencies, so later playable-journey acceptance is blocked earlier. External C owns ordered-ending diagnosis separately; A does not classify that failure without C's evidence.
+
+The exact current and prior validation.json files are retained alongside the earlier log excerpt in evidence/phase_2r/inventory_refresh_20261020/. The timed-hold job has now failed; Settings remains active at inspection. Do not infer either cause from status. Report branch remains isolated to avoid interrupting ordinary CI; PR36 product head is unchanged. Return this bounded recommendation under Director6275999071; implementation remains outside this triage scope.
+
+---
+
+# Ordinary CI observation — inventory gate closed; exported startup blocker (20 October 2026 Hong Kong)
+
+Product/source: `29d9322b537c4a1f461b24c6ff23ce75ed8aa021`, tree `d8cd25d1a08f1d44156b671f38e1ad22615ad40e`.
+Naturally triggered [run39312901305](https://github.com/Siuuuers/dwm/actions/runs/39312901305), no manual redispatch.
+
+The public API job118266836527 passed: canonical reproduction of BOTH committed inventories plus11 drift/read-only tests. This confirms the reviewed integration in ordinary CI, not full-game acceptance.
+
+**Selected next supported-path blocker:** [Windows exported startup job118269851093](https://github.com/Siuuuers/dwm/actions/runs/39312901305/job/118269851093) fails during isolated executable smoke, after export. At19:48:34 UTC, EndingScene resolves to `res://evidence/phase_2r/title_timing_20261019/source/scripts/ui/EndingScene.gd`; SaveManagerCheckpointPort also reports that it hides a global script class. SceneRouter/ApplicationBootstrap dependencies cannot compile. Smoke exit0 does not constitute success: the unchanged strict error gate correctly rejects it.
+
+**Owner/caller diagnosis:** retained source snapshots declare runtime global class names and are discoverable by the project import. The evidence EndingScene blob is `dec4979b1d6331a22aac268b4b2a926e70a601eb`; canonical runtime EndingScene is `ae9bf01b2692213cfadeea7ffde81c66db3120cf`. Evidence SaveManagerCheckpointPort blob `9306b21bd1e92e1c81c25a709c89470b4e2d8179` declares the same global class. No .gdignore exists at evidence/, phase_2r/, title_timing_20261019/ or its source/ root on this pin. Export preset blob `ccb9409ac1054d0b4b52e78df823c33f532e83fb` already excludes evidence/*; that does not prevent pre-export global-class registration. Helper blob `322d02bbe72d8e2e3c1e5b637fd9ac253ef31fff` exports the imported repository then launches the adjacent executable/PCK from an isolated package/profile. The log directly proves the wrong class path; exact generated cache/PCK census has not been independently extracted.
+
+**Smallest proposed correction, NOT implemented:** place an empty .gdignore at `evidence/phase_2r/title_timing_20261019/source/.gdignore`, covering both offending retained source copies without editing their immutable bytes, runtime owners, save schemas or history seals. Independent internal ownership review agrees with this bounded scope. A root evidence/.gdignore would be broader and needs a separate consumer audit; it is not necessary to propose it here.
+
+**Observable outcome and qualification if authorized:** on a fresh cloud checkout/import, global classes resolve to canonical runtime paths; existing Windows export/package audit and isolated startup pass without script errors and with its isolated profile. Check source-snapshot consumers before introducing the ignore marker and retain raw FileAccess-based evidence/hash checks. Rebuild from a clean import/cache; do not merely reuse the contaminated cache or weaken strict error scans. A startup pass would still not certify rendered ending completion, Title/fresh Load or clean player exit.
+
+**Other actual results:** the first observed downstream preparation failure remains seven-day producer118269850855: baseline builder raises `ValueError: Expected 3 current-source admission anchors` before its benchmark. This is distinct from the selected supported startup failure. Public API, checkpoint_diagnostics, minesweeper and audio passed. Other completed suites failed; their individual causes are not all classified and must not be attributed wholesale to this class-map issue. Settings and rendered captionless hold remain in progress at this snapshot; comparison is skipped and retained-history aggregate fails prerequisites. See retained job snapshot.
+
+Director6274608818 asks for the next concrete blocker before backlog implementation. Return this import/packaging correction for scope review; no runtime fix, extra broad run, engine change, candidate promotion, merge or release was performed. The prior33.179067s diagnostic transition and official exported ending/durable completion/Title/clean-exit issues remain open.
+
+This docs-only observation is published on an isolated branch so updating PR36 cannot cancel the still-active ordinary run. PR36 remains29d9322b. Existing inventory/restart paths are updated in this report commit; integrate those notes when appropriate. Earlier next-observe wording below is superseded.
+
+---
+
 # Canonical inventories integrated after external C review — 20 October 2026 Hong Kong
 
 External C [6275550068](https://github.com/Siuuuers/dwm/pull/36#issuecomment-6275550068) approved the concrete two-file delta and focused11/352 result under Director6274608818. The current publication installs exactly generated GameState blob8df3816c0bdcb14ebe73c2bcc42fd91d0f626b63 and SaveManager blobaa03d2542178025fcf6df384f22b21f2ca6a9e64. PR36 head99969004 was reconciled: no intervening source change; expected-head protection is used.
