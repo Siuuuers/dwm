@@ -1,25 +1,25 @@
 # Priscilla–Lavinia: working home and restart point
 
-## Day 2 assembled Dark candidate, 2026-10-19 at 16:09
+## Day 2 refined Dark candidate, 2026-10-19
 
-Read the [current Day 1 verdict](../../auditions/priscilla-seven-day-working-plot.md#current-day-1-verdict-and-day-2-assembly-2026-10-19-at-1609)
-and the [assembled Day 2 encounter](auditions/day-2-return-bar-working-draft.md#current-reading-day-1-d-into-the-leading-day-2-dark-encounter).
-The assistant recommends proceeding without another Day 1 prose revision.
-D supplies the opening's strongest human violation; the lighter readings
-are not described as equally intense.
+Read the [current refinement checkpoint](../../auditions/priscilla-seven-day-working-plot.md#current-day-2-menu-embodied-attention-and-jealousy-refinement-2026-10-19)
+and the [complete Day 2 encounter](auditions/day-2-return-bar-working-draft.md#current-reading-day-1-d-into-the-leading-day-2-dark-encounter).
+Concrete menu choices, Priscilla's embodied performance and a sharper
+jealous exchange now develop the owner's latest request. Lavinia heard
+Sylvia's recorded reply before Priscilla's later call; the new comparison
+does not give her Sylvia's hidden restriction or book performance.
 
-Day 2 now has one complete leading Dark encounter and coda after Day 1 D.
-Remembered performance replaces the proposed physical-book loan, preserving
-Sylvia's custody and unrepaired objection. Lavinia chooses dinner and
-closeness before the personal answer and conflict; her later tenderness
-does not reverse her actual departure. Particular strike, obstruction,
-touch, dialogue and placement remain **AUDITIONING**.
+This remains one complete leading Dark encounter and coda after Day 1 D.
+The later argument, actual departure and earned message retain their
+sequence. Exact acts, dialogue and placement are **AUDITIONING**.
+The scene owner records the actual revised-prefix craft/continuity review;
+Day 1's preceding verdict and prose are unaffected.
 
-The existing PR #41 is the authorized capture destination. Review details
-are centralized in the current checkpoint and scene owner. Next compare
-complete ordinary and softer continuations and Day 3 carry; the full Day 2
-family, whole-week DTL gate, exact selections and historical source holds
-remain open. PR metadata determines the current publication/merge state.
+The existing PR #41 is the authorized capture destination; Git retains
+earlier readings. Next compare ordinary and softer continuations, then the
+complete Day 2 family and Day 3 carry. The whole-week DTL gate, selections
+and historical source holds remain open. PR metadata determines the
+publication/merge state.
 
 
 ## Book and attention experiment, 2026-10-19 at 15:24

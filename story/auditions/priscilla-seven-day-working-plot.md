@@ -1,5 +1,20 @@
 # Priscilla: current seven-day working plot and discussion checkpoint
 
+## Current Day 2 menu, embodied attention and jealousy refinement, 2026-10-19
+
+**Source:** the owner's current message values the complete scene, questions the generic menu summary and “I sit a little straighter,” invites bodily/perceptual writing with *La Jalousie* and *Le Planétarium* as references while preserving naturalness, and requests more intense anger and jealousy. This is a scoped revision request, not a new canon selection.
+
+**Baseline and current owner:** the assembled encounter at [9562c4297151eb8257f418df3e670ee1b5918760](https://github.com/Siuuuers/dwm/blob/9562c4297151eb8257f418df3e670ee1b5918760/story/relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md) is the inspected predecessor. Read the [revised complete Day 2 encounter](../relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md#current-reading-day-1-d-into-the-leading-day-2-dark-encounter) and its [focused rationale and review](../relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md#current-bounded-review) for the actual text and considered alternatives.
+
+**Assistant recommendation:** retain the assembled scene and sharpen these three places. Two named dishes and Lavinia's returning finger replace abstract indecision; felt chair contact and the performed breath make Priscilla's posture available through her own body. The reply that fails into laughter keeps their amusement. The added jealousy exchange turns the order of the two voices into a comparison, then makes Lavinia defend having wanted the call. The later argument already has an escalating sequence of consequential actions; an extra explanation of Priscilla's nonremorse would repeat it.
+
+The preferred new lines remain **AUDITIONING**. The foods are local choices, not fixed appetites. The bodily detail stays in the continuous story field without a duplicate self-talk explanation. Lavinia heard Sylvia's reply rehearsal and Priscilla's later aunt performance, not Sylvia's book performance; her knowledge of the no-forward restriction is unchanged. Both true disclosure motives, Lavinia's unresolved whole motive and romantic response to Sylvia, and the actual departure retain their scope.
+
+**Review and capture:** two same-model readers with shared context reviewed the actual revised prefix, one for craft and one for continuity/authority. Neither found a material defect requiring repair. The scene owner records this bounded finding separately from the earlier assembly review. Save the coherent refinement in the existing Markdown owners and PR #41 under the standing push authorization; Git retains the preceding reading.
+
+**Next unit:** the ordinary and substantively softer continuations, then the complete Day 2 family and Day 3 carry. This refinement does not finish that family or the week. Day 1, the protected arrival/residence history, the historical bar/residue audit and the whole-week-before-DTL gate retain their prior scope. Runtime/DTL, assets, performed audio and audience testing: **NOT RUN**.
+
+
 ## Current Day 1 verdict and Day 2 assembly, 2026-10-19 at 16:09
 
 **Source:** the owner's 16:09:47 Asia/Hong_Kong message asks whether Day 1 is sufficiently ridiculous, chaotic, random and absurd, contains at least one intense dangerous dark spot, and permits proceeding to Day 2 if the opening satisfies that aim. This is a request for an honest creative judgment and further development, not approval of an unseen scene or every possible outcome.

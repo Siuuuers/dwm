@@ -1,26 +1,27 @@
 # Story workspace
 
-## Current Day 1 verdict and Day 2 assembly, 2026-10-19 at 16:09
+## Current Day 2 refinement, 2026-10-19
 
-The [current checkpoint](auditions/priscilla-seven-day-working-plot.md#current-day-1-verdict-and-day-2-assembly-2026-10-19-at-1609)
-recommends moving on without another Day 1 prose change. The opening supplies
-distinctive absurd pleasure and an intense human violation in D; the lighter
-readings do not all promise that same severity.
+The [current checkpoint](auditions/priscilla-seven-day-working-plot.md#current-day-2-menu-embodied-attention-and-jealousy-refinement-2026-10-19)
+records the owner's request for a more particular menu choice, embodied
+perception and more intense anger and jealousy. The [complete Day 2 candidate](relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md#current-reading-day-1-d-into-the-leading-day-2-dark-encounter)
+now gives the dinner concrete choices, makes the aunt's performance bodily
+present and sharpens the comparison between Sylvia's recorded reply and
+Priscilla's later call. The later argument and tenderness/departure reversal
+retain their sequence.
 
-The [Day 2 packet](relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md#current-reading-day-1-d-into-the-leading-day-2-dark-encounter)
-now assembles one complete leading Dark encounter and coda after Day 1 D:
-chosen dinner and remembered performance, the personal answer, incompatible
-judgments and the tenderness/departure reversal. Sylvia keeps her book.
-Exact acts and prose remain **AUDITIONING**; the complete five-result Day 2
-family and whole-week plot are not finished.
+This is one leading Dark encounter and coda after Day 1 D, **AUDITIONING**.
+The [preceding Day 1 verdict](auditions/priscilla-seven-day-working-plot.md#current-day-1-verdict-and-day-2-assembly-2026-10-19-at-1609)
+still recommends moving on; that manuscript is unchanged by this refinement.
+Two same-model readers checked the actual revised prefix; the owner centralizes
+the bounded review and its limits.
 
 **Capture destination:** existing [PR #41](https://github.com/Siuuuers/dwm/pull/41)
-under the standing Markdown/push authorization. Earlier versions remain in
-Git. The current Day 1 manuscript is unchanged; review details and limits are
-centralized in the checkpoint and Day 2 owner. Next compare whole ordinary
-and softer continuations, then assemble the Day 2 family and Day 3 carry.
-The full-week DTL gate and historical residence/bar/residue holds remain.
-PR metadata establishes publication and merge state.
+under the standing Markdown/push authorization, with earlier readings retained
+in Git. Next compare ordinary and softer continuations, then assemble the
+Day 2 family and Day 3 carry. The whole-week DTL gate and historical
+residence/bar/residue holds remain. PR metadata establishes publication
+and merge state.
 
 
 ## Current book and attention experiment, 2026-10-19 at 15:24
