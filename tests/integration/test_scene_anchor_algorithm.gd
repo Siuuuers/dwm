@@ -20,7 +20,7 @@ func after_all() -> void:
 	if is_instance_valid(candidate): candidate.free()
 	if is_instance_valid(original): original.free()
 
-func _compare(anchor: Dictionary, checkpoint: Dictionary, succeeds: bool, label: String) -> void:
+func _assert_anchor_equivalence(anchor: Dictionary, checkpoint: Dictionary, succeeds: bool, label: String) -> void:
 	var before := var_to_bytes([anchor, checkpoint])
 	var expected: Dictionary = original.validate_scene_event_anchor(anchor, checkpoint)
 	assert_eq(var_to_bytes([anchor, checkpoint]), before, label + ": original input immutability")
@@ -37,11 +37,11 @@ func test_current_and_historical_occurrences_match_original() -> void:
 	assert_false(corpus.is_empty())
 	if corpus.is_empty(): return
 	for index: int in [0, 7, 13]:
-		_compare(corpus.anchors[index], corpus.checkpoint, true, "publication:%d" % index)
+		_assert_anchor_equivalence(corpus.anchors[index], corpus.checkpoint, true, "publication:%d" % index)
 	# Terminal validation supplies this exact retained source checkpoint; it
 	# must use the historical occurrence, never today's active/live frontier.
 	var terminal := {"source_kind": "scene", "source_reading_checkpoint": corpus.checkpoint.duplicate(true)}
-	_compare(corpus.anchors[0], terminal.source_reading_checkpoint, true, "terminal source input")
+	_assert_anchor_equivalence(corpus.anchors[0], terminal.source_reading_checkpoint, true, "terminal source input")
 
 func test_missing_and_mismatched_anchor_fields_match_original() -> void:
 	assert_false(corpus.is_empty())
@@ -49,11 +49,11 @@ func test_missing_and_mismatched_anchor_fields_match_original() -> void:
 	for field: String in ["session_id", "entry_id", "publication_id", "line_id", "catalogue_fingerprint", "content_version"]:
 		var anchor: Dictionary = corpus.anchors[0].duplicate(true)
 		anchor[field] = 999 if field == "content_version" else "missing:" + field
-		_compare(anchor, corpus.checkpoint, false, field)
+		_assert_anchor_equivalence(anchor, corpus.checkpoint, false, field)
 	# Existing frame with a real publication from another occurrence.
 	var crossed: Dictionary = corpus.anchors[0].duplicate(true)
 	crossed.publication_id = corpus.anchors[1].publication_id
-	_compare(crossed, corpus.checkpoint, false, "crossed publication/occurrence")
+	_assert_anchor_equivalence(crossed, corpus.checkpoint, false, "crossed publication/occurrence")
 
 func test_late_duplicate_conflict_and_malformed_rows_still_refuse_before_membership() -> void:
 	assert_false(corpus.is_empty())
@@ -75,7 +75,7 @@ func test_late_duplicate_conflict_and_malformed_rows_still_refuse_before_members
 				var key := LEDGER.scene_frame_key(corpus.anchors[13].session_id, corpus.anchors[13].entry_id)
 				ledger.entry_contexts[" " + key] = ledger.entry_contexts[key]
 				ledger.entry_contexts.erase(key)
-		_compare(corpus.anchors[0], checkpoint, false, mode)
+		_assert_anchor_equivalence(corpus.anchors[0], checkpoint, false, mode)
 
 func test_multiple_faults_preserve_first_refusal() -> void:
 	assert_false(corpus.is_empty())
@@ -84,21 +84,21 @@ func test_multiple_faults_preserve_first_refusal() -> void:
 	checkpoint.reading_session.ledger.captions.append({})
 	var anchor: Dictionary = corpus.anchors[0].duplicate(true)
 	anchor.content_version = 1.0
-	_compare(anchor, checkpoint, false, "anchor shape before bad restore")
+	_assert_anchor_equivalence(anchor, checkpoint, false, "anchor shape before bad restore")
 	anchor = corpus.anchors[0].duplicate(true)
 	anchor.catalogue_fingerprint = "bad"
-	_compare(anchor, checkpoint, false, "bad restore before catalogue mismatch")
+	_assert_anchor_equivalence(anchor, checkpoint, false, "bad restore before catalogue mismatch")
 	anchor.publication_id = "missing"
-	_compare(anchor, corpus.checkpoint, false, "catalogue before missing publication")
+	_assert_anchor_equivalence(anchor, corpus.checkpoint, false, "catalogue before missing publication")
 
 func test_repeated_invocation_does_not_reuse_prior_checkpoint_or_verdict() -> void:
 	assert_false(corpus.is_empty())
 	if corpus.is_empty(): return
 	var anchor: Dictionary = corpus.anchors[0].duplicate(true)
 	var checkpoint: Dictionary = corpus.checkpoint.duplicate(true)
-	_compare(anchor, checkpoint, true, "initial")
+	_assert_anchor_equivalence(anchor, checkpoint, true, "initial")
 	checkpoint.reading_session.ledger.captions[0].publication_id = "replaced"
-	_compare(anchor, checkpoint, false, "same caller object changed")
+	_assert_anchor_equivalence(anchor, checkpoint, false, "same caller object changed")
 	anchor.publication_id = "replaced"
-	_compare(anchor, checkpoint, true, "new exact membership")
-	_compare(corpus.anchors[0], corpus.checkpoint, true, "original remains detached")
+	_assert_anchor_equivalence(anchor, checkpoint, true, "new exact membership")
+	_assert_anchor_equivalence(corpus.anchors[0], corpus.checkpoint, true, "original remains detached")
