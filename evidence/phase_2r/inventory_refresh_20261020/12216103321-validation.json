@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "ok": false,
+  "commit": "3226e9032596ebc0d83eeb0acc2f2850d5f643d2",
+  "ci_event_commit": "3226e9032596ebc0d83eeb0acc2f2850d5f643d2",
+  "engine": "4.6.3.stable",
+  "architecture": "x86_64",
+  "signed": false,
+  "scope": "Unsigned Windows release export, packaged data audit, isolated headless startup",
+  "limitations": [
+    "No graphical rendering, UI Automation, screen-reader, or full release acceptance claim"
+  ],
+  "templates_sha256": "3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8",
+  "export_editor_plugin_exclusion": "res://addons/gut/plugin.cfg",
+  "smoke": {
+    "ok": false,
+    "failure": "smoke reported an engine, script, data, or startup error; inspect its logs."
+  },
+  "story_compatibility_resources": [
+    "res://tests/fixtures/dialogic/scene_seven_day_linear.dtl",
+    "res://tests/fixtures/dialogic/scene_seven_day_ending.dtl",
+    "res://tests/templates/scene_sequence/seven_day_order.json"
+  ],
+  "pack_audit": {
+    "ok": false,
+    "failure": "pack-audit reported an engine, script, data, or startup error; inspect its logs."
+  },
+  "failure": "Native startup: smoke reported an engine, script, data, or startup error; inspect its logs.; Pack audit: pack-audit reported an engine, script, data, or startup error; inspect its logs."
+}

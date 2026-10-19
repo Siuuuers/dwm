@@ -1,3 +1,21 @@
+# Director continuation6275999071 — original export reports reconciled
+
+Read-only follow-up to the preceding diagnosis, 20 October 2026 Hong Kong. No new test dispatch or implementation.
+
+**Exact executed source:** current validation.json records GitHub PR merge commit `3226e9032596ebc0d83eeb0acc2f2850d5f643d2`, not merely the run's head SHA. Its tree is `d8cd25d1a08f1d44156b671f38e1ad22615ad40e`, exactly equal to PR36 head29d9322b. Parents are integration3ae6d913 and product29d9322b. Thus the preceding source diagnosis applies byte-for-byte to the executed tree.
+
+**Original retained report:** artifact12216103321 from run39312901305/job118269851093, ZIP SHA256 `f759ed7779d26e045b66514698cf255b245eb4c3601aeaa5f8785bb6c1b0cf01` matches the live GitHub digest. It contains9 members and no validation-build ZIP. Report says ok=false, smoke=false, pack_audit=false. Export.log has no ERROR lines; smoke.log's first error is EndingScene resolving to the retained evidence path already identified. Pack-audit.log begins with the same class error before dependent constructor failures. Failure therefore occurs at packaged runtime class loading, not export generation and not the later native ending journey. A package byte hash was not retained in this failed report; do not invent a package identity.
+
+**Qualified comparison:** run38879107441/job116901229033 artifact12035929796, ZIP SHA256 `ab14681240dc262b2cfdc24126161dfdca4297ded4d42957bbefb33049a5fe9d` also matches GitHub. Its actual product source is `be597be59f3f06d7cc9ea6a169fbb433f1120ca3`, tree `05085de256de4ccb6d39dfd469b979330bd9f704`; report ci_event_commit1218766757 differs from controller head387d6500 and must not be substituted for product source. Report ok=true, isolated startup/profile creation=true,117 runtime data files verified. DWM.exe SHA256 `91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6`; DWM.pck `32d8d3daee6de3eb33f05c2ba7683ebdfbed363bcb5c07f84a3609da667ec8ee`.
+
+Both reports use Godot4.6.3 standard and identical official template SHA256 `3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8`. Export helper blob322d02bb and presetccb9409a are exactly unchanged between qualified and current product. The offending retained EndingScene path is absent from qualifiedbe597be5 and inspected PR1a6decec3. This supports an import/source-layout regression, with unchanged packaging test, rather than a stale assertion or previously known late-journey timeout. It is not a controlled proof that the one-file proposal clears every remaining failure.
+
+**Recommendation unchanged:** one empty `evidence/phase_2r/title_timing_20261019/source/.gdignore`, subject to source-consumer review and fresh cloud import/class-map plus existing export/startup/package audit qualification. Preserve evidence bytes and runtime/save/recovery/history owners; no broad evidence-root exclusion or error-gate weakening. Player impact: the Windows package cannot establish its normal startup dependencies, so later playable-journey acceptance is blocked earlier. External C owns ordered-ending diagnosis separately; A does not classify that failure without C's evidence.
+
+The exact current and prior validation.json files are retained alongside the earlier log excerpt in evidence/phase_2r/inventory_refresh_20261020/. The timed-hold job has now failed; Settings remains active at inspection. Do not infer either cause from status. Report branch remains isolated to avoid interrupting ordinary CI; PR36 product head is unchanged. Return this bounded recommendation under Director6275999071; implementation remains outside this triage scope.
+
+---
+
 # Ordinary CI observation — inventory gate closed; exported startup blocker (20 October 2026 Hong Kong)
 
 Product/source: `29d9322b537c4a1f461b24c6ff23ce75ed8aa021`, tree `d8cd25d1a08f1d44156b671f38e1ad22615ad40e`.
