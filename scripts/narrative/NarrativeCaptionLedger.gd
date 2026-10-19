@@ -214,6 +214,19 @@ func is_current_occurrence(session_token: String, entry_id: String, frontier: Di
 	return last.publication_id == frontier.publication_id and last.beat.line_id == frontier.line_id \
 		and last.beat.owning_entry_id == entry_id and str(last.get("occurrence_id", "")) == occurrence_id
 
+## Representation membership only; callers retain independent authentication.
+## Complete restore installs the sequence and unique-publication index together.
+## Resolve the frame before membership, matching the snapshot-based anchor check.
+func has_scene_publication(occurrence_id: String, entry_id: String,
+		publication_id: String, line_id: String) -> bool:
+	var frame := resolve_scene_frame(_entry_contexts, occurrence_id, entry_id)
+	if not frame.ok: return false
+	if not _scene or not _published.has(publication_id): return false
+	var publication: Dictionary = _published[publication_id]
+	return publication.occurrence_id == occurrence_id \
+		and publication.beat.owning_entry_id == entry_id \
+		and publication.beat.line_id == line_id
+
 func snapshot() -> Dictionary:
 	var result := {"session_token": _session_token, "frozen_context": _frozen_context.duplicate(true),
 		"captions": _sequence.duplicate(true)}

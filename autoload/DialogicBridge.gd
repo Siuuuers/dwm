@@ -4489,14 +4489,11 @@ func _validate_scene5_event_anchor(anchor: Dictionary, checkpoint: Dictionary) -
 	if anchor.catalogue_fingerprint != candidate.fingerprint or not candidate.catalogue.has(anchor.entry_id) \
 			or candidate.catalogue[anchor.entry_id].content_version != anchor.content_version:
 		return _command_failure(&"event_anchor_catalogue_mismatch")
-	var ledger: Dictionary = candidate.ledger.snapshot()
-	# Anchor session_id is the logical occurrence; ledger session_token spans occurrences.
-	var frame := NarrativeCaptionLedger.resolve_scene_frame(ledger.entry_contexts, anchor.session_id, anchor.entry_id)
-	if not frame.ok: return _command_failure(&"event_anchor_invalid")
-	for row: Dictionary in ledger.captions:
-		if row.publication_id == anchor.publication_id and row.occurrence_id == anchor.session_id \
-				and row.beat.owning_entry_id == anchor.entry_id and row.beat.line_id == anchor.line_id:
-			return {"ok": true}
+	# Full restore above retains all malformed/duplicate/history checks. Query the
+	# same ledger's existing index without copying and scanning its whole history.
+	if candidate.ledger.has_scene_publication(anchor.session_id, anchor.entry_id,
+			anchor.publication_id, anchor.line_id):
+		return {"ok": true}
 	return _command_failure(&"event_anchor_invalid")
 
 
