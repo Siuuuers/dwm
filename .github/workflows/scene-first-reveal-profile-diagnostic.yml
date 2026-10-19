@@ -25,7 +25,7 @@ jobs:
         with:
           ref: 27dd7a7d0e2c064451d40aa4ce44fdca751be878
           fetch-depth: 1
-          persist-credentials: false
+          persist-credentials: true
           sparse-checkout: tools/diagnostics/ending-publication-20261019/traversal-regression
       - uses: actions/setup-python@v6
         with:
@@ -35,6 +35,8 @@ jobs:
         run: |
           if ((git rev-parse HEAD) -cne $env:DWM_SOURCE_SHA) { throw 'Source mismatch' }
           if ((git rev-parse 'HEAD^{tree}') -cne '133a34ae5445e67764241a62b268b14ef74d5ac7') { throw 'Source tree mismatch' }
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           New-Item -ItemType Directory -Force '.godot/traversal' | Out-Null
           @{source=$env:DWM_SOURCE_SHA;tree='133a34ae5445e67764241a62b268b14ef74d5ac7';controller='${{ github.event.pull_request.head.sha }}';diagnostic_only=$true;game_executed=$false} | ConvertTo-Json | Set-Content '.godot/traversal/origin.json' -Encoding utf8NoBOM
       - name: Demonstrate original failures and verify bounded correction
