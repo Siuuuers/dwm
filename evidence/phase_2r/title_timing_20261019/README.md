@@ -1,3 +1,7 @@
+# Latest outcome — preflight failure; no native execution
+
+The reviewed controller was installed once as34abf2cd. Run39262225003 stopped at the Windows Python preflight:26 tests passed, one raw-backslash ZIP test failed. Godot/export/player steps did not execute. [Untouched archive, verified manifests, diagnosis and smallest correction proposal](run39262225003/README.md). No automatic retry; C/Director review next. The preparation record below is historical, including its then-pending dispatch status.
+
 # Bounded ending-to-Title timing diagnostic — prepared, not dispatched
 
 Director authorization: [6268247939](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6268247939). This concrete packet requires C's pre-dispatch no-blocker review. The earlier proposal review is consumed; no further Director confirmation is required after this gate. No new native run has executed.
