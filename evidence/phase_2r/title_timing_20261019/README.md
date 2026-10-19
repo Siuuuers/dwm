@@ -1,3 +1,9 @@
+# Latest: terminal gameplay diagnostic retained
+
+[Run39279335309 original evidence and offline timeline](run39279335309/README.md). Capability/Create passed; Load failed before ending-caption acquisition. No finish-ending or New Acc anchors. Original archive verified; external C result review pending. No redispatch or runtime edits. Supersedes the older prepared/queued status below.
+
+---
+
 # Latest: complete-header generator correction prepared
 
 [Exact delta, regenerated overlay and source/controller review packet](header-correction/README.md).30 Python preparation tests pass; C exact review and cloud import/export remain pending. No new cloud run. Earlier result sections are retained historical evidence.
