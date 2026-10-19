@@ -5,6 +5,7 @@ from pathlib import Path
 import tempfile
 from types import SimpleNamespace
 import unittest
+from unittest import mock
 import zipfile
 import package_timing as p
 
@@ -133,10 +134,30 @@ class PackageTests(unittest.TestCase):
                 evil = self.root / 'evil.zip'
                 with zipfile.ZipFile(evil, 'w') as z:
                     for name in names:
-                        z.writestr(name, 'bad')
+                        # Set both fields after construction so Windows cannot
+                        # normalize the malformed name before writing headers.
+                        entry = zipfile.ZipInfo('placeholder')
+                        entry.filename = entry.orig_filename = name
+                        z.writestr(entry, 'bad')
+                with zipfile.ZipFile(evil) as z:
+                    self.assertEqual([e.orig_filename for e in z.infolist()], names)
                 with self.assertRaises(ValueError):
                     p.extract(evil, self.root / 'evil-output')
+
+    def test_reader_normalization_rejected_before_extraction(self):
+        for raw_name, normalized in [('x\\y', 'x/y'), ('x\x00y', 'x')]:
+            with self.subTest(raw_name=raw_name):
+                entry = zipfile.ZipInfo('placeholder')
+                entry.orig_filename = raw_name
+                entry.filename = normalized
+                with mock.patch.object(p.zipfile, 'ZipFile') as archive:
+                    source = archive.return_value.__enter__.return_value
+                    source.infolist.return_value = [entry]
+                    with self.assertRaises(ValueError):
+                        p.extract(self.root / 'unused.zip', self.root / 'unused-output')
+                    source.extractall.assert_not_called()
 
 
 if __name__ == '__main__':
     unittest.main()
+

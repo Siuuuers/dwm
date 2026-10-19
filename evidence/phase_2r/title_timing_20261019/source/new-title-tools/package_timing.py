@@ -73,7 +73,9 @@ def extract(archive, root):
     with zipfile.ZipFile(archive) as source:
         seen = set()
         for entry in source.infolist():
-            name = safe_name(entry.filename.rstrip('/') if entry.is_dir() else entry.filename)
+            raw_name = entry.orig_filename
+            name = safe_name(raw_name.rstrip('/') if raw_name.endswith('/') else raw_name)
+            require(raw_name == entry.filename, 'Archive member name normalized')
             require(name.casefold() not in seen, 'Duplicate archive member')
             seen.add(name.casefold())
             mode = entry.external_attr >> 16
@@ -200,3 +202,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
