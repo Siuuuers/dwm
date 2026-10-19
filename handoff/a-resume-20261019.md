@@ -1,3 +1,21 @@
+# Director6276115633 reconciliation — discovery boundary and C ending classification
+
+20 October2026 Hong Kong. This supersedes any reading of earlier “packaging regression” shorthand as proof that retained evidence scripts were included in the PCK.
+
+**New original-log boundary evidence:** artifact12216103321/import.log lists SaveManagerCheckpointPort twice (lines405/473) and EndingScene twice (406/691) in update_scripts_classes. These lines identify class names, not their source paths. export.log performs another class update, then explicitly stores the canonical production .gdc and .gd.remap paths. Its savepack lines contain no “Storing File: res://evidence/” entry. Smoke and pack-audit resolve EndingScene to the evidence source path and fail; the exact source tree has both class declarations and no import-ignore marker around the copied subtree. Together these support discovery/class-map contamination as the bounded correction target. They do NOT establish evidence-file inclusion in the pack. The failed artifact has no PCK or global_script_class_cache.cfg for independent inspection, so that stronger claim remains unavailable. Retained discovery-boundary.json records member hashes and exact relevant lines.
+
+**Proposal remains unimplemented:** add only the empty source-subtree .gdignore, after checking consumers. Future cloud qualification must use a fresh import/cache, retain the generated class map proving canonical paths, preserve raw evidence reads/hashes, and run the unchanged export/startup/package audit. No weakening error checks, editing saved data or replacing runtime owners. This is a concrete hypothesis supported by original source/logs, not an executed successful fix.
+
+**C ordered-ending triage accepted by Director:** [C6276090888](https://github.com/Siuuuers/dwm/pull/36#issuecomment-6276090888), accepted by [Director6276115633](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6276115633). C verified artifact12216118284/SHA256935cede4f18d952f9998754507fccc519d41fd75c58c123fc6ffe096a0dbfd24 and four exact merge-source identities. First observed failure is the compound production-startup/fixture-injection assertion; writer exits1 after12.733s without timeout, save files, reader process or boundary captures. PROCESS_FAILED:write is the wrapper's process failure, not a save-write failure.
+
+Source review establishes that ordinary registered startup installs the scene ending catalogue, after which the legacy fixture attempts a different Sylvia catalogue; unchanged ownership guard refuses replacement. The exact refusal code is inferred from source, not separately logged by the compound assertion. Later unreached numeric-day/ComputerDesktop/Schedule/Pause assumptions also prevent treating this as a one-flag repair. Classification: stale legacy fixture/setup; historical coverage mapping outstanding. No demonstrated current supported scene Save/Load regression or shared Windows startup prerequisite. Do not bypass guards or restore retired UI to make it green.
+
+Prior accepted registered-scene journey run38867983987 at6eaa6a94 remains bounded25 tests/623 assertions (including three rendered cases/328 assertions); it is neither a current rerun nor coverage for all historical endings. C's assigned triage is complete and next external C action is review of A's concrete correction when authorized/available. A owns inventory/restart; no additional investigation lane or engine run is opened.
+
+Latest status inspected: Settings job118269851222 remains active; timed-hold118269851131 completed failure. Its cause has not been classified here. Product PR36 remains29d9322b and report branch is separate to avoid cancelling CI. Inventory gate remains closed; later exported lifecycle/clean exit and known diagnostic33.179067s latency remain unresolved.
+
+---
+
 # Director continuation6275999071 — original export reports reconciled
 
 Read-only follow-up to the preceding diagnosis, 20 October 2026 Hong Kong. No new test dispatch or implementation.
