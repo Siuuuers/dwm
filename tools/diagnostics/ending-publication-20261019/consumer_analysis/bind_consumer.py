@@ -12,6 +12,9 @@ from prepare_package import GAME_COMMIT, GAME_TREE, ENGINE_COMMIT, ENGINE_TREE, 
 from read_trace import read_trace, require
 CAPTION = 'TEST Seven-day ending.'
 PREFIX = 'tools/diagnostics/ending-publication-20261019/'
+PRE_BANNER_SOURCE = '42c8a32e20a29e6f97d49d3f7fed5d00eb100771'
+PRE_BANNER_TREE = '4c4ef98d8496b09e070ef4a9aa244de18de8d427'
+PRE_BANNER_BINDER_SHA256 = '1ea2f878dea0301eac1591d3f70a91374b46709d2a152fdcbb9670db77371d7e'
 
 
 def digest(data):
@@ -25,7 +28,7 @@ def utc_us(value):
     return (delta.days*86400+delta.seconds)*1000000+delta.microseconds
 
 
-def bind(folder):
+def bind(folder, allow_pre_banner_analysis=False):
     report = dict(schema_version=1, binding_ok=False, official_acceptance_established=False,
         scope='Applied-state observations; not a UIA projection or official-build acceptance.',
         input_files={}, native_outcomes={}, errors=[], selected_observations=[])
@@ -58,8 +61,23 @@ def bind(folder):
         # The retained source is the implementation actually reviewed and built.
         for filename in ['consumer_analysis/read_trace.py','consumer_analysis/bind_consumer.py']:
             source=PREFIX+filename
-            require(digest(raw('source/'+source))==origin['shared_source_pins'][source]['sha256']
-                ==digest((Path(__file__).parent/Path(filename).name).read_bytes()), 'Analysis source pin mismatch')
+            retained_sha = digest(raw('source/'+source))
+            running_sha = digest((Path(__file__).parent/Path(filename).name).read_bytes())
+            require(retained_sha == origin['shared_source_pins'][source]['sha256'], 'Retained analysis source pin mismatch')
+            source_match = retained_sha == running_sha
+            correction = (allow_pre_banner_analysis and filename == 'consumer_analysis/bind_consumer.py'
+                and origin.get('tool_source') == PRE_BANNER_SOURCE and origin.get('tool_tree') == PRE_BANNER_TREE
+                and retained_sha == PRE_BANNER_BINDER_SHA256)
+            require(source_match or correction, 'Analysis source pin mismatch')
+            report.setdefault('analysis_sources', {})[filename] = {
+                'retained_sha256': retained_sha, 'running_sha256': running_sha,
+                'same_source': source_match, 'offline_pre_banner_correction': correction and not source_match}
+            if correction and not source_match:
+                report['analysis_qualification'] = {
+                    'kind': 'Explicit offline correction of the known pre-banner binder',
+                    'original_tool_source': PRE_BANNER_SOURCE,
+                    'note': 'Original native run and retained evidence unchanged; this corrected binder did not execute in that run.'}
+
         manifest = sdk['probe_manifest']
         paths = [entry['path'] for entry in manifest]
         required_paths = {'candidate/adapter.rs', 'candidate/consumer_probe.rs', 'baseline/adapter.rs', 'apply_probe.py'}
@@ -153,8 +171,12 @@ def bind(folder):
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--evidence',type=Path,required=True)
+    parser.add_argument('--allow-pre-banner-analysis', action='store_true',
+        help='Allow only the retained binder/source mapping for the known pre-banner run; use a separate evidence copy.')
     args=parser.parse_args()
-    result=bind(args.evidence)
-    (args.evidence/'consumer-binding.json').write_text(json.dumps(result,indent=2)+'\n')
+    result=bind(args.evidence, args.allow_pre_banner_analysis)
+    output = args.evidence / ('consumer-binding-offline-correction.json' if args.allow_pre_banner_analysis else 'consumer-binding.json')
+    with output.open('x' if args.allow_pre_banner_analysis else 'w', encoding='utf-8') as stream:
+        stream.write(json.dumps(result,indent=2)+'\n')
     print(json.dumps({k:result[k] for k in ['binding_ok','official_acceptance_established','errors']}))
     raise SystemExit(0 if result['binding_ok'] else 2)

@@ -9,7 +9,7 @@ from unittest.mock import patch
 import sys
 sys.path.insert(0,str(Path(__file__).parent))
 from read_trace import read_trace
-from bind_consumer import bind, digest, PREFIX
+from bind_consumer import bind, digest, PREFIX, PRE_BANNER_SOURCE, PRE_BANNER_BINDER_SHA256, PRE_BANNER_TREE
 
 
 def ident(n): return {'tree_id':'Root','local_id':n}
@@ -129,6 +129,32 @@ class BinderTests(unittest.TestCase):
         for suffix in [' - unexpected source',' (2026-05-21 13:47:53 UTC) - https://godotengine.org',' - https://godotengine.org extra']:
             target.write_text(original.replace(' - https://godotengine.org',suffix,1))
             self.assertFalse(bind(self.folder)['binding_ok'])
+    def test_explicit_known_pre_banner_correction_only(self):
+        reference=(Path(__file__).parent/'pre_banner_binding_reference.py.txt').read_bytes()
+        self.assertEqual(digest(reference),PRE_BANNER_BINDER_SHA256)
+        relative=PREFIX+'consumer_analysis/bind_consumer.py'
+        target=self.folder/'source'/relative
+        target.write_bytes(reference)
+        origin=json.loads((self.folder/'audit-origin.json').read_text())
+        origin['tool_source']=PRE_BANNER_SOURCE
+        origin['tool_tree']=PRE_BANNER_TREE
+        origin['shared_source_pins'][relative]['sha256']=PRE_BANNER_BINDER_SHA256
+        self.write('audit-origin.json',origin)
+        self.assertFalse(bind(self.folder)['binding_ok'])
+        result=bind(self.folder,allow_pre_banner_analysis=True)
+        self.assertTrue(result['binding_ok'],result['errors'])
+        identity=result['analysis_sources']['consumer_analysis/bind_consumer.py']
+        self.assertFalse(identity['same_source'])
+        self.assertTrue(identity['offline_pre_banner_correction'])
+        self.assertNotEqual(identity['running_sha256'],identity['retained_sha256'])
+        self.assertFalse(result['official_acceptance_established'])
+        origin['tool_source']='0'*40;self.write('audit-origin.json',origin)
+        self.assertFalse(bind(self.folder,allow_pre_banner_analysis=True)['binding_ok'])
+        origin['tool_source']=PRE_BANNER_SOURCE
+        altered=reference+b'\n# alteration\n';target.write_bytes(altered)
+        origin['shared_source_pins'][relative]['sha256']=digest(altered)
+        self.write('audit-origin.json',origin)
+        self.assertFalse(bind(self.folder,allow_pre_banner_analysis=True)['binding_ok'])
     def test_late_snapshot_is_not_in_wait(self):
         self.rows[0]['capture_end_unix_us']=self.fixture.BASE_US+32000000;self.trace()
         self.assertFalse(bind(self.folder)['binding_ok'])

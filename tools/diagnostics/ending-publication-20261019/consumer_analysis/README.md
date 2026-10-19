@@ -44,3 +44,22 @@ UIA query projection, event-delivery or official acceptance claim is made.
 
 All test evidence is synthetic and temporarily generated. Tests execute no
 Godot, PowerShell, Rust, UIA, or player journey.
+
+## Known pre-banner run: explicit offline correction
+
+The original source `42c8a32e20a29e6f97d49d3f7fed5d00eb100771` had an overly
+strict banner-position check. To analyze its retained evidence **on a separate
+copy**, use `--allow-pre-banner-analysis`. This permits only its exact retained
+binder SHA-256 `1ea2f878dea0301eac1591d3f70a91374b46709d2a152fdcbb9670db77371d7e`
+and original source/tree mapping. The retained bytes must still match their
+original audit pin. Reader, SDK, native, package and process checks are unchanged.
+
+The report separately records original and running analysis hashes, explicitly
+marks the different offline binder, and never claims the corrected binder ran
+in the original workflow. It writes `consumer-binding-offline-correction.json`
+with exclusive creation, preserving the original report and refusing to replace
+an existing correction report. The default remains strict source equality.
+
+`pre_banner_binding_reference.py.txt` contains the exact historical binder bytes
+retrieved from GitHub at the above commit (blob
+`b096c92116db6967fbb999cf5bed116934e43f02`), solely for the known-mapping test.
