@@ -1,5 +1,23 @@
 # Story workspace
 
+## Current Day 1 book revision, 2026-10-19 at 13:17
+
+Read the [current book checkpoint](auditions/priscilla-seven-day-working-plot.md#current-day-1-book-revision-2026-10-19-at-1317)
+and the [revised complete Day 1 audition](auditions/day-1-photo-book-working-draft.md).
+The owner challenges the generic novel's replaceability, Sylvia's reason to
+buy and continue it, and its limited absurdity, while particularly valuing
+“I wanted to see you.” The new candidate is an invented comic novel,
+*The Funeral Rehearsal*, integrated across the book-dependent passages and
+callbacks of the existing family. Its exact text and synopsis remain AUDITIONING.
+
+**Capture destination:** existing [PR #41](https://github.com/Siuuuers/dwm/pull/41),
+under the owner's explicit authorization to update Markdown and push versions.
+Use Git commits to retain predecessors; no new manuscript or PR per revision.
+Two same-model readers checked appeal and dependencies, followed by the root's
+bounded repairs. Runtime/audio, audience testing and full-week review are NOT RUN.
+The current branch and merge state are established by PR metadata. Day 2's
+same-copy transfer, exact plot selection and the whole-week DTL gate remain open.
+
 ## Current Sylvia and perception clarification, 2026-10-19
 
 Begin with the [current checkpoint](auditions/priscilla-seven-day-working-plot.md#current-sylvia-and-perception-clarification-2026-10-19):
@@ -14,8 +32,9 @@ The owning Bible, foundation, Handbook and style sections now record that scope.
 branch, based on inspected `a7126a5c21c3545c05588b9ac38f8b2c682d8e82`. The owner
 authorizes Markdown updates and pushes at 13:17; use successive commits in the
 existing files for version history. PR metadata establishes the current head
-and merge state. Exact Day 1 prose still awaits a
-complete revision. At the later fork, Priscilla may suspect Sylvia's attraction
+and merge state. The subsequent book-dependent revision is linked above; the
+remaining scene choices retain their audition status. At the later fork,
+Priscilla may suspect Sylvia's attraction
 while misunderstanding its extent or strategic importance. Lavinia's romantic
 response remains deliberately unresolved for the writers; exact disclosures,
 specific acts and P–S resolution remain open. The existing P–L ending and

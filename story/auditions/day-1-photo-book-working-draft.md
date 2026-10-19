@@ -1,8 +1,17 @@
 # Day 1: the photograph and the answer
 
-**Current audition:** 2026-10-19, Asia/Hong_Kong.  
-**Source revision:** 6e2184aa121631c55f42b3b072b9e68d2713c523.  
+**Current audition:** 2026-10-19, 13:17 owner request, Asia/Hong_Kong.  
+**Previous complete version:** [7d824ea6209f4930b17efc903118b732d3ca4e7f](https://github.com/Siuuuers/dwm/blob/7d824ea6209f4930b17efc903118b732d3ca4e7f/story/auditions/day-1-photo-book-working-draft.md).  
 **Status:** **AUDITIONING**. This is a complete narrative reading copy with local alternatives, not selected canon or executable DTL.
+
+**Current book revision:** the owner challenges the generic bad romance's
+replaceability, Sylvia's reason to buy and continue it, and its limited
+absurdity, while particularly valuing **“I wanted to see you.”** This version
+auditions an invented comic novel, *The Funeral Rehearsal*, throughout the
+book-dependent passages and callbacks. The synopsis and exact new prose are
+assistant proposals. [Section 6.6](#66-current-book-audition-the-funeral-rehearsal)
+records the recommendation, alternatives and remaining limits. Earlier complete
+versions live in Git history; this file contains one current reading family.
 
 **Later direction, 2026-10-19 at 03:54 and 05:03 Asia/Hong_Kong:** the owner retains the
 optional second photograph for its enjoyment, prefers less explicit grammatical
@@ -14,9 +23,10 @@ attraction while misunderstanding its extent or strategic importance; Lavinia's
 romantic response remains deliberately unresolved for the writers.
 Read the [current development checkpoint](priscilla-seven-day-working-plot.md#current-sylvia-and-perception-clarification-2026-10-19)
 and [Bible direction](../01-core-story-bible.md#current-sylvia-triangle-2026-10-19).
-The complete prose below is retained for comparison; it has not yet received
-the resulting whole-scene rewrite. Earlier review findings have their earlier
-scope, not a new certification of this changed character design.
+The book-dependent passages now have a bounded revision under these directions.
+The existing photograph, message actions, Challenge meanings and call structure
+remain the framework. Earlier review findings retain their inspected scope;
+the current revision has its own bounded review below.
 
 The owner requested a full Day 1 audition with variations and integrated self-talk, followed by a review that tests both the scenes and the bibles. The exact new dialogue, photo option, Challenge mapping, recognition passage and evening coda below are assistant-authored candidates. The already approved foundation and P–L ending direction retain their own scope.
 
@@ -140,31 +150,45 @@ Sylvia sends the photograph, then checks it once herself.
 
 Sylvia puts her phone away and moves her chair to the other side of the table.
 
-The paperback beneath her bag has a bent cover. She smooths it with her palm.
+The paperback beneath Sylvia's bag has a bent cover. She smooths it with her palm.
 
-“Bought it on the way here,” she says. “It looked awful.”
+*The Funeral Rehearsal.*
 
-“That's a recommendation?”
+“She insists on attending,” Sylvia says.
 
-“For this, yes.”
+“Her own?”
 
-She opens it at a folded page.
+“Listen.”
+
+She opens it near the beginning.
+
+“The eulogy was excellent. She asked whether it could be about her.”
+
+I laugh. Sylvia's finger stays beneath the sentence.
+
+“I read that standing in the shop.”
+
+“You bought it for that?”
+
+“I wanted to know what she'd object to next.”
+
+The corner of the next page lifts under her thumb.
 
 ## 2. A reading
 
 Sylvia lowers her voice.
 
-“‘If you leave this house,’ she said, ‘I shall never look at you again.’”
+“‘Again,’ said the aunt. ‘You sound relieved.’”
 
-“Is he at the door?”
+“Is she in the coffin?”
 
-“Foot of the stairs.”
+“An armchair.”
 
-“Then she's early.”
+“That would help.”
 
-“Would you like to do her?”
+Sylvia finds the next speech.
 
-“No. Go on.”
+“There's a man at the door. He says he's come about a carriage.”
 
 Sylvia puts one hand against her chest.
 
@@ -184,23 +208,21 @@ She turns the book toward me, keeping a finger beneath the line. I read his next
 
 Sylvia bends over the table. I have to wait for her to stop laughing.
 
-“Not that much,” she says.
+“Too pleased with himself,” she says. “He thinks this is working.”
 
-“You started it.”
+I try again without the flourish on the last word.
 
-“He's supposed to be attractive.”
-
-“To his cousin?”
+“Yes. Like that.”
 
 She takes the book back.
 
-For a while, we read in turns. Sylvia supplies an elderly aunt who sounds exactly like the man, except that she has difficulty hearing him. When I try to do the aunt as well, she kicks the leg of my chair.
+For a while, we read in turns. Sylvia gives the aunt the careful, carrying voice of someone repeating a quite reasonable request. When I try to do her as well, Sylvia kicks the leg of my chair.
 
 “Mine.”
 
 “All right.”
 
-**Self-talk:** I want to hear what she does with the carriage.
+**Self-talk:** The aunt again. Before he can finish.
 
 My phone lights up.
 
@@ -226,13 +248,13 @@ She puts her finger beneath my line.
 
 I read it. She answers. We get through another exchange before I stop her.
 
-“He's saying he came because the road was flooded.”
+“He says the flowers are for the funeral.”
 
-“Yes.”
+“They are now.”
 
-“But he hired the carriage yesterday.”
+“They've got the niece's name on them.”
 
-“Perhaps he checks the weather.”
+“The aunt has taken the ribbon off.”
 
 “He could say he wanted to see her.”
 
@@ -284,11 +306,13 @@ She types, then turns the screen toward me.
 
 “Your date?”
 
-“You've stayed longer than the man in chapter six.”
+“You've stayed. We've taken a photograph. I've read to you.”
 
-“He had a carriage.”
+“You make it sound organized.”
 
-“You can leave on foot.”
+“Would you like to leave?”
+
+“Not yet.”
 
 Her thumb rests below the message. She has not sent it.
 
@@ -424,17 +448,21 @@ She turns the paperback around.
 
 “Does she have a line?”
 
-“You can invent one.”
+“A whole speech.”
 
-I read far enough to find the cousin's arrival. She has brought another carriage.
+The cousin has brought the wrong eulogy. Sylvia points to its first sentence.
+
+“‘Beloved father of six,’” I read.
 
 Sylvia shuts her eyes.
 
 I start laughing.
 
-“No,” she says. “You have to read it.”
+“No,” she says. “There's an answer.”
 
-I try. She takes over when I can't finish the sentence.
+I try to finish the sentence. Sylvia supplies the aunt's answer.
+
+“‘Three,’ she said. ‘And I was their mother.’”
 
 We read to the end of the chapter. I turn my phone over once, see no new message, and put it down again.
 
@@ -484,13 +512,19 @@ I read it and set the phone face down.
 
 Sylvia gives me the man's part again.
 
-He has arrived without the carriage this time. We disagree about whether this represents improvement.
+The man has been asked to read the eulogy.
+
+“With the flowers still in her lap?”
+
+“Apparently.” Sylvia turns the page. “Wait. I want to hear this.”
 
 She reaches across to point out a sentence and knocks my spoon onto the saucer. I move the cup so that she can leave her hand on the page.
 
 **Self-talk:** I missed this line before.
 
-I read it properly.
+“‘Her absence,’ I read, ‘will leave a silence—’”
+
+“‘Louder,’ said the aunt.”
 
 We continue until Sylvia puts the book down of her own accord.
 
@@ -638,13 +672,19 @@ I find the line.
 
 Sylvia gives me the man's part again.
 
-He has arrived without the carriage this time. We disagree about whether this represents improvement.
+The man has been asked to read the eulogy.
+
+“With the flowers still in her lap?”
+
+“Apparently.” Sylvia turns the page. “Wait. I want to hear this.”
 
 She reaches across to point out a sentence and knocks my spoon onto the saucer. I move the cup so that she can leave her hand on the page.
 
 **Self-talk:** I missed this line before.
 
-I read it properly.
+“‘Her absence,’ I read, ‘will leave a silence—’”
+
+“‘Louder,’ said the aunt.”
 
 We continue until Sylvia puts the book down of her own accord.
 
@@ -840,7 +880,15 @@ The desk is lit in a small circle. The rest of the room is dark.
 
 She asks what was so funny about the book.
 
-I try the aunt's voice for her. She laughs before I finish.
+“She keeps stopping her own funeral.”
+
+“Is she dead?”
+
+“She's practising.”
+
+I try the aunt's voice for her. “Again. You sound relieved.”
+
+The laugh comes through the phone, then a rustle.
 
 When she becomes quiet, I leave the phone where it is.
 
@@ -853,7 +901,8 @@ When she becomes quiet, I leave the phone where it is.
 | Field | This audition |
 |---|---|
 | Surface and anchor | Priscilla throughout: a café afternoon with Sylvia, messages on Priscilla's phone, then a private audio call. No remote view of Lavinia's room. |
-| Immediate company | The audition contains enjoyable performance and responsive company; Priscilla anticipates Lavinia as well. Apply Sylvia's newly clarified Lavinia-first desire when revising, without assuming that every pleasure is false or that this exact book was a preplanned trap. |
+| Immediate company | Sylvia liked a particular sentence while browsing and bought the invented novel to follow the aunt's next objection. She enjoys performing it with Priscilla and has a preferred delivery. Priscilla anticipates Lavinia as well. Sylvia's greater desire for Lavinia does not make this chosen pleasure counterfeit or establish a book trap. |
+| Book's immediate work | An absurd rehearsal gives them distinct parts, a next development Sylvia wants to hear, and a misplaced bouquet whose explanation Priscilla shortens into “I wanted to see you.” Their practice with delivery prepares the later voice-reply opportunity. |
 | Lavinia's visible conduct | Teasing message before her return, questions and a demand for Priscilla's own answer, then participation in the evening call. Jealousy/test/ordinary desire can coexist as readings. |
 | Main turn | Priscilla knowingly approves the date message. A game at the table becomes a statement received by an absent person, who asks for ownership of it. |
 | What can be declined | Another photograph; the table-time voice reply; the rehearsal request before permission; continued company. Sylvia's no-forward limit can be violated, and her exit remains available and actual in D. |
@@ -907,7 +956,7 @@ The photo Yes/default option changes a small real event without changing who own
 ### 6.4 Day 2 handoff
 
 - Lavinia returns on Day 2. No Day 1 pickup promise is made. The protected offscreen umbrella event, its lawful timing and its non-reconstruction rule remain untouched.
-- This candidate leaves the paperback with Sylvia in all five outcomes. The same-copy Day 2 idea is deliberately not used yet. Selecting it later requires an actual transfer and one compatible fictional-novel synopsis; the earlier portrait/sitter novel is not silently the cousin/carriage novel here.
+- This candidate leaves the paperback with Sylvia in all five outcomes. The same-copy Day 2 idea is deliberately not used yet. Selecting it later requires an actual transfer and one compatible fictional-novel synopsis; the earlier portrait/sitter proposal is not silently *The Funeral Rehearsal*. Replacing the Day 2 book candidate later is possible; combining incompatible synopses is unnecessary.
 - D carries an actual refused forwarding and an unresolved rupture at the table. A later friendly Sylvia scene must be written from that occurrence; the common P–L coda is no repair of it.
 - B's later-answer promise is completed within Day 1. The other branches do not inherit a deferral they never made.
 - E's recognition is newly established; other branches cannot deliberately address an identified observer merely because the audience has read E.
@@ -916,18 +965,100 @@ The photo Yes/default option changes a small real event without changing who own
 
 ### 6.5 Length and presentation estimate
 
-A single reading contains approximately 1,200–1,400 words of dialogue, messages,
+A single reading of the book revision contains approximately 1,300–1,500 words of dialogue, messages,
 action and self-talk. This excludes author notes, navigation and channel labels;
 the Yes/default photo choice makes only a small difference. At an explicitly
-assumed reading rate of 160–200 words per minute, that is roughly 6–9 minutes of
+assumed reading rate of 160–200 words per minute, that is roughly 7–10 minutes of
 text. This is a planning calculation, not measured player behavior. Caption
 timing, chosen pauses, performance and optional board time are additional and
 have not been measured. The larger comparison document contains mutually
-exclusive passages and should not be timed as one playthrough.
+exclusive passages and should not be timed as one playthrough. The root
+recounted the ten textual combinations: approximately 1,322–1,446 words,
+depending on the photo response and the selected continuation.
 
 The current draft is a compact complete opening. If an eventual performed read
 needs more duration, preserve the chosen activity and consequential responses;
 do not pad it with repeated interpretations or another equivalent provocation.
+
+### 6.6 Current book audition: The Funeral Rehearsal
+
+**Source:** the owner's 2026-10-19 13:17 Asia/Hong_Kong message questions the
+generic bad romance's usefulness, replaceability, Sylvia's purchase and
+continued reading, and the lack of sufficient absurdity. The owner especially
+values **“I wanted to see you.”** That is a reason to preserve the declaration's
+function and wording in this audition; it does not approve a whole new novel.
+
+**Status:** *The Funeral Rehearsal* is an invented book for this audition, not a
+claim about an existing published work. Its title, synopsis, quotations and
+Sylvia's particular reading taste are assistant-authored candidates. The earlier
+complete manuscript is retained at the Git revision linked at the top. This
+file contains the revised family, not a second full copy alongside its predecessor.
+
+#### Bounded synopsis and author-only orientation
+
+A living aunt attends a rehearsal of her own funeral from an armchair. She
+interrupts the grieving, returns an inadequate eulogy, and appropriates a
+bouquet intended for her adult niece. An adult visitor has come to see the
+niece while offering an implausible carriage errand as his explanation. The
+aunt removes the niece's name ribbon and takes the flowers. Later she asks
+the visitor to read a eulogy; a cousin also arrives with an unsuitable speech.
+These can be successive portions of one rehearsal. The novel's final resolution
+is not supplied by Day 1.
+
+Sylvia saw the opening eulogy sentence while browsing, liked it, and bought
+the book to discover the aunt's next objection. The opening does not require
+her to have reached chapter six before arriving. She enjoys the aunt's nerve,
+the absurd proceedings and playing the role. Her correction of Priscilla's
+visitor voice gives them a small difference of taste: she wants the man's
+excuse delivered as though he believes it is working. This is a local chosen
+pleasure, not a new permanent personality law or an explanation of her whole
+Lavinia-directed plan.
+
+Priscilla supplies the visitor, while Sylvia takes the aunt and the niece as
+needed. After **“I wanted to see you,” “the woman's answer” is the niece's**;
+the line's personal resonance between the two readers remains an interpretation.
+The cousin becomes Priscilla's part in B. In C/E, **“Louder” is a printed aunt
+line performed by Sylvia**, not a new demand outside the reading. All book text
+is available through the page and their performance; these fictional relatives
+do not become additional game-scene characters or viewpoints.
+
+#### What this particular book changes in the encounter
+
+| Particular material | Action or pleasure it supports |
+|---|---|
+| The aunt corrects an excellent eulogy because it describes someone else. | Sylvia can quote the exact sentence that attracted her before Priscilla became its second reader. The book itself has already made her laugh. |
+| The aunt keeps interrupting her own rehearsal. | Sylvia has a character she wants to perform and an unfolding situation she wants to follow when messages interrupt. |
+| The visitor's flowers bear the niece's name, and the aunt takes them. | Priscilla can challenge a particular evasive explanation and produce the direct declaration. No narration needs to translate the triangle. |
+| Sylvia wants the visitor's excuse played sincerely. | Their performance includes an actual preference and adjustment, beyond universally successful banter. |
+| B's wrong eulogy and C/E's demand for a louder account of silence. | The returned attention reaches specific comic content rather than merely an assertion that more reading is enjoyable. |
+| The aunt's distinctive line reaches the evening call. | A particular performance from the afternoon can be shared with Lavinia; earlier consequences remain those of the selected continuation. |
+
+The book can still be replaced by a sufficiently good rewrite. The editorial
+test is what specific pleasures and interactions that replacement would lose.
+Not every sentence needs a later plot use. Nor does buying a book one calls bad
+constitute a factual or character contradiction: camp enjoyment is possible.
+The defect here was that **this Sylvia's positive interest was insufficiently
+particular in the existing scene**. The new audition gives that interest a
+concrete object instead of requiring an explanation of her psychology.
+
+#### Competing invented premises, not selected
+
+| Candidate | Attraction and reason not chosen for this first revision |
+|---|---|
+| *The Gentleman Who Arrived in Installments* | A visitor's hat and gloves arrive ahead of the rest of him; the household arranges tea for whatever has reached it. “Will the rest of you be taking sugar?” offers stronger overt surrealism. It needs more setup and could dominate the encounter or make the later sent voice feel too literally anticipated. |
+| *A Perfectly Accurate Biography* | An aunt's footnotes interrupt a gentleman's grand account of his romance: “He arrived with nothing but his heart” / “And my carriage. He has omitted the carriage again.” Two readers make the interruptions playable. Its fit with Priscilla's control of presentation may become overly schematic, and it encourages an uninterrupted stream of polished corrections. |
+
+The funeral rehearsal is the leading audition because its absurd situation can
+be understood quickly, Sylvia can like it on the page, and its roles support
+the existing performance and declaration. Its principal risk is conspicuous
+foreshadowing. Keep the aunt alive and irritable, the book funny in its own
+right, and the novel's outcome open. Do not assign each fictional relative to
+one game character or insert a prophecy of the final P–L scene.
+
+This revision needs no new room, speaking extra, interactive prop, DTL label or
+recorded audio asset. The book remains a paperback and performed text in the
+existing scene. A future cover image is optional. Day 2's same-copy transfer
+and portrait/sitter proposal remain separate, unselected dependencies.
 
 ## 7. Review against and challenge to the bibles
 
@@ -948,8 +1079,15 @@ do not pad it with repeated interpretations or another equivalent provocation.
 **1. Voice should be judged across an exchange.**  
 The Handbook's opening instruction under Cross-Character Dialogue Tests asked for every line to identify its speaker after the name was removed. The plain “No” in the evening call and the shared invented voices in the reading are useful counterexamples. Forcing either into an unmistakable signature would make the women sound composed for a character test. The narrow repair is to test characteristic exchanges while allowing ordinary replies, shared idiom and temporary imitation. This aligns with the existing narrative guide's protection of ordinary conversation; it does not rewrite a character dossier.
 
-**2. A good book scene does not obligate a cross-day book mechanism.**  
-The book earns its place through enjoyable performance and interrupted attention. We tested the proposed same-copy bridge against D's departure: a generic friendly loan at that point would conceal a substantial change in their company, while a newly invented loan subplot would add work before Day 2 is selected. This audition leaves the copy with Sylvia. The bridge remains available as a later proposal.
+**2. Shared performance needs a particular object of interest here.**  
+The earlier review credited enjoyable performance and interrupted attention, but
+that did not answer why Sylvia selected this particular novel. The owner's
+13:17 challenge reopens that sufficiency judgment. This revision gives the book
+its own comic situation, a sentence she liked before sharing it, a next event
+she wants to hear, and a disagreement about delivery. The activity can matter
+within Day 1. A same-copy Day 2 bridge remains a separate proposal: a generic
+friendly loan after D would conceal its rupture, while an invented handover
+subplot would add work before Day 2 is selected. Sylvia retains the copy.
 
 **3. The dark ending should not consume every local kindness.**  
 C must be softer under the approved result contract. Making its reply secretly malicious would also weaken the contrast with D. This candidate lets the direct answer and resumed company work. The common P–L call develops a desired contact that can become a demand; its darkness does not retrospectively make the earlier enjoyment false.
@@ -965,7 +1103,7 @@ In D the audience sees the refusal and send. That visibility is necessary to exp
 | Change considered | Decision for this audition | Reason |
 |---|---|---|
 | Remove the photograph | Keep. | It supplies unforced anticipation of Lavinia and genuine P–S enjoyment before the message game. |
-| Cut the book play to one setup line | Reject that cut. | Sylvia needs something worth returning to; otherwise she becomes an instrument for the absent relationship. |
+| Cut the book play to one setup line | Reject that cut in the current audition. | Sylvia has a particular comic situation she wants to follow; its performed exchanges also prepare the voice-reply action. |
 | Keep the stranger who misunderstands the reading | Omit. | The present interruption and three-person attention problem already turn the encounter; another witness adds no necessary consequence. |
 | Restore every “threatened/asked” joke from the fragments | Omit the extra rung here. | The message and forwarding already carry the control question; too many polished thesis-like replies flatten the rhythm. |
 | Explain jealousy in Priscilla's thoughts | Omit. | The nearly edited word, missed cue and requested call carry her attention without certifying motive. |
@@ -974,7 +1112,25 @@ In D the audience sees the refusal and send. That visibility is necessary to exp
 
 **Remaining taste questions:** whether the shared coda supplies the desired amount of Day 1 unease, and whether E's brief first recognition feels convincing in performance. The current D keeps both “I heard you” and the delivery rationale after cutting one redundant defense; that degree of explicitness remains a choice to judge in this audition. These are creative questions, not new invariants.
 
-**Completed bounded review:** three same-model reviewers with shared project context separately read the actual full draft for canon/access, dramatic craft and variation continuity. The variation pass traced both photo responses through all five results and their matching call openings: ten textual readings. No material contradiction in canon, custody, knowledge or preserved harm remained after the identified repairs. This is neither a blind review nor a cross-model comparison.
+**Current book revision, bounded review:** two same-model readers with shared
+project context inspected the revised passages for the book's dramatic appeal
+and for continuity across the existing family. The purchase now follows a
+demonstrated pleasure; the bouquet gives the declaration a specific prompt;
+the aunt's performance returns coherently in the coda. The dependency reader
+found no material stale-novel, custody, access or Challenge conflict in the
+shared and A–E passages. The craft reader identified one content gap: C/E
+promised the visitor's eulogy but never let the audience hear it. The root added
+the same silence/“Louder” exchange to both, clarified B's assignment of the
+aunt's answer, and recorded the niece as the private referent after the direct
+declaration. These are bounded editorial readings, not blind comparison,
+audience evidence, or selection of the new book.
+
+**Preceding version's completed bounded review:** three same-model reviewers
+with shared project context separately read the previous full draft for
+canon/access, dramatic craft and variation continuity. The variation pass
+traced both photo responses through all five results and their matching call
+openings: ten textual readings. That review supported the version at `a7126a5`;
+it is not a fresh certification of the present book revision.
 
 Repairs made during the pass: the common coda now reuses the aunt's voice established in every branch, rather than a carriage detail read only in B; D's recorded laugh occurs before recording stops; C/E identify the recording before the explicit send; E's recognition stays in the private field; the final instruction is explicitly Lavinia's; an explanatory B thought and one D defense were cut. The root completed a final local read of the assembled D and E paths and inspected the scoped Handbook change.
 

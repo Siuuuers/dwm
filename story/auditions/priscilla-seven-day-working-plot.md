@@ -1,5 +1,82 @@
 # Priscilla: current seven-day working plot and discussion checkpoint
 
+## Current Day 1 book revision, 2026-10-19 at 13:17
+
+**Owner request:** the book's content feels too replaceable, insufficiently
+absurd, and weakly motivated for Sylvia to buy and keep reading. The owner
+especially values **“I wanted to see you.”** The owner also explicitly
+authorizes updating existing Markdown on GitHub and pushing versions, rather
+than making repetitive documents for each revision.
+
+**Current recommendation, AUDITIONING:** replace the generic bad romance with
+an invented comic novel, *The Funeral Rehearsal*. A living aunt attends her
+own funeral rehearsal, corrects the mourners and eulogies, and takes flowers
+intended for her adult niece. Sylvia has read a particular funny sentence in
+the shop and wants to discover the aunt's next objection. The novel supplies
+enjoyment before the two readers improve it through performance.
+
+The [existing Day 1 owner](day-1-photo-book-working-draft.md) now contains the
+bounded book revision across its complete reading family: discovery/purchase,
+shared performance, the declaration, the date-message bridge, the affected
+continuations and the evening callback. It keeps both photo responses, the five
+Challenge meanings and the distinct consequences. There is one current full
+manuscript in that file. The [preceding complete version](https://github.com/Siuuuers/dwm/blob/7d824ea6209f4930b17efc903118b732d3ca4e7f/story/auditions/day-1-photo-book-working-draft.md)
+and the earlier [a7126a5 audition](https://github.com/Siuuuers/dwm/blob/a7126a5c21c3545c05588b9ac38f8b2c682d8e82/story/auditions/day-1-photo-book-working-draft.md)
+retain their exact wording through Git history.
+
+### Why this revision is recommended
+
+The earlier defense of the book credited shared performance while leaving
+Sylvia's positive interest in the chosen text vague. Disliking some aspect of
+a book is compatible with enjoying it; no general psychological impossibility
+has been established. The defect is local: the preceding audition did not
+make this reader's curiosity specific enough.
+
+The new version gives Sylvia a sentence she already liked, a comic character
+she wants to play, a next event she wants to hear and a preferred delivery for
+Priscilla's visitor. The flowers' misleading explanation creates a particular
+opening for **“I wanted to see you.”** Practising delivery still prepares the
+later voice-reply opportunity. The returned attention in B/C/E now reaches
+specific absurd material, and the same aunt can be performed for Lavinia in
+the coda. These are the proposed gains; no measured audience improvement or
+empirically best book is claimed.
+
+The [book notes](day-1-photo-book-working-draft.md#66-current-book-audition-the-funeral-rehearsal)
+hold the full bounded synopsis, author-only referents, reasons and two competing
+invented premises. The more overtly surreal arriving-in-installments visitor
+could overwhelm the scene; the footnoted biography could make the character
+parallel too schematic. Both remain available proposals, not extra scene
+versions. The funeral rehearsal's own risk is conspicuous foreshadowing; its
+pleasure should remain particular and its eventual fictional outcome open.
+
+### Scope, verification and next unit
+
+Publishing the new book audition does not select its exact text, Sylvia's
+permanent reading tastes, the whole Day 1 plot or a new Bible fact. The owner's
+earlier Sylvia–Lavinia direction, Priscilla's partial suspicion at the later
+fork, Lavinia's deliberately unresolved response and flexible grammatical
+person retain their approved scope. D's explicit no-forward limit remains a
+real refusal. Neither the novel nor the Challenge converts it into permission.
+
+Two same-model readers separately reviewed the revised scene's appeal and
+book/branch dependencies. The root filled C/E's promised but unheard eulogy
+with one brief exchange, clarified B's role handoff and recorded the niece as
+the unannounced referent after the declaration. The root then checked the
+changed reading family and documentation links. Runtime/DTL, performed audio,
+audience testing, full-week comparison and the older chronology audit are
+NOT RUN by this revision.
+
+**Repository destination:** the existing [PR #41](https://github.com/Siuuuers/dwm/pull/41)
+branch, with separate commits for the prior Sylvia/perception checkpoint and
+this book audition. The PR remains a draft; its metadata determines actual
+head and merge state. No new manuscript file or PR is required for this revision.
+
+**Next writing unit:** judge this revised Day 1 family as the current candidate,
+then carry its actual selected consequences into Day 2 development. The paperback
+still leaves with Sylvia in every continuation. A same-copy Day 2 loan needs a
+real transfer and a compatible chosen book; it is not required merely to make
+Day 1's reading worthwhile. Full DTL still follows the whole-week plot gate.
+
 ## Current Sylvia and perception clarification, 2026-10-19
 
 **Capture source:** the preceding visible Day 1 opening critique and the owner's
@@ -163,7 +240,7 @@ publication boundary are recorded at the top of this checkpoint.
 ### Day 1 favorites: editorial appreciation after the 05:03 clarification
 
 The owner asks which current moments the assistant most values and why. The
-following are readings of the retained complete audition, not new prose,
+following are readings of the [preceding complete audition](https://github.com/Siuuuers/dwm/blob/7d824ea6209f4930b17efc903118b732d3ca4e7f/story/auditions/day-1-photo-book-working-draft.md), not new prose,
 selected exact lines, measured audience effects or an additional rewrite gate.
 The current Sylvia direction allows further interpretations without proving
 the private motive of every smile, joke or touch. Each Section 3 continuation
