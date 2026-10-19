@@ -123,5 +123,19 @@
       "sha256": "7080e3c10ece4139e7eedec8cde89a82cda31cbe40e9cd983e7ff73aa0ac4ac1",
       "git_blob_verified": true
     }
-  ]
+  ],
+  "query_baselines": {
+    "adapter.rs": {
+      "sha256": "7135ef9045b907f33e675888940b90f2d967fd6a26b1484d69773f2154247187",
+      "bytes": 24966
+    },
+    "node.rs": {
+      "sha256": "e2e558a8f7ce54cd7d5b66e95cd65f42f7ee2533ece0b7796a999348f6640e49",
+      "bytes": 54510
+    },
+    "context.rs": {
+      "sha256": "8a45005a8c1449e4ed234bb6f041f026f2dbc6d2935e76407637adb1c127601c",
+      "bytes": 2241
+    }
+  }
 }

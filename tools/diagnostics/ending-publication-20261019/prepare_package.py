@@ -17,6 +17,7 @@ ENGINE_COMMIT = "35e80b3a8822a9df9be390814b62f44c0a9c69e8"
 ENGINE_TREE = "499fa231ee5d21878988a4a9cb881749def3946d"
 BUILD_NAME = "dwm_publication_probe_v1"
 CONSUMER_BUILD_NAME = "dwm_consumer_probe_v1"
+QUERY_BUILD_NAME = "dwm_query_probe_v1"
 ORIGINAL = {
     "run": 39155624496,
     "artifact_id": 12146662424,
@@ -63,7 +64,7 @@ def checked_manifest(package, validation):
 
 
 def stage(args):
-    build_name = CONSUMER_BUILD_NAME if args.consumer_probe else BUILD_NAME
+    build_name = QUERY_BUILD_NAME if args.query_probe else (CONSUMER_BUILD_NAME if args.consumer_probe else BUILD_NAME)
     out = args.output
     require(not out.exists(), "Diagnostic package output must be fresh")
     archives = list(args.original.rglob(ORIGINAL["archive_file"]))
@@ -116,7 +117,7 @@ def stage(args):
         shutil.copyfile(args.engine / name, notices / name)
     origin = {
         "schema_version": 1,
-        "kind": "isolated_native_consumer_diagnostic" if args.consumer_probe else "isolated_native_publication_diagnostic",
+        "kind": "isolated_native_query_diagnostic" if args.query_probe else ("isolated_native_consumer_diagnostic" if args.consumer_probe else "isolated_native_publication_diagnostic"),
         "game_commit": GAME_COMMIT,
         "game_tree": GAME_TREE,
         "unchanged_original_package": ORIGINAL,
@@ -127,7 +128,7 @@ def stage(args):
             "The native executable is a separately built diagnostic template, not the official executable.",
             "Public source 35e80b3a is not independently mapped to the original 7d41c59c4 banner.",
             "MSVC production build differs from the public historical MinGW release recipe.",
-            ("SDK trace observes applied consumer state, not actual UIA query delivery." if args.consumer_probe else "Native trace observes prepared AccessKit updates before factory return, not adapter acceptance."),
+            ("SDK trace records bounded observations of actual UIA provider queries; it does not certify client action acceptance." if args.query_probe else "SDK trace observes applied consumer state, not actual UIA query delivery." if args.consumer_probe else "Native trace observes prepared AccessKit updates before factory return, not adapter acceptance."),
             "Diagnostic outcomes do not certify the official executable or authorize runtime promotion.",
         ],
     }
@@ -146,7 +147,7 @@ def stage(args):
 
 
 def finish(args):
-    build_name = CONSUMER_BUILD_NAME if args.consumer_probe else BUILD_NAME
+    build_name = QUERY_BUILD_NAME if args.query_probe else (CONSUMER_BUILD_NAME if args.consumer_probe else BUILD_NAME)
     out = args.output
     package = out / "package"
     prepared = read(out / "stage.json")
@@ -203,6 +204,8 @@ if __name__ == "__main__":
     parser.add_argument("--engine", type=pathlib.Path, required=True)
     parser.add_argument("--output", type=pathlib.Path, required=True)
     parser.add_argument("--build-receipt", type=pathlib.Path, required=True)
-    parser.add_argument("--consumer-probe", action="store_true")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--consumer-probe", action="store_true")
+    mode.add_argument("--query-probe", action="store_true")
     arguments = parser.parse_args()
     {"stage": stage, "finish": finish}[arguments.phase](arguments)

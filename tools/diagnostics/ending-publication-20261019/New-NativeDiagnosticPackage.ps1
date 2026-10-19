@@ -5,7 +5,8 @@ param(
     [Parameter(Mandatory)][string]$EngineRoot,
     [Parameter(Mandatory)][string]$OutputPath,
     [Parameter(Mandatory)][string]$BuildReceipt,
-    [switch]$ConsumerProbe
+    [switch]$ConsumerProbe,
+    [switch]$QueryProbe
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -15,7 +16,9 @@ $output = [IO.Path]::GetFullPath($OutputPath)
 $engine = [IO.Path]::GetFullPath($EngineRoot)
 $prepare = Join-Path $PSScriptRoot 'prepare_package.py'
 $arguments = @('--original', $OriginalArtifactPath, '--engine', $engine, '--output', $output, '--build-receipt', $BuildReceipt)
+if ($ConsumerProbe -and $QueryProbe) { throw 'Select exactly one diagnostic SDK mode.' }
 if ($ConsumerProbe) { $arguments += '--consumer-probe' }
+if ($QueryProbe) { $arguments += '--query-probe' }
 & python $prepare stage @arguments
 if ($LASTEXITCODE -ne 0) { throw 'Diagnostic package staging failed.' }
 $package = Join-Path $output 'package'
@@ -91,7 +94,7 @@ $result = [ordered]@{ ok=$false; scope='Fresh isolated startup of the derived di
 try {
     $version = Invoke-SmokeProcess 'version' @('--version') 15
     $result.version = $version.stdout.Trim()
-    $expectedVersion = if ($ConsumerProbe) { '4.6.3.stable.dwm_consumer_probe_v1.35e80b3a8' } else { '4.6.3.stable.dwm_publication_probe_v1.35e80b3a8' }
+    $expectedVersion = if ($QueryProbe) { '4.6.3.stable.dwm_query_probe_v1.35e80b3a8' } elseif ($ConsumerProbe) { '4.6.3.stable.dwm_consumer_probe_v1.35e80b3a8' } else { '4.6.3.stable.dwm_publication_probe_v1.35e80b3a8' }
     if ($result.version -cne $expectedVersion) { throw 'Unexpected diagnostic native version.' }
     $smoke = Invoke-SmokeProcess 'smoke' @('--headless', '--verbose', '--max-fps', '60', '--quit-after', '240', '--log-file', (Join-Path $output 'smoke.log')) 90
     $result.exit_code = $smoke.exit_code

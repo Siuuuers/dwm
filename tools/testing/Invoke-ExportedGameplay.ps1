@@ -33,6 +33,7 @@ param(
     [switch]$ContinueAfterQuiet,
     [switch]$TraceDay5,
     [switch]$NativeReadyCaptions,
+    [switch]$TraceEndingActions,
     [ValidateSet('ProjectDefault', 'gl_compatibility')][string]$Renderer = 'ProjectDefault',
     [ValidateSet('ProjectDefault', 'Always')][string]$Accessibility = 'ProjectDefault',
     [ValidateSet('ProjectDefault', 'Dummy')][string]$Audio = 'ProjectDefault',
@@ -84,6 +85,7 @@ $dataRoot = $null
 $clock = [Diagnostics.Stopwatch]::StartNew()
 $events = [Collections.Generic.List[object]]::new()
 $day5Watch = $null
+$endingActionObservation = $null
 $day5TraceConsumed = $false
 $lastNativeResponds = $false
 $result = [ordered]@{
@@ -151,10 +153,49 @@ function Visible($Element) {
         [double]::IsFinite($bounds.Width) -and [double]::IsFinite($bounds.Height) -and
         $bounds.Width -gt 1 -and $bounds.Height -gt 1)
 }
+# Copies only already-evaluated gate values; never invokes a provider.
+function Copy-EndingActionName([string]$Name) {
+    $text = [Text.StringBuilder]::new(); $bytes = 0; $index = 0
+    while ($index -lt $Name.Length) {
+        $count = if ([char]::IsHighSurrogate($Name[$index]) -and $index + 1 -lt $Name.Length -and [char]::IsLowSurrogate($Name[$index + 1])) { 2 } else { 1 }
+        $piece = $Name.Substring($index, $count)
+        $size = [Text.Encoding]::UTF8.GetByteCount($piece)
+        if ($bytes + $size -gt 1024) { break }
+        [void]$text.Append($piece); $bytes += $size; $index += $count
+    }
+    return @{ text=$text.ToString(); utf8_bytes=$bytes; truncated=($index -lt $Name.Length) }
+}
+function Observe-EndingAction($Visible, $Enabled, $Name, $Invoke, $Accepted) {
+    $batch = $script:endingActionObservation
+    if ($null -eq $batch) { return }
+    $ordinal = $batch.evaluated_count; $batch.evaluated_count++
+    if ($batch.records.Count -ge 4096) { $batch.record_cap_reached=$true; return }
+    if ($batch.byte_cap_reached -or $batch.observer_failed) { return }
+    try {
+    $copy = if ($null -ne $Name) { Copy-EndingActionName $Name } else { $null }
+    $entry = [ordered]@{ ordinal=$ordinal; visible=$Visible; enabled=$Enabled;
+        name=$(if ($null -ne $copy) { $copy.text } else { $null });
+        name_truncated=($null -ne $copy -and $copy.truncated);
+        invoke=$Invoke; accepted=$Accepted }
+    # Each record is bounded before serialization. Reserve the fixed envelope and
+    # 32 additional indentation bytes per line, beyond this record's own pretty JSON.
+    # This exceeds its nesting indentation in events.json; commas/CRLF are included.
+    $serialized = $entry | ConvertTo-Json -Depth 5
+    $lines = ($serialized -split '\r?\n').Count
+    $size = [Text.Encoding]::UTF8.GetByteCount($serialized) + ($lines * 34) + 2
+    if ($batch.record_bytes + $size + 4096 -gt 1048576) { $batch.byte_cap_reached=$true; return }
+    $batch.record_bytes += $size
+    [void]$batch.records.Add($entry)
+    } catch {
+        # Diagnostic copying/serialization must never replace a provider outcome.
+        $batch.observer_failed = $true
+    }
+}
 function Actions($Root, [string]$Name) {
     $trace = $null -ne $script:day5Watch
     $queryStart = if ($trace) { $script:day5Watch.Elapsed.TotalSeconds } else { 0 }
     $nodes = @(Nodes $Root)
+    if ($null -ne $script:endingActionObservation) { $script:endingActionObservation.descendants=$nodes.Count }
     $candidates = [Collections.Generic.List[object]]::new()
     $matches = @($nodes | Where-Object {
         $pattern = $null
@@ -172,6 +213,7 @@ function Actions($Root, [string]$Name) {
                 }
             }
         }
+        if ($null -ne $script:endingActionObservation) { Observe-EndingAction $visible $enabled $observedName $invokable $accepted }
         if ($trace) {
             # Additional diagnostic reads follow the actual decision; they never admit a target.
             try {
@@ -210,6 +252,8 @@ function Wait-One([string]$Name, [scriptblock]$Find) {
         $script:day5Watch = $watch
         Record 'day5-wait-start' @{ name=$Name; deadline_seconds=$StepTimeoutSeconds }
     }
+    $endingTrace = $nativeGate -and $Name -ceq 'TEST Seven-day ending.' -and $TraceEndingActions
+    $queryOrdinal = 0
     $cpuStart = if ($nativeGate) { $child.TotalProcessorTime.TotalSeconds } else { 0 }
     if ($nativeGate) { Record 'native-caption-wait-start' @{ name=$Name; deadline_seconds=$StepTimeoutSeconds; cpu_total_seconds=$cpuStart } }
     try {
@@ -235,8 +279,30 @@ function Wait-One([string]$Name, [scriptblock]$Find) {
             }
             if ($null -ne $window) {
                 $findStart = $watch.Elapsed.TotalSeconds
-                $items = @(& $Find)
-                if ($nativeGate) { Record 'caption-action-enumeration' @{ name=$Name; started_seconds=$findStart; finished_seconds=$watch.Elapsed.TotalSeconds; matches=$items.Count } }
+                $batch = $null
+                if ($endingTrace) {
+                    $script:endingActionObservation = @{ descendants=$null; evaluated_count=0;
+                        records=[Collections.Generic.List[object]]::new(); record_bytes=0;
+                        record_cap_reached=$false; byte_cap_reached=$false; observer_failed=$false }
+                }
+                try {
+                    $items = @(& $Find)
+                    if ($endingTrace) { $batch = $script:endingActionObservation }
+                } finally { $script:endingActionObservation = $null }
+                if ($nativeGate) {
+                    $enumeration = @{ name=$Name; started_seconds=$findStart; finished_seconds=$watch.Elapsed.TotalSeconds; matches=$items.Count }
+                    if ($null -ne $batch) {
+                        $enumeration.ending_actions = [ordered]@{ schema=1; source='ending-actions-v1'; query_ordinal=$queryOrdinal;
+                            descendants=$batch.descendants; evaluated_count=$batch.evaluated_count;
+                            observed_count=$batch.records.Count; omitted_count=($batch.evaluated_count-$batch.records.Count);
+                            complete=($null -ne $batch.descendants -and $batch.descendants -eq $batch.evaluated_count -and $batch.records.Count -eq $batch.evaluated_count);
+                            record_cap_reached=$batch.record_cap_reached; byte_cap_reached=$batch.byte_cap_reached; observer_failed=$batch.observer_failed;
+                            record_bytes=$batch.record_bytes; byte_accounting='pretty-json-records-plus-34-bytes-per-line-and-2-per-record;4096-envelope-reserve';
+                            limits=@{records=4096; name_utf8_bytes=1024; batch_bytes=1048576}; records=$batch.records.ToArray() }
+                    }
+                    Record 'caption-action-enumeration' $enumeration
+                }
+                $queryOrdinal++
                 if ($watch.Elapsed.TotalSeconds -ge $StepTimeoutSeconds) {
                     Record 'wait-deadline-expired' @{ name=$Name; phase='find'; elapsed_seconds=$watch.Elapsed.TotalSeconds; late_matches=$items.Count }
                     break
@@ -873,6 +939,13 @@ try {
         $child.Dispose()
     }
     $result.elapsed_seconds = $clock.Elapsed.TotalSeconds
+    # Qualify the receipt after existing failure/cleanup decisions; this flag must
+    # not change their diagnostic-capture branching.
+    if ($TraceEndingActions) {
+        $result.diagnostic_only = $true
+        $result.ending_actions_trace = $true
+        $result.scope = 'Diagnostic-only ending action predicate observation; not official release acceptance'
+    }
     Write-Json (Join-Path $output 'result.json') $result
     $evidence = @(Get-ChildItem -LiteralPath $output -File | Sort-Object Name | ForEach-Object {
         @{ file = $_.Name; bytes = $_.Length; sha256 = (Hash $_.FullName) }

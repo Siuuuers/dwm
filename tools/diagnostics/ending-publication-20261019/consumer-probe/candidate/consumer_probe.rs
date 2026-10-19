@@ -16,6 +16,7 @@ fn identity(node: Node<'_>) -> Identity {
 }
 #[derive(Debug)]
 pub(super) struct Probe {
+    query: Option<std::sync::Arc<super::query_probe::QueryObservation>>,
     file: File, adapter: u64, hwnd: String, epoch: u64, seq: u64,
     candidates: Vec<(NodeId, Identity)>, overflow: bool,
     records: u64, dropped: u64, write_failed: bool,
@@ -39,19 +40,24 @@ impl Probe {
             Ok(file) => file,
             Err(err) => { eprintln!("consumer_probe: trace open failed: {err}"); return None; }
         };
-        Some(Self { file, adapter: NEXT_ADAPTER.fetch_add(1, Ordering::Relaxed),
+        let adapter = NEXT_ADAPTER.fetch_add(1, Ordering::Relaxed);
+        let query = super::query_probe::QueryObservation::from_env(adapter, &format!("0x{:x}", hwnd as usize));
+        Some(Self { query, file, adapter,
             hwnd: format!("0x{:x}", hwnd as usize), epoch: 0, seq: 0,
             candidates: Vec::new(), overflow: false, records: 0, dropped: 0, write_failed: false })
     }
+    pub(super) fn query_handle(&self) -> Option<std::sync::Arc<super::query_probe::QueryObservation>> { self.query.clone() }
     pub(super) fn discover(&mut self, node: &Node<'_>) {
         if node.data().label().is_some_and(|s| s.trim_end() == CAPTION)
             && !self.candidates.iter().any(|(id, _)| *id == node.id()) {
+            if let Some(q) = &self.query { q.arm(); }
             if self.candidates.len() == MAX_CANDIDATES { self.overflow = true; }
             else { self.candidates.push((node.id(), identity(*node))); }
         }
     }
     pub(super) fn begin_epoch(&mut self, tree: &Tree) {
         self.epoch += 1;
+        if let Some(q) = &self.query { q.reset(self.epoch); }
         self.candidates.clear(); self.overflow = false;
         // Unfiltered bounded DFS; iterator frames avoid collecting unbounded children.
         let root = tree.state().root();
@@ -148,7 +154,7 @@ mod tests {
     fn probe() -> Probe {
         let id = NEXT_ADAPTER.fetch_add(1, Ordering::Relaxed);
         let file = OpenOptions::new().create(true).append(true).open(std::env::temp_dir().join(format!("consumer-probe-test-{}-{id}.jsonl", std::process::id()))).unwrap();
-        Probe { file, adapter:id, hwnd:"0x0".into(), epoch:0, seq:0, candidates:vec![], overflow:false,records:0,dropped:0,write_failed:false }
+        Probe { query:None, file, adapter:id, hwnd:"0x0".into(), epoch:0, seq:0, candidates:vec![], overflow:false,records:0,dropped:0,write_failed:false }
     }
     #[test] fn filtered_discovery_and_initial_binding() {
         let t = tree(&[CAPTION], true); let mut p = probe(); p.begin_epoch(&t);

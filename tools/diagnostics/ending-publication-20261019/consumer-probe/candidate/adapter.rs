@@ -26,6 +26,8 @@ use crate::{
 
 #[path = "consumer_probe.rs"]
 mod consumer_probe;
+#[path = "query_probe.rs"]
+pub(crate) mod query_probe;
 use consumer_probe::Probe;
 
 fn focus_event(context: &Arc<Context>, node_id: NodeId) -> QueuedEvent {
@@ -536,7 +538,7 @@ impl Adapter {
                     let snapshot = self.probe.as_mut().and_then(|p| {
                         p.begin_epoch(&tree); p.capture(&tree, "initial", false)
                     });
-                    let context = Context::new(hwnd, tree, Arc::clone(action_handler), false);
+                    let context = Context::with_query_observation(hwnd, tree, Arc::clone(action_handler), false, self.probe.as_ref().and_then(|p| p.query_handle()));
 
                     let node_id = context.read_tree().state().root_id();
                     let platform_node = PlatformNode::new(&context, node_id);
@@ -557,7 +559,7 @@ impl Adapter {
                         p.begin_epoch(&placeholder_tree); p.capture(&placeholder_tree, "placeholder_initial", true)
                     });
                     let context =
-                        Context::new(hwnd, placeholder_tree, Arc::clone(action_handler), true);
+                        Context::with_query_observation(hwnd, placeholder_tree, Arc::clone(action_handler), true, self.probe.as_ref().and_then(|p| p.query_handle()));
 
                     let platform_node = PlatformNode::unspecified_root(&context);
                     self.state = State::Placeholder(context);

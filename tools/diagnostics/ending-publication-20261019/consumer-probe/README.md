@@ -23,3 +23,34 @@ Limits: 16 unique candidates; 4096 visited nodes on unfiltered initial/replaceme
 ## Cloud-only verification
 
 On Windows cloud runner, after applying into the exact crate, run `cargo test --manifest-path PATH/Cargo.toml consumer_probe -- --nocapture`. Tests cover hidden discovery, actual focus commits, old-node discovery, committed removal versus never-bound, rename retention, initial/placeholder epoch reset, duplicate/capacity ambiguity, initial scan overflow, UTF-8/JSON escaping, path/label truncation and record ceiling. Do not count source review as compilation/test success. Native original 30s action/480s journey gates and executable qualification remain external and unchanged.
+
+## Query observer extension (prepared, not locally executed)
+
+The query candidate adds `query_probe.rs` and patches the exact retained `node.rs`
+and `context.rs`, in addition to the existing adapter/consumer observer. The
+installer verifies all three upstream baselines before copying any candidate.
+Both `GODOT_ACCESSKIT_CONSUMER_TRACE_PATH` and
+`GODOT_ACCESSKIT_QUERY_TRACE_PATH` must be enabled: canonical consumer discovery
+owns arming. Query paths replace `{pid}` and append `.adapter-{id}.jsonl`.
+
+`Context` shares only an optional diagnostic `Arc`; tree and candidate ownership
+stay unchanged. Epoch resets happen before Context publication or under the
+replacement write guard. Caption discovery arms even ambiguous candidates and
+removal does not disarm. Each captured request includes its epoch-start/arm times.
+Pre-arm and pre-resolution calls are not recorded. The observer emits after the
+existing resolver releases its tree guard and preserves the original Result,
+including explicit `outcome_ok` and HRESULT. It wraps only original Navigate
+predicate invocations, not recursive filter internals.
+
+Limits: 256 stored predicate entries, 1024 UTF-8 label bytes, 16384 reserved
+requests across the process, 384KiB per serialized request and 64MiB total bytes
+including footers. Serialized expansion can omit additional complete candidate
+objects; counts distinguish evaluated from recorded entries. Limits never stop
+navigation. Footers count attempted writes; a write-failed footer is incomplete.
+A missing footer cannot establish continuous coverage. Request IDs are global;
+emission sequences are per adapter file and can differ from request order.
+
+Eight `query_probe` Rust tests cover lifecycle arming, predicate order, root
+exception, entry/label/serialized caps, concurrent output and the actual COM
+Navigate body with observation enabled/disabled. These tests are prepared for
+cloud execution only; no local Rust, Godot or PowerShell execution is claimed.

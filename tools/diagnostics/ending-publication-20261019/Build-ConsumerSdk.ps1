@@ -17,7 +17,7 @@ New-Item -ItemType Directory -Force -Path $output | Out-Null
 function Hash([string]$Path) { (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() }
 function Check([string]$Message) { if ($LASTEXITCODE -ne 0) { throw "$Message (exit $LASTEXITCODE)" } }
 $record = [ordered]@{
-    schema_version=1; ok=$false; diagnostic=$true
+    schema_version=1; ok=$false; diagnostic=$true; probe_kind='query_and_consumer'
     source_commit='72460cd52d1b24492393cdf54a6f19d2fd63e258'
     target='x86_64-pc-windows-msvc'; rust_toolchain='1.85.0'
     rustflags='-C target-feature=+crt-static'
@@ -123,6 +123,9 @@ for x in t:
     & rustup run $record.rust_toolchain cargo test --manifest-path $testManifest --locked --target $record.target --lib consumer_probe -- --nocapture 2>&1 | Tee-Object (Join-Path $output 'tests.log')
     $record.tests_exit_code=$LASTEXITCODE; Check 'Focused applied-state observer tests failed'
     if (-not (Select-String -LiteralPath (Join-Path $output 'tests.log') -Pattern 'test result: ok\. [1-9][0-9]* passed;' -Quiet)) { throw 'Focused observer test filter ran no passing tests.' }
+    & rustup run $record.rust_toolchain cargo test --manifest-path $testManifest --locked --target $record.target --lib query_probe -- --nocapture 2>&1 | Tee-Object (Join-Path $output 'query-tests.log')
+    $record.query_tests_exit_code=$LASTEXITCODE; Check 'Focused query observer tests failed'
+    if (-not (Select-String -LiteralPath (Join-Path $output 'query-tests.log') -Pattern 'test result: ok\. [1-9][0-9]* passed;' -Quiet)) { throw 'Focused query test filter ran no passing tests.' }
     & rustup run $record.rust_toolchain cargo rustc --manifest-path $manifest --locked --release --target $record.target --lib --crate-type staticlib 2>&1 | Tee-Object (Join-Path $output 'rust-build.log')
     $record.build_exit_code=$LASTEXITCODE; Check 'Patched static SDK build failed'
     $libdir = Join-Path $output 'lib/windows/x86_64/msvc/static'

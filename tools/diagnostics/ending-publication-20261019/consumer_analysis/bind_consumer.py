@@ -45,11 +45,12 @@ def bind(folder, allow_pre_banner_analysis=False):
         package=read('native-diagnostic/validation.json')
         require(origin['game_commit']==GAME_COMMIT and origin['game_tree']==GAME_TREE, 'Game identity mismatch')
         require(build['ok'] is True and build['source_commit']==ENGINE_COMMIT and build['source_tree']==ENGINE_TREE
-            and build['build_name']=='dwm_consumer_probe_v1', 'Engine identity mismatch')
+            and build['build_name']=='dwm_query_probe_v1', 'Engine identity mismatch')
         require(sdk['ok'] is True and sdk['target']=='x86_64-pc-windows-msvc' and sdk['rust_toolchain']=='1.85.0'
             and sdk['source_commit']=='72460cd52d1b24492393cdf54a6f19d2fd63e258'
             and sdk['crate_sha256']=='eff7009f1a532e917d66970a1e80c965140c6cfbbabbdde3d64e5431e6c78e21'
             and sdk['original_lock_sha256']=='50a70648b398f0ee2331b37834a308e3b38d4ca7051310cb95b2ecfd04ebc2b8'
+            and sdk['probe_kind']=='query_and_consumer' and sdk['query_tests_exit_code']==0
             and sdk['rustflags']=='-C target-feature=+crt-static' and sdk['tests_exit_code']==0 and sdk['build_exit_code']==0, 'SDK build not qualified')
         require(build['consumer_sdk_receipt_sha256']==report['input_files']['consumer-sdk/sdk-receipt.json']['sha256']
             and build['consumer_sdk_library_sha256']==sdk['library']['sha256'], 'SDK linkage receipt mismatch')
@@ -80,7 +81,7 @@ def bind(folder, allow_pre_banner_analysis=False):
 
         manifest = sdk['probe_manifest']
         paths = [entry['path'] for entry in manifest]
-        required_paths = {'candidate/adapter.rs', 'candidate/consumer_probe.rs', 'baseline/adapter.rs', 'apply_probe.py'}
+        required_paths = {'candidate/adapter.rs', 'candidate/consumer_probe.rs', 'candidate/query_probe.rs', 'candidate/node.rs', 'candidate/context.rs', 'baseline/node.rs', 'baseline/context.rs', 'baseline/adapter.rs', 'apply_probe.py'}
         require(len(paths) == len(set(paths)) and required_paths.issubset(paths),
             'SDK probe manifest is incomplete or has duplicate paths')
         require(all(isinstance(path, str) and not Path(path).is_absolute() and '..' not in Path(path).parts
@@ -119,7 +120,7 @@ def bind(folder, allow_pre_banner_analysis=False):
         report['original_wait']={'start':starts[0],'end':ends[0],'hwnd':hwnd,
             'note':'Logged wait interval only; no assertion of strict Stopwatch deadline admission.'}
         stdout=raw('exported-load/game.stdout.log').decode('utf-8-sig')
-        banner = 'Godot Engine v4.6.3.stable.dwm_consumer_probe_v1.' + ENGINE_COMMIT[:9]
+        banner = 'Godot Engine v4.6.3.stable.dwm_query_probe_v1.' + ENGINE_COMMIT[:9]
         require(stdout.splitlines()[0] in {
             banner + ' - https://godotengine.org',
             banner + ' (2026-05-20 13:47:53 UTC) - https://godotengine.org'},

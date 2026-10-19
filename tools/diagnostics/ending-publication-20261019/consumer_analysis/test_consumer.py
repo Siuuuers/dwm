@@ -84,7 +84,7 @@ class BinderTests(unittest.TestCase):
             origin['shared_source_pins'][path]={'sha256':digest(content)}
         content=b'SYNTHETIC SDK SOURCE ONLY'
         manifest=[]
-        for probe_path in ['candidate/adapter.rs','candidate/consumer_probe.rs','baseline/adapter.rs','apply_probe.py']:
+        for probe_path in ['candidate/adapter.rs','candidate/consumer_probe.rs','candidate/query_probe.rs','candidate/node.rs','candidate/context.rs','baseline/node.rs','baseline/context.rs','baseline/adapter.rs','apply_probe.py']:
             path=PREFIX+'consumer-probe/'+probe_path
             target=self.folder/'source'/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(content)
             origin['shared_source_pins'][path]={'sha256':digest(content)}
@@ -94,14 +94,14 @@ class BinderTests(unittest.TestCase):
             crate_sha256='eff7009f1a532e917d66970a1e80c965140c6cfbbabbdde3d64e5431e6c78e21',
             original_lock_sha256='50a70648b398f0ee2331b37834a308e3b38d4ca7051310cb95b2ecfd04ebc2b8',
             target='x86_64-pc-windows-msvc',rust_toolchain='1.85.0',rustflags='-C target-feature=+crt-static',
-            tests_exit_code=0,build_exit_code=0,probe_manifest=manifest,library={'sha256':'synthetic_library'})
+            probe_kind="query_and_consumer",query_tests_exit_code=0,tests_exit_code=0,build_exit_code=0,probe_manifest=manifest,library={'sha256':'synthetic_library'})
         self.write('consumer-sdk/sdk-receipt.json',sdk)
         build=data['documents']['native-build/build-receipt.json']
-        build.update(build_name='dwm_consumer_probe_v1',consumer_sdk_library_sha256=sdk['library']['sha256'],
+        build.update(build_name='dwm_query_probe_v1',consumer_sdk_library_sha256=sdk['library']['sha256'],
             consumer_sdk_receipt_sha256=digest((self.folder/'consumer-sdk/sdk-receipt.json').read_bytes()))
         self.write('native-build/build-receipt.json',build)
         stdout=self.folder/'exported-load/game.stdout.log'
-        stdout.write_text(stdout.read_text().replace('dwm_publication_probe_v1','dwm_consumer_probe_v1').replace(' - synthetic fixture',' - https://godotengine.org'))
+        stdout.write_text(stdout.read_text().replace('dwm_publication_probe_v1','dwm_query_probe_v1').replace(' - synthetic fixture',' - https://godotengine.org'))
         self.rows=[row()]
         self.rows[0].update(hwnd=hex(self.fixture.HWND),unix_us=self.fixture.BASE_US+2000000,capture_end_unix_us=self.fixture.BASE_US+2010000)
         self.trace()

@@ -5,7 +5,8 @@ param(
     [Parameter(Mandatory)][string]$ProbeRoot,
     [Parameter(Mandatory)][string]$OutputPath,
     [Parameter(Mandatory)][string]$DependencyPath,
-    [string]$ConsumerSdkPath
+    [string]$ConsumerSdkPath,
+    [switch]$QueryProbe
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -27,6 +28,10 @@ $record = [ordered]@{
     qualification='Diagnostic public-source MSVC build; not an attestation of the official 7d41c59c4 executable'
 }
 if ($ConsumerSdkPath) { $record.build_name = 'dwm_consumer_probe_v1' }
+if ($QueryProbe) {
+    if (-not $ConsumerSdkPath) { throw 'Query probe requires the reviewed patched SDK.' }
+    $record.build_name = 'dwm_query_probe_v1'
+}
 $watch = [Diagnostics.Stopwatch]::StartNew()
 try {
     $head = (& git -C $engine rev-parse HEAD).Trim(); Check-Native 'Engine HEAD read failed'
@@ -103,6 +108,7 @@ try {
             $sdkReceipt.library.path -cne 'lib/windows/x86_64/msvc/static/accesskit.lib' -or $sdkReceipt.header.path -cne 'include/accesskit.h' -or
             (Hash (Join-Path $sdk $sdkReceipt.library.path)) -cne $sdkReceipt.library.sha256 -or
             (Hash (Join-Path $sdk $sdkReceipt.header.path)) -cne $sdkReceipt.header.sha256) { throw 'Patched consumer SDK custody mismatch.' }
+        if ($QueryProbe -and ($sdkReceipt.probe_kind -cne 'query_and_consumer' -or $sdkReceipt.query_tests_exit_code -ne 0)) { throw 'Query SDK focused tests were not qualified.' }
         $record.consumer_sdk_receipt_sha256 = Hash $sdkReceiptPath
         $record.consumer_sdk_library_sha256 = $sdkReceipt.library.sha256
         Copy-Item $sdkReceiptPath (Join-Path $output 'consumer-sdk-receipt.json')

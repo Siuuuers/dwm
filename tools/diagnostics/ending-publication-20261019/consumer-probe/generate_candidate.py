@@ -53,3 +53,70 @@ replace('                    let context =\n                        Context::new
 replace('                    self.state = State::Active(context);', '                    self.state = State::Active(context);\n                    if let Some(probe) = self.probe.as_mut() { probe.emit(snapshot); }')
 replace('                    self.state = State::Placeholder(context);', '                    self.state = State::Placeholder(context);\n                    if let Some(probe) = self.probe.as_mut() { probe.emit(snapshot); }')
 (p/'candidate/adapter.rs').write_text(s)
+# Query observation extends the same diagnostic adapter identity, not tree ownership.
+s=s.replace('mod consumer_probe;', 'mod consumer_probe;\n#[path = "query_probe.rs"]\npub(crate) mod query_probe;')
+s=s.replace('Context::new(hwnd, tree, Arc::clone(action_handler), false)', 'Context::with_query_observation(hwnd, tree, Arc::clone(action_handler), false, self.probe.as_ref().and_then(|p| p.query_handle()))')
+s=s.replace('Context::new(hwnd, placeholder_tree, Arc::clone(action_handler), true)', 'Context::with_query_observation(hwnd, placeholder_tree, Arc::clone(action_handler), true, self.probe.as_ref().and_then(|p| p.query_handle()))')
+(p/'candidate/adapter.rs').write_text(s)
+c=(p/'baseline/context.rs').read_text()
+c=c.replace('    pub(crate) hwnd: WindowHandle,','    pub(crate) query_observation: Option<Arc<crate::adapter::query_probe::QueryObservation>>,\n    pub(crate) hwnd: WindowHandle,',1)
+c=c.replace('        Arc::new(Self {','''        Self::with_query_observation(hwnd, tree, action_handler, is_placeholder, None)
+    }
+
+    pub(crate) fn with_query_observation(
+        hwnd: WindowHandle, tree: Tree,
+        action_handler: Arc<dyn ActionHandlerNoMut + Send + Sync>, is_placeholder: bool,
+        query_observation: Option<Arc<crate::adapter::query_probe::QueryObservation>>,
+    ) -> Arc<Self> {
+        Arc::new(Self {
+            query_observation,''',1)
+(p/'candidate/context.rs').write_text(c)
+n=(p/'baseline/node.rs').read_text()
+a=n.index('    fn Navigate(&self, direction: NavigateDirection)')
+b=n.index('\n    fn GetRuntimeId',a)
+n=n[:a]+'''    fn Navigate(&self, direction: NavigateDirection) -> Result<IRawElementProviderFragment> {
+        use crate::adapter::query_probe::Identity;
+        use std::cell::RefCell;
+        let pending = RefCell::new(None);
+        let result = self.resolve_with_tree_state_and_context(|node, state, context| {
+            let observer = context.query_observation.as_ref();
+            let capture = RefCell::new(observer.and_then(|q| q.begin(node, state.root(), direction.0,
+                context.is_placeholder.load(std::sync::atomic::Ordering::Relaxed))));
+            let ordinary = |candidate: &Node| {
+                let decision = filter(candidate);
+                if let Some(r) = capture.borrow_mut().as_mut() { r.observe(candidate, "filter", decision); }
+                decision
+            };
+            let parent = |candidate: &Node| {
+                let decision = filter_with_root_exception(candidate);
+                if let Some(r) = capture.borrow_mut().as_mut() { r.observe(candidate, "filter_with_root_exception", decision); }
+                decision
+            };
+            let selected = match direction {
+                NavigateDirection_Parent => node.filtered_parent(&parent),
+                NavigateDirection_NextSibling => node.following_filtered_siblings(&ordinary).next(),
+                NavigateDirection_PreviousSibling => node.preceding_filtered_siblings(&ordinary).next(),
+                NavigateDirection_FirstChild => node.filtered_children(&ordinary).next(),
+                NavigateDirection_LastChild => node.filtered_children(&ordinary).next_back(),
+                _ => None,
+            };
+            if let Some(r) = capture.borrow_mut().as_mut() { r.selected = selected.map(Identity::of); }
+            let outcome = match selected {
+                Some(result) => Ok(self.relative(result.id()).into()),
+                None => Err(Error::empty()),
+            };
+            if let (Some(q), Some(mut r)) = (observer, capture.into_inner()) {
+                r.finish();
+                *pending.borrow_mut() = Some((Arc::clone(q), r));
+            }
+            outcome
+        });
+        // The resolver has released its tree read guard before any sink acquisition or I/O.
+        if let Some((observer, request)) = pending.into_inner() {
+            let hresult = result.as_ref().err().map_or(0, |e| e.code().0);
+            observer.emit(request, hresult, result.is_ok());
+        }
+        result
+    }
+''' + n[b:]
+(p/'candidate/node.rs').write_text(n)
