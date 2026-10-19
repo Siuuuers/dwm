@@ -1,25 +1,25 @@
 # Story workspace
 
-## Current Day 2 self-talk and Challenge audition, 2026-10-19
+## Current Day 2 staying audition and trace comparison, 2026-10-19
 
-The [current checkpoint](auditions/priscilla-seven-day-working-plot.md#current-day-2-self-talk-and-challenge-audition-2026-10-19-at-2016)
-and [variation audition](relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md#current-variation-audition-self-talk-and-one-challenge)
-now propose one small Yes/default thought and one five-result Challenge.
-New ordinary, unfinished and softer continuations are assembled after Day 1 D;
-Dark uses the existing benchmark, and Perfect adds first recognition to the
-softer human scene. A competing cruel direct exit has its own actual ending.
+The [current checkpoint](auditions/priscilla-seven-day-working-plot.md#current-day-2-staying-and-trace-comparison-2026-10-19-at-2116)
+and [staying treatment](relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md#current-staying-audition-wanted-company-after-the-strike)
+audition Priscilla's pleased reaction to Lavinia's attention and an actual return
+to shared company after the strike and cleared exit. Observation ends after
+resumed food and laughter, with the immediate bodily consequence still present.
 
-The 744-word Dark benchmark remains unchanged. Exact new conduct, prompts,
-mapping and placement are **AUDITIONING**. The cruel departure's spoken
-deservedness claim is Lavinia's; removing the old request/assent also removes
-its arrival-message coda. Self-talk remains private, and the small thought
-does not select the relationship storyline.
+The [five-result family](relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md#current-variation-audition-self-talk-and-one-challenge)
+retains one small Yes/default thought and one Challenge. This new Dark treatment
+competes with both departure versions; it adds no sixth outcome. A Day-1-D-specific
+voice echo carries Sylvia's earlier presence without a book transfer. The exact
+older trace-destruction passage was not recovered; the source limit is explicit
+in the owner. All new scene acts and wording remain **AUDITIONING**.
 
 **Capture destination:** existing [PR #41](https://github.com/Siuuuers/dwm/pull/41)
 under the standing Markdown/push authorization. The scene owner centralizes
-the review and limits. Next compare the after-D family and Dark treatments,
-adapt the other Day 1 intakes and develop Day 3 carry. Whole-week plotting
-still precedes full DTL; publication does not select these exact scenes.
+the review, actual carried facts and remaining choices. Next compare the Dark
+treatments in the developing sequence, adapt other Day 1 intakes and author any
+later consequence the new stay needs. Whole-week plotting precedes full DTL.
 
 ## Current book and attention experiment, 2026-10-19 at 15:24
 

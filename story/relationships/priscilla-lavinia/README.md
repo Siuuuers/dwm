@@ -1,22 +1,25 @@
 # Priscilla–Lavinia: working home and restart point
 
-## Day 2 self-talk and Challenge audition, 2026-10-19
+## Day 2 staying audition and trace comparison, 2026-10-19
 
-Read the [current checkpoint](../../auditions/priscilla-seven-day-working-plot.md#current-day-2-self-talk-and-challenge-audition-2026-10-19-at-2016)
-and [variation family](auditions/day-2-return-bar-working-draft.md#current-variation-audition-self-talk-and-one-challenge).
-One small optional thought changes shared food; one Challenge considers the
-personal answer before England. The after-Day-1-D audition has five outcome
-meanings and four human continuations, with first recognition added for Perfect.
+Read the [current checkpoint](../../auditions/priscilla-seven-day-working-plot.md#current-day-2-staying-and-trace-comparison-2026-10-19-at-2116)
+and [new staying treatment](auditions/day-2-return-bar-working-draft.md#current-staying-audition-wanted-company-after-the-strike).
+After the existing strike, Priscilla takes pleasure in Lavinia's attention.
+The attempted departure and obstruction still occur; Lavinia returns after the
+exit is clear, then touch, a changed verbal echo and shared food make the resumed
+company actual before observation ends.
 
-The complete Dark benchmark remains unchanged. A competing exit gives Lavinia
-more explicit cruel amusement and a deservedness claim, then ends at the closed
-door; its removed message agreement cannot silently survive in the coda.
-The new A/B/C passages change actual answers, contact, dinner time and messages.
-All exact scenes, prompts and mapping remain **AUDITIONING**.
+The [five-result family](auditions/day-2-return-bar-working-draft.md#current-variation-audition-self-talk-and-one-challenge)
+keeps its current opportunity design. This is a competing D treatment after
+Day 1 D, alongside the tenderness/departure benchmark and cruel direct exit.
+The voice echo uses the rehearsal Lavinia actually received. The older
+book-custody fragment is available, while the exact remembered trace-destruction
+passage remains unrecovered. The owner records that bounded source limit.
 
-Existing PR #41 remains the authorized version destination. The owner records
-the bounded review. Next compare the after-D family and competing Dark endings,
-then adapt other Day 1 intakes and Day 3 carry. The single eventual P–L ending,
+All exact conduct, inference, contact, placement and dialogue remain
+**AUDITIONING**. Existing PR #41 is the authorized version destination. Next
+compare these endings within the sequence and author the particular later
+facts a chosen stay requires. The one eventual P–L ending, other-intake work,
 whole-week DTL gate and protected historical holds retain their scope.
 
 ## Book and attention experiment, 2026-10-19 at 15:24
