@@ -34,3 +34,19 @@ acceptance alone is not proof of a connected Title → week → ending → Title
 Cloud GUT target: `tests/unit/test_seven_day_templates.gd` checks native
 compiler/manifest/contract admission, fourteen day captions, six ordinary links,
 the terminal target, strict ending context/role, and detached preparation.
+
+## Connected evidence and authoring entry point
+
+Normal startup composition is implemented. The
+[run141 handoff](../../../handoff/a-seven-day-connected-20261016.md) records
+25 tests / 623 assertions, including 3 rendered cases / 328 assertions:
+Title → fourteen Day1–Day7 captions → registered ending → Gallery completion →
+Title → fresh Day1, with separate Day4 and ending Save/Load processes.
+This historical source-run milestone does not qualify current official exported
+completion/normal Load exit, broad CI, ordinary latency or the whole game.
+
+Use the [single author guide and existing template inventory](../scene_sequence/AUTHOR_GUIDE.md)
+for five-result mappings, recall, optional option_a/b/c holders and explicit
+scene ordering. The [seven-day handoff](../scene_sequence/SEVEN_DAY_HANDOFF.md)
+records the concrete day/marker map. This documentation update adds no tests or
+runtime behavior; final build acceptance remains pending.

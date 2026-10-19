@@ -5,10 +5,11 @@ This guide is for neutral replaceable templates, not story writing. It follows
 [five-result names](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6236942172)
 and [optional slot clarification](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6236980632).
 
-Runtime baseline: PR36 `77df47a73c5c2b69978cf2df74ecf8ac4e9294a9`.
-This guide is delivered on the older B PR39 branch; **compose it with that runtime
-or a compatible descendant**. Old PR39 alone does not supply five-result/recall
-support. A owns registration integration and Windows cloud execution.
+Current composition checked at PR36 `775a7d51a37fe2ff3de64ec3fe5353a5d11973a2`.
+The guide and two-slot builder are already composed there. The pinned examples
+below retain their original evidence identities; old PR39 alone does not supply
+five-result/recall support. A owns registration integration and cloud-only
+Godot 4.6.3 standard GDScript / Windows PowerShell execution.
 
 ## Start with the working example
 
@@ -54,8 +55,9 @@ The documented mapping is below. The order of JSON keys does not select results.
 | `echo_e_day1` | Perfect | `perfect` | `scene.test.echo_e_day1` |
 
 These are five outcomes, not five Challenges. Day suffixes identify author-used
-content; they do not read a clock or select the current board. Repeat the naming
-convention for day2–day6 only as needed; the existing Day7 remains in the skeleton.
+content; they do not read a clock or select the current board. Use `echo_a_dayN` through `echo_e_dayN` for day1–day6 as needed;
+these are naming conventions, not six preinstalled sets of result passages.
+The existing Day7 remains in the skeleton.
 Distinct represented Challenges need distinct challenge IDs.
 
 Opening Computer freezes caption/Auto progression. Viewing the panel is not
@@ -290,15 +292,22 @@ relinking. It is not a repair tool for malformed registration.
    checks. Editing a registered programme changes save compatibility; stable pointer
    names do not promise arbitrary old-save migration or authorize overwriting saves.
 
-Keep and link the existing content:
-[seven-day builder/guide](https://github.com/Siuuuers/dwm/blob/77df47a73c5c2b69978cf2df74ecf8ac4e9294a9/tests/templates/seven_day/README.md),
-[seven-day order](seven_day_order.json),
-[partner template](https://github.com/Siuuuers/dwm/blob/77df47a73c5c2b69978cf2df74ecf8ac4e9294a9/tests/templates/partner_fork/README.md),
-[ending DTL](https://github.com/Siuuuers/dwm/blob/77df47a73c5c2b69978cf2df74ecf8ac4e9294a9/tests/fixtures/dialogic/scene_seven_day_ending.dtl).
+Existing template inventory (one author guide; use the linked owners):
+
+| Content | Builder / ordering owner | Current scope |
+| --- | --- | --- |
+| [Seven-day TEST story](../seven_day/README.md) | [SevenDayTemplates.gd](../seven_day/SevenDayTemplates.gd), [explicit order](seven_day_order.json) | Normal startup composition; bounded connected run141 |
+| [Ordinary scene insertion/removal](README.md) | [SceneSequenceAuthoring.gd](../../../tools/authoring/SceneSequenceAuthoring.gd) | Detached authoring; Day1.1 is a generic example |
+| Five-result Challenge and recall | [SceneChallengeRecallFixture.gd](../../support/SceneChallengeRecallFixture.gd) | Isolated example; outcome coverage remains bounded below |
+| [Optional option_a/b holders](../../fixtures/dialogic/scene_author_option_slots.dtl) | [OptionSlotTemplates.gd](OptionSlotTemplates.gd) | Offline A→B registration; option_c is optional, no quota |
+| [Partner TEST fork](../partner_fork/README.md) | [ScenePartnerForkFixture.gd](../../support/ScenePartnerForkFixture.gd) | Connected test fixture, outside normal seven-day startup |
+| [Title-opening template](../scene_startup/README.md) | [Registration.gd](../scene_startup/Registration.gd) | Earlier isolated opening milestone |
+| [Ending DTL](../../fixtures/dialogic/scene_seven_day_ending.dtl) | Seven-day builder plus existing terminal owner | Registered TEST ending; exported final acceptance pending |
+
 The seven-day builder registers Day7.end→ending.alone.normal through the existing
 terminal owner. A bare return is not a replacement for that contract.
 
-## Evidence and remaining integration
+## Evidence and remaining qualification
 
 A's linked handoff reports physical-owner five-outcome dispatch, synthetic
 five-outcome recall selection, and native Not-started recall after fresh Load.
@@ -311,5 +320,13 @@ qualified it through the existing compiler and full-registration validators:
 22 assertions / one clean process exit. The missing-referenced-target case is
 rejected without mutating its input. See [integration evidence](../../../handoff/a-author-slots-20261018.md).
 This is offline authoring validation; the example remains outside normal startup,
-and it adds no rendered or Save/Load claim. No production story, placement,
-awareness thresholds or ending catalogue is selected here.
+and it adds no rendered or Save/Load claim. Normal seven-day composition is also already installed and boundedly qualified:
+[run141 handoff](../../../handoff/a-seven-day-connected-20261016.md), 25 tests /
+623 assertions, including 3 rendered cases / 328 assertions. That historical
+source-run result is separate from current official exported ending/Gallery/Title/
+normal Load-exit qualification, which remains pending. Ordinary Save/transition
+latency and relevant broader integration failures remain open under
+[Director6264816510](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6264816510).
+No production story, placement, awareness thresholds or ending catalogue is
+selected here. This documentation reconciliation adds no engine execution or
+new acceptance; PR36 stays draft/unmerged.

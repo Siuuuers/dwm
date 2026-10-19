@@ -1,6 +1,6 @@
-# Editable scene sequence — uninstalled TEST preparation
+# Editable scene sequence — composed TEST authoring
 
-Owner B; starting PR36 source head `5e4da996bdb896fb0db96641232595d78dd08cd9`.
+Original preparation by B; starting PR36 source head `5e4da996bdb896fb0db96641232595d78dd08cd9`.
 Assignment: [Director6206547454](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6206547454).
 PR1 is the product umbrella. A owns shared runtime, normal startup selection, cloud execution and integration.
 
@@ -55,10 +55,10 @@ in `test_scene_sequence_authoring.gd::_source` using the real compiler and repla
   save migrated, board regenerated or engine process launched.
 - Sequence changes alter registration identity. No migration of old saves across changed/removed content is promised.
 
-## Focused cloud checks for A
+## Focused cloud qualification
 
-Run `tests/unit/test_scene_sequence_authoring.gd` in A's existing pinned Godot 4.6.3
-standard/Windows PowerShell campaign. Six test cases cover:
+`tests/unit/test_scene_sequence_authoring.gd` was qualified in A's cloud-only
+Godot 4.6.3 standard / Windows PowerShell campaign. Six test cases cover:
 
 1. Three-entry and two-entry complete registration admission, branch/final preservation and nested detachment.
 2. Explicit reordered IDs (Day1.1 before Day1), independent of canonical registry storage sorting.
@@ -69,25 +69,27 @@ standard/Windows PowerShell campaign. Six test cases cover:
 
 Both the full manifest validator and scene event contract validate successful outputs.
 No local Godot/PowerShell or independent cloud dispatch by B.
-Test status at delivery: **NOT RUN**. No assertion totals or playable acceptance claimed.
-A may generate UID/import metadata under existing integration ownership.
+The original B preparation was not engine-tested by B. A subsequently qualified
+these six cases / 68 assertions, including in
+[connected run141](../../../handoff/a-seven-day-connected-20261016.md).
+Reuse that bounded evidence; this documentation update does not rerun it.
 
-## Minimal shared interface request to A
+## Composed startup and remaining limits
 
-After the later-caption correction, use the returned first_target_id with the existing
-authenticated NewRun selection. Existing registration is currently TEST-only and selected
-through debug flag/environment seams. Final Title → Day1 must use the approved normal
-startup selection without a debug/test-only switch; B does not alter that shared owner here.
-
-Compose the returned registration before immutable consumer caches are selected; never hot-replace
-registration in a live save session. Reuse the existing compiler/registration validation and
-scene-transition transaction. C's retained-ending handoff supplies terminal integration.
+The [seven-day builder](../seven_day/README.md) already composes the registration
+and normal New Game selects `target.Day1` through the existing immutable
+registration/NewRun owners without a debug switch. The helper itself remains
+detached; isolated fixture selection is separate from normal startup.
+Compose replacements before consumer caches are frozen, never in a live save session.
 
 Owner correction [6207882951](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6207882951)
-supersedes the earlier three-scene connected assignment. The synthetic IDs above test generic
-insertion/removal only; Day1.1 is not required game content or a connected acceptance milestone.
-Connected acceptance remains A's work: normal Title → Day1 through Day7 →
-authored ending → Title → fresh Day1. See `tests/templates/seven_day/README.md` for preparation.
-Preserve optional board,
-exact board restore, full-caption Load (without advancing/replaying consequences), history and recovery.
-Do not merge this preparation as evidence of that complete journey. PR37 partner-fork files remain untouched.
+supersedes the earlier three-scene connected assignment. Day1.1 is only the generic
+insertion/removal example, not required game content. A's run141 qualified normal
+Title → Day1 through Day7 → registered ending → Title → fresh Day1, plus separate
+Day4 and ending Save/Load processes. See the [existing handoff](SEVEN_DAY_HANDOFF.md).
+This does not qualify current official exported completion/normal exit or broad CI.
+
+Use the [single author guide and template inventory](AUTHOR_GUIDE.md) for five
+result mappings, optional content holders and registered target replacement.
+Preserve optional boards, exact saved state, full-caption Load, history and
+recovery. Production prose and final build acceptance remain pending.

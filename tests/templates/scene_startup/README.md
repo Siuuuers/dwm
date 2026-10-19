@@ -12,8 +12,18 @@ The test currently checks the literal opening caption; update that expectation w
 
 The template registers an explicit silent audio catalogue (schema 3); future audio belongs in that same registered catalogue. Title configuration requires schema 3 so audio comes from the chosen entry rather than a previous live run.
 
-The initial target is `OPENING_TARGET`. It must name an installed scene target. The trusted application configuration calls `SaveManager.configure_scene_title_new_run` once. The normal Menu retains its existing prepare, confirmation, cancel, commit and retry flow. Nothing changes the normal production content selection or introduces a second save or history owner.
+The initial target is `OPENING_TARGET`. It must name an installed scene target. The trusted application configuration calls `SaveManager.configure_scene_title_new_run` once. The normal Menu retains its existing prepare, confirmation, cancel, commit and retry flow. This isolated template does not select normal content or introduce a second save
+or history owner. Normal startup now uses the composed
+[seven-day TEST registration](../seven_day/README.md); this older opening fixture
+remains a separate bounded milestone.
 
 Content replacements change registration identity. Existing saves must remain intact and follow existing compatibility/refusal policy; this template does not make old saves compatible with arbitrary rewritten story structure. Do not promise automatic migration.
 
 Run this lane through the pinned Windows cloud controller, Godot 4.6.3 standard and the existing isolated PowerShell runner. No local Godot/PowerShell execution is required.
+
+For current composition status and reusable templates, use the
+[single author guide and inventory](../scene_sequence/AUTHOR_GUIDE.md).
+The [connected seven-day handoff](../../../handoff/a-seven-day-connected-20261016.md)
+supersedes any implication that normal Title-to-week composition is still
+uninstalled. Current official exported completion and normal Load exit remain
+pending; this README update adds no new engine evidence.
