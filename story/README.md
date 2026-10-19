@@ -2,32 +2,31 @@
 
 ## Current Days 1–3 recurrence revision, 2026-10-20
 
-Read the [current checkpoint](auditions/priscilla-seven-day-working-plot.md#current-days-13-recurrence-revision-2026-10-20)
+Read the [latest Day 3 development checkpoint](auditions/priscilla-seven-day-working-plot.md#current-day-3-scene-development-and-duration-2026-10-20)
 and the existing [Day 1](auditions/day-1-photo-book-working-draft.md),
 [Day 2](relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md)
 and [Day 3](auditions/day-3-sylvia-fork-working-draft.md) owners.
-The revised sequence retains the single Day 1 D recording breach, shortens its
-answer interrogation and removes the recap chain from Days 2–3. The book's
-pleasure and near echo remain in Day 1; Day 3 was never a return scene.
-The owner's 01:05 clarification asks that moments with Sylvia have room to
-belong to her and Priscilla: Lavinia can be felt indirectly, including through
-jealousy, without becoming their main subject. This is not a cast exclusion.
+The earlier [three-day recurrence revision](auditions/priscilla-seven-day-working-plot.md#current-days-13-recurrence-revision-2026-10-20)
+retains the local Day 1 D recording breach and removes its later recap chain.
+Day 2's present meal, cheek-clearing gesture and cold-chicken cut remain unchanged.
+A moment with Sylvia has room to belong to her and Priscilla; Lavinia need not
+occupy its conversation. This is the owner's attention clarification, not a cast exclusion.
 
-Day 2 now has present physical comedy, food and pursuit. Its preferred D stay
-uses the cheek-clearing line and cold-chicken cut without the rehearsal echo.
-Day 3 has a short Sylvia invitation, the proposed late fork, a P–L courtship
-performance and walk, and the immediate P–S cinema alternative. The concealed
-call and next-day S–L appointment belong only to the previous audition.
+Day 3 now develops actual Sylvia company before the proposed late fork. The
+P–L continuation keeps flowers and a comic walk, then uses a public invitation,
+a painful grip and an unresolved disagreement about wider company. This replaces
+the kneeling/withdrawal/retrieval sequence. P–S sends its actual cancellation
+and begins the cinema evening. The owner separates word counts, untested staging
+budgets and remaining whole-day work; no reading countdown or new Challenge is added.
 
 **Capture destination:** existing [PR #41](https://github.com/Siuuuers/dwm/pull/41)
-under standing Markdown/push authorization. Seven existing Markdown files carry
-this substantial revision; earlier versions remain in Git. Three same-model
-readers reviewed the actual affected sequence and assigned variation seams.
-The owners record the scope and costs; exact prose, acts, mapping and placement
-remain **AUDITIONING**. No continuing visible mark, unshown overnight act or
-cast-wide exclusion is inferred. Next develop the P–L week from this chosen
-company, alongside the immediate fork's actual obligations. Other intakes,
-full P–S plotting, the whole-week DTL gate and protected historical holds remain.
+under standing Markdown/push authorization. Five existing Markdown files carry
+this subsequent Day 3 development; earlier versions remain in Git. Two same-model
+readers reviewed the actual new packet against the relevant intake. Exact prose,
+acts, placement and timing remain **AUDITIONING**. The next P–L plotting question
+concerns the continuing desire for this company while wider contact is contested.
+Other intakes, complete Day 3, full Sylvia plotting, whole-week DTL preparation
+and protected historical holds remain open. PR metadata establishes publication.
 
 ## Current Day 3 Sylvia meeting and fork audition, 2026-10-19
 

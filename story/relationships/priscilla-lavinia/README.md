@@ -2,29 +2,28 @@
 
 ## Days 1–3: present company after the recurrence revision, 2026-10-20
 
-Read the [current checkpoint](../../auditions/priscilla-seven-day-working-plot.md#current-days-13-recurrence-revision-2026-10-20),
+Read the [latest Day 3 checkpoint](../../auditions/priscilla-seven-day-working-plot.md#current-day-3-scene-development-and-duration-2026-10-20),
 [Day 2 family](auditions/day-2-return-bar-working-draft.md) and
 [shared Day 3 owner](../../auditions/day-3-sylvia-fork-working-draft.md).
 The leading intake remains Day 1 D → Day 2 D staying. Day 1's actual recording
-breach survives; the later recap chain and repeated ownership interrogations do
-not. The book and its performed cast now remain within Day 1 as an editorial
-cut. The owner's 01:05 clarification concerns attention during company with
-Sylvia: Lavinia may be felt indirectly rather than occupying their conversation.
+breach survives without the later recap chain. The Day 2 meal, cheek-clearing
+line and cold chicken remain unchanged by the latest Day 3 expansion. No lasting
+visible mark, unshown overnight act or forgiveness is inferred.
 
-The Day 2 meal uses present physical comedy, food and an attempted next invitation.
-The preferred stay clears the cheek's hair, holds it briefly and stops with cold
-chicken and the smile's immediate sensation. No lasting visible mark or display
-motive is selected. Day 3's short Sylvia invitation preserves anger while its
-P–L continuation develops a new courtship performance and an actual walk. The
-previous hidden call, new restriction knowledge and S–L appointment are absent.
-The Yes alternative still cancels the six o'clock plan and enacts Sylvia company.
+Day 3 gives Sylvia and Priscilla a longer present encounter before the optional
+relationship fork. The P–L continuation retains the gift and comic walk, replacing
+the kneeling/retrieval with an invitation to both women and Lavinia's painful grip
+after apparent assent. Priscilla declines tonight, objects, retains future contact
+and still wants the walk. The unresolved disagreement continues with their company.
+The Yes alternative cancels the six o'clock plan and begins the Sylvia cinema evening.
 
-All exact new conduct, wording, fork placement and mapping remain **AUDITIONING**
-in existing [PR #41](https://github.com/Siuuuers/dwm/pull/41). The bounded review
-covers the revised actual sequence and assigned variation seams; its theatrical
-cost and remaining withdrawal/return recurrence are recorded. Next develop the
-P–L week without treating that response as a dependable formula. Other intakes,
-full Sylvia plotting, the full-week DTL gate and protected historical holds remain.
+The existing [PR #41](https://github.com/Siuuuers/dwm/pull/41) captures this five-file
+Day 3 development under standing authorization. Two same-model readers reviewed
+the actual new packet; the owner records the physical wording repairs and costs.
+Exact conduct, dialogue, placement and proposed duration remain **AUDITIONING**.
+Next plot the consequences of the continuing dispute without assuming either
+isolation or another departure/return. Other intakes, full Day 3/Sylvia plotting,
+the whole-week DTL gate and protected historical holds retain their open scope.
 
 ## Day 3 Sylvia meeting and Lavinia continuation, 2026-10-19
 
