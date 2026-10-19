@@ -11,17 +11,18 @@ first. Older cast, Group and calendar references below keep historical scope.
 | Week direction, source scope and dependencies | [Working plot](priscilla-seven-day-working-plot.md) | AUDITIONING; not a second Matrix. |
 | Day 1 | [Photo and book](day-1-photo-book-working-draft.md) | Complete AUDITIONING reading copy: integrated self-talk, photo Yes/default, five continuations, private coda and bounded review; not executable DTL. |
 | Day 2 | [Return and bar](../relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md) | AUDITIONING five-result family after Day 1 D, one optional thought, and three competing D treatments including the latest chosen stay; other intakes remain open. |
-| Day 3 | [Sylvia event and fork](day-3-sylvia-fork-working-draft.md) | AUDITIONING complete leading D exhibition and immediate relationship continuations after Day 1 D → Day 2 D stay. Two private thoughts, one local Challenge seam and an unintegrated A–E design; A/B/C/E prose/joins, other intakes and whole Day 3 remain open. |
+| Day 3 | [Sylvia event and relationship forks](day-3-sylvia-fork-working-draft.md) | AUDITIONING shared encounter and two complete bounded A–E fork families after Day 1 D → Day 2 D stay. Zero shared Challenges; one in each mutually exclusive continuation. Other intakes and the remaining day/week stay open. |
 
-**Current Day 3 event-first proposal, 2026-10-20:** [read the checkpoint](priscilla-seven-day-working-plot.md#current-day-3-event-first-sylvia-and-variation-proposal-2026-10-20).
-Priscilla seeks Sylvia's particular company; their invented exhibition produces
-pleasure and a local Dark consequence before the cinema invitation raises Lavinia's
-appointment. The proposed local Challenge does not choose the relationship.
-The current D prose has both later fork continuations; the other local results
-are conduct/consequence proposals awaiting their own complete readings.
-P–L's walk and grip survive, while P–S first encounters its film image at the cinema.
+**Current Day 3 fork Challenges and fuller readings, 2026-10-20:** [read the checkpoint](priscilla-seven-day-working-plot.md#current-day-3-fork-challenges-and-fuller-branch-readings-2026-10-20).
+The shared exhibition has no Challenge; its actual consequence is common on the
+leading intake. The separate relationship thought leads to a complete bounded
+P–L or P–S family with its own optional Challenge, private attention, actionable
+impulse and result-dependent aftermath. Two opportunities are authored and one
+is available in a reading. E retains C's human conduct and adds private recognition.
+The earlier shared A–E design is superseded, not performed unseen.
 The [recurrence revision](priscilla-seven-day-working-plot.md#current-days-13-recurrence-revision-2026-10-20)
-still governs unchanged Day 1–2 cuts. Existing owners and Git retain the versions.
+still governs unchanged Day 1–2 cuts. Existing owners and Git retain the versions;
+delivery uses the current GitHub link without another downloadable copy.
 
 Exact approval remains with the owning sources and selection lifecycle.
 Publication is established by commit/PR metadata, not these links.
