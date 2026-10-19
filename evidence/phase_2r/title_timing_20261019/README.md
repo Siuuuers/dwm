@@ -1,3 +1,7 @@
+# Latest outcome — corrected Windows preflight passed; deadline fixture failed
+
+The ONE corrected retry39266748914 is complete/failure. All28 Python tests pass on Windows. Source overlay and PowerShell parsing pass; isolated deadline fixture fails before import/export/player. [Retained original evidence, verification, source diagnosis and smallest correction proposal](run39266748914/README.md). Stop-after-retry boundary reached; no further dispatch or patch. Earlier pending-review and original-failure sections below remain historical.
+
 # Latest: raw-name correction prepared; external C review pending
 
 See [exact correction, source pins and retry gate](raw-name-correction.md). Director6268770485 authorizes one retry after C reviews this changed packet. The historical failed outcome remains retained below. No retry has been dispatched.
