@@ -1,3 +1,61 @@
+# Integration backlog reconciliation — 20 October 2026 Hong Kong
+
+Director [6274383799](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6274383799) requests read-only triage, not an implementation campaign. Current product is `9c602f545766d5693bd34f8376b24b60bb59de47`; PR1 is `a6decec3693ee4d57df9f879b90ace3e118c9d1d`. Comparison from local inspected19b5efd0 to current product changes only evidence/handoff, so the inspected runtime/test files apply. Critical owner blobs were also fetched directly at current product. No Godot/PowerShell execution or workflow/controller change was made for this triage.
+
+## ONE proposed product correction: localize direct-sheet Back
+
+**Observable outcome:** opening normal scene Settings or Backup shows Back in the selected locale, updates it after a locale change, and retains the same Back action, focus and suspension/restore custody. Existing ProductionPauseController copy delivery and PauseSurface presentation own this behavior.
+
+Exact existing failure: [run38725742391](https://github.com/Siuuuers/dwm/actions/runs/38725742391), source `0d3464691bfa13f4cd0fdfe368906b0de2079e53`, rendered-desktop job116392941709, step `Audit all UI literal ownership`, `UiLiteralAudit` failure `unclassified_script_literal` at `scripts/ui/pause/PauseSurface.gd:89`, text sink. Raw job log also reports separate ComputerDesktop1045 and SceneHost82 literals. This is an executed audit failure, not a GUT case; the earlier scaling step has independent stale fixture errors.
+
+Current applicability is stronger than an old red job alone: PauseSurface blob `5b0342379e7afbbe706a093e040187fc4294bd84` and auditor blob `d382e6503c5f174d86aaa5ea40fcd4663f1d1a65` are identical at failing source and current product. PauseSurface line89 still assigns `_sheet_back.text = "Back"`; automatic translation is disabled. COPY_KEYS excludes back, and _apply_copy never updates it. Current ProductionPauseController blob `fd222b93bba1b9095f42c70ebd28a77a5390de80` supplies only those keys through `ui.pause.<key>` in _refresh_presentation. All five current catalogs lack ui.pause.back or another .back key; do not guess an existing key or substitute Cancel.
+
+Supported caller chain: SceneHost controls → ApplicationBootstrap.configure_scene_host_view (2736–2739), scene-sheet delegates (2844–2854) → ProductionPauseController.open_scene_settings/open_scene_backup and _open_scene_sheet (150–179) → PauseSurface.open_direct_host (260–275) → _sync_custody (470) makes the Back button visible. Bootstrap current blob `81310606acff88c536a17582b2c03a2dc2e4206e`. Thus this is a reachable product copy omission on ordinary supported scene sheets, not a reason to revive historical Hospital behavior.
+
+PR1 PauseSurface blob `6bad8da61babf267f026cdd02b3514a04ab808b3` has neither this button nor open_direct_host. Its controller `c20bdbab64ab6d68756dd7fd8cdd33046ce117c8` still supplies the eight old copy keys. There is no equivalent fix to transplant. Master was rechecked at unchanged0c8b2384415d71bd3de4ff7408640bbf60b63740; no newer master implementation exists to reuse.
+
+Smallest proposed correction: add a deliberate Back member to the existing copy contract/catalogs, bind the button in _apply_copy, and update exact-shape fixture dictionaries/callers. Preserve handle_back, command admission, focus/close behavior, and detached copy validation. No new localization manager, bypass, broad literal whitelist or save/schema change. Before editing, enumerate configure_copy/COPY_KEYS callers; adding a required key otherwise rejects existing test/provided dictionaries. Keep the label within its button at supported locale/font sizes.
+
+Focused qualification proposal, only after assignment: copy-contract unit tests (missing/invalid key, detached input, locale refresh); admitted direct Settings and Backup integration checks for displayed/accessibility label and one Back retreat; a bounded rendered locale/font check for fit and visibility. Reuse existing custody/save tests. Run the literal audit and report the other two known issues separately—this one fix cannot certify the whole audit. No fresh localized direct-sheet render was executed during triage; source proves the missing wiring, not a new current gameplay observation or accessibility acceptance.
+
+This is the highest-confidence concrete supported product issue among the reconciled integration rows. It does not outrank or resolve the retained diagnostic33.179067s forward-operation duration and official exported ending/clean-exit blockers. Those remain open.
+
+## Current CI observation and evidence barrier
+
+Latest completed product [run39303036831](https://github.com/Siuuuers/dwm/actions/runs/39303036831), source9c602f5, job118232896118 fails `Verify committed public inventories without regeneration`: `SURFACE_OUTPUT_STALE: regenerate res://evidence/phase_2r/runtime/game_state_surface.json`, isolated checker exit1. It is a generated-evidence synchronization failure, not a new gameplay regression. The downstream runtime/rendered jobs were skipped. Retained-history aggregate job118235272466 fails missing producer/comparison prerequisites; it does not execute a failing seven-day journey. Therefore fresh broad evidence cannot rank an unseen runtime failure.
+
+Owner/caller diagnosis: both committed inventory files remain byte-identical to their qualified3f9dd275 Gallery update; GameState, SaveManager, scanner and generator are also unchanged. Subsequent reviewed Backup and historical-fixture/test edits add/move lexical references. For example `coins` now occurs in tests/integration/test_scene_saved_event_anchor.gd:138,139,154, absent from the retained record. An offline scanner-semantics comparison over changed files identifies reference deltas for10 GameState and16 SaveManager symbols; see [reference deltas](../evidence/phase_2r/integration_triage_20261020/reference-deltas.json). This is diagnostic evidence, not a canonical regenerated output or an executed SaveManager failure (its check was not reached).
+
+When implementation is assigned, refresh generated inventories only after the coherent final source/test edits using the existing cloud generator, then run its unchanged drift/read-only contracts. Do not weaken scanning, rewrite required surfaces, alter immutable history seals, or launch broad CI just to rebuild this list. This is a separate qualification prerequisite, not the selected product behavior correction.
+
+Latest gate evidence archive12212536268:135849bytes, SHA256 `ac5a15fd177f98952f7b2e140bdca48ecb4c1ab4c05e788814a010e2fd33bccf`, CRC clean/41members; retained checker receipt and exact raw log excerpts accompany this inventory. Native caption preflight logs also contain resource-leak diagnostics despite its step success; that success is not a blanket strict-clean-log claim. No new lifecycle defect is inferred from that separate diagnostic here.
+
+## Reconciled failure inventory
+
+| Existing observation | Current classification and impact | Current disposition |
+|---|---|---|
+| Latest GameState inventory drift,39303036831/118232896118 | Preparation/generated artifact; prevents fresh downstream observations | Confirmed current; cloud canonical refresh after final edits is missing, not a gameplay bug. |
+| PauseSurface Back audit,38725742391/116392941709 | Supported product copy omission; non-English direct sheets retain English label | ONE recommendation above; source/caller confirmed, focused execution still required. |
+| ComputerDesktop1045/SceneHost82 literal audit, same job | Localization expression/audit-recognition leads | Independent unresolved items; no broad whitelist or claim they are fixed by Back. |
+| Gallery pre_challenge stall,39090268581/117566534085 | Previously genuine mounted rehearsal defect | Closed in bounded39092313867:11/591 owner/host plus11/352 inventories; a-gallery-rehearsal-20261018.md. |
+| Retained dating/contact fixtures,39090268581/117566534168 and117566534165 | Historical test registration, not reason to reopen retired live catalog | Selected six dating+one snapshot and isolation checks closed by39208992744:12/177; current integratede364f128. Full old suites still unqualified. |
+| First-Reveal refusal,38725742391/116392941683 and116392941616 | Historical setup/scene-family mismatch with later supported wiring fix | Supported scene path closed31/515; old six journeys/performance benchmark are not retroactively passed. |
+| Challenge600s timeout | Previously bounded performance blocker | Closed50/455 plus two explicit historical pending cases; unchanged retry22.175s. Do not reopen. |
+| Unsupported-version / issuer-resolution census | Stale fixture expectations | Focused33/613 and10/145 fixes already qualified; not full-suite passes. |
+| JP/KR308 census,38725742391/116392942076 | Stale expected count | Prior310 diagnosis is itself stale: current English has311 including scene.thought.yes. Reconcile all per-ID/placeholders; no runtime regression claim. |
+| Shop old IDs/cards and rendered numeric label lookup,38725742391/116392941996,116392941709 | Obsolete fixtures against supported current shop/layout | Preserve purchase/geometry/accessibility checks with current IDs; do not restore retired catalog. Further failures not all classified. |
+| DTL137 versus8,39090268581/117566534110 | Old catalog census | Current TEST registration differs again; stale expectation does not justify137 live entries. Executable-route obligations remain. |
+| Historical aliases missing reverse fragments3/5/7 in test_run_restore_isolation | Historical provenance obligation | Open; authenticated provenance reconciliation needed, not rewriting hashes or treating current Load pass as old-seal proof. |
+| Hospital health:+1 / legacy calendar paths | Retired-system fixture obligations | Do not revive health effects; classify surviving history obligations separately. |
+| Day7 baseline expected3 admission anchors versus2 | Benchmark preparation | No complete matched performance result; locate exact operation equivalence before repairing derivation. |
+| Bootstrap unmounted owners/process issuer and cancelled Hospital/Settings | Fixture setup or missing evidence | Unqualified; cancellations/skips are not passes or live defects. |
+| Anchor-index experiment | Correctness42/614, benchmark1/372;2.0338% median | Closed by Director6274383799 and external C6274449701; no promotion/rerun/transition check. |
+| Official exported ending/Title/clean Load exit and retained diagnostic33.179067s forward duration | Existing live delivery blockers | Still open; no result in this read-only triage resolves them. |
+
+The earlier sections below retain the original inventory repair evidence. This reconciliation supersedes their next-step wording. Return this single product recommendation to Director before implementation or broader testing.
+
+---
+
 # A — composed runtime API inventory reconciliation, 17 October 2026
 
 Follows Director PR30 comment6234315113. Observable outcome: the two committed public API inventories reproduce the current composed runtime exactly, while existing drift detection and read-only checks remain effective. The existing PublicSurfaceInventory scanner and required manifests remain the owners. No runtime, save, recovery, history, test, manifest or ordinary CI gate was changed.
