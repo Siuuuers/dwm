@@ -1,3 +1,7 @@
+# Latest outcome — four deadline cases pass; overlay import/export fails
+
+Run39270282954 is complete/failure. Windows28 Python tests and all4 deadline cases pass. Godot import/export is blocked by generated EndingScene header order; no smoke/player/Title timeline. [Retained exact evidence and smallest proposed generator correction](run39270282954/README.md). Substantive import/export stop boundary reached; no patch/retry. Earlier sections below remain historical.
+
 # Latest: isolated deadline fixture correction prepared
 
 [Exact patch, source/controller pins, dependency audit and C review gate](deadline-fixture-correction/README.md). Director6269458094 authorizes reviewed continuation within this same diagnostic; no new run has been dispatched. Four deadline cases and driver/game semantics remain unchanged. Prior outcomes below are retained historical evidence.
