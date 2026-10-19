@@ -16,5 +16,14 @@
     "entries": 130,
     "manifest_verified": 129,
     "outcome": "failed focused harness test before SDK/engine execution"
+  },
+  {
+    "run": 39221835797,
+    "archive": "query-attempt3.zip",
+    "sha256": "72b4e5053e47e56917bb16edfdfdee2f5cc796385e232e3e3f051870f5e82f77",
+    "bytes": 807184,
+    "entries": 167,
+    "manifest_verified": 166,
+    "outcome": "SDK compiled; consumer 7 passed; query 7 passed / 1 test-only count assumption failed; engine never started"
   }
 ]
