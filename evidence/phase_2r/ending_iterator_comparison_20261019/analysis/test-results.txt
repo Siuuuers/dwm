@@ -1,0 +1,16 @@
+test_arbitrary_count_first_selected (__main__.OrderedWaitTests.test_arbitrary_count_first_selected) ... ok
+test_deadline_later_wait (__main__.OrderedWaitTests.test_deadline_later_wait) ... ok
+test_hwnd_later_wait (__main__.OrderedWaitTests.test_hwnd_later_wait) ... ok
+test_later_ordinal_rejected_in_complete_binding (__main__.OrderedWaitTests.test_later_ordinal_rejected_in_complete_binding) ... ok
+test_missing_all (__main__.OrderedWaitTests.test_missing_all) ... ok
+test_missing_end (__main__.OrderedWaitTests.test_missing_end) ... ok
+test_missing_start (__main__.OrderedWaitTests.test_missing_start) ... ok
+test_pid_later_wait (__main__.OrderedWaitTests.test_pid_later_wait) ... ok
+test_reordered (__main__.OrderedWaitTests.test_reordered) ... ok
+test_retained_both_first_interval_only (__main__.OrderedWaitTests.test_retained_both_first_interval_only) ... ok
+test_source_exception_is_exact (__main__.OrderedWaitTests.test_source_exception_is_exact) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.233s
+
+OK

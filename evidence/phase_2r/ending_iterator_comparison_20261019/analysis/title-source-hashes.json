@@ -1,0 +1,11 @@
+{
+  "commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+  "files": {
+    "scripts/ui/EndingScene.gd": "8545f7f7b1a31e94d4a49b475ddac175aa3e37ed5816694b678e5382c6c51b5c",
+    "autoload/GameState.gd": "2eab73918b896a60b431b3a23391a09d578f5c2afb377f5b9ddca681da44339c",
+    "autoload/ApplicationBootstrap.gd": "5f30235eac3d1278a8923c43c5501330eb126d9a2df825b09be0c7588e71ea27",
+    "scripts/application/run/SaveManagerCheckpointPort.gd": "09210b048a1a4c06d70b27ead984eba3415df70caef32780f11b3346fedc6e0e",
+    "autoload/SceneRouter.gd": "105e5e8ce635a9ba804270e93c9fc844dca048141a50e2d84a1d1593683253aa"
+  },
+  "qualification": "New source inspection pins, not additional original artifact source pins."
+}
