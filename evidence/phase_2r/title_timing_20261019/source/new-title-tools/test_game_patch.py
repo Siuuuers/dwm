@@ -32,6 +32,33 @@ class GamePatchTests(unittest.TestCase):
                 self.assertIn(body.rstrip(), after[path], (path, signature))
             self.assertEqual(original.count('await '), after[path].count('await '))
 
+    def test_complete_owner_headers_precede_single_preload(self):
+        before = self.sources()
+        after = patch.transform(before)
+        forms = set()
+        for path, original in before.items():
+            with self.subTest(path=path):
+                # Inspect actual pinned declaration lines, independently of HEADERS.
+                lines = original.splitlines(keepends=True)
+                header = []
+                for line in lines:
+                    if not line.startswith(('extends ', 'class_name ')):
+                        break
+                    header.append(line)
+                forms.add(tuple(line.split()[0] for line in header))
+                prefix = ''.join(header)
+                self.assertTrue(after[path].startswith(prefix + '\n' + patch.PRELOAD))
+                self.assertEqual(after[path].count(patch.PRELOAD), 1)
+        self.assertEqual(forms, {('extends', 'class_name'), ('class_name', 'extends'), ('extends',)})
+
+    def test_header_drift_rejected(self):
+        for path in self.sources():
+            with self.subTest(path=path):
+                before = self.sources()
+                before[path] = '# shifted header\n' + before[path]
+                with self.assertRaisesRegex(ValueError, 'class header mismatch'):
+                    patch.transform(before)
+
     def test_helper_is_bounded_opt_in_and_reports_io_failure(self):
         for token in ['MAX_RECORDS: int = 256', 'MAX_BYTES: int = 262144',
                       'DWM_TITLE_TIMING_PATH', 'DWM_TITLE_TIMING_WRITE_FAILURE',

@@ -14,6 +14,12 @@ PINNED = {'autoload/ApplicationBootstrap.gd': '5f30235eac3d1278a8923c43c5501330e
 BASE_COMMIT = '81847d8b1560340a3a7769223cee0b46c6bdc0f9'
 HELPER_PATH = 'scripts/diagnostics/TitleTiming.gd'
 PRELOAD = 'const DWM_TITLE_TIMING := preload("res://scripts/diagnostics/TitleTiming.gd")\n'
+HEADERS = {
+    'autoload/ApplicationBootstrap.gd': 'extends Node\n',
+    'autoload/SceneRouter.gd': 'extends Node\n',
+    'scripts/ui/EndingScene.gd': 'extends Control\nclass_name EndingScene\n',
+    'scripts/application/run/SaveManagerCheckpointPort.gd': 'class_name SaveManagerCheckpointPort\nextends RefCounted\n',
+}
 HELPER = '''extends RefCounted
 # Diagnostic overlay only. No save payloads, recovery records or product state.
 static var ending_depth: int = 0
@@ -134,11 +140,11 @@ def transform(sources):
 	DWM_TITLE_TIMING.emit_record("goto_menu", "return", DWM_TITLE_TIMING.result_detail(timing_result))''')
         else:
             raise ValueError('unexpected source: ' + path)
-        # Place after extends: does not interfere with comments or signal declarations.
-        lines = text.splitlines(keepends=True)
-        index = next(i for i, line in enumerate(lines) if line.startswith('extends '))
-        lines.insert(index + 1, '\n' + PRELOAD)
-        changed[path] = ''.join(lines)
+        # Keep the complete pinned class header ahead of every class-body member.
+        header = HEADERS[path]
+        if not text.startswith(header):
+            raise ValueError('class header mismatch: ' + path)
+        changed[path] = header + '\n' + PRELOAD + text[len(header):]
     changed[HELPER_PATH] = HELPER
     return changed
 
