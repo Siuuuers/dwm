@@ -1,15 +1,15 @@
 # Priscilla–Lavinia: working home and restart point
 
-## Book and observer experiment, 2026-10-19 at 14:03
+## Book and attention experiment, 2026-10-19 at 15:24
 
-Read the [current checkpoint](../../auditions/priscilla-seven-day-working-plot.md#current-book-and-observer-reference-2026-10-19-at-1403)
-and [Day 1](../../auditions/day-1-photo-book-working-draft.md): after the enjoyed
-declaration, the aunt's fixed printed sentence echoes Lavinia's earlier message.
-Priscilla questions Sylvia but withholds the connection. This bounded shared
-passage is **AUDITIONING**, with an unresolved cause; it does not give A–D
-Observer identification or change the five continuations. The wider reference
-remains a set of evaluated possibilities. Sylvia's stronger desire for Lavinia,
-Lavinia's unresolved response and the identical P–L ending keep their scope.
+Read the [current checkpoint](../../auditions/priscilla-seven-day-working-plot.md#current-attention-and-near-echo-refinement-2026-10-19-at-1524)
+and [Day 1](../../auditions/day-1-photo-book-working-draft.md): the aunt's words
+now resemble Lavinia's message through changed wording and order. A later
+glance becomes the particular page detail Priscilla notices. The prior exact
+echo remains in Git history. This passage is **AUDITIONING**, with an unresolved
+cause; it gives A–D no Observer identification and changes no result branch.
+Sylvia's stronger desire for Lavinia, Lavinia's unresolved response and the
+identical P–L ending keep their scope.
 
 The existing PR #41 and its Git history remain the authorized destination.
 Review and capture details are centralized in the checkpoint; the current PR

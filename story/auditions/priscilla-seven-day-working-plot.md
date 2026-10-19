@@ -1,6 +1,82 @@
 # Priscilla: current seven-day working plot and discussion checkpoint
 
+## Current attention and near-echo refinement, 2026-10-19 at 15:24
+
+**Owner source:** the owner asks for what Priscilla sees and its details in
+place of cues such as “I glance at the book,” referring to *La Jalousie* and
+*Le Planétarium*. The owner also asks whether a déjà-vu-like effect would be
+better than the book repeating Lavinia's message exactly. This extends the
+existing preference for less overtly tagged perception; it does not ban
+actions, pronouns or names. The near echo is the assistant's recommendation,
+not approval of its exact words.
+
+**Current audition:** the [shared Day 1 reading](day-1-photo-book-working-draft.md#2-a-reading)
+now gives the aunt “Tomorrow, do try to look a little less pleased.” Lavinia's
+earlier message remains “Try not to look too pleased when you see me tomorrow.”
+The focal fragment becomes “Tomorrow. At the beginning, this time.” The
+assistant prefers this for the opening because altered wording allows a
+familiar shape to be felt without a verbatim match. The aunt still has a
+comic reason to correct her mourners' expressions.
+
+The [preceding complete version at 82d3d939](https://github.com/Siuuuers/dwm/blob/82d3d939eed9728b7e6d2375f694f1a33d140125/story/auditions/day-1-photo-book-working-draft.md)
+retains the exact echo and its reasons. This is a taste and evidence tradeoff,
+not a finding that the old sentence was factually or causally impossible.
+
+| Version | Gain | Cost |
+|---|---|---|
+| Identical wording in the 14:03 audition | A clear, checkable correspondence between private message and printed text. | More conspicuous arrangement; the audience can move quickly to asking who copied or caused it. |
+| Altered wording in the current audition | Recognition can remain uneasy and incomplete; affection and funeral direction share a shape while their phrasing differs. | Weaker evidence. Some readers may experience only ordinary similar teasing. The short associative fragment is still an authorial cue, not an invisible guarantee of déjà vu. |
+
+The [scene's current notes](day-1-photo-book-working-draft.md#67-book-coincidence-audition)
+now distinguish the two actual phrasings from Priscilla's felt resemblance.
+The preceding exact-match fact is superseded for this candidate. First
+Observer identification stays in E. Sylvia's answer, prior message access and
+the unresolved cause keep their bounded scope; near familiarity grants no
+cross-save memory or new supernatural ability.
+
+### Attention rather than a report of looking
+
+The existing reply “We haven't got very far” already gives the glance a
+plausible immediate function: checking or invoking their interrupted reading.
+Its problem was underdescribed attention, not proof that Priscilla looks for
+no reason. The revised passage selects “Only a few pages between her finger
+and the front cover.” Sylvia's own finger marks their progress in the closed
+paperback. The detail can support a literal observation and an indirect
+answer without declaring which motive Priscilla has.
+
+The isolated “I look” after the phone lights is simply removed; Priscilla's
+next reply supplies the reading. A removed perception tag does not always need
+an ornamental replacement. The book turn, Priscilla's grip/release and later
+phone handoff remain actions with consequences. Both detail-led passages stay
+in the story field as continuous attention; neither needs a second self-talk
+explanation. This applies [Style §4.2](../08-narrative-style-manual.md#42-unmarked-focal-presence)
+without a new universal rule or a sweep through unaffected passages.
+
+### Literary reference and scope
+
+The root consulted the publisher's [opening excerpt of *La Jalousie*](https://www.leseditionsdeminuit.fr/images/extrait_2731.pdf),
+which establishes the terrace through spatial relations, shadows and visible
+surfaces while retaining actions, and Gallimard's [presentation of *Le Planétarium*](https://www.cercle-enseignement.com/Ouvrages/Gallimard/Folio/Le-planetarium),
+which begins with a reassuring social tableau and then unsettles it. The
+assistant's application is to make selected details carry a viewpoint and a
+shift in meaning. These bounded sources do not establish that either novel
+universally excludes action, grammatical person or narrated thought, and the
+two references are not treated as an identical recipe.
+
+**Capture and review:** this is a focused revision of the existing complete
+audition and its notes. A same-model craft reader with shared project context
+recommended the near echo and concrete page detail. The actual-edit review
+and comparison are recorded in [Day 1 §7](day-1-photo-book-working-draft.md#7-review-against-and-challenge-to-the-bibles).
+The existing [PR #41](https://github.com/Siuuuers/dwm/pull/41) remains the
+authorized destination; Git preserves the previous version. No new manuscript,
+Bible rule, DTL label or runtime system is selected. Exact prose remains
+AUDITIONING, and audience/performance/full-week evaluation remains open.
+
 ## Current book and observer reference, 2026-10-19 at 14:03
+
+**Retained checkpoint:** the exact-echo recommendation below records the
+14:03 version. The 15:24 refinement above supersedes its local wording and
+exact-match evidence claim; the wider reference triage retains its scope.
 
 **Owner source and scope:** the owner proposes that the book can reveal facts
 about the women through Observer Pressure and offers an extensive, explicitly

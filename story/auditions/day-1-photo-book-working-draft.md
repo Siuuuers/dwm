@@ -1,7 +1,7 @@
 # Day 1: the photograph and the answer
 
-**Current audition:** 2026-10-19, 14:03 owner reference, Asia/Hong_Kong.  
-**Previous complete version:** [daafc6441c56b82cc27dd114d3f8fe8ac08933f5](https://github.com/Siuuuers/dwm/blob/daafc6441c56b82cc27dd114d3f8fe8ac08933f5/story/auditions/day-1-photo-book-working-draft.md).  
+**Current audition:** 2026-10-19, 15:24 owner refinement, Asia/Hong_Kong.  
+**Previous complete version:** [82d3d939eed9728b7e6d2375f694f1a33d140125](https://github.com/Siuuuers/dwm/blob/82d3d939eed9728b7e6d2375f694f1a33d140125/story/auditions/day-1-photo-book-working-draft.md).  
 **Status:** **AUDITIONING**. This is a complete narrative reading copy with local alternatives, not selected canon or executable DTL.
 
 **Current book revision:** the owner challenges the generic bad romance's
@@ -13,16 +13,17 @@ assistant proposals. [Section 6.6](#66-current-book-audition-the-funeral-rehears
 records the recommendation, alternatives and remaining limits. Earlier complete
 versions live in Git history; this file contains one current reading family.
 
-**Current observer experiment:** the owner's later reference suggests that the
-book can reveal private character facts through Observer Pressure. One new
-shared passage now auditions an exact echo of Lavinia's earlier message in
-the novel's fixed print, immediately after the enjoyed declaration. Priscilla
-questions Sylvia and withholds the reason. The occurrence is definite within
-this candidate; its cause remains unresolved. [Section 6.7](#67-book-coincidence-audition)
-separates the passage from the larger unselected meta-horror proposals captured
-in the [working checkpoint](priscilla-seven-day-working-plot.md#current-book-and-observer-reference-2026-10-19-at-1403).
-This is a proposed revision of the complete reading family, not an amendment
-to the approved first-Perfect recognition or observer powers.
+**Current observer and attention experiment:** the owner's 15:24 refinement
+asks for the particular things Priscilla notices instead of repeated looking
+actions, and considers a déjà-vu-like resemblance instead of identical words.
+The shared passage now auditions an altered book sentence with a familiar
+shape; the later glance becomes the visible reading progress around Sylvia's
+finger. The two texts are distinct, and the cause of the felt resemblance
+remains unresolved. [Section 6.7](#67-book-coincidence-audition) and the
+[current checkpoint](priscilla-seven-day-working-plot.md#current-attention-and-near-echo-refinement-2026-10-19-at-1524)
+record the tradeoff. The previous exact echo remains in Git history. Exact
+wording is still an assistant proposal; first-Perfect recognition and the
+approved observer powers retain their scope.
 
 **Later direction, 2026-10-19 at 03:54 and 05:03 Asia/Hong_Kong:** the owner retains the
 optional second photograph for its enjoyment, prefers less explicit grammatical
@@ -285,13 +286,13 @@ Sylvia begins the woman's answer without the voice. Halfway through, she remembe
 
 The aunt invites everyone back for another rehearsal.
 
-“‘Try not to look too pleased when you see me tomorrow,’” Sylvia reads.
+“‘Tomorrow, do try to look a little less pleased,’” Sylvia reads.
 
 “Let me see.”
 
 Sylvia turns the book toward me.
 
-Tomorrow. At the end of the line, here too.
+Tomorrow. At the beginning, this time.
 
 “Have you read this part before?”
 
@@ -305,8 +306,6 @@ I let go. She draws the book back.
 
 The phone lights again.
 
-I look.
-
 Sylvia closes the paperback around her finger.
 
 “What does she want?”
@@ -315,7 +314,7 @@ Sylvia closes the paperback around her finger.
 
 “And?”
 
-I glance at the book.
+Only a few pages between her finger and the front cover.
 
 “We haven't got very far.”
 
@@ -933,13 +932,13 @@ When she becomes quiet, I leave the phone where it is.
 |---|---|
 | Surface and anchor | Priscilla throughout: a café afternoon with Sylvia, messages on Priscilla's phone, then a private audio call. No remote view of Lavinia's room. |
 | Immediate company | Sylvia liked a particular sentence while browsing and bought the invented novel to follow the aunt's next objection. She enjoys performing it with Priscilla and has a preferred delivery. Priscilla anticipates Lavinia as well. Sylvia's greater desire for Lavinia does not make this chosen pleasure counterfeit or establish a book trap. |
-| Book's immediate work | An absurd rehearsal gives them distinct parts, a next development Sylvia wants to hear, and a misplaced bouquet whose explanation Priscilla shortens into “I wanted to see you.” A printed sentence then repeats Lavinia's earlier message; Priscilla interrupts and questions Sylvia without explaining why. Their practice with delivery prepares the later voice-reply opportunity. |
+| Book's immediate work | An absurd rehearsal gives them distinct parts, a next development Sylvia wants to hear, and a misplaced bouquet whose explanation Priscilla shortens into “I wanted to see you.” A printed sentence then resembles Lavinia's earlier message; Priscilla interrupts and questions Sylvia without explaining why. Their practice with delivery prepares the later voice-reply opportunity. |
 | Lavinia's visible conduct | Teasing message before her return, questions and a demand for Priscilla's own answer, then participation in the evening call. Jealousy/test/ordinary desire can coexist as readings. |
 | Main turn | Priscilla knowingly approves the date message. A game at the table becomes a statement received by an absent person, who asks for ownership of it. |
 | What can be declined | Another photograph; the table-time voice reply; the rehearsal request before permission; continued company. Sylvia's no-forward limit can be violated, and her exit remains available and actual in D. |
 | Local resolution | Each branch finishes the table encounter and establishes departure and custody. The private call is a new encounter with the matching intake. |
 | Evening turn | Priscilla asks for company after the practical packing conversation is finished. Lavinia offers it while also specifying how contact should continue. |
-| Day-scale carry | The shared message/print correspondence and Priscilla's unexplained question; exact sent messages/recordings; the deferral fulfilled in B; Sylvia's unwithdrawn objection and exit in D; first recognition only in E. These matter independently of the identical eventual P–L finale. |
+| Day-scale carry | The shared message/print resemblance and Priscilla's unexplained question; exact sent messages/recordings; the deferral fulfilled in B; Sylvia's unwithdrawn objection and exit in D; first recognition only in E. These matter independently of the identical eventual P–L finale. |
 
 The room and café are replaceable staging choices. No named worker, new institutional procedure, weather effect, physical injury, shared flat, key, or exclusive relationship agreement is introduced. English is the reading-copy language; this audition does not select a multilingual implementation or recorded voice assets.
 
@@ -951,7 +950,7 @@ All facts in this table are definite **within this candidate**, not promoted can
 |---|---|---|
 | Sylvia takes the photograph on her own phone and sends it to Priscilla. A second photograph exists only after Yes. | Priscilla sees the screen; both women know what was taken and sent. | Lavinia receives neither photograph in this audition. The expression does not prove one exclusive motive. |
 | Priscilla identifies Lavinia as the first message's sender. | Sylvia hears the answer. | Sylvia has no automatic knowledge of a custom notification tone, other messages, or private history. |
-| The aunt's printed sentence repeats Lavinia's first message exactly. Sylvia reads it; Priscilla examines the page and asks about Sylvia's prior reading. | Priscilla has seen both texts. Sylvia hears the question and sees the held page; she answers “No. Why?” | At this moment Sylvia is not shown reading the original message. Her answer is a spoken claim, not a writer-certified history. No cause, text mutation, mind-reading ability, collusion or observer identification is established. |
+| The aunt's printed sentence resembles Lavinia's first message but differs in wording and order. Sylvia reads it; Priscilla examines the page and asks about Sylvia's prior reading. | Priscilla has seen the message and page. The focal fragment associates their wording. Sylvia hears the question and sees the held page; she answers “No. Why?” | This is not a verbatim match or proof of an anomalous information transfer. At this moment Sylvia is not shown reading the original message. Her answer is a spoken claim. Cause, prior reading, collusion and observer identification remain unestablished. |
 | Sylvia drafts the date claim on Priscilla's phone; Priscilla reads and approves it before Sylvia sends. | Both present women see that action. Lavinia receives the claim and Priscilla's confirmation. | The claim does not establish an agreed romance, exclusivity, or a relationship-route selection. |
 | Priscilla reads “Then tell me yourself” aloud. | Sylvia lawfully knows the request from that point. | Lavinia did not require a particular medium; Priscilla considers audio. |
 | In D, Sylvia permits rehearsal recording and explicitly refuses forwarding. Priscilla records and deliberately sends it anyway. | Priscilla and Sylvia know the refusal and breach. Lavinia hears the recording and sees the reply “Mine.” | Lavinia is not shown knowing the refusal. Her later invitation is not certified collusion, approval of the breach, or forgiveness from Sylvia. |
@@ -992,7 +991,7 @@ The photo Yes/default option changes a small real event without changing who own
 - D carries an actual refused forwarding and an unresolved rupture at the table. A later friendly Sylvia scene must be written from that occurrence; the common P–L coda is no repair of it.
 - B's later-answer promise is completed within Day 1. The other branches do not inherit a deferral they never made.
 - E's recognition is newly established; other branches cannot deliberately address an identified observer merely because the audience has read E.
-- Every branch includes the book/message correspondence. Any later use must distinguish that shared occurrence from E's additional recognition. No compulsory investigation, repeated anomaly or disclosure to Lavinia is selected. Sylvia is later given the phone with the conversation open; her access at that later moment must not be confused with what she is shown knowing during the book echo.
+- Every branch includes the two differently worded sentences and Priscilla's felt resemblance. Any later use must distinguish that shared occurrence from E's additional recognition; the old exact-match fact no longer belongs to this candidate. No compulsory investigation, repeated anomaly or disclosure to Lavinia is selected. Sylvia is later given the phone with the conversation open; her access at that later moment must not be confused with what she is shown knowing during the book echo.
 - The common coda permits several interpretations of company, testing and dependence. It selects no Day 2 strike, obstruction, touch, departure, overnight stay or exact final P–L act.
 - The later relationship fork and the complete Day 1–7 plot remain open. A complete Day 1 audition does not satisfy the whole-week gate for production DTL.
 
@@ -1005,11 +1004,11 @@ assumed reading rate of 160–200 words per minute, that is roughly 7–10 minut
 text. This is a planning calculation, not measured player behavior. Caption
 timing, chosen pauses, performance and optional board time are additional and
 have not been measured. The larger comparison document contains mutually
-exclusive passages and should not be timed as one playthrough. The preceding
-revision's ten textual combinations were approximately 1,322–1,446 words.
-The new 69-word common passage gives approximately 1,391–1,515 words,
-depending on the photo response and the selected continuation. A comparison
-against that revision confirms that the remaining narrative text is unchanged.
+exclusive passages and should not be timed as one playthrough. The 14:03
+revision's ten textual combinations were approximately 1,391–1,515 words.
+The four local changes at 15:24 reduce each reading by one word, giving
+approximately 1,390–1,514 words. A comparison against the preceding revision
+confirms that narrative text outside those four shared-passage edits is unchanged.
 
 The current draft is a compact complete opening. If an eventual performed read
 needs more duration, preserve the chosen activity and consequential responses;
@@ -1097,18 +1096,24 @@ and portrait/sitter proposal remain separate, unselected dependencies.
 
 ### 6.7 Book coincidence audition
 
-**Source and status:** the owner's 2026-10-19 14:03 Asia/Hong_Kong message
-suggests the book revealing facts through Observer Pressure, then offers a
-large, explicitly amendable reference collection. The exact echo and scene
-placement are assistant proposals, **AUDITIONING**. The [working checkpoint](priscilla-seven-day-working-plot.md#current-book-and-observer-reference-2026-10-19-at-1403)
-owns the wider triage; this section owns the particular experiment.
+**Source and status:** the owner's 2026-10-19 14:03 Asia/Hong_Kong reference
+suggests the book revealing facts through Observer Pressure. At 15:24 the
+owner asks for attention to perceived details rather than repeated looking
+actions, and proposes a déjà-vu effect instead of identical wording. The
+assistant recommends the near echo for this opening. Its exact words and
+placement remain **AUDITIONING**. The [current checkpoint](priscilla-seven-day-working-plot.md#current-attention-and-near-echo-refinement-2026-10-19-at-1524)
+owns the comparison and literary-source note; the [earlier reference triage](priscilla-seven-day-working-plot.md#current-book-and-observer-reference-2026-10-19-at-1403)
+keeps the wider proposals at their stated scope.
 
 #### What changes on the page
 
 After the niece's reply and shared laughter, the aunt invites the mourners to
-another rehearsal and asks them not to look pleased. Sylvia reads the exact
-sentence Lavinia sent before the photograph. It belongs to the novel's own
-comic situation: a living organizer is correcting the appearance of grief.
+another rehearsal and asks them to look less pleased. Lavinia's message is
+“Try not to look too pleased when you see me tomorrow.” The book reads
+“Tomorrow, do try to look a little less pleased.” The shared tomorrow,
+pleasure and correction of an expression supply familiarity; changed wording
+and clause order withhold the earlier exact match. The sentence belongs to
+the novel's comic situation: a living organizer corrects the appearance of grief.
 The newly announced rehearsal is future book business; the current reading
 can continue through its existing eulogy passages without a time jump or a
 second funeral occurring on the game afternoon.
@@ -1119,19 +1124,32 @@ continuation until Priscilla releases it. Sylvia draws her own book back
 before the next phone message, restoring the existing staging. The intrusion
 therefore produces an action between the readers, not only an ominous aside.
 
-**Private focal note:** “Tomorrow. At the end of the line, here too” is
-Priscilla's recognition of wording, comparing the visible book with the
-message she already read. The held corner and first-person fingers belong to
+**Private focal note:** “Tomorrow. At the beginning, this time” belongs to
+Priscilla's association of the visible book with the message she already read.
+The word's position differs between the two sentences; no text has visibly
+moved or changed. The held corner and first-person fingers belong to
 Priscilla. This continuing attention stays in the story field. It is not a
-new self-talk address, an objective report of Sylvia's thought, or a new
-grammatical-person restriction. First observer recognition remains in E.
+new self-talk address or an objective report of Sylvia's thought. First
+observer recognition remains in E.
+
+**The later glance:** “Only a few pages between her finger and the front
+cover” selects what Priscilla notices after Sylvia closes the paperback
+around her own finger. The few turned pages give “We haven't got very far”
+an immediate visible basis. This does not certify why Priscilla chooses that
+indirect answer. The glance was underdescribed, not proven motiveless. The
+separate “I look” after the phone lights is omitted: her ensuing paraphrase
+already establishes that she reads the message. No decorative substitute is
+needed. Turning the book, holding/releasing the corner and handing over the
+phone remain actual consequential actions. This applies the existing style
+preference without a ban on perception verbs, actions, pronouns or names.
 
 #### Fixed occurrence, bounded knowledge, open cause
 
-- Within the candidate, Lavinia's message and the printed sentence really
-  match. The book contains that sentence; Sylvia is not merely shown
-  improvising it. No visible alteration of the print occurs.
-- Priscilla knows the correspondence and hears Sylvia's answer. She does not
+- Within the candidate, the message and printed sentence have the two
+  distinct phrasings quoted above. The book contains the aunt's words;
+  Sylvia is not merely shown improvising them. No visible alteration of the
+  print occurs. Their resemblance is not the preceding draft's exact-match fact.
+- Priscilla associates the wording and hears Sylvia's answer. She does not
   supply the original message as the explanation for her question here.
 - Sylvia says she has not read this part before. Whether that claim is true,
   whether Lavinia knows the novel, and whether either woman arranged the
@@ -1143,8 +1161,9 @@ grammatical-person restriction. First observer recognition remains in E.
   particular sentence was its work. The passage supplies no cross-save
   memory, psychic diagnosis, compulsory emotion or bodily override.
 
-The audience receives one concrete correspondence and a small unanswered
-exchange. No explanation of a secret scheme is appended. This follows the
+The audience receives two distinct sentences, a brief associative fragment
+and a small unanswered exchange. No explanation of a secret scheme is
+appended. This follows the
 owner's preference for selected moments of evidence rather than a mandatory
 clue for every private motive. The source of this coincidence has no secret
 writer answer yet; recording it does not pretend otherwise.
@@ -1152,20 +1171,24 @@ writer answer yet; recording it does not pretend otherwise.
 #### Pleasure, cost and removal test
 
 The placement lets **“I wanted to see you”** and Sylvia's failed voice remain
-enjoyable before the exact sentence changes Priscilla's attention. The novel
+enjoyable before the familiar wording changes Priscilla's attention. The novel
 still has its purchase motive, aunt, stolen flowers, eulogy jokes and coda
 performance. Removing the echo leaves a functioning human encounter; removing
 the book's specific comic life would leave only a device for delivering clues.
 
-One exact correspondence is enough for this Day 1 experiment. Repeating it in
+One near echo is enough for this Day 1 experiment. Repeating it in
 each continuation or explaining it again during the call would spend the same
 surprise twice. This revision changes the common reading, not the five result
 meanings or their actions. The coda continues to share a different aunt line;
 it does not covertly become an authored interrogation of Lavinia.
 
-The chief artistic risk is visible author arrangement: the exact sentence may
-feel planted or announce meta-horror too quickly. Judge the whole passage's
-rhythm and the book's comic plausibility, not an asserted probability for the
+The revision trades a clear textual coincidence for felt familiarity. Its
+risk is that an audience may take the two lines as ordinary similar teasing
+and miss the unease. The small word-position fragment helps invite comparison;
+it still guides attention and does not eliminate visible author arrangement.
+The earlier verbatim version remains available at the preceding Git revision
+when stronger textual evidence is wanted. Judge the whole passage's rhythm
+and the book's comic plausibility, not an asserted probability for the
 coincidence. A stronger later example using an unwritten thought would need
 its own information-access decision. There is no new prop, UI behavior, DTL
 label or implementation in this prose experiment.
@@ -1218,11 +1241,24 @@ In D the audience sees the refusal and send. That visibility is necessary to exp
 | Restore every “threatened/asked” joke from the fragments | Omit the extra rung here. | The message and forwarding already carry the control question; too many polished thesis-like replies flatten the rhythm. |
 | Explain jealousy in Priscilla's thoughts | Omit. | The nearly edited word, missed cue and requested call carry her attention without certifying motive. |
 | Remove the evening call | Keep. | It gives Priscilla a new active request after indirect provocation and lets Lavinia contribute desired company. |
-| Add a separate supernatural incident to each branch | Omit the multiplication; reopen the shared setup. | The later owner reference motivates one common, specifically matched sentence whose cause stays open. Only E adds first observer recognition; none of A–D inherits it. |
+| Add a separate supernatural incident to each branch | Omit the multiplication; retain the shared setup experiment. | The later owner refinement prefers one common near echo whose cause stays open. Only E adds first observer recognition; none of A–D inherits it. |
 
 **Remaining taste questions:** whether the shared coda supplies the desired amount of Day 1 unease, and whether E's brief first recognition feels convincing in performance. The current D keeps both “I heard you” and the delivery rationale after cutting one redundant defense; that degree of explicitness remains a choice to judge in this audition. These are creative questions, not new invariants.
 
-**Current coincidence revision, 2026-10-19 at 14:03, bounded review:** two
+**Current attention/near-echo revision, 2026-10-19 at 15:24, bounded review:**
+one same-model craft reader with shared project context reviewed the proposal
+and then the actual shared passage, current notes, checkpoint and entry points.
+No material causal, knowledge, prose or status defect was found. The root's
+comparison with the retrieved preceding head
+`82d3d939eed9728b7e6d2375f694f1a33d140125` identifies exactly four narrative
+changes, all in Section 2: the book sentence, the word-position fragment,
+removal of “I look,” and the page detail replacing “I glance at the book.”
+All remaining narrative text is identical to that revision. The current notes
+retire its exact-match fact rather than silently retaining stronger evidence.
+The net word change is minus one per reading. This is a bounded editorial
+pass and comparison, not a performance or audience test.
+
+**Earlier exact-coincidence revision, 2026-10-19 at 14:03, bounded review:** two
 same-model readers with shared project context reviewed the proposal and then
 the actual edit. The craft reader inspected the introduction, shared insert
 and adjoining exchanges, Section 6.7, E and the coda. The source/scope reader

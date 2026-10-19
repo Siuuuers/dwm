@@ -1,21 +1,21 @@
 # Story workspace
 
-## Current book and observer experiment, 2026-10-19 at 14:03
+## Current book and attention experiment, 2026-10-19 at 15:24
 
-The owner's new reference suggests private facts surfacing through an ordinary
-book. Read the [current triage](auditions/priscilla-seven-day-working-plot.md#current-book-and-observer-reference-2026-10-19-at-1403)
+The owner's latest refinement favors the details Priscilla notices and asks
+whether an almost familiar sentence would work better than exact repetition.
+Read the [current comparison](auditions/priscilla-seven-day-working-plot.md#current-attention-and-near-echo-refinement-2026-10-19-at-1524)
 and the [complete Day 1 audition](auditions/day-1-photo-book-working-draft.md).
-One shared passage now repeats Lavinia's earlier message in the novel's fixed
-print; Priscilla questions Sylvia without explaining why. Exact wording and
-placement remain **AUDITIONING**, and the cause remains unresolved. First
-Perfect still supplies first Observer identification. The wider reference's
-new powers, interfaces, romances and endings remain separately evaluated
-possibilities, not a blanket amendment of the character or system owners.
+The aunt's printed words now resemble Lavinia's message with changed wording
+and order; a later glance becomes the visible reading progress around Sylvia's
+finger. Exact prose remains **AUDITIONING**. First Perfect still supplies first
+Observer identification. The [wider reference triage](auditions/priscilla-seven-day-working-plot.md#current-book-and-observer-reference-2026-10-19-at-1403)
+retains its scope; no new powers or character directions are selected.
 
 **Capture destination:** the existing [PR #41](https://github.com/Siuuuers/dwm/pull/41)
 branch under the owner's standing Markdown/push authorization. The preceding
-complete reading remains at `daafc6441c56b82cc27dd114d3f8fe8ac08933f5`; versions
-stay in Git. The checkpoint records a bounded same-model craft/source review,
+complete reading remains at `82d3d939eed9728b7e6d2375f694f1a33d140125`; versions
+stay in Git. The checkpoint records a bounded same-model craft review,
 not audience, runtime, performed audio, full-week or historical-audit testing.
 Next judge the complete reading and its Day 2 carry; the full-week DTL gate
 and exact narrative selections remain open. PR metadata establishes the actual
