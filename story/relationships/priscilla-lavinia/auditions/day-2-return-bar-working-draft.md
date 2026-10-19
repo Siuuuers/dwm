@@ -1,12 +1,12 @@
 # Day 2: dinner, the personal answer, and competing Dark continuations
 
-**Current audition:** 2026-10-19 at 21:16 Asia/Hong_Kong, wanted company after the strike and a comparison of Sylvia's traces.  
-**Source baseline:** [f64e657a79b9c2783e0b5940efae87a498b90cba](https://github.com/Siuuuers/dwm/blob/f64e657a79b9c2783e0b5940efae87a498b90cba/story/relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md).  
-**Status:** **AUDITIONING**. The [current staying treatment](#current-staying-audition-wanted-company-after-the-strike) changes the Dark continuation after **Day 1 D**: Priscilla takes pleasure in Lavinia's attention, Lavinia returns to the table, and the observation ends during resumed company. The [leading departure benchmark](#current-reading-day-1-d-into-the-leading-day-2-dark-encounter) and [five-result variation family](#current-variation-audition-self-talk-and-one-challenge), including the cruel direct exit, remain available as distinct auditions. Exact scenes, result mapping and placement are not selected by publication.
+**Current audition:** 2026-10-20, present dinner and a shorter staying tail after the owner's 00:07 Asia/Hong_Kong question, repeated at 00:12.  
+**Source baseline:** [016c3ceb833d6c0f35d634d68c77899223bff49d](https://github.com/Siuuuers/dwm/blob/016c3ceb833d6c0f35d634d68c77899223bff49d/story/relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md).  
+**Status:** **AUDITIONING**. The [current staying treatment](#current-staying-audition-wanted-company-after-the-strike) remains the preferred Dark comparison after **Day 1 D**. The [departure benchmark](#current-reading-day-1-d-into-the-leading-day-2-dark-encounter) and [five-result family](#current-variation-audition-self-talk-and-one-challenge), including the cruel direct exit, remain distinct alternatives. Exact scenes, mapping and placement are not selected by publication.
 
-The owner now asks whether they could enjoy remaining together after the slap, whether Priscilla could take it as evidence that Lavinia cares, whether Lavinia might become absorbed in her reaction, where to stop observation, and how this compares with an earlier Sylvia-trace/destruction idea. The [current checkpoint](../../../auditions/priscilla-seven-day-working-plot.md#current-day-2-staying-and-trace-comparison-2026-10-19-at-2116) preserves the question, recommendation and source limit. The recommendation is one alternative Dark treatment, not another board result or a new Observer power.
+The owner questions the recording's repeated work, the repeated ownership of answers, and the book's continuing presence across Days 1–3. The [current checkpoint](../../../auditions/priscilla-seven-day-working-plot.md#current-days-13-recurrence-revision-2026-10-20) records the three-day comparison. This revision removes the aunt performance and Sylvia-voice comparison from the common dinner, the aunt diversion from B, and the answer-ownership line from E. The main personal question still concerns Priscilla's own wish before England; that is different work from asking whose recording was sent.
 
-The shared dinner uses remembered performance: Sylvia keeps *The Funeral Rehearsal*, and Lavinia heard Priscilla's aunt voice in the Day 1 call. Lavinia also heard the restricted rehearsal forwarded in Day 1 D without learning its restriction. No friendly book handover erases Sylvia's objection. The physical-book custody fragment is retained later in this file; the exact earlier trace-destruction passage has not been recovered in this bounded comparison.
+The shared dinner now uses a deliberately foolish relaxation, food and Priscilla's attempt to arrange more company before this evening is over. Lavinia's single question about other company is a jealous question, not an established affair or an investigation. The staying tail uses the loved cheek-clearing sentence and ends with cold chicken and the pulling cheek, without the rehearsal echo or a second hair pass. Sylvia retains her book; the recording breach remains true in this intake without supplying this evening's activity or dialogue.
 
 Read [the foundation](../../../09-priscilla-foundation-amendment.md), [current behavior](../../../../docs/design/2026-10-09-priscilla-flow-behavior-amendment.md), [pair guide](../AGENTS.md), and [pair home](../README.md). The private bar encounter is later than the protected offscreen arrival history. It is not their first contact after England and supplies no reconstruction of that history. Residence/admission and the complete historical bar/residue audit remain open.
 
@@ -17,6 +17,8 @@ Read [the foundation](../../../09-priscilla-foundation-amendment.md), [current b
 **Source, 2026-10-19 at 21:16 Asia/Hong_Kong:** the owner's present question proposes pleasure, attention and a possible stay after the slap; asks what Lavinia would do next, where observation should end, what else would enrich Day 2, and how the current scene compares with the earlier trace-destruction idea. This is an invitation to develop and compare a possibility, not approval of a new event or its full motive.
 
 **Assistant recommendation:** audition actual resumed company. Priscilla may enjoy being consequential to Lavinia and take the anger as evidence of continuing care. Give that inference her own private wording. Let Lavinia notice the reaction, continue toward the exit, and then choose to return. The immediate human consequence can be wanted without resolving the preceding conduct or establishing what every future encounter will do.
+
+**Current revision, 2026-10-20:** the cheek-clearing line is now applied as an assistant-authored audition. The owner's appreciation preserves its appeal, not a visible lasting mark or a privately settled display motive. The former question “Still having a good time?” and its reply are cut.
 
 **Exact assembly:** use the [existing dinner and Dark answer](#current-reading-day-1-d-into-the-leading-day-2-dark-encounter) through **“Her palm strikes my cheek.”** Then read the passage below, replacing everything that follows that line in the benchmark, including its departure and desk coda. The shared optional food thought and the main Challenge at the personal answer keep the [20:16 family's placement](#current-variation-audition-self-talk-and-one-challenge). This is a competing **D treatment after Day 1 D**. Read one Dark treatment, not all three consecutively. The new private thought has no button and awards no recognition.
 
@@ -80,13 +82,9 @@ The coat goes over her chair again. She sits.
 
 “Come here.”
 
-I draw my chair round the corner. Her fingers brush the hair away from my forehead.
+I draw my chair round the corner.
 
-“Still having a good time?”
-
-“You're still here.”
-
-Her fingers move through my hair once more.
+Her fingers gather the hair away from my cheek. For a moment, they hold it there.
 
 I push the chicken towards her.
 
@@ -125,42 +123,25 @@ The cold-food exchange supplies ordinary irritation and shared amusement. “You
 
 This is an ordinary authored ellipsis. In the current Day 1 D → Day 2 D history, Priscilla has no Observer recognition and neither woman expels the audience, manipulates the display or knows where a scripted observation ends. A later scene must author any consequential unseen event it uses; the cut does not make imagined possibilities into secret facts. How long they remain and what they next ask of each other can stay unselected.
 
-### Sylvia's trace: recovered passage and the new echo
+### Why the trace comparison no longer governs the scene
 
-The [retained jealous-book fragment](#4-the-book-across-days) asks “When does she want it back?” and ends with Lavinia turning the book over and saying “Then there's no hurry.” Its pressure comes from custody and a possible future return connecting Priscilla to Sylvia. The surrounding source treats the same-copy loan as unresolved. The fragment contains no destruction act.
+The previous revision used Sylvia's recorded voice to make Lavinia compare the order of attention, then repeated the rehearsal's “good time” language after the strike. Those lines each had a local function. Across Days 1–3, they prolonged the same dispute and made this meal a bridge to another Sylvia conversation. The current revision cuts them instead of replacing the voice with another rival's object.
 
-**Source limit:** the exact earlier scene the owner remembers as destroying Sylvia's traces was not recovered. A helper inspected the retained October fragment, relevant September portrait/four-form owners at the source baseline, and a targeted search of the exact retained raw *Our_PL* upload at `62fd8bf3966e4df7e03bf52952c6905284845284`. That bounded search is not proof that the scene never existed and is not the outstanding complete chronological bar/residue audit. The destruction idea remains the owner's available reference; no tearing, deletion or damage is presented as recovered history.
+The new slouch gives the pair a shared absurd action now. Priscilla can briefly be foolish and physically ungraceful; Lavinia laughs and asks her to come back. The later invitation pursues more of Lavinia's time. One jealous question is allowed to remain brief. The argument about England still has its own established cause and does not need the recording to trigger it.
 
-The current dinner makes Sylvia present through voice and the order of attention: “You could have used your own voice” / “I did. Later” / “After her.” This works after Day 1 D without inventing a book transfer. It also lets Lavinia enjoy Priscilla's performance while resenting the comparison.
+The staying cut now moves from “Come here” through the held hair to resumed food. Lavinia has already noticed Priscilla's smile twice, at different moments in her attempted departure. Another question after sitting adds less than letting them eat. Clearing the cheek makes the struck area available to Lavinia's gaze without supplying an enduring mark or certifying why she holds the hair there.
 
-The staying treatment adds **one new, deliberately altered verbal echo**:
-
-> “Still having a good time?”
-
-Its available source is [Day 1 D's sent rehearsal](../../../auditions/day-1-photo-book-working-draft.md#d-lost-the-rehearsal-is-sent): Sylvia said “I'm having a very good time. I don't think I want to leave yet”; Priscilla forwarded it and answered “Mine” when Lavinia asked whose answer it was. Lavinia legitimately heard that carrier. She does not thereby know Sylvia's no-forward instruction or subsequent anger.
-
-Now Priscilla answers in her own voice, “You're still here.” The echo lets a prior borrowed answer enter a different encounter. Its question also works as immediate teasing if the audience does not notice the recurrence. It supplies no new playback, object access, supernatural coincidence or proof that Sylvia designed this evening.
-
-**Editorial preference:** retain this single echo in the present after-D audition. It recovers the older idea's third-person pressure while keeping the present interaction between Priscilla and Lavinia. If the full reading makes it sound too arranged, the shorter “Still pleased?” can replace it without changing the return or shared food; that line is a fallback, not a second performed exchange. Other Day 1 intakes need their own actual knowledge and earlier-dialogue adaptations.
-
-### Comparison and pressure
-
-| Treatment | Distinctive effect worth keeping | Cost or dependency |
+| Dark treatment | Particular pleasure or pressure | Actual difference |
 |---|---|---|
-| Earlier book-custody fragment | Sylvia has a tangible presence with a possible return obligation. Lavinia may join an activity despite disliking its association. | It needs an actual loan and a coherent same-book history. It supplies no recovered destruction act. |
-| Current tenderness, then departure | Priscilla hopes the gentle hand means more company; Lavinia's real departure leaves that hope unanswered. | The specific desired company is not resumed. Its “Home” coda needs its shown request and assent. |
-| Cruel direct exit | Lavinia combines continued touch, laughter, a deservedness claim and refusal, then leaves. | It ends the encounter's available pleasure sharply and removes the old message agreement. |
-| New staying treatment | The frightening interaction is followed by actual wanted company. Lavinia's response to Priscilla's reaction changes what she does; old words can acquire a different use. | It loses the departure's finality and leaves the later evening to be authored if needed. The preceding conduct remains part of what produced this present. |
+| Tenderness followed by departure | The gentle touch permits hope that the evening will continue. | Lavinia leaves and sends the specifically agreed arrival message. |
+| Cruel direct exit | Continued touch and laughter accompany a deservedness claim and refusal. | Lavinia leaves; the removed message agreement means the old coda does not follow. |
+| Chosen stay, current preference | Lavinia returns after the route is clear; contact, cold food and laughter become available again. | They are still together when observation stops. No later departure or message is supplied. |
 
-For the owner's current aim—an apparently ordinary romantic pleasure that becomes frightening on reflection—the assistant favours the staying treatment for the next whole-sequence comparison. Greater harm is not needed to establish the new danger. This one encounter can give each woman a result she wants and may overinterpret.
-
-The trace-destruction reference offers a different action: removing another person's material presence. Any actual deletion, damage or replacement would need its object, owner, access and consequence selected. In particular, erasing Priscilla's local recording could not silently erase Lavinia's already received copy or her memory. This pass instead develops a use of the words already heard. It does not add a destructive act to make the comparison seem concrete.
-
-The new useful beats are the noticed smile, the attempted departure that still proceeds after it, interrupted dressing, a return after the route is clear, and resumed food. A further threat, second strike, new recording or added farewell is not recommended for this particular ending; each would redirect attention away from the chosen return. The earlier menu, absurd aunt performance, shared-food opportunity and personal-answer Challenge retain their functions.
+**Historical source limit:** the [retained book-custody fragment](#4-the-book-across-days) supplies a possible return obligation, not a recovered destruction act. The exact earlier trace-destruction scene recalled by the owner was not found in the preceding bounded search. That does not prove it never existed or close the complete chronological bar/residue audit. The fuller comparison and removed echo remain in the [source revision](https://github.com/Siuuuers/dwm/blob/016c3ceb833d6c0f35d634d68c77899223bff49d/story/relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md#sylvias-trace-recovered-passage-and-the-new-echo).
 
 ### Review and capture
 
-**Bounded review:** two same-model helpers with shared project context read the actual common dinner/Dark answer through the strike, the new audience passage and its relevant author notes. One also recovered the older trace sources; both checked the Day 1 D rehearsal against the changed echo. They found no high-confidence in-scope defect requiring another narrative revision and supported the cut after resumed food and the smile. These are editorial judgments, not measured audience responses. “I didn't know you were so angry” may read as surprise or provoking understatement; a later performed reading can judge delivery if it sounds unintentionally obtuse. The root retained the altered echo and explicit seating, read the saved assembly and inspected the four-file update. The existing departure benchmark, A/B/C/E continuations and retained October packet are preserved for comparison. Other-intake/day/week review, a complete historical audit, performed reading, audience testing and runtime/DTL verification: **NOT RUN** by this pass.
+The [current bounded review](#current-bounded-review) covers the revised assembly. Earlier reviews approved no canon and did not test the current three-day recurrence. Their useful comparisons remain available at the source revision; this file keeps one current shared dinner and its mutually exclusive continuations.
 
 ## Current reading: Day 1 D into the leading Day 2 Dark encounter
 
@@ -180,13 +161,7 @@ She sits at the corner of the table, close enough that one menu will do.
 
 “Do you want dinner?”
 
-“Do you want me to leave?”
-
-“No.”
-
-She pushes the menu toward me.
-
-“Then stop trying to finish the evening before I've ordered.”
+“I was hoping to.”
 
 “The mushroom tart.”
 
@@ -206,43 +181,27 @@ The page comes back. Her finger finds the tart again.
 
 “I noticed.”
 
-After we have ordered, she folds the menu and sets it between the glasses.
+After we order, she rests her elbows on the table.
 
-“Go on, then.”
+“You can relax.”
 
-“What?”
+The shoulders settle against the chair. A little farther down; the edge of the table rises towards the chin.
 
-“The funeral.”
+“Not that much.”
 
-“I haven't got the book.”
+“You're difficult to please.”
 
-“You managed last night.”
+“You haven't tried very hard.”
 
-The chair back no longer touches my shoulders. A small, disapproving breath through the nose.
+Another inch. The chair creaks.
 
-“Again. You sound relieved.”
+Lavinia laughs and catches my wrist.
 
-Lavinia closes her eyes and settles back in the chair.
+“Come back.”
 
-“You may go now,” she says.
+I sit up. Her fingers remain around the wrist until the food arrives.
 
-“Does she let them?”
-
-“I would. I'd wait until they'd all changed out of black, then recover.”
-
-“That isn't in it.”
-
-“It should be.”
-
-One word in the aunt's voice; the rest is laughter.
-
-Lavinia opens one eye.
-
-“Again.”
-
-The food arrives while we are laughing. She clears a place for the plates.
-
-For a while, we eat. Lavinia pushes hers toward me.
+For a while, we eat. She pushes her plate towards me.
 
 “Try that.”
 
@@ -256,23 +215,21 @@ I take another piece before she draws the plate back.
 
 She leaves it between us.
 
-“Sylvia sounded happy yesterday.”
+“I could take you out tomorrow.”
 
-“She was when I recorded it.”
+“You could let me finish this.”
 
-“You could have used your own voice.”
+“The day after, then.”
 
-“I did. Later.”
+Lavinia puts her fork down.
 
-“After her.”
+“Who had all this while I was away?”
 
-“Would you rather I hadn't called?”
+“You aren't away now.”
 
-“Don't make me sorry I asked.”
+Her hand opens between the plates. I put mine into it.
 
-Between the plates, Lavinia opens her hand. I put mine into it.
-
-Her thumb passes over one knuckle, then rests.
+The thumb passes over one knuckle, then rests.
 
 “Did you want me to stay?”
 
@@ -444,31 +401,27 @@ I turn off the lamp and leave the phone face up.
 
 ## Current scene card and carried facts
 
-| Field | This candidate |
+| Field | Current assembly |
 |---|---|
-| Scope and intake | A complete leading Dark encounter after Day 1 D, followed by a separate desk coda. Other Day 1 intakes and Day 2 outcomes are not silently included. |
-| Surface and viewpoint | Priscilla throughout; a mutually chosen later bar room, then her own desk. No remote Lavinia scene, reconstructed arrival or Sylvia viewpoint. |
-| Immediate wants and pleasure | Priscilla wants a personally chosen place in Lavinia's life and this evening to continue. Lavinia chooses food and time, contributes her own absurd performance, shares her plate and initiates contact. Her later departure is actual. |
-| Book access | Sylvia retains her paperback. Priscilla remembers the aunt; Lavinia heard that voice in the common Day 1 call. Lavinia's comic recovery is her invented addition, not a claim to have read a later chapter. |
-| Day 1 D intake | Lavinia heard Sylvia's sent reply rehearsal and Priscilla's later live voice; only the later call gives her Priscilla's aunt performance. She did not hear Sylvia perform the book's aunt. Priscilla's “She was when I recorded it” can conceal the later rupture without changing it. Lavinia has not learned the no-forward restriction, and Sylvia has not forgiven or withdrawn it. |
-| Current attention and jealousy | The menu finger and choices belong to Lavinia; Priscilla orders the chicken. The lifted posture, felt chair contact and performed breath belong to Priscilla, as do the laughter and all selected perceptions. “After her” is Lavinia's comparison with Sylvia; the following counter-question and refusal intensify the exchange without certifying her whole motive or an exclusivity agreement. The brief bodily prose stays in the continuous story field, without a duplicate self-talk explanation. |
-| Existing conflict | Both know the unauthorized substantive disclosure intervention before England. Its two real motives remain; “That too” admits coexistence, not proportions or a single true cause. No document appears or is amended anew here. |
-| Priscilla's accommodation | She offers to show a future version and not submit it against Lavinia's stated wish. Her language still anticipates finding another intervention. This is a candidate response under pressure, not a promise of infallible obedience or a change to her moral judgment. |
-| Human harm and movement | Lavinia strikes while within reach beside the small table. Priscilla is seated and then stands in the route to the door; Lavinia stops and demands passage. Priscilla moves away before the later touch and departure. No supernatural force acts on either body. |
-| Touch distinction | Priscilla first accepts the offered hand during dinner. After the strike, she draws back from another approach; Lavinia stops, and Priscilla tips her head toward the waiting hand. Welcoming that hair touch neither authorizes the strike nor erases the blocked exit. |
-| Reversal | Priscilla requests renewed company during the gentle touch and turns toward their table afterward. Lavinia still leaves. Her tenderness's whole motive stays unresolved; the prose does not certify it as a reward, forgiveness, feigned affection or a secret wish to be chased. |
-| Venue and assets | A table with adjacent chairs, menus, two place settings, a door and existing bar ambience. Staff deliver food without a new speaking character. The door is closed but not locked. Privacy is not certified soundproofing, and there is no booking interruption or manufactured rescue. Exact visual assets and performance remain unreviewed. |
-| Coda and Day 3 carry | Lavinia assents to an arrival message and later sends “Home”; Priscilla sends “Good night, Lavinia.” The strike, temporary obstruction, later touch and departure remain true if this candidate is used. No continuing cheek symptom or diagnosis is selected; any later physical consequence needs an actual decision. |
+| Scope | The shared dinner and D answer enter after Day 1 D. Choose the benchmark's departure/coda, the cruel direct exit, or the preferred stay at its specified seam. Other incoming histories are not silently included. |
+| Perception and surface | Priscilla throughout; a later bar room with adjacent chairs and a closed, unlocked door. The benchmark later moves to her desk. No remote Lavinia or Sylvia viewpoint. |
+| Immediate pleasure | The menu and choices belong to Lavinia. Priscilla's exaggerated slouch briefly disrupts her poise; the shoulders, rising table edge and wrist are perceived through her body. Lavinia laughs, holds the wrist, shares food and later offers her hand. No duplicate self-talk explanation is added. |
+| Present desire | Priscilla proposes another outing before dinner is finished. Lavinia's question about who received this attention while she was away does not establish an actual rival, affair, exclusivity agreement or complete private motive. |
+| Day 1 facts | In this intake Sylvia's rehearsal was forwarded despite refusal; she objected and left. Lavinia heard it but has not learned the restriction. Sylvia keeps the book. These facts persist without the earlier comparison, aunt performance or “Mine” reply. |
+| England conflict | Both know the unauthorized substantive intervention. “That too” admits that Priscilla wanted Lavinia nearby as well as being concerned about injury; it does not rank the two real motives. No document appears or is amended again here. |
+| Priscilla's accommodation | She offers to show a future version and not send it against Lavinia's stated wish, while still anticipating intervention. This is costly preference-based accommodation, not a changed moral judgment or infallible obedience. |
+| Harm and movement in D | Lavinia strikes while within reach. Priscilla then obstructs an actual exit and subsequently moves away. In the staying treatment the door opens and Priscilla returns to her chair before Lavinia chooses to return. No board controls either body. |
+| Contact and aftermath | The benchmark has a stopped approach, specifically welcomed forehead touch, departure and agreed message. The preferred stay instead has returned company, invited proximity, briefly held hair away from the cheek, food and laughter. Neither later contact authorizes the earlier strike or erases the obstruction. |
+| Carry | Use only the selected treatment's actual answer, harm, release, contact, departure/stay and messages. The stay supplies no later message or overnight duration. No continuing Day 3 cheek symptom or diagnosis is selected. |
+| Assets | Table, adjacent chairs, menu, place settings, door and bar ambience. Food arrives without a named speaking worker. Exact visual and performance treatment remains open; privacy is not certified soundproofing. |
 
-The locally awkward turn “I thought you were only staying for a drink” belongs to Priscilla under reunion pressure. It is not a new habit of always wanting shorter visits. Lavinia's wish for food and company is real within this reading and can change without having been fraudulent.
-
-The strike follows a specific exchange but is not its unavoidable or deserved consequence. This version does not privately decide whether Lavinia planned a test or acted impulsively and later rationalized it. Priscilla's later obstruction does not retroactively supply a justification. The dramatic point is what each woman actually does and obtains: wanted attention, a refusal, a short restriction of departure, welcomed tenderness and an evening that still ends.
+The opening's tentative question belongs to Priscilla under reunion pressure; her bodily joke is a deliberate local excess, not a new clumsiness trait. Lavinia's enjoyment and wish for food can be real without making her later choices inevitable. The strike is an authored act, not a necessary or deserved consequence of the argument. Its mixture of impulse and planning remains unresolved.
 
 ## Current variation audition: self-talk and one Challenge
 
 **Source and status, 2026-10-19 at 20:16 Asia/Hong_Kong:** the owner asks how self-talk and Challenge might vary this Day 2 encounter, how many variations would create rich flavours, whether Lavinia could combine seduction and anger with a claim that Priscilla deserves the treatment, laugh cruelly and leave directly, and whether additional beats would help. The assistant recommends the bounded design below. The count, exact prompts, new continuations, physical acts, coda differences and placement are **AUDITIONING**, not selected by the question or by publication.
 
-**Inspected predecessor:** [b87066e12027e1915e0841be2466eb51bece3d0e](https://github.com/Siuuuers/dwm/blob/b87066e12027e1915e0841be2466eb51bece3d0e/story/relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md). The complete Dark benchmark above remains unchanged. This is the first assembled outcome audition **after Day 1 D**, with new ordinary, unfinished and softer continuations and a first-Perfect insertion. It is not a complete treatment of every incoming Day 1 history or the entire Day 2.
+**Inspected predecessor:** [b87066e12027e1915e0841be2466eb51bece3d0e](https://github.com/Siuuuers/dwm/blob/b87066e12027e1915e0841be2466eb51bece3d0e/story/relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md). The original family was assembled **after Day 1 D**. The current 2026-10-20 revision changes its shared dinner, cuts B's aunt diversion and E's second self-talk line, and shortens the competing stay. A/C and the two departure endings retain their audience prose. It is not a complete treatment of every incoming Day 1 history or the entire Day 2.
 
 ### Recommended amount and reading order
 
@@ -478,7 +431,7 @@ There are two proposed self-talk locations attached to opportunities: the small 
 
 **Assembly guide:**
 
-1. Read the existing “A longer evening” through Lavinia's “Before England.” At the shared plate, use exactly one version of the optional thought below; it replaces the short food-sharing passage and rejoins at the Sylvia comparison.
+1. Read the existing “A longer evening” through Lavinia's “Before England.” At the shared plate, use exactly one version of the optional thought below; it replaces the short food-sharing passage and rejoins at “I could take you out tomorrow.”
 2. At “Before England,” open the proposed Challenge with the private impulse below. Read the existing opening perception from “An answer” once as the shared pause. Resolve the opportunity before any answer branch begins.
 3. Read exactly one A–E continuation below. A, B and C have their own complete departure and coda; do not append the benchmark's later argument or desk scene to them.
 4. D uses the benchmark from “I was worried about you” through its earned coda. For the competing cruel treatment, substitute the specified exit and omit the benchmark's message coda. The later [staying treatment](#current-staying-audition-wanted-company-after-the-strike) has its own earlier substitution point after the strike and ends during resumed company.
@@ -488,7 +441,7 @@ These are Markdown reading instructions, not executable DTL labels or a new five
 
 ### Optional thought: a bite
 
-**Placement:** at the shared plate, after “Try that,” before the Sylvia comparison. Read one version only; both return to the plate between them.
+**Placement:** at the shared plate, after “Try that,” before the proposed next outing. Read one version only; both return to the plate between them.
 
 **Optional thought:** I could ask her to feed me.
 
@@ -526,7 +479,7 @@ I take another piece before she draws the plate back.
 
 She leaves it between us.
 
-**Rejoin:** “Sylvia sounded happy yesterday.”
+**Rejoin:** “I could take you out tomorrow.”
 
 **Writer orientation:** Priscilla asks for a particular ordinary intimacy; Lavinia chooses to offer the bite. The thought does not supply her desire or turn her response into an automatic obedience rule. Only Yes includes feeding. Passing retains the existing shared-food pleasure. No later passage below requires the feeding, repeats it as proof, or turns this small event into a condition for avoiding harm.
 
@@ -547,10 +500,10 @@ The relevant action is **tell Lavinia personally that Priscilla wanted her to st
 | State at resolution | Proposed continuation | Concrete difference |
 |---|---|---|
 | Never started | A — an admission kept within ordinary control of the exchange | Priscilla gives the answer with a qualification, presses once for future language access, then accepts its refusal. Lavinia stays to finish her food but declines an arrival-report arrangement. |
-| Started, unfinished | B — the personal answer is withheld | Priscilla declines to answer, withdraws her hand and offers the familiar performance instead; Lavinia refuses it. No later confession or sent draft repairs the missing answer in this scene. |
+| Started, unfinished | B — the personal answer is withheld | Priscilla declines to answer and withdraws her hand; she asks Lavinia to finish eating with her, but supplies no personal answer. No later confession or sent draft repairs the missing answer in this scene. |
 | Lost | D — the admission becomes part of a coercive pursuit | The existing intervention defense and actual obstruction make Lavinia's freedom to leave expendable. Lavinia's strike and later actions remain her authored conduct; a lost board is not a command for her to hit. |
 | Won, not Perfect | C — a request for chosen company | Priscilla states the desire, accepts the refusal of future document access without pressing for it and asks for more dinner time. Lavinia chooses a bounded extension, then leaves without obstruction. The earlier intervention and Priscilla's moral judgment remain. |
-| Perfect | E — C's human continuation plus recognition | After the current Day 1 D intake, this is first Observer identification. Lavinia receives the same personal answer and keeps her own knowledge; she cannot hear the private address. |
+| Perfect | E — C's human continuation plus recognition | After the current Day 1 D intake, this is first Observer identification. Lavinia receives the same personal answer and keeps her own knowledge; she cannot hear the private thought. |
 
 The letters are local author navigation, following the Day 1 A/B/C/D/E convention. Day 1 D and Day 2 D are different opportunities. Results are not grades of how much Lavinia loves Priscilla, nor a ladder on which increasing board success guarantees more touch or more time. A no-board reading remains a full encounter. The one identical eventual P–L ending does not make these actual events interchangeable.
 
@@ -644,12 +597,6 @@ I turn my hand over and set it beside the plate.
 
 Lavinia folds her fingers into her palm.
 
-“You were doing very well with the aunt.”
-
-“I can do her again.”
-
-“No.”
-
 The edge of the menu has gone soft where it touches the wet glass.
 
 “Stay until we've finished eating.”
@@ -680,7 +627,7 @@ I leave the words there while I take off my watch.
 
 When I pick up the phone again, I remove them and close the conversation.
 
-**B carry:** no personal answer was given at the table or sent from the desk. The earlier disclosure, the Day 1 D recording and Lavinia's knowledge remain unchanged. Priscilla withdrew her hand; the offered return to the aunt was refused; Lavinia finished her own food and left. The draft was removed, not transmitted. No new promise to answer later or report arrival is created.
+**B carry:** no personal answer was given at the table or sent from the desk. The earlier disclosure, the Day 1 D recording and Lavinia's knowledge remain unchanged. Priscilla withdrew her hand; Lavinia finished her own food and left. The draft was removed, not transmitted. No new promise to answer later or report arrival is created.
 
 ### C. Won, not Perfect: more dinner
 
@@ -780,7 +727,7 @@ Read the current benchmark from **“I was worried about you”** through “An 
 
 Priscilla admits the desire while defending intervention, anticipates intervening again and then blocks an actual departure. Lavinia strikes, later gives the specifically welcomed hair touch, leaves and sends the agreed arrival message. Preserve every act and its actual order. The current Day 1 D intake has no prior Observer recognition; this lost result supplies none.
 
-The benchmark's particular payoff is tenderness whose whole motive remains unresolved, Priscilla's hope for further company, and the actual departure. Its 744-word count and previous 6–8 minute estimate describe that unchanged reading, not every new variant or the optional insert.
+The benchmark's particular payoff is tenderness whose whole motive remains unresolved, Priscilla's hope for further company, and the actual departure. The earlier 744-word count and 6–8 minute estimate describe the previous common dinner at the source revision, not this revised assembly or every variant. No new timed performance is claimed.
 
 The later [staying treatment](#current-staying-audition-wanted-company-after-the-strike) is another audition of this same D result. It replaces the passage after the strike and preserves the obstruction, release and subsequent actual return; it is not appended to either departure.
 
@@ -842,9 +789,7 @@ For the present **Day 1 D intake**, follow C. Immediately after “Yes. I wanted
 
 **Self-talk:** Someone else is listening.
 
-**Self-talk:** This answer isn't for you.
-
-Then continue C from “And you decided I should be” through its coda. Lavinia cannot hear these private thoughts and does not respond to their content.
+Then continue C from “And you decided I should be” through its coda. Lavinia cannot hear this private thought and does not respond to its content.
 
 **E carry and scope:** this first Perfect supplies Priscilla's first Observer recognition, as permitted by the foundation. The exact recognition wording remains an audition. It identifies an external listener without giving that listener a body in the room, giving Priscilla access to Lavinia's mind, supplying a new physical anomaly, certifying how the whole evening was arranged, or turning the relationship into an obligatory Observer romance. The personal answer and dinner continuation remain between the women.
 
@@ -858,7 +803,7 @@ For the eventual other-Day-1-intake family, use the following knowledge distinct
 | Day 1 E, then completed Day 2 C/D | The new completed effect may be recognized; it is not another Perfect. |
 | Day 1 E, then Day 2 A/B | Awareness persists, but no new completed interference is supplied by the unused or unfinished opportunity. |
 
-The current D-specific Sylvia comparison must also change for those other intakes. An already-aware version cannot simply borrow this entire after-D dinner or use facts from another playthrough.
+Removing the D-specific Sylvia comparison reduces one adaptation cost; it does not complete the other-intake family. An already-aware version must still carry its actual awareness, and no version acquires facts from another playthrough.
 
 ### Additional beats and the stopping point
 
@@ -868,7 +813,7 @@ Do not append the retained purchased empty room, Priscilla-leaves variant, apolo
 
 The next writing comparison is the assembled after-D family and its Day 3 uses: which personal answer was given, whether contact was withdrawn or offered, whether a strike or obstruction occurred, what additional time was chosen, and what communication was actually agreed or sent. Later passages can share compatible material while preserving these facts. No new global mood, affection, cruelty or personality score is proposed.
 
-**Bounded review, 2026-10-19:** two same-model helpers with shared project context read the actual assembled after-D proposal and its common-prefix/benchmark dependencies. One checked the five meanings, assembly, incoming knowledge and coda consequences; the other checked voice, distinct pleasure, naturalness and the competing seductive-cruel exit. Neither found a high-confidence narrative defect requiring a prose rewrite. One author-note overclaim was corrected: C accepts a refusal without pressing for access; she does not first request and then withdraw that access. The root read the relevant foundation, flow, character, style and scene sources, compared the full proposals and retained the revised factual description. A possible later cut to “Look at me” / the turn towards Lavinia is a taste comparison, not applied: those lines currently obtain a specific reaction before withdrawal. These are editorial judgments. Audience, staged/audio/rendered, runtime/DTL, other-intake full-family, whole-day/week and protected historical bar/residue audits were **NOT RUN**.
+**Earlier family review, 2026-10-19, before the present recurrence cuts:** two same-model helpers with shared project context read the actual assembled after-D proposal and its common-prefix/benchmark dependencies. One checked the five meanings, assembly, incoming knowledge and coda consequences; the other checked voice, distinct pleasure, naturalness and the competing seductive-cruel exit. Neither found a high-confidence narrative defect requiring a prose rewrite. One author-note overclaim was corrected: C accepts a refusal without pressing for access; she does not first request and then withdraw that access. The root read the relevant foundation, flow, character, style and scene sources, compared the full proposals and retained the revised factual description. A possible later cut to “Look at me” / the turn towards Lavinia is a taste comparison, not applied: those lines currently obtain a specific reaction before withdrawal. These are editorial judgments. Audience, staged/audio/rendered, runtime/DTL, other-intake full-family, whole-day/week and protected historical bar/residue audits were **NOT RUN**.
 
 ## Alternatives, other intakes and the next development unit
 
@@ -876,8 +821,8 @@ The full prose above selects one candidate for inspection, not canon or a univer
 
 | Choice | Gain | Cost / disposition |
 |---|---|---|
-| **Remembered performance and actual departure — leading audition above** | Carries the Day 1 pleasure without a contrived loan, completes the missing conflict lead-in and tests the valued tenderness/departure reversal. | Removes the physical-book jealousy and reading coda from this version. Its particular strike and obstruction require owner selection at scene scope. |
-| Actual Day 2 transfer of Sylvia's copy | Gives Sylvia another consequential intervention and permits a custody exchange. | Requires a separate encounter or shown handover with her own reason, especially after D. Retained, unselected; not supplied offscreen. |
+| **Present dinner and chosen stay — current preference** | Shared physical comedy, food and pursuit supply the lead-in; after the argument, the actual return permits wanted company. | Removes the aunt and Sylvia-voice comparison. The strike, obstruction, release and stay remain auditioned acts requiring scene selection. |
+| Actual Day 2 transfer of Sylvia's copy | Gives Sylvia another consequential intervention and permits a custody exchange. | Requires a separate encounter or shown handover with her own reason, especially after D. Set aside for the present Days 2–3 revision; not supplied offscreen. |
 | Ordinary, unfinished and softer continuations after Day 1 D | The new A/B/C passages change the personal answer, withdrawn or offered contact, chosen dinner time and actual message arrangements. | Read the current variation audition above. Other Day 1 intakes still need their own adjusted lead-ins and consequences; this is not a global slap/no-slap switch. |
 | Purchased empty-room extension / Priscilla leaves / observer-involuntary strike | Distinct earlier aftermath or mechanism experiments. | Remain separate historical alternatives. None is appended to the current ending; bodily override would require a power amendment. |
 
@@ -891,7 +836,7 @@ The full prose above selects one candidate for inspection, not canon or a univer
 | D | The explicit no-forward restriction was violated; Sylvia objected and left. Lavinia heard the recording, without learning its restriction. The current reading uses this intake. |
 | E | C's human conduct plus Priscilla's first Observer identification. That awareness persists privately; it is not shared knowledge. |
 
-The Day 1 photo alternatives, absence of a photo sent to Lavinia, near echo with distinct wording, and Sylvia's book custody survive in every intake. A later variant must adjust the D-specific recording exchange above to its actual history. This table does not assemble a complete Day 2 after each incoming history. The new five-result audition above uses Day 1 D only.
+The Day 1 photo alternatives, absence of a photo sent to Lavinia, near echo with distinct wording, and Sylvia's book custody survive in every intake. The current common dinner no longer contains a D-specific recording exchange, but later conduct and awareness still need their actual history. This table does not assemble a complete Day 2 after each incoming history. The new five-result audition above uses Day 1 D only.
 
 ### Challenge scope after this audition
 
@@ -899,80 +844,19 @@ The [current variation audition](#current-variation-audition-self-talk-and-one-c
 
 The leading Dark benchmark and competing cruel exit have different actual aftermaths. The latter removes the arrival-message request and assent, so it ends at the closed door. The two endings cannot be concatenated or share that message by assumption.
 
-**Next unit:** compare this assembled after-D family, choose or revise the Dark departure treatment, then adapt the other Day 1 intakes and develop Day 3 carry. The one identically presented Dark P–L ending governs the eventual relationship resolution; local softness does not create a second ending. Whole-week plotting still precedes complete DTL.
+**Next unit:** compare the revised after-D family and its preferred stay with the [new Day 3 encounter](../../../auditions/day-3-sylvia-fork-working-draft.md), then develop the remaining P–L week and the required other-intake adaptations. The one identically presented Dark P–L ending governs the eventual relationship resolution; local softness does not create a second ending. Whole-week plotting still precedes complete DTL.
 
 ## Current bounded review
 
-### Beat, atmosphere and duration review, 2026-10-19
+**Current revision, 2026-10-20 — bounded assembled review:** the changed unit is the shared dinner, optional-food rejoin, B's diversion, E's private line and the preferred D staying tail, read with the revised Days 1 and 3. The prior numerical count and scene-scale verdict do not certify this new sequence. A/C and both departure endings are unchanged in their audience prose.
 
-**Source and verdict:** the owner's 19:12 Asia/Hong_Kong request asks what the beats do, what atmosphere and audience feelings they invite, how long the scene lasts, whether it is sufficiently unsettling and absurd, and what to cut or add for more relational thrill. Review the complete current D-to-Dark reading at [ba0eaa63d7a3be69fccfb0ee3d32bfd8477acc53](https://github.com/Siuuuers/dwm/blob/ba0eaa63d7a3be69fccfb0ee3d32bfd8477acc53/story/relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md), not the retained October alternatives. **Assistant recommendation: keep the present scene architecture and prose for the next family comparison.** It supplies intimate psychological suspense, a particular absurd comic episode and substantial human danger. It is controlled rather than continuously chaotic, random, psychedelic or supernatural. No new scene act or Observer effect is selected by this assessment.
+Three same-model helpers with shared context read the actual revised leading Day 1 D → Day 2 D stay → Day 3 sequence and their assigned seams. One also read the Day 2 default/Yes food substitution, all A–E passages and all three D substitutions; another checked the changed Day 1 A call and Day 2 B/E seams. No high-confidence causal, movement, knowledge or result defect required a narrative rewrite. Two stale E author-note references were corrected after cutting the direct address. The root read the saved assembly and inspected the scoped diff. This is a bounded editorial review, not measured audience response or an all-intake audit.
 
-#### Functional beat map
+**Editorial costs to judge:** the physical joke is broader and less verbally polished than the aunt performance. The one unnamed-company question still permits jealousy; it does not make Sylvia occupy the meal. The held-hair cut removes a clever cross-day echo and lets the food carry more of the ending. These are intended tradeoffs, not measured improvement.
 
-These twelve editorial units identify changes in activity, tactic, expectation or access. They are not DTL boxes, an obligatory beat count or timed checkpoints.
+**Curation:** the earlier beat map, 744-word count, 6–8 minute planning estimate, menu/jealousy review and assembly review remain in the [previous source](https://github.com/Siuuuers/dwm/blob/016c3ceb833d6c0f35d634d68c77899223bff49d/story/relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md#current-bounded-review). They described the aunt and voice-comparison dinner. Keeping their exact analysis under a current heading would misdescribe this revision, so the repeated explanatory block is replaced here rather than carried as active advice. The 2026-10-10 source packet below remains historical and is not the current reading.
 
-| Beat | Observable change | Intended opportunity for the audience |
-|---|---|---|
-| 1. Dinner extends the drink | Lavinia chooses food and continued company. | Relief and an attractive possibility of a longer evening. |
-| 2. Menu choices | The returning finger and Priscilla's order make both dishes available. | Particular, pleasurable attentiveness. |
-| 3. Funeral improvisation | Lavinia invents a recovery after the mourners change clothes; Priscilla's voice breaks into laughter. | Shared invention and the scene's clearest absurd pleasure. |
-| 4. Shared plate | Priscilla takes another piece; Lavinia leaves the plate between them. | A little lived ease and freely offered proximity. |
-| 5. “After her” | The recording/call sequence becomes a personal comparison involving Sylvia. | Jealous friction; yesterday enters the present dinner. |
-| 6. Hand and “Before England” | Contact accompanies a personal question; Priscilla's present-tense answer is redirected to their history. | Hope and apprehension together. |
-| 7. Submission and accommodation | Priscilla offers another process without accepting moral fault. | An answer that does not resolve the disagreement. |
-| 8. “That too” | Desire to retain Lavinia is admitted alongside genuine concern. | More candor without a guarantee of reassurance. |
-| 9. Coat, anticipated intervention and strike | An attempted departure and further reply culminate in bodily harm. | Abrupt alarm; the earlier pleasure cannot contain the danger. |
-| 10. Obstruction and release | Priscilla blocks the route, offers reassurance instead of passage, then moves. | A second change in how her need for company can be understood. |
-| 11. Welcomed touch, actual departure | A stopped approach becomes a specifically welcomed touch, but Lavinia still leaves. | The central reversal: tenderness does not obtain the company Priscilla asks for. |
-| 12. Arrival message | The requested “Home” arrives; Priscilla replaces a draft with her good-night message. | An ordinary connection survives an evening that has not been repaired. |
-
-The opening offers **guarded enjoyment**, not complete unsuspecting safety: “Do you want me to leave?” introduces the departure concern early. The funeral joke can acquire a retrospective relation to the later struggle over leaving, but that is an audience interpretation, not a forecast, proof of Observer intervention or Lavinia's privately selected plan. No explanatory self-talk should certify the correspondence. Most later unease comes from the mismatch between words, contact and practical decisions. The strike may dominate some readers' memories; the touch followed by departure gives the scene its more particular emotional payoff.
-
-#### Duration: count and planning assumptions
-
-The current audience-facing narrative has **744 English word tokens**, counting contractions and hyphenated compounds once, including displayed messages, and excluding headings, speaker labels, author notes and retained alternatives. There are **134 blank-line prose/dialogue units**, not 134 dramatic beats or selected text boxes.
-
-| Current movement | Words | Initial presentation allowance |
-|---|---:|---|
-| A longer evening | 335 | About 2–3 minutes |
-| An answer | 202 | About 1½–2 minutes |
-| Still leaving | 167 | About 1½–2 minutes |
-| Later | 40 | About 20–40 seconds |
-| Total | 744 | Roughly 6–8 minutes as a working target |
-
-These are editorial allowances, not measured runtime, an empirical average reading speed, or locked timings. At an assumed 180 words/minute, the text alone takes about 4.1 minutes; advances, action, reaction and transitions add presentation time. Actual box grouping, voice performance and reader behavior are untested. Optional Minesweeper time is additional; the current opportunity and mapping are still open. Fictional dinner duration is also unselected: ordering, food arrival and eating compress elapsed time, so screen duration cannot be treated as the full evening's duration.
-
-#### Audience expectations and the proportionate next change
-
-Likely reactions remain predictions. A reader drawn to verbal rivalry may relish the sharper answers; one absorbed in Priscilla's longing may feel the failed hope around the touch; another may withdraw romantic investment at the strike or obstruction. A reader expecting a new uncanny event in every encounter may find this dinner comparatively realistic. The scene need not produce identical feelings, but it should preserve curiosity about what Priscilla will do when affection can coexist with an actual departure. Day 1 D's known violation is part of this audience's intake; Priscilla is not newly revealed as dangerous only after being struck.
-
-The main craft risks are **uniformly perfect conversational countering** and **compressed lived time**, not insufficient harm. Preserve the funeral invention, the failed performance, food sharing, the exposed “Then why did you do that?” and the unsent draft. They keep pleasure, need and uncertainty available beside the exact replies. A performance trial should give the laughter, stopped glass and touch/departure sequence different amounts of space rather than slow every line equally. This is a presentation recommendation, not a new animation, timing rule or implemented DTL change.
-
-**One optional cut, not applied:** move directly from “That too” and the stopped glass to Lavinia getting up, removing “Is that supposed to make me feel better?” / “You asked me.” The gain is a faster physical response to the admission. The cost is losing Lavinia's explicit sting and Priscilla's claim that answering honestly should account for the hurt. The assistant does not yet prefer the cut over the current version; a comparison at performance scope would resolve its actual value.
-
-**Addition recommendation:** no new narrative incident is needed for this reading. Let existing pleasure and the last reversal register. An extra accusation, replayed book phrase, staff joke or conspicuous anomaly would need a separate dramatic purpose; the current scene does not need one to satisfy a tonal quota.
-
-**Review scope:** two same-model helpers with shared context reviewed the actual complete reading for beat function, tone, audience-response risks and proportionate changes; neither found a high-confidence defect requiring another prose revision. The root independently read and counted the current text and compared the recommendations. These are bounded editorial judgments, not test-audience findings or a whole-day/week review. No staged read-through, voice/audio/render review, runtime/DTL, complete five-result family or historical bar/residue audit was performed. Next develop the ordinary and substantively softer continuations, then compare the Day 2 family and Day 3 carry.
-
-### Previous menu and jealousy refinement, source ba0eaa63
-
-**Owner request, 2026-10-19:** make the summary of menu indecision more interesting; try bodily attention in place of “I sit a little straighter,” using *La Jalousie* and *Le Planétarium* as references while preferring natural, beautiful prose; intensify the anger and jealousy the owner enjoys. This approves development of those effects, not every newly written line.
-
-**Current editorial choice:** give the meal two actual temptations and let Lavinia's returning finger show the decision. The mushroom tart and chicken are replaceable dishes within this audition, not permanent tastes or a new concealed test. Priscilla's order keeps the pleasure of trying both things. The felt absence of the chair and performed breath put her body into the aunt's voice; the failed reply becomes audible laughter. Names, pronouns and direct action remain available where they read best. None of this prescribes a muscle catalogue or rewrites the project's style rules.
-
-The jealous turn keeps the true palter “She was when I recorded it” and adds a personal comparison: “After her.” Priscilla's “Would you rather I hadn't called?” turns dissatisfaction with the answer into an imagined rejection of the later call. Lavinia's “Don't make me sorry I asked” resists that framing before she offers her hand and asks the more personal question. This is an interpretation of the pressure created by their words, not a private certification of either woman's complete strategy. Lavinia's tenderness and actual enjoyment remain possible alongside anger. Her romantic response to Sylvia is still deliberately unresolved for the writers.
-
-**Alternatives considered:** the shorter “After her” / “I'm here now” / “Then answer me now” bridge has less sting because Priscilla offers present company rather than making Lavinia defend her wish for the call. Adding “Don't do that” / “Do what?” delays the chosen refusal without increasing its force. An extra declaration that Priscilla still thinks she was right repeats what the submission exchange already shows and postpones Lavinia getting up. The current revision therefore sharpens the earlier jealous exchange and retains the later argument's momentum. These are local editorial comparisons, not bans on those replies elsewhere.
-
-**Current review:** two same-model readers with shared project context read the actual revised prefix through this development section. One checked naturalness, accumulated mannerism, chosen pleasure, jealousy and the complete escalation; the other checked perceptual and voice access, Day 1 intake, both disclosure motives, nonremorse, physical continuity and scope. Neither found a material defect requiring repair. The root inspected the revised encounter and scoped document changes. This is a bounded prose review, not measured audience response, fresh-context or cross-model evaluation. The previous review below retains its own source scope.
-
-### Previous assembly review, source 9562c429
-
-Two same-model readers with shared project context reviewed the complete new prefix: dinner and remembered performance, the disclosure exchange, strike and departure sequence, later-message coda, scene card, alternative intakes and open Challenge scope. One checked craft, pleasure, escalation and the tenderness/departure reversal; the other checked source scope, character knowledge, both disclosure motives, nonremorse, physical staging and specific touch. Neither found a material defect requiring a prose repair. These were bounded actual-passage reviews, not fresh-context or cross-model evaluations. The root checked the affected source passages, the assembled scene, document changes and retained-content scope.
-
-The physical-book removal preserves the desired performance and later reversal while avoiding an unearned transfer after Day 1 D. Its actual cost—the jealous custody exchange and book-dependent coda—is recorded as a retained alternative, not silently lost or presented as unchanged. No new source rule or broader ablation campaign is warranted by this local choice.
-
-Historical chronological bar/residue audit, complete Day 2 family/day audit, whole-week comparison, asset/render/audio review, runtime/DTL and audience testing: **NOT RUN**.
+Full other-intake/day/week audit, protected historical bar/residue audit, performed reading, audience testing and runtime/DTL verification: **NOT RUN** by this pass.
 
 ## Retained 2026-10-10 development packet
 

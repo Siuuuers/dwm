@@ -1,6 +1,41 @@
 # Priscilla: current seven-day working plot and discussion checkpoint
 
+## Current Days 1–3 recurrence revision, 2026-10-20
+
+**Source:** the owner's 00:07 Asia/Hong_Kong question, repeated at 00:12, values “Her fingers gather the hair away from my cheek. For a moment, they hold it there”; reopens whether Sylvia's recording should happen; finds its continuous use and the “answer for me or not” question repetitive; asks why the book returns and whether it is being returned; and asks that other people not occupy the later days for so long. The repeated text is one substantive question, followed by the separate 01:05 clarification below; neither selects the unseen new prose. The inspected source is `016c3ceb833d6c0f35d634d68c77899223bff49d`.
+
+**Assistant recommendation:** retain the single Day 1 D recording breach, shorten its repeated answer interrogation and remove its recap chain from Days 2–3. The problem emerges at three-day scale despite the earlier scenes' individually useful effects. A consequence can remain true without every subsequent encounter discussing it. As an editorial cut, the named book characters now stay in Day 1. Sylvia's own Day 3 encounter begins with her offered company; Lavinia's indirect presence need not become its whole conversation. The P–L continuation likewise concerns the present pair.
+
+**Owner clarification, 01:05 Asia/Hong_Kong:** “other people” means that a moment with Sylvia need not have Lavinia occupying their conversation. Lavinia can exist more subtly, for example through jealousy or another form of indirect presence. This resolves the earlier unanswered scope question: it concerns who owns the present encounter's attention, not a ban on the novel's cast or Sylvia's later appearances. The book cut is the assistant's separate editorial recommendation. The present Sylvia invitation begins with her offered company and brings up Lavinia only when Priscilla's six o'clock arrangement matters. No obligatory jealousy cue, coded prop or explanation of Sylvia's whole strategy is added to every meeting.
+
+| Three-day comparison | Gain and cost | Current disposition |
+|---|---|---|
+| Keep the full chain | Strong explicit accumulation of appropriation and covert access, but too many exchanges litigate who may speak, answer or listen for whom. The book also repeatedly brings the same fictional cast into later company. | Set aside the chain. Earlier versions remain in Git. |
+| Retain the Day 1 breach; cut later recaps | Keeps the locally complete act: pleasure, explicit restriction, deliberate violation, objection and exit. Lets later days develop their own activity, desire and danger. Costs the Day 3 call image and its concrete next-day S–L pressure. | Current recommendation, still AUDITIONING. |
+| Remove the recording entirely | Frees Day 1 of a portable evidence object, but needs a genuinely different D act and rechecking of the voice-reply Challenge and matching call. Merely substituting a stolen photo or hidden message repeats the mechanism. | Viable further comparison, not the present revision. |
+
+A genuinely different replacement considered was Priscilla arranging a call, then allowing Sylvia to interpret it as an urgent interruption and release her evening out of concern for Lavinia. It was not selected: it is more contrived, risks making Sylvia mechanically accommodating, and requires changing the current Challenge action from a voice reply at the table. The existing “I heard you” is a more economical deliberate betrayal. This comparison does not authorize a fabricated emergency elsewhere.
+
+### Current manuscript changes
+
+- [Day 1](day-1-photo-book-working-draft.md): preserve the book's own absurd pleasure, “I wanted to see you,” optional second photograph, near echo, five results and private coda. Cut D's “Whose answer was that?” / “Mine” and shorten call openings A/D. D still includes the actual refusal, forwarding, objection and exit. The book is still Sylvia's; Priscilla has nothing to return in Day 3.
+- [Day 2](../relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md): replace aunt/Sylvia-voice material with present physical comedy, shared food and Priscilla's attempted next invitation. One brief jealous question remains; it does not identify an actual rival. The food option rejoins the new passage. B loses the aunt diversion; E keeps first recognition without another answer-ownership address. The England question still has its own personal function and is retained.
+- [Day 2 staying tail](../relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md#current-staying-audition-wanted-company-after-the-strike): now apply the loved cheek-clearing sentence as an assistant audition. Cut “Still having a good time?” / “You're still here” and the second hair pass. Keep the actual obstruction and release, Lavinia's chosen return, held hair, cold chicken and the smile's immediate sensation. The sentence supplies no lasting visible mark or privately settled display motive.
+- [Day 3](day-3-sylvia-fork-working-draft.md): a short Sylvia invitation preserves anger without retelling the recording. Default keeps the six o'clock P–L plan; Yes cancels it and enacts the cinema evening. P–L now has a present flower gift, initially shared ridiculous courtship, Lavinia prolonging it after a request to rise, Priscilla obtaining her return through a counter-request, and an actual comic circular walk. This public awkwardness is a different scale of pressure from Day 2's violence. The book, grievance recap, concealed call and automatic next-day S–L arrangement are removed.
+
+**Causal carry:** the changed scenes do not erase the Day 1 breach or Day 2 harm. They also do not secretly preserve acts removed from the previous audition. Sylvia does not inherit the cut “Mine” reply; Lavinia does not acquire the restriction through a nonexistent call; neither branch inherits the discarded appointment. The one identical P–L ending still allows different real histories. First recognition remains tied to the approved Perfect distinction, not the book resemblance, public passersby or a Dark result.
+
+**Tradeoff and next unit:** the new Day 3 centres the pair at the cost of an independently advancing S–L arrangement. Its overt courtship performance may feel more familiar than the older concealed call. Days 2–3 also still share withdrawal and return, though Priscilla's initiative and the acts differ. Keep this bounded version for comparison; the next P–L development should build a new problem or changed conduct from this company, not assume departure/return always produces the desired result. Full Sylvia plotting remains later; immediate fork consequences and her own continuing desire stay visible in the plan.
+
+**Review and capture:** three same-model helpers with shared project context read the actual revised leading Day 1 D → Day 2 D stay → Day 3 sequence and their assigned variation seams. No high-confidence narrative defect required another prose revision. The root corrected two stale author-note references in E after removing its direct address. Their agreement is an editorial finding, not an audience test. The current owners contain the detailed review scope, meaningful costs and carry. This substantial seven-file Markdown revision is captured in the same existing PR #41 under standing authorization, with one current owner per day and earlier complete versions in Git. Exact new acts, words, mapping and placement remain AUDITIONING.
+
+Whole Day 1–7 plotting still precedes complete DTL. All-intake/whole-week review, the protected historical bar/residue/residence audit, performed reading, audience testing and runtime/DTL verification are NOT RUN by this pass.
+
+**Earlier checkpoints below retain their dated source scope.** Their superseded scene descriptions and next-step proposals do not govern the revised sequence above. The exact pre-ablation owner is [016c3ceb](https://github.com/Siuuuers/dwm/blob/016c3ceb833d6c0f35d634d68c77899223bff49d/story/auditions/priscilla-seven-day-working-plot.md).
+
 ## Current Day 3 Sylvia meeting and fork audition, 2026-10-19
+
+**Historical checkpoint:** the concealed call, unapplied cheek gesture and S–L appointment below describe the previous audition, superseded by the 2026-10-20 revision above.
 
 **Source:** the owner's 22:01 Asia/Hong_Kong handoff asks whether the new stay is a D result, whether Lavinia's hair touch makes her mark visible, and whether anything more is needed in Day 2. The owner values the cold chicken, authorizes proceeding to Day 3 if the current scene is sufficient, prioritizes Sylvia's meeting before the route choice and then the Lavinia path, and asks whether the Sylvia path should be developed now or later. The inspected predecessor is `53bcbdf67a5268732a6a2c891a7ce673fc0c7f21`. This is not assent to every new line, physical fact or fork placement.
 
@@ -17,6 +52,8 @@
 **Next unit:** the P–L response to the proposed next-day S–L arrangement. Its place, actual occurrence and aftermath remain unauthored. The P–S branch has only its own sent request, with no imported speaker call or accepted meeting. Retain the full-week-before-DTL gate and existing historical bar/residue/residence holds.
 
 ## Current Day 2 staying and trace comparison, 2026-10-19 at 21:16
+
+**Historical checkpoint:** the voice comparison and altered rehearsal echo below were present at this source date; the 2026-10-20 revision removes them.
 
 **Source:** the owner's 21:16 Asia/Hong_Kong question asks whether both women might enjoy remaining together after the slap, whether Priscilla could take Lavinia's anger as evidence of continuing care, whether Lavinia might become absorbed in her response and stay, where to stop observation, and how this compares with an earlier Sylvia-trace/destruction idea. The inspected predecessor is [f64e657a79b9c2783e0b5940efae87a498b90cba](https://github.com/Siuuuers/dwm/blob/f64e657a79b9c2783e0b5940efae87a498b90cba/story/relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md). Praise and exploratory questions do not select the exact new event.
 

@@ -13,6 +13,13 @@ first. Older cast, Group and calendar references below keep historical scope.
 | Day 2 | [Return and bar](../relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md) | AUDITIONING five-result family after Day 1 D, one optional thought, and three competing D treatments including the latest chosen stay; other intakes remain open. |
 | Day 3 | [Sylvia meeting and fork](day-3-sylvia-fork-working-draft.md) | Complete bounded AUDITIONING packet after Day 1 D → Day 2 D stay: common Sylvia encounter, proposed fork, P–L continuation and immediate P–S alternative. Placement, other intakes and full branches remain open. |
 
+**Current recurrence revision, 2026-10-20:** [compare Days 1–3](priscilla-seven-day-working-plot.md#current-days-13-recurrence-revision-2026-10-20).
+The single Day 1 D recording remains, while later recaps and book appearances
+are cut. Day 2's meal and staying tail are revised; Day 3 now gives Sylvia a
+brief present invitation and P–L its own courtship performance and walk.
+The older concealed-call appointment is not carried into the new packet.
+These are revisions of the existing owners, with prior versions preserved in Git.
+
 Exact approval remains with the owning sources and selection lifecycle.
 Publication is established by commit/PR metadata, not these links.
 

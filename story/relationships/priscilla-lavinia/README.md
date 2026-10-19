@@ -1,47 +1,43 @@
 # Priscilla–Lavinia: working home and restart point
 
+## Days 1–3: present company after the recurrence revision, 2026-10-20
+
+Read the [current checkpoint](../../auditions/priscilla-seven-day-working-plot.md#current-days-13-recurrence-revision-2026-10-20),
+[Day 2 family](auditions/day-2-return-bar-working-draft.md) and
+[shared Day 3 owner](../../auditions/day-3-sylvia-fork-working-draft.md).
+The leading intake remains Day 1 D → Day 2 D staying. Day 1's actual recording
+breach survives; the later recap chain and repeated ownership interrogations do
+not. The book and its performed cast now remain within Day 1 as an editorial
+cut. The owner's 01:05 clarification concerns attention during company with
+Sylvia: Lavinia may be felt indirectly rather than occupying their conversation.
+
+The Day 2 meal uses present physical comedy, food and an attempted next invitation.
+The preferred stay clears the cheek's hair, holds it briefly and stops with cold
+chicken and the smile's immediate sensation. No lasting visible mark or display
+motive is selected. Day 3's short Sylvia invitation preserves anger while its
+P–L continuation develops a new courtship performance and an actual walk. The
+previous hidden call, new restriction knowledge and S–L appointment are absent.
+The Yes alternative still cancels the six o'clock plan and enacts Sylvia company.
+
+All exact new conduct, wording, fork placement and mapping remain **AUDITIONING**
+in existing [PR #41](https://github.com/Siuuuers/dwm/pull/41). The bounded review
+covers the revised actual sequence and assigned variation seams; its theatrical
+cost and remaining withdrawal/return recurrence are recorded. Next develop the
+P–L week without treating that response as a dependable formula. Other intakes,
+full Sylvia plotting, the full-week DTL gate and protected historical holds remain.
+
 ## Day 3 Sylvia meeting and Lavinia continuation, 2026-10-19
 
-Read the [shared Day 3 owner](../../auditions/day-3-sylvia-fork-working-draft.md)
-and [current checkpoint](../../auditions/priscilla-seven-day-working-plot.md#current-day-3-sylvia-meeting-and-fork-audition-2026-10-19).
-The leading intake is Day 1 D → Day 2 D staying. The common Sylvia encounter
-preserves the recording breach and opens direct S–L contact. A proposed
-late-Day-3 fork leads either to the new P–L walk or an actually cancelled
-arrangement and P–S cinema evening.
-
-In the P–L reading, Priscilla chooses to hear without disclosure; Lavinia
-conceals her during a speaker call and agrees to see Sylvia the next day.
-The touch and resumed walk coexist with that intrusion. The call gives
-Lavinia new knowledge of the Day 1 restriction; it does not rewrite Day 2.
-The owner holds the exact carried facts, the fork comparison and review.
-
-The cold-chicken cut remains the Day 2 recommendation. The forehead gesture
-does not yet expose a visible mark. All new scene acts and placement remain
-**AUDITIONING** in existing [PR #41](https://github.com/Siuuuers/dwm/pull/41).
-Next develop the P–L response to the new arrangement; the whole-week gate,
-other-intake adaptations and protected historical holds retain their scope.
+**Historical entry:** the recording conversation and concealed call belong to the
+[previous Day 3](https://github.com/Siuuuers/dwm/blob/016c3ceb833d6c0f35d634d68c77899223bff49d/story/auditions/day-3-sylvia-fork-working-draft.md).
+Its next-day S–L arrangement is not an obligation of the revised audition.
 
 ## Day 2 staying audition and trace comparison, 2026-10-19
 
-Read the [current checkpoint](../../auditions/priscilla-seven-day-working-plot.md#current-day-2-staying-and-trace-comparison-2026-10-19-at-2116)
-and [new staying treatment](auditions/day-2-return-bar-working-draft.md#current-staying-audition-wanted-company-after-the-strike).
-After the existing strike, Priscilla takes pleasure in Lavinia's attention.
-The attempted departure and obstruction still occur; Lavinia returns after the
-exit is clear, then touch, a changed verbal echo and shared food make the resumed
-company actual before observation ends.
-
-The [five-result family](auditions/day-2-return-bar-working-draft.md#current-variation-audition-self-talk-and-one-challenge)
-keeps its current opportunity design. This is a competing D treatment after
-Day 1 D, alongside the tenderness/departure benchmark and cruel direct exit.
-The voice echo uses the rehearsal Lavinia actually received. The older
-book-custody fragment is available, while the exact remembered trace-destruction
-passage remains unrecovered. The owner records that bounded source limit.
-
-All exact conduct, inference, contact, placement and dialogue remain
-**AUDITIONING**. Existing PR #41 is the authorized version destination. Next
-compare these endings within the sequence and author the particular later
-facts a chosen stay requires. The one eventual P–L ending, other-intake work,
-whole-week DTL gate and protected historical holds retain their scope.
+**Historical entry:** the earlier voice echo and its comparison with book custody
+remain in the [previous Day 2](https://github.com/Siuuuers/dwm/blob/016c3ceb833d6c0f35d634d68c77899223bff49d/story/relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md).
+The current owner retains the distinct D treatments, actual intake and bounded
+source limit for the unrecovered earlier trace-destruction passage.
 
 ## Book and attention experiment, 2026-10-19 at 15:24
 

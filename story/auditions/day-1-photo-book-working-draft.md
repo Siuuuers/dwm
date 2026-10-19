@@ -1,8 +1,16 @@
 # Day 1: the photograph and the answer
 
-**Current audition:** 2026-10-19, 15:24 owner refinement, Asia/Hong_Kong.  
-**Previous complete version:** [82d3d939eed9728b7e6d2375f694f1a33d140125](https://github.com/Siuuuers/dwm/blob/82d3d939eed9728b7e6d2375f694f1a33d140125/story/auditions/day-1-photo-book-working-draft.md).  
+**Current audition:** 2026-10-20, recording and recurrence revision after the owner's 00:07 Asia/Hong_Kong question, repeated at 00:12.  
+**Previous complete version:** [016c3ceb833d6c0f35d634d68c77899223bff49d](https://github.com/Siuuuers/dwm/blob/016c3ceb833d6c0f35d634d68c77899223bff49d/story/auditions/day-1-photo-book-working-draft.md).  
 **Status:** **AUDITIONING**. This is a complete narrative reading copy with local alternatives, not selected canon or executable DTL.
+
+**Current three-day recommendation:** retain D's single deliberate forwarding
+breach, but remove its repeated ownership interrogation here and its recap chain
+from Days 2–3. Sylvia's objection and exit remain actual; later scenes need not
+keep explaining them. The book and its performed characters remain in Day 1.
+The [current checkpoint](priscilla-seven-day-working-plot.md#current-days-13-recurrence-revision-2026-10-20)
+records the ablation, costs and new later scenes. This is a revision of the
+audition, not an owner selection of the recording or a ban on later references.
 
 **Current book revision:** the owner challenges the generic bad romance's
 replaceability, Sylvia's reason to buy and continue it, and its limited
@@ -648,12 +656,6 @@ I move my drink out of her way. She takes her own phone and leaves.
 
 My phone lights.
 
-**Lavinia, message:** Whose answer was that?
-
-**Priscilla, message:** Mine.
-
-I leave it at that.
-
 **Lavinia, message:** Call me when you're alone.
 
 I look toward the doorway. Sylvia has already passed out of sight.
@@ -748,23 +750,11 @@ There is no video.
 
 “Would I call if I hadn't?”
 
-“You kept answering while you were with her.”
-
-“I thought you wanted me to.”
-
-“I thought you were telling me to stop.”
+“I thought you were telling me to leave you alone.”
 
 “I wasn't.”
 
-“You said I was interrupting.”
-
-“You were.”
-
-“You kept answering.”
-
-I move the phone to my other ear.
-
-“I'm alone now.”
+“Good.”
 
 ### 4B. After the deferral
 
@@ -794,23 +784,11 @@ I sit back in the chair.
 
 ### 4D. After the forwarded rehearsal
 
-“You asked me to call,” I say.
-
-“I asked for your answer.”
-
-“You've got it.”
-
-“Was she beside you when you sent that?”
+“You're alone?” Lavinia asks.
 
 “Yes.”
 
-“Is she still there?”
-
-“No.”
-
-Lavinia says nothing for a moment.
-
-“Let me hear you, then.”
+“Good.”
 
 ### 4E. After first recognition
 
@@ -953,7 +931,7 @@ All facts in this table are definite **within this candidate**, not promoted can
 | The aunt's printed sentence resembles Lavinia's first message but differs in wording and order. Sylvia reads it; Priscilla examines the page and asks about Sylvia's prior reading. | Priscilla has seen the message and page. The focal fragment associates their wording. Sylvia hears the question and sees the held page; she answers “No. Why?” | This is not a verbatim match or proof of an anomalous information transfer. At this moment Sylvia is not shown reading the original message. Her answer is a spoken claim. Cause, prior reading, collusion and observer identification remain unestablished. |
 | Sylvia drafts the date claim on Priscilla's phone; Priscilla reads and approves it before Sylvia sends. | Both present women see that action. Lavinia receives the claim and Priscilla's confirmation. | The claim does not establish an agreed romance, exclusivity, or a relationship-route selection. |
 | Priscilla reads “Then tell me yourself” aloud. | Sylvia lawfully knows the request from that point. | Lavinia did not require a particular medium; Priscilla considers audio. |
-| In D, Sylvia permits rehearsal recording and explicitly refuses forwarding. Priscilla records and deliberately sends it anyway. | Priscilla and Sylvia know the refusal and breach. Lavinia hears the recording and sees the reply “Mine.” | Lavinia is not shown knowing the refusal. Her later invitation is not certified collusion, approval of the breach, or forgiveness from Sylvia. |
+| In D, Sylvia permits rehearsal recording and explicitly refuses forwarding. Priscilla records and deliberately sends it anyway. | Priscilla and Sylvia know the refusal and breach. Lavinia hears the recording and asks Priscilla to call when alone. | Lavinia is not shown knowing the refusal. Her later invitation is not certified collusion, approval of the breach, or forgiveness from Sylvia. The former “Mine” reply is absent from this revision and cannot be disclosed later as if it happened. |
 | In every version Sylvia retains the paperback, and Priscilla retains her own phone. | The table exit supplies custody. | No same-copy Day 2 loan is silently supplied. |
 | Priscilla is alone during the evening call. | Only its audible content is available to her and the audience. | Sylvia does not inherit its contents. Lavinia's laugh does not give a remote visual fact or a disclosed motive. |
 | E introduces first recognition, followed by the deliberate private address “You can wait.” | This is Priscilla's newly available recognition; the other women hear nothing of it. | No recognition of a face, mechanism, other branch, concealed refusal or private mind. |
@@ -987,7 +965,7 @@ The photo Yes/default option changes a small real event without changing who own
 ### 6.4 Day 2 handoff
 
 - Lavinia returns on Day 2. No Day 1 pickup promise is made. The protected offscreen umbrella event, its lawful timing and its non-reconstruction rule remain untouched.
-- This candidate leaves the paperback with Sylvia in all five outcomes. The same-copy Day 2 idea is deliberately not used yet. Selecting it later requires an actual transfer and one compatible fictional-novel synopsis; the earlier portrait/sitter proposal is not silently *The Funeral Rehearsal*. Replacing the Day 2 book candidate later is possible; combining incompatible synopses is unnecessary.
+- This candidate leaves the paperback with Sylvia in all five outcomes. The current Days 2–3 omit both the book and the aunt reprise; Day 3 is not a return scene. Any future same-copy use would need an actual transfer and an independently useful new action. The earlier portrait/sitter proposal is not silently *The Funeral Rehearsal*.
 - D carries an actual refused forwarding and an unresolved rupture at the table. A later friendly Sylvia scene must be written from that occurrence; the common P–L coda is no repair of it.
 - B's later-answer promise is completed within Day 1. The other branches do not inherit a deferral they never made.
 - E's recognition is newly established; other branches cannot deliberately address an identified observer merely because the audience has read E.
@@ -997,18 +975,14 @@ The photo Yes/default option changes a small real event without changing who own
 
 ### 6.5 Length and presentation estimate
 
-A single reading of the book revision contains approximately 1,400–1,600 words of dialogue, messages,
-action and self-talk. This excludes author notes, navigation and channel labels;
-the Yes/default photo choice makes only a small difference. At an explicitly
-assumed reading rate of 160–200 words per minute, that is roughly 7–10 minutes of
-text. This is a planning calculation, not measured player behavior. Caption
-timing, chosen pauses, performance and optional board time are additional and
-have not been measured. The larger comparison document contains mutually
-exclusive passages and should not be timed as one playthrough. The 14:03
-revision's ten textual combinations were approximately 1,391–1,515 words.
-The four local changes at 15:24 reduce each reading by one word, giving
-approximately 1,390–1,514 words. A comparison against the preceding revision
-confirms that narrative text outside those four shared-passage edits is unchanged.
+Earlier counting at 15:24 put the ten photo/result combinations at approximately
+1,390–1,514 words, excluding author notes, navigation and channel labels. Those
+figures describe the [previous reading](https://github.com/Siuuuers/dwm/blob/016c3ceb833d6c0f35d634d68c77899223bff49d/story/auditions/day-1-photo-book-working-draft.md#65-length-and-presentation-estimate).
+The current revision cuts the D message interrogation and shortens call openings
+A and D. It does not lengthen any reading. No new performance or runtime timing
+is claimed. The previous roughly 7–10 minutes of text used an explicitly assumed
+160–200 words per minute; pauses, presentation and optional board time are
+additional. The comparison file's alternatives must not be timed as one playthrough.
 
 The current draft is a compact complete opening. If an eventual performed read
 needs more duration, preserve the chosen activity and consequential responses;
@@ -1245,7 +1219,21 @@ In D the audience sees the refusal and send. That visibility is necessary to exp
 
 **Remaining taste questions:** whether the shared coda supplies the desired amount of Day 1 unease, and whether E's brief first recognition feels convincing in performance. The current D keeps both “I heard you” and the delivery rationale after cutting one redundant defense; that degree of explicitness remains a choice to judge in this audition. These are creative questions, not new invariants.
 
-**Current attention/near-echo revision, 2026-10-19 at 15:24, bounded review:**
+**Current recurrence revision, 2026-10-20, bounded review:** three same-model
+helpers with shared project context read the actual leading Day 1 D and its call
+with the revised Day 2 stay and Day 3 encounter. The recurrence reviewer also
+checked the shortened 4A opening. No high-confidence causal or knowledge defect
+required another prose revision. The dark act remains complete without the
+“Whose answer” / “Mine” exchange or the second call interrogation. The root read
+the saved common material, D and coda and inspected the scoped changes. The
+current checkpoint records the stronger alternative of removing the recording
+entirely and why it was not chosen for this revision. The broader loss of the
+old Day 3 call's forward pressure and the later scenes' remaining withdrawal/
+return pattern are craft costs, not proof of measured improvement. The unchanged
+Day 1 passages retain earlier findings; no new ten-reading performance or
+whole-week audit is claimed.
+
+**Earlier attention/near-echo revision, 2026-10-19 at 15:24, bounded review:**
 one same-model craft reader with shared project context reviewed the proposal
 and then the actual shared passage, current notes, checkpoint and entry points.
 No material causal, knowledge, prose or status defect was found. The root's
