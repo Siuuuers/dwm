@@ -1,3 +1,13 @@
+# Canonical inventories integrated after external C review — 20 October 2026 Hong Kong
+
+External C [6275550068](https://github.com/Siuuuers/dwm/pull/36#issuecomment-6275550068) approved the concrete two-file delta and focused11/352 result under Director6274608818. The current publication installs exactly generated GameState blob8df3816c0bdcb14ebe73c2bcc42fd91d0f626b63 and SaveManager blobaa03d2542178025fcf6df384f22b21f2ca6a9e64. PR36 head99969004 was reconciled: no intervening source change; expected-head protection is used.
+
+Runtime/tests/scanner/required definitions/seals remain unchanged. No rejected anchor candidate or diagnostic code is integrated. Next: inspect the ordinary CI run naturally triggered by this publication, record its actual first current blocker, and return that diagnosis without implementing another backlog item. No additional broad dispatch. Known exported completion/clean-exit and latency issues remain open; Back localization remains deferred.
+
+Earlier awaiting-C wording below is historical and superseded by this integration.
+
+---
+
 # Canonical inventory synchronization — qualified, awaiting external C review
 
 Director [6274608818](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6274608818) selects the current verification blocker. Back localization is deferred. The rejected anchor optimization stays isolated and is not part of this source or delta.
