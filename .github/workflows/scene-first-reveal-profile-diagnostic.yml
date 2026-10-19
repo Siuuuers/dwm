@@ -1,19 +1,18 @@
-name: Bounded ending Title timing diagnostic
+name: Scene anchor algorithm qualification
 'on':
   pull_request:
     paths:
     - .github/workflows/scene-first-reveal-profile-diagnostic.yml
 permissions:
   contents: read
-  actions: read
 concurrency:
   group: scene-first-reveal-profile-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 jobs:
-  authority-audit:
+  anchor:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
     runs-on: windows-2022
-    timeout-minutes: 55
+    timeout-minutes: 65
     defaults:
       run:
         shell: pwsh
@@ -22,48 +21,27 @@ jobs:
       run: git config --global core.autocrlf false
     - uses: actions/checkout@v7
       with:
-        ref: 81847d8b1560340a3a7769223cee0b46c6bdc0f9
-        fetch-depth: 2
-    - uses: actions/checkout@v7
-      with:
-        ref: d95ec53a38e8fecc859647724d5c8238b1b0112f
-        path: .godot/title-packet
-        sparse-checkout: evidence/phase_2r/title_timing_20261019/source
-        persist-credentials: true
+        ref: 08dd31c37375d72214157f53eaa1c38f4eae762b
+        fetch-depth: 1
     - uses: actions/setup-python@v6
       with:
         python-version: 3.12.10
         architecture: x64
-    - name: Bind exact sources and retained corrected evidence
-      run: "$ErrorActionPreference = 'Stop'\nNew-Item -ItemType Directory -Force .godot/ci | Out-Null\nforeach ($repo in @($env:GITHUB_WORKSPACE,(Join-Path\
-        \ $env:GITHUB_WORKSPACE '.godot/title-packet'))) {\n git -C $repo update-index --force-remove -- .claude/skills/godot-prompter/1.10.0\
-        \ .claude/skills/superpowers/6.1.1\n if ($LASTEXITCODE -ne 0) { throw 'Legacy gitlink cleanup failed' }\n git -C $repo\
-        \ submodule foreach --recursive 'true'\n if ($LASTEXITCODE -ne 0) { throw 'Gitlink cleanup verification failed' }\n\
-        }\ngit fetch --no-tags --depth=1 origin d37ad1f6d3c0148205c1b4d21444d05d01e7cca6 400d279ff884328b3665e8b97533115aa148a47a\n\
-        if ($LASTEXITCODE -ne 0) { throw 'Pinned source fetch failed' }\n$toolRoot = Join-Path $env:GITHUB_WORKSPACE '.godot/title-packet/evidence/phase_2r/title_timing_20261019/source/new-title-tools'\n\
-        \"TITLE_TOOLS=$toolRoot\" | Out-File $env:GITHUB_ENV -Append -Encoding utf8\n@'\nimport hashlib,pathlib,subprocess,zipfile,json\n\
-        out=pathlib.Path('.godot/ci')\nraw=subprocess.check_output(['git','show','400d279ff884328b3665e8b97533115aa148a47a:evidence/phase_2r/ending_iterator_comparison_20261019/corrected-evidence.zip'])\n\
-        assert len(raw)==3642930 and hashlib.sha256(raw).hexdigest()=='434e94bb800e99d702d3322cf067d4deb76a50cd04b4b7b425956c96b923fd72'\n\
-        archive=out/'original-corrected-evidence.zip';archive.write_bytes(raw)\nwith zipfile.ZipFile(archive) as z:\n    assert\
-        \ not z.testzip()\n    for x in z.infolist():\n        p=pathlib.PurePosixPath(x.filename)\n        assert not p.is_absolute()\
-        \ and '..' not in p.parts and ':' not in x.filename and '\\\\' not in x.filename\n    z.extractall(out/'retained-corrected')\n\
-        (out/'origin.json').write_text(json.dumps({'game_commit':'81847d8b1560340a3a7769223cee0b46c6bdc0f9','tool_commit':'d95ec53a38e8fecc859647724d5c8238b1b0112f','controller_event':'${{\
-        \ github.event.pull_request.head.sha }}','retained_run':39243496974,'retained_package_artifact':12184205891,'engine_rebuilt':False,'diagnostic_only':True,'official_acceptance_established':False},indent=2))\n\
-        '@ | python -\nif ($LASTEXITCODE -ne 0) { throw 'Retained evidence pin failed' }\n"
-    - name: Download retained Corrected executable package
-      uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
-      with:
-        artifact-ids: '12184205891'
-        run-id: '39243496974'
-        github-token: ${{ github.token }}
-        repository: Siuuuers/dwm
-        path: .godot/corrected-package
-    - name: Focused transformation and package tests
-      run: 'python -m unittest discover -s "$env:TITLE_TOOLS" -p ''test_*.py'' -v 2>&1 | Tee-Object .godot/ci/python-tests.log
-
-        if ($LASTEXITCODE -ne 0) { throw ''Focused tests failed'' }
-
-        '
+    - name: Bind candidate and retained benchmark input
+      run: "$ErrorActionPreference='Stop'\nNew-Item -ItemType Directory -Force .godot/ci | Out-Null\nif ((git rev-parse HEAD)\
+        \ -ne '08dd31c37375d72214157f53eaa1c38f4eae762b') { throw 'Wrong candidate' }\ngit update-index --force-remove --\
+        \ .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1\nif ($LASTEXITCODE -ne 0) { throw 'Index cleanup\
+        \ failed' }\ngit submodule foreach --recursive 'true'\nif ($LASTEXITCODE -ne 0) { throw 'Index check failed' }\n@'\n\
+        import pathlib,subprocess,json,hashlib,zipfile,io\nout=pathlib.Path('.godot/ci')\narchive=pathlib.Path('evidence/phase_2r/title_timing_20261019/run39279335309/original-evidence.zip').read_bytes()\n\
+        assert hashlib.sha256(archive).hexdigest()=='477cef168d3c7e76f76d19198050866dfe132cc4003e5e486c2d9e8bfbf405c3'\nwith\
+        \ zipfile.ZipFile(io.BytesIO(archive)) as z:\n    matches=[n for n in z.namelist() if n.endswith('exported-load/failure-saves-autosave.json')]\n\
+        \    assert len(matches)==1\n    data=z.read(matches[0])\nassert hashlib.sha256(data).hexdigest()=='253bda51ce175b6bad6345a8932aad3dd70b22640c12f2223a8d9ba6dd58871e'\n\
+        (out/'benchmark-input.json').write_bytes(data)\nfiles={p:subprocess.check_output(['git','hash-object',p],text=True).strip()\
+        \ for p in ['autoload/DialogicBridge.gd', 'scripts/narrative/NarrativeCaptionLedger.gd', 'tests/support/OriginalSceneAnchorBridge.gd',\
+        \ 'tests/support/SceneAnchorAlgorithmFixture.gd', 'tests/integration/test_scene_anchor_algorithm.gd', 'tests/performance/test_scene_anchor_algorithm_benchmark.gd',\
+        \ 'tools/testing/Invoke-IsolatedGodot.ps1']}\n(out/'origin.json').write_text(json.dumps({'candidate':'08dd31c37375d72214157f53eaa1c38f4eae762b','base':'8f59bcc76894bef8856dd2f7c62ca99b50f8c8f7','controller':'${{\
+        \ github.event.pull_request.head.sha }}','files':files,'input_sha256':hashlib.sha256(data).hexdigest()},indent=2))\n\
+        '@ | python -\nif ($LASTEXITCODE -ne 0) { throw 'Source/input custody failed' }\n"
     - name: Install Godot 4.6.3 standard
       run: "$ErrorActionPreference = 'Stop'\n$archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'\nInvoke-WebRequest -Uri\
         \ 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile\
@@ -74,178 +52,262 @@ jobs:
         \ (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }\n\"GODOT_CONSOLE_PATH=$console\"\
         \ | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8\n& $console --version\nif ($LASTEXITCODE -ne 0) { exit\
         \ $LASTEXITCODE }\n"
-    - name: Apply isolated timing overlay and parse PowerShell
-      run: "$overlay=Join-Path $env:RUNNER_TEMP 'title-timing-overlay'\npython \"$env:TITLE_TOOLS/prepare_source.py\" --root\
-        \ $env:GITHUB_WORKSPACE --output $overlay\nif ($LASTEXITCODE -ne 0) { throw 'Source overlay failed' }\nCopy-Item $overlay\
-        \ .godot/ci/source-overlay -Recurse\n$records=@()\nforeach ($p in @('tools/testing/Invoke-ExportedGameplay.ps1',\"\
-        $env:TITLE_TOOLS/Smoke-TimingPackage.ps1\")) {\n  $tokens=$null; $errors=$null\n  $null=[Management.Automation.Language.Parser]::ParseFile([IO.Path]::GetFullPath($p),[ref]$tokens,[ref]$errors)\n\
-        \  $records+=@{path=$p;errors=@($errors | ForEach-Object {$_.Message})}\n}\n$records | ConvertTo-Json -Depth 5 | Set-Content\
-        \ .godot/ci/powershell-parse.json\nif (@($records | Where-Object {$_.errors.Count -gt 0}).Count) { throw 'PowerShell\
-        \ parse failed' }\nCopy-Item \"$env:TITLE_TOOLS/Test-ExportedGameplayDeadline.ps1\" .godot/ci/deadline-fixture.ps1\n\
-        & pwsh -NoProfile -File \"$env:TITLE_TOOLS/Test-ExportedGameplayDeadline.ps1\" -DriverPath tools/testing/Invoke-ExportedGameplay.ps1\
-        \ -OutputPath .godot/ci/deadline-tests.json\nif ($LASTEXITCODE -ne 0) { throw 'Deadline checks failed' }\n"
-    - name: Import and export diagnostic PCK with official standard editor
-      timeout-minutes: 12
-      run: "$ErrorActionPreference='Stop'\n$env:APPDATA=Join-Path $env:RUNNER_TEMP 'title-export-user/appdata'\n$env:LOCALAPPDATA=Join-Path\
-        \ $env:RUNNER_TEMP 'title-export-user/localappdata'\nNew-Item -ItemType Directory -Force $env:APPDATA,$env:LOCALAPPDATA\
-        \ | Out-Null\n& $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file \"$env:GITHUB_WORKSPACE/.godot/ci/import.log\"\
-        \nif ($LASTEXITCODE -ne 0) { throw 'Import failed' }\nCopy-Item .godot/ci/source-overlay/project.export.godot project.godot\
-        \ -Force\n& $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --export-pack 'Windows Desktop' \"$env:GITHUB_WORKSPACE/.godot/ci/DWM.pck\"\
-        \ --log-file \"$env:GITHUB_WORKSPACE/.godot/ci/export.log\"\nif ($LASTEXITCODE -ne 0) { throw 'Diagnostic pack export\
-        \ failed' }\nforeach ($log in @('.godot/ci/import.log','.godot/ci/export.log')) {\n  if (Select-String $log -Pattern\
-        \ 'SCRIPT ERROR:|^\\s*ERROR:|STARTUP_FAILED|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Strict\
-        \ editor error gate failed' }\n}\nCopy-Item .godot/ci/source-overlay/project.original.godot project.godot -Force\n\
-        @'\nimport hashlib,json,pathlib\nimport subprocess\nout=pathlib.Path('.godot/ci');p=out/'DWM.pck';m=json.loads((out/'source-overlay/timing-inventory.json').read_text())\n\
-        for entry in m['files']:\n    assert hashlib.sha256(pathlib.Path(entry['path']).read_bytes()).hexdigest()==entry['after_sha256'],\
-        \ 'Instrumented source changed during import/export'\nallowed={e['path'] for e in m['files']}|{'tools/testing/Invoke-ExportedGameplay.ps1','.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1'}\n\
-        assert set(subprocess.check_output(['git','diff','HEAD','--name-only'],text=True).splitlines())<=allowed, 'Unexpected\
-        \ tracked source mutation'\nassert pathlib.Path('project.godot').read_bytes()==(out/'source-overlay/project.original.godot').read_bytes()\n\
-        m['fresh_pck']={'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()};(out/'source-manifest.json').write_text(json.dumps(m,indent=2))\n\
-        '@ | python -\nif ($LASTEXITCODE -ne 0) { throw 'Fresh pack source receipt failed' }\n"
-    - name: Prepare and smoke reused engine with new diagnostic pack
-      id: package
-      timeout-minutes: 5
-      run: '$packages=@(Get-ChildItem .godot/corrected-package -Recurse -Filter DWM-windows-x86_64-diagnostic.zip -File)
+    - name: Strict import
+      timeout-minutes: 8
+      run: '$ErrorActionPreference=''Stop''
 
-        if ($packages.Count -ne 1) { throw ''Expected one retained corrected package'' }
+        $env:APPDATA=Join-Path $env:RUNNER_TEMP ''anchor-import/appdata''
 
-        python "$env:TITLE_TOOLS/package_timing.py" prepare --original $packages[0].FullName --evidence .godot/ci/retained-corrected
-        --pck .godot/ci/DWM.pck --source-manifest .godot/ci/source-manifest.json --output .godot/ci/title-package
+        $env:LOCALAPPDATA=Join-Path $env:RUNNER_TEMP ''anchor-import/localappdata''
 
-        if ($LASTEXITCODE -ne 0) { throw ''Retained engine/package verification failed'' }
+        New-Item -ItemType Directory -Force $env:APPDATA,$env:LOCALAPPDATA | Out-Null
 
-        & pwsh -NoProfile -File "$env:TITLE_TOOLS/Smoke-TimingPackage.ps1" -OutputPath .godot/ci/title-package
+        & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$env:GITHUB_WORKSPACE/.godot/ci/import.log"
 
-        if ($LASTEXITCODE -ne 0) { throw ''Fresh diagnostic startup failed'' }
+        if ($LASTEXITCODE -ne 0) { throw ''Import failed'' }
 
-        python "$env:TITLE_TOOLS/package_timing.py" finish --output .godot/ci/title-package --smoke-result .godot/ci/title-package/smoke-result.json
+        if (Select-String .godot/ci/import.log -Pattern ''SCRIPT ERROR:|^\s*ERROR:|Unicode parsing error|Unexpected NUL character''
+        -Quiet) { throw ''Strict import log gate failed'' }
 
-        if ($LASTEXITCODE -ne 0) { throw ''Diagnostic sealing failed'' }
+        git restore -- project.godot
 
-        $receipt=Get-Content .godot/ci/title-package/validation.json -Raw | ConvertFrom-Json
+        if ($LASTEXITCODE -ne 0) { throw ''Settings restore failed'' }
 
-        "DWM_EXPORT_SHA=$($receipt.archive.sha256)" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+        (Get-FileHash $env:GODOT_CONSOLE_PATH -Algorithm SHA256).Hash | Set-Content .godot/ci/engine-sha256.txt
+
+        & $env:GODOT_CONSOLE_PATH --version | Set-Content .godot/ci/engine-version.txt
+
+        if ($LASTEXITCODE -ne 0) { throw ''Engine version failed'' }
 
         '
-    - name: Retain diagnostic package before journey
+    - name: Correctness / differential
+      timeout-minutes: 10
+      run: '$ErrorActionPreference=''Stop''
+
+        Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue
+
+        $env:DWM_SCENE_READING_FIXTURE=''1''
+
+        $arguments=@(''-s'',''res://addons/gut/gut_cmdln.gd'',''-gconfig='',''-gtest=res://tests/integration/test_scene_anchor_algorithm.gd'',''-gexit'',''-glog=2'',''-gjunit_xml_file=res://.godot/ci/anchor-differential.xml'')
+
+        & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''anchor-differential'' -LogName ''anchor-differential.log'' -EvidenceLogPath
+        ''.godot/ci/anchor-differential.jsonl'' -TimeoutSeconds 480 -GodotArgs $arguments
+
+        if ($LASTEXITCODE -ne 0) { throw ''Suite differential failed'' }
+
+        $log=''.godot/phase2r_logs/anchor-differential.log''
+
+        if (Select-String $log -Pattern ''SCRIPT ERROR:|^\s*ERROR:|Unicode parsing error|Unexpected NUL character'' -Quiet)
+        { throw ''Strict suite log gate failed'' }
+
+        [xml]$xml=Get-Content ''.godot/ci/anchor-differential.xml'' -Raw
+
+        if ($xml.SelectNodes(''//failure | //error | //skipped'').Count -ne 0) { throw ''Failed or skipped cases'' }
+
+        foreach ($case in $xml.SelectNodes(''//testcase'')) { if ([int]$case.GetAttribute(''assertions'') -le 0 -or $case.GetAttribute(''status'')
+        -ne ''pass'' -or $case.GetAttribute(''classname'') -ne ''tests/integration/test_scene_anchor_algorithm.gd'') { throw
+        ''Nonpassing or vacuous test case'' } }
+
+        $expected=@(''test_current_and_historical_occurrences_match_original'',''test_missing_and_mismatched_anchor_fields_match_original'',''test_late_duplicate_conflict_and_malformed_rows_still_refuse_before_membership'',''test_multiple_faults_preserve_first_refusal'',''test_repeated_invocation_does_not_reuse_prior_checkpoint_or_verdict'')
+
+        $actual=@($xml.SelectNodes(''//testcase'') | ForEach-Object { $_.GetAttribute(''name'') })
+
+        if ($actual.Count -ne $expected.Count -or (Compare-Object ($actual | Sort-Object) ($expected | Sort-Object))) { throw
+        ''Exact test census mismatch'' }
+
+        Write-Host ''ANCHOR_DIFFERENTIAL_VERIFIED cases=5''
+
+        '
+    - name: Correctness / ledger
+      timeout-minutes: 10
+      run: '$ErrorActionPreference=''Stop''
+
+        Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue
+
+        $arguments=@(''-s'',''res://addons/gut/gut_cmdln.gd'',''-gconfig='',''-gtest=res://tests/unit/test_narrative_caption_ledger.gd'',''-gexit'',''-glog=2'',''-gjunit_xml_file=res://.godot/ci/anchor-ledger.xml'')
+
+        & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''anchor-ledger'' -LogName ''anchor-ledger.log'' -EvidenceLogPath
+        ''.godot/ci/anchor-ledger.jsonl'' -TimeoutSeconds 480 -GodotArgs $arguments
+
+        if ($LASTEXITCODE -ne 0) { throw ''Suite ledger failed'' }
+
+        $log=''.godot/phase2r_logs/anchor-ledger.log''
+
+        if (Select-String $log -Pattern ''SCRIPT ERROR:|^\s*ERROR:|Unicode parsing error|Unexpected NUL character'' -Quiet)
+        { throw ''Strict suite log gate failed'' }
+
+        [xml]$xml=Get-Content ''.godot/ci/anchor-ledger.xml'' -Raw
+
+        if ($xml.SelectNodes(''//failure | //error | //skipped'').Count -ne 0) { throw ''Failed or skipped cases'' }
+
+        foreach ($case in $xml.SelectNodes(''//testcase'')) { if ([int]$case.GetAttribute(''assertions'') -le 0 -or $case.GetAttribute(''status'')
+        -ne ''pass'' -or $case.GetAttribute(''classname'') -ne ''tests/unit/test_narrative_caption_ledger.gd'') { throw ''Nonpassing
+        or vacuous test case'' } }
+
+        $expected=@(''test_scene_revisit_and_loop_retain_publications_and_exact_live_duplicates'',''test_scene_requires_explicit_occurrence_and_immutable_exact_frame'',''test_scene_restore_rejects_duplicate_rows_and_noncanonical_keys_atomically'',''test_scene_snapshot_cannot_downgrade_or_accept_foreign_row_occurrence'',''test_actual_publication_order_is_independent_of_registry_order'',''test_same_publication_is_idempotent_but_a_new_occurrence_is_retained'',''test_conflicting_publication_refuses_without_changing_the_sequence'',''test_foreign_token_unknown_line_and_foreign_owner_apply_zero_mutation'',''test_inputs_and_returned_snapshots_are_recursively_detached'',''test_initialized_session_cannot_be_rebound_or_recaptured'',''test_registry_requires_explicit_unique_identity_and_declared_entry_membership'',''test_nonprimitive_context_and_signature_are_refused_before_any_session_install'',''test_uninitialized_ledger_and_empty_publication_identity_are_refused'',''test_entry_context_admission_is_causal_immutable_and_detached'',''test_framed_reconstruction_validates_all_contexts_and_occurrences_before_installing'',''test_original_unframed_snapshot_and_restore_contract_remains_available'')
+
+        $actual=@($xml.SelectNodes(''//testcase'') | ForEach-Object { $_.GetAttribute(''name'') })
+
+        if ($actual.Count -ne $expected.Count -or (Compare-Object ($actual | Sort-Object) ($expected | Sort-Object))) { throw
+        ''Exact test census mismatch'' }
+
+        Write-Host ''ANCHOR_LEDGER_VERIFIED cases=16''
+
+        '
+    - name: Correctness / saved-anchor
+      timeout-minutes: 10
+      run: '$ErrorActionPreference=''Stop''
+
+        Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue
+
+        $arguments=@(''-s'',''res://addons/gut/gut_cmdln.gd'',''-gconfig='',''-gtest=res://tests/integration/test_scene_saved_event_anchor.gd'',''-gexit'',''-glog=2'',''-gjunit_xml_file=res://.godot/ci/anchor-saved-anchor.xml'')
+
+        & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''anchor-saved-anchor'' -LogName ''anchor-saved-anchor.log'' -EvidenceLogPath
+        ''.godot/ci/anchor-saved-anchor.jsonl'' -TimeoutSeconds 480 -GodotArgs $arguments
+
+        if ($LASTEXITCODE -ne 0) { throw ''Suite saved-anchor failed'' }
+
+        $log=''.godot/phase2r_logs/anchor-saved-anchor.log''
+
+        if (Select-String $log -Pattern ''SCRIPT ERROR:|^\s*ERROR:|Unicode parsing error|Unexpected NUL character'' -Quiet)
+        { throw ''Strict suite log gate failed'' }
+
+        [xml]$xml=Get-Content ''.godot/ci/anchor-saved-anchor.xml'' -Raw
+
+        if ($xml.SelectNodes(''//failure | //error | //skipped'').Count -ne 0) { throw ''Failed or skipped cases'' }
+
+        foreach ($case in $xml.SelectNodes(''//testcase'')) { if ([int]$case.GetAttribute(''assertions'') -le 0 -or $case.GetAttribute(''status'')
+        -ne ''pass'' -or $case.GetAttribute(''classname'') -ne ''tests/integration/test_scene_saved_event_anchor.gd'') { throw
+        ''Nonpassing or vacuous test case'' } }
+
+        $expected=@(''test_real_issuer_profile_reading_and_storage_pass_full_run_and_save_apis'',''test_rebuilt_authenticated_absent_publication_fails_full_run_and_save_anchor_join'',''test_rebuilt_authenticated_wrong_catalogue_fails_full_run_and_save_anchor_join'',''test_other_occurrence_anchor_is_refused_by_authenticated_source_binding'',''test_warm_scene_splice_preserves_history_and_admits_exact_document_proofs'',''test_scene_splice_still_refuses_missing_or_substituted_history_proofs'',''test_legacy_splice_normalization_keeps_empty_history_shortcut_and_cold_path'')
+
+        $actual=@($xml.SelectNodes(''//testcase'') | ForEach-Object { $_.GetAttribute(''name'') })
+
+        if ($actual.Count -ne $expected.Count -or (Compare-Object ($actual | Sort-Object) ($expected | Sort-Object))) { throw
+        ''Exact test census mismatch'' }
+
+        Write-Host ''ANCHOR_SAVED-ANCHOR_VERIFIED cases=7''
+
+        '
+    - name: Correctness / receipt
+      timeout-minutes: 10
+      run: '$ErrorActionPreference=''Stop''
+
+        Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue
+
+        $arguments=@(''-s'',''res://addons/gut/gut_cmdln.gd'',''-gconfig='',''-gtest=res://tests/unit/test_scene_receipt_validation.gd'',''-gexit'',''-glog=2'',''-gjunit_xml_file=res://.godot/ci/anchor-receipt.xml'')
+
+        & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''anchor-receipt'' -LogName ''anchor-receipt.log'' -EvidenceLogPath
+        ''.godot/ci/anchor-receipt.jsonl'' -TimeoutSeconds 480 -GodotArgs $arguments
+
+        if ($LASTEXITCODE -ne 0) { throw ''Suite receipt failed'' }
+
+        $log=''.godot/phase2r_logs/anchor-receipt.log''
+
+        if (Select-String $log -Pattern ''SCRIPT ERROR:|^\s*ERROR:|Unicode parsing error|Unexpected NUL character'' -Quiet)
+        { throw ''Strict suite log gate failed'' }
+
+        [xml]$xml=Get-Content ''.godot/ci/anchor-receipt.xml'' -Raw
+
+        if ($xml.SelectNodes(''//failure | //error | //skipped'').Count -ne 0) { throw ''Failed or skipped cases'' }
+
+        foreach ($case in $xml.SelectNodes(''//testcase'')) { if ([int]$case.GetAttribute(''assertions'') -le 0 -or $case.GetAttribute(''status'')
+        -ne ''pass'' -or $case.GetAttribute(''classname'') -ne ''tests/unit/test_scene_receipt_validation.gd'') { throw ''Nonpassing
+        or vacuous test case'' } }
+
+        $expected=@(''test_registered_issuer_receipt_and_completion_child_rebuild_exactly'',''test_unissued_command_and_completion_child_forgery_refuse'',''test_shape_scalar_version_registration_and_result_tampering_refuse'',''test_hole_predecessor_and_unknown_receipt_family_refuse'',''test_legacy_partitions_remain_explicit_and_unknown_or_extended_members_refuse'',''test_admission_has_real_root_and_exact_child_bound_request'',''test_second_root_and_missing_admission_refuse_without_guessing_lineage'',''test_triggered_admission_reuses_accepted_transition_and_refuses_changed_preimage'',''test_notification_result_is_exact_and_clear_requires_retained_set'')
+
+        $actual=@($xml.SelectNodes(''//testcase'') | ForEach-Object { $_.GetAttribute(''name'') })
+
+        if ($actual.Count -ne $expected.Count -or (Compare-Object ($actual | Sort-Object) ($expected | Sort-Object))) { throw
+        ''Exact test census mismatch'' }
+
+        Write-Host ''ANCHOR_RECEIPT_VERIFIED cases=9''
+
+        '
+    - name: Correctness / terminal
+      timeout-minutes: 10
+      run: '$ErrorActionPreference=''Stop''
+
+        Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue
+
+        $arguments=@(''-s'',''res://addons/gut/gut_cmdln.gd'',''-gconfig='',''-gtest=res://tests/unit/test_scene_terminal_lifecycle.gd'',''-gexit'',''-glog=2'',''-gjunit_xml_file=res://.godot/ci/anchor-terminal.xml'')
+
+        & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''anchor-terminal'' -LogName ''anchor-terminal.log'' -EvidenceLogPath
+        ''.godot/ci/anchor-terminal.jsonl'' -TimeoutSeconds 480 -GodotArgs $arguments
+
+        if ($LASTEXITCODE -ne 0) { throw ''Suite terminal failed'' }
+
+        $log=''.godot/phase2r_logs/anchor-terminal.log''
+
+        if (Select-String $log -Pattern ''SCRIPT ERROR:|^\s*ERROR:|Unicode parsing error|Unexpected NUL character'' -Quiet)
+        { throw ''Strict suite log gate failed'' }
+
+        [xml]$xml=Get-Content ''.godot/ci/anchor-terminal.xml'' -Raw
+
+        if ($xml.SelectNodes(''//failure | //error | //skipped'').Count -ne 0) { throw ''Failed or skipped cases'' }
+
+        foreach ($case in $xml.SelectNodes(''//testcase'')) { if ([int]$case.GetAttribute(''assertions'') -le 0 -or $case.GetAttribute(''status'')
+        -ne ''pass'' -or $case.GetAttribute(''classname'') -ne ''tests/unit/test_scene_terminal_lifecycle.gd'') { throw ''Nonpassing
+        or vacuous test case'' } }
+
+        $expected=@(''test_authenticated_terminal_roundtrip_retains_source_without_legacy_day'',''test_terminal_tampering_stale_source_and_ordinary_admission_are_refused'',''test_physical_completion_and_gallery_are_ordered_and_persisted'',''test_delayed_duplicate_admission_preserves_ending_reader_and_completed_run'',''test_terminal_route_waits_for_transaction_then_rejects_replaced_session'')
+
+        $actual=@($xml.SelectNodes(''//testcase'') | ForEach-Object { $_.GetAttribute(''name'') })
+
+        if ($actual.Count -ne $expected.Count -or (Compare-Object ($actual | Sort-Object) ($expected | Sort-Object))) { throw
+        ''Exact test census mismatch'' }
+
+        Write-Host ''ANCHOR_TERMINAL_VERIFIED cases=5''
+
+        '
+    - name: Benchmark only after clean correctness
+      timeout-minutes: 10
+      run: '$ErrorActionPreference=''Stop''
+
+        Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue
+
+        $env:DWM_ANCHOR_INPUT_PATH=Join-Path $env:GITHUB_WORKSPACE ''.godot/ci/benchmark-input.json''
+
+        $arguments=@(''-s'',''res://addons/gut/gut_cmdln.gd'',''-gconfig='',''-gtest=res://tests/performance/test_scene_anchor_algorithm_benchmark.gd'',''-gexit'',''-glog=2'',''-gjunit_xml_file=res://.godot/ci/anchor-benchmark.xml'')
+
+        & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''anchor-benchmark'' -LogName ''anchor-benchmark.log'' -EvidenceLogPath
+        ''.godot/ci/anchor-benchmark.jsonl'' -TimeoutSeconds 480 -GodotArgs $arguments
+
+        if ($LASTEXITCODE -ne 0) { throw ''Suite benchmark failed'' }
+
+        $log=''.godot/phase2r_logs/anchor-benchmark.log''
+
+        if (Select-String $log -Pattern ''SCRIPT ERROR:|^\s*ERROR:|Unicode parsing error|Unexpected NUL character'' -Quiet)
+        { throw ''Strict suite log gate failed'' }
+
+        [xml]$xml=Get-Content ''.godot/ci/anchor-benchmark.xml'' -Raw
+
+        if ($xml.SelectNodes(''//failure | //error | //skipped'').Count -ne 0) { throw ''Failed or skipped cases'' }
+
+        foreach ($case in $xml.SelectNodes(''//testcase'')) { if ([int]$case.GetAttribute(''assertions'') -le 0 -or $case.GetAttribute(''status'')
+        -ne ''pass'' -or $case.GetAttribute(''classname'') -ne ''tests/performance/test_scene_anchor_algorithm_benchmark.gd'')
+        { throw ''Nonpassing or vacuous test case'' } }
+
+        $expected=@(''test_complete_anchor_routine_matched_samples'')
+
+        $actual=@($xml.SelectNodes(''//testcase'') | ForEach-Object { $_.GetAttribute(''name'') })
+
+        if ($actual.Count -ne $expected.Count -or (Compare-Object ($actual | Sort-Object) ($expected | Sort-Object))) { throw
+        ''Exact test census mismatch'' }
+
+        Write-Host ''ANCHOR_BENCHMARK_VERIFIED cases=1''
+
+        '
+    - name: Retain all outcomes
+      if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: title-timing-package-${{ github.run_id }}-${{ github.run_attempt }}
-        path: .godot/ci/title-package/DWM-windows-x86_64-diagnostic.zip
-        include-hidden-files: true
-        if-no-files-found: error
-        retention-days: 7
-    - name: Run original capability gates on the diagnostic native package
-      id: capability
-      continue-on-error: true
-      timeout-minutes: 10
-      run: '$ErrorActionPreference = ''Stop''
-
-        $PSNativeCommandUseErrorActionPreference = $false
-
-        $watch = [Diagnostics.Stopwatch]::StartNew()
-
-        & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Capability -ArchivePath (Join-Path $env:GITHUB_WORKSPACE
-        ''.godot/ci/title-package/DWM-windows-x86_64-diagnostic.zip'') -ExpectedArchiveSha256 $env:DWM_EXPORT_SHA -ExpectedCommit
-        ''81847d8b1560340a3a7769223cee0b46c6bdc0f9'' -UserRoot (Join-Path $env:RUNNER_TEMP ''dwm-capability-user'') -OutputPath
-        (Join-Path $env:GITHUB_WORKSPACE ''.godot/ci/exported-capability'') -Accessibility Always -Audio Dummy
-
-        $code = $LASTEXITCODE; $watch.Stop()
-
-        @{mode=''Capability'';exit_code=$code;elapsed_seconds=$watch.Elapsed.TotalSeconds;diagnostic_native=$true;trace_enabled=$false}
-        | ConvertTo-Json | Set-Content ''.godot/ci/capability-process.json''
-
-        if ($code -ne 0) { exit $code }
-
-        $result=Get-Content ''.godot/ci/exported-capability/result.json'' -Raw | ConvertFrom-Json
-
-        if (-not $result.ok -or -not $result.clean_player_exit -or $result.forced_cleanup -or $result.exit_code -ne 0) { throw
-        ''Capability failed its original gate'' }
-
-        '
-    - name: Create the original Day4 save on the diagnostic native package
-      id: create
-      if: ${{ !cancelled() && steps.capability.outcome == 'success' }}
-      continue-on-error: true
-      timeout-minutes: 10
-      run: '$ErrorActionPreference = ''Stop''
-
-        $PSNativeCommandUseErrorActionPreference = $false
-
-        $watch = [Diagnostics.Stopwatch]::StartNew()
-
-        & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Create -ArchivePath (Join-Path $env:GITHUB_WORKSPACE
-        ''.godot/ci/title-package/DWM-windows-x86_64-diagnostic.zip'') -ExpectedArchiveSha256 $env:DWM_EXPORT_SHA -ExpectedCommit
-        ''81847d8b1560340a3a7769223cee0b46c6bdc0f9'' -UserRoot (Join-Path $env:RUNNER_TEMP ''dwm-journey-user'') -OutputPath
-        (Join-Path $env:GITHUB_WORKSPACE ''.godot/ci/exported-create'') -Accessibility Always -Audio Dummy -CapabilityReceipt
-        (Join-Path $env:GITHUB_WORKSPACE ''.godot/ci/exported-capability/result.json'')
-
-        $code = $LASTEXITCODE; $watch.Stop()
-
-        @{mode=''Create'';exit_code=$code;elapsed_seconds=$watch.Elapsed.TotalSeconds;diagnostic_native=$true;trace_enabled=$false}
-        | ConvertTo-Json | Set-Content ''.godot/ci/create-process.json''
-
-        if ($code -ne 0) { exit $code }
-
-        $result=Get-Content ''.godot/ci/exported-create/result.json'' -Raw | ConvertFrom-Json
-
-        if (-not $result.ok -or -not $result.clean_player_exit -or $result.forced_cleanup -or $result.exit_code -ne 0) { throw
-        ''Create failed its original gate'' }
-
-        '
-    - name: Capture naturally committed consumer state during the original Load journey
-      id: load
-      if: ${{ !cancelled() && steps.create.outcome == 'success' }}
-      continue-on-error: true
-      timeout-minutes: 10
-      run: "$ErrorActionPreference = 'Stop'\n$PSNativeCommandUseErrorActionPreference = $false\n$traceRoot = Join-Path $env:GITHUB_WORKSPACE\
-        \ '.godot/ci/consumer-trace'\nNew-Item -ItemType Directory -Path $traceRoot | Out-Null\n$env:GODOT_ACCESSKIT_CONSUMER_TRACE_PATH\
-        \ = Join-Path $traceRoot 'trace-{pid}.jsonl'\n$queryRoot = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/query-trace'\n\
-        New-Item -ItemType Directory -Force $queryRoot | Out-Null\n$env:GODOT_ACCESSKIT_QUERY_TRACE_PATH = Join-Path $queryRoot\
-        \ 'trace-{pid}.jsonl'\n$env:DWM_TITLE_TIMING_PATH=Join-Path $env:GITHUB_WORKSPACE '.godot/ci/title-timing.jsonl'\n\
-        $watch = [Diagnostics.Stopwatch]::StartNew()\ntry {\n  & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1\
-        \ -Mode Load -ArchivePath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/title-package/DWM-windows-x86_64-diagnostic.zip')\
-        \ -ExpectedArchiveSha256 $env:DWM_EXPORT_SHA -ExpectedCommit '81847d8b1560340a3a7769223cee0b46c6bdc0f9' -UserRoot\
-        \ (Join-Path $env:RUNNER_TEMP 'dwm-journey-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-load')\
-        \ -Accessibility Always -Audio Dummy -CreatorReceipt (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-create/result.json')\
-        \ -ProfileSaveLoad -ContinueAfterQuiet -TraceDay5 -NativeReadyCaptions -TraceEndingActions\n  $code = $LASTEXITCODE\n\
-        } finally {\n  Remove-Item Env:DWM_TITLE_TIMING_PATH\n  Remove-Item Env:GODOT_ACCESSKIT_CONSUMER_TRACE_PATH\n  Remove-Item\
-        \ Env:GODOT_ACCESSKIT_QUERY_TRACE_PATH\n  $watch.Stop()\n}\n@{mode='Load';exit_code=$code;elapsed_seconds=$watch.Elapsed.TotalSeconds;diagnostic_native=$true;trace_enabled=$true;trace_pattern='consumer-trace/trace-{pid}.jsonl';query_trace_enabled=$true;query_trace_pattern='query-trace/trace-{pid}.jsonl'}\
-        \ | ConvertTo-Json | Set-Content '.godot/ci/load-process.json'\nif ($code -ne 0) { exit $code }\n$result=Get-Content\
-        \ '.godot/ci/exported-load/result.json' -Raw | ConvertFrom-Json\nif (-not $result.ok -or -not $result.clean_player_exit\
-        \ -or $result.forced_cleanup -or $result.exit_code -ne 0) { throw 'Load failed its original gate' }\n"
-    - name: Preserve original outcome and timing limitations
-      if: always()
-      run: "$failures=[Collections.Generic.List[string]]::new()\nforeach ($mode in @('capability','create','load')) {\n $p=\"\
-        .godot/ci/exported-$mode/result.json\"\n if (-not (Test-Path $p)) { $failures.Add(\"Missing $mode result\"); continue\
-        \ }\n $r=Get-Content $p -Raw | ConvertFrom-Json\n if (-not $r.ok -or -not $r.clean_player_exit -or $r.forced_cleanup\
-        \ -or $r.exit_code -ne 0) {$failures.Add(\"$mode original gate failed\")}\n}\n@{ok=($failures.Count -eq 0);diagnostic_only=$true;official_acceptance_established=$false;failures=$failures.ToArray();interpretation='Separate\
-        \ game readiness, native acquisition, durable snapshot and clean exit. Missing timing anchors remain inconclusive.'}\
-        \ | ConvertTo-Json -Depth 5 | Set-Content .godot/ci/diagnostic-outcome.json\nif ($failures.Count) { throw ($failures\
-        \ -join '; ') }\n"
-    - name: Seal diagnostic evidence
-      if: always()
-      run: "@'\nimport hashlib,json,pathlib\nroot=pathlib.Path('.godot/ci'); files=[]\nfor p in sorted(root.rglob('*')):\n\
-        \    if p.is_file() and p.name!='timing-evidence-manifest.json' and not any(part in ('package','smoke-user','retained-corrected')\
-        \ for part in p.relative_to(root).parts) and p.suffix not in ('.zip','.pck'):\n        files.append({'path':p.relative_to(root).as_posix(),'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()})\n\
-        (root/'timing-evidence-manifest.json').write_text(json.dumps({'files':files},indent=2))\n'@ | python -\nif ($LASTEXITCODE\
-        \ -ne 0) { throw 'Evidence seal failed' }\n"
-    - name: Retain original timing evidence
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: title-timing-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+        name: anchor-algorithm-${{ github.run_id }}-${{ github.run_attempt }}
         path: '.godot/ci/
 
-          !.godot/ci/**/package/**
-
-          !.godot/ci/**/smoke-user/**
-
-          !.godot/ci/retained-corrected/**
-
-          !.godot/ci/**/*.zip
-
-          !.godot/ci/**/*.pck'
+          .godot/phase2r_logs/anchor-*.log'
         include-hidden-files: true
         if-no-files-found: error
         retention-days: 7
