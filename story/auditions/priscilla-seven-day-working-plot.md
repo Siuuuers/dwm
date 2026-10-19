@@ -1,5 +1,19 @@
 # Priscilla: current seven-day working plot and discussion checkpoint
 
+## Current Day 2 beat, atmosphere and duration review, 2026-10-19
+
+**Source:** the owner's 19:12 Asia/Hong_Kong message asks about beats, atmosphere, duration, likely audience response, sufficient unease/absurdity and cuts or additions for more relational thrill. The inspected predecessor is the complete Day 2 reading at [ba0eaa63d7a3be69fccfb0ee3d32bfd8477acc53](https://github.com/Siuuuers/dwm/blob/ba0eaa63d7a3be69fccfb0ee3d32bfd8477acc53/story/relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md).
+
+**Assistant judgment:** keep the current prose and structure for the next family comparison. It offers controlled psychological-romantic suspense and a concentrated absurd funeral improvisation. The strongest reversal is welcomed tenderness followed by actual departure. The opening supplies guarded enjoyment because departure is raised early. This particular scene does not supply continuous chaos, randomness, psychedelia or a new Observer anomaly.
+
+The [scene owner's current review](../relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md#current-bounded-review) records twelve functional beats, the existing pleasures to preserve, different plausible audience responses, the risks of uniformly polished replies and compressed lived time, and one optional two-line cut with its cost. That cut is not applied. The current audience-facing narrative is unchanged.
+
+**Duration:** 744 words under the stated counting convention; 134 Markdown prose/dialogue units are not 134 beats or selected DTL boxes. Roughly 6–8 minutes is an initial presentation target, derived from explicit reading/presentation assumptions rather than runtime measurement. Optional board time is additional; fictional dinner duration remains unselected.
+
+**Review and capture:** two same-model helpers with shared context reviewed the actual current reading for craft, tone and reader-response risks; the root read and counted it and judged the proposed alternatives. These are editorial predictions, not audience tests. This coherent review stays in the existing owner and PR #41 under the standing Markdown/push authorization; Git retains previous checkpoints. Exact scene acts and prose remain **AUDITIONING**.
+
+**Next unit:** ordinary and substantively softer continuations, then Day 2 family and Day 3 carry. Whole-week plotting still precedes complete DTL. Performance, rendered/audio/runtime testing, complete Day 2 family/day and week audits, and the protected historical bar/residue audit remain outside this pass.
+
 ## Current Day 2 menu, embodied attention and jealousy refinement, 2026-10-19
 
 **Source:** the owner's current message values the complete scene, questions the generic menu summary and “I sit a little straighter,” invites bodily/perceptual writing with *La Jalousie* and *Le Planétarium* as references while preserving naturalness, and requests more intense anger and jealousy. This is a scoped revision request, not a new canon selection.

@@ -1,28 +1,26 @@
 # Story workspace
 
-## Current Day 2 refinement, 2026-10-19
+## Current Day 2 beat review, 2026-10-19
 
-The [current checkpoint](auditions/priscilla-seven-day-working-plot.md#current-day-2-menu-embodied-attention-and-jealousy-refinement-2026-10-19)
-records the owner's request for a more particular menu choice, embodied
-perception and more intense anger and jealousy. The [complete Day 2 candidate](relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md#current-reading-day-1-d-into-the-leading-day-2-dark-encounter)
-now gives the dinner concrete choices, makes the aunt's performance bodily
-present and sharpens the comparison between Sylvia's recorded reply and
-Priscilla's later call. The later argument and tenderness/departure reversal
-retain their sequence.
+The [current checkpoint](auditions/priscilla-seven-day-working-plot.md#current-day-2-beat-atmosphere-and-duration-review-2026-10-19)
+records the owner's questions about beats, atmosphere, duration, audience response
+and cuts/additions. The [Day 2 review](relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md#current-bounded-review)
+maps the complete current encounter and recommends keeping its prose for the next
+family comparison. The scene offers controlled psychological suspense, absurd
+comic pleasure and a strong tenderness/departure reversal. The working 6–8 minute
+presentation target is an estimate, not measured runtime.
 
-This is one leading Dark encounter and coda after Day 1 D, **AUDITIONING**.
-The [preceding Day 1 verdict](auditions/priscilla-seven-day-working-plot.md#current-day-1-verdict-and-day-2-assembly-2026-10-19-at-1609)
-still recommends moving on; that manuscript is unchanged by this refinement.
-Two same-model readers checked the actual revised prefix; the owner centralizes
-the bounded review and its limits.
+This remains one leading Dark encounter and coda after Day 1 D, **AUDITIONING**.
+The 744-word narrative is unchanged by this review. Two same-model readers
+considered the actual reading; the owner records their bounded scope, reader
+predictions and one unapplied cut. The preceding menu, bodily-attention and
+jealousy refinement remains in the current manuscript.
 
 **Capture destination:** existing [PR #41](https://github.com/Siuuuers/dwm/pull/41)
-under the standing Markdown/push authorization, with earlier readings retained
-in Git. Next compare ordinary and softer continuations, then assemble the
-Day 2 family and Day 3 carry. The whole-week DTL gate and historical
-residence/bar/residue holds remain. PR metadata establishes publication
-and merge state.
-
+under the standing Markdown/push authorization, with earlier readings in Git.
+Next develop ordinary and softer continuations, then the Day 2 family and
+Day 3 carry. The whole-week DTL gate and historical residence/bar/residue
+holds remain. PR metadata establishes publication and merge state.
 
 ## Current book and attention experiment, 2026-10-19 at 15:24
 

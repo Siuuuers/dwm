@@ -1,10 +1,10 @@
 # Day 2: dinner, the personal answer, and tenderness before departure
 
-**Current audition:** 2026-10-19, menu, embodied attention and jealousy refinement.  
-**Source baseline:** [9562c4297151eb8257f418df3e670ee1b5918760](https://github.com/Siuuuers/dwm/blob/9562c4297151eb8257f418df3e670ee1b5918760/story/relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md).  
+**Current audition:** 2026-10-19, beat, atmosphere and duration review of the refined Dark candidate.  
+**Source baseline:** [ba0eaa63d7a3be69fccfb0ee3d32bfd8477acc53](https://github.com/Siuuuers/dwm/blob/ba0eaa63d7a3be69fccfb0ee3d32bfd8477acc53/story/relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md).  
 **Status:** **AUDITIONING**. The current reading assembles one complete leading Dark encounter and its earned coda after **Day 1 D**. It is not the complete five-result Day 2 family, selected canon, executable DTL, or a completed whole-day/week audit.
 
-The owner values the assembled scene and asks for a more interesting menu choice, bodily or perceptual detail in place of generic posture reports, and more intense anger and jealousy. The assistant recommends a focused refinement within this complete encounter. The [current shared checkpoint](../../../auditions/priscilla-seven-day-working-plot.md#current-day-2-menu-embodied-attention-and-jealousy-refinement-2026-10-19) records the request, reasons and scope. The [preceding Day 1 verdict and Day 2 assembly](../../../auditions/priscilla-seven-day-working-plot.md#current-day-1-verdict-and-day-2-assembly-2026-10-19-at-1609) retains its dated scope.
+The owner asks about the scene's beats, atmosphere, duration, likely audience response and possible cuts or additions. The assistant recommends keeping the current prose for the next family comparison: it is a compact, controlled psychological-romantic encounter with one concentrated absurd pleasure and a consequential final reversal. The [current shared checkpoint](../../../auditions/priscilla-seven-day-working-plot.md#current-day-2-beat-atmosphere-and-duration-review-2026-10-19) and [bounded review](#current-bounded-review) record the assessment and its limits. The [preceding refinement](../../../auditions/priscilla-seven-day-working-plot.md#current-day-2-menu-embodied-attention-and-jealousy-refinement-2026-10-19) retains its reasons and audition status.
 
 This reading develops the existing tenderness/departure effect and fills its missing pleasure-to-conflict lead-in. The earlier physical-book loan is replaced locally by remembered performance: Sylvia keeps *The Funeral Rehearsal*, and Lavinia already heard Priscilla's aunt voice in the Day 1 call. No friendly handover erases Sylvia's objection in D. The strike, obstructed departure, welcomed later hair touch, exact dialogue and placement below remain assistant-authored candidates.
 
@@ -346,6 +346,59 @@ For a Day 2 Perfect after Day 1 A–D, first recognition must be authored at its
 **Next unit:** compare a complete ordinary continuation and a substantively softer continuation against this Dark candidate, then assemble the five-state family and Day 3 carry. The one identically presented Dark P–L ending governs the eventual relationship resolution; local softness does not create a second ending. Whole-week plotting still precedes complete DTL.
 
 ## Current bounded review
+
+### Beat, atmosphere and duration review, 2026-10-19
+
+**Source and verdict:** the owner's 19:12 Asia/Hong_Kong request asks what the beats do, what atmosphere and audience feelings they invite, how long the scene lasts, whether it is sufficiently unsettling and absurd, and what to cut or add for more relational thrill. Review the complete current D-to-Dark reading at [ba0eaa63d7a3be69fccfb0ee3d32bfd8477acc53](https://github.com/Siuuuers/dwm/blob/ba0eaa63d7a3be69fccfb0ee3d32bfd8477acc53/story/relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md), not the retained October alternatives. **Assistant recommendation: keep the present scene architecture and prose for the next family comparison.** It supplies intimate psychological suspense, a particular absurd comic episode and substantial human danger. It is controlled rather than continuously chaotic, random, psychedelic or supernatural. No new scene act or Observer effect is selected by this assessment.
+
+#### Functional beat map
+
+These twelve editorial units identify changes in activity, tactic, expectation or access. They are not DTL boxes, an obligatory beat count or timed checkpoints.
+
+| Beat | Observable change | Intended opportunity for the audience |
+|---|---|---|
+| 1. Dinner extends the drink | Lavinia chooses food and continued company. | Relief and an attractive possibility of a longer evening. |
+| 2. Menu choices | The returning finger and Priscilla's order make both dishes available. | Particular, pleasurable attentiveness. |
+| 3. Funeral improvisation | Lavinia invents a recovery after the mourners change clothes; Priscilla's voice breaks into laughter. | Shared invention and the scene's clearest absurd pleasure. |
+| 4. Shared plate | Priscilla takes another piece; Lavinia leaves the plate between them. | A little lived ease and freely offered proximity. |
+| 5. “After her” | The recording/call sequence becomes a personal comparison involving Sylvia. | Jealous friction; yesterday enters the present dinner. |
+| 6. Hand and “Before England” | Contact accompanies a personal question; Priscilla's present-tense answer is redirected to their history. | Hope and apprehension together. |
+| 7. Submission and accommodation | Priscilla offers another process without accepting moral fault. | An answer that does not resolve the disagreement. |
+| 8. “That too” | Desire to retain Lavinia is admitted alongside genuine concern. | More candor without a guarantee of reassurance. |
+| 9. Coat, anticipated intervention and strike | An attempted departure and further reply culminate in bodily harm. | Abrupt alarm; the earlier pleasure cannot contain the danger. |
+| 10. Obstruction and release | Priscilla blocks the route, offers reassurance instead of passage, then moves. | A second change in how her need for company can be understood. |
+| 11. Welcomed touch, actual departure | A stopped approach becomes a specifically welcomed touch, but Lavinia still leaves. | The central reversal: tenderness does not obtain the company Priscilla asks for. |
+| 12. Arrival message | The requested “Home” arrives; Priscilla replaces a draft with her good-night message. | An ordinary connection survives an evening that has not been repaired. |
+
+The opening offers **guarded enjoyment**, not complete unsuspecting safety: “Do you want me to leave?” introduces the departure concern early. The funeral joke can acquire a retrospective relation to the later struggle over leaving, but that is an audience interpretation, not a forecast, proof of Observer intervention or Lavinia's privately selected plan. No explanatory self-talk should certify the correspondence. Most later unease comes from the mismatch between words, contact and practical decisions. The strike may dominate some readers' memories; the touch followed by departure gives the scene its more particular emotional payoff.
+
+#### Duration: count and planning assumptions
+
+The current audience-facing narrative has **744 English word tokens**, counting contractions and hyphenated compounds once, including displayed messages, and excluding headings, speaker labels, author notes and retained alternatives. There are **134 blank-line prose/dialogue units**, not 134 dramatic beats or selected text boxes.
+
+| Current movement | Words | Initial presentation allowance |
+|---|---:|---|
+| A longer evening | 335 | About 2–3 minutes |
+| An answer | 202 | About 1½–2 minutes |
+| Still leaving | 167 | About 1½–2 minutes |
+| Later | 40 | About 20–40 seconds |
+| Total | 744 | Roughly 6–8 minutes as a working target |
+
+These are editorial allowances, not measured runtime, an empirical average reading speed, or locked timings. At an assumed 180 words/minute, the text alone takes about 4.1 minutes; advances, action, reaction and transitions add presentation time. Actual box grouping, voice performance and reader behavior are untested. Optional Minesweeper time is additional; the current opportunity and mapping are still open. Fictional dinner duration is also unselected: ordering, food arrival and eating compress elapsed time, so screen duration cannot be treated as the full evening's duration.
+
+#### Audience expectations and the proportionate next change
+
+Likely reactions remain predictions. A reader drawn to verbal rivalry may relish the sharper answers; one absorbed in Priscilla's longing may feel the failed hope around the touch; another may withdraw romantic investment at the strike or obstruction. A reader expecting a new uncanny event in every encounter may find this dinner comparatively realistic. The scene need not produce identical feelings, but it should preserve curiosity about what Priscilla will do when affection can coexist with an actual departure. Day 1 D's known violation is part of this audience's intake; Priscilla is not newly revealed as dangerous only after being struck.
+
+The main craft risks are **uniformly perfect conversational countering** and **compressed lived time**, not insufficient harm. Preserve the funeral invention, the failed performance, food sharing, the exposed “Then why did you do that?” and the unsent draft. They keep pleasure, need and uncertainty available beside the exact replies. A performance trial should give the laughter, stopped glass and touch/departure sequence different amounts of space rather than slow every line equally. This is a presentation recommendation, not a new animation, timing rule or implemented DTL change.
+
+**One optional cut, not applied:** move directly from “That too” and the stopped glass to Lavinia getting up, removing “Is that supposed to make me feel better?” / “You asked me.” The gain is a faster physical response to the admission. The cost is losing Lavinia's explicit sting and Priscilla's claim that answering honestly should account for the hurt. The assistant does not yet prefer the cut over the current version; a comparison at performance scope would resolve its actual value.
+
+**Addition recommendation:** no new narrative incident is needed for this reading. Let existing pleasure and the last reversal register. An extra accusation, replayed book phrase, staff joke or conspicuous anomaly would need a separate dramatic purpose; the current scene does not need one to satisfy a tonal quota.
+
+**Review scope:** two same-model helpers with shared context reviewed the actual complete reading for beat function, tone, audience-response risks and proportionate changes; neither found a high-confidence defect requiring another prose revision. The root independently read and counted the current text and compared the recommendations. These are bounded editorial judgments, not test-audience findings or a whole-day/week review. No staged read-through, voice/audio/render review, runtime/DTL, complete five-result family or historical bar/residue audit was performed. Next develop the ordinary and substantively softer continuations, then compare the Day 2 family and Day 3 carry.
+
+### Previous menu and jealousy refinement, source ba0eaa63
 
 **Owner request, 2026-10-19:** make the summary of menu indecision more interesting; try bodily attention in place of “I sit a little straighter,” using *La Jalousie* and *Le Planétarium* as references while preferring natural, beautiful prose; intensify the anger and jealousy the owner enjoys. This approves development of those effects, not every newly written line.
 
