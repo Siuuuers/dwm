@@ -1,3 +1,7 @@
+# Latest: raw-name correction prepared; external C review pending
+
+See [exact correction, source pins and retry gate](raw-name-correction.md). Director6268770485 authorizes one retry after C reviews this changed packet. The historical failed outcome remains retained below. No retry has been dispatched.
+
 # Latest outcome — preflight failure; no native execution
 
 The reviewed controller was installed once as34abf2cd. Run39262225003 stopped at the Windows Python preflight:26 tests passed, one raw-backslash ZIP test failed. Godot/export/player steps did not execute. [Untouched archive, verified manifests, diagnosis and smallest correction proposal](run39262225003/README.md). No automatic retry; C/Director review next. The preparation record below is historical, including its then-pending dispatch status.

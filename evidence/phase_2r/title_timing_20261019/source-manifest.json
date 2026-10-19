@@ -42,8 +42,8 @@
     },
     {
       "path": "source/new-title-tools/package_timing.py",
-      "bytes": 10809,
-      "sha256": "a4000830c81b24eee553a15ef2181846081a28a1a24b382b9126d67e932712b6"
+      "bytes": 10931,
+      "sha256": "ba7b92baac63649048972e9cfae9fa79aa3022c9dd44b923b81d46e02dc1e915"
     },
     {
       "path": "source/new-title-tools/prepare_source.py",
@@ -62,8 +62,8 @@
     },
     {
       "path": "source/new-title-tools/test_package_timing.py",
-      "bytes": 6795,
-      "sha256": "e7c34b0d9eb810f49b6f7982f26bc68d473431ca35d240cc4bcfa8ae6d8cb59e"
+      "bytes": 7991,
+      "sha256": "1fa0c26648690fc4cc5d51bb89a523ed7f176ce75c8c0857ab1b23f26cd3a9e8"
     },
     {
       "path": "source/old-controller.yml",
