@@ -101,7 +101,7 @@ class BinderTests(unittest.TestCase):
             consumer_sdk_receipt_sha256=digest((self.folder/'consumer-sdk/sdk-receipt.json').read_bytes()))
         self.write('native-build/build-receipt.json',build)
         stdout=self.folder/'exported-load/game.stdout.log'
-        stdout.write_text(stdout.read_text().replace('dwm_publication_probe_v1','dwm_consumer_probe_v1'))
+        stdout.write_text(stdout.read_text().replace('dwm_publication_probe_v1','dwm_consumer_probe_v1').replace(' - synthetic fixture',' - https://godotengine.org'))
         self.rows=[row()]
         self.rows[0].update(hwnd=hex(self.fixture.HWND),unix_us=self.fixture.BASE_US+2000000,capture_end_unix_us=self.fixture.BASE_US+2010000)
         self.trace()
@@ -120,6 +120,15 @@ class BinderTests(unittest.TestCase):
         self.assertTrue(result['binding_ok'],result['errors'])
         self.assertTrue(result['native_outcomes']['load']['result']['ok'])
         self.assertFalse(result['official_acceptance_established'])
+    def test_exact_dated_banner_and_reject_noncanonical(self):
+        target=self.folder/'exported-load/game.stdout.log'
+        original=target.read_text()
+        target.write_text(original.replace(' - https://godotengine.org', ' (2026-05-20 13:47:53 UTC) - https://godotengine.org',1))
+        result=bind(self.folder)
+        self.assertTrue(result['binding_ok'],result['errors'])
+        for suffix in [' - unexpected source',' (2026-05-21 13:47:53 UTC) - https://godotengine.org',' - https://godotengine.org extra']:
+            target.write_text(original.replace(' - https://godotengine.org',suffix,1))
+            self.assertFalse(bind(self.folder)['binding_ok'])
     def test_late_snapshot_is_not_in_wait(self):
         self.rows[0]['capture_end_unix_us']=self.fixture.BASE_US+32000000;self.trace()
         self.assertFalse(bind(self.folder)['binding_ok'])

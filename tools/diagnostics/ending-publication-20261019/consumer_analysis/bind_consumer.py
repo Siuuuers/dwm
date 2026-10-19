@@ -101,7 +101,10 @@ def bind(folder):
         report['original_wait']={'start':starts[0],'end':ends[0],'hwnd':hwnd,
             'note':'Logged wait interval only; no assertion of strict Stopwatch deadline admission.'}
         stdout=raw('exported-load/game.stdout.log').decode('utf-8-sig')
-        require(stdout.splitlines()[0].startswith('Godot Engine v4.6.3.stable.dwm_consumer_probe_v1.'+ENGINE_COMMIT[:9]+' - '),
+        banner = 'Godot Engine v4.6.3.stable.dwm_consumer_probe_v1.' + ENGINE_COMMIT[:9]
+        require(stdout.splitlines()[0] in {
+            banner + ' - https://godotengine.org',
+            banner + ' (2026-05-20 13:47:53 UTC) - https://godotengine.org'},
             'Load engine banner mismatch')
         samples=[]
         for line in stdout.splitlines():
