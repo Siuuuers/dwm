@@ -56,6 +56,8 @@ function New-Batch {
 }
 function New-Spy([string]$Id) { return [EndingSpyElement]::new([EndingSpyState]::new($Id,[Windows.Rect]::new(0,0,20,20))) }
 $cases=[Collections.Generic.List[object]]::new()
+$providerExceptionDiagnostics=[Collections.Generic.List[object]]::new()
+try {
 $ending='TEST Seven-day ending.'
 # Compare actual Actions with observation disabled/enabled; provider call sequences
 # are asserted explicitly as well, so equal but erroneous extra reads cannot pass.
@@ -158,12 +160,33 @@ $script:items=@((New-Spy 'throw'));$script:items[0].State.ThrowName=$true
 $failures=@();$sequences=@()
 foreach ($enabled in @($false,$true)) {
     $TraceEndingActions=$enabled;$script:events.Clear();[EndingSpyState]::Reads.Clear();$failure=''
-    try { $null=Wait-One $ending { Actions $window $ending } } catch { $failure=$_.Exception.Message }
+    $caught=$null
+    try { $null=Wait-One $ending { Actions $window $ending } } catch {
+        $failure=$_.Exception.Message
+        $caught=@{type=$_.Exception.GetType().FullName; message=$failure;
+            fully_qualified_error_id=$_.FullyQualifiedErrorId;
+            error_record=$_.ToString(); exception=$_.Exception.ToString();
+            script_stack_trace=$_.ScriptStackTrace}
+    }
+    [void]$providerExceptionDiagnostics.Add(@{observation_enabled=$enabled; caught=$caught;
+        reads=@([EndingSpyState]::Reads); scope_cleared=($null -eq $script:endingActionObservation);
+        completed_enumerations=@($script:events | Where-Object {$_.kind -ceq 'caption-action-enumeration'}).Count})
     $failures+=,$failure;$sequences+=,([EndingSpyState]::Reads -join '|')
     Require ($null -eq $script:endingActionObservation) 'EXCEPTION_SCOPE_LEAK'
     Require (@($script:events | Where-Object {$_.kind -ceq 'caption-action-enumeration'}).Count -eq 0) 'FABRICATED_COMPLETED_BATCH'
 }
 Require ($failures[0] -match 'SPY_NAME_FAILURE' -and $failures[0] -ceq $failures[1] -and $sequences[0] -ceq $sequences[1]) 'PROVIDER_EXCEPTION_CHANGED'
 [void]$cases.Add(@{name='provider_exception_same_reads_cleanup';ok=$true})
-@{ok=$true;scope='Actual extracted functions, fake provider boundaries; no native or UIA qualification';cases=$cases.ToArray()} |
+@{ok=$true;scope='Actual extracted functions, fake provider boundaries; no native or UIA qualification';cases=$cases.ToArray();provider_exception_diagnostics=$providerExceptionDiagnostics.ToArray()} |
     ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $OutputPath -Encoding utf8
+} catch {
+    # Retain completed cases and the exact underlying provider failures before the
+    # original assertion is rethrown. This is diagnostic output, never a pass.
+    $failureRecord=$_
+    @{ok=$false;scope='Partial synthetic test receipt; no native or UIA qualification';
+        cases=$cases.ToArray();provider_exception_diagnostics=$providerExceptionDiagnostics.ToArray();
+        failure=@{type=$failureRecord.Exception.GetType().FullName;message=$failureRecord.Exception.Message;
+            fully_qualified_error_id=$failureRecord.FullyQualifiedErrorId;script_stack_trace=$failureRecord.ScriptStackTrace}} |
+        ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $OutputPath -Encoding utf8
+    throw
+}
