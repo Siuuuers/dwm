@@ -1,29 +1,31 @@
 # Priscilla–Lavinia: working home and restart point
 
-## Days 1–3: present company after the recurrence revision, 2026-10-20
+## Day 3: event before the relationship fork, 2026-10-20
 
-Read the [latest Day 3 checkpoint](../../auditions/priscilla-seven-day-working-plot.md#current-day-3-scene-development-and-duration-2026-10-20),
+Read the [latest checkpoint](../../auditions/priscilla-seven-day-working-plot.md#current-day-3-event-first-sylvia-and-variation-proposal-2026-10-20),
 [Day 2 family](auditions/day-2-return-bar-working-draft.md) and
 [shared Day 3 owner](../../auditions/day-3-sylvia-fork-working-draft.md).
-The leading intake remains Day 1 D → Day 2 D staying. Day 1's actual recording
-breach survives without the later recap chain. The Day 2 meal, cheek-clearing
-line and cold chicken remain unchanged by the latest Day 3 expansion. No lasting
-visible mark, unshown overnight act or forgiveness is inferred.
+The leading intake remains Day 1 D → Day 2 D staying. Those earlier scenes are
+unchanged: the recording breach, present meal, cheek-clearing line and cold chicken
+retain their actual scope without an inferred visible injury or offscreen repair.
 
-Day 3 gives Sylvia and Priscilla a longer present encounter before the optional
-relationship fork. The P–L continuation retains the gift and comic walk, replacing
-the kneeling/retrieval with an invitation to both women and Lavinia's painful grip
-after apparent assent. Priscilla declines tonight, objects, retains future contact
-and still wants the walk. The unresolved disagreement continues with their company.
-The Yes alternative cancels the six o'clock plan and begins the Sylvia cinema evening.
+The Day 3 opening now gives Priscilla and Sylvia a joint exhibition invention,
+pleasure and local consequence before Lavinia's appointment becomes an obstacle.
+Two private self-talks and one local Challenge seam are proposed. D is a complete
+scene; A/B/C/E remain an unintegrated design with their own prose and joins to write.
+The later Yes → P–S/default → P–L thought still chooses the sustained storyline.
+
+P–L's flower gift, comic walk, invitation to both women, painful grip after apparent
+assent, objection and continued disagreement survive; only Sylvia's departure seam
+changes. Priscilla still wants the walk and later wider company. The P–S alternative
+cancels the six o'clock plan and begins the cinema evening, with its film image first
+encountered there. Neither branch receives the other's events.
 
 The existing [PR #41](https://github.com/Siuuuers/dwm/pull/41) captures this five-file
-Day 3 development under standing authorization. Two same-model readers reviewed
-the actual new packet; the owner records the physical wording repairs and costs.
-Exact conduct, dialogue, placement and proposed duration remain **AUDITIONING**.
-Next plot the consequences of the continuing dispute without assuming either
-isolation or another departure/return. Other intakes, full Day 3/Sylvia plotting,
-the whole-week DTL gate and protected historical holds retain their open scope.
+revision under standing authorization. The owner records the bounded review and
+unfinished variation scope. Exact conduct, dialogue, gallery and placement remain
+**AUDITIONING**. Full family/other-intake adaptation, Day 3 and Sylvia development,
+whole-week consequences and the protected historical holds remain open.
 
 ## Day 3 Sylvia meeting and Lavinia continuation, 2026-10-19
 

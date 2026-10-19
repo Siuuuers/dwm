@@ -1,109 +1,211 @@
-# Day 3: the longer way
+# Day 3: An Improvement
 
-**Current audition:** 2026-10-20, after the owner's question about the shared Sylvia meeting, Priscilla's fork, duration, fuller scene development and Lavinia's possible harm.  
-**Previous complete packet:** [0d03df34debf515eecd5521a268bfabe55154063](https://github.com/Siuuuers/dwm/blob/0d03df34debf515eecd5521a268bfabe55154063/story/auditions/day-3-sylvia-fork-working-draft.md).  
-**Status:** **AUDITIONING**. This is a developed shared encounter and both immediate fork continuations. It is not selected placement, a whole Day 3, a five-result family, a completed Sylvia route or executable DTL.  
+**Current audition:** 2026-10-20, following the owner's correction that Sylvia's encounter still serves Lavinia's appointment, and request for an event-first opening, a particular reason to seek Sylvia, self-talk and Challenge placements.  
+**Previous complete packet:** [e74213af29d198acfd5e2520925ccd05e1f6c627](https://github.com/Siuuuers/dwm/blob/e74213af29d198acfd5e2520925ccd05e1f6c627/story/auditions/day-3-sylvia-fork-working-draft.md).  
+**Status:** **AUDITIONING**. This contains one complete new shared encounter on the leading Dark reading, both immediate relationship-fork continuations, two private self-talk placements, and an **unintegrated five-result design** for one local Challenge. A/B/C/E do not yet have full prose or branch joins. This is not a selected whole Day 3, a complete result family, a completed Sylvia route or executable DTL.  
 **Leading intake:** [Day 1 D](day-1-photo-book-working-draft.md#d-lost-the-rehearsal-is-sent) → [Day 2 D, staying treatment](../relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md#current-staying-audition-wanted-company-after-the-strike).
 
-Read Sections 1–2, then exactly one Section 3 continuation. **3A** develops the current P–L priority; **3B** gives the Sylvia choice an enacted immediate consequence. Section 4 distinguishes actual manuscript length from proposed presentation time. The [working checkpoint](priscilla-seven-day-working-plot.md#current-day-3-scene-development-and-duration-2026-10-20) records the source question and bounded revision.
+**Reading order:** Sections 1–2 form the complete proposed Dark exhibition encounter. Section 3 introduces the existing evening commitment only when the new invitation makes it consequential. Then read exactly one continuation, 3A or 3B. The local Challenge marker in Section 1 identifies a proposed seam; Section 2 is its one authored D continuation, not a default result for every input. Section 4 specifies the other proposed meanings and unfinished integration. The [checkpoint](priscilla-seven-day-working-plot.md#current-day-3-event-first-sylvia-and-variation-proposal-2026-10-20) records the comparison and bounded review.
 
-The [foundation](../09-priscilla-foundation-amendment.md#2-chapter-flow-and-the-relationship-choice) fixes Yes → P–S and default → P–L, with Priscilla's viewpoint on both. This packet still **proposes late Day 3** against the earlier Day 4 candidate. Exact placement, action and wording remain open. No new Challenge is placed. [Current flow](../../docs/design/2026-10-09-priscilla-flow-behavior-amendment.md#2-optional-thought-presentation) and [Priscilla-bound perception](../08-narrative-style-manual.md#42-unmarked-focal-presence) retain their scope.
+The [foundation](../09-priscilla-foundation-amendment.md#2-chapter-flow-and-the-relationship-choice) fixes the later relationship thought as Yes → P–S and default → P–L, with Priscilla's viewpoint on both. This packet still **proposes late Day 3** against the earlier Day 4 candidate. The exhibition Challenge is a separate local conduct opportunity; its result does not choose a partner. Exact scene, placement, wording and implementation remain unselected. [Current flow](../../docs/design/2026-10-09-priscilla-flow-behavior-amendment.md#2-optional-thought-presentation) and [Priscilla-bound perception](../08-narrative-style-manual.md#42-unmarked-focal-presence) retain their scope.
 
 ## Day 2 handoff
 
-The preferred Day 2 stay replaces the earlier post-strike departure/coda. It includes the loved sentence:
+The preferred Day 2 stay contains the actual strike, Priscilla's brief obstruction and clearing of the exit, Lavinia's chosen return, the loved cheek-clearing sentence, cold chicken, laughter and the cheek pulling when Priscilla smiles. This new Day 3 encounter supplies no lasting visible mark, injury discovery, overnight stay, later departure time or offscreen repair. The Day 1 D recording breach remains true without a fresh grievance recital. Sylvia's willingness to enjoy this afternoon does not establish forgiveness.
 
-> Her fingers gather the hair away from my cheek. For a moment, they hold it there.
+## 1. The empty display
 
-The current audition actually applies this cheek-clearing gesture and stops with cold chicken, laughter and the cheek pulling when Priscilla smiles. No lasting visible mark, display motive, later departure time, overnight stay, arrival-report agreement or offscreen repair is supplied. Day 3 does not require Sylvia to notice an injury. Its arrangements below are fresh plans.
+Sylvia straightens the card beside the empty plinth.
 
-## 1. Two arrangements
+“There.”
 
-**Priscilla, message to Lavinia:** Will you walk with me this evening?
+A cream rectangle. Two black lines. Above it, the white surface is clean except for a grey crescent near the back.
 
-**Lavinia, message:** Where?
+“It was straight before.”
 
-**Priscilla, message:** I haven't decided.
+“It wasn't convincing.”
 
-**Lavinia, message:** Six. Outside the library. You have until then.
+Beside the door, a woman presses a label flat against the wall. One corner lifts when she takes her thumb away. She presses it again.
 
-Later, in Sylvia's conversation:
+“What have you written?”
 
-**Priscilla, message:** Can I see you before six?
+Sylvia holds the pen behind her back.
 
-**Sylvia, message:** Outside the library at five.
+“Go and read it.”
 
-## 2. Sylvia, before the fork
+*An Improvement.*
 
-Sylvia takes her bag off the bench.
+Underneath: *Please do not touch.*
 
-“Sit down.”
+“There's nothing to touch.”
 
-There is room beside her. A little more after she moves.
+“Then they should find it easy.”
 
-On her phone, a pale house stands behind a row of black trees. One upstairs window is lit. A figure occupies the narrow strip between the window and the drainpipe.
+The laugh comes out too loudly. Sylvia's mouth opens; she catches the sound against the back of her hand.
 
-“I'm going to the cinema,” she says.
+**Private self-talk — no input:** Again.
 
-“Is that the film?”
+“You brought me here to see this?” she asks.
 
-“Possibly.”
+“I thought you'd enjoy it.”
 
-The house grows beneath her fingers. Roof, window, a white hand against the bricks.
+“It was empty.”
 
-“All those rooms,” I say, “and it's hiding behind a drainpipe.”
+“I wanted to see what you'd do.”
 
-Sylvia enlarges it again.
+She draws the pen cap between her fingers. It clicks against a nail.
 
-“Perhaps it lives there.”
+“You could have said that.”
 
-“The rent must be reasonable.”
+“You might have prepared.”
 
-She laughs and pulls the picture smaller. The house returns; the figure becomes difficult to find.
+“Stand here.”
 
-“Now I've lost it.”
+Her hand closes around the sleeve and draws me half a step to the left. From here, the light lies across the whole top of the plinth.
 
-“Beside the window.”
+“Better?”
 
-“Which window?”
+“There's more of it.”
 
-I point. Her shoulder presses against mine while she follows the finger.
+She lets go of the sleeve. The side of her hand stays against it.
 
-For a while, the phone stays between us. Below the picture, a few lines of description; under those, times. Her thumb rests over the beginning of the first sentence.
+Across the room, a man steps back from a painting. His heel reaches the edge of the carpet before he stops.
 
-“Come with me.”
+He comes over to the plinth. We make room.
 
-“What if it's awful?”
+“Is this part of it?”
 
-“You can complain beside me.”
+Sylvia looks at the empty surface.
 
-“You make it sound very tempting.”
+“We haven't quite agreed.”
 
-“I'm trying to.”
+“I like it,” he says. “Gives the other things some room.”
 
-The phone lowers to her lap. Our shoulders still touch.
+He turns to look at the paintings again. For a moment we look with him.
 
-“I thought you were still angry.”
+“Did you make it?” he asks.
 
-“I can be bored as well.”
+“She found it,” Sylvia says.
 
-The screen darkens. She touches it without moving away.
+“She helped.”
 
-“You could pick another one,” she says.
+The woman by the door has put her coat over one arm. Another woman comes from behind the desk with a printed list.
 
-“I like the house.”
+“I'm sorry. The sculpture for that stand hasn't arrived.”
 
-“Then come and look at it properly.”
+She lifts the card from its holder. The grey crescent is suddenly much more noticeable.
 
-“I'm meeting Lavinia at six.”
+“Is this yours?”
 
-Sylvia turns the screen towards herself. The times disappear beneath her thumb.
+**Proposed local Challenge thought:** I could ask her to leave it here.
 
-“You could see her another evening.”
+**Author seam:** the thought concerns trying to preserve their invented card in this display. Read Section 2 for the complete D audition only; the other conduct proposals are in Section 4. The attendant has asked a question, not supplied an inevitable expulsion, punishment or emotional state.
 
-“I said six.”
+## 2. D audition: the explanation
 
-She looks towards the library clock.
+“Does it have to go?”
+
+“It's where the sculpture's label will be.”
+
+“It makes a rather good gap.”
+
+The card stays between her fingers.
+
+“Who put it there?”
+
+“The woman by the door was working on a label.”
+
+Sylvia's hand comes away from the sleeve.
+
+The attendant looks towards the door.
+
+“Did you put this one out?”
+
+“No.” The coat slips lower along the woman's arm. “Not that one.”
+
+“Perhaps there's been a mix-up,” I say.
+
+She looks directly at me. I smile.
+
+The attendant turns the card over.
+
+“Could you check the others against this before you go? I need to know which ones are right.”
+
+She gives the woman the list. The coat goes onto the desk. At the nearest painting, the woman bends to read the small print beside its frame.
+
+The man moves aside for her.
+
+“This one's right,” she says.
+
+“Thank you.”
+
+The attendant puts the card on the desk. Nothing replaces it on the plinth.
+
+“May I have that?” Sylvia asks.
+
+“Of course.”
+
+Sylvia picks it up by a corner. We go towards the doors. Behind us, a sheet of paper turns.
+
+“You could have used your own name,” she says.
+
+“You wrote it.”
+
+“I didn't mean on the card.”
+
+**Private self-talk — no input:** Not that one.
+
+The pen cap drops. It rolls against my shoe and stops with its open end showing.
+
+Sylvia bends for it. Her hair hangs over the card in her other hand; only *Please* is visible.
+
+“I liked our exhibition,” I say.
+
+“It was very short.”
+
+“You didn't give it much.”
+
+“I gave it a title.”
+
+She pushes the cap onto the pen and holds it out.
+
+“You can have your pen back.”
+
+The warmth stays along the barrel after her fingers leave it.
+
+The woman is still bent over a label when Sylvia pushes the door open.
+
+At the foot of the steps she folds the card once, then again. It drops into the bin beside the rail.
+
+“There. Now you can come and see me without an exhibition.”
+
+“Would you have come?”
+
+“You could try asking.”
+
+**Local event resolved:** the joint invention has been removed and its card discarded. Priscilla's insinuation did not save it. The helper has actually postponed leaving and begun checking labels she did not falsely supply. No disciplinary action, job loss or later reputation damage is established. Sylvia has withdrawn one touch, challenged the deflection, disposed of their card and kept talking with Priscilla. These are actual responses, not a verdict about her whole motive.
+
+## 3. Another part of the evening
+
+Sylvia leans against the rail.
+
+“Come to the cinema with me.”
+
+“What are we seeing?”
+
+“We can choose when we get there.”
+
+“You're trusting me with that?”
+
+“No. You can choose something and I'll disagree.”
+
+“I'm meeting Lavinia outside the library at six. We're going for a walk.”
+
+Sylvia rests her hand on the rail.
+
+“Walk as far as the cinema.”
+
+“I said I'd meet her.”
 
 “There's still time to tell her.”
 
@@ -111,19 +213,17 @@ She looks towards the library clock.
 
 **Optional thought:** I could spend the evening with Sylvia instead.
 
-One **Yes** opportunity. Passing follows 3A; Yes follows 3B. These headings are author navigation, not additional displayed buttons. The already established six o'clock plan and Sylvia's invitation make the immediate action intelligible. The proposed expiry is through story progress at the end of this exchange, not measured reading time. No countdown, hesitation punishment or implemented presentation is claimed.
+One **Yes** opportunity. Passing follows 3A; Yes follows 3B. These headings are author navigation, not additional displayed buttons. The stated six o'clock commitment and Sylvia's new invitation make the action intelligible. The arrangement is a true same-day plan in this audition, introduced through the conversation; its old message exchange is not displayed or secretly retained as an obligatory opening. The proposed expiry is through story progress at the end of this exchange, not measured reading time. No countdown or hesitation punishment is proposed.
 
-This is the later relationship fork, not another control on Day 2's personal answer. Both storylines remain reachable without a board. No input supplies bodily override, an offscreen act, first Observer recognition or knowledge of another reading.
+This later thought selects the sustained storyline; the exhibition attempt does not. The proposed full family must keep both storylines reachable without a board and supply its other aftermath joins. The current assembled prose reads D → exactly one relationship continuation. No input supplies bodily override, an unshown act, first Observer recognition outside the Perfect distinction, or knowledge of another reading.
 
 ## 3A. Default: the walk with Lavinia
 
 “Another evening?”
 
-“Ask me on one.”
+“Perhaps.”
 
-Sylvia stands. I move my feet out of her way.
-
-She adjusts the bag on her shoulder and goes down the steps.
+Sylvia adjusts the bag on her shoulder. At the corner she turns towards the cinema; the library is the other way.
 
 At six, the paper around the flowers is damp beneath my thumb.
 
@@ -293,23 +393,25 @@ I open Lavinia's conversation.
 
 I send it.
 
-Sylvia puts her arm through mine as we go down the steps.
+Sylvia puts her arm through mine as we leave the gallery steps.
 
-Outside the cinema, the house fills a poster case. Sylvia steps close to the glass.
+Outside the cinema, a pale house fills a poster case. All the windows are dark. Sylvia bends towards a small figure between an upstairs window and the drainpipe.
 
-“There.”
+“All those rooms,” I say, “and it's hiding there.”
 
-The figure beside the drainpipe is no larger than her thumb.
+“Perhaps it lives there.”
 
-“It doesn't look comfortable,” I say.
+“The rent must be reasonable.”
 
-“Neither do you.”
+She laughs. Our reflections overlap on the glass.
 
-“I'm waiting for you.”
+“That one?”
 
-“You could come closer.”
+“Unless you particularly want to see something else.”
 
-Our reflections overlap on the glass. Then she turns towards the doors, still holding my arm.
+“No.”
+
+“Then that one.”
 
 She asks for two seats. I pay.
 
@@ -331,103 +433,110 @@ The lights fade. On the screen, a curtain stirs in a room nobody enters.
 
 “You will.”
 
-**End this observation here.** The cancellation is sent, the film has begun and both women are actually seated together. This is the beginning of the cinema evening, not its whole development. No Lavinia read receipt, reply or agreement is shown. The flowers, painful hand, acquaintance invitation and P–L walk from 3A do not occur in this branch.
+**End this observation here.** The cancellation is sent, the film has begun and both women are seated together. The poster is first encountered outside this cinema, not a callback to a removed bench conversation. This is the start of the evening, not the whole P–S development. No Lavinia read receipt, reply or agreement is supplied. P–L's flowers, invitation, grip and walk do not occur in this branch. The renewed arm contact does not erase Sylvia's earlier withdrawal or the exhibition conduct.
 
-## 4. Beats, length and what remains unfinished
+## 4. Proposed self-talk and Challenge variations
 
-The previous packet resolved immediate actions, but its substantial author commentary could make its narrative scope look larger than it was. The old shared Sylvia passage had 95 audience words; the complete P–L reading had 418, of which only 100 described the actual walk after the flower performance. It could establish a fork and a turn, but supplied little elapsed companionship to judge. This revision expands actual company and changes the P–L turning action rather than simply adding adjectives to the previous sequence.
+### Placement and purpose
 
-### Current beat reading
-
-A beat here is a meaningful shift in activity, attention, desire or response, not each dialogue line. The table groups small actions for review; it does not prescribe DTL boxes or a permanent quota.
-
-| Unit | Current progression | What changes |
+| Moment | Form proposed | What it contributes |
 |---|---|---|
-| Arrangements | Priscilla asks for a walk; Lavinia sets six; Priscilla separately asks to see Sylvia before then. | The evening choice has a particular existing commitment. The fictional hour is not an hour of displayed prose. |
-| Shared Sylvia | Room is made on the bench; the film image becomes a small shared amusement; physical closeness lasts after the joke; Sylvia offers a longer evening; anger survives alongside pleasure; the six o'clock plan becomes an obstacle. | The audience experiences some of the company that Priscilla might extend before receiving the thought. Sylvia asks for a consequential change without explaining her whole plan. |
-| Fork | The private thought proposes spending the evening with Sylvia instead. | Yes changes Priscilla's actual conduct; passing keeps the arranged P–L walk. No new Challenge or compulsory No is added. |
-| P–L opening | Sylvia leaves the next invitation to Priscilla; flowers are received; an unimpressive circular walk and the bicycle produce amusement; Lavinia takes Priscilla's hand. | They actually enjoy the chosen evening before the hand contact changes. The kneeling and retrieval routine are removed. |
-| P–L interruption | An acquaintance invites both women for coffee; Priscilla asks Lavinia; apparent assent is followed by the painful grip as Priscilla begins to accept. | Bodily discomfort interrupts a concrete social response. Priscilla declines tonight and offers future contact herself. |
-| P–L confrontation | The grip releases on request; Priscilla names the pain; Lavinia resents shared attention; Priscilla calls the act nasty; Lavinia briefly laughs at that sharper response. | Release does not settle jealousy. Priscilla's anger is a new attraction for Lavinia within this moment, without proving that the whole encounter was planned to produce it. |
-| P–L continuation | Priscilla wants the walk and still intends the later coffee; Lavinia keeps the flowers; they continue with repeated shoulder contact. | Chosen company resumes while wider contact and the unfair demand remain contested. No forgiveness, isolation or resolution is announced. |
-| P–S immediate continuation | Priscilla cancels; they visit the poster already discussed, buy seats, negotiate an awkward seat and settle together as the film starts. | The alternative becomes lived company rather than a route label. Its full evening and Sylvia-focused week remain later work. |
+| Sylvia's unprepared laugh, before the visitor arrives | Private self-talk: **Again.** No input. | Priscilla wants a recurrence of this particular pleasure. This is her desire, not a claim about Sylvia's mind or a request to repeat the recording. |
+| The attendant lifts their card and asks whose it is | One local Challenge: **I could ask her to leave it here.** | Pleasure now has an obstacle and Priscilla has an intelligible possible act. Variation changes her method and its consequences. The woman, card and place are already visible. |
+| D's deflection has been challenged by Sylvia | Private self-talk: **Not that one.** No input. | The helper's actual denial returns to Priscilla's attention. The audience may hear accusation, irritation, interest or displacement; it is no certified remorse and no supernatural voice. |
+| The exhibition has ended and Sylvia proposes cinema | The separate relationship thought: **I could spend the evening with Sylvia instead.** One Yes/default opportunity. | Extending wanted Sylvia company has become concrete before it competes with the Lavinia plan. |
 
-### Count and duration
+The first and third observations are shown in the self-talk field; surrounding body sensation and physical action remain in the story field. The distinction is selected private insistence versus the unfolding scene, not a ban on pronouns or a requirement to move every Priscilla-bound description. Sylvia cannot hear either thought. No duplicated explanatory monologue is needed.
 
-Counts include audience prose, spoken lines and message bodies, with contractions counted as one word. They exclude headings, speaker labels, branch instructions and author notes. The four-word transition “Later, in Sylvia's conversation” is treated as presentation guidance; add four if it is displayed. Paragraphs are not selected text boxes.
+**Ordinary small Yes:** not proposed in this assembled encounter. A separate invitation to touch, a second photograph or another minor button would need pleasure of its own. Here the shared sleeve contact already happens through Sylvia's action; there is no benefit in adding a control simply to exhibit another input type. That is a local editorial choice, not removal of the optional-Yes mechanic elsewhere.
 
-| Audience unit | Previous words at 0d03df3 | Current words |
-|---|---:|---:|
-| Six message bodies | 30 | 30 |
-| Shared Sylvia encounter | 95 | 274 |
-| Optional thought | 8 | 8 |
-| P–L continuation, including Sylvia's departure | 285 | 604 |
-| Immediate P–S continuation | 100 | 195 |
-| One full P–L reading | **418** | **916** |
-| One full P–S reading | **233** | **507** |
+### Five-result design — not yet a prose family
 
-**Explicit planning assumption:** at 160–200 audience words per minute, current text alone takes about **4.6–5.7 minutes for P–L**, or **2.5–3.2 minutes for P–S**. This is arithmetic, not measured reading behavior or game duration. Reading speed, text grouping, advancement, performance, animation and pauses remain untested.
+The author-side governing action is **try to preserve their invented card in the display**. A–E below are distinct possible continuations at the same seam, not five consecutive events or a five-button menu. Only D has full prose above. The material differences are not Frozen Impulse Atoms; that existing term concerns small surface variations whose consequential meaning is unchanged.
 
-For the first staged reading, reserve approximately **2–3 minutes for the shared Sylvia encounter**, **4–6 for the P–L continuation**, or **1.5–2.5 for the immediate P–S continuation**, plus the short arrangements and the player's own decision time. Thus this bounded P–L packet would aim roughly at **6–9 minutes plus deliberation**, not a fixed length for all of Day 3. These ranges are editorial budgets to test against the actual passage, not compulsory waits. The eight-word thought needs no artificial thirty-second hold. Do not pad to meet the estimates or turn them into a reading deadline.
-
-**Scope still open:** later Day 3 events, complete incoming-history adaptations, any genuinely needed local Challenge family, full P–S development and whole-week pacing. There is no requirement to invent five outcomes for this packet simply because it includes a relationship fork.
-
-## 5. Why this revision, and what it costs
-
-### Give Sylvia company before asking the audience to leave it
-
-The owner asks that a moment with Sylvia belong to her and Priscilla. Lavinia can exist indirectly, including through jealousy, without occupying their conversation. The bench scene therefore begins with Sylvia's offered proximity and their minor pleasure in the film image. Lavinia is named when the appointment becomes consequential.
-
-Sylvia's stronger romantic desire for Lavinia and broader effort to obstruct P–L remain owner directions. The invitation can serve that aim and still offer company she enjoys. This scene does not privately fix every motive, make Sylvia's plan infallible or settle Lavinia's romantic response. Her anger from Day 1 survives the lighter activity without another account of the recording.
-
-The film is an invented prospective pleasure. The image is not a second performance from the book, a quoted real film, a prediction or a new Observer clue. Its precise composition is replaceable if the shared joke works better another way. The phone image, enlarged view and eventual poster need a coherent presentation if selected; this prose does not claim existing assets. A new real film licence or elaborate cinema subsystem is not required by the audition.
-
-The ordinary image scrutiny may feel lighter than a sinister Sylvia maneuver. That is an intentional tradeoff: the desire to extend actual pleasure makes the later displacement matter. Adding a self-inflicted injury, secret recording or another humiliation merely to certify this scene as Dark would crowd that effect. No extra Sylvia abuse event is selected here.
-
-### Change Lavinia's action instead of repeating the retrieval
-
-The previous flowers/kneeling sequence had a legible change of terms, but it also repeated Day 2's withdrawal → Priscilla's request → Lavinia's return → resumed amusement. It remains complete in the linked Git revision. This candidate removes the kneeling, prolonged order to stay, walking away, “Come and help me,” return and assistance. None occurs unseen in the current continuity.
-
-The gift and comic circular walk survive. A passing acquaintance then makes Priscilla's wider social ease available inside the present date. The invitation includes both women: it need not introduce a romantic rival or establish an affair. Lavinia's “If you like” comes after Priscilla asks whether they should go. Her painful response makes that apparent permission unreliable in the encounter without proving she prepared a test in advance.
-
-Priscilla does not become an inert victim. She begins to accept, changes tonight's reply under pressure, requests release, names the act, becomes irritated and retains her intention to see the acquaintance. She also still wants Lavinia. Her objection concerns what Lavinia has just done; it supplies no new moral remorse about Priscilla's own earlier intervention or recording breach. Her confident reply does not undo the actual pain or mean that both have consented to every further act.
-
-**Main cost:** this replaces a conspicuous courtship humiliation with a smaller-looking act and more room for disagreement. It can lose the old scene's immediate theatrical image. Its strength depends on the joined hand first feeling ordinary and welcome, the social invitation feeling like part of a populated university, and the altered contact being exact. The passer-by is not placed there to explain abuse or certify anyone's hidden motives. Do not add a second strike or an injury close-up to compensate automatically.
-
-A distinct alternative would retain the courtship joke and have Priscilla stand without waiting for permission, leaving Lavinia's frustration unresolved through the walk. That preserves more of the old set piece but adds less of Priscilla's wider life. It is a **considered, unapplied alternative**, not another event to append after the grip.
-
-### The actual harm, and the limits of the claim
-
-| Channel | Authored here | Not established by this scene |
+| Result | Proposed Priscilla conduct | Proposed consequence and remaining writing |
 |---|---|---|
-| Physical | The hand contact becomes painful; it releases when Priscilla asks; separating the fingers still aches immediately afterwards. | Lasting injury, a visible Day 4 mark, incapacity, another strike or any particular sexual act. |
-| Social | A real invitation to both women is declined for tonight, and Priscilla says she will make contact about another evening. | Lost friends, damaged academic standing, public disgrace, witnesses understanding the grip, a future rumour or successful permanent isolation. |
-| Mental/relational | Apparent assent is followed by painful pressure; Lavinia then resents Priscilla enjoying wider attention and briefly enjoys her angry reply. Priscilla cannot treat the earlier assent as a dependable agreement. | A diagnosis, a perfectly planned training process, love proved by injury, forgiveness, or the claim that Priscilla secretly wanted every act. |
+| **A — Never started: ordinary course** | Makes a limited request: “Could you leave it there until we've finished looking?” She does not falsely attribute it or fully explain its origin. | The attendant gives them one brief last look, then removes the card. Full prose must show that removal and Sylvia's response; it must not become indefinite permission. This is a smaller tolerated interval than C's informed arrangement. |
+| **B — Started, unfinished: chooses not to pursue** | Does not ask to keep it displayed. Lets the card be removed and ends her attempt. | The private exhibition ends without the new insinuation or an extension. Sylvia's autonomous reply, the card's fate and a credible invitation bridge still need writing. No retention request or saving act is performed offscreen. |
+| **C — Won, not Perfect: softer pursuit** | Candidly identifies the joint joke and asks whether it may remain as an acknowledged visitor contribution while the sculpture is absent. | Proposed local allowance: the attendant permits it only with its informal origin made clear and until the sculpture arrives. That permission, Sylvia's part in it, its actual short continuation and their departure need full prose. It is an auditioned response by this fictional exhibition, not an asserted institutional policy or guaranteed success outside this scene. |
+| **D — Lost: more Dark conduct** | Uses an observed true fact to imply an innocent helper supplied the card; sustains the implication after the helper denies it. | **Authored in Section 2:** the helper loses the immediate opportunity to leave and starts rechecking; the invented display is removed anyway. Sylvia's touch withdraws, she confronts the evasion, takes and discards the card, and offers another activity after their local exchange. No moral epiphany or successful social omnipotence is assigned to Priscilla. |
+| **E — Perfect** | Uses C's human conduct and actual arrangement. | Adds first Observer identification on the leading D → D intake, or further awareness where an earlier Perfect already established recognition. This private passage and its later carry remain unwritten. The man watching the display is not proof of the supernatural Observer. |
 
-The next development should follow what this dispute makes each woman attempt. It could concern Priscilla keeping wider company while trying to hold Lavinia's attention, or Lavinia finding that getting the evening does not settle her jealousy. Neither future event is selected by this packet. Do not spend the whole week's possibilities by making Day 3 already accomplish confinement, reputation collapse and psychological ruin.
+A and C must differ in what Priscilla discloses, what the attendant knowingly allows and how the women use that permission. “Nicer words for the same lie” would not supply a softer outcome. Conversely, D can fail to save the card and still be materially Dark: its conduct and the helper's cost exist independently of Priscilla getting her wish. Board success is not a guarantee of love, and board loss does not make another character obey.
 
-## 6. Orientation, carry and bounded review
+All future A/B/C/E continuations need their **own earned joins** into the later invitation. They cannot automatically inherit D's helper cost, discarded card, withdrawn touch or quoted denial. C/E cannot end their display arrangement by silently borrowing D's removal. A later first-Perfect history cannot lose its awareness when the relationship fork appears. This proposal changes neither the five governing meanings nor the one identically presented eventual P–L ending.
 
-### Core scene orientation
+**Deferred alternative:** a second Challenge could be developed at the P–L coffee invitation, with a thought such as “I could still go for coffee.” That would need genuinely different acceptance/refusal/public-pressure continuations rather than sending every result into the existing walk tail. It is not placed here. The shared exhibition now provides the stronger reason for this packet's one local Challenge; there is no quota requiring one in each relationship scene.
 
-**Surface and access:** Priscilla-bound Day 3 messages and in-person encounter, followed by exactly one sustained storyline. The bench gives her Sylvia's words, phone image, visible movements and actual contact; it gives no private Sylvia–Lavinia scene. All body sensation is Priscilla's. Ordinary spoken first person remains natural where used; narration may foreground the selected detail without repeatedly announcing a glance.
+## 5. Why this encounter, and what it costs
 
-**Present wants:** Priscilla has arranged both meetings and enjoys Sylvia's company while keeping a walk in prospect. Sylvia offers an evening she can genuinely want alongside her stronger Lavinia-directed aim. In 3A, Priscilla wants the walk and is also tempted by a social invitation; Lavinia wants this evening with Priscilla and responds unfairly when its exclusivity becomes uncertain. The passage does not make every private proportion certain or erase their ordinary humor.
+### The cause of the previous problem
 
-**Actions and continuity:** in 3A Priscilla brings flowers, gives them, walks and holds hands; Lavinia causes the painful grip and releases it. The unlabelled fingers, knuckles and ache refer to Priscilla's hand within that contact. The woman by the gate is an acquaintance from Priscilla's seminar, not a newly established lover or named recurring character. Her companion has no supplied private knowledge. Priscilla's view of the café sign is present perception, not a hallucination or proof of where her attention has been throughout the exchange.
+At [e74213a](https://github.com/Siuuuers/dwm/blob/e74213af29d198acfd5e2520925ccd05e1f6c627/story/auditions/day-3-sylvia-fork-working-draft.md), the opening messages established Lavinia's six o'clock walk before Priscilla asked Sylvia for time before it. The later bench conversation gave them pleasure but still occupied an interval inside that appointment. The owner's correction concerns this cause, not simply the number of times Lavinia is named. Previous bounded reviews did not establish that the attention problem had been solved.
 
-**Open choices and consequence:** Priscilla has actually declined tonight and promised a message, not cancelled an already scheduled academic or social obligation. The later coffee has not been arranged or held. Continuing the walk does not retract the promise, remove the pain or settle the accusation. Lavinia carries the flowers at the cut. No injury is assigned to the new day unless a later selected passage establishes it.
+The exact still-earlier event-first opening recalled by the owner was not recovered in the available conversation lookup. The inspected 016c packet also contains the two arrangements before its book scene. This new exhibition is an assistant-authored alternative, **not a restoration or a claim that the owner's memory is wrong**.
 
-**P–S separation:** in 3B the cancellation is sent before leaving with Sylvia. Sent does not prove read or accepted. Sylvia asks for the seats, Priscilla pays and both sit together. The film is the one whose poster they discussed; the former fresh three-poster selection is removed. Their ease does not authenticate Sylvia's primary romantic preference or erase Day 1's breach. The apology addresses this late cancellation, not Priscilla's older behavior.
+Here Priscilla has found an empty display and wants to see what Sylvia will do with it. She seeks a particular person's company and capacity to surprise her; the little improvised exhibition is something they actually make together. Sylvia leads the invention, moves Priscilla to look from another angle, attributes participation, withdraws contact at a consequential act, challenges the evasion, ends the object and proposes further company. Her presence does not wait for a Lavinia reference to acquire purpose.
 
-**Cross-day facts:** Day 1 D still contains the explicit no-forward restriction, deliberate forwarding, objection and Sylvia's departure. Day 2 D staying still contains the strike, Priscilla's obstruction and release of the exit, Lavinia's chosen return, cheek touch and food. The current Day 3 supplies none of the older concealed call, “Mine” reply or next-day S–L appointment. Lavinia does not gain the recording restriction; Sylvia does not gain the private Day 2 encounter. The book still belongs to Sylvia and is absent here; this was never a return scene.
+“I wanted to see what you'd do” is deliberately double-edged. It supplies Priscilla's wish for shared amusement and her appetite to observe. Sylvia answers it with an action of her own. These lines propose a present motive, not a new permanent rule that every Priscilla–Sylvia meeting is an experiment. The late invitation can serve Sylvia's stronger Lavinia-directed aim while this pleasure and irritation remain real. The exact balance is not privately solved.
 
-**Observer and other histories:** the leading D → D reading has no first Perfect or identification. Ordinary public attention does not identify the supernatural Observer. Other intakes must keep only their actual conduct and knowledge, with earlier awareness persisting. In particular, Sylvia's anger needs an appropriate basis if Day 1 contained no breach. This is not a complete adaptation for those histories.
+### Lawful absurdity and the Dark turn
 
-### Review and capture
+The nonexistent artwork acquires a title, a prohibition, an interested visitor and a dispute over whether it may remain. The visitor's response is sincere and defensible: he likes the space it gives the other works. He need not be stupid or conned out of money for their joint fiction to work. The attendant has a concrete reason to remove the card: the absent sculpture's label belongs there.
 
-This substantial revision belongs in the same existing Day 3 owner and [PR #41](https://github.com/Siuuuers/dwm/pull/41), under the owner's standing Markdown/push authorization. One prior complete packet is preserved in Git instead of a second current manuscript. The [checkpoint](priscilla-seven-day-working-plot.md#current-day-3-scene-development-and-duration-2026-10-20) records attribution, the comparison and the inspected revision. Exact new dialogue, acts, film image, acquaintance, fork placement and timing remain **AUDITIONING**.
+The local absurdity follows visible materials and ordinary decisions. It is not a new law of physics, diagnosis, magical object or mandatory Observer anomaly. “Lawful” here means internally and physically coherent; it does not make Priscilla's conduct ethically justified. The audience can enjoy the joke and later reconsider the effort spent preserving it.
 
-**Bounded review:** two same-model helpers with shared project context read the actual new Sections 1–3B. The continuity/count reader compared the complete leading Day 1 D and matching call/coda, plus the assembled Day 2 D stay; the craft reader compared the new scene with the actual Day 2 encounter. No high-confidence chronology, knowledge, fork or branch-separation defect required a structural change. The root applied two physical-staging clarifications: the grip aches during the pending invitation, and the cinema seat folds upward while Sylvia removes her coat. Counts were recalculated after those wording changes: 916 words for P–L, 507 for P–S. These are bounded editorial findings, not measured audience response. The root retains the composed flowers/contact imagery as a taste cost to judge in the week, rather than commissioning another review cycle. Day 1–2 prose is unchanged by this task.
+D's turn is a disproportionate method for a small shared pleasure. Priscilla uses a true observed fact to invite a false attribution. The helper directly denies supplying this card; the attendant does not pronounce her a liar or impose an invented disciplinary regime. Instead, the apparent uncertainty produces an actual, bounded extra task before leaving. Priscilla has made someone else carry suspicion and lost time while failing to preserve the thing she wanted. No instructional account of a reliable real-world manipulation technique is intended or needed.
 
-Full Day 3/day-family coverage, all incoming histories, full P–S route, whole Day 1–7 plotting, protected historical bar/residue/residence audit, performed reading, audience testing, assets and runtime/DTL verification: **NOT RUN** by this development pass.
+Sylvia's “I didn't mean on the card” identifies the deflection without diagnosing Priscilla. Taking back the joke and throwing its card away gives her a further act of her own. Her invitation after that act is not proof of pardon, romantic conversion or a perfectly calculated plan. The next encounter must be able to carry the unease without repeatedly naming the helper.
+
+**Main costs:** this is a new gallery surface, with an empty plinth, two women working at the exhibition, a visitor and a card whose text is legible. It is a larger staging proposal than the bench. No existing gallery assets are claimed. The art joke can sound overcomposed or turn into an authorial lecture if prolonged. Preserve the visitor's ordinary answer, the awkward dropped cap and the failure of Priscilla's attempt; avoid adding a speech about art, three more witty spectators or a new supernatural answer from the card. These details remain replaceable audition choices.
+
+The rejected reception premise had a related local action—two uninvited women trying to stay at a small celebration—but required more procedural explanation about access. The exhibition gives Sylvia an initiating act in the first sentence and a sharper image. It is the selected **working recommendation**, not approved canon; the reception is not a second event to add to this day.
+
+### What remains from the previous P–L development
+
+The flower gift, comic circular walk, invitation to both women, painful grip after apparent assent, objection and unresolved wish for wider company remain as authored at e74213a. Only Sylvia's departure seam changes to fit the gallery exit. Priscilla still declines tonight's coffee, asks for release, calls the act nasty, intends later contact and keeps walking with Lavinia. Continuing company does not establish forgiveness, permanent isolation or moral remorse for Priscilla's older conduct.
+
+The P–S continuation moves the film-image amusement to their first encounter with the cinema poster. It no longer presupposes a bench discussion. Priscilla sends the cancellation before leaving with Sylvia; both choose the film, obtain seats and sit together. The folding-seat struggle and private permission to whisper survive as ordinary company. It is still only the beginning of this branch.
+
+## 6. Scope, duration, carry and review
+
+### Working pacing
+
+The proposed shared sequence has six useful movements: **joint invention → shared laughter and changed proximity → another person's sincere attention → a request for accountability → the attempted deflection and its cost → Sylvia ending the little exhibition and offering more company**. Those are functional groupings for review, not six mandatory boxes or a permanent beat quota. Lavinia's appointment enters after this local sequence has done its own work.
+
+For a staged audition, allow roughly **4–6 minutes for the shared exhibition and its invitation bridge**, **4–6 minutes for the P–L continuation**, or **2–3 for the immediate cinema continuation**. Voluntary board and decision time are additional. These are editorial budgets for trying the material, not measured reading rates, fixed delays or runtime claims. This gives a first staging budget of about **8–12 minutes through P–L**, or **6–9 through the immediate P–S continuation**, before voluntary board/decision time. The previous 916/507-word totals and 6–9-minute P–L packet estimate belong to e74213a and are not current counts for this expanded event. This remains a bounded part of Day 3, not the whole day's duration.
+
+Current counts include audience prose, spoken lines, message bodies and the proposed displayed thoughts; they exclude headings, speaker/field labels, assembly instructions and author notes. Contractions count as one word. These count the one D reading, not all result-family content.
+
+| Audience unit | Words |
+|---|---:|
+| Opening through local Challenge thought | 350 |
+| D outcome through Sylvia's reply at the exit | 346 |
+| Invitation bridge | 72 |
+| Later relationship thought | 8 |
+| Shared reading through the fork | **776** |
+| P–L continuation | 600 |
+| Immediate P–S continuation | 203 |
+| One D → P–L reading | **1,376** |
+| One D → P–S reading | **979** |
+
+No numerical reading-speed assumption or staged budget establishes actual audience response. Do not pad the scene or enforce reading delays to meet these estimates.
+
+### Consequence and access boundaries
+
+- **P–S event:** Priscilla knows Sylvia wrote the card; her pen is returned. She has observed the helper pressing a different label flat, so her statement has a true referent and a knowingly false implication. The helper denies this card and starts checking others. Sylvia takes and discards the card; it is not a borrowed object or required Day 4 trace. No visitor's private judgment is narrated.
+- **Perception:** Priscilla supplies all access and sensation. “Again” wants Sylvia's audible laugh repeated. “Not that one” repeats words actually heard, not new evidence, moral remorse or an external voice. Her restricted attention may be unmarked without giving access to Sylvia's reasons for staying.
+- **Day 1–2:** the recording breach, distinct recipient knowledge, actual Day 2 strike and staying treatment retain their established scope. Sylvia does not acquire the private dinner or injury history. Lavinia does not acquire the no-forward restriction. The book is absent and still belongs to Sylvia. The removed concealed call, “Mine” answer, next-day S–L plan, kneeling and retrieval do not occur unseen.
+- **Evening fork:** the six o'clock walk is a true same-day plan, introduced in Section 3. Default keeps it; Yes sends a cancellation. Sent is not read or accepted. Both continuations follow the current D exhibition; the proposed other results need their own joins and carry. P–L's flowers and grip do not occur on P–S, and cinema contact is not remembered on P–L.
+- **Observer:** the current complete D → D → D reading has no first Perfect or identification. Public attention is ordinary. The proposed E requires its actual awareness passage and all later continuity; an earlier Perfect would require persistence, not a new first discovery. No saved-game punishment, body override or new Observer power is proposed.
+- **Later work:** exact placement, complete A/B/C/E prose, all incoming Day 1–2 adaptations, full Day 3 and Sylvia route, the seven-day consequence audit, the identical P–L finale and the whole-week-before-DTL gate remain open. This revision supplies a present encounter, not the full dependencies for production.
+
+### Bounded review and capture
+
+This substantial revision belongs in the existing Day 3 owner and [PR #41](https://github.com/Siuuuers/dwm/pull/41), under the owner's standing Markdown/push authorization. Exact new acts, dialogue, gallery, helper cost, thought placement and timing remain **AUDITIONING**. Git retains the complete predecessor; no second current manuscript is created.
+
+**Bounded review:** two same-model helpers read the actual completed Sections 1–3B and the proposed A–E boundaries. The craft read found clearer P–S causal ownership, a credible visitor and a bounded failed Dark attempt; it identified a gallery-exit staging fault, an unsupported arrival-time/plural detail in the supposedly literal truth, and a repeated request for another invitation. The root repaired the door/steps order, changed Priscilla's statement to the precisely observed “working on a label,” and shortened the default reply to “Perhaps.” The structure reader confirmed the separation between the complete D scene and unwritten other results, the A/C conduct distinction, the independent relationship choice, and the first/further-awareness boundary. These are bounded editorial judgments, not approval, audience measurement or proof of an unwritten family. Counts were recalculated from the settled text. Day 1–2 prose and the P–L walk after the revised departure seam are unchanged by this task.
+
+Performed reading, audience testing, complete family/week audit, the protected historical bar/residue/residence audit, assets and runtime/DTL verification: **NOT RUN** by this development pass.
