@@ -1,4 +1,4 @@
-name: Ending applied consumer diagnostic
+name: Ending query boundary diagnostic
 on:
   pull_request:
     paths:
@@ -12,7 +12,7 @@ concurrency:
 jobs:
   authority-audit:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
-    name: Windows / committed AccessKit state
+    name: Windows / actual query and action predicates
     runs-on: windows-2022
     # Native compilation has a separate ceiling. Original player deadlines below are unchanged.
     timeout-minutes: 150
@@ -24,14 +24,14 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 42c8a32e20a29e6f97d49d3f7fed5d00eb100771
+          ref: 8ddb722e50a18d6abbfa6c016c0af9bff38d0f4f
           fetch-depth: 2
           persist-credentials: true
-      - name: Bind the diagnostic tools and unchanged game harness
+      - name: Bind diagnostic tools and observation-only harness
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '42c8a32e20a29e6f97d49d3f7fed5d00eb100771') { throw 'Diagnostic tool source mismatch' }
-          if ((git rev-parse 'HEAD^{tree}') -cne '4c4ef98d8496b09e070ef4a9aa244de18de8d427') { throw 'Diagnostic tool tree mismatch' }
+          if ((git rev-parse HEAD) -cne '8ddb722e50a18d6abbfa6c016c0af9bff38d0f4f') { throw 'Diagnostic tool source mismatch' }
+          if ((git rev-parse 'HEAD^{tree}') -cne 'd8d53aa988ecacbe9d95dc2cd2dc1da55cb1df5c') { throw 'Diagnostic tool tree mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
           git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -42,26 +42,26 @@ jobs:
           @'
           import hashlib,json,pathlib,subprocess
           game='81847d8b1560340a3a7769223cee0b46c6bdc0f9'
-          tools='42c8a32e20a29e6f97d49d3f7fed5d00eb100771'
+          tools='8ddb722e50a18d6abbfa6c016c0af9bff38d0f4f'
           controller='${{ github.event.pull_request.head.sha }}'
           prefix='tools/diagnostics/ending-publication-20261019/'
           out=pathlib.Path('.godot/ci')
           game_tree=subprocess.check_output(['git','rev-parse',game+'^{tree}'],text=True).strip()
           if game_tree!='4581a9f12d63684836c722f72cffd533491f3c06':raise RuntimeError('Frozen game tree mismatch')
           changed=subprocess.check_output(['git','diff','--name-only',game,tools],text=True).splitlines()
-          if not changed or any(not name.startswith(prefix) for name in changed):raise RuntimeError('Diagnostic tools alter frozen game/harness paths')
+          if not changed or any(not name.startswith(prefix) and name!='tools/testing/Invoke-ExportedGameplay.ps1' for name in changed):raise RuntimeError('Diagnostic tools alter frozen game paths')
           shared=['tools/testing/Invoke-ExportedGameplay.ps1','tools/testing/Probe-ExportedWindow.ps1','tools/testing/Invoke-IsolatedGodot.ps1','tools/testing/Invoke-WindowsExportValidation.ps1','tests/tooling/Test-ExportedGameplayDeadline.ps1','project.godot','export_presets.cfg','scripts/ui/EndingScene.gd','scripts/ui/witnessed/WitnessedCaptionLayer.gd','scripts/ui/witnessed/WitnessedAccessibleCaption.gd','scripts/ui/witnessed/WitnessedSourceCanvas.gd']
           pins={}
-          for name in shared+changed:
+          for name in dict.fromkeys(shared+changed):
               data=pathlib.Path(name).read_bytes()
-              source=game if name in shared else tools
+              source=tools if name in changed else game
               committed=subprocess.check_output(['git','show',source+':'+name])
               if data!=committed:raise RuntimeError('Working bytes differ from pin: '+name)
               target=out/'source'/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data)
               pins[name]={'source_commit':source,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest(),'git_blob':subprocess.check_output(['git','rev-parse',source+':'+name],text=True).strip()}
           source=out/'source/controller.yml'
           source.write_bytes(subprocess.check_output(['git','show',controller+':.github/workflows/scene-first-reveal-profile-diagnostic.yml']))
-          origin={'game_commit':game,'game_tree':game_tree,'tool_source':tools,'tool_tree':'4c4ef98d8496b09e070ef4a9aa244de18de8d427','controller':controller,'engine_base':'35e80b3a8822a9df9be390814b62f44c0a9c69e8','engine_tree':'499fa231ee5d21878988a4a9cb881749def3946d','original_run':39155624496,'original_artifact':12146662424,'diagnostic':'Separately built native observer; original official Load remains failed','shared_source_pins':pins,'changed_paths':changed,'driver_modes':['Capability','Create','Load'],'step_timeout_seconds':30,'journey_timeout_seconds':480,'outer_timeout_minutes_per_mode':10,'renderer':'ProjectDefault','accessibility':'Always','audio':'Dummy','load_flags':['ProfileSaveLoad','ContinueAfterQuiet','TraceDay5','NativeReadyCaptions'],'trace_environment':'GODOT_ACCESSKIT_CONSUMER_TRACE_PATH','trace_scope':'Load only; natural committed consumer updates/focus; no Navigate hook or refresh'}
+          origin={'game_commit':game,'game_tree':game_tree,'tool_source':tools,'tool_tree':'d8d53aa988ecacbe9d95dc2cd2dc1da55cb1df5c','controller':controller,'engine_base':'35e80b3a8822a9df9be390814b62f44c0a9c69e8','engine_tree':'499fa231ee5d21878988a4a9cb881749def3946d','original_run':39155624496,'original_artifact':12146662424,'diagnostic':'Separately built native observer; original official Load remains failed','shared_source_pins':pins,'changed_paths':changed,'driver_modes':['Capability','Create','Load'],'step_timeout_seconds':30,'journey_timeout_seconds':480,'outer_timeout_minutes_per_mode':10,'renderer':'ProjectDefault','accessibility':'Always','audio':'Dummy','load_flags':['ProfileSaveLoad','ContinueAfterQuiet','TraceDay5','NativeReadyCaptions','TraceEndingActions'],'trace_environment':['GODOT_ACCESSKIT_CONSUMER_TRACE_PATH','GODOT_ACCESSKIT_QUERY_TRACE_PATH'],'trace_scope':'Load only; natural committed state and actual Navigate calls plus existing Actions predicates; no refresh or extra provider query'}
           (out/'audit-origin.json').write_text(json.dumps(origin,indent=2))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -72,7 +72,7 @@ jobs:
         with:
           python-version: '3.12.10'
           architecture: x64
-      - name: Parse all new PowerShell and the unchanged native driver
+      - name: Parse diagnostic PowerShell including observed native driver
         run: |
           $ErrorActionPreference = 'Stop'
           $records = @()
@@ -87,6 +87,14 @@ jobs:
       - name: Check applied-state reader and synthetic binding
         run: |
           & python -m unittest discover -s "$env:PUBLICATION_TOOLS/consumer_analysis" -p 'test_*.py' -v 2>&1 | Tee-Object -FilePath '.godot/ci/consumer-reader-tests.log'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Check query reader and synthetic provenance
+        run: |
+          & python -m unittest discover -s "$env:PUBLICATION_TOOLS/query_analysis" -p 'test_*.py' -v 2>&1 | Tee-Object -FilePath '.godot/ci/query-reader-tests.log'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Check action observation equivalence
+        run: |
+          & pwsh -NoProfile -File "$env:PUBLICATION_TOOLS/query-tests/Test-EndingActionObservation.ps1" -DriverPath ./tools/testing/Invoke-ExportedGameplay.ps1 -OutputPath .godot/ci/query-action-tests.json
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Verify unchanged original player deadlines
         run: |
@@ -139,13 +147,13 @@ jobs:
         id: native-build
         timeout-minutes: 100
         run: |
-          & "$env:PUBLICATION_TOOLS/Build-NativePublicationProbe.ps1" -EngineRoot .godot/native-engine -ProbeRoot "$env:PUBLICATION_TOOLS/native-probe" -OutputPath .godot/ci/native-build -DependencyPath "$env:RUNNER_TEMP/dwm-native-publication-deps" -ConsumerSdkPath .godot/ci/consumer-sdk
+          & "$env:PUBLICATION_TOOLS/Build-NativePublicationProbe.ps1" -EngineRoot .godot/native-engine -ProbeRoot "$env:PUBLICATION_TOOLS/native-probe" -OutputPath .godot/ci/native-build -DependencyPath "$env:RUNNER_TEMP/dwm-native-publication-deps" -ConsumerSdkPath .godot/ci/consumer-sdk -QueryProbe
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Retain the built native template before packaging
         id: template-retention
         uses: actions/upload-artifact@v4
         with:
-          name: consumer-native-template-${{ github.run_id }}-${{ github.run_attempt }}
+          name: query-native-template-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             .godot/native-engine/bin/*
             !.godot/native-engine/bin/obj/**
@@ -157,7 +165,7 @@ jobs:
         id: package
         timeout-minutes: 5
         run: |
-          & "$env:PUBLICATION_TOOLS/New-NativeDiagnosticPackage.ps1" -OriginalArtifactPath .godot/original-game-artifact -EngineRoot .godot/native-engine -OutputPath .godot/ci/native-diagnostic -BuildReceipt .godot/ci/native-build/build-receipt.json -ConsumerProbe
+          & "$env:PUBLICATION_TOOLS/New-NativeDiagnosticPackage.ps1" -OriginalArtifactPath .godot/original-game-artifact -EngineRoot .godot/native-engine -OutputPath .godot/ci/native-diagnostic -BuildReceipt .godot/ci/native-build/build-receipt.json -QueryProbe
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $receipt = Get-Content '.godot/ci/native-diagnostic/validation.json' -Raw | ConvertFrom-Json
           if (-not $receipt.ok -or -not $receipt.diagnostic -or $receipt.commit -cne '81847d8b1560340a3a7769223cee0b46c6bdc0f9') { throw 'Diagnostic package receipt mismatch' }
@@ -166,7 +174,7 @@ jobs:
         id: package-retention
         uses: actions/upload-artifact@v4
         with:
-          name: consumer-native-package-${{ github.run_id }}-${{ github.run_attempt }}
+          name: query-native-package-${{ github.run_id }}-${{ github.run_attempt }}
           path: .godot/ci/native-diagnostic/DWM-windows-x86_64-diagnostic.zip
           include-hidden-files: true
           if-no-files-found: error
@@ -211,23 +219,27 @@ jobs:
           $traceRoot = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/consumer-trace'
           New-Item -ItemType Directory -Path $traceRoot | Out-Null
           $env:GODOT_ACCESSKIT_CONSUMER_TRACE_PATH = Join-Path $traceRoot 'trace-{pid}.jsonl'
+          $queryRoot = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/query-trace'
+          New-Item -ItemType Directory -Force $queryRoot | Out-Null
+          $env:GODOT_ACCESSKIT_QUERY_TRACE_PATH = Join-Path $queryRoot 'trace-{pid}.jsonl'
           $watch = [Diagnostics.Stopwatch]::StartNew()
           try {
-            & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Load -ArchivePath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/native-diagnostic/DWM-windows-x86_64-diagnostic.zip') -ExpectedArchiveSha256 $env:DWM_EXPORT_SHA -ExpectedCommit '81847d8b1560340a3a7769223cee0b46c6bdc0f9' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-journey-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-load') -Accessibility Always -Audio Dummy -CreatorReceipt (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-create/result.json') -ProfileSaveLoad -ContinueAfterQuiet -TraceDay5 -NativeReadyCaptions
+            & pwsh -NoProfile -File ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Load -ArchivePath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/native-diagnostic/DWM-windows-x86_64-diagnostic.zip') -ExpectedArchiveSha256 $env:DWM_EXPORT_SHA -ExpectedCommit '81847d8b1560340a3a7769223cee0b46c6bdc0f9' -UserRoot (Join-Path $env:RUNNER_TEMP 'dwm-journey-user') -OutputPath (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-load') -Accessibility Always -Audio Dummy -CreatorReceipt (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/exported-create/result.json') -ProfileSaveLoad -ContinueAfterQuiet -TraceDay5 -NativeReadyCaptions -TraceEndingActions
             $code = $LASTEXITCODE
           } finally {
             Remove-Item Env:GODOT_ACCESSKIT_CONSUMER_TRACE_PATH
+            Remove-Item Env:GODOT_ACCESSKIT_QUERY_TRACE_PATH
             $watch.Stop()
           }
-          @{mode='Load';exit_code=$code;elapsed_seconds=$watch.Elapsed.TotalSeconds;diagnostic_native=$true;trace_enabled=$true;trace_pattern='consumer-trace/trace-{pid}.jsonl'} | ConvertTo-Json | Set-Content '.godot/ci/load-process.json'
+          @{mode='Load';exit_code=$code;elapsed_seconds=$watch.Elapsed.TotalSeconds;diagnostic_native=$true;trace_enabled=$true;trace_pattern='consumer-trace/trace-{pid}.jsonl';query_trace_enabled=$true;query_trace_pattern='query-trace/trace-{pid}.jsonl'} | ConvertTo-Json | Set-Content '.godot/ci/load-process.json'
           if ($code -ne 0) { exit $code }
           $result=Get-Content '.godot/ci/exported-load/result.json' -Raw | ConvertFrom-Json
           if (-not $result.ok -or -not $result.clean_player_exit -or $result.forced_cleanup -or $result.exit_code -ne 0) { throw 'Load failed its original gate' }
-      - name: Bind applied-state observations without changing original outcomes
+      - name: Bind applied and queried observations without changing original outcomes
         id: replay
         if: always()
         run: |
-          & python "$env:PUBLICATION_TOOLS/consumer_analysis/bind_consumer.py" --evidence .godot/ci
+          & python "$env:PUBLICATION_TOOLS/query_analysis/bind_query.py" --evidence .godot/ci
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Preserve original player gates and diagnostic source custody
         if: always()
@@ -259,7 +271,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: consumer-native-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          name: query-native-evidence-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             .godot/ci/
             !.godot/ci/**/package/**
@@ -269,124 +281,3 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 7
-  retained-fixture-qualification:
-    if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
-    runs-on: windows-2022
-    timeout-minutes: 25
-    defaults:
-      run:
-        shell: pwsh
-    steps:
-      - name: Preserve source bytes
-        run: git config --global core.autocrlf false
-      - uses: actions/checkout@v7
-        with:
-          ref: 3b98a73f1ee271bbc6e733c7665ad0a3e8e75db7
-          persist-credentials: true
-      - name: Prepare disposable checkout for credential cleanup
-        run: |
-          $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '3b98a73f1ee271bbc6e733c7665ad0a3e8e75db7' -or (git rev-parse 'HEAD^{tree}') -cne '507c82e9315abe1732c29ba2b83fe5deae4f5036') { throw 'Fixture source pin mismatch' }
-          New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{source='3b98a73f1ee271bbc6e733c7665ad0a3e8e75db7';tree='507c82e9315abe1732c29ba2b83fe5deae4f5036';controller='${{ github.event.pull_request.head.sha }}';scope='B retained fixture correction and same-process isolation'} | ConvertTo-Json | Set-Content '.godot/ci/fixture-origin.json'
-          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
-          # submodule foreach reads the index even with sparse checkout.
-          # The source commit and working files remain unchanged.
-          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git submodule foreach --recursive 'true'
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Install Godot 4.6.3 standard
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
-          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
-          # SHA256 published with the official 4.6.3-stable release asset.
-          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
-          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
-            throw 'Godot archive checksum mismatch.'
-          }
-          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
-          Expand-Archive -LiteralPath $archive -DestinationPath $editor
-          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
-          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
-          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          & $console --version
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Import project
-        timeout-minutes: 8
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
-          $env:APPDATA = Join-Path $output 'import-user/appdata'
-          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
-          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
-          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
-          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
-            throw 'Project import reported script errors; inspect import.log.'
-          }
-      - name: Restore committed project settings after editor import
-        run: |
-          # Dialogic's editor scan rewrites its timeline lookup during import.
-          # Execute the committed configuration with the freshly imported assets.
-          git restore -- project.godot
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Qualify retained fixtures and same-process isolation
-        timeout-minutes: 12
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $cases = @(
-            @{Suite='test_frozen_run_context'; Method='test_v6_does_not_backfill_absent_cache_and_v7_refuses_generated_dating_gap'; Count=1}
-            @{Suite='test_frozen_run_context'; Method='test_saved_dating_binds_run_board_and_effect_but_keeps_original_branch_and_tier'; Count=1}
-            @{Suite='test_frozen_run_context'; Method='test_present_dating_cache_is_exact_and_requires_its_reached_phases'; Count=1}
-            @{Suite='test_frozen_run_context'; Method='test_semantic_checkpoint_cannot_disagree_with_its_saved_canonical_projection'; Count=1}
-            @{Suite='test_frozen_run_context'; Method='test_strict_prepared_condition_candidate_requires_its_generated_dating_cache_without_repair'; Count=1}
-            @{Suite='test_frozen_run_context'; Method='test_strict_semantic_checkpoint_requires_both_discriminators_and_preserves_generic_restart'; Count=1}
-            @{Suite='test_run_snapshot_schema'; Method='test_v8_requires_generated_contact_context_before_preparing_a_detached_candidate'; Count=1}
-            @{Suite='test_retained_frozen_context_fixture'; Method=''; Count=5}
-          )
-          $index = 0
-          foreach ($case in $cases) {
-            $index++
-            $id = "retained-fixture-$index"
-            $godotArguments = @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', "-gtest=res://tests/unit/$($case.Suite).gd", '-gexit', '-glog=2', "-gjunit_xml_file=res://.godot/ci/$id.xml")
-            if ($case.Method) { $godotArguments += "-gunit_test_name=$($case.Method)" }
-            & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId $id -LogName "$id.log" -EvidenceLogPath ".godot/ci/$id.jsonl" -TimeoutSeconds 180 -GodotArgs $godotArguments
-            if ($LASTEXITCODE -ne 0) { throw "$id failed with exit $LASTEXITCODE" }
-            [xml]$report = Get-Content -LiteralPath ".godot/ci/$id.xml" -Raw
-            $executed = @($report.SelectNodes('//testcase'))
-            if ($executed.Count -ne $case.Count) { throw "$id expected $($case.Count) cases, got $($executed.Count)" }
-            if ($report.SelectNodes('//failure | //error | //skipped').Count -ne 0) { throw "$id reported failed or skipped tests" }
-            if ($case.Method -and $executed[0].name -cne $case.Method) { throw "$id ran an unexpected test" }
-          }
-      - name: Retain fixture source and verify tracked bytes
-        if: always()
-        run: |
-          $ErrorActionPreference = 'Stop'
-          New-Item -ItemType Directory -Force '.godot/ci/fixture-source' | Out-Null
-          $records = @()
-          foreach ($path in @('tests/unit/test_frozen_run_context.gd','tests/unit/test_run_snapshot_schema.gd','tests/support/RetainedFrozenContextFixture.gd','tests/unit/test_retained_frozen_context_fixture.gd','tools/testing/Invoke-IsolatedGodot.ps1')) {
-            $target = Join-Path '.godot/ci/fixture-source' $path
-            New-Item -ItemType Directory -Force (Split-Path $target) | Out-Null
-            Copy-Item $path $target
-            $records += @{path=$path;sha256=(Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant();blob=(git rev-parse "HEAD:$path")}
-          }
-          $records | ConvertTo-Json -Depth 4 | Set-Content '.godot/ci/fixture-source-manifest.json'
-          $allowed = @('.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1')
-          foreach ($path in @(git diff HEAD --name-only)) { if ($path -notin $allowed) { throw "Fixture tracked source changed: $path" } }
-      - name: Upload fixture qualification evidence
-        if: always()
-        uses: actions/upload-artifact@v6
-        with:
-          name: retained-fixture-qualification
-          path: |
-            .godot/ci/fixture-origin.json
-            .godot/ci/fixture-source/
-            .godot/ci/fixture-source-manifest.json
-            .godot/ci/import.log
-            .godot/ci/retained-fixture-*.xml
-            .godot/ci/retained-fixture-*.jsonl
-            .godot/phase2r_logs/retained-fixture-*.log
-          if-no-files-found: error
