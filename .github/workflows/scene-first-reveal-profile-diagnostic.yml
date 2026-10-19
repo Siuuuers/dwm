@@ -24,14 +24,14 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: df86fb610f383d8de5fd546005d0cc48b3ae3f68
+          ref: 36f7424d1d7cbe7b037ff4dafd6e4f147561bd2e
           fetch-depth: 2
           persist-credentials: true
       - name: Bind diagnostic tools and observation-only harness
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne 'df86fb610f383d8de5fd546005d0cc48b3ae3f68') { throw 'Diagnostic tool source mismatch' }
-          if ((git rev-parse 'HEAD^{tree}') -cne '0a892a8947bff1a7824ef8fb26d8f82de16be01b') { throw 'Diagnostic tool tree mismatch' }
+          if ((git rev-parse HEAD) -cne '36f7424d1d7cbe7b037ff4dafd6e4f147561bd2e') { throw 'Diagnostic tool source mismatch' }
+          if ((git rev-parse 'HEAD^{tree}') -cne '5cb011418ad9d0337f97a6d7b51f7d33f21277b7') { throw 'Diagnostic tool tree mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
           git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -42,7 +42,7 @@ jobs:
           @'
           import hashlib,json,pathlib,subprocess
           game='81847d8b1560340a3a7769223cee0b46c6bdc0f9'
-          tools='df86fb610f383d8de5fd546005d0cc48b3ae3f68'
+          tools='36f7424d1d7cbe7b037ff4dafd6e4f147561bd2e'
           controller='${{ github.event.pull_request.head.sha }}'
           prefix='tools/diagnostics/ending-publication-20261019/'
           out=pathlib.Path('.godot/ci')
@@ -61,7 +61,7 @@ jobs:
               pins[name]={'source_commit':source,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest(),'git_blob':subprocess.check_output(['git','rev-parse',source+':'+name],text=True).strip()}
           source=out/'source/controller.yml'
           source.write_bytes(subprocess.check_output(['git','show',controller+':.github/workflows/scene-first-reveal-profile-diagnostic.yml']))
-          origin={'game_commit':game,'game_tree':game_tree,'tool_source':tools,'tool_tree':'0a892a8947bff1a7824ef8fb26d8f82de16be01b','controller':controller,'engine_base':'35e80b3a8822a9df9be390814b62f44c0a9c69e8','engine_tree':'499fa231ee5d21878988a4a9cb881749def3946d','original_run':39155624496,'original_artifact':12146662424,'diagnostic':'Separately built native observer; original official Load remains failed','shared_source_pins':pins,'changed_paths':changed,'driver_modes':['Capability','Create','Load'],'step_timeout_seconds':30,'journey_timeout_seconds':480,'outer_timeout_minutes_per_mode':10,'renderer':'ProjectDefault','accessibility':'Always','audio':'Dummy','load_flags':['ProfileSaveLoad','ContinueAfterQuiet','TraceDay5','NativeReadyCaptions','TraceEndingActions'],'trace_environment':['GODOT_ACCESSKIT_CONSUMER_TRACE_PATH','GODOT_ACCESSKIT_QUERY_TRACE_PATH'],'trace_scope':'Load only; natural committed state and actual Navigate calls plus existing Actions predicates; no refresh or extra provider query'}
+          origin={'game_commit':game,'game_tree':game_tree,'tool_source':tools,'tool_tree':'5cb011418ad9d0337f97a6d7b51f7d33f21277b7','controller':controller,'engine_base':'35e80b3a8822a9df9be390814b62f44c0a9c69e8','engine_tree':'499fa231ee5d21878988a4a9cb881749def3946d','original_run':39155624496,'original_artifact':12146662424,'diagnostic':'Separately built native observer; original official Load remains failed','shared_source_pins':pins,'changed_paths':changed,'driver_modes':['Capability','Create','Load'],'step_timeout_seconds':30,'journey_timeout_seconds':480,'outer_timeout_minutes_per_mode':10,'renderer':'ProjectDefault','accessibility':'Always','audio':'Dummy','load_flags':['ProfileSaveLoad','ContinueAfterQuiet','TraceDay5','NativeReadyCaptions','TraceEndingActions'],'trace_environment':['GODOT_ACCESSKIT_CONSUMER_TRACE_PATH','GODOT_ACCESSKIT_QUERY_TRACE_PATH'],'trace_scope':'Load only; natural committed state and actual Navigate calls plus existing Actions predicates; no refresh or extra provider query'}
           (out/'audit-origin.json').write_text(json.dumps(origin,indent=2))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
