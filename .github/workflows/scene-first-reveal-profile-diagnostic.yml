@@ -21,7 +21,7 @@ jobs:
       run: git config --global core.autocrlf false
     - uses: actions/checkout@v7
       with:
-        ref: 08dd31c37375d72214157f53eaa1c38f4eae762b
+        ref: d06a5f82c92d24d18f3b197f6667b6955e20993b
         fetch-depth: 1
     - uses: actions/setup-python@v6
       with:
@@ -29,7 +29,7 @@ jobs:
         architecture: x64
     - name: Bind candidate and retained benchmark input
       run: "$ErrorActionPreference='Stop'\nNew-Item -ItemType Directory -Force .godot/ci | Out-Null\nif ((git rev-parse HEAD)\
-        \ -ne '08dd31c37375d72214157f53eaa1c38f4eae762b') { throw 'Wrong candidate' }\ngit update-index --force-remove --\
+        \ -ne 'd06a5f82c92d24d18f3b197f6667b6955e20993b') { throw 'Wrong candidate' }\ngit update-index --force-remove --\
         \ .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1\nif ($LASTEXITCODE -ne 0) { throw 'Index cleanup\
         \ failed' }\ngit submodule foreach --recursive 'true'\nif ($LASTEXITCODE -ne 0) { throw 'Index check failed' }\n@'\n\
         import pathlib,subprocess,json,hashlib,zipfile,io\nout=pathlib.Path('.godot/ci')\narchive=pathlib.Path('evidence/phase_2r/title_timing_20261019/run39279335309/original-evidence.zip').read_bytes()\n\
@@ -39,7 +39,7 @@ jobs:
         (out/'benchmark-input.json').write_bytes(data)\nfiles={p:subprocess.check_output(['git','hash-object',p],text=True).strip()\
         \ for p in ['autoload/DialogicBridge.gd', 'scripts/narrative/NarrativeCaptionLedger.gd', 'tests/support/OriginalSceneAnchorBridge.gd',\
         \ 'tests/support/SceneAnchorAlgorithmFixture.gd', 'tests/integration/test_scene_anchor_algorithm.gd', 'tests/performance/test_scene_anchor_algorithm_benchmark.gd',\
-        \ 'tools/testing/Invoke-IsolatedGodot.ps1']}\n(out/'origin.json').write_text(json.dumps({'candidate':'08dd31c37375d72214157f53eaa1c38f4eae762b','base':'8f59bcc76894bef8856dd2f7c62ca99b50f8c8f7','controller':'${{\
+        \ 'tools/testing/Invoke-IsolatedGodot.ps1']}\n(out/'origin.json').write_text(json.dumps({'candidate':'d06a5f82c92d24d18f3b197f6667b6955e20993b','base':'8f59bcc76894bef8856dd2f7c62ca99b50f8c8f7','controller':'${{\
         \ github.event.pull_request.head.sha }}','files':files,'input_sha256':hashlib.sha256(data).hexdigest()},indent=2))\n\
         '@ | python -\nif ($LASTEXITCODE -ne 0) { throw 'Source/input custody failed' }\n"
     - name: Install Godot 4.6.3 standard
