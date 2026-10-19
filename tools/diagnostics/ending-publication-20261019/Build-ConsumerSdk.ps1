@@ -1,10 +1,11 @@
 #requires -Version 7.0
-# Diagnostic-only Rust SDK; no game payload or consumer algorithm substitution.
+# Diagnostic-only paired Rust SDK; only Corrected changes the two reviewed iterator assignments.
 param(
     [Parameter(Mandatory)][string]$SourceRoot,
     [Parameter(Mandatory)][string]$ProbeRoot,
     [Parameter(Mandatory)][string]$HeaderPath,
-    [Parameter(Mandatory)][string]$OutputPath
+    [Parameter(Mandatory)][string]$OutputPath,
+    [Parameter(Mandatory)][ValidateSet('Baseline','Corrected')][string]$IteratorVariant
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -18,6 +19,8 @@ function Hash([string]$Path) { (Get-FileHash -LiteralPath $Path -Algorithm SHA25
 function Check([string]$Message) { if ($LASTEXITCODE -ne 0) { throw "$Message (exit $LASTEXITCODE)" } }
 $record = [ordered]@{
     schema_version=1; ok=$false; diagnostic=$true; probe_kind='query_and_consumer'
+    iterator_variant=$IteratorVariant
+    consumer_crate_sha256='53cf47daed85312e763fbf85ceca136e0d7abc68e0a7e12abe11f48172bc3b10'
     source_commit='72460cd52d1b24492393cdf54a6f19d2fd63e258'
     target='x86_64-pc-windows-msvc'; rust_toolchain='1.85.0'
     rustflags='-C target-feature=+crt-static'
@@ -42,12 +45,26 @@ try {
     New-Item -ItemType Directory -Path $vendor | Out-Null
     & tar -xf $archive -C $vendor; Check 'Published crate extraction failed'
     $crate = Join-Path $vendor 'accesskit_windows-0.32.1'
+    $consumerArchive = Join-Path $output 'accesskit_consumer-0.35.0.crate'
+    Invoke-WebRequest 'https://static.crates.io/crates/accesskit_consumer/accesskit_consumer-0.35.0.crate' -OutFile $consumerArchive
+    if ((Hash $consumerArchive) -cne $record.consumer_crate_sha256) { throw 'Published consumer crate checksum mismatch.' }
+    & tar -xf $consumerArchive -C $vendor; Check 'Published consumer extraction failed'
+    $consumer = Join-Path $vendor 'accesskit_consumer-0.35.0'
+    $iteratorReceipt = Join-Path $output 'iterator-receipt.json'
+    & python (Join-Path $probe 'iterator-correction.py') --crate-root $consumer --variant $IteratorVariant --receipt $iteratorReceipt
+    Check 'Reviewed iterator preparation failed'
+    $record.iterator_receipt_sha256 = Hash $iteratorReceipt
+    $record.iterator_sha256 = (Get-Content $iteratorReceipt -Raw | ConvertFrom-Json).iterator_sha256
+
     & python (Join-Path $probe 'apply_probe.py') --crate-root $crate 2>&1 | Tee-Object (Join-Path $output 'apply-probe.log')
     Check 'Reviewed observer application failed'
-    $appliedSource = @(Get-ChildItem $crate -File -Recurse | Where-Object { $_.Name -ne 'Cargo.lock' } | Sort-Object FullName | ForEach-Object { @{path=[IO.Path]::GetRelativePath($crate,$_.FullName).Replace('\','/');sha256=(Hash $_.FullName)} })
     # Paths are JSON-quoted, which is compatible with TOML basic strings.
     $quoted = ($crate.Replace('\','/') | ConvertTo-Json -Compress)
-    Add-Content (Join-Path $source 'Cargo.toml') "`n[patch.crates-io]`naccesskit_windows = { path = $quoted }" -Encoding utf8NoBOM
+    $consumerQuoted = ($consumer.Replace('\','/') | ConvertTo-Json -Compress)
+    Add-Content (Join-Path $source 'Cargo.toml') "`n[patch.crates-io]`naccesskit_windows = { path = $quoted }`naccesskit_consumer = { path = $consumerQuoted }" -Encoding utf8NoBOM
+    # Cargo patches belong to the manifest root; standalone Windows tests need their own.
+    Add-Content (Join-Path $crate 'Cargo.toml') "`n[patch.crates-io]`naccesskit_consumer = { path = $consumerQuoted }" -Encoding utf8NoBOM
+    $appliedSource = @(Get-ChildItem $crate -File -Recurse | Where-Object { $_.Name -ne 'Cargo.lock' } | Sort-Object FullName | ForEach-Object { @{path=[IO.Path]::GetRelativePath($crate,$_.FullName).Replace('\','/');sha256=(Hash $_.FullName)} })
     Copy-Item (Join-Path $source 'Cargo.toml') (Join-Path $output 'Cargo.derived.toml')
     & rustup toolchain install $record.rust_toolchain --profile minimal --target $record.target 2>&1 | Tee-Object (Join-Path $output 'rustup.log'); Check 'Pinned Rust installation failed'
     $record.rustc = (& rustup run $record.rust_toolchain rustc -vV) -join "`n"; Check 'Rust identity failed'
@@ -71,27 +88,30 @@ try {
     & rustup run $record.rust_toolchain cargo metadata --manifest-path $manifest --format-version 1 --filter-platform $record.target 1> (Join-Path $output 'metadata.json') 2> (Join-Path $output 'metadata.stderr.log')
     Check 'Derived dependency resolution failed'
     Copy-Item $lock (Join-Path $output 'Cargo.derived.lock')
-    # The only permissible lock delta is registry Windows -> reviewed path Windows.
+    # Only Windows and consumer registry-to-path substitutions are permitted.
     $validate = @'
 import pathlib,sys,tomllib,json
-root=pathlib.Path(sys.argv[1]); source=pathlib.Path(sys.argv[2]); crate=pathlib.Path(sys.argv[3])
+root=pathlib.Path(sys.argv[1]); source=pathlib.Path(sys.argv[2]); crate=pathlib.Path(sys.argv[3]); consumer=pathlib.Path(sys.argv[4])
 a=tomllib.loads((root/'Cargo.original.lock').read_text()); b=tomllib.loads((root/'Cargo.derived.lock').read_text())
 assert a['version']==b['version']
 def normalize(p):
     p=dict(p)
-    if p['name']=='accesskit_windows':
-        assert p['version']=='0.32.1'
+    if p['name'] in ('accesskit_windows','accesskit_consumer'):
+        assert p['version']=={'accesskit_windows':'0.32.1','accesskit_consumer':'0.35.0'}[p['name']]
         p.pop('source',None); p.pop('checksum',None)
     return p
 assert sorted(map(normalize,a['package']),key=lambda p:(p['name'],p['version'])) == sorted(map(normalize,b['package']),key=lambda p:(p['name'],p['version'])), 'Unexpected dependency drift'
-for name,version,checksum in [('accesskit','0.24.0','5351dcebb14b579ccab05f288596b2ae097005be7ee50a7c3d4ca9d0d5a66f6a'),('accesskit_consumer','0.35.0','53cf47daed85312e763fbf85ceca136e0d7abc68e0a7e12abe11f48172bc3b10')]:
+for name,version,checksum in [('accesskit','0.24.0','5351dcebb14b579ccab05f288596b2ae097005be7ee50a7c3d4ca9d0d5a66f6a')]:
     matches=[p for p in b['package'] if p['name']==name]
     assert len(matches)==1 and matches[0]['version']==version and matches[0]['checksum']==checksum
 meta=json.loads((root/'metadata.json').read_text(encoding='utf-8-sig'))
-w=[p for p in meta['packages'] if p['name']=='accesskit_windows']
-assert len(w)==1 and w[0]['source'] is None and pathlib.Path(w[0]['manifest_path']).resolve()==(crate/'Cargo.toml').resolve()
+for name,path in [('accesskit_windows',crate),('accesskit_consumer',consumer)]:
+    w=[p for p in meta['packages'] if p['name']==name]
+    assert len(w)==1 and w[0]['source'] is None and pathlib.Path(w[0]['manifest_path']).resolve()==(path/'Cargo.toml').resolve()
+    locked=[p for p in b['package'] if p['name']==name]
+    assert len(locked)==1 and 'source' not in locked[0] and 'checksum' not in locked[0]
 '@
-    $validate | & python - $output $source $crate; Check 'Derived dependency identity validation failed'
+    $validate | & python - $output $source $crate $consumer; Check 'Derived dependency identity validation failed'
     $record.derived_lock_sha256 = Hash $lock
     $record.metadata_sha256 = Hash (Join-Path $output 'metadata.json')
     # Unit tests need upstream dev dependencies absent from the production C lock.
@@ -103,7 +123,10 @@ assert len(w)==1 and w[0]['source'] is None and pathlib.Path(w[0]['manifest_path
     Copy-Item (Join-Path $crate 'Cargo.lock') (Join-Path $output 'Cargo.tests.lock')
     $validateTests = @'
 import pathlib,sys,tomllib,json
-r=pathlib.Path(sys.argv[1])
+r=pathlib.Path(sys.argv[1]); consumer=pathlib.Path(sys.argv[2])
+meta=json.loads((r/'test-metadata.json').read_text(encoding='utf-8-sig'))
+c=[x for x in meta['packages'] if x['name']=='accesskit_consumer']
+assert len(c)==1 and c[0]['source'] is None and pathlib.Path(c[0]['manifest_path']).resolve()==(consumer/'Cargo.toml').resolve()
 p=tomllib.loads((r/'Cargo.derived.lock').read_text())['package']
 t=tomllib.loads((r/'Cargo.tests.lock').read_text())['package']
 pins={x['name']:x for x in p}
@@ -117,7 +140,7 @@ for x in t:
     if key in prod and x['name']!='accesskit_windows':
         assert x.get('checksum')==prod[key].get('checksum') and x.get('source')==prod[key].get('source')
 '@
-    $validateTests | & python - $output; Check 'Focused-test dependency identity failed'
+    $validateTests | & python - $output $consumer; Check 'Focused-test dependency identity failed'
     $record.tests_lock_sha256 = Hash (Join-Path $output 'Cargo.tests.lock')
     $record.tests_metadata_sha256 = Hash (Join-Path $output 'test-metadata.json')
     & rustup run $record.rust_toolchain cargo test --manifest-path $testManifest --locked --target $record.target --lib consumer_probe -- --nocapture 2>&1 | Tee-Object (Join-Path $output 'tests.log')
@@ -147,9 +170,14 @@ for x in t:
     foreach ($entry in $record.source_manifest) {
         if ($entry.path -notin @('Cargo.toml','Cargo.lock') -and (Hash (Join-Path $source $entry.path)) -cne $entry.sha256) { throw "SDK source changed during compilation: $($entry.path)" }
     }
+    & python (Join-Path $probe 'iterator-correction.py') --crate-root $consumer --variant $IteratorVariant --receipt $iteratorReceipt --verify
+    Check 'Consumer source changed during compilation'
+    if ((Hash $iteratorReceipt) -cne $record.iterator_receipt_sha256) { throw 'Iterator custody receipt changed during compilation.' }
+    if ((Hash (Join-Path $crate 'Cargo.lock')) -cne $record.tests_lock_sha256) { throw 'Test lock changed during compilation.' }
     $record.library=@{path='lib/windows/x86_64/msvc/static/accesskit.lib';bytes=(Get-Item $library).Length;sha256=(Hash $library)}
     $record.header=@{path='include/accesskit.h';sha256=(Hash (Join-Path $include 'accesskit.h'))}
     if ((Hash $lock) -cne $record.derived_lock_sha256) { throw 'Lock changed during build.' }
+    if ((Hash $manifest) -cne (Hash (Join-Path $output 'Cargo.derived.toml'))) { throw 'SDK manifest changed during build.' }
     $record.patched_crate_manifest = @(Get-ChildItem $crate -File -Recurse | Sort-Object FullName | ForEach-Object { @{path=[IO.Path]::GetRelativePath($crate,$_.FullName).Replace('\','/');sha256=(Hash $_.FullName)} })
     $record.ok=$true
 } catch {

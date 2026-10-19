@@ -109,6 +109,17 @@ try {
             (Hash (Join-Path $sdk $sdkReceipt.library.path)) -cne $sdkReceipt.library.sha256 -or
             (Hash (Join-Path $sdk $sdkReceipt.header.path)) -cne $sdkReceipt.header.sha256) { throw 'Patched consumer SDK custody mismatch.' }
         if ($QueryProbe -and ($sdkReceipt.probe_kind -cne 'query_and_consumer' -or $sdkReceipt.query_tests_exit_code -ne 0)) { throw 'Query SDK focused tests were not qualified.' }
+        # This comparison links a separately identified diagnostic variant.
+        $iteratorHashes = @{
+            Baseline='22233da2a6c999c355b74edddbf80fc98c6f32bd52f55de2bacd523f013824a7'
+            Corrected='7d2f876b4744af77b576ea35726ebb5c3943bf8f01b61595e61a9ad8dd1f4fa5'
+        }
+        if (-not $iteratorHashes.ContainsKey([string]$sdkReceipt.iterator_variant) -or
+            $sdkReceipt.iterator_sha256 -cne $iteratorHashes[[string]$sdkReceipt.iterator_variant]) {
+            throw 'Comparison SDK iterator identity mismatch.'
+        }
+        $record.iterator_variant = $sdkReceipt.iterator_variant
+        $record.iterator_sha256 = $sdkReceipt.iterator_sha256
         $record.consumer_sdk_receipt_sha256 = Hash $sdkReceiptPath
         $record.consumer_sdk_library_sha256 = $sdkReceipt.library.sha256
         Copy-Item $sdkReceiptPath (Join-Path $output 'consumer-sdk-receipt.json')
