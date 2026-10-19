@@ -291,12 +291,33 @@ event.
 
 ### 4.2 Unmarked focal presence
 
-**Current Priscilla application, owner clarification 2026-10-19
-(Asia/Hong_Kong):** use selective perception within Priscilla's existing
-self-talk when the encounter benefits from it. The audience may know that she
-is the perceiver; borrowing this method does not require concealing her identity
-or introducing another narrator. The foundation's sole-Priscilla viewpoint
-governs the retained historical construction below.
+**Current Priscilla application, owner clarifications 2026-10-19
+(Asia/Hong_Kong), including 03:54 and 05:03:** prefer reduced explicit grammatical person,
+especially first-person perception tags, and permit referents to remain
+unannounced in both story-field and self-talk prose. The desired effect includes
+less immediate identification of who a perception or phrase refers to, not only
+fewer repetitions of "I look." This is a formal preference, not a ban on every
+pronoun, character name or direct spoken first-person statement. Use grammatical
+person, names and pronouns whenever they make a sentence more beautiful,
+smooth or natural. Judge what the passage reveals and how it reads; do not
+force awkward omission merely to keep a sentence unmarked. This flexibility
+applies to narrative perception as well as speech.
+
+Priscilla remains the sole perceptual anchor. Writer-only notes identify the
+anchor, physical actor, dialogue speaker or addressee, and referent wherever
+the audience text leaves them uncertain; record only distinctions needed by
+that passage. Withheld audience attribution does not grant another viewpoint
+or make the selected writer-side action/access unknown. Deliberately unresolved
+causes retain that status instead of receiving invented private answers.
+
+Both display fields can use this prose. As an editorial default, the story
+field carries the continuing encounter through Priscilla's attention; self-talk
+gives a private passage its own emphasis, whether an inward answer, hesitation,
+proposed action or perceptual fixation. Neither field requires a grammatical
+"I," proves an interpretation, or exposes another woman's mind. Keep one
+authored reading order and avoid duplicating a perception as its own explanation.
+These are drafting conventions, not implemented routing syntax. The
+foundation governs the retained historical construction below.
 
 What she notices, measures, revisits or neglects can disclose the pressure of
 her attention without explaining its cause or proving Lavinia's intention.

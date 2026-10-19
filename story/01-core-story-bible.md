@@ -231,6 +231,48 @@ of every earlier test.
 
 Sylvia is 21 and a third-year statistics or decision-science student. She is an Open Week peer-welfare and safety volunteer with a current basic first-aid certificate. She may know public schedules, assigned rooms, check-in procedures, and incident workflow. She has no diagnostic authority, private-record access, or legitimate right to conduct a general physical examination. Unable to risk asking to be wanted, she arranges to be owed and translates personal or erotic desire into practical, medical, or moral necessity. In her darker private logic, each successful rescue should narrow Angela’s alternatives until Sylvia appears to be the only reliable person, gratitude becomes permanent debt, and compliance feels like reasonable repayment. Her prudishness governs how she explains desire, not whether desire exists; no explanatory label creates consent.
 
+#### Current Sylvia triangle, 2026-10-19
+
+**Source and scope:** the owner's clarification at 03:54 Asia/Hong_Kong and
+acceptance of the two knowledge recommendations at 05:03, following the Day 1
+opening critique. This is current character direction;
+exact scenes, methods, disclosures and endpoints remain unselected. The
+[development checkpoint](auditions/priscilla-seven-day-working-plot.md#current-sylvia-and-perception-clarification-2026-10-19)
+preserves the distinctions and outstanding questions.
+
+Sylvia's romantic feeling for Lavinia is stronger than her romantic feeling
+for Priscilla. Her attachment to Lavinia precedes the later storyline fork;
+selecting a storyline does not create it. This does not make every pleasure,
+affection or attraction involving Priscilla counterfeit.
+
+Across the Sylvia-focused seven-day storyline, Sylvia aims to make a
+Priscilla–Lavinia relationship impossible and increase her own chances with
+Lavinia. She may promote conflict or misunderstanding, criticize Lavinia's
+supposed incompatibility with Priscilla, act or lie, and express a personal
+truth through a joke given a practical completion. This records Sylvia's aim,
+not guaranteed separation, successful prediction, or Lavinia's reciprocation.
+
+Meticulous care remains part of her love: she offers what she believes is
+best and can treat that judgment as authority. The owner also names
+self-directed harm to obtain attention or sympathy as a possible capacity.
+No particular incident, method, injury, recipient, frequency, diagnosis or
+successful response is selected. That capacity does not automatically make
+an observed distress false or transfer the retired Angela Special event.
+
+The former blanket non-romantic Sylvia–Lavinia restriction is superseded in
+this scope. At the later relationship fork, Priscilla may suspect Sylvia's
+attraction to Lavinia while misunderstanding its extent or strategic
+importance. The exact evidence, onset of suspicion and later discoveries
+remain unselected; this is not full knowledge of Sylvia's plan.
+
+Lavinia's romantic response to Sylvia is deliberately unresolved on the
+writer's side until a particular scene needs a decision. Do not privately fix
+reciprocation or its absence and describe it as merely concealed. Lavinia's
+awareness of Sylvia's desire and interference remains open. There is no newly
+selected third playable route, affair, triad, or
+Priscilla–Sylvia ending. Apply the [earlier-acquaintance clarification](#current-sylvia-history-2026-10-19)
+without importing Angela's whole biography.
+
 ## Fixed Hidden Histories
 
 These facts are private canon. The released game reveals them only through partial evidence, behavior, or approved fragments and endings.
@@ -246,6 +288,23 @@ Angela initially withdrew rather than perform innocence for adults who already p
 Priscilla and Sylvia are sisters, and Angela has known both since childhood. Knowing Sylvia as Priscilla’s sister never produced equal intimacy: Angela’s relationship with Sylvia remains that of a long-standing occasional acquaintance, while Sylvia has had more opportunity and inclination to observe Angela than Angela recognized. The sisterhood is an ordinary family fact to Angela and the sisters and should reach the audience incidentally rather than as a conspiratorial reveal. It creates no romance, route, state deck, or ending between the sisters and grants no automatic access to the other’s records, rooms, messages, desires, or hidden intentions.
 
 Their control methods share a family resemblance without establishing a shared formative cause. Priscilla makes desire defensible through wording, records, and social authorship; Sylvia makes it defensible through preparation, risk, access, and care debt. Each may recognize the other’s overreach more readily than her own. They do not coordinate hidden intentions, and Sylvia’s fixed harmful intent toward Angela belongs to Sylvia alone.
+
+### Current Sylvia history, 2026-10-19
+
+The owner says Sylvia knew Lavinia before Priscilla. The current chronological
+reading is **before Priscilla knew Lavinia**, while Priscilla and Sylvia remain
+childhood friends under the foundation. No age, semester or introduction
+event is added.
+
+The owner directs an adaptation of the former Angela–Lavinia first meeting.
+The exact retained premise below is an astronomy-class university friendship;
+use that as the adaptation basis. The new scene's exact circumstances and
+degree of intimacy remain open. It does not transfer Angela's degree,
+temperament, England exchange, or reciprocal romantic feeling.
+
+Priscilla's recognition of Lavinia at the bar before formal introduction
+remains. Sylvia's acquaintance does not itself establish why Priscilla
+recognized her, whether Sylvia introduced them, or what Sylvia told her.
 
 ### Angela–Lavinia University Friendship
 

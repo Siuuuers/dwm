@@ -4,6 +4,20 @@
 **Source revision:** 6e2184aa121631c55f42b3b072b9e68d2713c523.  
 **Status:** **AUDITIONING**. This is a complete narrative reading copy with local alternatives, not selected canon or executable DTL.
 
+**Later direction, 2026-10-19 at 03:54 and 05:03 Asia/Hong_Kong:** the owner retains the
+optional second photograph for its enjoyment, prefers less explicit grammatical
+person and partly withheld referents in Priscilla's perception, and clarifies
+Sylvia's stronger romantic attachment to Lavinia and attempt to obstruct P–L.
+Names and pronouns remain available wherever they make perception more
+beautiful, smooth or natural. At the later fork, Priscilla may suspect the
+attraction while misunderstanding its extent or strategic importance; Lavinia's
+romantic response remains deliberately unresolved for the writers.
+Read the [current development checkpoint](priscilla-seven-day-working-plot.md#current-sylvia-and-perception-clarification-2026-10-19)
+and [Bible direction](../01-core-story-bible.md#current-sylvia-triangle-2026-10-19).
+The complete prose below is retained for comparison; it has not yet received
+the resulting whole-scene rewrite. Earlier review findings have their earlier
+scope, not a new certification of this changed character design.
+
 The owner requested a full Day 1 audition with variations and integrated self-talk, followed by a review that tests both the scenes and the bibles. The exact new dialogue, photo option, Challenge mapping, recognition passage and evening coda below are assistant-authored candidates. The already approved foundation and P–L ending direction retain their own scope.
 
 Read the [foundation](../09-priscilla-foundation-amendment.md), [current behavior](../../docs/design/2026-10-09-priscilla-flow-behavior-amendment.md), and [current style guidance](../08-narrative-style-manual.md#42-unmarked-focal-presence) first when reviewing. [Section 6](#6-author-notes-and-continuity) contains the backstage facts and uncertainties; [Section 7](#7-review-against-and-challenge-to-the-bibles) records the bounded review.
@@ -27,13 +41,18 @@ Every reading begins at [the photograph](#1-a-photograph), includes
 
 | Reading cue | Meaning in this document |
 |---|---|
-| Ordinary action prose | Stageable action or detail available to Priscilla, the sole viewpoint. |
+| Story-field prose | The continuing encounter through Priscilla's attention; may include selective detail, association and immediate interpretation with reduced person/referent marking. |
 | Speaker name | Reader orientation in this working copy; not a requirement to show names in the game. |
-| **Self-talk** | Private thought intended for the self-talk field. Companions cannot hear it. |
+| **Self-talk** | A separately foregrounded private passage, including observation or hesitation; it need not name its thinker or use “I.” Companions cannot hear it. |
 | **Optional thought** | One proposed action with a Yes opportunity; passing follows the written default. |
 | Section/continuation headings | Author navigation, not implemented DTL labels or audience-facing outcome announcements. |
 
 The plot and self-talk are deliberately adjacent. The preceding source review of the [author guide](https://github.com/Siuuuers/dwm/blob/bf1c46715f0698dbcf9c2b9d1ca6e946a6dde74f/tests/templates/scene_sequence/AUTHOR_GUIDE.md) and [compiler](https://github.com/Siuuuers/dwm/blob/bf1c46715f0698dbcf9c2b9d1ca6e946a6dde74f/scripts/narrative/DialogicRuntimeAdapter.gd) found that ordinary self-talk field routing still needs an explicit compiler/presentation contract. This Markdown notation claims no working runtime syntax. Spoken and private passages should retain one authored reading order.
+
+Where audience prose withholds an actor or referent, the next revision's private
+passage notes should identify only the anchor, action, speaker/addressee and
+referents needed to preserve its access and continuity. Those notes are not
+released captions or another viewpoint.
 
 ## 1. A photograph
 
@@ -78,6 +97,10 @@ I enlarge the picture with two fingers. Sylvia leans against my arm to see what 
 **Self-talk:** I like her face in this one, too.
 
 ### Photo option: one Yes or the default
+
+**Retain for development:** the owner values the optional second photograph as
+fun. The later assistant suggestion to delete it is not the current direction;
+exact wording remains an audition.
 
 **Optional thought:** Ask for another photograph.
 
@@ -830,7 +853,7 @@ When she becomes quiet, I leave the phone where it is.
 | Field | This audition |
 |---|---|
 | Surface and anchor | Priscilla throughout: a café afternoon with Sylvia, messages on Priscilla's phone, then a private audio call. No remote view of Lavinia's room. |
-| Immediate company | Sylvia wants enjoyable performance and responsive company; Priscilla genuinely enjoys both while anticipating Lavinia. The book is not secretly established as a preplanned trap. |
+| Immediate company | The audition contains enjoyable performance and responsive company; Priscilla anticipates Lavinia as well. Apply Sylvia's newly clarified Lavinia-first desire when revising, without assuming that every pleasure is false or that this exact book was a preplanned trap. |
 | Lavinia's visible conduct | Teasing message before her return, questions and a demand for Priscilla's own answer, then participation in the evening call. Jealousy/test/ordinary desire can coexist as readings. |
 | Main turn | Priscilla knowingly approves the date message. A game at the table becomes a statement received by an absent person, who asks for ownership of it. |
 | What can be declined | Another photograph; the table-time voice reply; the rehearsal request before permission; continued company. Sylvia's no-forward limit can be violated, and her exit remains available and actual in D. |
@@ -856,6 +879,12 @@ All facts in this table are definite **within this candidate**, not promoted can
 | E introduces first recognition, followed by the deliberate private address “You can wait.” | This is Priscilla's newly available recognition; the other women hear nothing of it. | No recognition of a face, mechanism, other branch, concealed refusal or private mind. |
 
 **Working hypotheses, not secret canon:** Priscilla hopes the date claim will elicit a more possessive invitation; Sylvia enjoys the performance and also wants her attention back; Lavinia's withdrawal or later instruction may be a test. None needs an explanatory clue or a definitive private answer for this audition to function.
+
+**Later Sylvia clarification:** her greater desire for Lavinia and broader
+obstructive aim are now owner-directed. Which of these particular Day 1 actions
+serve that aim, and what response she expects, remain to be authored. D's
+refusal and actual breach survive: strategic dishonesty elsewhere does not
+make “Don't send my voice” permission or prove that she arranged the violation.
 
 **Protected unresolved matters:** the proportions of Priscilla's two real intervention motives remain unresolved; the actual unauthorized document intervention stays real. Residence/admission and bar/residue holds remain open. The coda does not select an additional secret, future violence, or the thing Lavinia may be bringing.
 

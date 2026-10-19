@@ -184,6 +184,16 @@ original violation or professional fear unreal.
 
 ## Sylvia
 
+**Current direction, 2026-10-19:** apply the [Bible's Sylvia triangle](01-core-story-bible.md#current-sylvia-triangle-2026-10-19)
+and [earlier acquaintance](01-core-story-bible.md#current-sylvia-history-2026-10-19)
+before the retained dossier. Her stronger romantic attachment is Lavinia;
+her Sylvia-focused week includes attempts to obstruct P–L. Meticulous care,
+acting, lies and joking disclosure may coexist with genuine enjoyment of
+Priscilla. Named harmful capacities are not selected incidents. References
+to Angela, sisterhood and the old Special event below do not transfer by
+substitution. Neither prior acquaintance nor a successful arrangement grants
+knowledge of Lavinia's present wishes.
+
 - **Public surface:** Twenty-one, a third-year statistics or decision-science student, and an Open Week peer-welfare and safety volunteer with a current basic first-aid certificate. She presents as angelic, prudish, orderly, and reliably prepared.
 - **Human kernel:** She wants to be chosen and cared for in return, but she cannot tolerate the vulnerability of asking without first making herself necessary.
 - **Wound:** No formative wound is established in canon. Her fixed fear is asking to be wanted and receiving a clean refusal. Angela has known Sylvia since childhood as Priscilla's sister but knows her personally only as a long-standing occasional acquaintance, while Sylvia has studied Angela far more closely than family context or that relationship justifies. This asymmetry is present pressure, not an invented causal history.
@@ -266,6 +276,21 @@ Individual character dossiers and the other relationships remain in this Handboo
 
 ## Priscilla–Sylvia
 
+**Current relationship, 2026-10-19:** childhood friends, with a permitted
+romantically charged storyline under the [foundation](09-priscilla-foundation-amendment.md#2-chapter-flow-and-the-relationship-choice).
+Sylvia's stronger romantic attachment is Lavinia, and she intends the P–S
+sequence to help obstruct P–L. This leaves room for real P–S affection,
+attraction, enjoyment and consequential dependence or conflict. Under the
+owner's 05:03 acceptance, Priscilla may suspect Sylvia's attraction to Lavinia
+at the later fork while misunderstanding its extent or strategic importance.
+The evidence, exact disclosures and resolution remain unselected. The fork
+selects the relationship's sustained encounters; it guarantees no reciprocation.
+
+**Retained pre-foundation guidance:** the older sisterhood, non-romantic ban,
+family-call access and Angela-specific history below are not current facts.
+Use only compatible contrasts in method and bounded knowledge after applying
+the foundation and current Bible direction.
+
 - **Baseline:** Priscilla and Sylvia are sisters, an ordinary family fact known to Angela since childhood and revealed to the audience incidentally rather than as a conspiratorial twist. Their Open Week roles intersect, but neither role defines their familial relationship. The pairing is strictly non-romantic and has no relationship state, route, or ending.
 - **Attraction or tension:** Use familial recognition, territorial competence, and competing methods for making care binding. Priscilla authors meaning, wording, and records; Sylvia authors circumstances, preparedness, and care debt. Their resemblance never establishes a shared formative cause or motive. Do not write romantic or sexual attraction.
 - **Asymmetry:** Priscilla controls phrasing and social presentation; Sylvia controls preparedness within a sharply limited workflow. Sylvia has correctly inferred a rupture between Priscilla and Lavinia from family calls, while whether Priscilla knows that Sylvia made that inference remains unresolved. Neither automatically knows the other's private intention.
@@ -277,6 +302,22 @@ Individual character dossiers and the other relationships remain in this Handboo
 - **Information each woman possesses:** Both know ordinary shared family facts. Priscilla may know programme language, communications, and student-organization facts within her role; Sylvia may know public schedules, assigned rooms, check-in procedures, and incident workflow within hers. Sylvia is sometimes beside their parents during Priscilla's family calls, recognizes constructed domestic continuity, and correctly infers a rupture with Lavinia without learning its cause, the disclosure-form conflict, either woman's private interpretation, or a relationship label. Sylvia does not tell their parents; whether Priscilla knows that Sylvia inferred the rupture remains unresolved. Neither sister receives automatic access to the other's records, rooms, messages, desires, hidden intentions, or causal knowledge of anomalies.
 
 ## Lavinia–Sylvia
+
+**Current relationship, 2026-10-19:** Sylvia knew Lavinia before Priscilla did
+under the [current chronological reading](01-core-story-bible.md#current-sylvia-history-2026-10-19),
+with the old astronomy-class friendship as the first-meeting adaptation basis.
+Sylvia's greater romantic desire is Lavinia. Under the owner's 05:03 acceptance,
+Lavinia's romantic response is deliberately unresolved for the writers until a
+particular scene needs a decision, rather than privately fixed but concealed.
+Her awareness of that desire and knowledge of the interference remain open.
+Their encounters may
+remain partly inaccessible through Priscilla; no new POV or third playable
+route follows. Sylvia's preparations can offer wanted care and also attempt
+to make her indispensable. Their actual effects require authored responses.
+
+**Retained earlier scope:** the blanket institutional-only/non-romantic rule
+in the baseline below is superseded. Compatible bodily autonomy, access and
+role limits survive; Angela/family-call knowledge is not transferred.
 
 - **Baseline:** This pairing is institutionally limited and non-romantic. Their contact is grounded in conservatory/Open Week logistics, welfare procedure, and Sylvia's preparation around Lavinia's name and location.
 - **Attraction or tension:** Use friction between embodied self-knowledge and procedural certainty. Do not write attraction, a route, or an ending variant.

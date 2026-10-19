@@ -1,5 +1,21 @@
 # Priscilla–Lavinia: working home and restart point
 
+## Sylvia's intervention: current clarification, 2026-10-19
+
+The [current checkpoint](../../auditions/priscilla-seven-day-working-plot.md#current-sylvia-and-perception-clarification-2026-10-19)
+records Sylvia's stronger desire for Lavinia and her attempt to obstruct P–L,
+with the owner's preference for less explicitly identified perception, flexible
+grammatical person and retaining the second photograph. Read the [Bible direction](../../01-core-story-bible.md#current-sylvia-triangle-2026-10-19)
+before interpreting older non-romantic S–L language. At the later fork,
+Priscilla may suspect Sylvia's attraction while misunderstanding its extent
+or strategic importance. Lavinia's romantic response is deliberately unresolved
+for the writers. Exact interference, disclosures and P–S endpoints remain open.
+The complete Day 1 remains a
+comparison audition pending revision. The owner authorizes updates and pushes
+to the existing [PR #41](https://github.com/Siuuuers/dwm/pull/41) branch at 13:17;
+keep versions through commits in these existing files. PR metadata establishes
+the current publication and merge state.
+
 ## Current single-ending development, 2026-10-18
 
 Read the [ending amendment](../../09-priscilla-foundation-amendment.md#pl-specific-ending-amendment-2026-10-18),

@@ -1,5 +1,26 @@
 # Story workspace
 
+## Current Sylvia and perception clarification, 2026-10-19
+
+Begin with the [current checkpoint](auditions/priscilla-seven-day-working-plot.md#current-sylvia-and-perception-clarification-2026-10-19):
+Sylvia's greater romantic attachment is Lavinia, her seven-day plan includes
+obstructing P–L, and the old astronomy-class first meeting is the adaptation
+basis. The owner retains the optional second photograph and prefers reduced
+grammatical person and partly withheld referents in Priscilla-bound prose,
+with names and pronouns available for beauty, smoothness and naturalness.
+The owning Bible, foundation, Handbook and style sections now record that scope.
+
+**Capture destination:** the existing [PR #41](https://github.com/Siuuuers/dwm/pull/41)
+branch, based on inspected `a7126a5c21c3545c05588b9ac38f8b2c682d8e82`. The owner
+authorizes Markdown updates and pushes at 13:17; use successive commits in the
+existing files for version history. PR metadata establishes the current head
+and merge state. Exact Day 1 prose still awaits a
+complete revision. At the later fork, Priscilla may suspect Sylvia's attraction
+while misunderstanding its extent or strategic importance. Lavinia's romantic
+response remains deliberately unresolved for the writers; exact disclosures,
+specific acts and P–S resolution remain open. The existing P–L ending and
+whole-week gate survive.
+
 ## Current Day 1 audition checkpoint, 2026-10-19
 
 The [complete Day 1 reading copy](auditions/day-1-photo-book-working-draft.md)

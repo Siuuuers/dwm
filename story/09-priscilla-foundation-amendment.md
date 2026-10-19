@@ -16,13 +16,13 @@ The source of the changes is the owner's visible Priscilla-pivot discussion thro
 
 Angela no longer exists as an in-world character. Her personality survives only as notification-wording style: restrained emotional expression, precise questions, deadpan rhythm and occasional suitable absurdity. Her scenes, studies, romances, attendance, messages and obligations are not forward plot. Notifications do not become her surviving consciousness, a fourth narrator, or a source of otherwise unavailable private truth.
 
-Priscilla is the sole viewpoint. Self-talk includes her private thoughts, observations and hesitation; it is not restricted to audible muttering. Other women do not hear a thought just because the audience can read it. No alternate Lavinia or Sylvia viewpoint is licensed by a selected relationship storyline. Observed detail, interpretation, imagination and deliberate address remain distinct for the writer.
+Priscilla is the sole viewpoint. Self-talk includes her private thoughts, observations and hesitation; it is not restricted to audible muttering. Other women do not hear a thought just because the audience can read it. No alternate Lavinia or Sylvia viewpoint is licensed by a selected relationship storyline. Observed detail, interpretation, imagination and deliberate address remain distinct for the writer. The owner's 2026-10-19 formal preference reduces explicit grammatical person and may withhold referents in perceptual prose across both story and self-talk fields; writer-only orientation retains the actual anchor and referents. Follow the [current style application](08-narrative-style-manual.md#42-unmarked-focal-presence).
 
 Sylvia is Priscilla's childhood friend, not her sister. A Priscilla-Sylvia romantic storyline is permitted. Former Angela-related functions may be reconsidered, but no entire personality, dossier, rescue debt or family access transfers by name replacement. The exact replacement childhood incident remains OPEN. In particular, the assistant's suggestion that Sylvia discovers fabricated evidence later has not been selected.
 
 Priscilla and Lavinia can be accomplice-like and understand each other's darker capacities. This approves no specific conspiracy, injury, coercion, permission or unseen act. Their history does not make P-L the compulsory dominant attachment in a P-S storyline. The disclosure-intervention history and lack of moral remorse remain. Apply the later [Bible judgment refinement](01-core-story-bible.md#current-pl-judgment-2026-10-18), which broadens Priscilla's preference-based accommodation and self-justification for current P–L conduct.
 
-Lavinia-Sylvia interaction can remain subtle and partly unknown through Priscilla. No independent third romance route, secret affair, omniscient explanation or agreed three-person relationship is fixed.
+**Sylvia clarification, 2026-10-19:** the [Bible's current Sylvia direction](01-core-story-bible.md#current-sylvia-triangle-2026-10-19) now makes her stronger romantic attachment to Lavinia explicit and records her attempt to obstruct P–L, including through the Sylvia-focused week. The [earlier-acquaintance adaptation](01-core-story-bible.md#current-sylvia-history-2026-10-19) is the bounded exception to automatic biography transfer. The old blanket non-romantic S–L rule cannot override this direction. Actual interaction can remain subtle and partly unknown through Priscilla. Lavinia's reciprocation, an independent third playable route, secret affair, omniscient explanation or agreed three-person relationship is not fixed.
 
 Unaffected adult ages, backgrounds, languages and the fictional university setting remain with the Bible and Handbook. Lavinia's ordinary Day 2 return survives. Existing residence, admission, bar/residue and full chronological-audit holds remain open. This amendment supplies no shared home, key, surname, diagnosis, new sexual history or replacement backstory. The retained no-confirmed-death boundary is not repealed by horror reference examples.
 
@@ -36,6 +36,13 @@ Begin with shared interactions and no partner selected at run creation. One cons
 - Passing the opportunity without selecting Yes defaults to Priscilla-Lavinia.
 
 After the fork, follow the selected relationship storyline. The other woman can still appear, act independently, help, disagree or have concerns of her own. She is not erased or made a compulsory antagonist. The choice opens a causal sequence; it does not manufacture love, reciprocity or consent.
+
+**Current P–S reading, 2026-10-19:** Yes selects the sustained Priscilla–Sylvia
+storyline, not a guarantee that Sylvia prefers Priscilla romantically. Her
+Lavinia-directed plan can organize this storyline while the P–S bond undergoes
+real changes. Exact resolution and compatibility with retained P–S Sweet/Dark
+endpoint guidance remain open; this clarification does not import the single
+P–L ending into P–S or silently select a replacement ending.
 
 Ambiguous and Love are no longer mandatory separate run variants or relationship-eligibility tiers for these storylines. Useful writing about attraction, uncertainty, acknowledgment and intimacy can coexist. Mutually exclusive old histories cannot simply be combined: for example, the Day 2 departure and accepted-extra-stay candidates require a coherent selection before reuse.
 

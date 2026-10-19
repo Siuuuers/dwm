@@ -1,5 +1,197 @@
 # Priscilla: current seven-day working plot and discussion checkpoint
 
+## Current Sylvia and perception clarification, 2026-10-19
+
+**Capture source:** the preceding visible Day 1 opening critique and the owner's
+03:54 Asia/Hong_Kong clarification and 05:03 follow-up accepting the two
+knowledge recommendations and allowing grammatical person for beauty,
+smoothness and naturalness. **Inspected repository revision:** PR #41
+at `a7126a5c21c3545c05588b9ac38f8b2c682d8e82`, still open, draft and unmerged
+at inspection. **Repository destination:** the existing PR #41 branch. The owner
+explicitly authorizes Markdown updates and pushes at 13:17 Asia/Hong_Kong;
+successive commits retain versions in the existing files. Consult the PR's
+metadata for the current head and merge state.
+
+### Owner directions
+
+| Item | Current direction and exact scope |
+|---|---|
+| Perceptual form | Prefer less grammatical person, especially overt first-person narration, and less immediate identification of referents. Author-only notes may identify them. Use grammatical person, names and pronouns whenever they make the prose more beautiful, smooth or natural. This applies across story and self-talk fields within the sole-Priscilla viewpoint. |
+| Second photograph | Retain the optional variation for its fun and interest. This supersedes the assistant's deletion recommendation, not the option's unselected exact dialogue. |
+| Sylvia's principal romantic feeling | Stronger for Lavinia than for Priscilla. Lesser attraction or real pleasure with Priscilla is not denied. |
+| Earlier acquaintance | Sylvia knew Lavinia before Priscilla, read as before Priscilla knew Lavinia while P–S remain childhood friends. Adapt the previous Angela–Lavinia first-meeting premise. |
+| Sylvia's week aim | Obstruct P–L, promote conflict or misunderstanding and improve her own chances with Lavinia, including through the seven-day Sylvia-focused storyline. A plan is an aim and attempted influence, not an assured outcome. |
+| Priscilla's knowledge at the later fork | Owner accepts the recommendation that Priscilla may suspect Sylvia's attraction to Lavinia while misunderstanding its extent or strategic importance. This permits a perceptive but consequentially mistaken reading; it does not fix a Day 1 discovery or full knowledge of the plan. |
+| Lavinia's romantic response to Sylvia | Owner accepts deliberately leaving the response unresolved on the writer's side until a particular scene needs a decision. It is not privately fixed but concealed. Lavinia's awareness of the desire and interference remains open. |
+| Methods and care | Acting, lying, comments on Lavinia's supposed incompatibility with Priscilla, meticulous caring, and a personal truth protected by a joking/practical completion. Care may express what Sylvia believes is best. |
+| Self-directed harm | Named as a possible way Sylvia might seek attention or sympathy. No exact event, method, injury, target of an appeal, frequency or diagnosis is selected. |
+
+The owner's example is **“Why don't you choose me... for the project.”**
+Preserve it as an example of voice and possible double address, not an approved
+Day 1 line. Speaker is Sylvia; addressee, witness, actual project, occasion and
+whether the practical completion conceals a romantic wish still need authorship.
+
+**Assistant interpretation of the two possible addresses:** said to Lavinia,
+the example can briefly expose Sylvia's wish to be chosen by the woman she
+wants. Said to Priscilla, it can truthfully solicit a choice that serves her
+larger plan while being heard as a personal romantic request. These are
+different uses, not proof of the speaker's motive from wording alone. Neither
+addressee or placement is selected by preserving this distinction.
+
+The [Bible](../01-core-story-bible.md#current-sylvia-triangle-2026-10-19)
+owns the new character direction and [earlier-acquaintance scope](../01-core-story-bible.md#current-sylvia-history-2026-10-19).
+The [foundation](../09-priscilla-foundation-amendment.md#1-cast-viewpoint-and-preserved-continuity)
+and [Handbook](../02-character-relationship-handbook.md#sylvia) point to it.
+The [Style Manual](../08-narrative-style-manual.md#42-unmarked-focal-presence)
+owns the formal preference. These bounded changes supersede the retained
+blanket non-romantic S–L rule without transferring Angela's full biography,
+adding a third playable route or selecting Lavinia's reciprocation.
+
+### Earlier opening critique: retained and superseded proposals
+
+The assistant's preceding review found the book worth keeping but Sylvia's
+“It looked awful” taste thin, the banter nearly too mutually efficient, and
+the strongest concrete dark turn concentrated in D. These are editorial
+judgments, not measured audience results or proof that the approved direction
+is defective.
+
+**Still proposals:** give Sylvia one sincerely liked passage; allow one joke
+or response to mismatch; compress thoughts that explain already-perceptible
+pleasure; keep “No question at the end” and “I can do that now”; reconsider the
+book's opening threat and the coda's “You'll see tomorrow” teaser. The owner
+has not approved those cuts or exact replacement passages.
+
+**Superseded:** remove the optional second photograph. The owner's reason to
+retain it is pleasure, which does not need a new hidden-state justification.
+The earlier prose recommendation also under-described the formal preference:
+the next revision should consider reducing overt person/referent marking,
+beyond replacing repeated “I look” tags. The 05:03 clarification gives beauty,
+smoothness and naturalness room to retain grammatical person; omission is a
+flexible preference, not a quota or a requirement to make every line oblique.
+
+The earlier coda experiment remains unselected: Priscilla rises for water,
+Lavinia hears the chair and asks “Are you going?”, receives “For water,” says
+“Wait,” and Priscilla sits. Its proposed function was a small observable cost
+of wanted contact. It is not a selected control act, a proven private test, or
+a conclusion about abuse from that isolated exchange.
+
+### Current interpretation and craft recommendations
+
+The new triangle can make Sylvia's existing lines richer without an explanatory
+reveal. The signed date message may be an intervention addressed to Lavinia;
+the book may remain enjoyable company; a greater desire elsewhere does not
+automatically make either the first or second photograph false.
+
+D's **“That wasn't for her. I said not to send it”** can carry greater personal
+importance if Lavinia is the person whose response Sylvia cares about most.
+Controlled teasing and an unguarded recorded performance are different
+exposures. Keep the present refusal and breach unless separately revising the
+event. Do not secretly turn the refusal into bait merely to make Sylvia's plan
+infallible. Her exit can also work against her aim by giving Priscilla the
+solitude Lavinia requests. **“I can do that now”** remains consequential.
+
+**Recommended dramatic risk:** Sylvia can mistake P–L conflict for progress
+toward separation. A criticism intended to make Lavinia unattractive may
+instead interest Priscilla; an attempt to make Priscilla seem unavailable may
+intensify Lavinia's pursuit. These are alternatives to audition, not already
+selected events or universal response rules. Knowing Lavinia first does not
+make Sylvia the best reader of her present wishes. Her preference can persist
+through the week while methods change after real surprises.
+
+**Route recommendation:** the P–S storyline should resolve something between
+Priscilla and Sylvia—trust, dependence, complicity, rejection or chosen company—
+even when Sylvia's strongest desire remains Lavinia. Do not force a discovery
+that she “really” prefers Priscilla to validate the storyline. The fork changes
+the sustained encounters; it does not create Sylvia's earlier desire. Preventing
+P–L does not guarantee Lavinia will choose Sylvia. Exact outcomes are open.
+
+**Unselected dialogue test, Sylvia to Priscilla during an interrupted reading:**
+
+> “Answer her. It's easier.”  
+> “Easier than what?”  
+> “Reading the same sentence four times.”
+
+This uses an observable difficulty while leaving its emotional framing open.
+It does not establish a habitual flaw in Lavinia or select the line for Day 1.
+
+**Unselected perceptual test, story field:**
+
+> At this size, both faces fit. Larger. The face looking down is cut by the frame.  
+> “Don't inspect it that closely.”  
+> “I like it.”  
+> “That isn't usually why you zoom in.”  
+> A shoulder presses against the arm below the screen. The face still inside the photograph is turned toward the cropped edge.
+
+**Author-only orientation for this test:** anchor Priscilla; phone belongs to
+Sylvia; Priscilla enlarges the displayed photograph; the cropped face is
+Priscilla's, the remaining face Sylvia's; Sylvia leans against Priscilla's arm;
+dialogue order is Sylvia, Priscilla, Sylvia. No private Sylvia motive is
+certified. This example deliberately reduces narrative names and first person;
+spoken “I” remains possible. Field placement gives a passage continuity or
+private emphasis and does not identify another narrator.
+
+### Accepted knowledge direction and next bounded unit
+
+The owner accepted both recommendations at 05:03. **At the later fork,
+Priscilla may suspect Sylvia's attraction while misunderstanding its extent or
+strategic importance. Lavinia's corresponding romantic feeling remains
+deliberately unresolved for the writers until a particular scene needs it.**
+These are the current directions, not unanswered interview questions. Exact
+evidence and disclosures, the onset of Priscilla's suspicion, and Lavinia's
+awareness of Sylvia's desire or interference remain unselected. No audience
+proof sequence or secret answer to Lavinia's response is required.
+
+The user describes a seven-day aim; this checkpoint does not weaken it into a
+single isolated temptation. Exact P–S resolution and compatibility with the
+retained Sweet/Dark scope still need selection. No automatic change to a
+healing endpoint, no new S–L endpoint, and no alternate P–L ending is selected.
+The source first meeting is an astronomy-class friendship. No specific term,
+introduction by Sylvia, or explanation of P's bar recognition is supplied.
+
+Next: revise the complete Day 1 encounter with both photo responses under the
+new formal preference and triangle, then check the whole continuation family.
+The currently retained full prose is the comparison draft, not a completed
+implementation of this clarification. Exact dialogue, dark act, first-recognition
+staging, book origin/transfer, full week and production DTL remain open.
+
+**Bounded check:** two same-model readers separately inspected source collisions
+and the changed triangle's craft implications. The root recorded the actual
+owner scope and kept their new examples as proposals. Full rewritten-scene,
+audience, audio and runtime tests are NOT RUN. The repository destination and
+publication boundary are recorded at the top of this checkpoint.
+
+### Day 1 favorites: editorial appreciation after the 05:03 clarification
+
+The owner asks which current moments the assistant most values and why. The
+following are readings of the retained complete audition, not new prose,
+selected exact lines, measured audience effects or an additional rewrite gate.
+The current Sylvia direction allows further interpretations without proving
+the private motive of every smile, joke or touch. Each Section 3 continuation
+remains an alternative; these moments do not all happen in one playthrough.
+
+| Existing moment | What this reading values |
+|---|---|
+| Shared first photograph: “I should have asked her to help earlier.” | Lavinia affects a photograph she is absent from. Sylvia notices a change in Priscilla's expression; the captured attention differs from the posed expression. The triangle can be felt without an explanation of anyone's full desire. |
+| Optional second photograph: “I was supervising” and “Send me both.” | A correction becomes another shared laugh. Both imperfect pictures are wanted. Preserve the ordinary pleasure and distinct responses without making them proof of a hidden plan. |
+| Shared reading: “Then say it” and “I wanted to see you.” | Fiction lends them a direct sentence that remains playable as a line. Sylvia briefly drops and recovers the character voice. The small change in delivery offers intimacy without certifying to whom her deeper desire belongs. |
+| Shared interruption: “Should I send it to you? ... My part.” | Sylvia's live performance competes with the attention given to a remote message. A complaint emerges through a practical, funny proposal; her finger returning to the line also keeps the shared activity available. |
+| A only: “No question at the end.” | Priscilla notices a missing invitation to continue. The exact feature of the received message carries her fixation while leaving Lavinia's intent and Priscilla's emotional explanation unsettled. |
+| D only: the prohibited recording, “I heard you,” and “I can do that now.” | Strongest overall favorite. A refusal is heard and breached; Sylvia's departure then makes Lavinia's request for a solitary call possible. An absence becomes useful through a small practical thought. Lavinia has not been shown the recording restriction, and Sylvia's refusal remains real. |
+| C/E only: “You can do him differently” and “I don't want to now.” | Their shared performance changes how Sylvia wants to hear a fictional character. The remembered pleasure can remain real while her stronger romantic attachment lies elsewhere. |
+| Shared coda: “Don't hang up when I stop talking,” followed by the aunt's voice and the open line | Continued company extends beyond conversation. The same close depends on the reader's actual afternoon: returned attention in C, an unaddressed breach in D, and an additional recognized listener in E. Repeating the aunt's voice can carry the afternoon's warmth; after D, it also acquires a troubling possible echo. This does not make voluntary performance equivalent to sending someone else's prohibited recording. |
+
+**Additional small pleasure:** Sylvia's comic “Mine” over the aunt's part can
+stand on its own. In D, Priscilla later uses the same word to claim the answer
+sent in Sylvia's voice. That repetition can alter its felt weight without
+being labelled or explained in the audience prose.
+
+The preference for reduced grammatical person strengthens “No question at the
+end” while leaving the natural first person of “I can do that now” available.
+The important difference is the particular attention each sentence carries,
+not whether one construction is always the correct field or style. This
+appreciation protects functions and pleasures for consideration in revision;
+it does not retract the earlier unselected criticisms or freeze the draft.
+
 ## Current Day 1 audition and self-talk checkpoint, 2026-10-19
 
 **Scope and source:** the visible owner requests to review Day 1, consider full
