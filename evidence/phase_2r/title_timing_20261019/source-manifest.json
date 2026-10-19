@@ -1,0 +1,99 @@
+{
+  "files": [
+    {
+      "path": "harness.patch",
+      "bytes": 4826,
+      "sha256": "cf063ed2e2d6393b23e8670a3a7c9aedbef00c36d92916658ccdc61a35858e21"
+    },
+    {
+      "path": "source/.github/workflows/windows-tests.yml",
+      "bytes": 74531,
+      "sha256": "8f54a8f8a20a64e05a7916c3586a56a8cb0a894b2e2501f9a1034f397c30d293"
+    },
+    {
+      "path": "source/autoload/ApplicationBootstrap.gd",
+      "bytes": 175316,
+      "sha256": "5f30235eac3d1278a8923c43c5501330eb126d9a2df825b09be0c7588e71ea27"
+    },
+    {
+      "path": "source/autoload/SceneRouter.gd",
+      "bytes": 47086,
+      "sha256": "105e5e8ce635a9ba804270e93c9fc844dca048141a50e2d84a1d1593683253aa"
+    },
+    {
+      "path": "source/new-title-tools/Smoke-TimingPackage.ps1",
+      "bytes": 5838,
+      "sha256": "1e2a38321f4aab53eed59b4a3d5d502f55cf7bf07191805e07e0e07e68cda8a1"
+    },
+    {
+      "path": "source/new-title-tools/build_controller.py",
+      "bytes": 12190,
+      "sha256": "f8ae82df7b2a219f512e85652326914f064314c8ffa23d21842571f63ffdb25c"
+    },
+    {
+      "path": "source/new-title-tools/game_patch.py",
+      "bytes": 9488,
+      "sha256": "7b6151cffff0684bf7fb035158a2d535a6a1a1126d42c1b6225810e96e957b1b"
+    },
+    {
+      "path": "source/new-title-tools/harness_patch.py",
+      "bytes": 4531,
+      "sha256": "61fac5d117655c5620a553765070b657f69600467abf422dd8845531cf70a530"
+    },
+    {
+      "path": "source/new-title-tools/package_timing.py",
+      "bytes": 10809,
+      "sha256": "a4000830c81b24eee553a15ef2181846081a28a1a24b382b9126d67e932712b6"
+    },
+    {
+      "path": "source/new-title-tools/prepare_source.py",
+      "bytes": 2620,
+      "sha256": "09552161c4882fccb08d0126daa5f49fbfa689862605a75fab9fef223f92576d"
+    },
+    {
+      "path": "source/new-title-tools/test_game_patch.py",
+      "bytes": 3726,
+      "sha256": "de30964e49dafbea9945840e1e2b6f670a3cb9ff135a4c79571a66aa5bcb84cf"
+    },
+    {
+      "path": "source/new-title-tools/test_harness_patch.py",
+      "bytes": 4181,
+      "sha256": "73fb43bd3c19a9e34300128ef58d3ca7c5950f11cde3428caa32233aabe7ab88"
+    },
+    {
+      "path": "source/new-title-tools/test_package_timing.py",
+      "bytes": 6795,
+      "sha256": "e7c34b0d9eb810f49b6f7982f26bc68d473431ca35d240cc4bcfa8ae6d8cb59e"
+    },
+    {
+      "path": "source/old-controller.yml",
+      "bytes": 21534,
+      "sha256": "eef1b1713dc983a53ae8872191b60b25c9fed41a788b2638458b12dde8338f2f"
+    },
+    {
+      "path": "source/scripts/application/run/SaveManagerCheckpointPort.gd",
+      "bytes": 59778,
+      "sha256": "09210b048a1a4c06d70b27ead984eba3415df70caef32780f11b3346fedc6e0e"
+    },
+    {
+      "path": "source/scripts/ui/EndingScene.gd",
+      "bytes": 15926,
+      "sha256": "8545f7f7b1a31e94d4a49b475ddac175aa3e37ed5816694b678e5382c6c51b5c"
+    },
+    {
+      "path": "source/tools/testing/Invoke-ExportedGameplay.ps1",
+      "bytes": 57613,
+      "sha256": "ff5e0859a47928ba8cdd3d19f05b87ccad2d471c7ee6901eaf51af7d0b054469"
+    },
+    {
+      "path": "timing-inventory.json",
+      "bytes": 2351,
+      "sha256": "35bb4a19758731a090b22180d83ffc91773d872b3c954074ae84e265a8766e3f"
+    },
+    {
+      "path": "timing.patch",
+      "bytes": 8261,
+      "sha256": "8cb9cbfd08820a81112e3dddc2553a1e247bc10fe499a54513af60dc2e84c054"
+    }
+  ]
+}
