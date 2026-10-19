@@ -9,6 +9,14 @@ const SHAPES_FIXTURE := "res://tests/fixtures/snapshots/invalid_object_shapes.js
 const V3_COMMITTED_FIXTURE := "res://tests/fixtures/snapshots/v3_committed_schedule.json"
 const CANONICAL_JSON_PATH := "res://scripts/validation/CanonicalJsonWriter.gd"
 
+const RETAINED_CONTEXTS := preload("res://tests/support/RetainedFrozenContextFixture.gd")
+var _retained_contexts: RefCounted
+
+func after_each() -> void:
+	if _retained_contexts != null:
+		_retained_contexts.restore()
+		_retained_contexts = null
+
 func _schema_exists() -> bool:
 	return ResourceLoader.exists(SCHEMA_PATH, "Script")
 
@@ -216,6 +224,10 @@ func test_current_ending_refuses_missing_seed_and_legacy_plan_without_reconstruc
 		assert_eq(legacy, retained, "a current version tag does not manufacture historical eligibility")
 
 func test_v8_requires_generated_contact_context_before_preparing_a_detached_candidate() -> void:
+	_retained_contexts = RETAINED_CONTEXTS.new()
+	var installed: Dictionary = _retained_contexts.install(["contact.invitation.solo.priscilla.day1.offer"])
+	assert_true(installed.get("ok", false), str(installed))
+	if not installed.get("ok", false): return
 	var schema: Script = load(SCHEMA_PATH)
 	var snapshot := _fixture(VALID_FIXTURE)
 	snapshot.lifecycle.day = 1

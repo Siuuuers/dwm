@@ -7,6 +7,14 @@ const CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.g
 const DECK := preload("res://scripts/domain/relationship/PairDeckDraw.gd")
 const READING_FIXTURE := preload("res://tests/unit/test_reading_restore_admission.gd")
 
+const RETAINED_CONTEXTS := preload("res://tests/support/RetainedFrozenContextFixture.gd")
+var _retained_contexts: RefCounted
+
+func after_each() -> void:
+	if _retained_contexts != null:
+		_retained_contexts.restore()
+		_retained_contexts = null
+
 func _snapshot() -> Dictionary:
 	return {"lifecycle": {"run_id": "fixture:run", "branch_id": "restored:branch", "day": 2,
 		"state": "PLAYING", "active_resolution_plan": null, "active_condition_hospital_plan": null,
@@ -23,11 +31,21 @@ func _solo_fields(phase: String) -> Dictionary:
 		fields.merge({"attempt_id": "fixture:board", "board_result": "cleared", "perfect_reasons": [],
 			"relationship_outcome": "loved", "effect_receipt_id": "actual:effect"})
 		var schema := FROZEN.schema_for_entry(fields.entry_id)
+		assert_true(schema.get("ok", false), "retained dating schema: " + str(schema))
+		if not schema.get("ok", false): return {}
 		if schema.value.fields.has("progression_window_result"):
 			fields["progression_window_result"] = {"evaluated": true, "promotion_applied": false, "relationship_state": "friend"}
 	return fields
 
 func _dating(post: bool = false) -> Dictionary:
+	if _retained_contexts == null:
+		_retained_contexts = RETAINED_CONTEXTS.new()
+		var installed: Dictionary = _retained_contexts.install([
+			"dating.solo.priscilla.day2.pre_challenge", "dating.solo.priscilla.day2.post_challenge"])
+		assert_true(installed.get("ok", false), str(installed))
+		if not installed.get("ok", false):
+			_retained_contexts = null
+			return {}
 	var snapshot := _snapshot()
 	var route: Dictionary = snapshot.gameplay.route_context
 	route["active_dating_challenge"] = {"context": {"kind": "solo", "day": 2, "participants": ["priscilla"]},
@@ -38,12 +56,17 @@ func _dating(post: bool = false) -> Dictionary:
 	var entries := {}
 	for phase: String in (["pre_challenge", "post_challenge"] if post else ["pre_challenge"]):
 		var fields := _solo_fields(phase)
-		entries[fields.entry_id] = FROZEN.build(fields.entry_id, fields).value
+		if fields.is_empty(): return {}
+		var built := FROZEN.build(fields.entry_id, fields)
+		assert_true(built.get("ok", false), "retained dating build: " + str(built))
+		if not built.get("ok", false): return {}
+		entries[fields.entry_id] = built.value
 	route[RUN.DATING_KEY] = {"schema_version": 1, "board_token": "fixture:board", "entries": entries}
 	return snapshot
 
 func test_v6_does_not_backfill_absent_cache_and_v7_refuses_generated_dating_gap() -> void:
 	var snapshot := _dating()
+	if snapshot.is_empty(): return
 	snapshot.gameplay.route_context.erase(RUN.DATING_KEY)
 	var before := snapshot.duplicate(true)
 	assert_true(RUN.validate(snapshot).ok)
@@ -61,6 +84,7 @@ func test_minimal_gameplay_without_route_bag_remains_legal() -> void:
 
 func test_saved_dating_binds_run_board_and_effect_but_keeps_original_branch_and_tier() -> void:
 	var snapshot := _dating(true)
+	if snapshot.is_empty(): return
 	snapshot.gameplay["dating_route_state"] = {"priscilla": {"relationship_state": "love", "dark_points": 4}}
 	snapshot.gameplay["friend_attitude"] = {"priscilla": "fixated"}
 	var before := snapshot.duplicate(true)
@@ -75,6 +99,7 @@ func test_saved_dating_binds_run_board_and_effect_but_keeps_original_branch_and_
 
 func test_present_dating_cache_is_exact_and_requires_its_reached_phases() -> void:
 	var snapshot := _dating(true)
+	if snapshot.is_empty(): return
 	var cache: Dictionary = snapshot.gameplay.route_context[RUN.DATING_KEY]
 	cache["future_phase"] = {}
 	assert_eq(RUN.validate(snapshot).get("code"), &"frozen_context_cache_invalid")
@@ -234,6 +259,7 @@ func test_malformed_contact_source_rows_refuse_instead_of_entering_typed_loops()
 
 func test_semantic_checkpoint_cannot_disagree_with_its_saved_canonical_projection() -> void:
 	var snapshot := _dating()
+	if snapshot.is_empty(): return
 	var entry_id := "dating.solo.priscilla.day2.pre_challenge"
 	var presentation: Dictionary = snapshot.gameplay.route_context[RUN.DATING_KEY].entries[entry_id].duplicate(true)
 	snapshot["narrative_checkpoint"] = {"entry_id": entry_id, "frozen_context": {"presentation": presentation}}
@@ -272,6 +298,7 @@ func test_prepared_condition_owner_cache_is_validated_before_it_can_be_installed
 func test_strict_prepared_condition_candidate_requires_its_generated_dating_cache_without_repair() -> void:
 	var snapshot := _snapshot()
 	var earlier := _dating()
+	if earlier.is_empty(): return
 	var owner := {"contacts": earlier.contacts.duplicate(true), "gameplay": earlier.gameplay.duplicate(true)}
 	snapshot.lifecycle.active_condition_hospital_plan = {"source_day": 2, "stages": [
 		{"stage_id": "close_invitation_sources", "state": "active", "prepared": {"owner_candidate": owner}},
@@ -332,6 +359,7 @@ func test_strict_prepared_pair_keeps_pending_projection_after_a_real_saved_rollo
 
 func test_strict_semantic_checkpoint_requires_both_discriminators_and_preserves_generic_restart() -> void:
 	var snapshot := _dating()
+	if snapshot.is_empty(): return
 	var entry_id := "dating.solo.priscilla.day2.pre_challenge"
 	var presentation: Dictionary = snapshot.gameplay.route_context[RUN.DATING_KEY].entries[entry_id].duplicate(true)
 	var semantic := {"entry_id": entry_id, "frozen_context": {"presentation": presentation}}
