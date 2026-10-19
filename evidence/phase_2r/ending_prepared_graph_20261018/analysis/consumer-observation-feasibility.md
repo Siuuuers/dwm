@@ -69,3 +69,37 @@ The narrow next outcome is: “At a natural ending update, the actual Windows co
 An applied-state observer can answer that without changing game behavior. If it returns Include while the original native gate still fails, that still leaves actual query traversal/properties/timing unresolved; a Navigate observer would then be a separate boundary, not an automatic claim that UIA is defective. If it returns ExcludeSubtree, capture the actual predicate inputs before proposing any fix. A missing applied target would require comparing its exact update/context custody with the already observed producer handoff.
 
 No implementation or new run is authorized by this feasibility note itself. Root owns any next patch/build/controller decision and must preserve the original native acceptance gates and the separate diagnostic-binary qualification.
+
+## Replacement A bounded proposal after external C review — 19 October 2026
+
+Reconciles Director PR30#issuecomment-6260614148 and external C PR36#issuecomment-6260643485. The original feasibility note above remains source evidence; this section selects the next implementation scope. An independent internal source reviewer agreed with this scope. No patch, SDK build, native run or new gameplay qualification has occurred.
+
+### Selected outcome and scope
+
+Observe applied consumer state only. Use the existing Windows Adapter/Context and exact common filter; no game API, C ABI change, new runtime manager, additional UIA query, focus action, refresh or tree mutation. Keep Navigate tracing out of the first implementation. An Include result with a failed original gate leaves query/property/timing delivery unresolved and may justify a later separately bounded query observer.
+
+### Failures the implementation must distinguish
+
+| Risk | Required behavior/evidence |
+| --- | --- |
+| Filtered caption escapes discovery | Discover candidate internal IDs at the start of node_added/node_updated/node_removed, before every existing filter-dependent early return. Discovery is not proof of committed presence. |
+| Initial or placeholder replacement skips callbacks | One bounded, unfiltered committed-tree discovery at initial construction and placeholder-to-real replacement. Reset diagnostic epoch on replacement even if Context survives. Report incomplete discovery explicitly. |
+| Focus changes eligibility without a content update | Observe committed state after both placeholder and active update_window_focus_state branches, with a distinct focus-commit record. |
+| Removal looks like never discovered | Preserve established same-epoch binding through removal long enough to record bound_absent. Keep unbound, ambiguous, bound_present and bound_absent distinct. A changed label does not erase a retained ID. |
+| Duplicate labels or capacity exhaustion looks unique | Retain all candidate matches up to explicit capacity; ambiguity/overflow prevents unique binding. Pair local ID and TreeId with the unchanged primary caption callback offline. Label alone is insufficient. |
+| Stale IDs cross context/window lifetimes | Record PID/HWND/context/epoch and local ID/TreeId via State::locate_node; never invent a composite ID or call it a UIA RuntimeId. |
+| Logging changes lock behavior | Copy owned facts under the existing write guard after update_and_process_changes returns; preserve enqueue_selection_changes/event ordering. Drop the guard before serialization/I/O; never recursively read_tree or acquire an inverse logger/tree lock order. |
+| Partial stream is presented as continuous state | Explicit record/candidate/label/path/output limits, sequence and timestamps; report truncation, dropped records and write failure. Missing footer permits only complete-prefix conclusions. |
+
+For each committed observation retain root/ancestor path, exact raw label, role/hidden state, host focus, binding status and the exact common-filter result. Record available geometry facts without approximating/reimplementing the predicate. If exclusion cannot be explained from complete recorded inputs, report the missing inputs before selecting a correction. Bounded output does not bound the filter's own recursive computation; the observer still affects timing and supports no performance claim.
+
+### Prebuild gates and custody
+
+1. Freeze and independently review the narrow patch before the expensive build. Check every lifecycle path above and unchanged consumer/filter/event/action algorithms. No duplicate prepared-hidden, root-order or Raw/FindAll campaign.
+2. Focused cloud Rust checks must cover filtered discovery, initial/placeholder binding, focus-only commits, removal/unbound distinction, duplicate labels, epoch reuse and truncation. Reader checks must refuse ambiguous/incomplete identities. Source review alone is not compilation or test acceptance.
+3. Patch the exact published accesskit_windows0.32.1 crate; retain accesskit-c0.21.2 at72460cd52d1b24492393cdf54a6f19d2fd63e258, common0.24.0 and consumer0.35.0 with the original checksums above. Verify hook source bytes against source-refs.json. Retain original/derived Cargo.lock, resolved dependency metadata, patch hashes and Rust/MSVC/CRT/target configuration. Reject silent upgrades or duplicate incompatible common/consumer types.
+4. Rebuild the separately identified static SDK and relink the diagnostic Godot engine; preserve library/header/export and executable identities. Reuse the already pinned game/PCK and unchanged original driver/deadlines when their retained artifacts remain available; explicitly recheck artifact availability and identity before dispatch.
+5. One coherent diagnostic native journey retains original outcomes and all failures. The30s action/480s journey gates remain unchanged. Associate committed captures with the original PID/HWND/epoch and query times; do not assume SDK apply sequence equals producer update sequence or imply an atomic snapshot.
+6. Interpret results narrowly: unbound/incomplete means insufficient evidence; bound_absent requires custody comparison; ExcludeSubtree requires actual predicate inputs; Include leaves query/property/timing open. No observer result alone certifies official-build acceptance or authorizes a speculative runtime fix.
+
+A retains implementation/controller/dispatch ownership. B's prepared fixture commit00f3bb5727483167dc06d9ebc16e4570649b8ed0 stays separate until the active export boundary is resolved and overlap checked. Official exported ending, durable Gallery award/transaction state, Title return and normal Load exit remain the acceptance goal; Gallery state verification is not a claim of visiting Gallery UI.
