@@ -137,5 +137,11 @@
       "sha256": "8a45005a8c1449e4ed234bb6f041f026f2dbc6d2935e76407637adb1c127601c",
       "bytes": 2241
     }
+  },
+  "query_candidates": {
+    "query_probe.rs": {
+      "sha256": "5ce1ed5b138cdbd626cd5beaf2fbfdda377ccb8c13072f5337223fcd26655533",
+      "bytes": 14242
+    }
   }
 }
