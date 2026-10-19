@@ -1,5 +1,27 @@
 # Story workspace
 
+## Current Day 3 Sylvia meeting and fork audition, 2026-10-19
+
+Read the [new Day 3 packet](auditions/day-3-sylvia-fork-working-draft.md)
+and [current checkpoint](auditions/priscilla-seven-day-working-plot.md#current-day-3-sylvia-meeting-and-fork-audition-2026-10-19).
+After Day 1 D and the Day 2 D stay, Sylvia's actual recording grievance opens
+direct contact with Lavinia. The proposed late-Day-3 fork has both immediate
+exits: P–L keeps a new walk arrangement and develops a concealed speaker call;
+P–S cancels that arrangement and spends the evening at a film.
+
+The Day 2 cold-chicken cut is retained. Its hair touch clears the forehead;
+the mark-exposure idea remains an unapplied possibility. The Day 3 packet
+authors no continuing mark or missing overnight history. Exact prose, fork
+placement, concealment and next-day arrangements remain **AUDITIONING**.
+Two same-model readers reviewed the completed packet; review scope and carry
+are centralized there.
+
+**Capture destination:** existing [PR #41](https://github.com/Siuuuers/dwm/pull/41)
+under the standing Markdown/push authorization. One packet now owns Day 3;
+versions remain in Git. Next develop the P–L consequences of the proposed
+S–L meeting while keeping P–S obligations visible. Other intakes, full P–S
+development, full-week plotting and the existing historical holds remain open.
+
 ## Current Day 2 staying audition and trace comparison, 2026-10-19
 
 The [current checkpoint](auditions/priscilla-seven-day-working-plot.md#current-day-2-staying-and-trace-comparison-2026-10-19-at-2116)

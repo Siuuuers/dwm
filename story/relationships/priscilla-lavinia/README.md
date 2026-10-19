@@ -1,5 +1,26 @@
 # Priscilla–Lavinia: working home and restart point
 
+## Day 3 Sylvia meeting and Lavinia continuation, 2026-10-19
+
+Read the [shared Day 3 owner](../../auditions/day-3-sylvia-fork-working-draft.md)
+and [current checkpoint](../../auditions/priscilla-seven-day-working-plot.md#current-day-3-sylvia-meeting-and-fork-audition-2026-10-19).
+The leading intake is Day 1 D → Day 2 D staying. The common Sylvia encounter
+preserves the recording breach and opens direct S–L contact. A proposed
+late-Day-3 fork leads either to the new P–L walk or an actually cancelled
+arrangement and P–S cinema evening.
+
+In the P–L reading, Priscilla chooses to hear without disclosure; Lavinia
+conceals her during a speaker call and agrees to see Sylvia the next day.
+The touch and resumed walk coexist with that intrusion. The call gives
+Lavinia new knowledge of the Day 1 restriction; it does not rewrite Day 2.
+The owner holds the exact carried facts, the fork comparison and review.
+
+The cold-chicken cut remains the Day 2 recommendation. The forehead gesture
+does not yet expose a visible mark. All new scene acts and placement remain
+**AUDITIONING** in existing [PR #41](https://github.com/Siuuuers/dwm/pull/41).
+Next develop the P–L response to the new arrangement; the whole-week gate,
+other-intake adaptations and protected historical holds retain their scope.
+
 ## Day 2 staying audition and trace comparison, 2026-10-19
 
 Read the [current checkpoint](../../auditions/priscilla-seven-day-working-plot.md#current-day-2-staying-and-trace-comparison-2026-10-19-at-2116)
