@@ -1,5 +1,56 @@
 # Priscilla: current seven-day working plot and discussion checkpoint
 
+## Current Day 1 verdict and Day 2 assembly, 2026-10-19 at 16:09
+
+**Source:** the owner's 16:09:47 Asia/Hong_Kong message asks whether Day 1 is sufficiently ridiculous, chaotic, random and absurd, contains at least one intense dangerous dark spot, and permits proceeding to Day 2 if the opening satisfies that aim. This is a request for an honest creative judgment and further development, not approval of an unseen scene or every possible outcome.
+
+**Assistant recommendation:** proceed to Day 2 without another Day 1 prose change. The inspected [complete Day 1 at b4a5553](https://github.com/Siuuuers/dwm/blob/b4a5553c14751ff25d2835fbfbe9e135431c0a4c/story/auditions/day-1-photo-book-working-draft.md) has specific absurd pleasure and an intense human violation in the current all-Dark D reading. Its lighter readings do not all contain an equally intense dangerous incident. Preserving that distinction is part of the recommendation, not evidence that the author requested identical severity in every branch.
+
+### Day 1: what the complete readings deliver
+
+| Scope | Current effect and editorial judgment |
+|---|---|
+| Common comic pleasure | The living aunt correcting her own funeral, the appropriated bouquet and shared performance give Sylvia a reason to keep reading. “I wanted to see you” makes the chosen company briefly more intimate without requiring a new declared romance. |
+| Common disturbance | The aunt's altered sentence resembles Lavinia's private message. It can interrupt pleasure without establishing identical wording, supernatural causation or first recognition. |
+| A — ordinary | Provocation, Lavinia's withdrawal, Priscilla's unsettled attention and a later call. Relational friction is clear; an intense dangerous incident is not guaranteed. |
+| B — unfinished | A real deferral and restored enjoyment with Sylvia. Its later-answer promise is fulfilled that evening. |
+| C — ordinary win | A direct answer that leaves room for both attachments and genuine returned attention. The local tenderness is actual. |
+| D — loss | Priscilla knowingly forwards Sylvia's expressly restricted practice recording. “I heard you” removes misunderstanding as an explanation. “Whose answer was that?” / “Mine” claims an answer carried by another woman's voice. Sylvia's exit creates the solitude that makes “I can do that now” possible. This is the strongest dark spot. |
+| E — Perfect | C's human outcome plus first Observer identification and private address. An uncanny rupture, not D's harm. |
+| Common coda | “Don't hang up when I stop talking” can feel different after each real afternoon. Voluntary continued contact does not itself establish coercion, an all-night duration or a resolution of D's breach. |
+
+The current café encounter is intelligible and socially responsive. Its most overt absurdity belongs to the novel and performance; the competing wants create disorder around the answer and its ownership. The assistant does not recommend adding arbitrary interruptions, another prophecy, or a new violent gesture just to increase the quantity of strangeness. No numerical quality/intensity score or measured audience satisfaction is claimed.
+
+**Qualification:** if the owner later requires an intense dangerous incident in every Day 1 reading, that would reopen the common sequence or the lighter branches. The present recommendation accepts different first impressions and moves the next major development into Day 2. The current Dark-options priority is satisfied without describing D as content everybody sees.
+
+### The Day 2 step now assembled
+
+Read the [current Day 2 candidate](../relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md#current-reading-day-1-d-into-the-leading-day-2-dark-encounter). It develops the existing reunion packet at scene scope: a longer chosen dinner, remembered performance, a personal question about England, incompatible judgments, a candidate strike, Priscilla obstructing and then clearing the exit, gentle hair touch, Lavinia's actual departure and an earned arrival-message coda.
+
+This is **one complete leading Dark encounter and coda after Day 1 D**, still **AUDITIONING**. The exact acts, words, venue and mapping remain assistant proposals. It is not a selected whole Day 2, complete five-result family, ending amendment or executable DTL.
+
+The most useful local change is removing the requirement to move Sylvia's paperback:
+
+- In the current Day 1, Sylvia keeps *The Funeral Rehearsal* after every result, including the unrepaired rupture in D.
+- Lavinia heard Priscilla perform the aunt in the common evening call. Day 2 can use that established access and let Lavinia invent her own comic addition.
+- The physical-book jealousy exchange and book-reading coda remain earlier alternatives. They are not silently attached to this version or declared compatible with an unrelated portrait/sitter novel.
+- An actual Day 2 loan could be authored later if Sylvia's intervention makes it worthwhile. It would need her own reason and an actual transfer; no Day 1 revision is presently necessary.
+
+The current candidate gives Lavinia real initiative before conflict: she extends the expected drink, chooses food, plays, shares her plate and opens her hand. Her later refusal is still genuine. Priscilla's response can offer changed conduct without moral repentance. The private motives of the strike and later tenderness are not reduced to a single author-certified test; welcoming one touch does not authorize the earlier strike or undo the obstructed exit.
+
+The complete Day 2 family must preserve actual intake. A–C cannot inherit a restricted recording that was only sent in D. B does not owe the already completed later reply. E's established awareness persists; a later Perfect after A–D would instead be a first recognition. The Day 2 packet holds the exact intake distinctions and open Challenge work.
+
+### Review, capture and next unit
+
+Two same-model helpers with shared project context reviewed the current Day 1 tone and the existing Day 2 dependencies. The root read the complete Day 1 narrative, governing source sections and existing Day 2 packet. Their recommendation is to stop revising Day 1 for now and complete the missing Day 2 lead-in, not to certify audience response or close the historical bar/residue audit.
+
+The new assembled Day 2 scene receives its own bounded actual-passage craft/continuity pass in its owning record. Scope-specific findings belong there. The smaller source repair retires the earlier packet's mandatory Day 1 book-loan assumption and applies the current one identically presented Dark P–L ending; no Bible or mechanical rule changes.
+
+**Capture destination:** the existing PR #41 branch under the standing Markdown/push authorization, with successive Git commits retaining previous readings. The current Day 1 manuscript is unchanged. This checkpoint records the completed new encounter and the move to Day 2, rather than creating another document per exchange. Actual publication and merge state come from PR metadata.
+
+**Next unit:** compare a complete ordinary continuation and a substantive softer continuation with the current Dark candidate, then assemble Day 2's five-result family and its Day 3 consequences. Full-week plotting precedes production DTL. Exact scene selection, residence/admission and complete historical bar/residue evidence remain open. Runtime/DTL, performed audio, rendered assets, audience testing, full Day 2 family/day and whole-week audits are **NOT RUN**.
+
+
 ## Current attention and near-echo refinement, 2026-10-19 at 15:24
 
 **Owner source:** the owner asks for what Priscilla sees and its details in

@@ -1,5 +1,28 @@
 # Story workspace
 
+## Current Day 1 verdict and Day 2 assembly, 2026-10-19 at 16:09
+
+The [current checkpoint](auditions/priscilla-seven-day-working-plot.md#current-day-1-verdict-and-day-2-assembly-2026-10-19-at-1609)
+recommends moving on without another Day 1 prose change. The opening supplies
+distinctive absurd pleasure and an intense human violation in D; the lighter
+readings do not all promise that same severity.
+
+The [Day 2 packet](relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md#current-reading-day-1-d-into-the-leading-day-2-dark-encounter)
+now assembles one complete leading Dark encounter and coda after Day 1 D:
+chosen dinner and remembered performance, the personal answer, incompatible
+judgments and the tenderness/departure reversal. Sylvia keeps her book.
+Exact acts and prose remain **AUDITIONING**; the complete five-result Day 2
+family and whole-week plot are not finished.
+
+**Capture destination:** existing [PR #41](https://github.com/Siuuuers/dwm/pull/41)
+under the standing Markdown/push authorization. Earlier versions remain in
+Git. The current Day 1 manuscript is unchanged; review details and limits are
+centralized in the checkpoint and Day 2 owner. Next compare whole ordinary
+and softer continuations, then assemble the Day 2 family and Day 3 carry.
+The full-week DTL gate and historical residence/bar/residue holds remain.
+PR metadata establishes publication and merge state.
+
+
 ## Current book and attention experiment, 2026-10-19 at 15:24
 
 The owner's latest refinement favors the details Priscilla notices and asks

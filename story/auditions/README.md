@@ -10,7 +10,7 @@ first. Older cast, Group and calendar references below keep historical scope.
 |---|---|---|
 | Week direction, source scope and dependencies | [Working plot](priscilla-seven-day-working-plot.md) | AUDITIONING; not a second Matrix. |
 | Day 1 | [Photo and book](day-1-photo-book-working-draft.md) | Complete AUDITIONING reading copy: integrated self-talk, photo Yes/default, five continuations, private coda and bounded review; not executable DTL. |
-| Day 2 | [Return and bar](../relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md) | Candidate structure; escalation and response family open. |
+| Day 2 | [Return and bar](../relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md) | One complete leading Dark encounter and coda after Day 1 D; remembered performance replaces the proposed loan. AUDITIONING; ordinary/softer continuations and full five-result family remain open. |
 
 Exact approval remains with the owning sources and selection lifecycle.
 Publication is established by commit/PR metadata, not these links.
