@@ -1,26 +1,25 @@
 # Story workspace
 
-## Current Day 2 beat review, 2026-10-19
+## Current Day 2 self-talk and Challenge audition, 2026-10-19
 
-The [current checkpoint](auditions/priscilla-seven-day-working-plot.md#current-day-2-beat-atmosphere-and-duration-review-2026-10-19)
-records the owner's questions about beats, atmosphere, duration, audience response
-and cuts/additions. The [Day 2 review](relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md#current-bounded-review)
-maps the complete current encounter and recommends keeping its prose for the next
-family comparison. The scene offers controlled psychological suspense, absurd
-comic pleasure and a strong tenderness/departure reversal. The working 6–8 minute
-presentation target is an estimate, not measured runtime.
+The [current checkpoint](auditions/priscilla-seven-day-working-plot.md#current-day-2-self-talk-and-challenge-audition-2026-10-19-at-2016)
+and [variation audition](relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md#current-variation-audition-self-talk-and-one-challenge)
+now propose one small Yes/default thought and one five-result Challenge.
+New ordinary, unfinished and softer continuations are assembled after Day 1 D;
+Dark uses the existing benchmark, and Perfect adds first recognition to the
+softer human scene. A competing cruel direct exit has its own actual ending.
 
-This remains one leading Dark encounter and coda after Day 1 D, **AUDITIONING**.
-The 744-word narrative is unchanged by this review. Two same-model readers
-considered the actual reading; the owner records their bounded scope, reader
-predictions and one unapplied cut. The preceding menu, bodily-attention and
-jealousy refinement remains in the current manuscript.
+The 744-word Dark benchmark remains unchanged. Exact new conduct, prompts,
+mapping and placement are **AUDITIONING**. The cruel departure's spoken
+deservedness claim is Lavinia's; removing the old request/assent also removes
+its arrival-message coda. Self-talk remains private, and the small thought
+does not select the relationship storyline.
 
 **Capture destination:** existing [PR #41](https://github.com/Siuuuers/dwm/pull/41)
-under the standing Markdown/push authorization, with earlier readings in Git.
-Next develop ordinary and softer continuations, then the Day 2 family and
-Day 3 carry. The whole-week DTL gate and historical residence/bar/residue
-holds remain. PR metadata establishes publication and merge state.
+under the standing Markdown/push authorization. The scene owner centralizes
+the review and limits. Next compare the after-D family and Dark treatments,
+adapt the other Day 1 intakes and develop Day 3 carry. Whole-week plotting
+still precedes full DTL; publication does not select these exact scenes.
 
 ## Current book and attention experiment, 2026-10-19 at 15:24
 

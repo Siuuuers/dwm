@@ -1,24 +1,23 @@
 # Priscilla–Lavinia: working home and restart point
 
-## Day 2 beat and atmosphere review, 2026-10-19
+## Day 2 self-talk and Challenge audition, 2026-10-19
 
-Read the [current checkpoint](../../auditions/priscilla-seven-day-working-plot.md#current-day-2-beat-atmosphere-and-duration-review-2026-10-19)
-and [scene review](auditions/day-2-return-bar-working-draft.md#current-bounded-review).
-The assistant recommends retaining the complete Dark encounter: its pleasure,
-jealousy, bodily danger and tenderness/departure reversal perform distinct work.
-The literal absurdity is concentrated in the funeral improvisation; the scene
-is controlled rather than continuously surreal or random.
+Read the [current checkpoint](../../auditions/priscilla-seven-day-working-plot.md#current-day-2-self-talk-and-challenge-audition-2026-10-19-at-2016)
+and [variation family](auditions/day-2-return-bar-working-draft.md#current-variation-audition-self-talk-and-one-challenge).
+One small optional thought changes shared food; one Challenge considers the
+personal answer before England. The after-Day-1-D audition has five outcome
+meanings and four human continuations, with first recognition added for Perfect.
 
-The 744-word reading is unchanged by this assessment. Roughly 6–8 minutes is a
-working presentation target, not measured runtime or the fictional dinner's
-length. The owner records the twelve-beat reading, audience-response predictions,
-presentation risks and an optional two-line cut that has not been applied.
-This remains one encounter and coda after Day 1 D, **AUDITIONING**.
+The complete Dark benchmark remains unchanged. A competing exit gives Lavinia
+more explicit cruel amusement and a deservedness claim, then ends at the closed
+door; its removed message agreement cannot silently survive in the coda.
+The new A/B/C passages change actual answers, contact, dinner time and messages.
+All exact scenes, prompts and mapping remain **AUDITIONING**.
 
-The existing PR #41 is the authorized capture destination; Git retains earlier
-versions. Next develop ordinary and softer continuations, then the Day 2 family
-and Day 3 carry. The whole-week DTL gate, exact selections and historical holds
-remain open. PR metadata determines publication and merge state.
+Existing PR #41 remains the authorized version destination. The owner records
+the bounded review. Next compare the after-D family and competing Dark endings,
+then adapt other Day 1 intakes and Day 3 carry. The single eventual P–L ending,
+whole-week DTL gate and protected historical holds retain their scope.
 
 ## Book and attention experiment, 2026-10-19 at 15:24
 
