@@ -1,5 +1,16 @@
 # Native iterator comparison — ready for external packet review, not dispatched
 
+## Active paired run — do not redispatch
+
+C6265900682 completed the exact-packet review and Director6265924476 confirmed dispatch. A installed reviewed workflow blob9b489c4376d99c3230aafd1bd71704773b8fc6f0 as controllerdb3db9c8ba32b052a4bd8131b4924fdbcab5a245/tree97ab68074b4a228fee0f99b5a3677b1c7bb528fe using expected-head protection.
+
+[Run39243496974](https://github.com/Siuuuers/dwm/actions/runs/39243496974) is active: Corrected job118029685272; Baseline job118029685567. Both use isolated sourced37ad1f6/tree7a49df0c. At this checkpoint Corrected passed source/PowerShell/reader/action/deadline preflights and is downloading the original game package; Baseline is still binding source. Neither has a native gameplay outcome. Source hashes distinguish variants; actual SDK/EXE hashes must come from built receipts.
+
+Do not change or redispatch PR30 while active: shared concurrency can cancel both arms. Collect both original outcomes, then compare actual sources/graphs/features/locks/dependencies/toolchain/runner/harness/PCK and linkage before causal claims. Preserve separate traversal/action/invocation/durable Gallery/Title/normal-exit milestones and inconclusive early timeouts. C reviews retained outcomes after A collection. Stop after this bounded comparison, with no engine promotion or speculative follow-up.
+
+Dispatch discussion: [PR36](https://github.com/Siuuuers/dwm/pull/36#issuecomment-6265948669), [PR30](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6265951895). Incidental broad Windows run39243496979 is separate, not paired acceptance. No master/integration update, merge or release.
+
+
 Director6265176103 consumed. B's exact six-Markdown-file commit78bd6cbc04dbfc7258cb164ebcb93d59f9c9351f was fast-forwarded onto PR36 from its unchanged parent775a7d51 with expected-head protection. No runtime/template/label changes, engine rerun, master/integration update or merge. Product documentation head before this packet:78bd6cbc.
 
 Isolated implementation: [d37ad1f6d3c0148205c1b4d21444d05d01e7cca6](https://github.com/Siuuuers/dwm/commit/d37ad1f6d3c0148205c1b4d21444d05d01e7cca6), tree7a49df0c816e4aa059ead494b925976cf3402498, branch codex/a-iterator-native-comparison-20261019; parent39108bee5ee31199cfb0ae8949e21ab1610fb5ac. Exactly five files: SDK builder, native builder, iterator correction helper, comparison README and controller template.
