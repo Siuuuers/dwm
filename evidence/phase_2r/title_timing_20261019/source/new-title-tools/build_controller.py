@@ -56,7 +56,8 @@ foreach ($p in @('tools/testing/Invoke-ExportedGameplay.ps1',"$env:TITLE_TOOLS/S
 }
 $records | ConvertTo-Json -Depth 5 | Set-Content .godot/ci/powershell-parse.json
 if (@($records | Where-Object {$_.errors.Count -gt 0}).Count) { throw 'PowerShell parse failed' }
-& pwsh -NoProfile -File tests/tooling/Test-ExportedGameplayDeadline.ps1 -DriverPath tools/testing/Invoke-ExportedGameplay.ps1 -OutputPath .godot/ci/deadline-tests.json
+Copy-Item "$env:TITLE_TOOLS/Test-ExportedGameplayDeadline.ps1" .godot/ci/deadline-fixture.ps1
+& pwsh -NoProfile -File "$env:TITLE_TOOLS/Test-ExportedGameplayDeadline.ps1" -DriverPath tools/testing/Invoke-ExportedGameplay.ps1 -OutputPath .godot/ci/deadline-tests.json
 if ($LASTEXITCODE -ne 0) { throw 'Deadline checks failed' }
 '''},
       {'name':'Import and export diagnostic PCK with official standard editor','timeout-minutes':12,'run':'''$ErrorActionPreference='Stop'
