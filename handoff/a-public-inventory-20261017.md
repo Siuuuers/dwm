@@ -1,3 +1,15 @@
+# Canonical inventory synchronization — 20 October 2026 Hong Kong
+
+Director6274608818 defers Back localization and selects the generated-inventory gate. Focused cloud39305120379/job118240063370 passed11 tests/352 assertions and five clean process exits on pinned49807a69/treec7d83eed. Both outputs reproduce canonically; scanner/required surfaces/contracts are unchanged.
+
+The [new evidence and exact two-file candidate](../evidence/phase_2r/inventory_refresh_20261020/README.md) are ready for external C review. Isolated commitbe8c83dd1fa1d8ed6b929aa94782eaa5d7fd1cc7/tree06eac2bccebe7e8371f11f538d80eb2b2073a1ad changes only GameState inventory8df3816c and SaveManager inventoryaa03d254. Declarations remain271/82. Differences match known reference moves plus3 coins test references and1 SAVE_DOCUMENT_SCHEMA reference; no runtime change.
+
+Do not integrate these outputs into PR36 until C reviews this concrete delta/result. Internal outcome review found no blocker but does not satisfy that external gate. After C approval, install exact outputs using expected-head protection and inspect naturally triggered ordinary CI; do not dispatch a duplicate broad run. Latest pre-integration39304685073 failed the same inventory prerequisite; downstream skips yield no new gameplay diagnosis.
+
+Back localization remains recorded/deferred. Anchor candidate remains closed. Official exported ending/Title/durable completion/clean Load exit and the retained diagnostic forward duration remain open. Earlier triage below is historical where this priority decision supersedes it.
+
+---
+
 # Integration backlog reconciliation — 20 October 2026 Hong Kong
 
 Director [6274383799](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6274383799) requests read-only triage, not an implementation campaign. Current product is `9c602f545766d5693bd34f8376b24b60bb59de47`; PR1 is `a6decec3693ee4d57df9f879b90ace3e118c9d1d`. Comparison from local inspected19b5efd0 to current product changes only evidence/handoff, so the inspected runtime/test files apply. Critical owner blobs were also fetched directly at current product. No Godot/PowerShell execution or workflow/controller change was made for this triage.
