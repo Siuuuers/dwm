@@ -1,0 +1,445 @@
+{
+  "total_count": 22,
+  "artifacts": [
+    {
+      "id": 12248880285,
+      "node_id": "MDg6QXJ0aWZhY3QxMjI0ODg4MDI4NQ==",
+      "name": "windows-export-39387121967-1",
+      "size_in_bytes": 99412095,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248880285",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248880285/zip",
+      "expired": false,
+      "digest": "sha256:2da908ffa8e56d7285f3c5b6031b783a3947f53adbf4d2398d23dc7780dc15e7",
+      "created_at": "2026-10-20T07:41:27Z",
+      "updated_at": "2026-10-20T07:41:27Z",
+      "expires_at": "2026-10-27T07:41:23Z",
+      "workflow_run": {
+        "id": 39387121967,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/a-optional-challenge-20261015",
+        "head_sha": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+      }
+    },
+    {
+      "id": 12248780359,
+      "node_id": "MDg6QXJ0aWZhY3QxMjI0ODc4MDM1OQ==",
+      "name": "ending-reading-39387121967-1",
+      "size_in_bytes": 30810,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248780359",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248780359/zip",
+      "expired": false,
+      "digest": "sha256:949abac47957cebf7ea0cb279b2d27c36b0878c83e26d9c0f395fbbcc7e61eeb",
+      "created_at": "2026-10-20T07:40:51Z",
+      "updated_at": "2026-10-20T07:40:51Z",
+      "expires_at": "2026-10-27T07:40:50Z",
+      "workflow_run": {
+        "id": 39387121967,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/a-optional-challenge-20261015",
+        "head_sha": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+      }
+    },
+    {
+      "id": 12248775437,
+      "node_id": "MDg6QXJ0aWZhY3QxMjI0ODc3NTQzNw==",
+      "name": "ui-literal-audit-39387121967-1",
+      "size_in_bytes": 30255,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248775437",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248775437/zip",
+      "expired": false,
+      "digest": "sha256:c198994ac6609e5451240ec70e41a09c0fdf0c4b9cf4b3139aef059aff04165d",
+      "created_at": "2026-10-20T07:41:22Z",
+      "updated_at": "2026-10-20T07:41:22Z",
+      "expires_at": "2026-10-27T07:41:22Z",
+      "workflow_run": {
+        "id": 39387121967,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/a-optional-challenge-20261015",
+        "head_sha": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+      }
+    },
+    {
+      "id": 12248770425,
+      "node_id": "MDg6QXJ0aWZhY3QxMjI0ODc3MDQyNQ==",
+      "name": "windows-endings-39387121967-1",
+      "size_in_bytes": 91351,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248770425",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248770425/zip",
+      "expired": false,
+      "digest": "sha256:8595face50b0d4e85a9dd9b54969c4a2ec2783abf9b9bf9b2b9b69fd38fd7bbd",
+      "created_at": "2026-10-20T07:41:08Z",
+      "updated_at": "2026-10-20T07:41:08Z",
+      "expires_at": "2026-10-27T07:41:07Z",
+      "workflow_run": {
+        "id": 39387121967,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/a-optional-challenge-20261015",
+        "head_sha": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+      }
+    },
+    {
+      "id": 12248730515,
+      "node_id": "MDg6QXJ0aWZhY3QxMjI0ODczMDUxNQ==",
+      "name": "gallery-version-register-39387121967-1",
+      "size_in_bytes": 77557,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248730515",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248730515/zip",
+      "expired": false,
+      "digest": "sha256:a16f747f98f4ff1bd77a355da9c28e756cea7bf9347432f16dcb407e5a038d42",
+      "created_at": "2026-10-20T07:40:56Z",
+      "updated_at": "2026-10-20T07:40:56Z",
+      "expires_at": "2026-10-27T07:40:55Z",
+      "workflow_run": {
+        "id": 39387121967,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/a-optional-challenge-20261015",
+        "head_sha": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+      }
+    },
+    {
+      "id": 12248705214,
+      "node_id": "MDg6QXJ0aWZhY3QxMjI0ODcwNTIxNA==",
+      "name": "windows-checkpoint_diagnostics-39387121967-1",
+      "size_in_bytes": 603205,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248705214",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248705214/zip",
+      "expired": false,
+      "digest": "sha256:8c76fa63dd26676b2a94e6c697bec22f99dc87007d1aace52720da427b9b840d",
+      "created_at": "2026-10-20T07:40:55Z",
+      "updated_at": "2026-10-20T07:40:55Z",
+      "expires_at": "2026-10-27T07:40:54Z",
+      "workflow_run": {
+        "id": 39387121967,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/a-optional-challenge-20261015",
+        "head_sha": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+      }
+    },
+    {
+      "id": 12248675590,
+      "node_id": "MDg6QXJ0aWZhY3QxMjI0ODY3NTU5MA==",
+      "name": "seven-day-history-39387121967-1",
+      "size_in_bytes": 16105,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248675590",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248675590/zip",
+      "expired": false,
+      "digest": "sha256:8e316660b21a1ffb9809102d7ef378af5e35ddab0d22ed11cd10e7a067c0d36f",
+      "created_at": "2026-10-20T07:40:32Z",
+      "updated_at": "2026-10-20T07:40:32Z",
+      "expires_at": "2026-10-27T07:40:30Z",
+      "workflow_run": {
+        "id": 39387121967,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/a-optional-challenge-20261015",
+        "head_sha": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+      }
+    },
+    {
+      "id": 12248650679,
+      "node_id": "MDg6QXJ0aWZhY3QxMjI0ODY1MDY3OQ==",
+      "name": "playable-journeys-39387121967-1",
+      "size_in_bytes": 16105,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248650679",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248650679/zip",
+      "expired": false,
+      "digest": "sha256:1cc52582e6179022c6c69c42f63172e3e4f521c6e9786ecc8cdafd4c655ccc11",
+      "created_at": "2026-10-20T07:41:03Z",
+      "updated_at": "2026-10-20T07:41:03Z",
+      "expires_at": "2026-10-27T07:41:02Z",
+      "workflow_run": {
+        "id": 39387121967,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/a-optional-challenge-20261015",
+        "head_sha": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+      }
+    },
+    {
+      "id": 12248580807,
+      "node_id": "MDg6QXJ0aWZhY3QxMjI0ODU4MDgwNw==",
+      "name": "desktop-scaling-render-39387121967-1",
+      "size_in_bytes": 12546701,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248580807",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248580807/zip",
+      "expired": false,
+      "digest": "sha256:469859bb28c8f79d5b00b0ad4a38c0f9e8b33d2adb5cb09b93bcddaa284e721c",
+      "created_at": "2026-10-20T07:41:10Z",
+      "updated_at": "2026-10-20T07:41:10Z",
+      "expires_at": "2026-10-27T07:41:09Z",
+      "workflow_run": {
+        "id": 39387121967,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/a-optional-challenge-20261015",
+        "head_sha": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+      }
+    },
+    {
+      "id": 12248570816,
+      "node_id": "MDg6QXJ0aWZhY3QxMjI0ODU3MDgxNg==",
+      "name": "windows-persistence-39387121967-1",
+      "size_in_bytes": 155328,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248570816",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248570816/zip",
+      "expired": false,
+      "digest": "sha256:a9dd24251d7a5c84f8dd937bddd8f040b268a6a5a57528e6ba6782a6c78d8308",
+      "created_at": "2026-10-20T07:40:53Z",
+      "updated_at": "2026-10-20T07:40:53Z",
+      "expires_at": "2026-10-27T07:40:52Z",
+      "workflow_run": {
+        "id": 39387121967,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/a-optional-challenge-20261015",
+        "head_sha": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+      }
+    },
+    {
+      "id": 12248505843,
+      "node_id": "MDg6QXJ0aWZhY3QxMjI0ODUwNTg0Mw==",
+      "name": "cloud-speech-rendered-journeys-39387121967-1",
+      "size_in_bytes": 385683,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248505843",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248505843/zip",
+      "expired": false,
+      "digest": "sha256:2ed4a42836b7a3b592b063675b013debe224118fbf5c5ee0585f3f90118972cb",
+      "created_at": "2026-10-20T07:40:01Z",
+      "updated_at": "2026-10-20T07:40:01Z",
+      "expires_at": "2026-10-27T07:40:00Z",
+      "workflow_run": {
+        "id": 39387121967,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/a-optional-challenge-20261015",
+        "head_sha": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+      }
+    },
+    {
+      "id": 12248501006,
+      "node_id": "MDg6QXJ0aWZhY3QxMjI0ODUwMTAwNg==",
+      "name": "checkpoint-performance-39387121967-1",
+      "size_in_bytes": 24773,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248501006",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248501006/zip",
+      "expired": false,
+      "digest": "sha256:d6cd11b11e3d38bac3481851afc7f8b617d74cdb7d1052b5e62442beec1c7f95",
+      "created_at": "2026-10-20T07:40:46Z",
+      "updated_at": "2026-10-20T07:40:46Z",
+      "expires_at": "2026-10-27T07:40:46Z",
+      "workflow_run": {
+        "id": 39387121967,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/a-optional-challenge-20261015",
+        "head_sha": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+      }
+    },
+    {
+      "id": 12248476065,
+      "node_id": "MDg6QXJ0aWZhY3QxMjI0ODQ3NjA2NQ==",
+      "name": "windows-new_account-39387121967-1",
+      "size_in_bytes": 237185,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248476065",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248476065/zip",
+      "expired": false,
+      "digest": "sha256:aa441b1c6909dfb08def70ba18c6c8760e3993aa19a49ad0db7201b8e1d0b938",
+      "created_at": "2026-10-20T07:41:15Z",
+      "updated_at": "2026-10-20T07:41:15Z",
+      "expires_at": "2026-10-27T07:41:14Z",
+      "workflow_run": {
+        "id": 39387121967,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/a-optional-challenge-20261015",
+        "head_sha": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+      }
+    },
+    {
+      "id": 12248446060,
+      "node_id": "MDg6QXJ0aWZhY3QxMjI0ODQ0NjA2MA==",
+      "name": "cloud-speech-rendered-ending-reading-39387121967-1",
+      "size_in_bytes": 382651,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248446060",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248446060/zip",
+      "expired": false,
+      "digest": "sha256:9d91da8c83ff8b2cf0a1e450cee9f9d6f0960140e9fc14a9827de831c71e4a36",
+      "created_at": "2026-10-20T07:40:01Z",
+      "updated_at": "2026-10-20T07:40:01Z",
+      "expires_at": "2026-10-27T07:40:00Z",
+      "workflow_run": {
+        "id": 39387121967,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/a-optional-challenge-20261015",
+        "head_sha": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+      }
+    },
+    {
+      "id": 12248446019,
+      "node_id": "MDg6QXJ0aWZhY3QxMjI0ODQ0NjAxOQ==",
+      "name": "cloud-speech-rendered-hospital-reading-39387121967-1",
+      "size_in_bytes": 385575,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248446019",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248446019/zip",
+      "expired": false,
+      "digest": "sha256:6a7eb930859ab29b5255c5754cff583e39db089ec87296a09b5ccf71aaee7c8c",
+      "created_at": "2026-10-20T07:39:48Z",
+      "updated_at": "2026-10-20T07:39:48Z",
+      "expires_at": "2026-10-27T07:39:47Z",
+      "workflow_run": {
+        "id": 39387121967,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/a-optional-challenge-20261015",
+        "head_sha": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+      }
+    },
+    {
+      "id": 12248401967,
+      "node_id": "MDg6QXJ0aWZhY3QxMjI0ODQwMTk2Nw==",
+      "name": "windows-minesweeper-39387121967-1",
+      "size_in_bytes": 167392,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248401967",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248401967/zip",
+      "expired": false,
+      "digest": "sha256:856b7f48a91e26c5b90e799f732636026e5742b0159b0fafb3465b179178f8e3",
+      "created_at": "2026-10-20T07:41:13Z",
+      "updated_at": "2026-10-20T07:41:13Z",
+      "expires_at": "2026-10-27T07:41:13Z",
+      "workflow_run": {
+        "id": 39387121967,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/a-optional-challenge-20261015",
+        "head_sha": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+      }
+    },
+    {
+      "id": 12248401698,
+      "node_id": "MDg6QXJ0aWZhY3QxMjI0ODQwMTY5OA==",
+      "name": "cloud-speech-rendered-desktop-39387121967-1",
+      "size_in_bytes": 386421,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248401698",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248401698/zip",
+      "expired": false,
+      "digest": "sha256:a6f1a59cfb349d516985db941de3d4e607fa9f241085e6661deb2048b304ad2d",
+      "created_at": "2026-10-20T07:39:49Z",
+      "updated_at": "2026-10-20T07:39:49Z",
+      "expires_at": "2026-10-27T07:39:48Z",
+      "workflow_run": {
+        "id": 39387121967,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/a-optional-challenge-20261015",
+        "head_sha": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+      }
+    },
+    {
+      "id": 12248237640,
+      "node_id": "MDg6QXJ0aWZhY3QxMjI0ODIzNzY0MA==",
+      "name": "gallery-caption-collection-39387121967-1",
+      "size_in_bytes": 1043,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248237640",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248237640/zip",
+      "expired": false,
+      "digest": "sha256:8e74207f8cc86b3c52e206eb5b3e04dfa4b1f111ece8dba9dcdcfe846a4a173a",
+      "created_at": "2026-10-20T07:41:02Z",
+      "updated_at": "2026-10-20T07:41:02Z",
+      "expires_at": "2026-10-27T07:41:01Z",
+      "workflow_run": {
+        "id": 39387121967,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/a-optional-challenge-20261015",
+        "head_sha": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+      }
+    },
+    {
+      "id": 12248157069,
+      "node_id": "MDg6QXJ0aWZhY3QxMjI0ODE1NzA2OQ==",
+      "name": "cloud-speech-rendered-timed-hold-39387121967-1",
+      "size_in_bytes": 382107,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248157069",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248157069/zip",
+      "expired": false,
+      "digest": "sha256:ec7c511b2231dc442f6c57ebd184df8f50ecb0774ca5eb017a89ac1d4aca71f6",
+      "created_at": "2026-10-20T07:40:02Z",
+      "updated_at": "2026-10-20T07:40:02Z",
+      "expires_at": "2026-10-27T07:40:01Z",
+      "workflow_run": {
+        "id": 39387121967,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/a-optional-challenge-20261015",
+        "head_sha": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+      }
+    },
+    {
+      "id": 12248083003,
+      "node_id": "MDg6QXJ0aWZhY3QxMjI0ODA4MzAwMw==",
+      "name": "public-surfaces-39387121967-1",
+      "size_in_bytes": 252637,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248083003",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12248083003/zip",
+      "expired": false,
+      "digest": "sha256:1e4e6688fd052b38d44703c3c8460521340ed84aa96c34594ae828fffc7e8fb4",
+      "created_at": "2026-10-20T07:39:05Z",
+      "updated_at": "2026-10-20T07:39:05Z",
+      "expires_at": "2026-10-27T07:39:04Z",
+      "workflow_run": {
+        "id": 39387121967,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/a-optional-challenge-20261015",
+        "head_sha": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+      }
+    },
+    {
+      "id": 12247843754,
+      "node_id": "MDg6QXJ0aWZhY3QxMjI0Nzg0Mzc1NA==",
+      "name": "windows-audio-39387121967-1",
+      "size_in_bytes": 22871,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12247843754",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12247843754/zip",
+      "expired": false,
+      "digest": "sha256:aa04b0e98f5479ce47e3420974f2bc813fd2e46599a5c160bbdc985465de5af4",
+      "created_at": "2026-10-20T07:40:44Z",
+      "updated_at": "2026-10-20T07:40:44Z",
+      "expires_at": "2026-10-27T07:40:43Z",
+      "workflow_run": {
+        "id": 39387121967,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/a-optional-challenge-20261015",
+        "head_sha": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+      }
+    },
+    {
+      "id": 12247454447,
+      "node_id": "MDg6QXJ0aWZhY3QxMjI0NzQ1NDQ0Nw==",
+      "name": "windows-shop-39387121967-1",
+      "size_in_bytes": 59736,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12247454447",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12247454447/zip",
+      "expired": false,
+      "digest": "sha256:0bfcaabce4fc4a33391a2bd5f108c174282175ea25139ce3b92bc03a5aaab293",
+      "created_at": "2026-10-20T07:41:07Z",
+      "updated_at": "2026-10-20T07:41:07Z",
+      "expires_at": "2026-10-27T07:41:06Z",
+      "workflow_run": {
+        "id": 39387121967,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/a-optional-challenge-20261015",
+        "head_sha": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+      }
+    }
+  ]
+}

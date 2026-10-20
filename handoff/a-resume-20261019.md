@@ -1,3 +1,19 @@
+# Post-integration Gallery CI observation — 20 October 2026
+
+Product2c188cd55eccad94f9a6bbf139384548be0289ea integrated C6285722481's accepted repair under Director6284909302. Naturally triggered run39387121967 confirms public API surface job118509509013 SUCCESS, including unchanged committed-inventory verification, and Windows exported startup118512156463 SUCCESS. No new full-package audit repeated.
+
+Rendered journey job118512156600 now PASSES "Render witnessed-version register fixtures" with GALLERY_VERSION_REGISTER_RENDER_VERIFIED tuples=18. The next step, "Render admitted Gallery caption collection", executes and fails with exit1: GALLERY_CAPTION_COLLECTION_RENDER_FAILED: explicit replay caption admission rejected. Original artifact12248237640 records5 checks,ok=false,publications=[],samples=[],captures0. Later complete journeys and Solo Save/Load steps are skipped, not failed gameplay executions.
+
+At current source tests/ui/render_gallery_caption_collection.gd blob df618bd473a027511a3c6b77671b828ecb9c52ae, line66 calls real DialogicBridge.configure_reached_caption_collection(FIXTURE.catalogue(), admissions) after ready startup and successful fixture locator initialization. The test reduces its return to ok=false; no underlying refusal code is captured. Therefore this is a confirmed admission/setup barrier, not yet a demonstrated player replay defect or a proven cause. It precedes Gallery discovery, reached recording and mounting.
+
+Original failed ZIP is retained under evidence/phase_2r/inventory_refresh_20261020/gallery-post-integration39387121967:1043bytes,SHA2568e74207f8cc86b3c52e206eb5b3e04dfa4b1f111ece8dba9dcdcfe846a4a173a, matching live artifact digest, CRC clean with measurements.json/render.log. Raw job log and job snapshot accompany it. Integrated passing register artifact12248730515 remains indexed in artifact metadata; the fully accepted original focused evidence is already preserved in product, so no repeat acceptance/archive review is opened.
+
+Next recommendation to Director: a bounded read-only admission diagnosis comparing this fixture's request with the current real owner's configuration/refusal contract, retaining startup ownership and capturing the actual refusal reason. Do not assume the previous two-ID seam is appropriate here; this fixture exercises a different admission owner. No patch or new test dispatch is assigned by this observation. Do not expand the completed register repair.
+
+Product remains2c188cd5,draft/unmerged; controllera3c37fb2 untouched. Master0c8b2384/base3ae6d913 unchanged. Other CI jobs were still active at snapshot; no whole-workflow completion claim. Known33.179067s transition and official exported persisted completion/Title/fresh Load/normal clean exit remain open. No merge/release or native retry.
+
+---
+
 # Gallery fixture repair integrated — 20 October 2026
 
 External C [6285722481](https://github.com/Siuuuers/dwm/pull/36#issuecomment-6285722481) accepted concrete result787c7f21 under Director6284909302. This publication integrates exact test blobe6588aa48022554444f4bef2e27e0ef00bd7497f plus the retained original failure/success evidence and existing handoffs into unchanged PR36 producta01497d1 using expected-head protection.
