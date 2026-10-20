@@ -1,4 +1,4 @@
-name: Canonical public inventory refresh
+name: Source discovery and Windows startup qualification
 on:
   pull_request:
     paths:
@@ -10,30 +10,33 @@ concurrency:
   group: scene-first-reveal-profile-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 jobs:
-  authority-audit:
+  windows-export:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
-    name: Windows / Canonical public inventory refresh
+    name: Windows / isolated source discovery and exported startup
     runs-on: windows-2022
-    timeout-minutes: 20
+    timeout-minutes: 35
     defaults:
       run:
         shell: pwsh
     steps:
-      - name: Preserve source bytes
+      - name: Preserve exact source bytes
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 49807a69e6c9b491224813fe317c3859f4a0c11a
-          fetch-depth: 2
+          ref: e55254dbbafbbfe90f0adc9098e9ca2b79c14708
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
-      - name: Record pinned source
+      - name: Verify exact candidate and fresh import boundary
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '49807a69e6c9b491224813fe317c3859f4a0c11a') { throw 'Candidate mismatch' }
-          New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='49807a69e6c9b491224813fe317c3859f4a0c11a'; tree='c7d83eedae64c67fabbde16b87bd3e902947bc08'; controller='${{ github.event.pull_request.head.sha }}'; base='49807a69e6c9b491224813fe317c3859f4a0c11a'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          if ((git rev-parse HEAD).Trim() -cne 'e55254dbbafbbfe90f0adc9098e9ca2b79c14708') { throw 'Wrong source commit' }
+          if ((git rev-parse 'HEAD^{tree}').Trim() -cne 'e166e051cc5a19c5996f6d70d5c6f0005c5d4be7') { throw 'Wrong source tree' }
+          if (Test-Path '.godot') { throw 'Import cache must be absent' }
+          $marker = 'evidence/phase_2r/title_timing_20261019/source/.gdignore'
+          if (-not (Test-Path -LiteralPath $marker) -or (Get-Item -LiteralPath $marker).Length -ne 0) { throw 'Marker missing or nonempty' }
+          New-Item -ItemType Directory '.godot/ci/discovery' | Out-Null
+          @{source='e55254dbbafbbfe90f0adc9098e9ca2b79c14708'; tree='e166e051cc5a19c5996f6d70d5c6f0005c5d4be7'; base='29d9322b537c4a1f461b24c6ff23ce75ed8aa021'; event=$env:GITHUB_SHA; controller='${{ github.event.pull_request.head.sha }}'; fresh_cache=$true} | ConvertTo-Json | Set-Content '.godot/ci/discovery/origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -71,8 +74,11 @@ jobs:
           $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
           New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
           & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
+          $importExit = $LASTEXITCODE
+          if (Test-Path '.godot/global_script_class_cache.cfg') { Copy-Item '.godot/global_script_class_cache.cfg' '.godot/ci/discovery/import-global_script_class_cache.cfg' }
+          @{exit_code=$importExit} | ConvertTo-Json | Set-Content "$output/discovery/import-process.json"
+          if ($importExit -ne 0) { exit $importExit }
+          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|^\s*ERROR:|Unicode parsing error|Unexpected NUL character' -Quiet) {
             throw 'Project import reported script errors; inspect import.log.'
           }
       - name: Restore committed project settings after editor import
@@ -81,57 +87,133 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Regenerate canonical inventories and check reproducibility
-        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
-      - name: Verify inventory drift and read-only contracts
-        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite public_surfaces
-      - name: Verify bounded source changes and exact census
+      - name: Verify generated classes and raw evidence access
         run: |
           $ErrorActionPreference = 'Stop'
+          $probe = Join-Path $env:RUNNER_TEMP 'verify-source-discovery.gd'
           @'
-          import collections,json,pathlib,re,subprocess,xml.etree.ElementTree as ET
-          out=pathlib.Path('.godot/ci')
-          script='tests/unit/tooling/test_public_surface_inventory.gd'
-          expected=re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(encoding='utf-8'),re.M)
-          root=ET.parse(out/'public_surfaces.xml').getroot(); rows=list(root.iter('testcase'))
-          assert collections.Counter((r.attrib['classname'],r.attrib['name']) for r in rows)==collections.Counter((script,n) for n in expected)
-          assert not any(list(root.iter(t)) for t in ['failure','error','skipped'])
-          assert all(r.attrib.get('status')=='pass' and int(r.attrib.get('assertions','0'))>0 for r in rows)
-          allowed={'.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1','evidence/phase_2r/runtime/game_state_surface.json','evidence/phase_2r/runtime/save_manager_surface.json'}
-          changed=set(subprocess.check_output(['git','diff','HEAD','--name-only'],text=True).splitlines())
-          assert not changed-allowed,changed
-          for p in pathlib.Path('.godot/phase2r_logs').glob('*.log'):
-              assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',p.read_text(encoding='utf-8-sig')),str(p)
-          exits=[]
-          for p in out.rglob('*.jsonl'):
-              for line in p.read_text(encoding='utf-8-sig').splitlines():
-                  if line.strip():
-                      item=json.loads(line); assert item['exit_code']==0,item; exits.append(item)
-          assert len(exits)==5,len(exits)
-          report={'source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'tests':len(rows),'assertions':sum(int(r.attrib['assertions']) for r in rows),'clean_exits':len(exits),'changed':sorted(changed)}
-          (out/'gate.json').write_text(json.dumps(report,indent=2));print(json.dumps(report))
-          '@ | python -
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Retain original bounded evidence
-        if: always()
+          extends SceneTree
+          
+          func _initialize() -> void:
+              var cache := ConfigFile.new()
+              if cache.load("res://.godot/global_script_class_cache.cfg") != OK:
+                  fail("Cannot read generated class map")
+                  return
+              var entries: Variant = cache.get_value("", "list", null)
+              if not entries is Array:
+                  fail("Invalid generated class map")
+                  return
+              var wanted := {
+                  "EndingScene": "res://scripts/ui/EndingScene.gd",
+                  "SaveManagerCheckpointPort": "res://scripts/application/run/SaveManagerCheckpointPort.gd"
+              }
+              var seen := {}
+              for entry: Variant in entries:
+                  if not entry is Dictionary:
+                      fail("Malformed class entry")
+                      return
+                  var path := str(entry.get("path", ""))
+                  var name := str(entry.get("class", ""))
+                  if path.begins_with("res://evidence/phase_2r/title_timing_20261019/source/"):
+                      fail("Retained source registered: " + path)
+                      return
+                  if wanted.has(name):
+                      if seen.has(name) or path != wanted[name]:
+                          fail("Duplicate or noncanonical class: " + name)
+                          return
+                      seen[name] = path
+              if seen.size() != wanted.size():
+                  fail("Missing canonical classes")
+                  return
+              var root := "res://evidence/phase_2r/title_timing_20261019/"
+              var manifest: Variant = JSON.parse_string(FileAccess.get_file_as_string(root + "source-manifest.json"))
+              if not manifest is Dictionary or not manifest.get("files") is Array:
+                  fail("Invalid retained manifest")
+                  return
+              var count := 0
+              for row: Variant in manifest["files"]:
+                  var path: String = root + str(row["path"])
+                  var file := FileAccess.open(path, FileAccess.READ)
+                  if file == null or file.get_length() != int(row["bytes"]) or FileAccess.get_sha256(path) != str(row["sha256"]):
+                      fail("Retained evidence missing or changed: " + path)
+                      return
+                  file.close()
+                  count += 1
+              if count != 20:
+                  fail("Unexpected retained manifest census")
+                  return
+              print("DISCOVERY_AND_RAW_EVIDENCE_VERIFIED count=20")
+              quit(0)
+          
+          func fail(message: String) -> void:
+              push_error(message)
+              quit(1)
+          
+          '@ | Set-Content -LiteralPath $probe -Encoding utf8NoBOM
+          Copy-Item $probe '.godot/ci/discovery/verify-source-discovery.gd'
+          Copy-Item '.godot/global_script_class_cache.cfg' '.godot/ci/discovery/global_script_class_cache.cfg'
+          $env:APPDATA = Join-Path $env:RUNNER_TEMP 'discovery-user/appdata'
+          $env:LOCALAPPDATA = Join-Path $env:RUNNER_TEMP 'discovery-user/localappdata'
+          New-Item -ItemType Directory -Force $env:APPDATA, $env:LOCALAPPDATA | Out-Null
+          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --script $probe --log-file "$env:GITHUB_WORKSPACE/.godot/ci/discovery/probe.log"
+          $probeExit = $LASTEXITCODE
+          @{exit_code=$probeExit} | ConvertTo-Json | Set-Content '.godot/ci/discovery/probe-process.json'
+          if ($probeExit -ne 0) { throw "Discovery probe exit $probeExit" }
+          $log = Get-Content '.godot/ci/discovery/probe.log' -Raw
+          if ($log -match '(?m)SCRIPT ERROR:|^\s*ERROR:|Unicode parsing error|Unexpected NUL character') { throw 'Discovery probe errors' }
+          if ($log -notmatch 'DISCOVERY_AND_RAW_EVIDENCE_VERIFIED count=20') { throw 'Missing discovery receipt' }
+      - name: Cache pinned export templates
+        id: export-templates-cache
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
+          key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
+      - name: Download verified Godot export templates
+        timeout-minutes: 10
         run: |
-          @'
-          import base64,hashlib,io,json,pathlib,subprocess,zipfile
-          out=pathlib.Path('.godot/ci')
-          for source in ["tools/runtime/PublicSurfaceInventory.gd","tools/runtime/generate_public_surface_inventory.gd","tools/testing/Invoke-PublicSurfaceValidation.ps1","tests/unit/tooling/test_public_surface_inventory.gd","evidence/phase_2r/runtime/game_state_required_surface.json","evidence/phase_2r/runtime/save_manager_required_surface.json","evidence/phase_2r/runtime/game_state_surface.json","evidence/phase_2r/runtime/save_manager_surface.json"]:
-              p=out/'source'/source;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(pathlib.Path(source).read_bytes())
-          (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
-          files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))
-          manifest={p.relative_to('.godot').as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in files}
-          retained=out/'retained-hashes.json';retained.write_text(json.dumps(manifest,indent=2));files.append(retained)
-          payload=io.BytesIO()
-          with zipfile.ZipFile(payload,'w',zipfile.ZIP_DEFLATED) as z:
-              for p in files:z.write(p,p.relative_to('.godot').as_posix())
-          data=payload.getvalue()
-          if len(data)>8*1024*1024:raise RuntimeError('Bounded evidence too large')
-          print('DWM_EVIDENCE_BEGIN '+json.dumps({'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}))
-          encoded=base64.b64encode(data).decode()
-          for i in range(0,len(encoded),4096):print('DWM_EVIDENCE_CHUNK '+encoded[i:i+4096])
-          print('DWM_EVIDENCE_END')
-          '@ | python -
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $ErrorActionPreference = 'Stop'
+          $folder = Join-Path $env:RUNNER_TEMP 'dwm-godot-templates'
+          New-Item -ItemType Directory -Force -Path $folder | Out-Null
+          $archive = Join-Path $folder 'Godot_v4.6.3-stable_export_templates.tpz'
+          if (-not (Test-Path -LiteralPath $archive)) {
+            Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_export_templates.tpz' -OutFile $archive
+          }
+          $expected = '3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8'
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
+            throw 'Godot export templates checksum mismatch.'
+          }
+          "GODOT_EXPORT_TEMPLATES_ARCHIVE=$archive" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Retain verified export templates for subsequent runs
+        if: steps.export-templates-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
+          key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
+      - name: Export and launch isolated Windows executable
+        timeout-minutes: 12
+        run: |
+          $ErrorActionPreference = 'Stop'
+          ./tools/testing/Invoke-WindowsExportValidation.ps1
+          if (-not $?) { throw 'Existing export validation failed' }
+          $report = Get-Content '.godot/ci/windows-export/validation.json' -Raw | ConvertFrom-Json
+          if ($report.ok -isnot [bool] -or $report.ok -ne $true -or $report.smoke.ok -isnot [bool] -or $report.smoke.ok -ne $true -or $report.pack_audit.ok -isnot [bool] -or $report.pack_audit.ok -ne $true -or $report.commit -cne 'e55254dbbafbbfe90f0adc9098e9ca2b79c14708') { throw 'Missing export success receipts' }
+          Copy-Item '.godot/global_script_class_cache.cfg' '.godot/ci/discovery/post-export-global_script_class_cache.cfg'
+          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --script (Join-Path $env:RUNNER_TEMP 'verify-source-discovery.gd') --log-file "$env:GITHUB_WORKSPACE/.godot/ci/discovery/post-export-probe.log"
+          $probeExit = $LASTEXITCODE
+          @{exit_code=$probeExit} | ConvertTo-Json | Set-Content '.godot/ci/discovery/post-export-probe-process.json'
+          $log = Get-Content '.godot/ci/discovery/post-export-probe.log' -Raw
+          if ($probeExit -ne 0 -or $log -match '(?m)SCRIPT ERROR:|^\s*ERROR:|Unicode parsing error|Unexpected NUL character' -or $log -notmatch 'DISCOVERY_AND_RAW_EVIDENCE_VERIFIED count=20') { throw 'Post-export discovery or raw evidence failure' }
+
+      - name: Upload Windows validation build and evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-export-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .godot/ci/discovery/
+            .godot/ci/import.log
+            .godot/ci/windows-export/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7
+
