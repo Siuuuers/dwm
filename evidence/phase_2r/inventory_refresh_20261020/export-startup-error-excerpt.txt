@@ -1,0 +1,42 @@
+Excerpt from GitHub Actions job118269851093, run39312901305; full log remains in Actions.
+2026-10-19T19:48:34.5051372Z WINDOWS_EXPORT_PROCESS_ERRORS_BEGIN: smoke exit=0 timeout=False
+2026-10-19T19:48:34.5071417Z SCRIPT ERROR: Parse Error: Could not parse global class "EndingScene" from "res://evidence/phase_2r/title_timing_20261019/source/scripts/ui/EndingScene.gd".
+2026-10-19T19:48:34.5093076Z    at: GDScript::reload (res://scripts/ui/witnessed/WitnessedCaptionLayer.gd:659)
+2026-10-19T19:48:34.5095563Z SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+2026-10-19T19:48:34.5099531Z    at: GDScript::reload (res://scripts/application/lifecycle/ProductionPauseController.gd:0)
+2026-10-19T19:48:34.5105167Z SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+2026-10-19T19:48:34.5110575Z SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+2026-10-19T19:48:34.5115872Z    at: GDScript::reload (res://scripts/application/lifecycle/ProductionPauseController.gd:0)
+2026-10-19T19:48:34.5121322Z SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+2026-10-19T19:48:34.5126713Z    at: GDScript::reload (res://autoload/SceneRouter.gd:0)
+2026-10-19T19:48:34.5131728Z ERROR: Failed to load script "res://autoload/SceneRouter.gd" with error "Compilation failed".
+2026-10-19T19:48:34.5136342Z SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+2026-10-19T19:48:34.5142135Z    at: GDScript::reload (res://autoload/SceneRouter.gd:0)
+2026-10-19T19:48:34.5147858Z ERROR: Failed to load script "res://autoload/SceneRouter.gd" with error "Compilation failed".
+2026-10-19T19:48:34.5153209Z    at: load (modules/gdscript/gdscript.cpp:2907)
+2026-10-19T19:48:34.5159227Z SCRIPT ERROR: Parse Error: Class "SaveManagerCheckpointPort" hides a global script class.
+2026-10-19T19:48:34.5165033Z ERROR: Failed to load script "res://autoload/SceneRouter.gd" with error "Compilation failed".
+2026-10-19T19:48:34.5170203Z    at: load (modules/gdscript/gdscript.cpp:2907)
+2026-10-19T19:48:34.5176960Z SCRIPT ERROR: Parse Error: Class "SaveManagerCheckpointPort" hides a global script class.
+2026-10-19T19:48:34.5183740Z    at: GDScript::reload (res://scripts/application/run/SaveManagerCheckpointPort.gd:1)
+2026-10-19T19:48:34.5190123Z SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+2026-10-19T19:48:34.5196274Z SCRIPT ERROR: Parse Error: Class "SaveManagerCheckpointPort" hides a global script class.
+2026-10-19T19:48:34.5203025Z    at: GDScript::reload (res://scripts/application/run/SaveManagerCheckpointPort.gd:1)
+2026-10-19T19:48:34.5209010Z SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+2026-10-19T19:48:34.5214044Z    at: GDScript::reload (res://autoload/ApplicationBootstrap.gd:0)
+2026-10-19T19:48:34.5220274Z ERROR: Failed to load script "res://autoload/ApplicationBootstrap.gd" with error "Compilation failed".
+2026-10-19T19:48:34.5225607Z SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+2026-10-19T19:48:34.5230513Z    at: GDScript::reload (res://autoload/ApplicationBootstrap.gd:0)
+2026-10-19T19:48:34.5236310Z ERROR: Failed to load script "res://autoload/ApplicationBootstrap.gd" with error "Compilation failed".
+2026-10-19T19:48:34.5241690Z    at: load (modules/gdscript/gdscript.cpp:2907)
+2026-10-19T19:48:34.5247160Z 
+2026-10-19T19:48:34.5253408Z ERROR: Failed to load script "res://autoload/ApplicationBootstrap.gd" with error "Compilation failed".
+2026-10-19T19:48:34.5258456Z    at: load (modules/gdscript/gdscript.cpp:2907)
+2026-10-19T19:48:34.5266385Z 
+2026-10-19T19:48:34.5269474Z Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+2026-10-19T19:48:34.5274865Z TextServer: Added interface "Dummy"
+2026-10-19T19:48:34.5281227Z SCRIPT ERROR: Parse Error: Could not parse global class "EndingScene" from "res://evidence/phase_2r/title_timing_20261019/source/scripts/ui/EndingScene.gd".
+2026-10-19T19:48:34.5285982Z    at: GDScript::reload (res://scripts/ui/witnessed/WitnessedCaptionLayer.gd:659)
+2026-10-19T19:48:34.5291678Z SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+2026-10-19T19:48:34.5297165Z    at: GDScript::reload (res://scripts/application/lifecycle/ProductionPauseController.gd:0)
+202

@@ -1,0 +1,62 @@
+{
+  "import.log": {
+    "sha256": "3fa935017d9dab52cce192f51c6d9162cc15a26191befdca90b60352723854ef",
+    "class_lines": [
+      {
+        "line": 405,
+        "text": "[  25% ] update_scripts_classes | SaveManagerCheckpointPort"
+      },
+      {
+        "line": 406,
+        "text": "[  25% ] update_scripts_classes | EndingScene"
+      },
+      {
+        "line": 473,
+        "text": "[  29% ] update_scripts_classes | SaveManagerCheckpointPort"
+      },
+      {
+        "line": 691,
+        "text": "[  43% ] update_scripts_classes | EndingScene"
+      }
+    ],
+    "evidence_savepack_lines": []
+  },
+  "windows-export/export.log": {
+    "sha256": "e44af97b2d25a8103ade1ad4a30e7ba298919de8b5a227347dd2b6c0982010e9",
+    "class_lines": [
+      {
+        "line": 13,
+        "text": "[   0% ] update_scripts_classes | SaveManagerCheckpointPort"
+      },
+      {
+        "line": 14,
+        "text": "[  33% ] update_scripts_classes | EndingScene"
+      },
+      {
+        "line": 823,
+        "text": "[  56% ] savepack | Storing File: res://scripts/application/run/SaveManagerCheckpointPort.gdc"
+      },
+      {
+        "line": 1131,
+        "text": "[  80% ] savepack | Storing File: res://scripts/ui/EndingScene.gdc"
+      },
+      {
+        "line": 1220,
+        "text": "[  88% ] savepack | Storing File: res://.godot/exported/133200997/export-0b2b8f736f2aa04e4a9b3f1c5a962e00-EndingScene.scn"
+      },
+      {
+        "line": 1799,
+        "text": "[  98% ] savepack | Storing File: res://scripts/application/run/SaveManagerCheckpointPort.gd.remap"
+      },
+      {
+        "line": 1903,
+        "text": "[  98% ] savepack | Storing File: res://scripts/ui/EndingScene.gd.remap"
+      },
+      {
+        "line": 1992,
+        "text": "[  98% ] savepack | Storing File: res://scenes/ending/EndingScene.tscn.remap"
+      }
+    ],
+    "evidence_savepack_lines": []
+  }
+}
