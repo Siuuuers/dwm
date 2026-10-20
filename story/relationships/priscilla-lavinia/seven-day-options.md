@@ -1,6 +1,6 @@
 # Priscilla–Lavinia — early contact and seven-day options
 
-**Status:** owner-originated proposals, comparisons and unresolved dependencies. This document owns the detailed conversation about the possible middle-week thread and conditional Day 6. It is not the calendar authority or a runtime specification. Read the [Matrix](../../07-seven-day-causal-matrix.md) and [future-behavior record](../../../docs/design/2026-09-02-relationship-progression-runtime-behavior-record.md) for their current status.
+**Status:** owner-originated proposals, comparisons and unresolved dependencies. This document owns the detailed conversation about the possible middle-week thread and conditional Day 6. It is not the calendar authority or a runtime specification. Read the [Matrix](../../07-seven-day-causal-matrix.md) and [future-behavior record](../../design/2026-09-02-relationship-progression-runtime-behavior-record.md) for their current status.
 
 ## Current leading proposal, not implemented behavior
 

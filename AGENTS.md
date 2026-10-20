@@ -9,6 +9,11 @@ linked technical or historical record lives elsewhere. For Priscilla–Lavinia w
 also read [the local guide](story/relationships/priscilla-lavinia/AGENTS.md) and
 [working home](story/relationships/priscilla-lavinia/README.md).
 
+Narrative decisions and historical reviews are indexed in
+[story/design](story/design/README.md), and scene/literary research in
+[story/research](story/research/README.md). Start there for those records; the old
+external narrative paths forward to their complete story destinations.
+
 ## Current foundation amendment, 2026-10-09
 
 Before applying legacy cast, dating, viewpoint, route, Challenge or ending rules,

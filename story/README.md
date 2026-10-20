@@ -13,6 +13,8 @@
 | Work on Priscilla–Lavinia | [Pair working home](relationships/priscilla-lavinia/README.md) and [relationship guidance](relationships/priscilla-lavinia/relationship.md) |
 | Choose perception, self-talk, dialogue or scene rhythm | [Style Manual](08-narrative-style-manual.md), especially §§4.2, 6–8 and 11–13 |
 | Check authoring practice and decision scope | [Narrative guide](AGENTS.md) |
+| Recover earlier narrative decisions, review findings or implementation boundaries | [Narrative design index](design/README.md) |
+| Check literary references or a scene's physical plausibility | [Narrative research index](research/README.md) |
 | Recover an older version or the reason for a migration | [Source provenance](maintenance/source-migration.md) |
 
 A normal writing pass needs the requested scene, foundation and relevant character/style sections. The retained archive is available when a concrete history or alternative requires it.
@@ -40,6 +42,8 @@ There is one **identically presented Dark Priscilla–Lavinia ending**. Softer a
 | [P–L relationship](relationships/priscilla-lavinia/relationship.md) | Specialized pair guidance delegated by the Handbook |
 | [Working map](auditions/priscilla-seven-day-working-plot.md) | Current scene status, cross-day dependencies and unselected development possibilities |
 | Day manuscripts and pair development | Actual scenes, result alternatives, local revision reasons and bounded reviews |
+| [Design records](design/README.md) | Earlier decisions, authoring specifications, scoped future behavior, historical reviews and documentation plans |
+| [Research](research/README.md) | Literary and physical-plausibility sources, their dates, inferences and bounded applications |
 | [Maintenance](maintenance/source-migration.md) and exact Git versions | Source disposition and superseded development evidence |
 
 A new reusable decision belongs in its existing owner. A new file is useful when it has a distinct continuing responsibility; it is not needed for each discussion turn. Keep the complete scene in its day owner instead of copying it into a bible. Source status travels with the material: an audition, private hypothesis and unresolved cause do not become fixed history through relocation.
@@ -52,9 +56,15 @@ The [historical amendments](05-canon-amendments-2026-07-19.md), [Plot Material L
 
 Current story semantics from the former external flow amendment now live in09. Its [old path](../docs/design/2026-10-09-priscilla-flow-behavior-amendment.md) is a compatibility entry. Unaffected engineering contracts remain with their technical owners; story documents do not certify implemented UI, labels or runtime behavior.
 
+The narrative records formerly scattered through `docs/design`, `docs/research` and the narrative-only specification/plan folders now live in [design](design/README.md) and [research](research/README.md). The old paths preserve section links and point to the complete records here. The [legacy dialogue syntax reference](authoring/dialogic-syntax-reference.md) and [recovered group-invitation copy](library/recovered-group-invitation-copy.md) are also available inside `story/`, with their original scope visible.
+
+For engine contracts, machine-validated paths and platform submission records, use the [engineering boundary map](design/README.md#story-facing-engineering-boundary). Those records are discoverable from this folder; they retain their technical responsibilities and do not supply an alternative current plot.
+
 ## Latest consolidation and next writing step
 
 On 2026-10-20, the owner requested the Day 3 habit revision and integration of useful conversation/audition material. The current character, style and flow owners receive reusable guidance; this home and the working map replace repeated chronological restart instructions. [The consolidation receipt](maintenance/source-migration.md#current-story-consolidation-2026-10-20) records exact source versions, dispositions and review limits.
+
+The later [narrative-document relocation](maintenance/source-migration.md#narrative-document-relocation-2026-10-20) moved 24 complete external records and one narrative-only catalog section into `story/`. The scene prose, current canon, selection status and open history audits were not changed by that folder work.
 
 Next, review the current Day 3 reading, then develop the selected relationship's next consequential scene and its actual intake. Day 4–7 placement, the full alternate intakes and ending carry remain open. There is no need to reconstruct the earlier shared fork or restart the settled foundation.
 

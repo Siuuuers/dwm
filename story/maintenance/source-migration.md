@@ -1,5 +1,62 @@
 # Story consolidation and selective curation
 
+## Narrative-document relocation, 2026-10-20
+
+**Owner request:** consolidate plot, character, craft and other narrative documents from `docs/` and other locations into `story/`, while preparing the requested PR merge. This receipt records the folder work; current merge identity and status come from GitHub.
+
+**Verified baseline:** [7813de0](https://github.com/Siuuuers/dwm/commit/7813de047f5e69b24ea0a84d6857d683f2f0c290). The migration retains **24 complete records** and **one complete narrative-only catalog section** inside `story/`. Exact source Git blobs and SHA-256 values are recorded in the existing [manifest](source-migration.json). The earlier receipts below retain their dated scope.
+
+### What moved
+
+| Original path | Complete story destination |
+|---|---|
+| `docs/design/2026-09-02-narrative-constitution-ablation-pass-01.md` | [design/reviews/2026-09-02-narrative-constitution-ablation-pass-01.md](../design/reviews/2026-09-02-narrative-constitution-ablation-pass-01.md) |
+| `docs/design/2026-09-02-narrative-constitution-working-decision-ledger.md` | [design/2026-09-02-narrative-constitution-working-decision-ledger.md](../design/2026-09-02-narrative-constitution-working-decision-ledger.md) |
+| `docs/design/2026-09-02-relationship-progression-runtime-behavior-record.md` | [design/2026-09-02-relationship-progression-runtime-behavior-record.md](../design/2026-09-02-relationship-progression-runtime-behavior-record.md) |
+| `docs/design/2026-09-03-priscilla-lavinia-packed-room-ablation.md` | [design/reviews/2026-09-03-priscilla-lavinia-packed-room-ablation.md](../design/reviews/2026-09-03-priscilla-lavinia-packed-room-ablation.md) |
+| `docs/design/2026-09-03-sylvia-causation-immediate-ablation.md` | [design/reviews/2026-09-03-sylvia-causation-immediate-ablation.md](../design/reviews/2026-09-03-sylvia-causation-immediate-ablation.md) |
+| `docs/design/2026-09-06-angela-absent-pair-explosion-visibility-reconciliation.md` | [design/reviews/2026-09-06-angela-absent-pair-explosion-visibility-reconciliation.md](../design/reviews/2026-09-06-angela-absent-pair-explosion-visibility-reconciliation.md) |
+| `docs/design/2026-09-06-narrative-style-manual-sections-1-4-audit.md` | [design/reviews/2026-09-06-narrative-style-manual-sections-1-4-audit.md](../design/reviews/2026-09-06-narrative-style-manual-sections-1-4-audit.md) |
+| `docs/design/2026-09-06-narrative-style-manual-sections-12-13-audit.md` | [design/reviews/2026-09-06-narrative-style-manual-sections-12-13-audit.md](../design/reviews/2026-09-06-narrative-style-manual-sections-12-13-audit.md) |
+| `docs/design/2026-09-06-narrative-style-manual-sections-5-8-audit.md` | [design/reviews/2026-09-06-narrative-style-manual-sections-5-8-audit.md](../design/reviews/2026-09-06-narrative-style-manual-sections-5-8-audit.md) |
+| `docs/design/2026-09-06-narrative-style-manual-sections-9-11-audit.md` | [design/reviews/2026-09-06-narrative-style-manual-sections-9-11-audit.md](../design/reviews/2026-09-06-narrative-style-manual-sections-9-11-audit.md) |
+| `docs/design/2026-09-06-post-manual-canon-reconciliation.md` | [design/reviews/2026-09-06-post-manual-canon-reconciliation.md](../design/reviews/2026-09-06-post-manual-canon-reconciliation.md) |
+| `docs/design/2026-09-06-priscilla-lavinia-working-event-documentary-audit.md` | [design/reviews/2026-09-06-priscilla-lavinia-working-event-documentary-audit.md](../design/reviews/2026-09-06-priscilla-lavinia-working-event-documentary-audit.md) |
+| `docs/design/session-addendum-2026-07-18.md` | [design/session-addendum-2026-07-18.md](../design/session-addendum-2026-07-18.md) |
+| `docs/superpowers/specs/2026-08-28-seven-day-two-pass-constellation-design.md` | [design/2026-08-28-seven-day-two-pass-constellation-design.md](../design/2026-08-28-seven-day-two-pass-constellation-design.md) |
+| `docs/superpowers/plans/2026-08-28-seven-day-constellation-documentation-reconciliation.md` | [design/plans/2026-08-28-seven-day-constellation-documentation-reconciliation.md](../design/plans/2026-08-28-seven-day-constellation-documentation-reconciliation.md) |
+| `docs/superpowers/specs/2026-08-29-dialogue-led-perceptual-canon-reconciliation-design.md` | [design/2026-08-29-dialogue-led-perceptual-canon-reconciliation-design.md](../design/2026-08-29-dialogue-led-perceptual-canon-reconciliation-design.md) |
+| `docs/superpowers/plans/2026-08-29-dialogue-led-perceptual-canon-reconciliation.md` | [design/plans/2026-08-29-dialogue-led-perceptual-canon-reconciliation.md](../design/plans/2026-08-29-dialogue-led-perceptual-canon-reconciliation.md) |
+| `docs/research/2026-08-27-room-217-narrative-theory-check.md` | [research/2026-08-27-room-217-narrative-theory-check.md](../research/2026-08-27-room-217-narrative-theory-check.md) |
+| `docs/research/2026-08-30-day-2-hong-kong-arrival-weather-and-campus-plausibility.md` | [research/2026-08-30-day-2-hong-kong-arrival-weather-and-campus-plausibility.md](../research/2026-08-30-day-2-hong-kong-arrival-weather-and-campus-plausibility.md) |
+| `docs/research/2026-08-30-la-jalousie-steam-store-voice-check.md` | [research/2026-08-30-la-jalousie-steam-store-voice-check.md](../research/2026-08-30-la-jalousie-steam-store-voice-check.md) |
+| `docs/research/2026-08-30-room-217-operator-run-sheet-and-cue-pass-plausibility.md` | [research/2026-08-30-room-217-operator-run-sheet-and-cue-pass-plausibility.md](../research/2026-08-30-room-217-operator-run-sheet-and-cue-pass-plausibility.md) |
+| `docs/research/2026-08-31-seven-day-candidate-physical-institutional-plausibility.md` | [research/2026-08-31-seven-day-candidate-physical-institutional-plausibility.md](../research/2026-08-31-seven-day-candidate-physical-institutional-plausibility.md) |
+| `docs/research/2026-09-06-la-jalousie-unmarked-focal-presence-vn-adaptation.md` | [research/2026-09-06-la-jalousie-unmarked-focal-presence-vn-adaptation.md](../research/2026-09-06-la-jalousie-unmarked-focal-presence-vn-adaptation.md) |
+| `dialogic fx.md` | [authoring/dialogic-syntax-reference.md](../authoring/dialogic-syntax-reference.md) |
+
+The full §6 label mapping, namespace distinction, missed-group message rule and English sample copy from `docs/design/recovered/CONTENT.md` now live in [the recovered invitation reference](../library/recovered-group-invitation-copy.md). Its historical calendar and wording status remain visible. The external technical catalog retains the section heading and a forwarding link; its other sections are unchanged.
+
+### Reading and preservation rules
+
+The [design index](../design/README.md) and [research index](../research/README.md) supply task-based routes. The current Bible, Handbook, Style Manual, foundation and scene owners remain the starting point for current work. The constitution ledger keeps mixed confirmed/recommended/open status; the Packed Room supersession stays visible; dated reviews preserve their actual scope and limitations. The September unmarked-perception research retains its bounded accepted application under later viewpoint amendments.
+
+The complete moved bodies are retained. Changes within them are limited to navigation, relative review-source pointers and a dated reading note. Original source URLs remain pinned to the path and revision that existed then. Historical approval dates and hashes still describe their original transaction, not the relocated bytes or a new implementation authorization. The old paths contain forwarding notes with the original heading bookmarks, so existing links continue to reach the relevant sections.
+
+Current story links point directly to their new owners. The source records were moved rather than copied into a second active Bible. No day manuscript prose, selected event, character fact, cause, ending, runtime file or protected archive branch is changed by this relocation. The raw-history and P–L bar/residue/residence holds remain open.
+
+### Why some records remain outside story
+
+The [engineering boundary map](../design/README.md#story-facing-engineering-boundary) makes the remaining technical and platform owners discoverable from `story/`. The registered August 7 flow specification has literal registry/validator/test dependencies; typed requirement packets are discovered under `prompt_docs/`. SupportZ, recovered API/flow/asset contracts and implementation plans retain engineering responsibilities. Platform copy and submission packages keep their own approval and release gates. The narrative-only catalog section was extracted without moving these technical owners.
+
+No `tests/templates/scene_sequence/AUTHOR_GUIDE.md` exists in the source tree at7813de0; a guide on another branch keeps that separate scope. The relocated legacy syntax examples do not become a new current label contract, and the retired eight-master generator is not an authoring step.
+
+### Verification scope
+
+The bounded checks cover exact pre-move source identity; full-body and extracted-section retention; original heading bookmarks; rebased relative Markdown links and review-source metadata; current entry points; and the identified technical path dependencies. Exact content readback and fresh PR metadata are required for publication reporting. The older verifier's `--snapshot` mode describes a prior curation freeze and is not rerun as a restriction on this authorized move.
+
+The existing scene prose is unchanged; this is not a new whole-day or whole-week performance review. External sources, performed timing, runtime behavior, the entire technical documentation suite and missing historical conversations were **NOT RUN / not newly audited**. Source classification and navigation checks do not close those separate tasks.
+
 ## Current story consolidation, 2026-10-20
 
 **Owner request:** update Day 3 with the accepted Sylvia notice manner, integrate useful conversation and audition development into the bibles, and make `story/` a clearer working home. Existing permission covers editing and publication in PR #41; this request does not ask for a merge.

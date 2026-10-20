@@ -25,7 +25,7 @@ scope:
 
 This is the private, spoiler-complete, writer-facing style manual for DWM. It
 distils approved cross-scene craft law from the
-[working decision ledger](../docs/design/2026-09-02-narrative-constitution-working-decision-ledger.md)
+[working decision ledger](design/2026-09-02-narrative-constitution-working-decision-ledger.md)
 into a form that can be used while plotting, drafting, and auditing messages,
 dating scenes, and endings.
 
@@ -61,7 +61,7 @@ Authority remains divided by responsibility:
    owns derived character voice and performance guidance;
 5. this manual centralizes derived cross-scene presentation and craft guidance;
 6. the
-   [runtime behavior record](../docs/design/2026-09-02-relationship-progression-runtime-behavior-record.md)
+   [runtime behavior record](design/2026-09-02-relationship-progression-runtime-behavior-record.md)
    owns the approved future behavior boundary between authored consequences and
    code, without implementing it; and
 7. research and ablation records preserve evidence and reasoning. They do not
@@ -147,10 +147,10 @@ summarize any writer's complete theory.
   agency problem that should not fit them so neatly.
 
 Reference basis:
-[Room 2.17 narrative-theory check](../docs/research/2026-08-27-room-217-narrative-theory-check.md),
-[earlier *La Jalousie* voice check](../docs/research/2026-08-30-la-jalousie-steam-store-voice-check.md),
+[Room 2.17 narrative-theory check](research/2026-08-27-room-217-narrative-theory-check.md),
+[earlier *La Jalousie* voice check](research/2026-08-30-la-jalousie-steam-store-voice-check.md),
 and
-[*La Jalousie*: Unmarked Focal Presence](../docs/research/2026-09-06-la-jalousie-unmarked-focal-presence-vn-adaptation.md).
+[*La Jalousie*: Unmarked Focal Presence](research/2026-09-06-la-jalousie-unmarked-focal-presence-vn-adaptation.md).
 
 ## 3. Observable surfaces and evidence lanes
 
@@ -405,7 +405,7 @@ This is a refinement of the anchor law, not permission for an unknown
 writer-side viewpoint, head-hopping, an invisible observer, or an omniscient
 camera. Exact door, bag, occlusion, dialogue, and shot wording remain
 unapproved staging auditions. See the
-[primary-source adaptation report](../docs/research/2026-09-06-la-jalousie-unmarked-focal-presence-vn-adaptation.md).
+[primary-source adaptation report](research/2026-09-06-la-jalousie-unmarked-focal-presence-vn-adaptation.md).
 
 ## 5. Soft relational lenses without a house voice
 
@@ -629,9 +629,9 @@ initiation, motive, and relationship meaning unresolved. An umbrella remains
 an object rather than a declared metaphor, and no scene is constructed merely
 to deliver its clue.
 See the ledger's
-[umbrella forward law](../docs/design/2026-09-02-narrative-constitution-working-decision-ledger.md#51-forward-law)
+[umbrella forward law](design/2026-09-02-narrative-constitution-working-decision-ledger.md#51-forward-law)
 and
-[relationally scoped mosaic](../docs/design/2026-09-02-narrative-constitution-working-decision-ledger.md#52-relationally-scoped-mosaic).
+[relationally scoped mosaic](design/2026-09-02-narrative-constitution-working-decision-ledger.md#52-relationally-scoped-mosaic).
 
 ### 7.4 Incidental cast economy
 
@@ -751,10 +751,10 @@ and persisted plan; the cutoff alone creates none. This narrow rule does not
 make `Exploded` a globally early, irrational, Dark, or punitive result, and it
 does not decide the still-separate Angela-attended Group presentation.
 The bounded source and collision repair are recorded in the
-[Angela-absent pair explosion reconciliation](../docs/design/2026-09-06-angela-absent-pair-explosion-visibility-reconciliation.md).
+[Angela-absent pair explosion reconciliation](design/reviews/2026-09-06-angela-absent-pair-explosion-visibility-reconciliation.md).
 
 The writer supplies the local dramatic meaning; the
-[runtime behavior record](../docs/design/2026-09-02-relationship-progression-runtime-behavior-record.md)
+[runtime behavior record](design/2026-09-02-relationship-progression-runtime-behavior-record.md)
 owns total deterministic mapping, freezing, persistence, progression timing,
 and replay behaviour. Do not duplicate those mechanisms in prose notes or let
 Dialogic presentation calculate them.
@@ -1097,7 +1097,7 @@ discussion and its [working checkpoint](auditions/priscilla-seven-day-working-pl
 the current [Day 3 audition](auditions/day-3-sylvia-fork-working-draft.md), and
 [ordinary-company development](relationships/priscilla-lavinia/intimacy-and-ordinary-company.md)
 inform Sections 4.2, 6, 7, 8 and 13.3. The older
-[constellation](../docs/superpowers/specs/2026-08-28-seven-day-two-pass-constellation-design.md)'s
+[constellation](design/2026-08-28-seven-day-two-pass-constellation-design.md)'s
 character-local want, removal and selection tests were compared with the ledger material above;
 their reusable substance was already present. New consolidation clarifies
 functional field placement, familiar habits without diagnostic certainty,
@@ -1115,17 +1115,17 @@ source, scene, or interpretation merely by listing it.
 
 | Source | Classification | Promotion decision |
 |---|---|---|
-| [Working decision ledger](../docs/design/2026-09-02-narrative-constitution-working-decision-ledger.md) | Current decision evidence containing universal style, plot, mechanics, and open auditions | Promote only current reusable style; retain links for plot and mechanics |
-| [Narrative Constitution ablation pass](../docs/design/2026-09-02-narrative-constitution-ablation-pass-01.md) | Adversarial correction record | Use its tests and corrected outcomes; do not restore pre-repair language |
-| [Runtime behavior record](../docs/design/2026-09-02-relationship-progression-runtime-behavior-record.md) | Future code-behavior boundary | Cross-reference; do not copy storage, evaluation, or implementation detail into style law |
-| [Packed Room ablation](../docs/design/2026-09-03-priscilla-lavinia-packed-room-ablation.md) | Superseded carrier audit with reusable cautions | Exclude cohabitation, move-out, room, and ending actions; retain only independently confirmed general tests |
-| [Sylvia causation ablation](../docs/design/2026-09-03-sylvia-causation-immediate-ablation.md) | Current causation and mystery-fairness audit | Promote general fairness tests; leave Sylvia-specific truth and access law upstream |
-| [Unmarked focal-presence research](../docs/research/2026-09-06-la-jalousie-unmarked-focal-presence-vn-adaptation.md) | Primary-source-backed style rationale | Promote the owner-approved bounded method; retain exact micro-audition as noncanonical |
-| [Sections 1–4 audit](../docs/design/2026-09-06-narrative-style-manual-sections-1-4-audit.md) | Same-context adversarial correction record | Apply its bounded wording repairs; preserve its independent-review limitation |
-| [Sections 5–8 audit](../docs/design/2026-09-06-narrative-style-manual-sections-5-8-audit.md) | Same-context adversarial correction record | Apply its lens, absurdity, object, dialogue, and Sweet/Dark repairs; preserve its independent-review limitation |
-| [Sections 9–11 audit](../docs/design/2026-09-06-narrative-style-manual-sections-9-11-audit.md) | Same-context adversarial correction record with bounded cross-document repair | Apply its board/runtime boundary, ending-fairness, modular scene-card, surface, and abnormality repairs; preserve its independent-review limitation |
-| [Sections 12–13 audit](../docs/design/2026-09-06-narrative-style-manual-sections-12-13-audit.md) | Same-context adversarial correction record with final manual maintenance repair | Apply its authority-maintenance and production-use repairs; preserve its independent-review limitation |
-| [Post-manual canon reconciliation](../docs/design/2026-09-06-post-manual-canon-reconciliation.md) | Bounded cross-document consistency record | Apply only its named romantic-geometry, progression-window, anchor-declaration, umbrella, selective-reset, and P–L runtime-hold repairs; do not mistake it for a whole-repository canon audit |
+| [Working decision ledger](design/2026-09-02-narrative-constitution-working-decision-ledger.md) | Current decision evidence containing universal style, plot, mechanics, and open auditions | Promote only current reusable style; retain links for plot and mechanics |
+| [Narrative Constitution ablation pass](design/reviews/2026-09-02-narrative-constitution-ablation-pass-01.md) | Adversarial correction record | Use its tests and corrected outcomes; do not restore pre-repair language |
+| [Runtime behavior record](design/2026-09-02-relationship-progression-runtime-behavior-record.md) | Future code-behavior boundary | Cross-reference; do not copy storage, evaluation, or implementation detail into style law |
+| [Packed Room ablation](design/reviews/2026-09-03-priscilla-lavinia-packed-room-ablation.md) | Superseded carrier audit with reusable cautions | Exclude cohabitation, move-out, room, and ending actions; retain only independently confirmed general tests |
+| [Sylvia causation ablation](design/reviews/2026-09-03-sylvia-causation-immediate-ablation.md) | Current causation and mystery-fairness audit | Promote general fairness tests; leave Sylvia-specific truth and access law upstream |
+| [Unmarked focal-presence research](research/2026-09-06-la-jalousie-unmarked-focal-presence-vn-adaptation.md) | Primary-source-backed style rationale | Promote the owner-approved bounded method; retain exact micro-audition as noncanonical |
+| [Sections 1–4 audit](design/reviews/2026-09-06-narrative-style-manual-sections-1-4-audit.md) | Same-context adversarial correction record | Apply its bounded wording repairs; preserve its independent-review limitation |
+| [Sections 5–8 audit](design/reviews/2026-09-06-narrative-style-manual-sections-5-8-audit.md) | Same-context adversarial correction record | Apply its lens, absurdity, object, dialogue, and Sweet/Dark repairs; preserve its independent-review limitation |
+| [Sections 9–11 audit](design/reviews/2026-09-06-narrative-style-manual-sections-9-11-audit.md) | Same-context adversarial correction record with bounded cross-document repair | Apply its board/runtime boundary, ending-fairness, modular scene-card, surface, and abnormality repairs; preserve its independent-review limitation |
+| [Sections 12–13 audit](design/reviews/2026-09-06-narrative-style-manual-sections-12-13-audit.md) | Same-context adversarial correction record with final manual maintenance repair | Apply its authority-maintenance and production-use repairs; preserve its independent-review limitation |
+| [Post-manual canon reconciliation](design/reviews/2026-09-06-post-manual-canon-reconciliation.md) | Bounded cross-document consistency record | Apply only its named romantic-geometry, progression-window, anchor-declaration, umbrella, selective-reset, and P–L runtime-hold repairs; do not mistake it for a whole-repository canon audit |
 
 ### 12.5 Known drift and bounded reconciliation status
 
@@ -1144,7 +1144,7 @@ forward scene writing; unrelated plot migrations remain open.
 | Core Bible and Handbook perceptual-anchor law | The production record privately declares one lawful stable anchor even when audience-facing prose withholds attribution | **Reconciled 2026-09-06:** made writer-facing declaration explicit without adding head-hopping, an unknown production anchor, or an omniscient camera |
 | Core Bible former mystery anchors, Causal Matrix Day 1 `APPROVED` rows, and Beatbook “Approved Opening Constellation” | The selective reset retains the playable container while reopening every exact Day 1–7 message, dating premise, response map, mystery carrier, and stale approval | **Reconciled 2026-09-06:** marked the three inherited mystery anchors, two Day 1 solos, Day 1 message, six-family reaction grids, and Day 1 Beatbook material as reopened reference; no replacement plot fact was selected |
 | Runtime behavior record's exact Day 2 bar, injury, Day 6 continuation, and first-recognition requirements | The complete P–L bar/residue audit must use the raw chronological conversation before plot-dependent details can become canon or future code requirements | **Reconciled 2026-09-06:** retained the frozen four-form and generic pair lifecycle, but isolated exact confrontation, injury, residue, dispatch, and recognition behavior as a dormant candidate hold |
-| August pair-board observation-only rule, September scene-authored conduct rule, and this manual's terminal-continuation law | In every visible Angela-absent P–L pair presentation, `Exploded` ends audience access immediately without itself selecting fictional conduct; scene-authored unseen conduct or residue, if any, remains separately required | **Reconciled 2026-09-06:** [bounded repair](../docs/design/2026-09-06-angela-absent-pair-explosion-visibility-reconciliation.md) separates presentation from fictional causality, retains no witnessed-combination credit for `Exploded`, and leaves Angela-attended Group unresolved; executable code was not inspected |
+| August pair-board observation-only rule, September scene-authored conduct rule, and this manual's terminal-continuation law | In every visible Angela-absent P–L pair presentation, `Exploded` ends audience access immediately without itself selecting fictional conduct; scene-authored unseen conduct or residue, if any, remains separately required | **Reconciled 2026-09-06:** [bounded repair](design/reviews/2026-09-06-angela-absent-pair-explosion-visibility-reconciliation.md) separates presentation from fictional causality, retains no witnessed-combination credit for `Exploded`, and leaves Angela-attended Group unresolved; executable code was not inspected |
 | Core Bible retained shared-apartment subsection and Handbook residence guidance | The later working spatial premise makes Lavinia the sole resident and treats Priscilla's crossings as separate admissions, while exact bar/residue history awaits its required raw-conversation audit | **Open canon migration with forward-use guard:** older cohabitation material is preserved visibly as history but barred from forward use; the Handbook now withholds un-migrated residence details |
 
 The current Dialogue-Led Perceptual Writing Contract, separation of audience and
@@ -1177,11 +1177,11 @@ audition, and approval gates.
 ### 13.1 Completed manual gates
 
 The four bounded records are the
-[Sections 1–4 audit](../docs/design/2026-09-06-narrative-style-manual-sections-1-4-audit.md),
-[Sections 5–8 audit](../docs/design/2026-09-06-narrative-style-manual-sections-5-8-audit.md),
-[Sections 9–11 audit](../docs/design/2026-09-06-narrative-style-manual-sections-9-11-audit.md),
+[Sections 1–4 audit](design/reviews/2026-09-06-narrative-style-manual-sections-1-4-audit.md),
+[Sections 5–8 audit](design/reviews/2026-09-06-narrative-style-manual-sections-5-8-audit.md),
+[Sections 9–11 audit](design/reviews/2026-09-06-narrative-style-manual-sections-9-11-audit.md),
 and
-[Sections 12–13 audit](../docs/design/2026-09-06-narrative-style-manual-sections-12-13-audit.md).
+[Sections 12–13 audit](design/reviews/2026-09-06-narrative-style-manual-sections-12-13-audit.md).
 Their completion makes this manual usable as a writer-facing style gate. It does
 not convert examples into canon, close the open plot queue, authorize code, or
 replace later owner review. For those September audits, the owner declined
@@ -1231,7 +1231,7 @@ changes and why it belongs to these people before adding another escalation.
 ### 13.4 Plot audits at successive levels
 
 **Owner-confirmed 2026-09-06.** Decision provenance is recorded in the
-[working ledger, Section 14.2](../docs/design/2026-09-02-narrative-constitution-working-decision-ledger.md#142-plot-audit-cadence-at-successive-levels).
+[working ledger, Section 14.2](design/2026-09-02-narrative-constitution-working-decision-ledger.md#142-plot-audit-cadence-at-successive-levels).
 Review completed units while their detail remains manageable, then inspect
 relationships that become visible only when those units are assembled.
 
