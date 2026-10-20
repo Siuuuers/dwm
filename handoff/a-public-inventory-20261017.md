@@ -1,3 +1,67 @@
+# Ordinary deadline correction integrated — bounded task closed
+
+20 October2026. C [6292825342](https://github.com/Siuuuers/dwm/pull/36#issuecomment-6292825342) accepted the original archive/results and cleared exact narrow integration. This commit copies the exact qualified driver blob0b2fbcb8 to tools/testing/Invoke-ExportedGameplay.ps1 and fixture blobeb22c2c3 to tools/testing/Test-ExportedGameplayDeadline.ps1. Product parent83da885c; expected-head protection applies. No game runtime, save/recovery/History owner, active workflow or controller is imported.
+
+Accepted run39434165576/job118666680687: Windows2022 / PowerShell7.6.6;2 clean parsers,4 passing fake-provider cases,child exit0. Reuse this result without rerun. [Original ZIP and verification](../evidence/phase_2r/native_delivery_proposal_20261020/run39434165576/README.md) retained with exact source/command/hash receipts. Node upload-action warnings remain disclosed. This is late-result rejection only, not preemption, a speedup or exported-gameplay acceptance. Fixture destination is a new file; its qualified bytes are unchanged. No new CI wiring is included.
+
+Separate naturally triggered Windows CI39434165571 completed FAILURE; its body was not audited in this bounded result. Controller9f7fe38a remains untouched; avoid incidental pushes or duplicate focused runs. Director retains next delivery scope. Full exported completion→Title→fresh terminal Load→normal exit and the diagnostic33.179067s transition remain open. PR36 stays draft/unmerged; master/integration/release not moved by this work.
+
+C's six-case mapping and prior observation are carried forward with the existing handoff/inventory so linked evidence remains accessible. Earlier pending-integration or active-CI language below is historical and superseded.
+
+---
+
+# Ordinary deadline cloud qualification passed — C result review next
+
+20 October2026. C6291297306 source gate consumed. Exact sourcef789011a ran once on Windows2022/PowerShell7.6.6: run39434165576/job118666680687 SUCCESS, two clean parsers, four fake-provider cases, child exit0. [Original ZIP, exact receipts and limits](../evidence/phase_2r/native_delivery_proposal_20261020/run39434165576/README.md). Original15393byte ZIP SHA256c6b9f0e928ed7db48a4fcd9d4746a54d0b997c9c7c10ec5c7e9579cc20c171d2 verified with9members/8manifest payloads. No game/Godot execution in the focused job.
+
+Product83da remains unchanged; proposed driver/fixture are not integrated. PR30 controller now9f7fe38a; incidental existing Windows CI39434165571 was naturally triggered and remains separate/unqualified. External C concrete result review precedes integration. No duplicate dispatch, native retry or speedup claim. Official exported completion→Title→fresh terminal Load→clean exit and diagnostic33.179067s remain open.
+
+Review requests were posted with user authorization: PR36 [6291143298](https://github.com/Siuuuers/dwm/pull/36#issuecomment-6291143298), PR30 [6291144987](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6291144987). Earlier unposted/pre-execution wording below is historical.
+
+---
+
+# External coverage map consumed; delivery proposal awaits review
+
+20 October 2026. C [6289034493](https://github.com/Siuuuers/dwm/pull/36#issuecomment-6289034493) completed the six-case map; Director [6289312046](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6289312046) accepted it. No additional mapping, legacy-suite rewrite or four parallel implementation lanes are assigned.
+
+Clarifications incorporated: the connected Gallery gap is replaying the exact version earned by the same normal story completion; accepted S/G evidence is not a composed proof. The old blanket Profile-invariance assertion must account for approved durable caption History. Retired Hospital/condition triggers do not retire historical completion-retry or ordered-terminal-save compatibility without separate authority. Active board Quick consent/restore, empty Practice eligibility and rendered historical Practice/two Returns remain coverage questions, not established missing features or runtime defects.
+
+A's [prepared delivery proposal at f789011a](https://github.com/Siuuuers/dwm/blob/f789011a02c1c206d0293c9fd3e61c02bb18d583/evidence/phase_2r/native_delivery_proposal_20261020/README.md) is unchanged and unexecuted. C has not reviewed it yet. Director's latest inspection found no proposal link in PR30/36; an isolated branch alone does not complete that coordination handoff. Exact proposed review comments are retained with this update, not posted. External posting awaits explicit user authorization under the assistant's messaging instruction. No runtime/controller/product update or dispatch follows.
+
+---
+
+# Native delivery source reconciled — ordinary deadline proposal prepared
+
+Final ref reconciliation: master independently advanced to41592fcc792aa615e47ee2ce2f05008ca195b311 (PR41 narrative consolidation) during this turn. Its diff from prior0c8b2384 has no changes under autoload, scripts, addons, tools, project.godot or export_presets.cfg. No delivery implementation was found to import. This report did not move master. Product83da and controller6d911b68 still match their pins. Earlier “master unchanged” wording below describes prior checkpoints and is superseded by this observation.
+
+20 October2026. Director6288998596 consumed. Product83da is compared by exact selected blobs with original/later official package sources and timing393 frozen game/harness. Core terminal owners have no new change establishing resolution; frozen diagnostic runtime differs materially from current product. Existing cost/authority analysis and rejected anchor experiment are reused, with no new performance claim.
+
+[Concrete proposal and source reconciliation](../evidence/phase_2r/native_delivery_proposal_20261020/README.md): ordinary Wait-One can accept a result returned after its30s deadline. An inert proposed driver changes only this function with post-Window/post-Find/final-return guards, plus the retained four-case fixture. This is delivery-evidence correctness, not a speedup. Source prepared only; no PowerShell/Godot execution, engine build, native/broad dispatch or production mutation. External C/Director decision is next; no automatic native retry follows. Fresh outgoing validation, authority, receipts/History and physical commit semantics are untouched.
+
+Native persisted completion→Title→fresh Load→clean exit and diagnostic33.179067s remain open. C owns the independent six-case coverage lane; the previous A map stays available. Product83da/controller6d911b68/master/integration unchanged, draft/unmerged. Earlier proposals below are historical where superseded.
+
+---
+
+# Legacy journey coverage mapped — supported gaps preserved
+
+20 October 2026. Read-only follow-up to C6288750841: all six legacy journey cases now have an explicit disposition. Retired desktop/calendar/Hospital orchestration is separated from accepted scene terminal/retry/board recovery and private Practice milestones. Unique gaps remain: actual Gallery replay completion, native active-board Quick Save/Load consent and restoration, rendered empty/historical Practice journeys, and full frozen-spec equality. Fixed neutral-ending evidence does not qualify conditional ending selection.
+
+[Coverage matrix, source anchors, evidence limits and proposed next scope](../evidence/phase_2r/inventory_refresh_20261020/legacy-journey-coverage/README.md). No runtime/test/workflow edit or engine run/dispatch. Gallery caption repair remains closed. Product83da/PR30 controller6d911b68/master/integration unchanged; this report is isolated. Native exported persisted completion→Title→fresh Load→clean exit and measured33.179067s transition remain open priorities. External Director/C selection precedes any follow-on implementation; internal audit is not that gate.
+
+---
+
+# Gallery repair integrated and ordinary CI observed — downstream startup mismatch reported
+
+20 October2026. Product83da885c integrates C6287046415's exact accepted caption fixture, canonical inventories and evidence with expected-head protection from2c188cd5. Natural run39395858652 confirms public inventories, exported startup, Gallery register and Gallery caption collection PASS. No focused rerun or manual broad dispatch.
+
+The next rendered-journey step fails all6 cases at startup: four require visible ComputerDesktop; two Practice probes time out awaiting desktop while reporting an active SceneHost/scene-route session. All6 exit1, no outer watchdog timeout; later Solo reading/selector steps are skipped. Original123110byte failure ZIP/64 member hashes retained. These are observed startup expectation mismatches, not six proven gameplay defects. No follow-on repair or production routing change.
+
+[Full observation, source anchors, original failure and next recommendation](../evidence/phase_2r/inventory_refresh_20261020/gallery-caption-post-integration39395858652/README.md). Per Director6286370300, stop this bounded repair at the new out-of-scope blocker. Recommend Director/C map these legacy scenario obligations to current supported SceneHost coverage before selecting adaptation/retirement. Preserve failures and unique coverage; do not blindly rename the startup assertion.
+
+PR30 controller6d911b68 untouched. Observation report branch only; product83da885c remains draft/unmerged. Master0c8b2384/integration3ae6d913 unchanged. Known33.179067s/native exported persisted completion→Title→fresh Load→clean exit remain open. C's inventory-import HTTP403/ObjectDB warning caveat remains recorded. No release or broad CI acceptance.
+
+---
+
 # Supported Gallery caption repair integrated — natural CI observation next
 
 20 October2026. External C [6287046415](https://github.com/Siuuuers/dwm/pull/36#issuecomment-6287046415) accepted concrete result9aa14a39 under Director6286370300. This publication integrates the exact four test/support files, two cloud-generated inventories and retained evidence/existing handoff updates onto unchanged product2c188cd5 with expected-head protection. No runtime, save, recovery, History, scanner, required-manifest or active product workflow changes.
