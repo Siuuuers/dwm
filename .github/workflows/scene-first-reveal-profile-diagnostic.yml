@@ -1,4 +1,4 @@
-name: Focused Gallery register fixture
+name: Focused Gallery caption collection
 
 on:
   pull_request:
@@ -9,13 +9,13 @@ permissions:
   contents: read
 
 concurrency:
-  group: gallery-register-focused-${{ github.ref }}
+  group: gallery-caption-focused-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  gallery-register:
+  gallery-caption:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
-    name: Focused Gallery register fixture
+    name: Focused Gallery caption collection
     runs-on: ubuntu-24.04
     timeout-minutes: 110
     env:
@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           # Same disposable-index workaround as the Windows jobs above.
-          ref: 27fe2eb5dbea6345e62d83c611146a2e5199a944
+          ref: 7aee979d5d7e66d66169800f0cb619a3a259a1e8
           persist-credentials: true
       - name: Prepare disposable checkout for credential cleanup
         run: |
@@ -36,13 +36,13 @@ jobs:
           git submodule foreach --recursive 'true'
       - name: Verify pinned source and retain provenance
         run: |
-          test "$(git rev-parse HEAD)" = "27fe2eb5dbea6345e62d83c611146a2e5199a944"
-          test "$(git rev-parse HEAD^{tree})" = "ed3493c40dc36d8346e42ee60d466e01bcc53ee3"
-          mkdir -p .godot/ci/gallery-version-register
+          test "$(git rev-parse HEAD)" = "7aee979d5d7e66d66169800f0cb619a3a259a1e8"
+          test "$(git rev-parse HEAD^{tree})" = "f37214d64c0b4d9103c0c04b43c83fe041334b26"
+          mkdir -p .godot/ci/gallery-caption-collection
           python3 - <<'PY'
           import json, os, subprocess
           from pathlib import Path
-          Path(".godot/ci/gallery-version-register/provenance.json").write_text(json.dumps({
+          Path(".godot/ci/gallery-caption-collection/provenance.json").write_text(json.dumps({
               "source": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
               "tree": subprocess.check_output(["git", "rev-parse", "HEAD^{tree}"], text=True).strip(),
               "controller": os.environ["DWM_CONTROLLER_SHA"],
@@ -85,70 +85,71 @@ jobs:
           "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --import --log-file "$DWM_RENDER_OUTPUT/import.log"
           process_exit=$?
           set -e
-          printf '{"exit_code":%s}\n' "$process_exit" > ".godot/ci/gallery-version-register/import-process.json"
+          printf '{"exit_code":%s}\n' "$process_exit" > ".godot/ci/gallery-caption-collection/import-process.json"
           test "$process_exit" -eq 0
           if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_RENDER_OUTPUT/import.log"; then
             exit 1
           fi
           # Dialogic's editor scan rewrites its timeline lookup during import.
           git restore -- project.godot
-      - name: Render witnessed-version register fixtures
+      - name: Render admitted Gallery caption collection
         timeout-minutes: 5
         env:
-          DWM_GALLERY_REGISTER_OUTPUT: ${{ github.workspace }}/.godot/ci/gallery-version-register
-          XDG_DATA_HOME: ${{ github.workspace }}/.godot/phase2r_tests/gallery-version-register/data
-          DWM_TEST_ROOT: ${{ github.workspace }}/.godot/phase2r_tests/gallery-version-register/test-root
+          DWM_GALLERY_COLLECTION_OUTPUT: ${{ github.workspace }}/.godot/ci/gallery-caption-collection
+          XDG_DATA_HOME: ${{ github.workspace }}/.godot/phase2r_tests/gallery-caption-collection/data
+          DWM_TEST_ROOT: ${{ github.workspace }}/.godot/phase2r_tests/gallery-caption-collection/test-root
         run: |
-          mkdir -p "$DWM_GALLERY_REGISTER_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
+          mkdir -p "$DWM_GALLERY_COLLECTION_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
           set +e
-          timeout 240s xvfb-run -a "$GODOT_CONSOLE_PATH" --path "$GITHUB_WORKSPACE" --rendering-method gl_compatibility --audio-driver Dummy --log-file "$DWM_GALLERY_REGISTER_OUTPUT/render.log" --script res://tests/ui/render_gallery_version_register.gd
+          timeout 240s xvfb-run -a "$GODOT_CONSOLE_PATH" --path "$GITHUB_WORKSPACE" --rendering-method gl_compatibility --audio-driver Dummy --log-file "$DWM_GALLERY_COLLECTION_OUTPUT/render.log" --script res://tests/ui/render_gallery_caption_collection.gd -- --phase2r-bootstrap-mode=final
           process_exit=$?
           set -e
-          printf '{"exit_code":%s}\n' "$process_exit" > ".godot/ci/gallery-version-register/render-process.json"
+          printf '{"exit_code":%s}\n' "$process_exit" > ".godot/ci/gallery-caption-collection/render-process.json"
           test "$process_exit" -eq 0
-          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_GALLERY_REGISTER_OUTPUT/render.log"; then
+          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_GALLERY_COLLECTION_OUTPUT/render.log"; then
             exit 1
           fi
-          grep -E '^GALLERY_VERSION_REGISTER_RENDER_VERIFIED tuples=18 evidence=' "$DWM_GALLERY_REGISTER_OUTPUT/render.log"
+          grep -E '^GALLERY_CAPTION_COLLECTION_RENDER_VERIFIED captures=95 evidence=' "$DWM_GALLERY_COLLECTION_OUTPUT/render.log"
       - name: Verify rendered evidence census
         run: |
           python3 - <<'PY'
           import json
           from pathlib import Path
-          root = Path(".godot/ci/gallery-version-register")
+          root = Path(".godot/ci/gallery-caption-collection")
           d = json.loads((root / "measurements.json").read_text())
           assert d["ok"] is True and not d["failures"]
-          assert d["collapsed_counts"] == [0, 1]
-          assert d["requested_tuples"] == 18 and len(d["samples"]) == 18
-          expected = {(l, n, p) for l in ("en", "zh_CN", "zh_HK") for n in (100, 125, 150) for p in ("AfterHours", "Midnight")}
-          assert {(s["locale"], s["percent"], s["palette"]) for s in d["samples"]} == expected
-          assert len(list(root.glob("*.png"))) == 18
-          for s in d["samples"]:
-              assert (root / s["file"]).is_file()
-              assert s["inspection_writes"] == 0 and s["replay_starts"] == 0
-          receipts = d["setup_receipts"]
-          assert len(receipts) == 9
-          assert [r["expected_count"] for r in receipts if "owner_variants" in r] == [0, 1, 2]
+          expected_status = {f"status-{f}-{l}-{n}-{v}.png" for f in ("pixel", "readable") for l in ("en", "zh_CN", "zh_HK", "ja", "ko") for n in (100, 125, 150) for v in ("added", "failed", "uncertain")}
+          expected_actual = {n + ".png" for n in ("first-visible", "second-visible-not-collectable", "restarted-visible", "failed-real", "uncertain-real")}
+          assert len(d["samples"]) == 95
+          assert {v["file"] for v in d["samples"]} == expected_status | expected_actual
+          assert {v.name for v in root.glob("*.png")} == expected_status | expected_actual
+          receipts = d["setup_results"]
+          assert len(receipts) == 23
           for r in receipts:
-              if "owner_variants" in r:
-                  assert r["owner_variants"]["ok"] is True
-                  assert len(r["owner_variants"]["value"]["records"]) == r["expected_count"]
+              if r["stage"] == "startup": assert r["result"]["ready"] is True
+              elif "result" in r: assert r["result"]["ok"] is True
+          versions = next(r for r in receipts if r["stage"] == "version_selection")
+          assert len(set(versions["versions"])) == 2 and versions["selected"] in versions["versions"]
+          context = next(r["context"] for r in receipts if r["stage"] == "return_context")
+          assert context["record"] == "ending.alone" and context["signature"] == versions["selected"]
+          assert context["index"] > 0 and context["paper"] > 0
+          assert {r["attempt"] for r in d["publications"]} == {1, 2, 3, 4, 5}
           for phase in ("import", "render"):
               assert json.loads((root / (phase + "-process.json")).read_text())["exit_code"] == 0
-          print("GALLERY_FIXTURE_EVIDENCE_VERIFIED samples=18 setup_receipts=9")
+          print("GALLERY_CAPTION_EVIDENCE_VERIFIED samples=95 setup_receipts=23")
           PY
       - name: Retain import log
         if: always()
         run: |
           if test -f "$DWM_RENDER_OUTPUT/import.log"; then
-            cp "$DWM_RENDER_OUTPUT/import.log" .godot/ci/gallery-version-register/import.log
+            cp "$DWM_RENDER_OUTPUT/import.log" .godot/ci/gallery-caption-collection/import.log
           fi
-      - name: Upload witnessed-version register evidence
+      - name: Upload Gallery caption collection evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: gallery-version-register-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .godot/ci/gallery-version-register/
+          name: gallery-caption-collection-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .godot/ci/gallery-caption-collection/
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 7
