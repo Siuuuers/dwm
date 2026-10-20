@@ -1,3 +1,13 @@
+# Caption qualification and canonical inventories complete — external C result review pending
+
+20 October2026. Caption run39393228524 remains accepted locally:542 checks/95 captures/23 setup receipts/5 attempts, clean import/render exits; no rerun. Required canonical inventory run39394031743/job118532201169 also SUCCESS:11 tests/352 assertions,5 isolated exits0 plus import0. The generated files were copied verbatim from original cloud ZIP and differ ONLY at capture_run_snapshot_input361→380 and lexical initialize66→68. No manual inventory patch, scanner/required-manifest/classification change or history-seal update.
+
+[Caption result/original101-member archive](../evidence/phase_2r/inventory_refresh_20261020/gallery-caption-run39393228524/README.md) and [canonical inventory result/original28-member archive](../evidence/phase_2r/inventory_refresh_20261020/gallery-caption-inventory39394031743/README.md) are retained with independent verification. This report branch now includes the exact two generated inventory files for review. Earlier unexecuted inventory-runner wording below is historical and superseded.
+
+Next gate: external C concrete result/archive review. Then A may integrate exact reviewed test/support, generated inventories and necessary evidence/handoffs into unchanged product2c188cd5 using expected-head protection. No integration yet. Current PR30 controller6d911b68 installs canonical inventory runner; avoid incidental PR30 pushes. No separate broad dispatch. Register task closed; dark-Alone integration definitions remain unqualified. Known33.179067s/native exported completion→Title→fresh Load→clean exit remain open. Draft/unmerged; master/integration/release unchanged.
+
+---
+
 # Gallery caption focused run passed — result review and canonical inventory pending
 
 20 October2026. External C6286676011 cleared exact source7aee979d/tree f37214d6 and workflow blobc62e37f0. A installed controlleraab45ec6 with expected-head protection, launching ONE focused run39393228524/job118529544699: SUCCESS. **542 checks,95 samples(5 connected +90 projection),23 setup receipts,5 playback attempts, import/render exits0**. Original8818887byte ZIP retained as13 exact parts; SHA25661f5eda1ce4b4ec7ecca5eda0764d6d0d2d9993892a40bdadcb921449770c5ee and all101 members independently verified. Three representative captures visually inspected; no engine rerun.
