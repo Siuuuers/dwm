@@ -1,3 +1,17 @@
+# Corrected official delivery candidate prepared — awaiting C integrated review
+
+21 October 2026 Hong Kong /20 October UTC. Director PR30 6295116783 accepted46fbcf22 diagnostic and authorizes ONE corrected official Windows attempt after C clears the concrete integrated preparation delta. No repeat import-only campaign. C prior classification/predicate review6295084107 reused.
+
+Candidate branch `codex/a-corrected-delivery-20261020`; helper immutable source `55e5675eb683ae26c1bb16d511c435c0a1ec1272`; see `evidence/phase_2r/corrected_delivery_20261020/README.md` and inert controller at branch tip. Helper SHA256 `9235be503d2a7bd5d5216e203681a010a40409ab9cea37a06d2245c4cec501d9`; controller SHA256 `3085cd66ddd53ae9d9cef1bd84ce470dd883c9f381c893a11e70760e659b8d35`. Unchanged capture helper a04a8560... reused from import_integrity path; driver remains8adc8c78.
+
+Integrated: exact baseline before known gitlink cleanup; always post-import custody before settings restore; reject every unexpected tracked raw-byte/index change; only exact known project settings hash pair admitted; restore pinned settings bytes then recensus. Generated untracked+ignored source files (excluding .godot cache/output) retain bytes/hashes/provenance; only tracked-owner .import/.uid metadata under tests/evidence admitted and excluded by pinned export preset/existing actual pack audit. Unknown runtime/generated inputs fail. After export, final custody plus exact generated set/hash equality gates unchanged Capability/Create/Load/TerminalLoad. Content-aware Git predicate supplements raw checks, never replaces them. Always-retained external preparation evidence separate from original package/phase artifact.
+
+Seven synthetic Python/Git integration tests and independent focused review passed; YAML/source equality checks confirm closed driver/template/export/native blocks unchanged. No local Godot/PowerShell, cloud execution or active controller move. Inherited object-reader ResourceWarnings disclosed in README; helper remains exact reviewed bytes. Active controllerd4770336, productc8358870, master41592fcc unchanged.
+
+Next: C reviews only integrated preparation/generated-input policy. On no blocker, A may perform one expected-head-protected controller replacement and ONE corrected attempt; prep must pass before export, package audit before native phases. No further Director approval within sequence, but stop first failure/no retry and C result review before delivery acceptance. No merge/release/master/integration/runtime/save/history movement. Prior failures remain unchanged; performance remains open.
+
+---
+
 # Import reproduction complete; correction proposed, no further run authorized
 
 20 October 2026. C6294611362 cleared exact8ce72ca7. Installed controller `d47703368ad96c5ea0338b74b351f9d1c9cc1487` through protected update fromc49990ce. ONE import-only run39450025637/job118722059242 consumed; import and both captures passed, strict gate failed on actual project.godot mutation. No export/native attempt or retry.
