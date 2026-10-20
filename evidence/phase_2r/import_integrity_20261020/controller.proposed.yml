@@ -1,0 +1,163 @@
+# INERT REVIEW CANDIDATE. C must review the exact pinned delta before installation.
+# One import-only diagnostic; an integrity failure is evidence, never acceptance.
+name: Pinned Windows import integrity diagnostic
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/scene-first-reveal-profile-diagnostic.yml'
+permissions:
+  contents: read
+concurrency:
+  group: import-integrity-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+jobs:
+  import-integrity:
+    if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
+    runs-on: windows-2022
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      PRODUCT_SHA: c8358870d3ece92d5f8cc7ba65aefe34a746be5c
+      SOURCE_SHA: 4d4f232da7e234dbbc55d69d34f98930cbc06594
+      CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Credential cleanup must occur after the malformed gitlink cleanup.
+          persist-credentials: true
+          ref: c8358870d3ece92d5f8cc7ba65aefe34a746be5c
+      - name: Prepare external evidence helper
+        id: prepare
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $output = Join-Path $env:RUNNER_TEMP 'import-evidence'
+          New-Item -ItemType Directory -Force $output | Out-Null
+          if ((git rev-parse HEAD).Trim() -cne $env:PRODUCT_SHA) { throw 'PRODUCT_PIN_MISMATCH' }
+          if ($env:SOURCE_SHA -cnotmatch '^[a-f0-9]{40}$' -or $env:CAPTURE_SHA256 -cnotmatch '^[a-f0-9]{64}$') { throw 'REVIEW_PINS_REQUIRED' }
+          $helper = Join-Path $env:RUNNER_TEMP 'capture_import.reviewed.py'
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/import_integrity_20261020/capture_import.py" -OutFile $helper
+          if ((Get-FileHash $helper -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:CAPTURE_SHA256) { throw 'CAPTURE_HASH_MISMATCH' }
+          Copy-Item $helper (Join-Path $output 'capture_import.reviewed.py')
+          "CAPTURE_HELPER=$helper" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          @{product=$env:PRODUCT_SHA; product_tree=(git rev-parse 'HEAD^{tree}').Trim(); source=$env:SOURCE_SHA; capture_sha256=$env:CAPTURE_SHA256; controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'; powershell=$PSVersionTable.PSVersion.ToString(); os=[Environment]::OSVersion.ToString(); architecture=[Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString(); runner_image=$env:ImageOS; runner_image_version=$env:ImageVersion; python=(& python --version); git=(& git --version)} | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $output 'origin.json') -Encoding utf8
+      - name: Install verified Godot 4.6.3 standard editor
+        id: editor
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $output = Join-Path $env:RUNNER_TEMP 'import-evidence'
+          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
+          $url = 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip'
+          Invoke-WebRequest -Uri $url -OutFile $archive
+          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
+          $actual = (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+          @{url=$url; expected_sha256=$expected; actual_sha256=$actual} | ConvertTo-Json | Set-Content (Join-Path $output 'editor-archive.json') -Encoding utf8
+          if ($actual -cne $expected) { throw 'Godot archive checksum mismatch.' }
+          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
+          Expand-Archive -LiteralPath $archive -DestinationPath $editor
+          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
+          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
+          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          & $console --version *> (Join-Path $output 'godot-version.txt')
+          $code = $LASTEXITCODE
+          @{executable=$console; sha256=(Get-FileHash $console -Algorithm SHA256).Hash.ToLowerInvariant(); version_exit=$code} | ConvertTo-Json | Set-Content (Join-Path $output 'editor.json') -Encoding utf8
+          if ($code -ne 0) { throw "GODOT_VERSION_EXIT: $code" }
+      - name: Capture original bytes and original index before cleanup
+        id: before
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $false
+          $output = Join-Path $env:RUNNER_TEMP 'import-evidence'
+          & python $env:CAPTURE_HELPER --phase before --root $env:GITHUB_WORKSPACE --output $output *> (Join-Path $output 'capture-before.log')
+          $code = $LASTEXITCODE
+          if ($code -ne 0) { throw "BEFORE_CAPTURE_EXIT: $code" }
+      - name: Prepare disposable index for credential cleanup
+        id: cleanup
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $false
+          $output = Join-Path $env:RUNNER_TEMP 'import-evidence'
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1 *> (Join-Path $output 'index-cleanup.log')
+          $code = $LASTEXITCODE
+          if ($code -ne 0) { throw "INDEX_CLEANUP_EXIT: $code" }
+          git submodule foreach --recursive 'true' *>> (Join-Path $output 'index-cleanup.log')
+          if ($LASTEXITCODE -ne 0) { throw 'SUBMODULE_CLEANUP_CHECK_FAILED' }
+          git status --porcelain=v2 --untracked-files=all > (Join-Path $output 'after-cleanup-status.txt')
+          if ($LASTEXITCODE -ne 0) { throw 'CLEANUP_STATUS_FAILED' }
+          git ls-files --stage > (Join-Path $output 'after-cleanup-index.txt')
+          if ($LASTEXITCODE -ne 0) { throw 'CLEANUP_INDEX_CAPTURE_FAILED' }
+      - name: Import once with isolated user configuration
+        id: import
+        timeout-minutes: 8
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $false
+          $output = Join-Path $env:RUNNER_TEMP 'import-evidence'
+          $userRoot = Join-Path $env:RUNNER_TEMP 'import-user'
+          $env:APPDATA = Join-Path $userRoot 'appdata'
+          $env:LOCALAPPDATA = Join-Path $userRoot 'localappdata'
+          $env:DWM_TEST_ROOT = Join-Path $userRoot 'test-root'
+          New-Item -ItemType Directory -Force -Path $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
+          $arguments = @('--headless','--path',$env:GITHUB_WORKSPACE,'--import','--log-file',(Join-Path $output 'import.log'))
+          $config = @{}
+          foreach ($key in @('APPDATA','LOCALAPPDATA','DWM_TEST_ROOT','USERPROFILE','TEMP','TMP','LANG','LC_ALL','GODOT_EDITOR_SETTINGS','GODOT_USER_HOME','XDG_CONFIG_HOME','XDG_DATA_HOME')) { $config[$key] = [Environment]::GetEnvironmentVariable($key) }
+          @{executable=$env:GODOT_CONSOLE_PATH; arguments=$arguments; cwd=(Get-Location).Path; environment=$config; project_settings='original and post-import project.godot bytes and hashes retained by capture helper'; editor_settings='fresh isolated APPDATA and LOCALAPPDATA; no settings injected'; timeout_minutes=8; started_utc=[DateTime]::UtcNow.ToString('o')} | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $output 'import-command.json') -Encoding utf8
+          & $env:GODOT_CONSOLE_PATH @arguments *> (Join-Path $output 'import-console.log')
+          $code = $LASTEXITCODE
+          @{exit_code=$code; finished_utc=[DateTime]::UtcNow.ToString('o')} | ConvertTo-Json | Set-Content (Join-Path $output 'import-process.json') -Encoding utf8
+          if ($code -ne 0) { throw "IMPORT_PROCESS_EXIT: $code" }
+          if (-not (Test-Path (Join-Path $output 'import.log'))) { throw 'IMPORT_LOG_MISSING' }
+          $pattern = 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character'
+          $matches = @(Select-String -Path (Join-Path $output 'import.log') -Pattern $pattern)
+          @{pattern=$pattern; matches=@($matches | ForEach-Object { $_.ToString() }); passed=($matches.Count -eq 0)} | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $output 'import-filter.json') -Encoding utf8
+          if ($matches.Count -ne 0) { throw 'Project import reported script errors; inspect import.log.' }
+      - name: Always capture post-import bytes before integrity gate
+        id: after
+        if: always() && steps.prepare.outcome == 'success'
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $false
+          $output = Join-Path $env:RUNNER_TEMP 'import-evidence'
+          & python $env:CAPTURE_HELPER --phase after --root $env:GITHUB_WORKSPACE --output $output *> (Join-Path $output 'capture-after.log')
+          $code = $LASTEXITCODE
+          if ($code -ne 0) { throw "AFTER_CAPTURE_EXIT: $code" }
+      - name: Record strict integrity result without restoring files
+        id: integrity
+        if: always() && steps.before.outcome == 'success' && steps.after.outcome == 'success'
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $false
+          $output = Join-Path $env:RUNNER_TEMP 'import-evidence'
+          $head = (git rev-parse HEAD).Trim()
+          $headExit = $LASTEXITCODE
+          git diff-files --exit-code *> (Join-Path $output 'integrity-worktree.diff')
+          $worktreeExit = $LASTEXITCODE
+          $changed = @(git diff HEAD --name-only)
+          $diffExit = $LASTEXITCODE
+          $allowed = @('.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1')
+          $unexpected = @($changed | Where-Object { $_ -cnotin $allowed })
+          $ok = $headExit -eq 0 -and $head -ceq $env:PRODUCT_SHA -and $worktreeExit -eq 0 -and $diffExit -eq 0 -and $unexpected.Count -eq 0
+          @{passed=$ok; head=$head; head_exit=$headExit; diff_files_exit=$worktreeExit; diff_head_exit=$diffExit; changed=$changed; allowed_index_cleanup_only=$allowed; unexpected=$unexpected; diagnostic_only=$true} | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $output 'integrity.json') -Encoding utf8
+          if (-not $ok) { throw 'STRICT_PRODUCT_INTEGRITY_FAILED: captured evidence retained; no validation acceptance.' }
+      - name: Always summarize phases and hash retained evidence
+        if: always()
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $output = Join-Path $env:RUNNER_TEMP 'import-evidence'
+          New-Item -ItemType Directory -Force $output | Out-Null
+          $phases = @{prepare='${{ steps.prepare.outcome }}'; editor='${{ steps.editor.outcome }}'; pre_capture='${{ steps.before.outcome }}'; index_cleanup='${{ steps.cleanup.outcome }}'; import='${{ steps.import.outcome }}'; post_capture='${{ steps.after.outcome }}'; strict_integrity='${{ steps.integrity.outcome }}'; diagnostic_only=$true; delivery_acceptance=$false; no_restore_performed=$true; missing_import_process_receipt=(-not (Test-Path (Join-Path $output 'import-process.json')))}
+          $phases | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $output 'phase-summary.json') -Encoding utf8
+          'Import-only diagnostic; this run cannot establish delivery acceptance.' | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          $phases | ConvertTo-Json | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          $files = @(Get-ChildItem $output -Recurse -File -Force | Where-Object { $_.Name -cne 'evidence-file-hashes.json' } | ForEach-Object { @{path=[IO.Path]::GetRelativePath($output,$_.FullName); bytes=$_.Length; sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()} })
+          @{files=$files} | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $output 'evidence-file-hashes.json') -Encoding utf8
+      - name: Always upload original import evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: import-integrity-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/import-evidence
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7

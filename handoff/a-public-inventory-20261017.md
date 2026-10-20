@@ -1,3 +1,13 @@
+# Import-only diagnostic prepared — awaiting C review
+
+20 October 2026. Director PR30 comment 6293667852 authorizes one pinned import-only reproduction after C clears the exact delta. No second full export/native attempt is authorized. Candidate branch: `codex/a-import-integrity-20261020`; source helper commit `4d4f232da7e234dbbc55d69d34f98930cbc06594`. Read `evidence/phase_2r/import_integrity_20261020/README.md` and inert `controller.proposed.yml` at branch tip.
+
+Product remains `c8358870d3ece92d5f8cc7ba65aefe34a746be5c`; PR30 controller remains `c49990cea18bf16fcb4ed03a432e8ecb662f4b83`. Import diagnosis is not executed. Exact pre/post raw-byte custody, independent settings capture, original index before known gitlink cleanup, attributes/EOL/status, command/version/platform/config, always-retained failure capture, strict gate, hashes and artifact upload are prepared. No restore/exemption/cache assumption. Helper SHA-256 `a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379`; controller SHA-256 `cad54688a26b6faa345596f46b77a86719cb0b1b9389d6d6f0b54c09895ccdad`.
+
+Synthetic Python/Git custody regression passed; YAML/order/source review passed. No local Godot/PowerShell. Internal review's partial-manifest/HEAD-change failure edge was fixed. Next: C exact delta clearance, then one fresh cloud import-only diagnostic; retain original bytes/logs, classify actual changes, propose deterministic preparation correction before seeking full delivery scope. Existing failure evidence remains at `official_delivery_20261020/run39441551063`; previous terminal/driver review is not reopened.
+
+---
+
 # Official delivery attempt stopped before export — no retry
 
 20 October2026. C6293482944 cleared the exact candidate; A installed controllerc49990ce with expected-head protection and ran ONE official attempt39441551063/job118692418355. Source/parser/import/template steps passed, then strict frozen-source check failed on990 tracked `.import` sidecar changes. Export and all four native phases were unexecuted. This is a harness/build-preparation failure, not gameplay evidence. Import ObjectDB warning remains disclosed.
