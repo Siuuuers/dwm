@@ -1,3 +1,11 @@
+# Official delivery attempt stopped before export — no retry
+
+20 October2026. C6293482944 cleared the exact candidate; A installed controllerc49990ce with expected-head protection and ran ONE official attempt39441551063/job118692418355. Source/parser/import/template steps passed, then strict frozen-source check failed on990 tracked `.import` sidecar changes. Export and all four native phases were unexecuted. This is a harness/build-preparation failure, not gameplay evidence. Import ObjectDB warning remains disclosed.
+
+[Original archive, complete log, independent hashes and first-boundary report](../evidence/phase_2r/official_delivery_20261020/run39441551063/README.md). Original33132byte ZIP/7 members/6 manifest payloads verified. Rewritten sidecar bytes were not retained; do not assume harmlessness or broadly waive the guard. No correction/retry, product/master/integration/release movement. Director/C select any next bounded preparation scope. Productc8358870 draft/unmerged; active controllerc49990ce must not receive incidental pushes. Native delivery and performance remain open. Prepared review requests were posted as PR36#6293413102 and PR30#6293416314; earlier unposted wording below is historical.
+
+---
+
 # Official delivery candidate prepared — external C source review next
 
 20 October 2026. Director6293127731 selected one current official Windows acceptance attempt. [Concrete candidate, exact pins and phase map](../evidence/phase_2r/official_delivery_20261020/README.md) extends only the external harness with a separate completed-autosave Load. It verifies the actual acknowledged restore operation, unchanged Profile/Gallery/autosave/manual slots, and clean exit. Existing creator/Day4 journey and strict Wait-One remain unchanged.
