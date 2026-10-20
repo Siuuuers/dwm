@@ -1,0 +1,24 @@
+{
+  "product": "c8358870d3ece92d5f8cc7ba65aefe34a746be5c",
+  "driver_source": "8adc8c78fcbf25fa0df030391bac6f1d64073a01",
+  "active_controller_unchanged": "9f7fe38ad6255b8b094d96024e77750f074c13f4",
+  "checks": {
+    "accepted_wait_one_unchanged": true,
+    "existing_day4_load_journey_unchanged": true,
+    "existing_create_capability_body_unchanged": true,
+    "yaml_parse_and_four_phase_order": true
+  },
+  "execution": "No PowerShell/Godot parse or execution; static source checks only",
+  "files": {
+    "Invoke-ExportedGameplay.proposed.ps1": "7a4bcd31aa4f340e76e0aee34c5857565d672ed38b3c66275fab525ea40ac21c",
+    "controller.proposed.yml": "320fdfa49b652c43dfdc18c153782745b3a398a168c726bf75e972dcd3476d06",
+    "driver.patch": "63c58a6bb0d919147ecc1f4c715d1bcb37a7c2a5b887d0adc1016c18eb08b725"
+  },
+  "contract_sources": {
+    "autoload/GameState.gd": "ca7fccac2344c9d59b21e101d5ac8930540681e3",
+    "autoload/SaveManager.gd": "319449c17e7d3859076d7ba20e362b775f096802",
+    "scripts/ui/EndingScene.gd": "ae9bf01b2692213cfadeea7ffde81c66db3120cf",
+    "scripts/application/backup/BackupPresentationPort.gd": "4524984d3ef3e74bdcbab1c296232a603f0eb040",
+    "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd": "c008f1f8a1e428f0091a0bfc52043b7756579e1b"
+  }
+}

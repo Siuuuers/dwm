@@ -1,3 +1,13 @@
+# Official delivery candidate prepared — external C source review next
+
+20 October 2026. Director6293127731 selected one current official Windows acceptance attempt. [Concrete candidate, exact pins and phase map](../evidence/phase_2r/official_delivery_20261020/README.md) extends only the external harness with a separate completed-autosave Load. It verifies the actual acknowledged restore operation, unchanged Profile/Gallery/autosave/manual slots, and clean exit. Existing creator/Day4 journey and strict Wait-One remain unchanged.
+
+Product c8358870 and active controller9f7fe38a are untouched. Candidate source8adc8c78; official Godot4.6.3 tools/templates pinned. No PowerShell/Godot execution or cloud dispatch. External C must review the exact candidate/controller before A installs the workflow for ONE attempt; no automatic retry. Failure stops at the first causal boundary; passing results still require C review. Existing bounded deadline task and six-case map remain closed. Draft/unmerged; master/integration/release unchanged.
+
+This isolated candidate has not been posted as a PR36/PR30 coordination comment. Review text is prepared in the candidate; external messaging needs explicit authorization in this session.
+
+---
+
 # Ordinary deadline correction integrated — bounded task closed
 
 20 October2026. C [6292825342](https://github.com/Siuuuers/dwm/pull/36#issuecomment-6292825342) accepted the original archive/results and cleared exact narrow integration. This commit copies the exact qualified driver blob0b2fbcb8 to tools/testing/Invoke-ExportedGameplay.ps1 and fixture blobeb22c2c3 to tools/testing/Test-ExportedGameplayDeadline.ps1. Product parent83da885c; expected-head protection applies. No game runtime, save/recovery/History owner, active workflow or controller is imported.

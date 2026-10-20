@@ -1,0 +1,271 @@
+# INERT REVIEW CANDIDATE. Install only after external C source review.
+# Exact source pins below; installation still requires external C source review.
+name: Official Windows delivery acceptance
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/scene-first-reveal-profile-diagnostic.yml'
+permissions:
+  contents: read
+concurrency:
+  group: official-delivery-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+jobs:
+  delivery:
+    if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
+    runs-on: windows-2022
+    timeout-minutes: 65
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      PRODUCT_SHA: c8358870d3ece92d5f8cc7ba65aefe34a746be5c
+      CANDIDATE_SHA: 8adc8c78fcbf25fa0df030391bac6f1d64073a01
+      DRIVER_SHA256: 7a4bcd31aa4f340e76e0aee34c5857565d672ed38b3c66275fab525ea40ac21c
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Defer credential removal until the post-job cleanup, after the
+          # malformed gitlinks are removed from this disposable runner's index.
+          persist-credentials: true
+          ref: c8358870d3ece92d5f8cc7ba65aefe34a746be5c
+      - name: Prepare disposable checkout for credential cleanup
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
+          # submodule foreach reads the index even with sparse checkout.
+          # The source commit and working files remain unchanged.
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git submodule foreach --recursive 'true'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Pin product and reviewed external driver
+        id: prepare
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ((git rev-parse HEAD).Trim() -cne $env:PRODUCT_SHA) { throw 'PRODUCT_PIN_MISMATCH' }
+          if ($env:CANDIDATE_SHA -cnotmatch '^[a-f0-9]{40}$' -or $env:DRIVER_SHA256 -cnotmatch '^[a-f0-9]{64}$') { throw 'REVIEW_PINS_REQUIRED' }
+          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/delivery'
+          New-Item -ItemType Directory -Force $output | Out-Null
+          $driver = Join-Path $env:RUNNER_TEMP 'Invoke-ExportedGameplay.reviewed.ps1'
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:CANDIDATE_SHA/evidence/phase_2r/official_delivery_20261020/Invoke-ExportedGameplay.proposed.ps1" -OutFile $driver
+          if ((Get-FileHash $driver -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:DRIVER_SHA256) { throw 'DRIVER_HASH_MISMATCH' }
+          Copy-Item $driver (Join-Path $output 'Invoke-ExportedGameplay.reviewed.ps1')
+          # Preserve the unchanged driver's adjacent failure-only native probe.
+          Copy-Item 'tools/testing/Probe-ExportedWindow.ps1' (Join-Path $env:RUNNER_TEMP 'Probe-ExportedWindow.ps1')
+          Copy-Item 'tools/testing/Probe-ExportedWindow.ps1' (Join-Path $output 'Probe-ExportedWindow.ps1')
+          "DELIVERY_DRIVER=$driver" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          $sources = @()
+          foreach ($path in @('tools/testing/Invoke-ExportedGameplay.ps1','tools/testing/Invoke-WindowsExportValidation.ps1','tools/testing/Probe-ExportedWindow.ps1','project.godot','export_presets.cfg')) {
+            $sources += @{path=$path; blob=(git rev-parse "HEAD:$path").Trim(); sha256=(Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant()}
+          }
+          @{product=$env:PRODUCT_SHA; product_tree=(git rev-parse 'HEAD^{tree}').Trim(); candidate=$env:CANDIDATE_SHA; driver_sha256=$env:DRIVER_SHA256; controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'; powershell=$PSVersionTable.PSVersion.ToString(); os=[Environment]::OSVersion.ToString(); sources=$sources; step_seconds=30; journey_seconds=480; renderer='ProjectDefault'; accessibility='Always'; audio='Dummy'} | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $output 'origin.json') -Encoding utf8
+          $tokens=$null; $parseErrors=$null
+          $null=[Management.Automation.Language.Parser]::ParseFile($driver,[ref]$tokens,[ref]$parseErrors)
+          @{ok=($parseErrors.Count -eq 0); errors=@($parseErrors | ForEach-Object { $_.ToString() })} | ConvertTo-Json -Depth 6 | Set-Content (Join-Path $output 'parser.json') -Encoding utf8
+          if ($parseErrors.Count -ne 0) { throw 'DRIVER_PARSE_FAILED' }
+      - name: Install Godot 4.6.3 standard
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
+          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
+          # SHA256 published with the official 4.6.3-stable release asset.
+          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
+            throw 'Godot archive checksum mismatch.'
+          }
+          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
+          Expand-Archive -LiteralPath $archive -DestinationPath $editor
+          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
+          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
+          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          & $console --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Import project
+        id: import
+        timeout-minutes: 8
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
+          $env:APPDATA = Join-Path $output 'import-user/appdata'
+          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
+          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
+          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
+          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
+            throw 'Project import reported script errors; inspect import.log.'
+          }
+      - name: Restore committed project settings after editor import
+        run: |
+          # Dialogic's editor scan rewrites its timeline lookup during import.
+          # Execute the committed configuration with the freshly imported assets.
+          git restore -- project.godot
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Cache pinned export templates
+        id: export-templates-cache
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
+          key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
+      - name: Download verified Godot export templates
+        timeout-minutes: 10
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $folder = Join-Path $env:RUNNER_TEMP 'dwm-godot-templates'
+          New-Item -ItemType Directory -Force -Path $folder | Out-Null
+          $archive = Join-Path $folder 'Godot_v4.6.3-stable_export_templates.tpz'
+          if (-not (Test-Path -LiteralPath $archive)) {
+            Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_export_templates.tpz' -OutFile $archive
+          }
+          $expected = '3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8'
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
+            throw 'Godot export templates checksum mismatch.'
+          }
+          "GODOT_EXPORT_TEMPLATES_ARCHIVE=$archive" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Retain verified export templates for subsequent runs
+        if: steps.export-templates-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
+          key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
+      - name: Verify frozen product before export
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ((git rev-parse HEAD).Trim() -cne $env:PRODUCT_SHA) { throw 'PRODUCT_PIN_CHANGED' }
+          git diff-files --exit-code
+          if ($LASTEXITCODE -ne 0) { throw 'TRACKED_PRODUCT_FILES_CHANGED' }
+          $changed=@(git diff HEAD --name-only)
+          if ($LASTEXITCODE -ne 0) { throw 'PRODUCT_DIFF_FAILED' }
+          $allowed=@('.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1')
+          foreach ($path in $changed) { if ($path -cnotin $allowed) { throw "UNEXPECTED_SOURCE_CHANGE: $path" } }
+      - name: Export and launch isolated Windows executable
+        id: export
+        timeout-minutes: 12
+        run: ./tools/testing/Invoke-WindowsExportValidation.ps1
+      - name: Ordinary Capability in fresh process
+        id: capability
+        timeout-minutes: 10
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $ci=Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
+          $archive=Join-Path $ci 'windows-export/DWM-windows-x86_64-validation.zip'
+          $validation=Get-Content (Join-Path $ci 'windows-export/validation.json') -Raw | ConvertFrom-Json
+          $archiveHash=(Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+          if (-not $validation.ok -or $validation.commit -cne $env:PRODUCT_SHA -or $archiveHash -cne $validation.archive.sha256) { throw 'PACKAGE_PREREQUISITE_FAILED' }
+          if ((Get-FileHash $env:DELIVERY_DRIVER -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:DRIVER_SHA256) { throw 'DRIVER_CHANGED' }
+          $arguments=@('-NoLogo','-NoProfile','-NonInteractive','-File',$env:DELIVERY_DRIVER,'-Mode','Capability','-ArchivePath',$archive,'-ExpectedArchiveSha256',$archiveHash,'-ExpectedCommit',$env:PRODUCT_SHA,'-UserRoot',(Join-Path $env:RUNNER_TEMP 'dwm-capability-user'),'-OutputPath',(Join-Path $ci 'exported-capability'),'-Accessibility','Always','-Audio','Dummy','-Renderer','ProjectDefault','-StepTimeoutSeconds','30','-JourneyTimeoutSeconds','480')
+          @{executable=(Get-Command pwsh).Source; arguments=$arguments; mode='Capability'} | ConvertTo-Json -Depth 6 | Set-Content (Join-Path $ci 'delivery/capability-command.json') -Encoding utf8
+          $PSNativeCommandUseErrorActionPreference=$false
+          & pwsh @arguments *> (Join-Path $ci 'delivery/capability-harness.log')
+          $code=$LASTEXITCODE
+          @{mode='Capability'; exit_code=$code} | ConvertTo-Json | Set-Content (Join-Path $ci 'delivery/capability-process.json') -Encoding utf8
+          Get-Content (Join-Path $ci 'delivery/capability-harness.log')
+          if ($code -ne 0) { throw "Capability_HARNESS_EXIT: $code" }
+          $receipt=Get-Content (Join-Path $ci 'exported-capability/result.json') -Raw | ConvertFrom-Json
+          if (-not $receipt.ok -or -not $receipt.clean_player_exit -or $receipt.forced_cleanup -or $receipt.exit_code -ne 0) { throw 'Capability_RECEIPT_FAILED' }
+      - name: Ordinary Create in fresh process
+        id: create
+        timeout-minutes: 10
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $ci=Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
+          $archive=Join-Path $ci 'windows-export/DWM-windows-x86_64-validation.zip'
+          $validation=Get-Content (Join-Path $ci 'windows-export/validation.json') -Raw | ConvertFrom-Json
+          $archiveHash=(Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+          if (-not $validation.ok -or $validation.commit -cne $env:PRODUCT_SHA -or $archiveHash -cne $validation.archive.sha256) { throw 'PACKAGE_PREREQUISITE_FAILED' }
+          if ((Get-FileHash $env:DELIVERY_DRIVER -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:DRIVER_SHA256) { throw 'DRIVER_CHANGED' }
+          $arguments=@('-NoLogo','-NoProfile','-NonInteractive','-File',$env:DELIVERY_DRIVER,'-Mode','Create','-ArchivePath',$archive,'-ExpectedArchiveSha256',$archiveHash,'-ExpectedCommit',$env:PRODUCT_SHA,'-UserRoot',(Join-Path $env:RUNNER_TEMP 'dwm-journey-user'),'-OutputPath',(Join-Path $ci 'exported-create'),'-Accessibility','Always','-Audio','Dummy','-Renderer','ProjectDefault','-StepTimeoutSeconds','30','-JourneyTimeoutSeconds','480')
+          $arguments += @('-CapabilityReceipt',(Join-Path $ci 'exported-capability/result.json'))
+          @{executable=(Get-Command pwsh).Source; arguments=$arguments; mode='Create'} | ConvertTo-Json -Depth 6 | Set-Content (Join-Path $ci 'delivery/create-command.json') -Encoding utf8
+          $PSNativeCommandUseErrorActionPreference=$false
+          & pwsh @arguments *> (Join-Path $ci 'delivery/create-harness.log')
+          $code=$LASTEXITCODE
+          @{mode='Create'; exit_code=$code} | ConvertTo-Json | Set-Content (Join-Path $ci 'delivery/create-process.json') -Encoding utf8
+          Get-Content (Join-Path $ci 'delivery/create-harness.log')
+          if ($code -ne 0) { throw "Create_HARNESS_EXIT: $code" }
+          $receipt=Get-Content (Join-Path $ci 'exported-create/result.json') -Raw | ConvertFrom-Json
+          if (-not $receipt.ok -or -not $receipt.clean_player_exit -or $receipt.forced_cleanup -or $receipt.exit_code -ne 0) { throw 'Create_RECEIPT_FAILED' }
+      - name: Ordinary Load in fresh process
+        id: load
+        timeout-minutes: 10
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $ci=Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
+          $archive=Join-Path $ci 'windows-export/DWM-windows-x86_64-validation.zip'
+          $validation=Get-Content (Join-Path $ci 'windows-export/validation.json') -Raw | ConvertFrom-Json
+          $archiveHash=(Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+          if (-not $validation.ok -or $validation.commit -cne $env:PRODUCT_SHA -or $archiveHash -cne $validation.archive.sha256) { throw 'PACKAGE_PREREQUISITE_FAILED' }
+          if ((Get-FileHash $env:DELIVERY_DRIVER -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:DRIVER_SHA256) { throw 'DRIVER_CHANGED' }
+          $arguments=@('-NoLogo','-NoProfile','-NonInteractive','-File',$env:DELIVERY_DRIVER,'-Mode','Load','-ArchivePath',$archive,'-ExpectedArchiveSha256',$archiveHash,'-ExpectedCommit',$env:PRODUCT_SHA,'-UserRoot',(Join-Path $env:RUNNER_TEMP 'dwm-journey-user'),'-OutputPath',(Join-Path $ci 'exported-load'),'-Accessibility','Always','-Audio','Dummy','-Renderer','ProjectDefault','-StepTimeoutSeconds','30','-JourneyTimeoutSeconds','480')
+          $arguments += @('-CreatorReceipt',(Join-Path $ci 'exported-create/result.json'))
+          @{executable=(Get-Command pwsh).Source; arguments=$arguments; mode='Load'} | ConvertTo-Json -Depth 6 | Set-Content (Join-Path $ci 'delivery/load-command.json') -Encoding utf8
+          $PSNativeCommandUseErrorActionPreference=$false
+          & pwsh @arguments *> (Join-Path $ci 'delivery/load-harness.log')
+          $code=$LASTEXITCODE
+          @{mode='Load'; exit_code=$code} | ConvertTo-Json | Set-Content (Join-Path $ci 'delivery/load-process.json') -Encoding utf8
+          Get-Content (Join-Path $ci 'delivery/load-harness.log')
+          if ($code -ne 0) { throw "Load_HARNESS_EXIT: $code" }
+          $receipt=Get-Content (Join-Path $ci 'exported-load/result.json') -Raw | ConvertFrom-Json
+          if (-not $receipt.ok -or -not $receipt.clean_player_exit -or $receipt.forced_cleanup -or $receipt.exit_code -ne 0) { throw 'Load_RECEIPT_FAILED' }
+      - name: Ordinary TerminalLoad in fresh process
+        id: terminal_load
+        timeout-minutes: 10
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $ci=Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
+          $archive=Join-Path $ci 'windows-export/DWM-windows-x86_64-validation.zip'
+          $validation=Get-Content (Join-Path $ci 'windows-export/validation.json') -Raw | ConvertFrom-Json
+          $archiveHash=(Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+          if (-not $validation.ok -or $validation.commit -cne $env:PRODUCT_SHA -or $archiveHash -cne $validation.archive.sha256) { throw 'PACKAGE_PREREQUISITE_FAILED' }
+          if ((Get-FileHash $env:DELIVERY_DRIVER -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:DRIVER_SHA256) { throw 'DRIVER_CHANGED' }
+          $arguments=@('-NoLogo','-NoProfile','-NonInteractive','-File',$env:DELIVERY_DRIVER,'-Mode','TerminalLoad','-ArchivePath',$archive,'-ExpectedArchiveSha256',$archiveHash,'-ExpectedCommit',$env:PRODUCT_SHA,'-UserRoot',(Join-Path $env:RUNNER_TEMP 'dwm-journey-user'),'-OutputPath',(Join-Path $ci 'exported-terminal-load'),'-Accessibility','Always','-Audio','Dummy','-Renderer','ProjectDefault','-StepTimeoutSeconds','30','-JourneyTimeoutSeconds','480')
+          $arguments += @('-CreatorReceipt',(Join-Path $ci 'exported-create/result.json'))
+          $arguments += @('-CompletionReceipt',(Join-Path $ci 'exported-load/result.json'))
+          @{executable=(Get-Command pwsh).Source; arguments=$arguments; mode='TerminalLoad'} | ConvertTo-Json -Depth 6 | Set-Content (Join-Path $ci 'delivery/terminal-load-command.json') -Encoding utf8
+          $PSNativeCommandUseErrorActionPreference=$false
+          & pwsh @arguments *> (Join-Path $ci 'delivery/terminal-load-harness.log')
+          $code=$LASTEXITCODE
+          @{mode='TerminalLoad'; exit_code=$code} | ConvertTo-Json | Set-Content (Join-Path $ci 'delivery/terminal-load-process.json') -Encoding utf8
+          Get-Content (Join-Path $ci 'delivery/terminal-load-harness.log')
+          if ($code -ne 0) { throw "TerminalLoad_HARNESS_EXIT: $code" }
+          $receipt=Get-Content (Join-Path $ci 'exported-terminal-load/result.json') -Raw | ConvertFrom-Json
+          if (-not $receipt.ok -or -not $receipt.clean_player_exit -or $receipt.forced_cleanup -or $receipt.exit_code -ne 0) { throw 'TerminalLoad_RECEIPT_FAILED' }
+      - name: Retain separate phase outcomes and evidence hashes
+        if: always()
+        run: |
+          $ErrorActionPreference='Stop'
+          $ci=Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
+          $output=Join-Path $ci 'delivery'
+          New-Item -ItemType Directory -Force $output | Out-Null
+          $outcomes=[ordered]@{prepare='${{ steps.prepare.outcome }}'; import='${{ steps.import.outcome }}'; export='${{ steps.export.outcome }}'; capability='${{ steps.capability.outcome }}'; create='${{ steps.create.outcome }}'; load='${{ steps.load.outcome }}'; 'terminal-load'='${{ steps.terminal_load.outcome }}'}
+          $phases=@()
+          foreach ($name in @('capability','create','load','terminal-load')) {
+            $receiptPath=Join-Path $ci "exported-$name/result.json"
+            $receipt=$null; $receiptError=$null
+            if (Test-Path $receiptPath) {
+              try { $receipt=Get-Content $receiptPath -Raw | ConvertFrom-Json } catch { $receiptError=$_.Exception.Message }
+            }
+            $status=if ($outcomes[$name] -eq 'skipped' -or [string]::IsNullOrEmpty($outcomes[$name])) {'unexecuted'} elseif ($outcomes[$name] -eq 'success' -and $null -ne $receipt -and $receipt.ok) {'passed'} else {'failed'}
+            $phases+=@{phase=$name; status=$status; step_outcome=$outcomes[$name]; receipt=$receipt; receipt_missing=($null -eq $receipt); receipt_read_error=$receiptError}
+          }
+          @{product=$env:PRODUCT_SHA; candidate=$env:CANDIDATE_SHA; controller='${{ github.event.pull_request.head.sha }}'; outcomes=$outcomes; phases=$phases; scope='One official current-baseline attempt; no automatic retry; no delivery acceptance before C result review'} | ConvertTo-Json -Depth 100 | Set-Content (Join-Path $output 'phase-summary.json') -Encoding utf8
+          $files=@(Get-ChildItem $ci -Recurse -File | Where-Object { $_.FullName -notlike '*\package\*' -and $_.FullName -notlike '*\import-user\*' } | Sort-Object FullName | ForEach-Object { @{path=[IO.Path]::GetRelativePath($ci,$_.FullName).Replace('\','/'); bytes=$_.Length; sha256=(Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()} })
+          @{files=$files} | ConvertTo-Json -Depth 6 | Set-Content (Join-Path $output 'evidence-manifest.json') -Encoding utf8
+      - name: Upload original package and separate phase evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: official-delivery-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .godot/ci/import.log
+            .godot/ci/windows-export/
+            .godot/ci/delivery/
+            .godot/ci/exported-capability/
+            .godot/ci/exported-create/
+            .godot/ci/exported-load/
+            .godot/ci/exported-terminal-load/
+            !.godot/ci/exported-*/package/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7

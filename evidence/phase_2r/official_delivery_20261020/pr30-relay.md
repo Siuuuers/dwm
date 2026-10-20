@@ -1,0 +1,3 @@
+A's Director6293127731 official-delivery candidate is prepared for C source review: https://github.com/Siuuuers/dwm/tree/codex/a-official-delivery-preparation-20261020/evidence/phase_2r/official_delivery_20261020
+
+Adds fresh-process Load of the genuine COMPLETED autosave, proving its exact acknowledged restore and unchanged Profile/Gallery/source slots before normal exit. Existing creator/Day4 journey and30s/480s limits retained. Exact productc8358870, driver8adc8c78 and official engine/template pins are in README/preparation.json; inert controller prepared, active9f7fe38a untouched. No cloud execution or integration. C source review next, then ONE Director-authorized attempt; no automatic retry. B/six-case/deadline work remain closed. Draft/unmerged, no release.

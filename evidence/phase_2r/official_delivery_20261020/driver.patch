@@ -1,0 +1,191 @@
+diff --git a/tools/testing/Invoke-ExportedGameplay.ps1 b/evidence/phase_2r/official_delivery_20261020/Invoke-ExportedGameplay.proposed.ps1
+index 0b2fbcb..a4ec2f3 100644
+--- a/tools/testing/Invoke-ExportedGameplay.ps1
++++ b/evidence/phase_2r/official_delivery_20261020/Invoke-ExportedGameplay.proposed.ps1
+@@ -6,7 +6,10 @@ External, English-only Windows release UI probe. Run ONLY on a disposable cloud
+ Consumes the existing export validation ZIP; does not export, patch, inject scripts,
+ or enable fixture registration. Run each mode in a fresh pwsh process. A owns dispatch.
+ Capability uses its own empty UserRoot. Create uses a different empty UserRoot; Load
+-reuses Create's UserRoot and requires its result.json. Every mode needs a fresh OutputPath.
++reuses Create's UserRoot and requires its result.json. TerminalLoad then reuses that root
++with successful Create and Load receipts, loading the genuine COMPLETED autosave in a
++new process. It expects automatic Title return, not replay of an older ending slot.
++Every mode needs a fresh OutputPath.
+ Example (replace all pins with the actual candidate and retained archive receipt):
+   ./tools/testing/Invoke-ExportedGameplay.ps1 -Mode Capability -ArchivePath $zip `
+     -ExpectedArchiveSha256 $sha256 -ExpectedCommit $commit -UserRoot $probe -OutputPath $out
+@@ -21,7 +24,7 @@ UIA names alone do not prove full-line pixels. Capability is not Save/Load accep
+ #>
+ [CmdletBinding()]
+ param(
+-    [Parameter(Mandatory)][ValidateSet('Capability', 'Create', 'Load')][string]$Mode,
++    [Parameter(Mandatory)][ValidateSet('Capability', 'Create', 'Load', 'TerminalLoad')][string]$Mode,
+     [Parameter(Mandatory)][string]$ArchivePath,
+     [Parameter(Mandatory)][ValidatePattern('^[a-fA-F0-9]{64}$')][string]$ExpectedArchiveSha256,
+     [Parameter(Mandatory)][ValidatePattern('^[a-fA-F0-9]{40}$')][string]$ExpectedCommit,
+@@ -29,6 +32,7 @@ param(
+     [Parameter(Mandatory)][string]$OutputPath,
+     [string]$CapabilityReceipt,
+     [string]$CreatorReceipt,
++    [string]$CompletionReceipt,
+     [ValidateSet('ProjectDefault', 'gl_compatibility')][string]$Renderer = 'ProjectDefault',
+     [ValidateSet('ProjectDefault', 'Always')][string]$Accessibility = 'ProjectDefault',
+     [ValidateSet('ProjectDefault', 'Dummy')][string]$Audio = 'ProjectDefault',
+@@ -80,6 +84,8 @@ $result = [ordered]@{
+     renderer_request = $Renderer; user_root = $user; output_path = $output
+     scope = 'Ordinary release UI; normal packaged seven-day TEST story; no Challenge registration'
+     forced_cleanup = $false; clean_player_exit = $false
++    driver_sha256 = (Get-FileHash -LiteralPath $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant()
++    step_timeout_seconds = $StepTimeoutSeconds; journey_timeout_seconds = $JourneyTimeoutSeconds
+ }
+ 
+ function Write-Json([string]$Path, $Value) {
+@@ -378,7 +384,7 @@ function Capture-FailureSaves {
+     # Capture before UIA: a provider call may block until the process watchdog fires.
+     if ([string]::IsNullOrWhiteSpace($dataRoot)) { return }
+     $observations = @()
+-    foreach ($relative in @('profile.json', 'saves/slot_1.json', 'saves/slot_2.json', 'saves/autosave.json')) {
++    foreach ($relative in @('profile.json', 'saves/slot_1.json', 'saves/slot_2.json', 'saves/autosave.json', 'saves/desktop-continuation-operations.json')) {
+         $entry = [ordered]@{ source = $relative; utc = [DateTime]::UtcNow.ToString('o'); status = 'missing' }
+         $stream = $null
+         try {
+@@ -450,6 +456,8 @@ function Receipt([string]$Path, [string]$ExpectedMode) {
+     Require ($r.archive_sha256 -ceq $result.archive_sha256 -and $r.source_commit -ceq $result.source_commit -and
+         $r.renderer_request -ceq $Renderer) 'PREREQUISITE_PACKAGE_OR_RENDERER_MISMATCH'
+     Require ($r.accessibility_request -ceq $Accessibility -and $r.audio_request -ceq $Audio) 'PREREQUISITE_ACCESSIBILITY_OR_AUDIO_MISMATCH'
++    Require ($r.driver_sha256 -ceq $result.driver_sha256 -and $r.step_timeout_seconds -eq $StepTimeoutSeconds -and
++        $r.journey_timeout_seconds -eq $JourneyTimeoutSeconds) 'PREREQUISITE_DRIVER_OR_DEADLINE_MISMATCH'
+     return $r
+ }
+ 
+@@ -461,9 +469,16 @@ New-Item -ItemType Directory -Path $output | Out-Null
+ try {
+     Require ((Hash $archive) -ceq $result.archive_sha256) 'ARCHIVE_CHECKSUM_MISMATCH'
+     if ($Mode -eq 'Create') { $result.capability = Receipt $CapabilityReceipt 'Capability' }
+-    if ($Mode -eq 'Load') {
++    if ($Mode -in @('Load', 'TerminalLoad')) {
+         $creator = Receipt $CreatorReceipt 'Create'
+         Require ($creator.user_root -ieq $user) 'CREATOR_USER_ROOT_MISMATCH'
++        if ($Mode -eq 'TerminalLoad') {
++            $completion = Receipt $CompletionReceipt 'Load'
++            Require ($completion.user_root -ieq $user) 'COMPLETION_USER_ROOT_MISMATCH'
++            Require ($completion.creator_receipt_sha256 -ceq (Hash $CreatorReceipt)) 'COMPLETION_CREATOR_MISMATCH'
++            $result.completion_receipt_sha256 = Hash $CompletionReceipt
++        }
++        $result.creator_receipt_sha256 = Hash $CreatorReceipt
+     } else {
+         Require (-not (Test-Path -LiteralPath $user)) 'CAPABILITY_CREATE_USER_ROOT_MUST_NOT_EXIST'
+         New-Item -ItemType Directory -Path $user | Out-Null
+@@ -502,6 +517,31 @@ try {
+     $dataRoot = Join-Path $user 'appdata/Godot/app_userdata/DWM'
+     $profilePath = Join-Path $dataRoot 'profile.json'
+     $slotPath = Join-Path $dataRoot 'saves/slot_1.json'
++    $autosavePath = Join-Path $dataRoot 'saves/autosave.json'
++    if ($Mode -eq 'TerminalLoad') {
++        Require ((Hash $autosavePath) -ceq $completion.completed_autosave_sha256) 'COMPLETED_AUTOSAVE_CHANGED_BEFORE_LOAD'
++        Require ((Hash $profilePath) -ceq $completion.completed_profile_sha256) 'COMPLETED_PROFILE_CHANGED_BEFORE_LOAD'
++        Require ((Hash $slotPath) -ceq $creator.source_slot_sha256) 'CREATOR_SLOT_CHANGED_BEFORE_TERMINAL_LOAD'
++        Require ((Hash (Join-Path $dataRoot 'saves/slot_2.json')) -ceq $completion.witness_slot_sha256) 'WITNESS_SLOT_CHANGED_BEFORE_TERMINAL_LOAD'
++        $terminalDocument = Read-Json $autosavePath
++        $terminalSnapshot = Snapshot $terminalDocument
++        $continuationPath = Join-Path $dataRoot 'saves/desktop-continuation-operations.json'
++        Require ((Hash $continuationPath) -ceq $completion.completed_continuation_sha256) 'COMPLETED_CONTINUATION_CHANGED_BEFORE_LOAD'
++        $terminalJournalBefore = Read-Json $continuationPath
++        Copy-Item -LiteralPath $continuationPath -Destination (Join-Path $output 'terminal-continuation-before.json')
++        Require ($terminalSnapshot.lifecycle.state -ceq 'COMPLETED' -and
++            $terminalSnapshot.lifecycle.ending_plan.playback_stage -ceq 'GALLERY_RECORDED') 'TERMINAL_SOURCE_NOT_COMPLETED'
++        $terminalProfile = Read-Json $profilePath
++        $terminalGalleryKey = 'ending:' + $terminalSnapshot.lifecycle.run_id + ':gallery:ending.alone'
++        Require ($terminalProfile.gallery_transaction_receipts.Contains($terminalGalleryKey) -and
++            (Canonical $terminalProfile.gallery_transaction_receipts[$terminalGalleryKey]) -ceq
++            (Canonical @{ ending_id = 'ending.alone'; unlocked = $true })) 'TERMINAL_SOURCE_GALLERY_RECEIPT_INVALID'
++        Copy-Item -LiteralPath $autosavePath -Destination (Join-Path $output 'terminal-autosave-before.json')
++        Copy-Item -LiteralPath $profilePath -Destination (Join-Path $output 'terminal-profile-before.json')
++        $result.terminal_locator = 'autosave'
++        $result.terminal_source_sha256 = Hash $autosavePath
++        $result.terminal_run_id = $terminalSnapshot.lifecycle.run_id
++    }
+     if ($Mode -eq 'Load') {
+         Require ((Hash $slotPath) -ceq $creator.source_slot_sha256) 'CREATOR_SLOT_CHANGED_BEFORE_LOAD'
+         Require (-not (Test-Path -LiteralPath (Join-Path $dataRoot 'saves/slot_2.json'))) 'RESTORE_WITNESS_SLOT_NOT_EMPTY'
+@@ -539,7 +579,53 @@ try {
+     $result.process.observed_command_line = [string]$nativeProcess.CommandLine
+     $null = Button 'New Acc'
+     Capture 'title'
+-    if ($Mode -eq 'Load') {
++    if ($Mode -eq 'TerminalLoad') {
++        foreach ($prior in @($creator, $completion)) {
++            Require ($prior.process.pid -ne $child.Id -or $prior.process.started_utc -cne $result.process.started_utc) 'TERMINAL_LOAD_NOT_DISTINCT_PROCESS'
++        }
++        Invoke-UI (Button 'Log in') 'open completed autosave Load from Title'
++        $null = Wait-One 'completed autosave drawer' {
++            Nodes $window | Where-Object { (Visible $_) -and $_.Current.ControlType -eq [Windows.Automation.ControlType]::Button -and $_.Current.Name.StartsWith('Autosave, ', [StringComparison]::Ordinal) }
++        }
++        $scope = Backup-Scope
++        $autosaves = @(Nodes $scope | Where-Object {
++            (Visible $_) -and $_.Current.ControlType -eq [Windows.Automation.ControlType]::Button -and
++                $_.Current.Name.StartsWith('Autosave, ', [StringComparison]::Ordinal)
++        })
++        Require ($autosaves.Count -eq 1) 'TERMINAL_AUTOSAVE_DRAWER_AMBIGUOUS'
++        Invoke-UI $autosaves[0] 'select completed autosave'
++        Capture 'terminal-autosave-selected'
++        Invoke-UI (Backup-Action 'Load') 'load completed autosave'
++        # A genuine COMPLETED restore drains return_completed to Title without replay.
++        # Require the visible Backup drawers to disappear, not just the pre-existing Title.
++        $null = Wait-One 'Title after completed autosave Load' {
++            $drawers = @(Nodes $window | Where-Object {
++                (Visible $_) -and $_.Current.ControlType -eq [Windows.Automation.ControlType]::Button -and
++                    $_.Current.Name -cmatch '^(Autosave|Quick|Slot [1-7]), '
++            })
++            if ($drawers.Count -eq 0) { Actions $window 'New Acc' }
++        }
++        Capture 'terminal-load-return-title'
++        $terminalJournalAfter = Read-Json $continuationPath
++        $priorOperations = $terminalJournalBefore.operations
++        $newOperations = @($terminalJournalAfter.operations.Keys | Where-Object { -not $priorOperations.Contains($_) })
++        Require ($newOperations.Count -eq 1 -and $terminalJournalAfter.operations.Count -eq $priorOperations.Count + 1) 'TERMINAL_RESTORE_OPERATION_COUNT'
++        foreach ($id in $priorOperations.Keys) {
++            Require ($terminalJournalAfter.operations.Contains($id) -and
++                (Canonical $terminalJournalAfter.operations[$id]) -ceq (Canonical $priorOperations[$id])) 'TERMINAL_RESTORE_CHANGED_PRIOR_OPERATION'
++        }
++        $operation = $terminalJournalAfter.operations[$newOperations[0]]
++        Require ($operation.kind -ceq 'scene_restore' -and $operation.stage -ceq 'completed' -and
++            $operation.activation_state -ceq 'acknowledged' -and $operation.source_locator.slot_id -ceq 'autosave' -and
++            $operation.source_locator.checkpoint_id -ceq $terminalSnapshot.checkpoint_id -and
++            (Canonical $operation.selected_document) -ceq (Canonical $terminalDocument)) 'TERMINAL_RESTORE_NOT_EXACT_ACKNOWLEDGED_AUTOSAVE'
++        Copy-Item -LiteralPath $continuationPath -Destination (Join-Path $output 'terminal-continuation-after.json')
++        $result.terminal_restore_transaction_id = $newOperations[0]
++        Require ((Hash $autosavePath) -ceq $result.terminal_source_sha256) 'TERMINAL_LOAD_REWROTE_AUTOSAVE'
++        Require ((Canonical (Read-Json $profilePath)) -ceq (Canonical $terminalProfile)) 'TERMINAL_LOAD_CHANGED_PROFILE_OR_GALLERY'
++        $result.terminal_return_observed = $true
++        End-Process $true
++    } elseif ($Mode -eq 'Load') {
+         Require ($creator.process.pid -ne $child.Id -or $creator.process.started_utc -cne $result.process.started_utc) 'LOAD_NOT_DISTINCT_PROCESS'
+         Invoke-UI (Button 'Log in') 'open selected-slot Load from Title'
+         $null = Wait-One 'saved slot drawer' { Nodes $window | Where-Object { (Visible $_) -and $_.Current.ControlType -eq [Windows.Automation.ControlType]::Button -and $_.Current.Name -cmatch '^Slot 1, ' } }
+@@ -631,6 +717,25 @@ try {
+     }
+     if ($Mode -eq 'Load') { Require ((Hash $slotPath) -ceq $creator.source_slot_sha256) 'SOURCE_SLOT_MUTATED' }
+     if ($Mode -eq 'Create') { Require ((Hash $slotPath) -ceq $result.source_slot_sha256) 'SOURCE_SLOT_MUTATED_ON_EXIT' }
++    if ($Mode -eq 'Load') {
++        Require ((Hash $autosavePath) -ceq (Hash (Join-Path $output 'completed-autosave.json'))) 'COMPLETED_AUTOSAVE_CHANGED_ON_EXIT'
++        Require ((Canonical (Read-Json $profilePath)) -ceq (Canonical $completedProfile)) 'COMPLETED_PROFILE_CHANGED_ON_EXIT'
++        $result.completed_autosave_sha256 = Hash $autosavePath
++        $result.completed_profile_sha256 = Hash $profilePath
++        $result.witness_slot_sha256 = Hash (Join-Path $dataRoot 'saves/slot_2.json')
++        $result.completed_continuation_sha256 = Hash (Join-Path $dataRoot 'saves/desktop-continuation-operations.json')
++        Copy-Item -LiteralPath (Join-Path $dataRoot 'saves/desktop-continuation-operations.json') -Destination (Join-Path $output 'completed-continuation.json')
++    }
++    if ($Mode -eq 'TerminalLoad') {
++        Require ((Hash $continuationPath) -ceq (Hash (Join-Path $output 'terminal-continuation-after.json'))) 'TERMINAL_EXIT_CHANGED_CONTINUATION'
++        Require ((Hash $autosavePath) -ceq $result.terminal_source_sha256) 'TERMINAL_EXIT_REWROTE_AUTOSAVE'
++        Require ((Canonical (Read-Json $profilePath)) -ceq (Canonical $terminalProfile)) 'TERMINAL_EXIT_CHANGED_PROFILE_OR_GALLERY'
++        Require ((Hash $slotPath) -ceq $creator.source_slot_sha256 -and
++            (Hash (Join-Path $dataRoot 'saves/slot_2.json')) -ceq $completion.witness_slot_sha256) 'TERMINAL_LOAD_MUTATED_MANUAL_SLOTS'
++        Copy-Item -LiteralPath $autosavePath -Destination (Join-Path $output 'terminal-autosave-after.json')
++        $result.terminal_autosave_unchanged = $true
++        $result.terminal_profile_and_gallery_unchanged = $true
++    }
+     Require (Test-Path -LiteralPath $log -PathType Leaf) 'GAME_LOG_MISSING'
+     $logText = (Get-Content -LiteralPath $log -Raw -Encoding utf8) + "`n" + $stdoutRead.GetAwaiter().GetResult() + "`n" + $stderrRead.GetAwaiter().GetResult()
+     Require ($logText -notmatch '(?m)SCRIPT ERROR:|^\s*ERROR:|STARTUP_FAILED|Unicode parsing error|Unexpected NUL character') 'GAME_ERROR_LOG'
