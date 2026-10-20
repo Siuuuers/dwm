@@ -11,15 +11,18 @@ first. Older cast, Group and calendar references below keep historical scope.
 | Week direction, source scope and dependencies | [Working plot](priscilla-seven-day-working-plot.md) | AUDITIONING; not a second Matrix. |
 | Day 1 | [Photo and book](day-1-photo-book-working-draft.md) | Complete AUDITIONING reading copy: integrated self-talk, photo Yes/default, five continuations, private coda and bounded review; not executable DTL. |
 | Day 2 | [Return and bar](../relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md) | AUDITIONING five-result family after Day 1 D, one optional thought, and three competing D treatments including the latest chosen stay; other intakes remain open. |
-| Day 3 | [Sylvia event and relationship forks](day-3-sylvia-fork-working-draft.md) | AUDITIONING shared encounter and two complete bounded A–E fork families after Day 1 D → Day 2 D stay. Zero shared Challenges; one in each mutually exclusive continuation. Other intakes and the remaining day/week stay open. |
+| Day 3 | [Sylvia event and relationship forks](day-3-sylvia-fork-working-draft.md) | AUDITIONING shared encounter and two complete bounded A–E fork families after Day 1 D → Day 2 D stay; current motive/voice/cinematic review and focused prose repair. Zero shared Challenges; one in each mutually exclusive continuation. Other intakes and the remaining day/week stay open. |
 
-**Current Day 3 fork Challenges and fuller readings, 2026-10-20:** [read the checkpoint](priscilla-seven-day-working-plot.md#current-day-3-fork-challenges-and-fuller-branch-readings-2026-10-20).
-The shared exhibition has no Challenge; its actual consequence is common on the
-leading intake. The separate relationship thought leads to a complete bounded
-P–L or P–S family with its own optional Challenge, private attention, actionable
-impulse and result-dependent aftermath. Two opportunities are authored and one
-is available in a reading. E retains C's human conduct and adds private recognition.
-The earlier shared A–E design is superseded, not performed unseen.
+**Current Day 3 motive, voice and cinematic review, 2026-10-20:** [read the checkpoint](priscilla-seven-day-working-plot.md#current-day-3-motive-voice-and-cinematic-review-2026-10-20).
+The complete available shared and both A–E families have no identified hard
+collision with the controlling bibles. The focused revision clarifies the card's
+physical origin and the gallery outing, strengthens Sylvia's practical voice,
+makes two existing social/physical actions visible, and cuts redundant explanations.
+The owner records different forms of intensity and remaining craft risks without
+claiming measured immersion or virality.
+
+The zero-shared/two-authored/one-reachable Challenge architecture, separate
+relationship thought, result consequences and E contract remain unchanged.
 The [recurrence revision](priscilla-seven-day-working-plot.md#current-days-13-recurrence-revision-2026-10-20)
 still governs unchanged Day 1–2 cuts. Existing owners and Git retain the versions;
 delivery uses the current GitHub link without another downloadable copy.

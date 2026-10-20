@@ -1,36 +1,40 @@
 # Story workspace
 
-## Current Day 3: Challenges inside the relationship forks, 2026-10-20
+## Current Day 3: motive, voice and cinematic review, 2026-10-20
 
-Read the [latest checkpoint](auditions/priscilla-seven-day-working-plot.md#current-day-3-fork-challenges-and-fuller-branch-readings-2026-10-20)
-and [Day 3 owner](auditions/day-3-sylvia-fork-working-draft.md). The owner's
-placement correction is **zero shared Challenges → the separate Yes/default
+Read the [latest checkpoint](auditions/priscilla-seven-day-working-plot.md#current-day-3-motive-voice-and-cinematic-review-2026-10-20)
+and [Day 3 owner](auditions/day-3-sylvia-fork-working-draft.md). The review covers
+the complete available shared encounter and both bounded A–E fork families on
+Day 1 D → Day 2 D staying. No hard collision with the controlling current bibles
+was identified; the scene still needed clearer physical origins, more distinctive
+Sylvia conduct and fewer explanations of actions already visible.
+
+Sylvia now visibly makes the label from a gallery leaflet. The paintings provide
+the outing's ordinary occasion; Priscilla's interest in Sylvia diverts it. The
+helper's interrupted departure, withdrawn touch and discarded card retain their
+actual consequence. Selected cuts tighten the exit and cinema; Sylvia's existing
+aisle arrangement becomes audible, the café gets an actual question, and Lavinia's
+already-authored throw is explicitly visible. Section 8 of the owner records the
+reasons, source scope and remaining weaknesses.
+
+The architecture stays **zero shared Challenges → the separate Yes/default
 relationship thought → one optional Challenge in the selected continuation**.
-Two Day 3 opportunities are authored; one is reachable in a particular reading.
+Two opportunities are authored, one reachable in a reading. Both fork families
+retain their actual outcomes, private aftermath and C-plus-recognition E contract.
+The gallery's cold harm, P–L's physical eruption and P–S's attention reversal
+offer different kinds of intensity; no audience or virality test is claimed.
 
-The shared invented exhibition, Priscilla's insinuation, the helper's lost time,
-Sylvia's withdrawn touch and the discarded card are now common authored conduct
-on the leading Day 1 D → Day 2 D-staying intake. This substantively retires the
-old shared A–E proposal; it is not a relabeled ordinary result or universal history.
-
-Both forks now have **complete bounded A–E prose readings**, with common
-pleasure, an actionable local thought, a result-dependent consequence and private
-aftermath. P–L develops the flowers, walk, grip and coffee invitation into distinct
-walk/café/public-rupture outcomes. P–S extends the cinema entrance through offered
-contact, divided attention, a request and Sylvia's actual response. E preserves
-C's human encounter and adds its own first recognition on this intake.
-
-The [Day 1](auditions/day-1-photo-book-working-draft.md) recording breach and
+The [Day 1](auditions/day-1-photo-book-working-draft.md) and
 [Day 2](relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md)
-meal, held hair and cold-chicken cut remain unchanged. Exact new acts, words,
-contact, result mappings, timing and late-Day-3 route placement remain
-**AUDITIONING**. Other incoming histories, the remaining day/week, full Sylvia
-plotting, whole-week DTL preparation and protected historical holds remain open.
+prose remains unchanged. Exact new words and staging remain **AUDITIONING**.
+Other intakes, the remaining day/week, sustained Sylvia plotting, complete DTL
+and protected historical holds remain open. No Bible amendment is required for
+these local repairs.
 
 **Capture destination:** five existing Markdown files in [PR #41](https://github.com/Siuuuers/dwm/pull/41),
 under standing Markdown/push authorization. Use the current GitHub owner; no new
-downloadable copy is produced. The [preceding complete packet](https://github.com/Siuuuers/dwm/blob/761320696042eca8ab0f2c3bb51027e1a956e4bb/story/auditions/day-3-sylvia-fork-working-draft.md)
-and its reasons remain in Git. The owner records the actual review and pacing scope.
+downloadable copy is produced. The [reviewed predecessor](https://github.com/Siuuuers/dwm/blob/13837210f22742e9cdaf17e6b62bf048a43a29c4/story/auditions/day-3-sylvia-fork-working-draft.md)
+retains its earlier exact prose, counts and review scope in Git.
 
 ## Current Day 3 Sylvia meeting and fork audition, 2026-10-19
 

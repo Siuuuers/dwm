@@ -1,37 +1,44 @@
 # Priscilla–Lavinia: working home and restart point
 
-## Day 3: one Challenge inside each relationship continuation, 2026-10-20
+## Day 3: motive, voice and cinematic review, 2026-10-20
 
-Read the [latest checkpoint](../../auditions/priscilla-seven-day-working-plot.md#current-day-3-fork-challenges-and-fuller-branch-readings-2026-10-20),
+Read the [latest checkpoint](../../auditions/priscilla-seven-day-working-plot.md#current-day-3-motive-voice-and-cinematic-review-2026-10-20),
 [Day 2 family](auditions/day-2-return-bar-working-draft.md) and
 [shared Day 3 owner](../../auditions/day-3-sylvia-fork-working-draft.md).
-The leading intake remains Day 1 D → Day 2 D staying. Those earlier scenes
-are unchanged; no visible injury, private Sylvia knowledge or offscreen repair is inferred.
+The complete available shared encounter and both A–E fork families have been
+reviewed against the controlling character, relationship and style sources.
+No hard canon collision was identified; that does not make every exchange equally
+distinctive or the current partial day a finished scene sequence.
 
-Day 3 has no shared Challenge. The exhibition's complete local consequence
-is common authored conduct on this intake, superseding the former shared A–E
-alternatives. The later Yes → P–S/default → P–L thought selects the storyline;
-each continuation then has one local Challenge. Two are authored, one is reachable,
-and neither relationship requires starting a board.
+The revised opening visibly establishes Sylvia's label-making and the ordinary
+gallery outing. Priscilla watches what Sylvia does; their chosen company remains
+a sufficient occasion without an added errand or a Lavinia briefing. The shared
+helper consequence stays true. The cinema gives Sylvia's existing practical
+arrangement her own spoken request and removes explanations of jealousy already
+enacted. In P–L, an ordinary café question becomes audible and Lavinia's already
+authored flower throw is explicitly visible.
 
-The P–L prefix keeps the enjoyed flowers, circular walk and bicycle, then puts
-the painful grip and its actual release before **I could accept the invitation**.
-The complete local family authors future coffee intention in A, a declined
-invitation in B, actual café company by particular agreement in C/E, and D's
-public overriding of Lavinia's refusal, thrown flowers, lost invitation and
-changed wanted proximity. The grip remains true in every result.
+P–L retains the enjoyed gift, walk and bicycle, the painful grip and its release,
+then **I could accept the invitation**. A keeps future coffee intention, B the
+declined invitation, C/E the actual café by particular agreement, and D the
+overridden refusal, thrown flowers, lost invitation and changed wanted proximity.
+Earlier pain and the public refusal are not settled by the final touch.
 
-P–S now contains a complete bounded cinema encounter and local family, with
-its own attention conflict, private thoughts and Sylvia's autonomous responses.
-The two forks keep their different events and knowledge. E supplies first
-recognition here; earlier-aware adaptations are not complete other-intake readings.
+Day 3 still has no shared Challenge. The separate Yes → P–S/default → P–L
+thought selects a continuation, with one optional Challenge in each. Two are
+authored and one is reachable. Both bounded families retain their distinct
+events, private thoughts and C-plus-first-recognition E construction. The leading
+intake remains Day 1 D → Day 2 D staying; those earlier scenes are unchanged.
+
+Section 8 of the owner records the card's function, voice findings, different
+forms of intensity and the risk of repeating harm followed too quickly by renewed
+company. These are craft judgments, not measured immersion or virality.
 
 The existing [PR #41](https://github.com/Siuuuers/dwm/pull/41) captures this
-five-file revision under standing authorization, with Git-only delivery.
-Exact new dialogue, acts, contact, mappings, timing and placement remain
-**AUDITIONING**. Other intakes, the remaining Day 3, Sylvia's sustained storyline,
-the identical P–L ending's truthful carry and whole-week preparation remain open.
-The owner records the bounded review; protected historical holds keep their scope.
+five-file revision under standing authorization, with Git-only delivery. Exact
+new words, staging and cuts remain **AUDITIONING**. Other intakes, the remaining
+day/week, sustained P–S plotting, the identical P–L ending's truthful carry and
+whole-week preparation remain open. Protected historical holds keep their scope.
 
 ## Day 3 Sylvia meeting and Lavinia continuation, 2026-10-19
 
