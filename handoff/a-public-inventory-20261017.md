@@ -1,3 +1,13 @@
+# Gallery caption focused run passed — result review and canonical inventory pending
+
+20 October2026. External C6286676011 cleared exact source7aee979d/tree f37214d6 and workflow blobc62e37f0. A installed controlleraab45ec6 with expected-head protection, launching ONE focused run39393228524/job118529544699: SUCCESS. **542 checks,95 samples(5 connected +90 projection),23 setup receipts,5 playback attempts, import/render exits0**. Original8818887byte ZIP retained as13 exact parts; SHA25661f5eda1ce4b4ec7ecca5eda0764d6d0d2d9993892a40bdadcb921449770c5ee and all101 members independently verified. Three representative captures visually inspected; no engine rerun.
+
+[Concrete evidence, reproduction and limits](../evidence/phase_2r/inventory_refresh_20261020/gallery-caption-run39393228524/README.md). External C result/archive review remains before integration. Canonical cloud inventory regeneration is still required for exactly GameState capture_run_snapshot_input361→380 and SaveManager lexical initialize66→68. Prepared inventory-controller.yml is REVIEW-ONLY, uninstalled/unexecuted; scanner/contracts/manifests unchanged. No hand edits to generated inventories.
+
+Product2c188cd5 remains unchanged; controlleraab45ec6 is installed, so avoid incidental PR30 pushes that could relaunch this focused test. Ordinary Windows39393228760 was naturally triggered separately; no broad acceptance claim. Register task closed; unsupported dark-Alone integration definitions unqualified. Native exported delivery/33.179067s latency remain open. Draft/unmerged; master/integration/release unchanged.
+
+---
+
 # Supported Gallery caption candidate — external C review pending
 
 20 October 2026. Director6286370300 accepted stale test setup and authorized this bounded TEST-only candidate. Source7aee979d/treef37214d6 uses normal Alone core/primary versions, one coherent catalogue/native programme, complete setup receipts and exact scroll/version checks. No production owner/guard, shared historical helper or integration-suite repair. Existing five connected attempts and90 projection statuses retained.
