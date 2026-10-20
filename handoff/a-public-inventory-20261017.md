@@ -1,3 +1,13 @@
+# Native delivery source reconciled — ordinary deadline proposal prepared
+
+20 October2026. Director6288998596 consumed. Product83da is compared by exact selected blobs with original/later official package sources and timing393 frozen game/harness. Core terminal owners have no new change establishing resolution; frozen diagnostic runtime differs materially from current product. Existing cost/authority analysis and rejected anchor experiment are reused, with no new performance claim.
+
+[Concrete proposal and source reconciliation](../evidence/phase_2r/native_delivery_proposal_20261020/README.md): ordinary Wait-One can accept a result returned after its30s deadline. An inert proposed driver changes only this function with post-Window/post-Find/final-return guards, plus the retained four-case fixture. This is delivery-evidence correctness, not a speedup. Source prepared only; no PowerShell/Godot execution, engine build, native/broad dispatch or production mutation. External C/Director decision is next; no automatic native retry follows. Fresh outgoing validation, authority, receipts/History and physical commit semantics are untouched.
+
+Native persisted completion→Title→fresh Load→clean exit and diagnostic33.179067s remain open. C owns the independent six-case coverage lane; the previous A map stays available. Product83da/controller6d911b68/master/integration unchanged, draft/unmerged. Earlier proposals below are historical where superseded.
+
+---
+
 # Legacy journey coverage mapped — supported gaps preserved
 
 20 October 2026. Read-only follow-up to C6288750841: all six legacy journey cases now have an explicit disposition. Retired desktop/calendar/Hospital orchestration is separated from accepted scene terminal/retry/board recovery and private Practice milestones. Unique gaps remain: actual Gallery replay completion, native active-board Quick Save/Load consent and restoration, rendered empty/historical Practice journeys, and full frozen-spec equality. Fixed neutral-ending evidence does not qualify conditional ending selection.

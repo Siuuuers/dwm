@@ -1,0 +1,284 @@
+{
+  "refs": {
+    "current": "83da885cbbd3e1597e3a4887195b3e793ceb2e3c",
+    "original_official": "c97ba59ff08644b3aeca82ab567dc39d623327eb",
+    "later_official": "bb167aa1b5692f6bf5ceb6789201f38d4f86360a",
+    "timing_frozen": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+    "timing_harness": "d37ad1f6d3c0148205c1b4d21444d05d01e7cca6"
+  },
+  "scope": "Selected runtime owners and ordinary harness; not whole-tree or binary equivalence",
+  "files": [
+    {
+      "path": "autoload/GameState.gd",
+      "blobs": {
+        "current": "ca7fccac2344c9d59b21e101d5ac8930540681e3",
+        "original_official": "ca7fccac2344c9d59b21e101d5ac8930540681e3",
+        "later_official": "ca7fccac2344c9d59b21e101d5ac8930540681e3",
+        "timing_frozen": "f3ad6905609566025e356747f5873da7ad2290ba",
+        "timing_harness": "f3ad6905609566025e356747f5873da7ad2290ba"
+      },
+      "matches_current": {
+        "original_official": true,
+        "later_official": true,
+        "timing_frozen": false,
+        "timing_harness": false
+      }
+    },
+    {
+      "path": "autoload/DialogicBridge.gd",
+      "blobs": {
+        "current": "00d009b6d146f66e34a71c5e55bba2ad3ed1fb4d",
+        "original_official": "00d009b6d146f66e34a71c5e55bba2ad3ed1fb4d",
+        "later_official": "00d009b6d146f66e34a71c5e55bba2ad3ed1fb4d",
+        "timing_frozen": "6542701617c214f5de9486e7558da03c3c2b6787",
+        "timing_harness": "6542701617c214f5de9486e7558da03c3c2b6787"
+      },
+      "matches_current": {
+        "original_official": true,
+        "later_official": true,
+        "timing_frozen": false,
+        "timing_harness": false
+      }
+    },
+    {
+      "path": "autoload/ApplicationBootstrap.gd",
+      "blobs": {
+        "current": "81310606acff88c536a17582b2c03a2dc2e4206e",
+        "original_official": "81310606acff88c536a17582b2c03a2dc2e4206e",
+        "later_official": "81310606acff88c536a17582b2c03a2dc2e4206e",
+        "timing_frozen": "81310606acff88c536a17582b2c03a2dc2e4206e",
+        "timing_harness": "81310606acff88c536a17582b2c03a2dc2e4206e"
+      },
+      "matches_current": {
+        "original_official": true,
+        "later_official": true,
+        "timing_frozen": true,
+        "timing_harness": true
+      }
+    },
+    {
+      "path": "scripts/application/run/SaveManagerCheckpointPort.gd",
+      "blobs": {
+        "current": "9306b21bd1e92e1c81c25a709c89470b4e2d8179",
+        "original_official": "37df70df455d7b8c49780bedb27a7ada25e5117a",
+        "later_official": "37df70df455d7b8c49780bedb27a7ada25e5117a",
+        "timing_frozen": "9306b21bd1e92e1c81c25a709c89470b4e2d8179",
+        "timing_harness": "9306b21bd1e92e1c81c25a709c89470b4e2d8179"
+      },
+      "matches_current": {
+        "original_official": false,
+        "later_official": false,
+        "timing_frozen": true,
+        "timing_harness": true
+      }
+    },
+    {
+      "path": "scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd",
+      "blobs": {
+        "current": "5cb4ada73c8faa8ad22405447266ad566f1aa87e",
+        "original_official": "5cb4ada73c8faa8ad22405447266ad566f1aa87e",
+        "later_official": "5cb4ada73c8faa8ad22405447266ad566f1aa87e",
+        "timing_frozen": "5cb4ada73c8faa8ad22405447266ad566f1aa87e",
+        "timing_harness": "5cb4ada73c8faa8ad22405447266ad566f1aa87e"
+      },
+      "matches_current": {
+        "original_official": true,
+        "later_official": true,
+        "timing_frozen": true,
+        "timing_harness": true
+      }
+    },
+    {
+      "path": "scripts/infrastructure/save/CheckpointJournal.gd",
+      "blobs": {
+        "current": "4e6b501aff9705c064e6a4b15d4b2a952006448b",
+        "original_official": "4e6b501aff9705c064e6a4b15d4b2a952006448b",
+        "later_official": "4e6b501aff9705c064e6a4b15d4b2a952006448b",
+        "timing_frozen": "4e6b501aff9705c064e6a4b15d4b2a952006448b",
+        "timing_harness": "4e6b501aff9705c064e6a4b15d4b2a952006448b"
+      },
+      "matches_current": {
+        "original_official": true,
+        "later_official": true,
+        "timing_frozen": true,
+        "timing_harness": true
+      }
+    },
+    {
+      "path": "scripts/domain/narrative/SceneEventContract.gd",
+      "blobs": {
+        "current": "a37cd11d3409c5606239fad03c84aefb6749853f",
+        "original_official": "a37cd11d3409c5606239fad03c84aefb6749853f",
+        "later_official": "a37cd11d3409c5606239fad03c84aefb6749853f",
+        "timing_frozen": "30a65a65cab298b36e01eeee82362888339f2ed1",
+        "timing_harness": "30a65a65cab298b36e01eeee82362888339f2ed1"
+      },
+      "matches_current": {
+        "original_official": true,
+        "later_official": true,
+        "timing_frozen": false,
+        "timing_harness": false
+      }
+    },
+    {
+      "path": "scripts/domain/run/RunSnapshotSchema.gd",
+      "blobs": {
+        "current": "1759efa35a07df81bd39a256490604be1356e488",
+        "original_official": "1759efa35a07df81bd39a256490604be1356e488",
+        "later_official": "1759efa35a07df81bd39a256490604be1356e488",
+        "timing_frozen": "b9608a523f788b90f87d8e556f88d485394b6e8b",
+        "timing_harness": "b9608a523f788b90f87d8e556f88d485394b6e8b"
+      },
+      "matches_current": {
+        "original_official": true,
+        "later_official": true,
+        "timing_frozen": false,
+        "timing_harness": false
+      }
+    },
+    {
+      "path": "scripts/infrastructure/save/SaveDocumentSchema.gd",
+      "blobs": {
+        "current": "44f7ebcb05d4b3fd0984018a8ac272999be67791",
+        "original_official": "44f7ebcb05d4b3fd0984018a8ac272999be67791",
+        "later_official": "44f7ebcb05d4b3fd0984018a8ac272999be67791",
+        "timing_frozen": "05be052983999d0757e16a942f38a6b7358286f7",
+        "timing_harness": "05be052983999d0757e16a942f38a6b7358286f7"
+      },
+      "matches_current": {
+        "original_official": true,
+        "later_official": true,
+        "timing_frozen": false,
+        "timing_harness": false
+      }
+    },
+    {
+      "path": "scripts/ui/EndingScene.gd",
+      "blobs": {
+        "current": "ae9bf01b2692213cfadeea7ffde81c66db3120cf",
+        "original_official": "ae9bf01b2692213cfadeea7ffde81c66db3120cf",
+        "later_official": "ae9bf01b2692213cfadeea7ffde81c66db3120cf",
+        "timing_frozen": "dec4979b1d6331a22aac268b4b2a926e70a601eb",
+        "timing_harness": "dec4979b1d6331a22aac268b4b2a926e70a601eb"
+      },
+      "matches_current": {
+        "original_official": true,
+        "later_official": true,
+        "timing_frozen": false,
+        "timing_harness": false
+      }
+    },
+    {
+      "path": "scripts/ui/BackupApp.gd",
+      "blobs": {
+        "current": "69be339643d27ab6e35efb945e3505915ad2cbb1",
+        "original_official": "9a092270e789a9b25c4134133b0c4e3405af42b4",
+        "later_official": "e856148cef98795a460e0bd637f1a2b3c48d0e35",
+        "timing_frozen": "69be339643d27ab6e35efb945e3505915ad2cbb1",
+        "timing_harness": "69be339643d27ab6e35efb945e3505915ad2cbb1"
+      },
+      "matches_current": {
+        "original_official": false,
+        "later_official": false,
+        "timing_frozen": true,
+        "timing_harness": true
+      }
+    },
+    {
+      "path": "scripts/application/backup/BackupPresentationPort.gd",
+      "blobs": {
+        "current": "4524984d3ef3e74bdcbab1c296232a603f0eb040",
+        "original_official": "aae70e9b6be376ee2b36340f5d408810bcfd4a97",
+        "later_official": "aae70e9b6be376ee2b36340f5d408810bcfd4a97",
+        "timing_frozen": "4524984d3ef3e74bdcbab1c296232a603f0eb040",
+        "timing_harness": "4524984d3ef3e74bdcbab1c296232a603f0eb040"
+      },
+      "matches_current": {
+        "original_official": false,
+        "later_official": false,
+        "timing_frozen": true,
+        "timing_harness": true
+      }
+    },
+    {
+      "path": "scripts/ui/witnessed/WitnessedAccessibleCaption.gd",
+      "blobs": {
+        "current": "99539f8135a72ae24934a6088c3582239a30c36c",
+        "original_official": "99539f8135a72ae24934a6088c3582239a30c36c",
+        "later_official": "99539f8135a72ae24934a6088c3582239a30c36c",
+        "timing_frozen": "c29b306199bf1b8f9ce4352872ff569e2b3f0bd4",
+        "timing_harness": "c29b306199bf1b8f9ce4352872ff569e2b3f0bd4"
+      },
+      "matches_current": {
+        "original_official": true,
+        "later_official": true,
+        "timing_frozen": false,
+        "timing_harness": false
+      }
+    },
+    {
+      "path": "scripts/ui/witnessed/WitnessedCaptionLayer.gd",
+      "blobs": {
+        "current": "22c28568d6c6ffcf5938b276327196442ca5fb1f",
+        "original_official": "22c28568d6c6ffcf5938b276327196442ca5fb1f",
+        "later_official": "22c28568d6c6ffcf5938b276327196442ca5fb1f",
+        "timing_frozen": "5c85ce306366917c995db06794e18cb4035b2711",
+        "timing_harness": "5c85ce306366917c995db06794e18cb4035b2711"
+      },
+      "matches_current": {
+        "original_official": true,
+        "later_official": true,
+        "timing_frozen": false,
+        "timing_harness": false
+      }
+    },
+    {
+      "path": "scripts/ui/witnessed/WitnessedSourceCanvas.gd",
+      "blobs": {
+        "current": "67b1a299d4d4e3f6f2076a460548f56a180f1f30",
+        "original_official": "67b1a299d4d4e3f6f2076a460548f56a180f1f30",
+        "later_official": "67b1a299d4d4e3f6f2076a460548f56a180f1f30",
+        "timing_frozen": "db11d71216b47004da8a3207acaac73e964cffa6",
+        "timing_harness": "db11d71216b47004da8a3207acaac73e964cffa6"
+      },
+      "matches_current": {
+        "original_official": true,
+        "later_official": true,
+        "timing_frozen": false,
+        "timing_harness": false
+      }
+    },
+    {
+      "path": "tools/testing/Invoke-ExportedGameplay.ps1",
+      "blobs": {
+        "current": "f7fd42a506de572c6e1deffaa62809d68a103542",
+        "original_official": "bf48b5cfbe0d0f55cdc38994e00c304010419871",
+        "later_official": "150d76f95d1cd43ae3710a402a3cfac812519e4a",
+        "timing_frozen": "e91f912d8351ba7e38401b261d0fb2f0aa3032dc",
+        "timing_harness": "5d7dbdf72ae41195b5b02f4edce65cf12a1b6b1a"
+      },
+      "matches_current": {
+        "original_official": false,
+        "later_official": false,
+        "timing_frozen": false,
+        "timing_harness": false
+      }
+    },
+    {
+      "path": "export_presets.cfg",
+      "blobs": {
+        "current": "ccb9409ac1054d0b4b52e78df823c33f532e83fb",
+        "original_official": "ccb9409ac1054d0b4b52e78df823c33f532e83fb",
+        "later_official": "ccb9409ac1054d0b4b52e78df823c33f532e83fb",
+        "timing_frozen": "ccb9409ac1054d0b4b52e78df823c33f532e83fb",
+        "timing_harness": "ccb9409ac1054d0b4b52e78df823c33f532e83fb"
+      },
+      "matches_current": {
+        "original_official": true,
+        "later_official": true,
+        "timing_frozen": true,
+        "timing_harness": true
+      }
+    }
+  ]
+}
