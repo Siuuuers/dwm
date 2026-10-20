@@ -1,3 +1,40 @@
+# Source discovery and Windows startup qualified — C result review pending
+
+20 October 2026 Hong Kong. [Focused cloud run39375120098](https://github.com/Siuuuers/dwm/actions/runs/39375120098), job118471434292, completed **success**, attempt1. This supersedes the preparation-only status below. Exactly one focused run was triggered after external [C6283878411](https://github.com/Siuuuers/dwm/pull/36#issuecomment-6283878411) cleared the candidate and controller under Director6276663610.
+
+## Outcome and pins
+
+Fresh official Godot4.6.3 standard import now resolves EndingScene and SaveManagerCheckpointPort uniquely to their canonical production paths. The ignored retained-source subtree has no class-map entries. Both pre-export and post-export probes verify every one of20 historical manifest records through FileAccess length/SHA256 checks. Existing unchanged Windows helper passes isolated empty-profile native headless startup, package exclusions and117 runtime-data hashes.
+
+- Source `e55254dbbafbbfe90f0adc9098e9ca2b79c14708`; tree `e166e051cc5a19c5996f6d70d5c6f0005c5d4be7`; base product `29d9322b537c4a1f461b24c6ff23ce75ed8aa021`.
+- Product delta remains exactly one zero-byte source-subtree .gdignore. Runtime/archive/save/history owners unchanged.
+- Installed controller `cd494d3463b117720b7b5755007fbc5f952bfea8`; exact C-reviewed workflow blob `4572a3fb95423d75efb5083dd5ba565e0448ef9d`.
+- CI event `8c644b2faaf0fc672f00880572b6ea9a2d1c1f00` is separate from tested source and controller.
+- Native DWM.exe SHA256 `91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6`; PCK `246bf60eaf1cd07678a4ee46766a4f46f05493b4e1008d2efcf1e8ed2d2a1d4d`.
+- Validation-package ZIP99,453,780bytes, SHA256 `ba78a85da8312533968b0f4da5a24202e0dd67807835d7fca0a0d660c99c1fb3`.
+
+## Original evidence and verification
+
+[Result files](../evidence/phase_2r/inventory_refresh_20261020/source-discovery-run39375120098/) contain the offline verifier, verification.json, run/artifact metadata, original decoded job log and diagnostics.zip.
+
+Original Actions artifact12243022706, `windows-export-39375120098-1`:99,431,176bytes, SHA256 `93128a554128ef6c4bf2ccaee5d0894efbffadac1c0231a0e9a2fb4d177086cb`, matches live GitHub digest. Original complete ZIP is preserved as Library file `libfile_104957b346f48191a6cf4c18fc953ca9`, filename `source-discovery-39375120098.zip`; GitHub artifact expires2026-10-27T05:31:51Z. Use that identity to recover the exact original after expiration; do not reconstruct it from diagnostics.
+
+The repository's diagnostics.zip is explicitly a **derived20-member subset**, excluding only the99MB inner validation-package ZIP. Its member bytes are copied unchanged from the original; it is not the original artifact. Derived ZIP104,393bytes SHA256 `a3e3f93902f813b8ac25b077d4f3ceceef8d5aaab2bf32dd22ade88f517bb178`. verification.json records all21 original member lengths/hashes including the omitted package, which remains preserved inside the original.
+
+Offline checks passed: original digest/CRC/unique safe21-member census; all three canonical class maps; all three explicit zero-exit import/probe receipts; both20-record probe receipts; strict scans of ten specified execution logs; exact source/event/report pins; successful isolated profile/startup and117-file package receipt; inner package digest/CRC/exact17 declared files plus validation.json; every file length/SHA256; inner validation equals outer report excluding archive receipt. Independent internal reviewer inspected critical maps/logs/receipts and independently rehashed all17 packaged files, finding no blocker. This does not replace external C.
+
+Do not claim explicit exit receipts for every helper subprocess: the unchanged helper enforces actual process exit/timeout/log gates but records separate success-exit JSON only for the three controller import/probe processes. No GUT testcase/assertion total is assigned to this workflow.
+
+## Remaining gates and incidental CI
+
+External C must review this concrete result before A integrates the exact marker and reports into PR36. No additional Director round trip is needed after C no-blocker under existing authorization, but recheck heads and reconcile intervening changes. PR36 remains29d9322b, draft/unmerged. Master0c8b2384 and integration3ae6d913 are unchanged. No release or diagnostic-engine promotion.
+
+Automatic ordinary run39375120057 also started from the controller PR update; it was not a separate manual broad dispatch. Public API job118471434314 failed its game_state check with exit1; history aggregate failed prerequisites and downstream suites were skipped. Retained incidental job snapshot records these statuses; no new gameplay failure is inferred, no additional broad triage or rerun was opened.
+
+This closes the bounded candidate's source-discovery/exported-startup qualification, not whole-game acceptance. It does not establish archived scripts were packed in the original failure. Known33.179067s transition, rendered native ending/durable completion/Title and normal Load clean exit remain unresolved. C's stale ordered-ending fixture classification and historical-coverage mapping remain as recorded below.
+
+---
+
 # Source-discovery correction prepared — external C review gate (20 October 2026 Hong Kong)
 
 Director [6276663610](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6276663610) authorizes this bounded preparation and one focused cloud qualification after external C's no-blocker review. No new engine/PowerShell execution, controller installation or test dispatch occurred in this preparation.
