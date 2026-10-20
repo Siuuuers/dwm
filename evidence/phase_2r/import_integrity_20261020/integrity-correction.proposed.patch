@@ -1,0 +1,11 @@
+--- a/.github/workflows/scene-first-reveal-profile-diagnostic.yml
++++ b/.github/workflows/scene-first-reveal-profile-diagnostic.yml
+@@ -133,7 +133,7 @@
+         run: |
+           $ErrorActionPreference = 'Stop'
+           if ((git rev-parse HEAD).Trim() -cne $env:PRODUCT_SHA) { throw 'PRODUCT_PIN_CHANGED' }
+-          git diff-files --exit-code
++          git -c diff.autoRefreshIndex=false diff --exit-code
+           if ($LASTEXITCODE -ne 0) { throw 'TRACKED_PRODUCT_FILES_CHANGED' }
+           $changed=@(git diff HEAD --name-only)
+           if ($LASTEXITCODE -ne 0) { throw 'PRODUCT_DIFF_FAILED' }

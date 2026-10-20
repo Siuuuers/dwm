@@ -1,0 +1,35 @@
+{
+  "passed": true,
+  "cases": [
+    {
+      "case": "identical_bytes_changed_mtime",
+      "old": 1,
+      "proposed": 0,
+      "index_unchanged": true
+    },
+    {
+      "case": "same_length_metadata_change",
+      "proposed": 1,
+      "index_unchanged": true
+    },
+    {
+      "case": "binary_change",
+      "proposed": 1,
+      "index_unchanged": true
+    },
+    {
+      "case": "raw_crlf_change_binary_attribute",
+      "proposed": 1,
+      "index_unchanged": true
+    },
+    {
+      "case": "deletion",
+      "proposed": 1,
+      "index_unchanged": true
+    },
+    {
+      "case": "staged_change",
+      "caught_by_existing_HEAD_guard": true
+    }
+  ]
+}

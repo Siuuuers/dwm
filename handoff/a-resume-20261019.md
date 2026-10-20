@@ -1,3 +1,15 @@
+# Import reproduction complete; correction proposed, no further run authorized
+
+20 October 2026. C6294611362 cleared exact8ce72ca7. Installed controller `d47703368ad96c5ea0338b74b351f9d1c9cc1487` through protected update fromc49990ce. ONE import-only run39450025637/job118722059242 consumed; import and both captures passed, strict gate failed on actual project.godot mutation. No export/native attempt or retry.
+
+Candidate branch `codex/a-import-integrity-20261020` now retains result under `evidence/phase_2r/import_integrity_20261020/run39450025637/`. Original ZIP preserved byte-exact in eight numbered parts; SHA256 `4c802bcd75a55f6293b57c08d79b3d354dbd464bee4f9b64dfb910a9bf355e14`. All51 manifest payloads/52 members verified. Complete13,419-path census including997 tracked.import files: NO sidecar raw-byte changes; only Dialogic timeline dictionary cleared in project.godot; two disclosed gitlink index removals.34 generated untracked paths listed, bytes not retained. Console ObjectDB warning disclosed. Original990 reports remain unclassified retrospectively.
+
+Concrete inert correction `integrity-correction.proposed.patch` replaces stat-sensitive `git diff-files --exit-code` with `git -c diff.autoRefreshIndex=false diff --exit-code` against original delivery controllerc49990ce. Synthetic and independent Git fixtures verify identical-byte acceptance, true edits/deletion rejection, staged-change secondary guard, and exact unchanged index bytes; no local Godot/PowerShell. Rejected exploratory --patch flag is not candidate. Post-capture git status can refresh stat metadata; raw hashes establish unchanged bytes, not refreshed status.
+
+Next: C reviews evidence and exact predicate correction; Director scopes further verification/delivery. Integrated future controller must preserve reviewed capture before approved project-settings restore, strict raw-byte checks and always-upload evidence. No sidecar restore or ignore. Full export/native retry NOT authorized. Product staysc8358870, PR36 draft/unmerged; master/integration/runtime/save/history unchanged.
+
+---
+
 # Import-only diagnostic prepared — awaiting C review
 
 20 October 2026. Director PR30 comment 6293667852 authorizes one pinned import-only reproduction after C clears the exact delta. No second full export/native attempt is authorized. Candidate branch: `codex/a-import-integrity-20261020`; source helper commit `4d4f232da7e234dbbc55d69d34f98930cbc06594`. Read `evidence/phase_2r/import_integrity_20261020/README.md` and inert `controller.proposed.yml` at branch tip.
