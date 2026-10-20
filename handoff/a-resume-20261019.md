@@ -1,3 +1,15 @@
+# Corrected official attempt stopped after export — no retry
+
+21 October 2026 Hong Kong. Consumed Director6295116783/C6295625088 authorization. Controller `c0bb500fbbfdcc190c0a5a5a045f684d761cee88`, run39456588183 attempt1/job118744955669, productc8358870. Windows preparation/raw/settings/generated guards and export/package audit/headless smoke passed; final preparation failed `GENERATED_INPUT_SET_CHANGED_SINCE_IMPORT`. All four native phases skipped. No delivery/performance acceptance or retry.
+
+Result retained on `codex/a-corrected-delivery-20261020` under `evidence/phase_2r/corrected_delivery_20261020/run39456588183/`. Read README and verification.json. Original preparation ZIP preserved as2 parts (SHA2562fb26f5e4524115d1ee131f2c3f6f131c152214b579cc08e40f8f0676fb18090); delivery original including nested package as22 parts (SHA256db3ffefd94c8c5873134608045213849d2ce469e63d00736f800bcd16f7cf08a). All204+15 manifest payloads and17 package members verified. Package SHA256876ffa5b38f9b3fda75d9e92d73e198b7720fea06af77252eeae56702972fbf5. Source/log/provenance retained; originals not repacked.
+
+Final raw tracked changes0, only2 known gitlink index removals. Prior34 generated inputs unchanged;4 new20-byte tests/fixtures/dialogic/*.dtl.uid: gallery_collection, scene_author_option_slots, scene_challenge_recall, scene_partner_fork_template. PCK inventory2091 payload MD5s verified: those4 sidecars/source DTLs absent as entries, but packaged UID cache contains their source mappings. Do not infer zero influence from exclusion. Existing pack audit117 and headless smoke240 pass, ordinary journeys unexecuted.
+
+Next C reviews exact artifacts/failure/cache distinction; Director scopes narrow UID-generation/accounting continuation. No automatic retry, relaxed equality guard, broad UID exemption or new installation. Exact generation path/runtime relevance unresolved. Closed driver/terminal/deadline reviews remain reusable. No product/runtime/save/history change, merge/release/master/integration movement. Prior failed attempts remain unchanged.
+
+---
+
 # Corrected official delivery candidate prepared — awaiting C integrated review
 
 21 October 2026 Hong Kong /20 October UTC. Director PR30 6295116783 accepted46fbcf22 diagnostic and authorizes ONE corrected official Windows attempt after C clears the concrete integrated preparation delta. No repeat import-only campaign. C prior classification/predicate review6295084107 reused.

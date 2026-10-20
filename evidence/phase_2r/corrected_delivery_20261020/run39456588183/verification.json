@@ -1,0 +1,137 @@
+{
+  "run": 39456588183,
+  "job": 118744955669,
+  "archives": {
+    "preparation-original.zip": {
+      "sha256": "2fb26f5e4524115d1ee131f2c3f6f131c152214b579cc08e40f8f0676fb18090",
+      "bytes": 8649564,
+      "manifest_payloads_verified": 204,
+      "members": 205
+    },
+    "delivery-original.zip": {
+      "sha256": "db3ffefd94c8c5873134608045213849d2ce469e63d00736f800bcd16f7cf08a",
+      "bytes": 99413189,
+      "manifest_payloads_verified": 15,
+      "members": 16
+    }
+  },
+  "first_failed_step": "Always verify preparation after exporter before native phases",
+  "failure": {
+    "error": "GENERATED_INPUT_SET_CHANGED_SINCE_IMPORT"
+  },
+  "phase_summary": {
+    "before": "success",
+    "import": "success",
+    "load": "skipped",
+    "missing_import_process_receipt": false,
+    "helpers": "success",
+    "capability": "skipped",
+    "after": "success",
+    "acceptance_requires_C_result_review": true,
+    "restore": "success",
+    "terminal_load": "skipped",
+    "create": "skipped",
+    "export": "success",
+    "final": "failure"
+  },
+  "import_generated_count": 34,
+  "final_generated_count": 38,
+  "previous_generated_bytes_unchanged": true,
+  "generated_additions": [
+    {
+      "path": "tests/fixtures/dialogic/gallery_collection.dtl.uid",
+      "source": "tests/fixtures/dialogic/gallery_collection.dtl",
+      "source_blob": "6aaf6bf50b7a402ee160fd26f90f3c6c73a91726",
+      "text": "uid://d075juef7087h\n",
+      "bytes": 20,
+      "sha256": "6c4139bc9813308b8de2aa039e22c47c40d23d296a8c3e4d501b568a5e6672a6",
+      "classification": "excluded_development_metadata",
+      "source_is_pack_entry": false,
+      "sidecar_is_pack_entry": false,
+      "uid_cache_records": [
+        {
+          "uid": "8981881869005345843",
+          "path": "res://tests/fixtures/dialogic/gallery_collection.dtl"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/dialogic/scene_author_option_slots.dtl.uid",
+      "source": "tests/fixtures/dialogic/scene_author_option_slots.dtl",
+      "source_blob": "f22cedc38e20d0f625e6634b1919eb9bd03bce6c",
+      "text": "uid://djstrltosbmd2\n",
+      "bytes": 20,
+      "sha256": "3c74a49e940a4ad848b99aff73d36a25e937f14c1ef5616a3688b66d60596689",
+      "classification": "excluded_development_metadata",
+      "source_is_pack_entry": false,
+      "sidecar_is_pack_entry": false,
+      "uid_cache_records": [
+        {
+          "uid": "7829305032521955417",
+          "path": "res://tests/fixtures/dialogic/scene_author_option_slots.dtl"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/dialogic/scene_challenge_recall.dtl.uid",
+      "source": "tests/fixtures/dialogic/scene_challenge_recall.dtl",
+      "source_blob": "e8451bfebb1540bfc64852950b505fbaee6057b6",
+      "text": "uid://cd4te6262iwfu\n",
+      "bytes": 20,
+      "sha256": "5598e6cec979ac8728d1609227c0590b31722f72fd64aa3ef6081ca37dc78ed7",
+      "classification": "excluded_development_metadata",
+      "source_is_pack_entry": false,
+      "sidecar_is_pack_entry": false,
+      "uid_cache_records": [
+        {
+          "uid": "5044437290584708134",
+          "path": "res://tests/fixtures/dialogic/scene_challenge_recall.dtl"
+        }
+      ]
+    },
+    {
+      "path": "tests/fixtures/dialogic/scene_partner_fork_template.dtl.uid",
+      "source": "tests/fixtures/dialogic/scene_partner_fork_template.dtl",
+      "source_blob": "9b21591b596bc7e9320be0a72ef4424584fe7e71",
+      "text": "uid://cduuh4qgcbox6\n",
+      "bytes": 20,
+      "sha256": "d87c02cb9c79b6817d0f18f2173d223437942a1b768d2d117b53cc9a27d4df19",
+      "classification": "excluded_development_metadata",
+      "source_is_pack_entry": false,
+      "sidecar_is_pack_entry": false,
+      "uid_cache_records": [
+        {
+          "uid": "5025923841963524685",
+          "path": "res://tests/fixtures/dialogic/scene_partner_fork_template.dtl"
+        }
+      ]
+    }
+  ],
+  "final_tracked_change_count": 0,
+  "final_index_change_count": 2,
+  "package_archive": {
+    "file": "DWM-windows-x86_64-validation.zip",
+    "bytes": 99454946,
+    "sha256": "876ffa5b38f9b3fda75d9e92d73e198b7720fea06af77252eeae56702972fbf5"
+  },
+  "package_members_verified": 17,
+  "smoke": {
+    "ok": true,
+    "headless": true,
+    "executable": "DWM.exe",
+    "isolated_profile_created": true,
+    "iterations": 240
+  },
+  "pack_audit": {
+    "runtime_data_files_verified": 117,
+    "ok": true
+  },
+  "pck_entries_md5_verified": 2091,
+  "uid_cache_records": 2836,
+  "test_pack_entries": [
+    "tests/fixtures/dialogic/scene_seven_day_ending.dtl",
+    "tests/fixtures/dialogic/scene_seven_day_linear.dtl",
+    "tests/templates/scene_sequence/seven_day_order.json"
+  ],
+  "limitation": "UID-cache references are packaged metadata; absence of resource entries does not prove no runtime influence or permit acceptance. No native journey ran."
+}
