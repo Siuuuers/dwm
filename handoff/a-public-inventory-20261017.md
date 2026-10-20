@@ -1,3 +1,15 @@
+# Gallery repair integrated and ordinary CI observed — downstream startup mismatch reported
+
+20 October2026. Product83da885c integrates C6287046415's exact accepted caption fixture, canonical inventories and evidence with expected-head protection from2c188cd5. Natural run39395858652 confirms public inventories, exported startup, Gallery register and Gallery caption collection PASS. No focused rerun or manual broad dispatch.
+
+The next rendered-journey step fails all6 cases at startup: four require visible ComputerDesktop; two Practice probes time out awaiting desktop while reporting an active SceneHost/scene-route session. All6 exit1, no outer watchdog timeout; later Solo reading/selector steps are skipped. Original123110byte failure ZIP/64 member hashes retained. These are observed startup expectation mismatches, not six proven gameplay defects. No follow-on repair or production routing change.
+
+[Full observation, source anchors, original failure and next recommendation](../evidence/phase_2r/inventory_refresh_20261020/gallery-caption-post-integration39395858652/README.md). Per Director6286370300, stop this bounded repair at the new out-of-scope blocker. Recommend Director/C map these legacy scenario obligations to current supported SceneHost coverage before selecting adaptation/retirement. Preserve failures and unique coverage; do not blindly rename the startup assertion.
+
+PR30 controller6d911b68 untouched. Observation report branch only; product83da885c remains draft/unmerged. Master0c8b2384/integration3ae6d913 unchanged. Known33.179067s/native exported persisted completion→Title→fresh Load→clean exit remain open. C's inventory-import HTTP403/ObjectDB warning caveat remains recorded. No release or broad CI acceptance.
+
+---
+
 # Supported Gallery caption repair integrated — natural CI observation next
 
 20 October2026. External C [6287046415](https://github.com/Siuuuers/dwm/pull/36#issuecomment-6287046415) accepted concrete result9aa14a39 under Director6286370300. This publication integrates the exact four test/support files, two cloud-generated inventories and retained evidence/existing handoff updates onto unchanged product2c188cd5 with expected-head protection. No runtime, save, recovery, History, scanner, required-manifest or active product workflow changes.
