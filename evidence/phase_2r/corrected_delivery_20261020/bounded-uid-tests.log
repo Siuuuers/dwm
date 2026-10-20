@@ -1,0 +1,237 @@
+test_added_sidecars_cannot_share_uid (__main__.PreparationPolicy.test_added_sidecars_cannot_share_uid) ... /workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_allowed_single_addition_without_mapping_is_recorded (__main__.PreparationPolicy.test_allowed_single_addition_without_mapping_is_recorded) ... /workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_four_exact_additions_are_optional_and_accounted (__main__.PreparationPolicy.test_four_exact_additions_are_optional_and_accounted) ... /workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_generated_runtime_input_fails_and_is_retained (__main__.PreparationPolicy.test_generated_runtime_input_fails_and_is_retained) ... /workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_invalid_added_uid_fails_and_bytes_retained (__main__.PreparationPolicy.test_invalid_added_uid_fails_and_bytes_retained) ... /workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_known_settings_restore_and_excluded_generated_custody (__main__.PreparationPolicy.test_known_settings_restore_and_excluded_generated_custody) ... /workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_new_generated_input_after_export_fails (__main__.PreparationPolicy.test_new_generated_input_after_export_fails) ... /workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_package_required_and_malformed_cache_fails (__main__.PreparationPolicy.test_package_required_and_malformed_cache_fails) ... /workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_previous_generated_deletion_rejected (__main__.PreparationPolicy.test_previous_generated_deletion_rejected) ... /workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_previous_generated_mutation_rejected (__main__.PreparationPolicy.test_previous_generated_mutation_rejected) ... /workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_restored_boundary_still_rejects_permitted_late_path (__main__.PreparationPolicy.test_restored_boundary_still_rejects_permitted_late_path) ... /workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_same_path_other_uid_conflict (__main__.PreparationPolicy.test_same_path_other_uid_conflict) ... /workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_same_uid_other_path_conflict_retained (__main__.PreparationPolicy.test_same_uid_other_path_conflict_retained) ... /workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_sidecar_mutation_fails_with_exact_bytes (__main__.PreparationPolicy.test_sidecar_mutation_fails_with_exact_bytes) ... /workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_source_or_sidecar_pack_inclusion_fails (__main__.PreparationPolicy.test_source_or_sidecar_pack_inclusion_fails) ... /workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_staged_mutation_fails (__main__.PreparationPolicy.test_staged_mutation_fails) ... /workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_unexpected_untracked_file_fails (__main__.PreparationPolicy.test_unexpected_untracked_file_fails) ... /workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_unknown_settings_rewrite_fails_without_restoration (__main__.PreparationPolicy.test_unknown_settings_rewrite_fails_without_restoration) ... /workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/corrected_delivery_20261020/prepare_delivery.py:219: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 2.134s
+
+OK
+IMPORT_BASELINE_CAPTURED tracked=13
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_BASELINE_CAPTURED tracked=13
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_BASELINE_CAPTURED tracked=13
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_BASELINE_CAPTURED tracked=13
+IMPORT_POST_CAPTURED entries=1
+IMPORT_BASELINE_CAPTURED tracked=13
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_BASELINE_CAPTURED tracked=13
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_BASELINE_CAPTURED tracked=13
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_BASELINE_CAPTURED tracked=13
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_BASELINE_CAPTURED tracked=13
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_BASELINE_CAPTURED tracked=13
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_BASELINE_CAPTURED tracked=13
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_BASELINE_CAPTURED tracked=13
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_BASELINE_CAPTURED tracked=13
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_BASELINE_CAPTURED tracked=13
+IMPORT_POST_CAPTURED entries=2
+IMPORT_BASELINE_CAPTURED tracked=13
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_POST_CAPTURED entries=1
+IMPORT_BASELINE_CAPTURED tracked=13
+IMPORT_POST_CAPTURED entries=2
+IMPORT_BASELINE_CAPTURED tracked=13
+IMPORT_POST_CAPTURED entries=1
+IMPORT_BASELINE_CAPTURED tracked=13
+IMPORT_POST_CAPTURED entries=1

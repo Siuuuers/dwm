@@ -1,3 +1,13 @@
+# Bounded UID policy candidate ready for external C review
+
+21 October 2026 Hong Kong. Director PR30 comment6297698097 scopes the four-path post-export allowance on frozen productc8358870. Candidate on `codex/a-bounded-uid-20261021`; see [review and immutable pins](../evidence/phase_2r/corrected_delivery_20261020/bounded-uid-review.md). 18 offline Python/Git checks passed; actual retained package replay and independent internal source/evidence audits passed. Inherited ResourceWarnings disclosed. No local Godot/PowerShell or new cloud run.
+
+Only final generated-set equality changes to a four-exact-path allowance with prior bytes preserved, valid actual UID/source provenance, package exclusion and collision checks. Raw/index/settings/restoration guarantees and closed driver/exporter/native blocks retained. Active controller remainsc0bb500f; productc8358870, master41592fcc and integration unchanged.
+
+External C must clear BOTH retained run39456588183 classification and this concrete candidate before the already-conditionally-authorized ONE new official Windows attempt. Internal review is not C clearance. No workflow installation, automatic retry, merge/release or delivery/performance claim. Prior run remains failed; all four native phases were skipped. No PR coordination messages sent in this continuation.
+
+---
+
 # Corrected official attempt stopped after export — no retry
 
 21 October 2026 Hong Kong. Consumed Director6295116783/C6295625088 authorization. Controller `c0bb500fbbfdcc190c0a5a5a045f684d761cee88`, run39456588183 attempt1/job118744955669, productc8358870. Windows preparation/raw/settings/generated guards and export/package audit/headless smoke passed; final preparation failed `GENERATED_INPUT_SET_CHANGED_SINCE_IMPORT`. All four native phases skipped. No delivery/performance acceptance or retry.

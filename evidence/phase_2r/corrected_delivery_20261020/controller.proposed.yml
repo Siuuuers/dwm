@@ -22,8 +22,8 @@ jobs:
       PRODUCT_SHA: c8358870d3ece92d5f8cc7ba65aefe34a746be5c
       CANDIDATE_SHA: 8adc8c78fcbf25fa0df030391bac6f1d64073a01
       DRIVER_SHA256: 7a4bcd31aa4f340e76e0aee34c5857565d672ed38b3c66275fab525ea40ac21c
-      SOURCE_SHA: 55e5675eb683ae26c1bb16d511c435c0a1ec1272
-      PREPARATION_SHA256: 9235be503d2a7bd5d5216e203681a010a40409ab9cea37a06d2245c4cec501d9
+      SOURCE_SHA: 13c34ff20eec2430daad46a23e8a82fd6c691b7a
+      PREPARATION_SHA256: c62253edd0d15de024629f50cfce94e415e2dc41cc9a8fc84c19f2e8380e20e2
       CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
     steps:
       - uses: actions/checkout@v7
@@ -206,7 +206,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $PSNativeCommandUseErrorActionPreference = $false
           $output = Join-Path $env:RUNNER_TEMP 'preparation-evidence'
-          & python $env:PREPARATION_HELPER --phase final --root $env:GITHUB_WORKSPACE --output $output *> (Join-Path $output 'preparation-final.log')
+          & python $env:PREPARATION_HELPER --phase final --root $env:GITHUB_WORKSPACE --output $output --package (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/windows-export/DWM-windows-x86_64-validation.zip') *> (Join-Path $output 'preparation-final.log')
           $code = $LASTEXITCODE
           if ($code -ne 0) { throw "PREPARATION_FINAL_EXIT: $code" }
       - name: Ordinary Capability in fresh process

@@ -1,0 +1,18 @@
+{
+  "helper_source_commit": "13c34ff20eec2430daad46a23e8a82fd6c691b7a",
+  "helper_sha256": "c62253edd0d15de024629f50cfce94e415e2dc41cc9a8fc84c19f2e8380e20e2",
+  "controller_sha256": "c28e57ae77bd65afd601102683f7663f52afc6956d233a675b50f07a7265fef3",
+  "changed_step_blocks": [
+    "Always verify preparation after exporter before native phases"
+  ],
+  "unchanged_step_blocks": 22,
+  "changed_environment_pins": [
+    "SOURCE_SHA",
+    "PREPARATION_SHA256"
+  ],
+  "cloud_execution": false,
+  "external_C_clearance": false,
+  "offline_test_exit": 0,
+  "offline_test_command": "python test_prepare_delivery.py -v",
+  "offline_test_log": "bounded-uid-tests.log"
+}
