@@ -1,3 +1,15 @@
+# Gallery caption diagnosis — stale setup proposed; C disposition pending
+
+20 October 2026. Under Director6286021317, A traced the exact configure_reached_caption_collection request at product2c188cd55eccad94f9a6bbf139384548be0289ea. Historical Sylvia fixture entries cannot satisfy SoloReadingSession's current frozen-schema membership check: normal selected scene registration contains Day1..Day7 and ending.alone.normal. Expected reading_catalogue_invalid is SOURCE-INFERRED; original run39387121967 only captured ok=false. No new engine execution or runtime fix.
+
+[Full request, validation-order, PR1 comparison and coverage map](../evidence/phase_2r/inventory_refresh_20261020/gallery-caption-diagnosis/README.md). Independent internal coverage review agrees that native CaptionLayer acknowledgement, real Menu exit/physical History writes, refusal/uncertainty custody, exact return context and 90 rendered status combinations are not replaced by existing fake-playhead/fake-storage coverage. This is not external C acceptance.
+
+Next: external C reviews stale-setup disposition and bounded test-only redesign on a supported registered entry with a coherent native programme. Do not merely reuse the register availability seam, rename IDs, restore PR1 transient-discard behavior, remove the connected obligation, or alter production registration. No follow-on repair until disposition selected. A new diagnostic solely to recover the discarded code is not necessary for classification; exact first-branch attribution remains unobserved.
+
+Report branch only. Product2c188cd5/controllera3c37fb2/master0c8b2384/integration3ae6d913 unchanged; PR1 comparisona6decec3. No workflow launch, merge or release. Completed register repair stays closed. Known33.179067s latency and official exported persisted completion/Title/fresh Load/normal clean exit stay open and priority.
+
+---
+
 # Post-integration Gallery CI observation — 20 October 2026
 
 Product2c188cd55eccad94f9a6bbf139384548be0289ea integrated C6285722481's accepted repair under Director6284909302. Naturally triggered run39387121967 confirms public API surface job118509509013 SUCCESS, including unchanged committed-inventory verification, and Windows exported startup118512156463 SUCCESS. No new full-package audit repeated.

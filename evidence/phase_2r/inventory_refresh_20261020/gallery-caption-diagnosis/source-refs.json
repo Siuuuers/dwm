@@ -1,0 +1,94 @@
+{
+  "sources": [
+    {
+      "path": "tests/ui/render_gallery_caption_collection.gd",
+      "sha": "df618bd473a027511a3c6b77671b828ecb9c52ae",
+      "ref": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+    },
+    {
+      "path": "autoload/DialogicBridge.gd",
+      "sha": "00d009b6d146f66e34a71c5e55bba2ad3ed1fb4d",
+      "ref": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+    },
+    {
+      "path": "autoload/ApplicationBootstrap.gd",
+      "sha": "81310606acff88c536a17582b2c03a2dc2e4206e",
+      "ref": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+    },
+    {
+      "path": "scripts/narrative/SoloReadingSession.gd",
+      "sha": "0f37dc0e3130fa27593affc64548cbf1f0460c86",
+      "ref": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+    },
+    {
+      "path": "tests/support/EndingReadingFixture.gd",
+      "sha": "c24377a9a3e70411c6f15df1b0b3b14c94468a32",
+      "ref": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+    },
+    {
+      "path": "tests/support/EndingReadingTimelineCatalog.gd",
+      "sha": "585eeff7da08f1ecc0fbe48caa40e853d4c54a56",
+      "ref": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+    },
+    {
+      "path": "tests/fixtures/dialogic/ending_reading_catalogue.json",
+      "sha": "d5ccf0b0a00abb4dd83df5b2900938da0cb198cd",
+      "ref": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+    },
+    {
+      "path": "scripts/narrative/FrozenPresentationContext.gd",
+      "sha": "a0484a86388028961f6a6ad9698e4fba3237ca20",
+      "ref": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+    },
+    {
+      "path": "scripts/narrative/DialogicEntryManifest.gd",
+      "sha": "4c8a3abab8b683c3ef63af086f451a587fad68ba",
+      "ref": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+    },
+    {
+      "path": "data/manifests/scene_story_registration.json",
+      "sha": "4d277a17adf5285374a6cba4ad79747d1059d4d2",
+      "ref": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+    },
+    {
+      "path": "tests/integration/test_gallery_caption_collection.gd",
+      "sha": "56a31b013936da9143a927e00d43575decdb20aa",
+      "ref": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+    },
+    {
+      "path": "tests/integration/test_menu_gallery_host.gd",
+      "sha": "ef4c4f9ea5e08f9104a9b798a85499ac56a137ac",
+      "ref": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+    },
+    {
+      "path": "tests/integration/test_gallery_replay_status.gd",
+      "sha": "ba3b9b45ac992756f6b6b1847d30e5fa3562db8c",
+      "ref": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+    },
+    {
+      "path": ".github/workflows/windows-tests.yml",
+      "sha": "6efb7ab714a39a3e2672f0eab9da0e01d13c5695",
+      "ref": "2c188cd55eccad94f9a6bbf139384548be0289ea"
+    },
+    {
+      "path": "tests/ui/render_gallery_caption_collection.gd",
+      "sha": "7a20377544dd8c2a6be27a9bed167bd5393f73fb",
+      "ref": "a6decec3693ee4d57df9f879b90ace3e118c9d1d"
+    },
+    {
+      "path": "tests/integration/test_gallery_caption_collection.gd",
+      "sha": "c68192a0072d1df229028e6bc98fe5f097ed2998",
+      "ref": "a6decec3693ee4d57df9f879b90ace3e118c9d1d"
+    },
+    {
+      "path": "scripts/narrative/SoloReadingSession.gd",
+      "sha": "d57a9741fd45b4d8c9ef3676a6f9d296047b1321",
+      "ref": "a6decec3693ee4d57df9f879b90ace3e118c9d1d"
+    },
+    {
+      "path": "scripts/narrative/FrozenPresentationContext.gd",
+      "sha": "e614d72c2d2a87eaf5c52835701c9e7068c75b9a",
+      "ref": "a6decec3693ee4d57df9f879b90ace3e118c9d1d"
+    }
+  ]
+}
