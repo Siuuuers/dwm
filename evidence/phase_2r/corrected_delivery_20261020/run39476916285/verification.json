@@ -1,0 +1,285 @@
+{
+  "run": 39476916285,
+  "job": 118815142853,
+  "archives": {
+    "preparation-original.zip": {
+      "sha256": "a8ebef5ad64a4871e7e157825fb48fe9574d0695c6434f8dd52f043f2f74b863",
+      "bytes": 8706715,
+      "members": 206,
+      "manifest_payloads_verified": 205
+    },
+    "delivery-original.zip": {
+      "sha256": "6215edef73970eb26429bd07d1394bded900a0ebe77462f2d565050fe8585327",
+      "bytes": 101071775,
+      "members": 166,
+      "manifest_payloads_verified": 165
+    }
+  },
+  "package_archive": {
+    "sha256": "1ee4e4cdc8b8c54be3cfeca1ceac8be7a273be7ebf3fc69120d8e226ffbd53a2",
+    "file": "DWM-windows-x86_64-validation.zip",
+    "bytes": 99455011
+  },
+  "package_manifest_payloads_verified": 17,
+  "package_members": 18,
+  "pck_payloads_verified": 2091,
+  "uid_cache_records": 2836,
+  "pack_audit": {
+    "runtime_data_files_verified": 117,
+    "ok": true
+  },
+  "headless_smoke": {
+    "iterations": 240,
+    "headless": true,
+    "ok": true,
+    "isolated_profile_created": true,
+    "executable": "DWM.exe"
+  },
+  "preparation_phases": {
+    "restore": "success",
+    "after": "success",
+    "capability": "success",
+    "final": "success",
+    "load": "failure",
+    "terminal_load": "skipped",
+    "create": "success",
+    "missing_import_process_receipt": false,
+    "export": "success",
+    "acceptance_requires_C_result_review": true,
+    "helpers": "success",
+    "import": "success",
+    "before": "success"
+  },
+  "generated_before_count": 34,
+  "generated_final_count": 38,
+  "prior_generated_bytes_unchanged": true,
+  "allowance": {
+    "archive_sha256": "1ee4e4cdc8b8c54be3cfeca1ceac8be7a273be7ebf3fc69120d8e226ffbd53a2",
+    "archive_bytes": 99455011,
+    "pck_sha256": "87b866930815586551ecfdadebf1ec6964b70f82f0873434801ae84baaceb7a7",
+    "pck_entries_verified": 2091,
+    "cache_bytes": {
+      "file": "bytes/70d4c99e77503f34b9af58983b4a66edc8bd09d453e652d47a1a9de380fc0839",
+      "sha256": "70d4c99e77503f34b9af58983b4a66edc8bd09d453e652d47a1a9de380fc0839",
+      "size": 204920,
+      "git_blob": "82ddae7f72626bcced6c896d1086453f218dbef5"
+    },
+    "cache_record_count": 2836,
+    "policy": "reviewed build-generated metadata allowance; no zero-influence claim",
+    "permitted_additions": [
+      "tests/fixtures/dialogic/gallery_collection.dtl.uid",
+      "tests/fixtures/dialogic/scene_author_option_slots.dtl.uid",
+      "tests/fixtures/dialogic/scene_challenge_recall.dtl.uid",
+      "tests/fixtures/dialogic/scene_partner_fork_template.dtl.uid"
+    ],
+    "additions": [
+      {
+        "path": "tests/fixtures/dialogic/gallery_collection.dtl.uid",
+        "source": "tests/fixtures/dialogic/gallery_collection.dtl",
+        "source_blob": "6aaf6bf50b7a402ee160fd26f90f3c6c73a91726",
+        "bytes": {
+          "file": "bytes/6c4139bc9813308b8de2aa039e22c47c40d23d296a8c3e4d501b568a5e6672a6",
+          "sha256": "6c4139bc9813308b8de2aa039e22c47c40d23d296a8c3e4d501b568a5e6672a6",
+          "size": 20,
+          "git_blob": "7ecbce267e233f220ee99c37980f882e191d5f2c"
+        },
+        "text": "uid://d075juef7087h",
+        "uid": "8981881869005345843",
+        "packaged_cache_records": [
+          {
+            "uid": "8981881869005345843",
+            "path": "res://tests/fixtures/dialogic/gallery_collection.dtl"
+          }
+        ],
+        "mapping_present": true
+      },
+      {
+        "path": "tests/fixtures/dialogic/scene_author_option_slots.dtl.uid",
+        "source": "tests/fixtures/dialogic/scene_author_option_slots.dtl",
+        "source_blob": "f22cedc38e20d0f625e6634b1919eb9bd03bce6c",
+        "bytes": {
+          "file": "bytes/3c74a49e940a4ad848b99aff73d36a25e937f14c1ef5616a3688b66d60596689",
+          "sha256": "3c74a49e940a4ad848b99aff73d36a25e937f14c1ef5616a3688b66d60596689",
+          "size": 20,
+          "git_blob": "a8b7f2ee95b21e86c63797ca03846f9d6d59ad19"
+        },
+        "text": "uid://djstrltosbmd2",
+        "uid": "7829305032521955417",
+        "packaged_cache_records": [
+          {
+            "uid": "7829305032521955417",
+            "path": "res://tests/fixtures/dialogic/scene_author_option_slots.dtl"
+          }
+        ],
+        "mapping_present": true
+      },
+      {
+        "path": "tests/fixtures/dialogic/scene_challenge_recall.dtl.uid",
+        "source": "tests/fixtures/dialogic/scene_challenge_recall.dtl",
+        "source_blob": "e8451bfebb1540bfc64852950b505fbaee6057b6",
+        "bytes": {
+          "file": "bytes/5598e6cec979ac8728d1609227c0590b31722f72fd64aa3ef6081ca37dc78ed7",
+          "sha256": "5598e6cec979ac8728d1609227c0590b31722f72fd64aa3ef6081ca37dc78ed7",
+          "size": 20,
+          "git_blob": "edc310ad458da1ae0c61c90fa3f208dc57ee069f"
+        },
+        "text": "uid://cd4te6262iwfu",
+        "uid": "5044437290584708134",
+        "packaged_cache_records": [
+          {
+            "uid": "5044437290584708134",
+            "path": "res://tests/fixtures/dialogic/scene_challenge_recall.dtl"
+          }
+        ],
+        "mapping_present": true
+      },
+      {
+        "path": "tests/fixtures/dialogic/scene_partner_fork_template.dtl.uid",
+        "source": "tests/fixtures/dialogic/scene_partner_fork_template.dtl",
+        "source_blob": "9b21591b596bc7e9320be0a72ef4424584fe7e71",
+        "bytes": {
+          "file": "bytes/d87c02cb9c79b6817d0f18f2173d223437942a1b768d2d117b53cc9a27d4df19",
+          "sha256": "d87c02cb9c79b6817d0f18f2173d223437942a1b768d2d117b53cc9a27d4df19",
+          "size": 20,
+          "git_blob": "d57511995f8f363152e00bc289d70d38381a8913"
+        },
+        "text": "uid://cduuh4qgcbox6",
+        "uid": "5025923841963524685",
+        "packaged_cache_records": [
+          {
+            "uid": "5025923841963524685",
+            "path": "res://tests/fixtures/dialogic/scene_partner_fork_template.dtl"
+          }
+        ],
+        "mapping_present": true
+      }
+    ],
+    "errors": [],
+    "passed": true
+  },
+  "final_tracked_change_count": 0,
+  "final_index_change_count": 2,
+  "native_outcomes": {
+    "prepare": "success",
+    "import": "success",
+    "export": "success",
+    "capability": "success",
+    "create": "success",
+    "load": "failure",
+    "terminal-load": "skipped"
+  },
+  "native_receipts": {
+    "capability": {
+      "ok": true,
+      "failure": null,
+      "clean_player_exit": true,
+      "forced_cleanup": false,
+      "exit_code": 0,
+      "elapsed_seconds": 22.8416354,
+      "step_timeout_seconds": 30
+    },
+    "create": {
+      "ok": true,
+      "failure": null,
+      "clean_player_exit": true,
+      "forced_cleanup": false,
+      "exit_code": 0,
+      "elapsed_seconds": 92.5251022,
+      "step_timeout_seconds": 30
+    },
+    "load": {
+      "ok": false,
+      "failure": "UIA_UNAVAILABLE_OR_TIMEOUT: TEST Seven-day ending.",
+      "clean_player_exit": false,
+      "forced_cleanup": true,
+      "exit_code": -1,
+      "elapsed_seconds": 210.2152797,
+      "step_timeout_seconds": 30
+    }
+  },
+  "saved_state": {
+    "source_slot1_unchanged_at_failure": true,
+    "restored_slot2_unchanged_at_failure": true,
+    "autosave_checkpoint_sequence": 17,
+    "autosave_lifecycle_state": "ENDING",
+    "ending_playback_stage": "PRIMARY_PENDING",
+    "ending_playback_receipts": {},
+    "gallery_unlocks": [],
+    "gallery_transaction_receipts": {}
+  },
+  "native_probe": {
+    "utc": "2026-10-20T18:49:36.3031462Z",
+    "diagnostic_only": true,
+    "phase": "complete",
+    "windows": [
+      {
+        "handle": 655954,
+        "pid": 6348,
+        "thread": 7428,
+        "class": "Engine",
+        "visible": true,
+        "hung": false,
+        "responds": true,
+        "uia_phase": "complete",
+        "root_name": "DWM ",
+        "root_type": "ControlType.Window",
+        "descendant_count": 23,
+        "names": [
+          "Continue ",
+          "Backup ",
+          "Settings ",
+          "Return to Title ",
+          "@AudioStreamPlayer@6 ",
+          "MusicA ",
+          "MusicB ",
+          "AmbienceA ",
+          "AmbienceB ",
+          "SFX0 ",
+          "SFX1 ",
+          "SFX2 ",
+          "SFX3 ",
+          "SFX4 ",
+          "SFX5 ",
+          "SFX6 ",
+          "SFX7 ",
+          "UI0 ",
+          "UI1 ",
+          "UI2 ",
+          "UI3 ",
+          "Voice0 ",
+          "Voice1 "
+        ]
+      },
+      {
+        "handle": 393778,
+        "pid": 6348,
+        "thread": 7428,
+        "class": "CSpNotify Notify Window",
+        "visible": false,
+        "hung": false,
+        "responds": true
+      },
+      {
+        "handle": 328158,
+        "pid": 6348,
+        "thread": 7428,
+        "class": "MSCTFIME UI",
+        "visible": false,
+        "hung": false,
+        "responds": true
+      },
+      {
+        "handle": 328000,
+        "pid": 6348,
+        "thread": 7428,
+        "class": "IME",
+        "visible": false,
+        "hung": false,
+        "responds": true
+      }
+    ],
+    "pid": 6348,
+    "main_window_handle": 655954
+  },
+  "limitation": "Read-only internal evidence audit. Load failed at ending-caption UIA wait, forced cleanup; terminal Load skipped. Ending completion/Gallery/Title/terminal Load/normal Load-process exit unproved. No performance or external C acceptance."
+}

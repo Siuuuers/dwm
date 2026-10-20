@@ -1,3 +1,13 @@
+# Bounded UID Windows result: preparation passes; ending-caption Load fails
+
+21 October 2026 Hong Kong. Both C gates6298097130/6298344570 cleared; one Director6297698097/6298163134 attempt consumed. Controller4a902667 installed exact reviewed bytes fromc0bb500f with expected-head protection. [Run39476916285](https://github.com/Siuuuers/dwm/actions/runs/39476916285), job118815142853: preparation/export/package/final UID policy PASS; Capability/Create PASS with clean exits; Load FAIL at `UIA_UNAVAILABLE_OR_TIMEOUT: TEST Seven-day ending.` with forced cleanup; TerminalLoad SKIPPED. No retry.
+
+[Original artifacts, exact hashes, screenshot, reproducible audit and scope](../evidence/phase_2r/corrected_delivery_20261020/run39476916285/README.md). Both original ZIPs retained in24 exact numbered parts,205+165 payload manifests and actual package checked. Post-failure image shows ending caption; captured UIA probe lacks it. Autosave checkpoint17 remains ENDING/PRIMARY_PENDING; no Gallery award. This narrows observed rendering/accessibility discrepancy but does not establish its cause or justify altered waits/selectors. Ordinary completion→Title→terminal Load→clean exit remains open.
+
+Next C reviews actual result classification; Director selects next bounded ordinary ending work. Productc8358870, master/integration unchanged; no merge/release/performance acceptance. Active controller4a902667 is consumed, not a retry target. No new game/runtime/save/history edits. Project coordination messages have standing user authorization; older messaging holds below are superseded.
+
+---
+
 # Bounded UID policy candidate ready for external C review
 
 21 October 2026 Hong Kong. Director PR30 comment6297698097 scopes the four-path post-export allowance on frozen productc8358870. Candidate on `codex/a-bounded-uid-20261021`; see [review and immutable pins](../evidence/phase_2r/corrected_delivery_20261020/bounded-uid-review.md). 18 offline Python/Git checks passed; actual retained package replay and independent internal source/evidence audits passed. Inherited ResourceWarnings disclosed. No local Godot/PowerShell or new cloud run.
