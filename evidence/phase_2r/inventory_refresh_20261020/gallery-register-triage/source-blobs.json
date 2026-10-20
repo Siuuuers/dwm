@@ -1,0 +1,22 @@
+[
+  {
+    "key": "tests/ui/render_gallery_version_register.gd",
+    "sha": "9289dffb47bc4d2c4851d2aeacf83a2b6c67cc24"
+  },
+  {
+    "key": "scripts/ui/GalleryScene.gd",
+    "sha": "7a0b4f02b9bc42e24576755fa25422bfe648a230"
+  },
+  {
+    "key": "replayOwner",
+    "sha": "46451cbfc1be71c208c868df51b9976e9889d2e4"
+  },
+  {
+    "key": "entryManifest",
+    "sha": "4c8a3abab8b683c3ef63af086f451a587fad68ba"
+  },
+  {
+    "key": "storyRegistration",
+    "sha": "4d277a17adf5285374a6cba4ad79747d1059d4d2"
+  }
+]
