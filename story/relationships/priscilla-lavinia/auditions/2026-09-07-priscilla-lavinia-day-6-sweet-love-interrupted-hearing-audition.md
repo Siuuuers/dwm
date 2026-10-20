@@ -29,7 +29,7 @@ not make the two forms interchangeable.
 - [Day 2 / Day 6 Working Event Record](2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md)
 - [Day 2 Four-Form Causal Spine](2026-09-06-priscilla-lavinia-day-2-four-form-causal-spine-audition.md)
 - [Narrative Style Manual](../../../08-narrative-style-manual.md)
-- [Relationship Progression Runtime Behavior Record](../../../../docs/design/2026-09-02-relationship-progression-runtime-behavior-record.md)
+- [Relationship Progression Runtime Behavior Record](../../../design/2026-09-02-relationship-progression-runtime-behavior-record.md)
 
 ## 1. Decision boundary
 

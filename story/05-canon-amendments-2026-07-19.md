@@ -1,5 +1,12 @@
 # Approved Canon Amendments — 2026-07-19
 
+**Current reading boundary, 2026-10-20:** the approvals and conflict claims below
+retain their July/August scope. Apply the later
+[current foundation and flow](09-priscilla-foundation-amendment.md) and current
+[Core Bible](01-core-story-bible.md) first. This historical file does not restore
+retired cast, calendar, route, awareness or ending rules.
+
+
 HISTORICAL AMENDMENT EVIDENCE — NOT CURRENT MECHANICAL AUTHORITY
 
 The July `Status: **approved canon**` statement below is retained as historical

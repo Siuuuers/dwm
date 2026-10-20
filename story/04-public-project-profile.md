@@ -91,3 +91,15 @@ owners; this narrative amendment makes no new implementation claim about them.
 The chapter flow covers seven days without making a dating scheduler its main
 structure. Final runtime, promotional copy and release platform are not fixed by
 this profile. The complete plot and its exact ending scenes remain in development.
+
+## Platform copy and release records
+
+The [Steam copy design](../docs/superpowers/specs/2026-08-30-steam-store-page-design.md)
+and [submission package](../docs/shipping/2026-08-30-steamworks-store-presence-submission-package.md)
+preserve the platform fields, locked wording and publication gates reviewed in
+August 2026. They remain platform records. Check their wording against the
+[current Priscilla foundation](09-priscilla-foundation-amendment.md) before reuse;
+the document relocation does not update their locked copy or authorize publication.
+The related [literary voice research](research/2026-08-30-la-jalousie-steam-store-voice-check.md)
+is available inside `story/`.
+

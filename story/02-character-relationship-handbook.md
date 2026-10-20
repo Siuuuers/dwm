@@ -2,15 +2,34 @@
 
 ## How to Use This Handbook
 
-This is a private, writer-facing dialogue and performance reference derived from Core Story Bible canon and the August design's baseline intended mechanics as amended by later explicit owner decisions. The Core Story Bible remains the sole narrative authority. The [runtime behavior record](../docs/design/2026-09-02-relationship-progression-runtime-behavior-record.md) owns the recorded future boundary for relationship progression and ending evaluation without authorizing implementation. The [Narrative Style Manual](08-narrative-style-manual.md) centralizes cross-scene presentation, perceptual-prose, lens, dialogue, absurdity, and audit guidance; this Handbook remains responsible for character-specific voice and conduct. If either derived document appears to add a fact, history, diagnosis, route, causal answer, or confirmed relationship label, discard the addition and follow the Bible subject to later explicit owner approvals recorded during reconciliation.
+This is a private, writer-facing dialogue and performance reference derived from Core Story Bible canon and the August design's baseline intended mechanics as amended by later explicit owner decisions. The Core Story Bible remains the sole narrative authority. The [runtime behavior record](design/2026-09-02-relationship-progression-runtime-behavior-record.md) owns the recorded future boundary for relationship progression and ending evaluation without authorizing implementation. The [Narrative Style Manual](08-narrative-style-manual.md) centralizes cross-scene presentation, perceptual-prose, lens, dialogue, absurdity, and audit guidance; this Handbook remains responsible for character-specific voice and conduct. If either derived document appears to add a fact, history, diagnosis, route, causal answer, or confirmed relationship label, discard the addition and follow the Bible subject to later explicit owner approvals recorded during reconciliation.
+
+**Current reading, consolidated 2026-10-20:** apply the
+[Priscilla foundation](09-priscilla-foundation-amendment.md) and the Bible's
+[current reading boundary](01-core-story-bible.md#document-authority) first.
+Use the Priscilla, Lavinia and Sylvia dossiers with their dated corrections,
+then the current relationship sections. Retained Angela, sisterhood,
+family-call, old tier and Special-event material is source reference only
+where superseded. Compatible voice and physical-knowledge limits remain
+useful; no name substitution transfers a history. The
+[pre-consolidation Handbook](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/02-character-relationship-handbook.md)
+preserves exact earlier wording.
 
 Use the dossiers to answer three practical questions before writing a beat:
 
 1. What does this woman want from the other person in this moment?
-2. What strategy does she use instead of saying that want plainly?
-3. What visible or audible detail lets the audience detect the gap?
+2. What does she say or do to seek it, including a plain request when that is her choice?
+3. What can the audience experience, and which motive or uncertainty can usefully remain private?
 
-Relationship state controls the mutuality available in a scene. Tone controls which character-specific facet becomes governing visible conduct: Sweet foregrounds tender, playful, ordinary, or less-dangerous facets, while Totally Dark foregrounds a darker facet through chosen action and concrete consequence. Runtime is inspected for drift from the currently approved intended mechanics; it does not silently define them. Neither state nor tone mechanically creates desire, consent, or a new personality. Do not infer exact schedules, counters, thresholds, or UI behavior from this document.
+These questions orient a performance; they are not a requirement for a
+concealed tactic, certified motive or visible clue in every beat. Chosen
+company, wit, appetite and ordinary enjoyment can be sufficient immediate
+wants. The same person may seek care, cause harm, change her approach or
+misread a response without displaying a different personality. Apply the
+foundation's local-result and ending meanings before retained tier language.
+Runtime is inspected for drift from the current intended mechanics; it does
+not silently define them. No state, tone or result creates desire, consent
+or a new personality, and this document supplies no runtime thresholds.
 
 Production descriptions remain private staging instructions unless separately approved as audience-visible perceptual prose. Reaction tests remain illustrative rather than final DTL. Approved first names are the only character names used.
 
@@ -19,24 +38,67 @@ Production descriptions remain private staging instructions unless separately ap
 Dialogue must carry the relationship turn. Sparse perceptual prose supports exact perceived evidence rather than translating a dossier or explaining what a performance means. Put character information into one or more of these channels:
 
 - **Spoken language:** word choice, correction, evasion, direct requests, and what a character refuses to name.
-- **Audible self-talk:** brief muttering or rehearsal that another person could plausibly hear.
+- **Priscilla's private self-talk:** thought, hesitation, attention, rehearsal and fallible interpretation. Audible muttering is one possible form; another person does not hear the field by default.
 - **Diegetic text:** messages, schedules, programme copy, voice-note text, and institutional documents.
 - **Visible action:** distance, touch, object placement, gaze, breath, stillness, and interrupted movement.
 - **Diegetic sound:** equipment, paper, fabric, a badge clip, a zipper, a chair moved before anyone asks.
 
-Before drafting a continuous passage, name its eligible anchor in the writer-facing scene record and keep that anchor stable; unmarked head-hopping is forbidden. The audience need not be told the anchor's identity when a bounded unmarked-focal-presence construction has been approved. Angela may anchor an Angela-attended or Angela-owned surface only while conscious and physically able to perceive the stated fact. An authorized audience-visible Priscilla–Lavinia surface may instead declare Priscilla or Lavinia, while group presentation with Angela present defaults to Angela. The prose may register only what the declared anchor consciously and physically perceives. Separately presented visual or audio evidence may exceed what the anchor notices only through its already authorized external channel; do not restate it as perceptual prose or grant it as character knowledge. See the Style Manual's [anchor law](08-narrative-style-manual.md#41-anchor-law) and [bounded Day 6 authorization](08-narrative-style-manual.md#42-unmarked-focal-presence).
+Keep Priscilla as the sole current viewpoint and keep her physical access
+clear in the private scene record. Story and self-talk share that access;
+neither grants Lavinia's or Sylvia's private mind. The prose may reduce
+grammatical person and withhold immediate referents while author notes keep
+orientation precise. Use names, pronouns or a direct action sentence when
+they make the line more beautiful, smooth or natural. Prefer the detail that
+holds her attention to a routine report that she looks, sits or notices,
+unless the act of looking or moving itself changes the encounter. See the
+Style Manual's [anchor law](08-narrative-style-manual.md#41-anchor-law) and
+[perceptual guidance](08-narrative-style-manual.md#42-unmarked-focal-presence).
 
-An immediate judgment may be partial, irritated, mistaken, or withholding. It may not diagnose emotion, state another person's private motive, identify an unresolved cause, explain symbolism, or settle the interpretation. An unowned past fragment, private-offscreen event, Angela-owned passage while Angela is unconscious, or UI/archive surface without inherited source prose supplies no eligible anchor and therefore no character-bound perceptual prose. Gallery and Rehearsal replay inherit the source passage's anchor rather than creating one.
+An immediate judgment may be partial, irritated, mistaken or withholding.
+Priscilla may interpret a real detail wrongly; her confident formulation
+does not authenticate another person's motive or an unresolved cause. A
+private-offscreen event supplies no new scene or viewpoint, and replay or
+an archive does not create a new consciousness or retrospective knowledge.
 
 Omission is permitted. Some visual or audio evidence may remain subtle or missable, and absence of a carrier does not prove whether an event occurred, who authored it, or what caused it. Accessibility description remains a later, separately designed layer and may not force the base prose to explain the mystery.
 
-Do not make a character announce her dossier. A line should perform a strategy, not explain one. Pair every important internal pressure with something perceptible: a correction that replaces a confession, a joke that delays a decision, a practical offer that creates debt, or a provocation that demands proof.
+Do not make a character announce her dossier. Speech and action can carry a
+correction, confession, joke, practical offer or provocation without
+explaining the pattern. Reveal a pressure when the encounter gives it force;
+there is no proof quota for private motives. In author notes, distinguish a
+selected but unrevealed fact from a working interpretation or deliberately
+unresolved cause. None becomes secret truth merely by being written down.
 
-Keep anomalies locally ordinary. Characters address timing errors, mismatched records, and interface irregularities as practical problems unless credible danger requires action. Observer Pressure never speaks through a character and never excuses consent, harm, or responsibility.
+Keep anomalies locally ordinary unless the scene earns a different response.
+Apply the foundation's [Observer knowledge boundary](09-priscilla-foundation-amendment.md#5-observer-knowledge-and-possible-epilogues):
+Priscilla's first Perfect result controls first recognition; later awareness
+does not spread automatically to her companions. A notice, near-echo or
+interpretation does not add a power, establish consent or remove responsibility for harm.
 
-Language use is relational rather than decorative. Cantonese carries everyday local intimacy for Angela and Priscilla; English is a fluent academic and shared language; Putonghua is situational; Romanian belongs to Lavinia's private and familial life. Lavinia's developing Cantonese is never a joke or a marker of incompetence. When writing diegetic native-language lines, follow the Core Bible's subtitle and history rules; this handbook does not redefine display behavior.
+Language use is relational rather than decorative. Cantonese carries
+Priscilla's everyday local intimacy; English is a fluent academic and shared
+language; Romanian belongs to Lavinia's private and familial life. Lavinia's
+developing Cantonese is never a joke or a marker of incompetence. Do not
+transfer Angela's language profile to Sylvia. When writing diegetic
+native-language lines, follow the Core Bible's subtitle and history rules;
+this handbook does not redefine display behavior.
 
 ## State and Tone Performance Rules
+
+**Current application:** the flowing chapter does not require separate
+Ambiguous/Love versions or the old dating/progression gates. The approved
+local result meanings govern conduct, while P–L reaches one identically
+presented Dark ending. A softer local act can be real; it does not promise
+a repaired relationship or a separate Sweet finale. Sylvia's route does not
+create or guarantee her romantic preference for Priscilla.
+
+### Retained tier-performance reference
+
+The architecture and pair bans below belong to the former Angela chapter.
+Use only compatible performance distinctions after applying the foundation:
+hostility is an attitude, desire is not a tier reward, and neither warmth nor
+harm is a different personality. Do not reinstate mandatory state decks,
+sisterhood or a blanket non-romantic S–L rule from this retained material.
 
 Relationship state progresses only `Friend → Ambiguous → Love`. Priscilla, Lavinia, and Sylvia each begin at Friend in Angela's relationship state. A past fragment never advances state. Personal ending actions are available only at Ambiguous or Love; runtime availability is inspected for drift from the approved design as later amended.
 
@@ -82,6 +144,10 @@ Every complete dossier answers all of the following fields:
 
 ## Angela
 
+**Retired character reference:** Angela is not in the current fiction. Her
+notification-wording style is retained under the foundation; this dossier
+does not transfer to Priscilla or Sylvia.
+
 - **Public surface:** Twenty, Hong Kong-born, a second-year astrophysics student. She is competent with astronomy demonstrations, intensely fond of astronomy and strategy games, observant, emotionally spare, and willing to let other people choose small practical matters. She manages resources well, often seems lucky, and has no prior romantic experience; none of those facts makes her automatically competent at relationships.
 - **Human kernel:** She wants closeness that leaves reality inspectable and does not require emotional theatre on demand. Her minimalism is temperament, not evidence that she is empty, broken, or waiting to be decoded. Once she admits someone into her inner circle, she may accept strange requests she would reject as unnecessary side content from anyone else.
 - **Wound:** The childhood project incident taught her that Priscilla could make a disputed world legible when Angela could not. Angela still believes the exonerating recovery evidence was authentic; do not write her as privately knowing the fabrication.
@@ -109,16 +175,28 @@ Every complete dossier answers all of the following fields:
 
 ## Priscilla
 
+**Current P–L performance, 2026-10-18:** apply the Bible's [judgment refinement](01-core-story-bible.md#current-pl-judgment-2026-10-18).
+Compliance may cost Priscilla something she wants while leaving her moral
+self-justification intact. The performance categories below do not require guilt,
+and the Growth test is a diagnostic possibility, not a promised conversion in
+the current Dark continuation.
+
+Her answer can be another question or a carefully selected truth. Paltering
+depends on what a true statement encourages the listener to infer; it is not
+automatically a false statement. Her conduct may expose a concern she avoids
+naming, but not every concealed thought needs a matching visible clue. A
+plain personal admission remains available when she chooses its exposure.
+
 - **Public surface:** Twenty, Hong Kong-born, an English literature student with institutional credibility. She is polished, useful, composed, and trusted with programme language, communications, and student organization.
 - **Human kernel:** She genuinely wants the people she loves to be safe, understood, and spared preventable humiliation. Her terror begins where care becomes indistinguishable from acquisition.
-- **Wound:** The childhood incident rewarded a correct conclusion reached through fabricated evidence and private punishment. It taught her that making the record legible could justify controlling it.
+- **Wound:** A replacement childhood incident has not been selected for the Priscilla foundation. The retained Angela incident illustrates an earlier causal construction; it does not establish what happened between Priscilla and Sylvia. Use the current self-justification without inventing its formative cause.
 - **Desire:** To become the person whose interpretation is necessary; to anticipate needs so completely that leaving her would feel irrational; to have her care recognized as uniquely accurate.
 - **Fear:** Being present but unnecessary, understanding too late, or watching someone choose badly after she could have arranged a better outcome. Her most unbearable refusal is calm and fully informed: someone choosing neither a rival nor revenge, simply preferring an inconvenient life outside her management.
 - **Shame:** Her tenderness is entangled with possession. She knows that being right can feel gratifying even when the method violates the person she is protecting.
 - **Defensive belief:** If her conclusion is accurate and her intervention prevents harm, controlling the wording, record, or social frame is justified.
 - **Virtue:** Attentiveness, linguistic precision, courage in social conflict, organizational competence, and care that is often materially effective.
 - **Flaw:** Selective truth, social authorship, corrective tenderness, and a readiness to convert permission to polish into authority to determine substance.
-- **Epistemic boundary:** She is an incisive reader of language and pattern, not a mind reader. She knows her own interventions and the fixed history she shares with Angela and Lavinia; she cannot know unsaid desire, the cause of timing anomalies, or which interpretation another person privately accepts unless they tell her. Desire degrades her model precisely when she most trusts it: she can overfit a pattern, use the correct lever at the wrong moment, or mistake a remembered preference for present consent.
+- **Epistemic boundary:** She is an incisive reader of language and pattern, not a mind reader. She knows her own interventions and currently established shared history; she cannot know unsaid desire, the cause of timing anomalies, or which interpretation another person privately accepts merely by observing them. Desire can degrade her model precisely when she most trusts it: she can overfit a pattern, use the correct lever at the wrong moment, or mistake a remembered preference for present consent. Childhood friendship and recognition of Sylvia's manner do not reveal Sylvia's whole plan.
 - **Secure behavior:** Offers a correction as an option, distinguishes fact from interpretation, returns authorship after advice, and remains when no task proves her value.
 - **Threatened behavior:** Refines someone else's words, supplies missing context before being asked, narrows choices through presentation, or cites institutional standards as if they settled a personal question.
 - **Dangerous behavior:** Alters the record or social field to secure an outcome, reveals only the truths that support her design, memorizes schedules, watches habits, engineers physically ordinary coincidences, and performs tenderness so privately and precisely that resistance feels like ingratitude.
@@ -137,6 +215,21 @@ Every complete dossier answers all of the following fields:
 **Dependency-preservation capability:** This is a threatened strategy, not a fixed list of acts Priscilla has already committed. When frightened, she may preserve a manageable dependency by answering a question the other woman could answer, omitting that other workable choices existed, discouraging an alternate source of support, or solving a problem before independent judgment becomes necessary. She then risks interpreting the resulting reliance as proof of intimacy. Her deepest fear is not merely departure but informed independence: if someone became completely capable of leaving, that person might discover that she preferred an imperfect life without Priscilla.
 
 ## Lavinia
+
+**Current Dark-development scope, 2026-10-18:** apply the Bible's [character
+direction](01-core-story-bible.md#lavinia). The [working motive
+audition](auditions/priscilla-seven-day-working-plot.md#current-pl-direction-and-development-checkpoint-2026-10-18)
+develops jealousy over Priscilla's wider attention. The real conflict named under
+Wound below need not explain every test; using it as an excuse would not make the
+original violation or professional fear unreal.
+
+Separate a deliberate test from an impulsive act and from Lavinia's later
+account of it. A claim that Priscilla deserves the treatment belongs to
+Lavinia; it does not settle the cause or justify the act. She may suggest a
+preference she does not share to see how Priscilla responds, but she can also
+ask directly, change her mind, enjoy being chosen, or want something she
+has not prepared a test to obtain. Strong reaction is something she may
+misread as care, not dependable access to Priscilla's feelings.
 
 - **Public surface:** Twenty-two, Romanian, from a wealthy Bucharest family, and a conservatory ballet student. She brings embodied vitality, professional discipline, fluency in English, private Romanian, and developing Cantonese.
 - **Human kernel:** She wants attention that feels chosen, immediate, and strong enough to survive inconvenience. She is capable of direct devotion but fears that unprovoked affection cannot be trusted. Her parents' generous freedom and material support taught her that being believed can feel respectful and, irrationally, like being unseen.
@@ -171,19 +264,29 @@ Every complete dossier answers all of the following fields:
 
 ## Sylvia
 
+**Current direction, 2026-10-19:** apply the [Bible's Sylvia triangle](01-core-story-bible.md#current-sylvia-triangle-2026-10-19)
+and [earlier acquaintance](01-core-story-bible.md#current-sylvia-history-2026-10-19)
+before the retained dossier. Her stronger romantic attachment is Lavinia;
+her Sylvia-focused week includes attempts to obstruct P–L. Meticulous care,
+acting, lies and joking disclosure may coexist with genuine enjoyment of
+Priscilla. Named harmful capacities are not selected incidents. References
+to Angela, sisterhood and the old Special event below do not transfer by
+substitution. Neither prior acquaintance nor a successful arrangement grants
+knowledge of Lavinia's present wishes.
+
 - **Public surface:** Twenty-one, a third-year statistics or decision-science student, and an Open Week peer-welfare and safety volunteer with a current basic first-aid certificate. She presents as angelic, prudish, orderly, and reliably prepared.
 - **Human kernel:** She wants to be chosen and cared for in return, but she cannot tolerate the vulnerability of asking without first making herself necessary.
-- **Wound:** No formative wound is established in canon. Her fixed fear is asking to be wanted and receiving a clean refusal. Angela has known Sylvia since childhood as Priscilla's sister but knows her personally only as a long-standing occasional acquaintance, while Sylvia has studied Angela far more closely than family context or that relationship justifies. This asymmetry is present pressure, not an invented causal history.
-- **Desire:** To convert familiarity into indispensability and desire into a practical arrangement that cannot be dismissed as merely personal. In her darker logic, each successful rescue should narrow Angela's alternatives until Sylvia appears to be the only reliable person; gratitude should become permanent debt and compliance its reasonable repayment.
+- **Wound:** No formative wound is established in current canon. Her fear of asking to be wanted and receiving a clean refusal supplies present pressure without an invented causal history. Priscilla's childhood friendship and Sylvia's earlier acquaintance with Lavinia do not fix the origin of this fear or of the notice habit.
+- **Desire:** To convert familiarity into indispensability and desire into a practical arrangement that cannot be dismissed as merely personal. Her darker care-debt logic can treat usefulness as a reason she should retain access and be chosen. Apply the current Sylvia triangle to the particular recipient and aim; the old Angela rescue sequence is not a current hidden plan.
 - **Fear:** Asking to be wanted and receiving a clean refusal; being seen as intrusive when she experiences herself as useful; losing access once a debt is repaid.
 - **Shame:** She recognizes personal and erotic desire but rationalizes it as duty, safety, efficiency, or necessity. Her prudishness governs the explanation of desire, not its presence. The self-deception is active: she can know what she wants while refusing to classify it as want.
 - **Defensive belief:** If help is objectively useful and risk can be described, the recipient owes acceptance and continuing access.
 - **Virtue:** Preparation, statistical discipline, attention to workflow, practical care, and real ability to provide immediate help within training.
 - **Flaw:** Studied familiarity, care-debt logic, boundary invasion, and the conversion of personal desire into medical or moral necessity.
-- **Epistemic boundary:** Sylvia may legitimately know limited childhood or family context, public schedules, assigned rooms, check-in procedures, and incident workflow. Across family video calls, she recognizes Priscilla constructing evidence of domestic continuity and correctly infers a rupture with Lavinia; she does not thereby learn its cause, the disclosure-form conflict, either woman's private interpretation, or a relationship label. Whether Priscilla knows Sylvia inferred the rupture remains unresolved. Sylvia has no diagnostic authority, private-record access, legitimate right to conduct a general physical examination, or authority to decide ongoing care. Unauthorized information use is neither a volunteer nor family privilege. She cannot know Observer Pressure or another person's consent without asking.
+- **Epistemic boundary:** Sylvia may know what her established friendships and limited volunteer work actually make available: shared experiences, public schedules, assigned rooms, check-in procedures and incident workflow. The retired family-call inference does not transfer into current private knowledge. She has no diagnostic authority, private-record access, legitimate right to conduct a general physical examination, or authority to decide ongoing care. Friendship and volunteer status confer no private access. Neither an accurate deduction nor her notice's success proves another person's desire, consent or knowledge of Observer Pressure.
 - **Secure behavior:** Offers one bounded form of help, states the relevant limit of her role, returns objects or information, accepts no, and allows care to flow toward her without converting it into a new obligation.
 - **Threatened behavior:** Produces an item before it is requested, cites likelihood or procedure, frames preference as risk management, or places herself where refusal would appear irresponsible.
-- **Dangerous behavior:** Engineers permanent debt, conceals preparation, narrows alternative support, claims necessity where there is only desire, or uses volunteer credibility to control access and aftermath. Her fixed Special-postscript intent must remain non-actionable; the means and immediate physical cause are unproved and unauthored.
+- **Dangerous behavior:** Engineers permanent debt, conceals preparation, narrows alternative support, claims necessity where there is only desire, or uses volunteer credibility to control access and aftermath. The retired Angela Special-postscript intent does not supply a current incident, victim or hidden method.
 - **Voice:** Gentle, modest, and apparently prudish, with decision-science structure beneath the softness. She uses likelihood, contingency, efficiency, and welfare language to make personal arrangements sound impersonal.
 - **Sentence rhythm:** Small courtesies followed by a prepared conclusion. She often begins with permission language, then makes refusal costly through context. When reciprocity unsettles her, the sentence may lose its complete rationale and become briefly personal.
 - **Body language:** Badge clip, kit zipper, packaging, kettle, and chair placement register preparation before need is understood. She keeps touch efficient and role-framed in public. Any unnecessary touch or examination is a boundary breach, not evidence of medical competence.
@@ -201,6 +304,41 @@ Every complete dossier answers all of the following fields:
 **Horror cadence:** Never pivot Sylvia from angel to a separately revealed villain. Every late violation must be a recognizable escalation of earlier useful preparation, studied familiarity, and care-debt logic. Her outcome should feel prepared and nearly inevitable while genuine care remains part of the same act.
 
 **First-aid limit:** An observed faint is not a diagnosis. Continuing unconsciousness, injury, exertional onset, or incomplete recovery requires qualified help. Sylvia may provide immediate assistance within training, but cannot diagnose, decide ongoing care, claim private medical authority, or present intimate contact as necessary treatment.
+
+### Occasional notices and familiar misreading
+
+**Current derived performance, 2026-10-20:** use the Bible's
+[notice-habit direction](01-core-story-bible.md#current-sylvia-notice-habit-2026-10-20).
+Sylvia can give a personal wish the form of an arrangement already in force.
+The pleasure lies in a recognizable manner operating on a present situation,
+not in a permanent set of cards that explains her feelings.
+
+The physical occasion should make the gesture easy to understand: available
+paper, an empty holder, a temporarily vacant place, or another ordinary
+surface if the chosen scene provides it. What she writes should serve
+something she wants now. It can be funny and useful at the same time; it
+need not begin in anger or conceal a trap. Do not invent a formative wound
+or retrospective errand simply to account for a small habit.
+
+Priscilla may recognize the procedure and still misread the preference.
+A familiar response can invite Sylvia to continue the performance without
+proving whom she loves or what she intends to do next. Sylvia may welcome
+that recognition, exploit an assumption, correct it, or discover that the
+arrangement does not produce the response she wanted. Neither woman needs
+to explain their whole history for the exchange to feel familiar.
+
+Use the habit occasionally. Repeating a card whenever Sylvia appears would
+turn a flexible manner into a predictable signal. A spoken practical
+completion to a personal joke, a real offer of care or an unprotected
+personal sentence can serve the same character in another scene. Her
+current companion should remain interesting to her in the present; stronger
+attachment to Lavinia does not require continuous discussion of Lavinia.
+
+Day 3 owns the minimal recognition cue and current ordinary authorship.
+The coffee-seat example and any later corrupted version remain in the
+[day's author record](auditions/day-3-sylvia-fork-working-draft.md#8-review-carry-and-remaining-development)
+at their audition status. They do not establish a first occurrence, a code
+Priscilla can decode, or a new fate mechanism.
 
 ## Angela and Third-Person Jealousy
 
@@ -253,6 +391,27 @@ Individual character dossiers and the other relationships remain in this Handboo
 
 ## Priscilla–Sylvia
 
+**Current relationship, 2026-10-19:** childhood friends, with a permitted
+romantically charged storyline under the [foundation](09-priscilla-foundation-amendment.md#2-chapter-flow-and-the-relationship-choice).
+Sylvia's stronger romantic attachment is Lavinia, and she intends the P–S
+sequence to help obstruct P–L. This leaves room for real P–S affection,
+attraction, enjoyment and consequential dependence or conflict. Under the
+owner's 05:03 acceptance, Priscilla may suspect Sylvia's attraction to Lavinia
+at the later fork while misunderstanding its extent or strategic importance.
+The evidence, exact disclosures and resolution remain unselected. The fork
+selects the relationship's sustained encounters; it guarantees no reciprocation.
+
+**Favoured development direction ([C1/C2 source](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#1-what-the-author-has-actually-clarified)):**
+an accomplice-like connection can draw on their established childhood
+familiarity, and collaboration may remain in the background; exact joint
+wrongdoing is unselected, with no wholesale Angela rescue-history transfer
+or permanent consent to adult collaboration.
+
+**Retained pre-foundation guidance:** the older sisterhood, non-romantic ban,
+family-call access and Angela-specific history below are not current facts.
+Use only compatible contrasts in method and bounded knowledge after applying
+the foundation and current Bible direction.
+
 - **Baseline:** Priscilla and Sylvia are sisters, an ordinary family fact known to Angela since childhood and revealed to the audience incidentally rather than as a conspiratorial twist. Their Open Week roles intersect, but neither role defines their familial relationship. The pairing is strictly non-romantic and has no relationship state, route, or ending.
 - **Attraction or tension:** Use familial recognition, territorial competence, and competing methods for making care binding. Priscilla authors meaning, wording, and records; Sylvia authors circumstances, preparedness, and care debt. Their resemblance never establishes a shared formative cause or motive. Do not write romantic or sexual attraction.
 - **Asymmetry:** Priscilla controls phrasing and social presentation; Sylvia controls preparedness within a sharply limited workflow. Sylvia has correctly inferred a rupture between Priscilla and Lavinia from family calls, while whether Priscilla knows that Sylvia made that inference remains unresolved. Neither automatically knows the other's private intention.
@@ -264,6 +423,22 @@ Individual character dossiers and the other relationships remain in this Handboo
 - **Information each woman possesses:** Both know ordinary shared family facts. Priscilla may know programme language, communications, and student-organization facts within her role; Sylvia may know public schedules, assigned rooms, check-in procedures, and incident workflow within hers. Sylvia is sometimes beside their parents during Priscilla's family calls, recognizes constructed domestic continuity, and correctly infers a rupture with Lavinia without learning its cause, the disclosure-form conflict, either woman's private interpretation, or a relationship label. Sylvia does not tell their parents; whether Priscilla knows that Sylvia inferred the rupture remains unresolved. Neither sister receives automatic access to the other's records, rooms, messages, desires, hidden intentions, or causal knowledge of anomalies.
 
 ## Lavinia–Sylvia
+
+**Current relationship, 2026-10-19:** Sylvia knew Lavinia before Priscilla did
+under the [current chronological reading](01-core-story-bible.md#current-sylvia-history-2026-10-19),
+with the old astronomy-class friendship as the first-meeting adaptation basis.
+Sylvia's greater romantic desire is Lavinia. Under the owner's 05:03 acceptance,
+Lavinia's romantic response is deliberately unresolved for the writers until a
+particular scene needs a decision, rather than privately fixed but concealed.
+Her awareness of that desire and knowledge of the interference remain open.
+Their encounters may
+remain partly inaccessible through Priscilla; no new POV or third playable
+route follows. Sylvia's preparations can offer wanted care and also attempt
+to make her indispensable. Their actual effects require authored responses.
+
+**Retained earlier scope:** the blanket institutional-only/non-romantic rule
+in the baseline below is superseded. Compatible bodily autonomy, access and
+role limits survive; Angela/family-call knowledge is not transferred.
 
 - **Baseline:** This pairing is institutionally limited and non-romantic. Their contact is grounded in conservatory/Open Week logistics, welfare procedure, and Sylvia's preparation around Lavinia's name and location.
 - **Attraction or tension:** Use friction between embodied self-knowledge and procedural certainty. Do not write attraction, a route, or an ending variant.
@@ -311,7 +486,7 @@ A failed gate requires mutation or rejection. A dossier constrains performance b
 
 ## Cross-Character Dialogue Tests
 
-Before accepting a line, remove its speaker name and test whether vocabulary, strategy, and rhythm still identify her:
+Test characteristic exchanges with the speaker names removed: do vocabulary, strategy, and rhythm remain differentiated across the exchange? Ordinary replies, shared idiom, and temporary imitation may be interchangeable. Do not rewrite a useful plain answer merely to display a signature trait. The questions below are scene-level diagnostics, not requirements for every line:
 
 - **Angela:** Does the line compress emotion, ask for verification, or use one precise absurd/technical turn without becoming robotic?
 - **Priscilla:** Does the line interpret or refine language while revealing who she believes should author the outcome?

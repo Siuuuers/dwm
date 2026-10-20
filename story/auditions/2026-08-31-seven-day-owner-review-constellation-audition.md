@@ -34,7 +34,7 @@ The governing authorities are the [Core Story Bible](../01-core-story-bible.md),
 [Seven-Day Causal Matrix](../07-seven-day-causal-matrix.md), the
 [August 7 Dialogic Flow](../../docs/design/2026-08-07-seven-day-dialogic-flow-design.md),
 and the [Supportz Three-Truth Amendment](../../docs/design/2026-08-30-supportz-audience-priority-three-truth-mechanism-amendment.md).
-The [physical and institutional plausibility audit](../../docs/research/2026-08-31-seven-day-candidate-physical-institutional-plausibility.md)
+The [physical and institutional plausibility audit](../research/2026-08-31-seven-day-candidate-physical-institutional-plausibility.md)
 is noncanonical research support, not story authority.
 
 ## 2. Recommended Week at a Glance

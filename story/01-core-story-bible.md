@@ -16,12 +16,26 @@ Authority follows this order:
 8. The original brief controls only decisions not superseded by later approval.
 9. Research may correct physical-world terminology and plausibility, but it may not change approved fictional canon.
 
-**Mechanical supersession notice (2026-08-07).** Where this file's ending or
-mechanics wording conflicts with the approved bounded specification
-`docs/design/2026-08-07-seven-day-dialogic-flow-design.md`, that specification
-supersedes the conflicting mechanical detail. This notice changes no character,
-relationship, voice, atmosphere, or narrative canon, which this file continues
-to own.
+**Current reading boundary, consolidated 2026-10-20.** Read the
+[Priscilla foundation](09-priscilla-foundation-amendment.md) before any retained
+passage below. Its scoped amendments own the current cast, sole viewpoint,
+flowing chapter, relationship choice, local results and Observer knowledge.
+The August design remains a mechanical baseline only where later approvals
+have not superseded it. Historical calendar, Angela, sisterhood, state-deck
+and ending-family passages remain available for provenance and compatible
+material; their presence here does not restore them as current instructions.
+
+| Current subject | Active owner in this reading |
+|---|---|
+| Three adult women; Priscilla's sole viewpoint; seven flowing days and later P–L/P–S choice | [Foundation §§1–2](09-priscilla-foundation-amendment.md#1-cast-viewpoint-and-preserved-continuity) and the current sections below |
+| One identically presented P–L Dark ending; different actual earlier conduct | [P–L ending amendment](09-priscilla-foundation-amendment.md#pl-specific-ending-amendment-2026-10-18) |
+| Priscilla's nonrepentant accommodation and Lavinia's testing capacity | [Priscilla](#current-pl-judgment-2026-10-18) and [Lavinia](#lavinia) |
+| Sylvia's stronger Lavinia attachment, limited mutual knowledge, earlier acquaintance and occasional notices | [Current Sylvia triangle](#current-sylvia-triangle-2026-10-19), [history](#current-sylvia-history-2026-10-19) and [notice habit](#current-sylvia-notice-habit-2026-10-20) |
+| Exact day prose, result tails and unselected scene alternatives | [Audition index](auditions/README.md); these records do not silently promote a scene or its private motives to canon |
+
+The [pre-consolidation Bible](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/01-core-story-bible.md)
+preserves the exact earlier wording. This bounded integration does not close
+the protected childhood, residence, admission, bar or residue history work.
 
 Use approved first names only. Do not invent surnames. Production notes may describe staging, but they are not released narration. This authority does not create exact schedules, variables, thresholds, UI styling, replay logic, or other implementation facts that belong to code.
 
@@ -33,32 +47,43 @@ Use approved first names only. Do not invent surnames. Production notes may desc
 - **Length guidance:** The former two-hour first-clear figure applies only as a soft target for plot content and may be exceeded when the material earns it. It is not a canon, compatibility, or hard production limit; no current five-hour full-completion limit is fixed here.
 - **Internal engine context:** Godot with Dialogic 2, mentioned only when useful to production
 
-All four principal characters are adults.
+The three current principal characters—Priscilla, Lavinia and Sylvia—are
+adults. Angela is not an in-world character in this foundation.
 
 **Public logline:**
 
-> During a seven-day university open week in Hong Kong, astrophysics student Angela arranges meetings with three women whose private histories continue without her. As schedules, messages, and memories disagree, choosing where to be cannot determine what anyone wants.
+> Across seven days at a Hong Kong university, Priscilla seeks closeness with two women whose desires and private histories exceed what she can read. Ordinary company becomes unsettling as care, jealousy and apparently accidental arrangements change what staying together costs.
 
 ## Experience Contract
 
-Angela is the only affectable character, but she is not the centre of every relationship. The audience can shape her available expression and intended action, but cannot author her personality, anyone else’s desire, or consent. Choices have genuine local consequences while other people continue acting outside Angela’s attention.
+Priscilla is the sole viewpoint and the character whose local conduct the
+audience can affect through the approved chapter flow. She is not the centre
+of every other person's desire. Choices have genuine local consequences;
+they do not manufacture personality, desire, consent or another woman's
+response. Other people continue acting outside her attention.
 
 Use **audience** for narrative analysis. Use **player** only for technical input, accessibility, or platform language.
 
 ### Audience-Visible Scene Boundary
 
-Audience-visible plot appears through exactly three current narrative surface classes: messages, dating scenes, and endings. Dating scenes include Angela-attended solo or scheduled encounters, Angela-attended Group encounters, and explicitly authorized Priscilla–Lavinia private counterparts. Hospital may become the setting or variant of an encounter or ending; it is not a fourth class. Ending preludes, cores, later relationship layers, postscripts, and Observer codas remain inside the ending surface.
+The current story flows through Priscilla's encounters, their available
+messages and objects, her perception and self-talk, and the selected ending
+form. It does not require a dating-slot menu or restore Angela-attended and
+P–L counterpart surface classes. A private history does not itself authorize
+a flashback, cutaway, new viewpoint or unseen selected event.
 
-No standalone cutaway follows Priscilla, Lavinia, or Sylvia outside those surfaces. The Day 2 umbrella history occurs offscreen within the fiction and may be inferred only through lawful carriers inside messages, dating scenes, and endings; neither the event itself nor an explanatory reconstruction is shown.
-
-Friends continue acting outside Angela's attention. Those actions may exist as private causality and may later enter an authorized scene through an object, record, message, changed circumstance, or dialogue. Hidden detail earns canon only when it changes visible behavior, supplies necessary causality, or prevents contradiction; otherwise omit it.
+Friends' offscreen conduct may later become available through a credible
+record, object, message, changed circumstance or spoken account. Private
+notes can also guide a performance without giving the audience proof of
+every motive. Keep a selected but unrevealed fact, a working interpretation
+and a deliberately unresolved cause distinct. Do not expect an audience to
+deduce a secret that never affects anything they can experience.
 
 ## Dramatic Questions
 
-- **Angela:** When does refusing to act become choosing?
 - **Lavinia:** Can attention prove love when it must be provoked?
 - **Priscilla:** Does understanding grant authority over another person’s choices?
-- **Sylvia:** When does help become a method for arranging permanent debt?
+- **Sylvia:** When does care make a personal wish seem like an arrangement the other person already owes?
 
 These are writer-facing questions, not arguments the characters announce.
 
@@ -77,7 +102,7 @@ No reaction test becomes hidden history by repetition. No unresolved cause recei
 
 East Harbour University and the East Harbour Conservatory of Performing Arts share a fictional urban campus near Kowloon. The site is dense and vertical: stacked buildings, covered walkways, stairs beside lifts, retaining walls, short steep streets, and rail-plus-minibus access. It evokes Hong Kong circulation without copying one real institution or claiming that every building connects underground.
 
-The conservatory is institutionally affiliated with the university. Angela studies astrophysics at the university; Priscilla studies English literature; Lavinia studies ballet through the conservatory; Sylvia studies statistics or decision science at the university. Ordinary academic and conservatory work continues during the story.
+The conservatory is institutionally affiliated with the university. Priscilla studies English literature; Lavinia studies ballet through the conservatory; Sylvia studies statistics or decision science at the university. Ordinary academic and conservatory work continues during the story.
 
 ## Open Week Structure
 
@@ -85,14 +110,23 @@ The conservatory is institutionally affiliated with the university. Angela studi
 
 Open Week does not manufacture attraction to justify a seven-day progression. Neutral institutional duties place existing familiarity, desire, curiosity, investment, receptivity, care, and control methods into a shared timetable. Experience may expose or test them, and repeated character-authored decisions may deepen or transform an attachment. A schedule, state progression, tone classification, board result, or Observer Pressure cannot perform that transformation by itself. Records, expectations, attendance, absence, and practical consequences make postponement harder and previously deniable conduct more difficult to isolate. Observer Pressure may amplify clustering or urgency, but it cannot originate desire, consent, obligation, or decision. Day 7 culminates accumulated pressure; it is not sudden love, a compulsory confession, an official label, or the end of the characters’ lives.
 
-- Angela supports astronomy demonstrations and late observation.
 - Priscilla handles programme language, communications, and student organization.
 - Lavinia rehearses and performs through the conservatory.
 - Sylvia supports welfare, safety, scheduling, and visitor logistics within her limited volunteer role.
 
-Dates and meetings occupy practical windows around these responsibilities. The August 7 design fixes the intended twelve solo and two conditional pair windows. Runtime decides what is physically implemented and is checked against that design for drift; implementation availability never silently becomes intended law.
+Meetings occupy practical windows around these responsibilities. The former
+twelve solo and two conditional pair windows are historical scheduling
+reference; they do not govern the current flowing chapter. Runtime decides
+what is physically implemented and is checked against the current intended
+flow; implementation availability never silently becomes intended law.
 
 ## Seven-Day Fixed Spine
+
+**Current continuity:** Priscilla is present from Day 1 and Lavinia ordinarily
+returns on Day 2. The foundation and Causal Matrix own the new chapter's
+approved obligations and placements. **Retained calendar reference:** the
+Angela attendance, Day 7 schedule gate and Alone rules in the list below
+belong to the earlier architecture. They are not current placement commands.
 
 - Priscilla is present from Day 1.
 - Lavinia returns to Hong Kong on Day 2.
@@ -143,6 +177,14 @@ manufacture a Day 2 mystery.
 
 ## Observer Pressure
 
+**Current knowledge boundary:** apply [Foundation §5](09-priscilla-foundation-amendment.md#5-observer-knowledge-and-possible-epilogues).
+Priscilla first identifies the Observer only at her first Perfect result;
+later recognition follows that established state. A pre-Perfect resemblance,
+an ordinary card or a reader's suspicion does not grant that knowledge.
+Neither Lavinia nor Sylvia automatically receives Priscilla's awareness.
+The descriptions below retain the locally possible pressure model; their
+earlier blanket nonrecognition rule is superseded by that scoped amendment.
+
 **Observer Pressure** is the writer-facing term. **Love God** is an internal production nickname. Neither is a confirmed entity, public character, or canonical supernatural explanation.
 
 Observer Pressure may:
@@ -152,7 +194,11 @@ Observer Pressure may:
 - create physically possible coincidences, timing failures, and interface irregularities;
 - make an ordinary causal chain nearly impossible in combination.
 
-It may not create consent, define desire, force a decision, or answer the mystery. Characters do not recognize it as an entity. They treat anomalies as practical inconveniences unless credible danger demands a stronger response.
+It may not create consent, define desire, supply unrestricted control of a
+body or another person's decision, or answer an unresolved cause. Before
+the approved recognition event, characters can address anomalies as local
+practical problems without naming their supposed author. Recognition does
+not grant new powers, universal explanations or knowledge of another mind.
 
 ## Mystery Fairness and Functional Abnormality
 
@@ -183,6 +229,11 @@ or qualified help.
 
 ## Character Canon Essentials
 
+The current cast is Priscilla, Lavinia and Sylvia. Apply their dated current
+sections before compatible retained descriptions. Angela's dossier is
+historical reference only; the foundation retains her restrained notification
+wording as a style reference, not her biography, viewpoint or relationships.
+
 ### Angela
 
 Angela is 20, Hong Kong-born, and a second-year astrophysics student. Cantonese is her everyday language, academic English is fluent, and Putonghua is situational. Her emotional minimalism is temperament, not trauma shorthand. She loves astronomy and strategy games with disproportionate intensity; she is skilled at resource management and often lucky, but neither advantage transfers cleanly into relationships or moral responsibility. Her deadpan is partly performed: she invents elaborate, intentionally ridiculous deductions to amuse, annoy, or destabilize, and uses physics or game language only when the metaphor is genuinely precise. Once someone enters her inner circle, she accepts strange requests she would dismiss as unnecessary side content from anyone else. She has no prior romantic experience and is drawn to attentive care. She willingly delegates choices but requires reality to remain independently inspectable. Her greatest danger is using uncertainty as moral shelter while enjoying another person’s controlling care.
@@ -193,19 +244,125 @@ Recognition is not classification. Angela may accurately notice an abnormality, 
 
 Priscilla is 20, Hong Kong-born, and an English literature student with institutional credibility. She speaks polished Cantonese and English, selecting public language for control of nuance. Care appears as management, correction, anticipation, and selective truth; her attention inventory includes preferences, walking pace, silence patterns, stress tells, familiar routes, and habits. She overreads language and patterns but is not a mind reader, and desire makes her most likely to overfit or use the right lever at the wrong moment precisely when accuracy matters most. Her deepest fear is not dramatic abandonment but informed independence: someone becoming completely capable of leaving and calmly preferring an imperfect life outside her management. Her love is genuine; its coexistence with acquisition and control makes it frightening.
 
+#### Current P–L judgment, 2026-10-18
+
+**Owner-confirmed character refinement:** in the current P–L portrayal, Priscilla
+does not regard her own conduct as morally wrong. She may do something she does
+not want to do to cater to Lavinia, or stop a harmful act she still wants, because
+Lavinia may dislike it. The accommodation can be sincere and costly without
+changing Priscilla's judgment. She can also choose the harmful conduct; obedience
+is not an infallible command or a promise that every act is secretly repeated.
+
+She can understand a rule, another person's objection, or a factual/tactical
+mistake without accepting moral fault. This is her self-justification, not the
+story's verdict, a diagnosis, or perfect knowledge of Lavinia. It broadens the
+09/26 intervention-only clarification for current P–L conduct and supersedes the
+assistant's earlier recommendation to retain only that narrow scope. The fixed
+intervention, its two real motives and their unresolved proportions remain.
+The [current development checkpoint](auditions/priscilla-seven-day-working-plot.md#current-pl-direction-and-development-checkpoint-2026-10-18)
+records the author's correction and the still-unselected scene implications.
+
 ### Lavinia
 
 Lavinia is 22, Romanian, from a wealthy Bucharest family, and a conservatory ballet student. She is fluent in English, uses Romanian in private, and is developing Cantonese without comic incompetence. She treats powerful reaction as evidence of importance and may provoke attention rather than ask directly. Her parents’ generous freedom and material support do not always feel like precise attunement; she may administer tests other people do not know exist and associate resistance with attention. Her professional discipline coexists with physical and emotional boldness. Her persistent load-related lower-limb pain is symptom-based canon; no exact diagnosis is fixed.
 
+**Current Dark-development direction, 2026-10-18:** the author requests stronger
+emotionally impulsive testing, including psychological/emotional abuse and
+possible physical partner violence that Lavinia may rationalize as deserved.
+This authorizes development of that capacity, not a specific past or future
+incident, injury, frequency, or bodily permission. Her allegation of betrayal
+does not establish a broken exclusivity agreement. Her professional discipline
+and ordinary pleasures remain part of the same person. Jealousy over Priscilla's
+wider attention as the principal week motive is a leading [development
+proposal](auditions/priscilla-seven-day-working-plot.md#current-pl-direction-and-development-checkpoint-2026-10-18),
+not a replacement of the real disclosure history or an author-certified account
+of every earlier test.
+
 ### Sylvia
 
-Sylvia is 21 and a third-year statistics or decision-science student. She is an Open Week peer-welfare and safety volunteer with a current basic first-aid certificate. She may know public schedules, assigned rooms, check-in procedures, and incident workflow. She has no diagnostic authority, private-record access, or legitimate right to conduct a general physical examination. Unable to risk asking to be wanted, she arranges to be owed and translates personal or erotic desire into practical, medical, or moral necessity. In her darker private logic, each successful rescue should narrow Angela’s alternatives until Sylvia appears to be the only reliable person, gratitude becomes permanent debt, and compliance feels like reasonable repayment. Her prudishness governs how she explains desire, not whether desire exists; no explanatory label creates consent.
+Sylvia is 21 and a third-year statistics or decision-science student. She is an Open Week peer-welfare and safety volunteer with a current basic first-aid certificate. She may know public schedules, assigned rooms, check-in procedures, and incident workflow. She has no diagnostic authority, private-record access, or legitimate right to conduct a general physical examination. Fearing a plain request to be wanted, she may arrange to be owed and translate personal or erotic desire into practical, medical, or moral necessity. Useful care can become her argument for continuing access while gratitude is treated as debt. This enduring method does not transfer the retired Angela rescue sequence into a current hidden plan. Her prudishness governs how she explains desire, not whether desire exists; no explanatory label creates consent.
+
+#### Current Sylvia triangle, 2026-10-19
+
+**Source and scope:** the owner's clarification at 03:54 Asia/Hong_Kong and
+acceptance of the two knowledge recommendations at 05:03, following the Day 1
+opening critique. This is current character direction;
+exact scenes, methods, disclosures and endpoints remain unselected. The
+[development checkpoint](auditions/priscilla-seven-day-working-plot.md#current-sylvia-and-perception-clarification-2026-10-19)
+preserves the distinctions and outstanding questions.
+
+Sylvia's romantic feeling for Lavinia is stronger than her romantic feeling
+for Priscilla. Her attachment to Lavinia precedes the later storyline fork;
+selecting a storyline does not create it. This does not make every pleasure,
+affection or attraction involving Priscilla counterfeit.
+
+Across the Sylvia-focused seven-day storyline, Sylvia aims to make a
+Priscilla–Lavinia relationship impossible and increase her own chances with
+Lavinia. She may promote conflict or misunderstanding, criticize Lavinia's
+supposed incompatibility with Priscilla, act or lie, and express a personal
+truth through a joke given a practical completion. This records Sylvia's aim,
+not guaranteed separation, successful prediction, or Lavinia's reciprocation.
+
+Meticulous care remains part of her love: she offers what she believes is
+best and can treat that judgment as authority. The owner also names
+self-directed harm to obtain attention or sympathy as a possible capacity.
+No particular incident, method, injury, recipient, frequency, diagnosis or
+successful response is selected. That capacity does not automatically make
+an observed distress false or transfer the retired Angela Special event.
+
+The former blanket non-romantic Sylvia–Lavinia restriction is superseded in
+this scope. At the later relationship fork, Priscilla may suspect Sylvia's
+attraction to Lavinia while misunderstanding its extent or strategic
+importance. The exact evidence, onset of suspicion and later discoveries
+remain unselected; this is not full knowledge of Sylvia's plan.
+
+Lavinia's romantic response to Sylvia is deliberately unresolved on the
+writer's side until a particular scene needs a decision. Do not privately fix
+reciprocation or its absence and describe it as merely concealed. Lavinia's
+awareness of Sylvia's desire and interference remains open. There is no newly
+selected third playable route, affair, triad, or
+Priscilla–Sylvia ending. Apply the [earlier-acquaintance clarification](#current-sylvia-history-2026-10-19)
+without importing Angela's whole biography.
+
+#### Current Sylvia notice habit, 2026-10-20
+
+**Owner-approved character direction:** Sylvia sometimes makes a personal
+preference sound like an arrangement already in force. An improvised notice
+or card is one occasional way she does this. The manner can carry care,
+irritation, invitation, play or control; it is not a compulsory prop, a
+permanent emotional code, or proof that every notice conceals hostility.
+
+Priscilla can recognize the manner without reliably knowing whom the message
+is for, how serious it is, what Sylvia feels, or which attachment matters
+most to her. Familiarity supplies an opportunity to interpret and misread,
+not a secret dictionary or access to Sylvia's plan. Sylvia can enjoy being
+recognized and remain uncertain about the response she will receive.
+
+The [Day 3 development record](auditions/day-3-sylvia-fork-working-draft.md#8-review-carry-and-remaining-development)
+owns the current ordinary authorship and minimal familiarity cue. The
+earlier coffee-seat notice is a private **AUDITIONING** example, not a fixed
+first occurrence or shared memory. The habit's age, exact origin, first
+witness and formative cause remain open. A later altered card or fate
+discrepancy remains a separate unselected possibility; this direction grants
+no new Observer power or early recognition.
+
+The [Handbook's notice performance guidance](02-character-relationship-handbook.md#occasional-notices-and-familiar-misreading)
+develops its use without making every meeting about a card.
 
 ## Fixed Hidden Histories
 
-These facts are private canon. The released game reveals them only through partial evidence, behavior, or approved fragments and endings.
+Apply the foundation and dated current history before the retained material
+in this section. The Angela childhood incident, P–S sisterhood, family-call
+access and Angela–Lavinia friendship are historical source material, not
+current facts available through name substitution. The P–S replacement
+childhood incident remains open. Compatible protected P–L history keeps its
+existing status and migration hold. Current facts may remain unrevealed or
+enter the game through partial evidence, behavior or separately approved
+fragments; this heading supplies no scene authorization.
 
 ### Angela–Priscilla Childhood Incident
+
+**Retained legacy history; replacement unresolved under the foundation.**
 
 At age twelve or thirteen, Angela was wrongly blamed for alteration or deletion of a group science project. Priscilla possessed suggestive but inconclusive evidence, fabricated one recovery record, and correctly identified the culprit. Angela believed the exonerating evidence was authentic. Priscilla then arranged the culprit’s private humiliation through truthful information, without charge or appeal. Her conclusion was right; her procedure was wrong. The incident taught Angela that Priscilla could make disputed reality legible and taught Priscilla that a true conclusion could justify control of the record.
 
@@ -213,11 +370,33 @@ Angela initially withdrew rather than perform innocence for adults who already p
 
 ### Priscilla–Sylvia Sisters
 
+**Retained legacy history; superseded by P–S childhood friendship.**
+
 Priscilla and Sylvia are sisters, and Angela has known both since childhood. Knowing Sylvia as Priscilla’s sister never produced equal intimacy: Angela’s relationship with Sylvia remains that of a long-standing occasional acquaintance, while Sylvia has had more opportunity and inclination to observe Angela than Angela recognized. The sisterhood is an ordinary family fact to Angela and the sisters and should reach the audience incidentally rather than as a conspiratorial reveal. It creates no romance, route, state deck, or ending between the sisters and grants no automatic access to the other’s records, rooms, messages, desires, or hidden intentions.
 
 Their control methods share a family resemblance without establishing a shared formative cause. Priscilla makes desire defensible through wording, records, and social authorship; Sylvia makes it defensible through preparation, risk, access, and care debt. Each may recognize the other’s overreach more readily than her own. They do not coordinate hidden intentions, and Sylvia’s fixed harmful intent toward Angela belongs to Sylvia alone.
 
+### Current Sylvia history, 2026-10-19
+
+The owner says Sylvia knew Lavinia before Priscilla. The current chronological
+reading is **before Priscilla knew Lavinia**, while Priscilla and Sylvia remain
+childhood friends under the foundation. No age, semester or introduction
+event is added.
+
+The owner directs an adaptation of the former Angela–Lavinia first meeting.
+The exact retained premise below is an astronomy-class university friendship;
+use that as the adaptation basis. The new scene's exact circumstances and
+degree of intimacy remain open. It does not transfer Angela's degree,
+temperament, England exchange, or reciprocal romantic feeling.
+
+Priscilla's recognition of Lavinia at the bar before formal introduction
+remains. Sylvia's acquaintance does not itself establish why Priscilla
+recognized her, whether Sylvia introduced them, or what Sylvia told her.
+
 ### Angela–Lavinia University Friendship
+
+**Retained adaptation source:** the current Sylvia-history section above
+governs what may be carried into the new acquaintance.
 
 Angela and Lavinia first met through an astronomy class and became university friends there. Their later astronomy encounters resume an existing ordinary intimacy rather than manufacturing a first bond.
 
@@ -255,7 +434,7 @@ Before departure, Lavinia authorized Priscilla to polish and submit institutiona
 
 Priscilla acted from two true motives at once. She genuinely feared that continued training could turn Lavinia’s condition into lasting injury, and she also welcomed any legitimate institutional consequence that might delay Lavinia’s departure. She selected the defensible wording most likely to make assessment mandatory and thereby create a credible risk of delay, then ensured the consequence occurred before Lavinia could object. Had protection been her only aim, she could have confronted Lavinia, refused to submit the minimized account, or insisted upon assessment openly; secrecy converted legitimate care into control. Lavinia was legitimately violated and professionally frightened, but also affected by Priscilla noticing what she had tried not to admit. Being moved by the care never reduces the violation. Lavinia ultimately left, so the intervention failed to keep her in Hong Kong but contaminated the departure psychologically. The writing must never settle whether Priscilla wanted someone to stop the injury or stop Lavinia from leaving.
 
-**Owner clarification recorded 2026-09-26: Priscilla's judgment of this intervention.** Priscilla does not regard her unauthorized substantive amendment and submission as an act she ought not to have committed. She knows what she changed and can understand Lavinia's objection without accepting that the intervention was wrong. Her dissatisfaction concerns how imperfectly she secured the outcome and retained Lavinia's closeness; she may adapt her manner and conduct to Lavinia's wishes without revising that judgment. Genuine affection and protective concern remain present, and neither cancels the violation. Do not recast tactical adaptation, tenderness, acknowledgment of hurt, or regret about the resulting distance as moral remorse for the amendment. This clarification concerns this intervention, not a universal inability to recognize wrongdoing or a predetermined judgment of another act.
+**Owner clarification recorded 2026-09-26: Priscilla's judgment of this intervention.** Priscilla does not regard her unauthorized substantive amendment and submission as an act she ought not to have committed. She knows what she changed and can understand Lavinia's objection without accepting that the intervention was wrong. Her dissatisfaction concerns how imperfectly she secured the outcome and retained Lavinia's closeness; she may adapt her manner and conduct to Lavinia's wishes without revising that judgment. Genuine affection and protective concern remain present, and neither cancels the violation. Do not recast tactical adaptation, tenderness, acknowledgment of hurt, or regret about the resulting distance as moral remorse for the amendment. That was the scope of the 2026-09-26 clarification. Apply the later [current P–L judgment refinement](#current-pl-judgment-2026-10-18) for the broader forward portrayal; the historical intervention itself is unchanged.
 
 This records the owner's explicit correction, not the promotion of a new scene. It supersedes remorse-based interpretations of the amendment in derived guidance and older bar auditions, including the old shame formulation to that extent only. It does not change the event's medical particulars, grant prior physical or sexual intimacy, resolve residence history, select a Day 2/Day 6 encounter, or change an ending rule. The [bounded working record](relationships/priscilla-lavinia/relationship.md#2-the-correction-that-must-not-drift) preserves the correction's scope separately from unplaced relationship and intimacy exploration.
 
@@ -264,6 +443,12 @@ This records the owner's explicit correction, not the promotion of a new scene. 
 Angela has known Sylvia since childhood as Priscilla’s sister but still knows her personally only as an occasional acquaintance and recognizes her current volunteer role. Shared family context may explain Sylvia’s early awareness of Angela’s name and limited old habits; it does not justify the depth of her present study. Public schedule access and observation explain much, but not her exact timing or private knowledge. Sisterhood grants no access to current messages, private records, medical information, rooms, or consent, and any unauthorized use of check-in or incident information remains a boundary violation rather than a privilege of family or peer welfare. Sylvia has no past-fragment deck and no Observer Ending.
 
 ## Relationship State and Tone
+
+**Retained state architecture:** apply the foundation before the tier,
+pairing and progression instructions in this section. Compatible
+distinctions between desire, mutuality, chosen conduct and tone remain
+useful. The former Angela-centred tiers and non-romantic P–S/S–L bans do
+not govern the current chapter.
 
 Relationship state progresses in one direction:
 
@@ -312,6 +497,11 @@ No state, tone, counter, board result, audience observation, or Observer Pressur
 An Angela pairing—Sweet or Dark—does not erase or subordinate the Priscilla–Lavinia bond, establish a triad, promise exclusivity, or retroactively convert earlier scenes into concealed romance. Angela may become necessary without becoming the centre of either woman's history.
 
 ## Event Architecture
+
+**Retained event architecture:** the old window, surface and event-count
+requirements below do not place events in the current flowing chapter.
+Use the foundation and Causal Matrix for approved current obligations;
+the individual day owners hold scene development at its recorded status.
 
 Date is production shorthand for an Angela-attended solo encounter, not a diegetic promise that either woman considers it romantic. A selected premise may surface as deliberate, practical, obligatory, or incidental, but apparent coincidence cannot bypass the August-owned invitation, scheduling, attendance, Hospital, or absence law.
 
@@ -416,6 +606,15 @@ The pool contains five fragments:
 Fragments provide evidence and characterization only. They never gate or assign relationship state, tone, or ending eligibility. They remain in normal history where the existing implementation supports them. There is no separate memory gallery.
 
 ## Ending Architecture
+
+**Retained architecture below:** the older Angela, Special, Pair and
+Sweet/Dark ending-family rules are source history where the foundation
+supersedes them. Current P–L has one identically presented Dark ending;
+earlier results retain their different actual actions and consequences.
+The foundation's [ending section](09-priscilla-foundation-amendment.md#3-ending-form-is-separate-from-partner-and-local-conduct)
+owns that scoped change and the still-open P–S and Observer endpoint work.
+Do not derive a current ending count, required epilogue, second P–L ending
+or exact final scene from the retained catalogue.
 
 **FORWARD-PLOT STATUS:** The composition and evaluation laws in this section
 remain the current mechanical/narrative boundary unless a later approved plot
@@ -542,7 +741,7 @@ Before a premise or beat may survive, its author must answer:
 3. Is she using her own established control signature rather than borrowing another woman’s method?
 4. What may she refuse, redirect, accept partially, ignore, or leave?
 5. What consequence makes continued non-action costly?
-6. Does each woman retain a task and motive not organized around Angela?
+6. Does each woman retain wants and activities beyond securing the viewpoint character's attention?
 7. Is a beautiful idea making the character perform for the author?
 
 A dossier constrains a performance but does not exhaust a person or reduce every act to one wound. A failed gate requires mutation or rejection; elegance cannot excuse character betrayal.
@@ -559,19 +758,40 @@ A plot-bearing medical, astronomical, geographic, technological, scheduling, or 
 
 Dialogue remains the dramatic engine. Visible action, diegetic text, objects, and sound remain primary evidence. Sparse perceptual prose may register an exact object, bodily sensation, position, line of sight, repetition, replacement, omission, or immediate judgment when that fact becomes salient to one eligible consciousness.
 
-Anchor binding is epistemic, not grammatical. Before drafting a continuous passage, the private writer-facing scene record declares one eligible anchor; the released text need not name her, and withheld audience attribution never makes the production anchor unknown. Once a passage declares or inherits that anchor, prose need not repeatedly attribute perception with `Angela saw`, `Lavinia noticed`, or an equivalent tag. Objective-seeming surface sentences remain bound to that consciousness and may state only what she can consciously and physically perceive. An unqualified absence statement is lawful only when the anchor can consciously and physically perceive the full scope it claims; it proves only that the stated carrier is absent from that perceptual field, not that an unseen, emotional, causal, or interpretive connection is absent. In writer-facing shorthand: **anchor-bound does not mean anchor-tagged**.
+Anchor binding is epistemic, not grammatical. In the current chapter the
+eligible viewpoint is Priscilla. The private scene record keeps her access
+and any withheld referents clear while the audience-facing prose may reduce
+grammatical person and direct identification. Names, pronouns and ordinary
+action sentences remain available when they make a sentence more beautiful,
+smooth or natural. Attention may rest on a page edge, a changed distance or
+bodily tension without repeatedly reporting that she looks or notices.
+Objective-seeming sentences remain bound to what she can perceive; they do
+not become independent evidence about another mind. An absence statement
+requires access to the full perceptual scope claimed. In writer-facing
+shorthand: **anchor-bound does not mean anchor-tagged**.
 
-The operational craft tests and the bounded Day 6 Group authorization for
-unmarked focal presence are maintained in the
+The operational craft tests and the historical Day 6 unmarked-focal reference
+are maintained in the
 [Narrative Style Manual](08-narrative-style-manual.md#42-unmarked-focal-presence).
 They may conceal audience-facing attribution but may not loosen this Bible's
 anchor eligibility, physical-access, or passage-stability laws.
 
 An eligible anchor may speak whenever her own task, pressure, or temperament earns speech; perceptual restraint does not require muteness. Her dialogue may supply a bounded fact, question, correction, refusal, or characterful observation. It may not be inserted merely to translate deliberately unclaimed meaning. **Silence is optional; unexplained meaning is essential.**
 
-The game has no narrator identity, omniscient or explanatory narration, unrestricted private-thought transcription, invisible stage directions, or prose that grants hidden knowledge. Perceptual prose may be subjective without announcing itself as an interior-monologue box. An immediate judgment is not permission to transcribe unrestricted private thought, and the prose may withhold the reason an observation matters. It may not diagnose emotion, state another person’s motive, reveal a fact the declared anchor did not perceive, explain symbolism, identify an unresolved cause, dictate interpretation, or head-hop.
+Priscilla's self-talk can include private thought, hesitation, attention and
+immediate interpretation; it need not be audible speech. The story and
+self-talk fields share her viewpoint. A thought may be confident, evasive,
+jealous or mistaken without certifying its object. Neither field supplies
+omniscience, another person's undisclosed motive, an unresolved causal answer
+or an explanatory narrator. Whether a line works as story or self-talk is a
+presentation decision governed by the [Style Manual](08-narrative-style-manual.md#4-dialogue-led-perceptual-writing),
+not a switch in factual authority or grammatical person.
 
-Every authorized audience-visible surface uses these exact anchor rules:
+**Retained anchor catalogue:** the Angela and optional Lavinia anchors below
+belong to the former surface architecture and are superseded by the sole
+Priscilla viewpoint. Compatible limits on access, replay, offscreen history
+and unseen evidence remain useful; this catalogue authorizes no new current
+viewpoint or scene class.
 
 - An Angela-attended solo or group scene, Angela-owned ending or postscript, or Hospital passage may use Angela-bound prose only while Angela is conscious and can physically perceive the stated fact.
 - An authorized audience-visible Priscilla–Lavinia surface—including a private counterpart, pair ending, or postscript—may declare Priscilla or Lavinia as its anchor. Group presentation with Angela present defaults to Angela. The offscreen umbrella history creates no passage and therefore no anchor.
@@ -658,6 +878,12 @@ The public profile must not reveal:
 Public character descriptions may carry one unsettling trait each without revealing a crime, causal answer, or hidden history. Creative references remain internal unless a later creator statement deliberately names them.
 
 ## Canon Maintenance Rules
+
+Apply these retained checks only where compatible with the foundation and
+later explicit approvals. References below to Angela's presence, former
+ending families, compulsory scene forms or calendar gates do not restore
+superseded requirements. The current reading boundary at the start of this
+file governs their use.
 
 1. Resolve conflicts by the authority order in this file; do not silently merge incompatible versions.
 2. Treat the August design as baseline intended mechanical law subject to later explicit approvals and recorded supersessions. Inspect the runtime to record what physically exists and identify drift as a reconciliation finding; neither current runtime behavior nor the Production Map may silently amend the approved design or narrative canon.

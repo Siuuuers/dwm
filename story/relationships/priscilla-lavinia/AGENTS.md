@@ -13,8 +13,8 @@ but P-L is no longer required to outrank every other attachment in every ending.
 Keep the scoped disclosure correction and all unresolved residence/bar/residue
 holds. Existing scene candidates stay unselected at their actual scope. Do not
 resume a historical Day 6 placement, add an Angela-attended counterpart, or treat
-the documentation PR as runtime approval. Current Chapter/Challenge behavior is
-in the [flow amendment](../../../docs/design/2026-10-09-priscilla-flow-behavior-amendment.md).
+the documentation PR as runtime approval. Current Chapter/Challenge behavior and ending scope are
+in the [consolidated foundation and flow](../../09-priscilla-foundation-amendment.md).
 
 ## Retained working practice and source discipline
 

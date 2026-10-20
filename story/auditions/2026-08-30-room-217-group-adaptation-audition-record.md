@@ -40,7 +40,7 @@ Current authority remains:
    placement and compact causal obligations;
 4. the [Scene Beatbook Room 2.17 core](../06-seven-day-scene-beatbook.md#room-217--approved-causal-core)
    for the sole approved-but-unplaced detailed exception;
-5. the [Dialogue-Led Perceptual reconciliation](../../docs/superpowers/specs/2026-08-29-dialogue-led-perceptual-canon-reconciliation-design.md)
+5. the [Dialogue-Led Perceptual reconciliation](../design/2026-08-29-dialogue-led-perceptual-canon-reconciliation-design.md)
    for anchor and lawful-knowledge boundaries; and
 6. this file only as noncanonical, owner-approved audition memory.
 
@@ -234,7 +234,7 @@ Angela's result does not select the more beautiful, pedagogically preferable,
 or emotionally meaningful order.
 
 The physical and institutional basis for this bounded choice is recorded in the
-[noncanonical operator-pass research note](../../docs/research/2026-08-30-room-217-operator-run-sheet-and-cue-pass-plausibility.md).
+[noncanonical operator-pass research note](../research/2026-08-30-room-217-operator-run-sheet-and-cue-pass-plausibility.md).
 
 **REACTION TEST — owner-approved physical rhythm; illustrative prose and
 question, not final DTL. Only `Either` and Priscilla's reply remain the approved

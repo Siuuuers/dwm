@@ -1,103 +1,77 @@
 # Priscilla–Lavinia: working home and restart point
 
-## Current Day 2 development, 2026-10-10
+Read the [current foundation and flow](../../09-priscilla-foundation-amendment.md) before retained pre-pivot material. Follow the [narrative guide](../../AGENTS.md) and [local guide](AGENTS.md). The [whole-week map](../../auditions/priscilla-seven-day-working-plot.md) owns cross-day development status.
 
-Read [the current Day 2 packet](auditions/day-2-return-bar-working-draft.md)
-with [the shared plot checkpoint](../../auditions/priscilla-seven-day-working-plot.md).
-The leading emotional effect is Priscilla mistaking Lavinia's tenderness for a
-decision to stay. Its popularity does not select every act around it.
+## Current reading route
 
-The packet separates the latest substantial aftermath from later early-evening,
-personal-answer and coda proposals. Lavinia's departure, Priscilla's departure,
-the paid room extension, and an observer-involuntary strike are not one event.
-The same-book handover, escalation, exact control/touch and five-state Challenge
-mapping remain open. These are AUDITIONING records, not fixed history or DTL.
+| Need | Open |
+|---|---|
+| The pair's durable attraction, wants, harmful methods and limits | [Relationship guidance](relationship.md), supported by the [Bible](../../01-core-story-bible.md) and [individual Handbook dossiers](../../02-character-relationship-handbook.md) |
+| Latest Day 2 encounter and current staying aftermath | [Return and bar](auditions/day-2-return-bar-working-draft.md) |
+| Shared Day 3 and Lavinia's complete bounded local family | [An Improvement](../../auditions/day-3-sylvia-fork-working-draft.md#4-the-lavinia-fork), after its shared Sections 1–3 |
+| Pleasure, humor and possible intimacy beyond plot utility | [Intimacy and ordinary company](intimacy-and-ordinary-company.md) |
+| Prose and private attention | [Style Manual](../../08-narrative-style-manual.md), especially §§4.2 and 7–8 |
 
-Capture and source coverage are centralized in the shared checkpoint.
-[PR #33](https://github.com/Siuuuers/dwm/pull/33) is the publication record;
-consult its actual metadata for merge state. Publication does not select the
-candidates. Existing residence/bar/residue holds and retained source history survive.
+The current Day 3 intake is Day 1 D → Day 2 D-staying. The shared gallery scene belongs to Priscilla and Sylvia; the later optional relationship thought and mutually exclusive forks retain their own acts. Lavinia can matter through jealousy, expectation or timing without occupying every exchange in her absence.
 
-## Retained pivot restart, 2026-10-09
+## What governs the pair now
 
-Begin with the [approved foundation amendment](../../09-priscilla-foundation-amendment.md)
-and [intended flow](../../../docs/design/2026-10-09-priscilla-flow-behavior-amendment.md).
-Priscilla is the sole viewpoint. The story begins with shared interactions and no
-preselected partner; one later self-talk Yes selects P-S, while passing it defaults
-to P-L. Sweet/Dark ending form is separate from that choice and local Challenge
-outcomes. Ambiguous/Love is no longer a mandatory second run-variant axis.
+There is **one identically presented Dark P–L ending**. Local softer conduct, ordinary pleasure and harsher actions can leave different histories and audience interpretations. The endpoint cannot silently erase the actual loss, disclosure, refusal or contact of an earlier reading.
 
-Older scene families remain useful candidates, not compulsory counts or placements.
-Do not combine incompatible Day 2 histories, import an Angela-attended counterpart,
-or make P-L the compulsory winner of a selected P-S storyline. The scoped disclosure
-correction and unresolved residence/bar/residue audit remain unchanged.
+Priscilla seeks Lavinia's chosen company and can make costly accommodations without concluding that her own conduct was morally wrong. She can also intrude or act harmfully. Preference-based restraint is not a guarantee of obedience, and enjoyment is not automatically a performance.
 
-**Capture:** the foundation discussion and request for separate-PR publication are
-recorded in the amendment. Exact fork, complete week, endings, childhood rewrite,
-awareness thresholds and technical selector details remain open. The documentation
-PR's metadata determines whether this checkpoint has reached `master`; PR #13 is
-the previous archival consolidation, and PR #1's implementation work is untouched.
+Lavinia's jealousy, testing, desire and impulsive harm can coexist with taste, humor, responsibility and real pleasure in company. A test can fail to produce the reassurance she wanted. Her anger does not establish a prior exclusivity promise, and a later invitation does not turn an earlier refusal into an invitation retroactively.
 
-**Next creative work:** a coherent shared fork scene with both immediate
-continuations, then distinct Sweet/Dark ending treatments and whole-week causal fit.
-No example becomes selected merely because this entry names it.
+Sylvia's stronger Lavinia attachment and obstructive P–L aim remain current. Her actual enjoyment of Priscilla is allowed. Priscilla's partial suspicion does not supply the full private account; Lavinia's romantic response remains deliberately unresolved. The owning dossiers carry the detail rather than this entry repeating it.
 
-## Retained pre-pivot working home and development history
+The current Day 2 and Day 3 acts are scoped auditions, not proof that every earlier variant contains them. The whole-week plot and compatible joins remain open before complete DTL.
 
-Everything below keeps its original dated scope. Its old restart priority,
-four-form labels and publication statements do not override the current section.
+## Retained pair exploration
 
-**Working branch:** `master`. [PR #13](https://github.com/Siuuuers/dwm/pull/13) records this documentation checkpoint; its metadata is the publication-status authority.
-**Story status:** `UNSELECTED` / `REACTION TEST` candidates, not a second Bible or a completed seven-day plot. Follow [the narrative guide](../../AGENTS.md) and [the local guide](AGENTS.md), then the relevant owner below. Archived dialogue and instructions are evidence, not current commands.
-
-## Resume Dark–Ambiguous here
-
-Read [the photograph working record](auditions/day-6-dark-photograph.md). It distinguishes the last complete camera scene from later fragments that have not yet been assembled into it. Open the linked complete baseline when revising the encounter; do not read every historical snapshot first.
-
-**Latest proposal:** **Lavinia** asks **“May I keep it? Just for myself.”** about **Priscilla's photograph on Lavinia's phone**. Permission versus deletion is unresolved. The assistant's specific allowance remains an audition, not the owner's chosen outcome. Do not resume the older ending in which Priscilla asks to keep Lavinia's portrait as though it were the latest proposal.
-
-**Separate cheek alternative:** Priscilla guides Lavinia's hand to her own cheek, says “Not now,” releases it when asked, and Lavinia presses harder. A different owner clause mentioned Priscilla punishing Lavinia; actor, placement, intention, and aftermath are still open. Keep alternatives separate until authored. A pressure act before a photograph cannot punish that later photograph, and no healing or continuing injury is established here.
-
-**Next creative unit:** compare the granted and refused private-retention outcomes, then assemble one coherent encounter once the relevant direction is selected. Give a reasoned recommendation and show the actual consequences, rather than indefinitely polishing isolated lines. Do not reopen unaffected Sweet scenes or insert every attractive alternative.
-
-## What must survive a fresh session
-
-Ambiguous means recognized attraction with unresolved larger meaning, not ignorance or less affection. The author particularly values photographic tension without an automatic kiss; partial satisfactions should increase the stakes rather than repeat the same almost-confession. Hypothetical nude-portrait and extreme-intimacy explorations remain **outside Day 6**, not missing historical events.
-
-Priscilla urgently wants a chosen place in Lavinia's life after her return from England. Planning and genuine enjoyment coexist; the actual Lavinia can surprise her. Priscilla does **not** morally regret the disclosure amendment. That scoped correction does not decide her judgment of every other act. Lavinia contributes taste, preparation, wit, devotion, and choices of her own.
-
-The author values how a photograph reveals both the photographer's attention and the subject's response to that particular photographer. An offered expression can be genuine without proving a complete motive. Phone/camera ownership, taking, keeping, sending, and deleting are separate actions. Do not invent technical recovery or a secret archive to rescue a preferred interpretation.
-
-This Ambiguous Day 2 history contains departure without Dark–Love's accepted extra stay. Cross-variant echoes belong to the audience, not automatically to the current characters' memories. Prevented, offscreen, and witnessed occurrences remain distinct. Fresh admission is required; no shared home, key, or automatic overnight right is supplied.
-
-## Dark–Love: preserve the open night
-
-Read the [complete film/diary comparison](https://github.com/Siuuuers/dwm/blob/b2d7366d62936cbc6a9d2fa974e8908e45457536/story/maintenance/pl-session-sources/2026-10-08/PL_day6_dark_love_bounded_review_2026-10-04.md) **with** the later [open-tail amendment, Sections 1–2](https://github.com/Siuuuers/dwm/blob/b2d7366d62936cbc6a9d2fa974e8908e45457536/story/maintenance/pl-session-sources/2026-10-08/PL_day6_open_ending_and_dark_ambiguous_direction_2026-10-04.md). Both are exact historical sources, not independently current alternatives to be concatenated.
-
-The baseline's definite farewell is no longer the leading closing choice. The author wants the visible passage to end during shared viewing: neither a definite later departure nor an overnight stay is fixed behind the cut. The diary intrusion, refused translation, compromised declaration, and chosen continuation remain legible. Day 7 cannot borrow an unselected later-night outcome.
-
-Preserve the favored functions of “I remember what you said,” “I wanted to hear you say it before you saw it,” “Sit with me first,” and “Watch the film.” Exact proposed film/kiss history remains unselected. The older [book-based notebook owner](auditions/day-6-dark-notebook.md) remains intact for development evidence, not as the newest film draft; do not append its bodily alternatives.
-
-## Owners and optional reference
-
-| Work | Read | Scope |
+| Material | Why keep it | Scope |
 |---|---|---|
-| Fixed history and individual characters | [Bible](../../01-core-story-bible.md); [Handbook](../../02-character-relationship-handbook.md) | Authorities unchanged by this checkpoint |
-| Pair attraction and return-driven pursuit | [Relationship](relationship.md) | Guidance is not selection of its examples |
-| Ordinary company and possible intimacy | [Intimacy](intimacy-and-ordinary-company.md) | Unplaced exploration; no new sexual history |
-| Earlier contact and conditional Day 6 | [Seven-day options](seven-day-options.md) | Actual timing remains with the [Matrix](../../07-seven-day-causal-matrix.md) and [future-behavior record](../../../docs/design/2026-09-02-relationship-progression-runtime-behavior-record.md) |
-| Day 2 portrait development | [Development](auditions/day-2-portrait-development.md); [Sweet–Love](auditions/day-2-sweet-love-portrait.md); [Dark–Love](auditions/2026-09-26-priscilla-lavinia-day-2-portrait-dark-love-read-through.md) | Distinct candidates and unresolved family review |
-| Day 6 Sweet | [Dance](auditions/day-6-sweet-love-dance.md); [imagined refusal](auditions/day-6-sweet-ambiguous-refusal.md) | Alternatives, not consecutive episodes; Sweet retains “much” |
-| Earlier baseline comparisons | [Event record](auditions/2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md); [four-form baseline](auditions/2026-09-06-priscilla-lavinia-day-2-four-form-causal-spine-audition.md); [short refusal](auditions/2026-09-06-priscilla-lavinia-day-6-sweet-imagined-refusal-audition.md); [Interrupted Hearing](auditions/2026-09-07-priscilla-lavinia-day-6-sweet-love-interrupted-hearing-audition.md) | Exact local statuses retained; dance did not erase hearing |
-| Day 1 retrospective reflex | [Independent audition](auditions/2026-09-12-day-1-priscilla-lavinia-retrospective-reflex-audition.md) | Not supplied by a later Day 6 encounter |
-| Shared, other-pair, Group and whole-week work | [Shared index](../../auditions/README.md) | Angela retains her own purposes; private material is not a Group bonus |
-| Why recent proposals changed | [Session development and lessons](development/2026-10-08-session-capture.md) | Scoped reasons and exact alternatives, not universal rules |
-| Earlier sources and this session's originals | [Original exchange map](../../maintenance/our-pl-upload-recovery.md); [session source index](../../maintenance/pl-session-sources/2026-10-08/README.md); [older migration](../../maintenance/source-migration.md) | Retrieve evidence only when needed |
+| [Seven-day options](seven-day-options.md) | Earlier contact, conditional continuations and scheduling alternatives | Retained development; old axes and dates do not place the current week. |
+| [Portrait development](auditions/day-2-portrait-development.md), [Sweet–Love reading](auditions/day-2-sweet-love-portrait.md), [Dark–Love reading](auditions/2026-09-26-priscilla-lavinia-day-2-portrait-dark-love-read-through.md) | Whole visits, ordinary company, prepared attention and concealment | Distinct candidates; do not splice all alternatives together. |
+| [Dark photograph](auditions/day-6-dark-photograph.md) | Photographer/sitter tension and private-retention alternatives | Lavinia's latest request concerns Priscilla's photograph on Lavinia's phone. Permission versus deletion and the separate cheek alternative remain unresolved. |
+| [Dark notebook](auditions/day-6-dark-notebook.md) | Older book-based intrusion, alternatives and their revision reasons | Historical owner, not the newest film-night passage. |
+| [Dance](auditions/day-6-sweet-love-dance.md), [imagined refusal](auditions/day-6-sweet-ambiguous-refusal.md), [Interrupted Hearing](auditions/2026-09-07-priscilla-lavinia-day-6-sweet-love-interrupted-hearing-audition.md) | Different enactments of company, refusal and desire | Alternative encounters; a new preferred candidate did not erase the others. |
+| [Event record](auditions/2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md), [four-form baseline](auditions/2026-09-06-priscilla-lavinia-day-2-four-form-causal-spine-audition.md), [short refusal](auditions/2026-09-06-priscilla-lavinia-day-6-sweet-imagined-refusal-audition.md) | Exact earlier baselines and comparison scope | Historical form labels and local approval qualifications remain bounded. |
+| [Day 1 retrospective reflex](auditions/2026-09-12-day-1-priscilla-lavinia-retrospective-reflex-audition.md) | Independent perception audition | A later encounter cannot supply its missing earlier occurrence. |
+| [October 8 development](development/2026-10-08-session-capture.md) | Source-attributed lessons, objections and alternatives | Development evidence, not universal character rules. |
 
-## Capture and review boundary: 2026-10-08
+For the retained open film night, read the [complete comparison](https://github.com/Siuuuers/dwm/blob/b2d7366d62936cbc6a9d2fa974e8908e45457536/story/maintenance/pl-session-sources/2026-10-08/PL_day6_dark_love_bounded_review_2026-10-04.md) with the [later open-tail amendment](https://github.com/Siuuuers/dwm/blob/b2d7366d62936cbc6a9d2fa974e8908e45457536/story/maintenance/pl-session-sources/2026-10-08/PL_day6_open_ending_and_dark_ambiguous_direction_2026-10-04.md). Its visible cut during shared viewing leaves later departure and an overnight stay unselected. The refused translation, compromised declaration and chosen continuation retain their own local facts. Do not add a later-night result to the new week merely because the scene ends before it.
 
-The owner explicitly requested publication, then consolidation and merge of PR #13. This entry now incorporates the separate handoff. Fourteen original Markdown snapshots are retained byte-for-byte at commit `b2d7366d62936cbc6a9d2fa974e8908e45457536`; the source index links them and records hashes and disposition. They are removed only from the working tree, not Git history. The normal merge preserves that ancestor. No protected archive branch is removed.
+## Continuity and source boundaries
 
-The earlier 2026-10-01 curation and 2026-10-04 narrow pursuit checkpoint retain their historical scope in the linked records. This capture adds visible later development, not missing raw conversation. The complete chronological bar/residue audit remains open.
+Photograph ownership, capture, keeping, sending and deletion are different acts. An expression can reveal a person's attention without proving its entire motive. Old Ambiguous departure and old Dark–Love extra stay are different histories, not memories every version shares. Admission, residence, keys, permission and later contact remain separately established.
 
-No scene selection, new narrative event, Bible/Handbook amendment, code change, or mechanics change follows from this merge. Retention outcome, cheek continuity, integrated Ambiguous scene, Group/whole-week fit, and Day 7 use remain open. Performance, physical/medical validation, camera/VHS and language tests, independent review, and runtime tests are **NOT RUN** by this documentation task.
+The [source index](../../maintenance/pl-session-sources/2026-10-08/README.md), [exchange recovery map](../../maintenance/our-pl-upload-recovery.md) and [migration receipt](../../maintenance/source-migration.md) preserve exact older versions. The chronological bar/residue audit and other protected historical holds remain open. Curation does not certify that missing raw history has been recovered.
+
+This entry was simplified on 2026-10-20 under the owner's consolidation request. It gives the current route and preserves distinct references instead of repeating every day checkpoint. [PR #41](https://github.com/Siuuuers/dwm/pull/41) records publication state; no merge or scene selection is asserted here.
+
+## Previous section bookmarks
+
+<details>
+<summary>Open the earlier checkpoint sections in their exact Git version</summary>
+
+These are historical destinations, not additional current instructions. Older subsection bookmarks lead to their containing source section. The full pre-consolidation text remains at the verified f1df045 revision; its scene status and publication claims retain their dated scope.
+
+| Earlier section | Exact source |
+|---|---|
+| <a id="day-3-motive-voice-and-cinematic-review-2026-10-20"></a>Day 3: motive, voice and cinematic review, 2026-10-20 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/relationships/priscilla-lavinia/README.md#day-3-motive-voice-and-cinematic-review-2026-10-20) |
+| <a id="day-3-sylvia-meeting-and-lavinia-continuation-2026-10-19"></a>Day 3 Sylvia meeting and Lavinia continuation, 2026-10-19 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/relationships/priscilla-lavinia/README.md#day-3-sylvia-meeting-and-lavinia-continuation-2026-10-19) |
+| <a id="day-2-staying-audition-and-trace-comparison-2026-10-19"></a>Day 2 staying audition and trace comparison, 2026-10-19 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/relationships/priscilla-lavinia/README.md#day-2-staying-audition-and-trace-comparison-2026-10-19) |
+| <a id="book-and-attention-experiment-2026-10-19-at-1524"></a>Book and attention experiment, 2026-10-19 at 15:24 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/relationships/priscilla-lavinia/README.md#book-and-attention-experiment-2026-10-19-at-1524) |
+| <a id="day-1-book-revision-2026-10-19-at-1317"></a>Day 1 book revision, 2026-10-19 at 13:17 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/relationships/priscilla-lavinia/README.md#day-1-book-revision-2026-10-19-at-1317) |
+| <a id="sylvias-intervention-current-clarification-2026-10-19"></a>Sylvia's intervention: current clarification, 2026-10-19 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/relationships/priscilla-lavinia/README.md#sylvias-intervention-current-clarification-2026-10-19) |
+| <a id="current-single-ending-development-2026-10-18"></a>Current single-ending development, 2026-10-18 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/relationships/priscilla-lavinia/README.md#current-single-ending-development-2026-10-18) |
+| <a id="current-day-2-development-2026-10-10"></a>Current Day 2 development, 2026-10-10 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/relationships/priscilla-lavinia/README.md#current-day-2-development-2026-10-10) |
+| <a id="retained-pivot-restart-2026-10-09"></a>Retained pivot restart, 2026-10-09 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/relationships/priscilla-lavinia/README.md#retained-pivot-restart-2026-10-09) |
+| <a id="retained-pre-pivot-working-home-and-development-history"></a>Retained pre-pivot working home and development history | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/relationships/priscilla-lavinia/README.md#retained-pre-pivot-working-home-and-development-history) |
+| <a id="resume-darkambiguous-here"></a>Resume Dark–Ambiguous here | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/relationships/priscilla-lavinia/README.md#resume-darkambiguous-here) |
+| <a id="what-must-survive-a-fresh-session"></a>What must survive a fresh session | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/relationships/priscilla-lavinia/README.md#what-must-survive-a-fresh-session) |
+| <a id="darklove-preserve-the-open-night"></a>Dark–Love: preserve the open night | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/relationships/priscilla-lavinia/README.md#darklove-preserve-the-open-night) |
+| <a id="owners-and-optional-reference"></a>Owners and optional reference | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/relationships/priscilla-lavinia/README.md#owners-and-optional-reference) |
+| <a id="capture-and-review-boundary-2026-10-08"></a>Capture and review boundary: 2026-10-08 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/relationships/priscilla-lavinia/README.md#capture-and-review-boundary-2026-10-08) |
+
+</details>

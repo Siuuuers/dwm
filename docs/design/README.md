@@ -1,5 +1,13 @@
 # Documentation authority map
 
+**Current narrative entry:** [story/README.md](../../story/README.md), followed by
+the [Priscilla foundation and intended flow](../../story/09-priscilla-foundation-amendment.md).
+Narrative decisions, reviews and research now live in the [story design](../../story/design/README.md)
+and [research](../../story/research/README.md) directories. Their old `docs/` paths
+retain forwarding links. The engineering authorities below keep their technical
+scope; later chapter decisions supersede named cast, calendar, viewpoint and
+Challenge/ending conflicts.
+
 Use this index to navigate the active authority for DWM's seven-day work. Resolve
 conflicts by the ownership stated in the linked document; do not treat recovered
 material or historical amendments as current mechanics.
@@ -35,10 +43,10 @@ superseded. All promised branches remain in scope with detailed dialogue deferre
   reconciled writer-facing reference that centralizes approved cross-scene
   presentation and drafting law without creating plot canon or implementation
   behavior.
-- [Seven-Day Narrative Constitution Working Decision Ledger](2026-09-02-narrative-constitution-working-decision-ledger.md)
+- [Seven-Day Narrative Constitution Working Decision Ledger](../../story/design/2026-09-02-narrative-constitution-working-decision-ledger.md)
   records later owner-confirmed, reopened, superseded, and still-open decisions;
   its explicit status labels govern over earlier incompatible proposals.
-- [Relationship Progression and Ending Evaluation Runtime Behavior Record](2026-09-02-relationship-progression-runtime-behavior-record.md)
+- [Relationship Progression and Ending Evaluation Runtime Behavior Record](../../story/design/2026-09-02-relationship-progression-runtime-behavior-record.md)
   owns the approved future behavior boundary between authored consequence and
   code without authorizing implementation.
 - [Instrumentarium Drift Deck, All-Input Layout, and Week Tint Amendment](2026-09-12-instrumentarium-drift-deck-all-input-and-week-tint-amendment.md)
@@ -52,7 +60,7 @@ superseded. All promised branches remain in scope with detailed dialogue deferre
   and permanent cell-size preferences; implementation remains in `dwm-vky`.
   Painting acquisition under
   `dwm-oqw` has its own provenance and does not authorize audio acquisition.
-- [approved Two-Pass Constellation specification](../superpowers/specs/2026-08-28-seven-day-two-pass-constellation-design.md)
+- [approved Two-Pass Constellation specification](../../story/design/2026-08-28-seven-day-two-pass-constellation-design.md)
   owns the selection workflow.
 - [Seven-Day Causal Matrix](../../story/07-seven-day-causal-matrix.md) owns fixed
   obligations and approved placements.
@@ -70,13 +78,13 @@ superseded. All promised branches remain in scope with detailed dialogue deferre
 
 ## Provenance and implementation evidence
 
-- [Narrative Style Manual Sections 12–13 Audit](2026-09-06-narrative-style-manual-sections-12-13-audit.md)
+- [Narrative Style Manual Sections 12–13 Audit](../../story/design/reviews/2026-09-06-narrative-style-manual-sections-12-13-audit.md)
   records the final bounded same-context gate and its independent-review
   limitation.
-- [Post-Manual Canon Reconciliation](2026-09-06-post-manual-canon-reconciliation.md)
+- [Post-Manual Canon Reconciliation](../../story/design/reviews/2026-09-06-post-manual-canon-reconciliation.md)
   records the exact scope of the 2026-09-06 cross-document repair and the
   migrations deliberately left open.
-- [Angela-Absent Pair Explosion Visibility Reconciliation](2026-09-06-angela-absent-pair-explosion-visibility-reconciliation.md)
+- [Angela-Absent Pair Explosion Visibility Reconciliation](../../story/design/reviews/2026-09-06-angela-absent-pair-explosion-visibility-reconciliation.md)
   records the owner-confirmed visibility cutoff, its separation from fictional
   conduct, and the bounded Day 6 challenge-placement repair; executable code
   was not inspected.

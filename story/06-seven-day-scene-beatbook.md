@@ -1,5 +1,15 @@
 # Seven-Day Scene Beatbook
 
+**Current reading boundary, 2026-10-20:** the entries and authority discussion
+below retain their earlier production scope. The
+[current foundation and flow](09-priscilla-foundation-amendment.md) supersede
+conflicting cast, calendar, viewpoint, response and ending assumptions. Current
+Day 1–3 prose lives in the [audition index](auditions/README.md); it has not been
+promoted into this Beatbook by consolidation. Room 2.17's protected approved core
+remains unplaced. Retained examples and coverage forms do not become obligations
+for the new chapter.
+
+
 This is a private, spoiler-complete, writer-facing record of scene development at its explicitly stated current status. It preserves close causal work, reference dialogue, variant design, and rejected interpretations that would make the Seven-Day Production Map unreadable if repeated there. The former Day 1 constellation is reopened reference under the selective reset; Room 2.17 retains its separately stated approved-core, placement-unselected boundary.
 
 ## Authority and Use
@@ -7,12 +17,12 @@ This is a private, spoiler-complete, writer-facing record of scene development a
 Authority remains upstream:
 
 1. the [August 7 design](../docs/design/2026-08-07-seven-day-dialogic-flow-design.md) owns baseline intended calendar, contact, Hospital, pair, Day 7, ending, and presentation mechanics as amended by later explicit approvals; exact forward progression windows and response-family maps remain reopened;
-2. the [Core Story Bible](./01-core-story-bible.md) owns narrative canon and audience-facing meaning;
-3. the [Character & Relationship Handbook](./02-character-relationship-handbook.md) owns derived character and relationship performance guidance;
-4. an `APPROVED` row in the [Seven-Day Causal Matrix](./07-seven-day-causal-matrix.md) normally owns an encounter's placement and compact causal facts;
+2. the [Core Story Bible](01-core-story-bible.md) owns narrative canon and audience-facing meaning;
+3. the [Character & Relationship Handbook](02-character-relationship-handbook.md) owns derived character and relationship performance guidance;
+4. an `APPROVED` row in the [Seven-Day Causal Matrix](07-seven-day-causal-matrix.md) normally owns an encounter's placement and compact causal facts;
 5. this Beatbook owns detailed execution only after a premise earns expansion, with the bounded unplaced Room 2.17 core below as the sole current exception;
-6. the [July amendments](./05-canon-amendments-2026-07-19.md) and [Plot Material Library](./library/03-seven-day-plot-material-library.md) are historical, noncanonical provenance;
-7. the [Seven-Day Production Map](./03-seven-day-production-map.md) owns no plot and cannot select or approve a premise; and
+6. the [July amendments](05-canon-amendments-2026-07-19.md) and [Plot Material Library](library/03-seven-day-plot-material-library.md) are historical, noncanonical provenance;
+7. the [Seven-Day Production Map](03-seven-day-production-map.md) owns no plot and cannot select or approve a premise; and
 8. runtime inspection may reveal implementation drift from intended law, but runtime cannot amend, place, or approve a scene.
 
 The Beatbook may expand only explicitly approved causal facts and may not silently revise an upstream fact, create an encounter window, level a relationship, settle an unresolved cause, assign a relationship label, or infer placement from an eligible set. If an entry conflicts with an upstream authority, follow the upstream authority and correct the entry.
@@ -48,7 +58,7 @@ Do not manufacture detail merely to fill every field. An undeveloped variation r
 **Status:** REOPENED — approved on 2026-08-29, then returned to reference
 material by the owner-confirmed selective reset on 2026-09-02.
 
-The historical causal records are in the [Causal Matrix](./07-seven-day-causal-matrix.md#reopened-day-1-placed-premise-reference). The material below preserves former premises, evidence, outcome branches, absence behavior, and residue for audition; it fixes none of them for the forward plot. Every quoted passage remains a writer-facing `REACTION TEST`, not final DTL. Exact replacement premises, family maps, line IDs, wording, interface timing and copy, artwork, accessibility description, and implementation remain separate work.
+The historical causal records are in the [Causal Matrix](07-seven-day-causal-matrix.md#reopened-day-1-placed-premise-reference). The material below preserves former premises, evidence, outcome branches, absence behavior, and residue for audition; it fixes none of them for the forward plot. Every quoted passage remains a writer-facing `REACTION TEST`, not final DTL. Exact replacement premises, family maps, line IDs, wording, interface timing and copy, artwork, accessibility description, and implementation remain separate work.
 
 ### Whole-Day Boundary
 
@@ -446,9 +456,9 @@ No reply follows. Sylvia knows Angela dislikes unnecessary replies; she does not
 
 **Status:** APPROVED CAUSAL CORE — PLACEMENT UNSELECTED
 
-The eligible set is the Day 2 and Day 6 Priscilla–Lavinia pair windows identified by the [Causal Matrix](./07-seven-day-causal-matrix.md#approved-causal-cores-awaiting-placement). Neither window is selected, and no matrix approval row exists. Eligibility is not placement: no exact weekday, protected-anchor assignment, later debt, or runtime identifier may be inferred. Production placement must return through audition and explicit approval.
+The eligible set is the Day 2 and Day 6 Priscilla–Lavinia pair windows identified by the [Causal Matrix](07-seven-day-causal-matrix.md#approved-causal-cores-awaiting-placement). Neither window is selected, and no matrix approval row exists. Eligibility is not placement: no exact weekday, protected-anchor assignment, later debt, or runtime identifier may be inferred. Production placement must return through audition and explicit approval.
 
-The former Event 13 card survives only in the [Plot Material Library](./library/03-seven-day-plot-material-library.md) as noncanonical audition history; it supplies no approval or placement.
+The former Event 13 card survives only in the [Plot Material Library](library/03-seven-day-plot-material-library.md) as noncanonical audition history; it supplies no approval or placement.
 
 ### Purpose and Smallest Change
 
@@ -591,4 +601,4 @@ The Love insert can accompany either tone. Sweet or Totally Dark determines whet
 
 ### Non-Canon Craft Reference
 
-The source-grounded comparison behind the explicit Love-state logistics is recorded in [`2026-08-27-room-217-narrative-theory-check.md`](../docs/research/2026-08-27-room-217-narrative-theory-check.md). It informs craft only and cannot override story canon, August-owned intended law, or an approved Causal Matrix row.
+The source-grounded comparison behind the explicit Love-state logistics is recorded in [`2026-08-27-room-217-narrative-theory-check.md`](research/2026-08-27-room-217-narrative-theory-check.md). It informs craft only and cannot override story canon, August-owned intended law, or an approved Causal Matrix row.
