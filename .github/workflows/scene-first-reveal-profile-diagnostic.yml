@@ -1,7 +1,9 @@
 name: Focused Gallery register fixture
 
 on:
-  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/scene-first-reveal-profile-diagnostic.yml'
 
 permissions:
   contents: read
@@ -12,10 +14,12 @@ concurrency:
 
 jobs:
   gallery-register:
+    if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
     name: Focused Gallery register fixture
     runs-on: ubuntu-24.04
     timeout-minutes: 110
     env:
+      DWM_CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
       LIBGL_ALWAYS_SOFTWARE: '1'
       XDG_DATA_HOME: ${{ github.workspace }}/.godot/phase2r_tests/cloud-journey-import/data
       DWM_TEST_ROOT: ${{ github.workspace }}/.godot/phase2r_tests/cloud-journey-import/test-root
@@ -41,7 +45,8 @@ jobs:
           Path(".godot/ci/gallery-version-register/provenance.json").write_text(json.dumps({
               "source": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
               "tree": subprocess.check_output(["git", "rev-parse", "HEAD^{tree}"], text=True).strip(),
-              "controller": os.environ["GITHUB_WORKFLOW_SHA"],
+              "controller": os.environ["DWM_CONTROLLER_SHA"],
+              "workflow": os.environ["GITHUB_WORKFLOW_SHA"],
               "event": os.environ["GITHUB_SHA"],
               "run_id": os.environ["GITHUB_RUN_ID"],
               "attempt": os.environ["GITHUB_RUN_ATTEMPT"]
