@@ -1,3 +1,13 @@
+# External coverage map consumed; delivery proposal awaits review
+
+20 October 2026. C [6289034493](https://github.com/Siuuuers/dwm/pull/36#issuecomment-6289034493) completed the six-case map; Director [6289312046](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6289312046) accepted it. No additional mapping, legacy-suite rewrite or four parallel implementation lanes are assigned.
+
+Clarifications incorporated: the connected Gallery gap is replaying the exact version earned by the same normal story completion; accepted S/G evidence is not a composed proof. The old blanket Profile-invariance assertion must account for approved durable caption History. Retired Hospital/condition triggers do not retire historical completion-retry or ordered-terminal-save compatibility without separate authority. Active board Quick consent/restore, empty Practice eligibility and rendered historical Practice/two Returns remain coverage questions, not established missing features or runtime defects.
+
+A's [prepared delivery proposal at f789011a](https://github.com/Siuuuers/dwm/blob/f789011a02c1c206d0293c9fd3e61c02bb18d583/evidence/phase_2r/native_delivery_proposal_20261020/README.md) is unchanged and unexecuted. C has not reviewed it yet. Director's latest inspection found no proposal link in PR30/36; an isolated branch alone does not complete that coordination handoff. Exact proposed review comments are retained with this update, not posted. External posting awaits explicit user authorization under the assistant's messaging instruction. No runtime/controller/product update or dispatch follows.
+
+---
+
 # Six legacy journey cases: coverage disposition
 
 20 October 2026. Read-only audit at product `83da885cbbd3e1597e3a4887195b3e793ceb2e3c`; report parent `829abb8be8592707477c02f79a966e224a56e8cf`. No runtime/test/workflow edits, engine execution, cloud dispatch, or product promotion.

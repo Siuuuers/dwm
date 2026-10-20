@@ -1,3 +1,13 @@
+# External coverage map consumed; delivery proposal awaits review
+
+20 October 2026. C [6289034493](https://github.com/Siuuuers/dwm/pull/36#issuecomment-6289034493) completed the six-case map; Director [6289312046](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6289312046) accepted it. No additional mapping, legacy-suite rewrite or four parallel implementation lanes are assigned.
+
+Clarifications incorporated: the connected Gallery gap is replaying the exact version earned by the same normal story completion; accepted S/G evidence is not a composed proof. The old blanket Profile-invariance assertion must account for approved durable caption History. Retired Hospital/condition triggers do not retire historical completion-retry or ordered-terminal-save compatibility without separate authority. Active board Quick consent/restore, empty Practice eligibility and rendered historical Practice/two Returns remain coverage questions, not established missing features or runtime defects.
+
+A's [prepared delivery proposal at f789011a](https://github.com/Siuuuers/dwm/blob/f789011a02c1c206d0293c9fd3e61c02bb18d583/evidence/phase_2r/native_delivery_proposal_20261020/README.md) is unchanged and unexecuted. C has not reviewed it yet. Director's latest inspection found no proposal link in PR30/36; an isolated branch alone does not complete that coordination handoff. Exact proposed review comments are retained with this update, not posted. External posting awaits explicit user authorization under the assistant's messaging instruction. No runtime/controller/product update or dispatch follows.
+
+---
+
 # Native delivery source reconciled — ordinary deadline proposal prepared
 
 Final ref reconciliation: master independently advanced to41592fcc792aa615e47ee2ce2f05008ca195b311 (PR41 narrative consolidation) during this turn. Its diff from prior0c8b2384 has no changes under autoload, scripts, addons, tools, project.godot or export_presets.cfg. No delivery implementation was found to import. This report did not move master. Product83da and controller6d911b68 still match their pins. Earlier “master unchanged” wording below describes prior checkpoints and is superseded by this observation.
