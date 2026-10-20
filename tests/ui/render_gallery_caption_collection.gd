@@ -3,10 +3,9 @@ extends SceneTree
 ## Native line wait/visible-layer lookup follow the accepted reading-rail journey,
 ## without inheriting its canonical run, Save/Load, or ending-completion setup.
 
-const LOCATOR := preload("res://tests/support/EndingReadingTimelineCatalog.gd")
-const FIXTURE := preload("res://tests/support/EndingReadingFixture.gd")
+const FIXTURE := preload("res://tests/support/GalleryCollectionFixture.gd")
 const MENU := preload("res://scenes/menu/MenuScene.tscn")
-const ENTRY := "ending.sylvia.special.full"
+const ENTRY := "ending.alone.normal"
 const FIRST := "fixture.ending.first"
 const SECOND := "fixture.ending.prior"
 const UNSEEN := "fixture.ending.boundary"
@@ -41,6 +40,7 @@ var _publications: Array[Dictionary] = []
 var _samples: Array[Dictionary] = []
 var _failures: Array[String] = []
 var _checks := 0
+var _setup_results: Array[Dictionary] = []
 var _active_attempt := 0
 
 func _initialize() -> void:
@@ -56,26 +56,28 @@ func _run() -> void:
 	for frame: int in 180:
 		if root.get_node("ApplicationBootstrap").get_startup_state().get("ready", false): break
 		await process_frame
-	if not _check(root.get_node("ApplicationBootstrap").get_startup_state().get("ready", false), "production startup not ready"):
+	var startup: Dictionary = root.get_node("ApplicationBootstrap").get_startup_state()
+	_setup_results.append({"stage": "startup", "result": startup.duplicate(true)})
+	if not _check(startup.get("ready", false), "production startup not ready"):
 		_finish()
 		return
 	_bridge = root.get_node("DialogicBridge")
 	_profile = root.get_node("ProfileManager")
 	var signature := _signature()
 	var admissions: Array[Dictionary] = [{"signature": signature, "collectable_line_ids": [FIRST]}]
-	if not _check(_bridge.initialize(LOCATOR).get("ok", false), "fixture locator rejected") \
-			or not _check(_bridge.configure_reached_caption_collection(FIXTURE.catalogue(), admissions).get("ok", false), "explicit replay caption admission rejected") \
-			or not _check(_profile.unlock_ending("ending.sylvia.special", "caption-collection:TEST").get("ok", false), "fixture discovery rejected"):
+	if not _check(_setup("locator", _bridge.initialize(FIXTURE)), "fixture locator rejected") \
+			or not _check(_setup("caption_admission", _bridge.configure_reached_caption_collection(FIXTURE.catalogue(), admissions)), "explicit replay caption admission rejected") \
+			or not _check(_setup("discovery", _profile.unlock_ending("ending.alone", "caption-collection:TEST")), "fixture discovery rejected"):
 		_finish()
 		return
 	var reached: Dictionary = _profile.record_reached_presentation(signature)
-	if not _check(reached.get("ok", false), "fixture exact signature rejected"):
+	if not _check(_setup("reached_core", reached), "fixture exact signature rejected"):
 		_finish()
 		return
 	_signature_id = str(reached.value.signature_id)
 	# Mount the production Menu host, then enter through its actual Gallery command.
 	_menu = MENU.instantiate()
-	if not _check(_menu.configure_gallery_replay(_profile, _bridge).get("ok", false), "Menu replay services rejected"):
+	if not _check(_setup("menu_services", _menu.configure_gallery_replay(_profile, _bridge)), "Menu replay services rejected"):
 		_finish()
 		return
 	root.add_child(_menu)
@@ -89,22 +91,40 @@ func _run() -> void:
 		return
 	_gallery.set("_record_catalog", LongCopy.new())
 	for ending_id: String in preload("res://scripts/profile/ProfileSchema.gd").ENDING_IDS:
-		_check(_profile.unlock_ending(ending_id, "caption-collection:scroll-TEST:" + ending_id).get("ok", false), "scroll fixture discovery refused")
+		if not _check(_setup("scroll_discovery:" + ending_id, _profile.unlock_ending(ending_id, "caption-collection:scroll-TEST:" + ending_id)), "scroll fixture discovery refused"):
+			_finish()
+			return
 	var other := signature.duplicate(true)
 	other.fields.ending_role = "primary"
-	_check(_profile.record_reached_presentation(other).get("ok", false), "second witnessed version refused")
+	var other_reached: Dictionary = _profile.record_reached_presentation(other)
+	if not _check(_setup("reached_primary", other_reached), "second witnessed version refused"):
+		_finish()
+		return
 	_profile.publish_restore()
 	await _frames()
 	for row: Button in _gallery.get_node("%EndingTileGrid").get_children():
-		if row.get_meta(&"gallery_record_id") == "ending.sylvia.special": row.pressed.emit()
+		if row.get_meta(&"gallery_record_id") == "ending.alone": row.pressed.emit()
 	for index: int in _gallery.get("_versions").size():
 		if _gallery.get("_versions")[index].signature_id == _signature_id: _gallery.call("_on_version_selected", index)
 	await _frames()
+	var actual_versions: Array[String] = []
+	for version: Dictionary in _gallery.get("_versions"):
+		actual_versions.append(str(version.signature_id))
+	actual_versions.sort()
+	var expected_versions: Array[String] = [_signature_id, str(other_reached.value.signature_id)]
+	expected_versions.sort()
+	if not _check(actual_versions == expected_versions and expected_versions[0] != expected_versions[1], "exact normal Alone versions missing"):
+		_finish()
+		return
+	_setup_results.append({"stage": "version_selection", "versions": actual_versions, "selected": str(_gallery.call("_selected_signature_id"))})
 	_gallery.set("_index_offset", 48.0)
 	_gallery.call("_update_scroll")
 	_gallery.get("_record_paper").scroll_to(96.0)
 	_return_context = _context()
-	_check(_return_context.index > 0 and _return_context.paper > 0, "fixture must exercise nonzero scroll anchors")
+	_setup_results.append({"stage": "return_context", "context": _return_context.duplicate(true)})
+	if not _check(_return_context.index > 0 and _return_context.paper > 0, "fixture must exercise nonzero scroll anchors"):
+		_finish()
+		return
 	_adapter = _bridge.get("_runtime_adapter")
 	_adapter.caption_publication_recorded.connect(_on_publication)
 	var storage: RefCounted = _profile.get("_storage")
@@ -304,9 +324,8 @@ func _status_capture(name: String) -> void:
 	_samples.append({"file": name + ".png", "status": status.text, "rect": str(status.get_rect()), "context": _context()})
 
 func _signature() -> Dictionary:
-	return {"entry_id": ENTRY, "schema_version": 1, "fields": {"tier": "friend", "tone": "sweet",
-		"attitude": "", "echo_ids": [], "miss_reasons": [], "ending_role": "core",
-		"ending_form": "special_full", "residue": false}}
+	return {"entry_id": ENTRY, "schema_version": 1,
+		"fields": {"ending_role": "core", "ending_form": "alone_normal"}}
 
 func _start_and_wait(line_id: String) -> bool:
 	if not _check(str(_gallery.call("_selected_signature_id")) == _signature_id, "Gallery selected another exact signature"): return false
@@ -397,6 +416,10 @@ func _capture(name: String, collection: Dictionary) -> bool:
 		"profile_revision": _profile.get_profile_revision(), "profile_and_run_unchanged": true})
 	return true
 
+func _setup(stage: String, result: Dictionary) -> bool:
+	_setup_results.append({"stage": stage, "result": result.duplicate(true)})
+	return result.get("ok", false)
+
 func _check(value: bool, detail: String) -> bool:
 	_checks += 1
 	if not value:
@@ -410,6 +433,7 @@ func _finish() -> void:
 		if report != null:
 			report.store_string(JSON.stringify({"ok": _failures.is_empty(), "checks": _checks,
 				"failures": _failures, "samples": _samples, "publications": _publications,
+				"setup_results": _setup_results,
 				"scope": "Explicit fixture-only replay admission, real Gallery/Bridge/Profile/native Dialogic and mounted CaptionLayer; durable exit merging, refusal/uncertainty and locale projections. No production content admission, physical keyboard, or native accessibility claim."}, "\t") + "\n")
 			report.close()
 	print("GALLERY_CAPTION_COLLECTION_RENDER_", "VERIFIED" if _failures.is_empty() else "FAILED", " captures=", _samples.size(), " evidence=", _folder)
