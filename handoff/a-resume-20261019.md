@@ -1,3 +1,131 @@
+# Gallery fixture repair integrated — 20 October 2026
+
+External C [6285722481](https://github.com/Siuuuers/dwm/pull/36#issuecomment-6285722481) accepted concrete result787c7f21 under Director6284909302. This publication integrates exact test blobe6588aa48022554444f4bef2e27e0ef00bd7497f plus the retained original failure/success evidence and existing handoffs into unchanged PR36 producta01497d1 using expected-head protection.
+
+Acceptance reuses focused39385501032/job118504240996:403 fixture checks,18/18 rendered combinations/PNGs,nine setup receipts and import/render exit0. C independently verified the full original archive and three representative captures. No focused test or archive audit repeated. Production runtime, save/recovery/history owners, registries/caches, generated inventories and active product workflows remain unchanged. Preserved initialization lines59/60 avoid inventory churn.
+
+The whole published tree includes evidence/handoff additions and is not identical to the focused source treeed3493c4. The tested one-file fixture delta is exact. PR30 controllera3c37fb2 remains untouched to avoid duplicate focused triggers. No active runs at pre-publication inspection.
+
+Next: observe ordinary CI naturally triggered by this product publication. Record whether the Gallery register step clears and which downstream step first fails; diagnose only within this task, returning out-of-scope issues rather than expanding the patch. No separate broad dispatch.
+
+PR36 remains draft/unmerged; base3ae6d913 and master remain unchanged, no release. Known33.179067s transition and official exported persisted completion/Title/fresh Load/normal clean exit remain open. This synthetic fixture pass is not production narrative/replay, OS-input or exported-game qualification.
+
+Earlier pending-review/integration wording below is historical and superseded.
+
+---
+
+# Gallery register focused qualification passed — C result review pending
+
+20 October 2026 Hong Kong. Under Director6284909302, external C6285451061/6285453046 cleared exact launch controller1be10f982c3bd8fd2640da952215e482248c2b88. One expected-head update installed it at controllera3c37fb2417092f3aa783154cc2b0fec88da4ce6 and launched [focused run39385501032](https://github.com/Siuuuers/dwm/actions/runs/39385501032), job118504240996, attempt1: **success**. No manual rerun, duplicate dispatch or further PR30 push occurred.
+
+## Result and identities
+
+Official Godot4.6.3 standard on the existing Ubuntu24.04 software renderer completed **403 fixture checks,18/18 rendered combinations,18 PNGs and nine setup receipts**. This is one rendered fixture, not403 GUT tests. Original zero/single collapsed cases[0,1], exact variants/chronology, all three locales × three sizes × two palettes, wrapping, fit/overflow, keyboard/focus/pixels, Profile/storage invariance and zero replay starts passed. Real-owner receipts enumerate exact0/1/2 records; two supported English lookups and four unsupported lookup refusals are retained.
+
+- Source27fe2eb5dbea6345e62d83c611146a2e5199a944; treeed3493c40dc36d8346e42ee60d466e01bcc53ee3.
+- Controllera3c37fb2417092f3aa783154cc2b0fec88da4ce6; workflow blob1be10f982c3bd8fd2640da952215e482248c2b88.
+- Workflow/event480e04c0c066156e059c3270000e4576fc2bfa83 is distinct from controller and source.
+- Actual import-process.json and render-process.json both exit0. Original240-second command and existing error gates unchanged. Import log has no ERROR/WARNING findings; render log has only the expected unsupported V-Sync warning, official version, llvmpipe identification and success marker; no script/load/error/leak diagnostics.
+- Inspected original640×360 captures en-100-AfterHours, zh-CN-125-Midnight and zh-HK-150-AfterHours: selected row and focus perimeter visible, wrapped TEST cues contained, long paper scroll shown. All18 image dimensions and tuple identities checked programmatically; no claim of manual inspection of all18.
+
+## Preserved original evidence
+
+Files under evidence/phase_2r/inventory_refresh_20261020/gallery-register-run39385501032 retain the complete original artifact12247401591, gallery-version-register-39385501032-1: **94247bytes**, SHA256 **d7585dd9e73ac5a8c2b2795f2de5ee41f13d03a3b5a2b54e85593bc7c52d30e3**, matching GitHub digest. All24 ZIP members pass CRC, unique/safe-name checks and per-member hashes; includes18 PNGs, measurements/provenance, two process receipts and import/render logs. This ZIP is original, not a reconstructed subset. Offline verification.json records all members and actual measurements; verify.py reproduces checks from the original archive. Run/jobs/artifact metadata and full decoded job log accompany it.
+
+The separately uploaded speech-environment artifact is indexed in artifacts.json but not claimed as independently reviewed or preserved here; its successful setup step remains in the full job log. No production speech acceptance is added.
+
+## Integration gate and next continuation
+
+External C must review this concrete result before A integrates the exact one-file test change plus necessary evidence/existing restart/inventory notes into PR36, under Director6284909302. Product remains a01497d17eafd2ea512aa530fd12f33dbd622db8 (rechecked after the run), draft/unmerged; base3ae6d913 unchanged. Candidate test blobe6588aa48022554444f4bef2e27e0ef00bd7497f preserves both inventory-tracked initialization lines59/60; runtime/registry/cache/save/recovery/history owners unchanged. No product integration or master/release movement occurred.
+
+Upon C no-blocker, reconcile heads and use expected-head protection; preserve prior failed evidence from0ec8ee86. Observe natural post-integration CI and record whether the downstream journey lane now executes and its first causal error. Do not broaden this repair or repeat the focused run. PR path filtering uses cumulative PR diff: further PR30 pushes can retrigger, so use report branches/comments.
+
+Incidental ordinary controller CI39385501201 was in public-surface job118504241554 at observation; it is not the focused qualification and no downstream result is inferred. Earlier incidental39384356877 completed failure. Neither is a product integration run.
+
+This closes the candidate's historical availability/layout barrier within its tested scope, pending external result acceptance. Physical path checks and TEST labels do not qualify production narrative, replay/label execution, OS input, whole-game or Windows exported gameplay. Known33.179067s and official exported persisted completion/Title/fresh Load/normal clean exit remain open. No additional native dispatch assigned.
+
+Earlier preparation/launch-blocked statuses below are superseded by this result.
+
+---
+
+# Gallery qualification launch correction — 20 October 2026
+
+Consumed external C6285277745 / relay6285280384: source27fe2eb5 and controller6914f3eb cleared for ONE focused run under Director6284909302. Product remains a01497d17eafd2ea512aa530fd12f33dbd622db8; source candidate27fe2eb5dbea6345e62d83c611146a2e5199a944/treeed3493c40dc36d8346e42ee60d466e01bcc53ee3 unchanged.
+
+Installed exactly reviewed workflow blob6914f3ebd78893798b8641da814b7d1ef74f47ca at PR30 controller3aaa875ba6115ef7bddc2f254bb09c96efede8da using expected-head protection fromcd494d34. Pre-installation latest runs were completed; product/base unchanged.
+
+Launch issue: reviewed workflow declares only workflow_dispatch. The connected GitHub tools expose no dispatch operation, and the signed-in workflow page exposes no Run workflow control. Prior successful controller used pull_request with this workflow's path filter and PR30/same-repository job guard. No focused Gallery run started. Installation naturally triggered ordinary Windows run39384356877, observed in_progress; it is incidental CI, not the authorized focused result and not a manual broad dispatch.
+
+Prepared a launch-only correction as gallery-register-controller-pr-trigger.yml for C's bounded review: replace workflow_dispatch with the established workflow-path-filtered pull_request event; add existing PR30/same-repository job guard; record controller from event.pull_request.head.sha and separately retain GITHUB_WORKFLOW_SHA because PR event workflow and controller head can differ. Source/tree pins, engine, runner, all steps/deadlines/error/exit gates and evidence census remain unchanged. YAML and embedded Python syntax checked; no Godot/PowerShell execution.
+
+Do not install this correction until C reviews its exact delta. Installation on PR30 will itself trigger the ONE focused run; do not also dispatch/retry it. Reconcile active runs/heads first, then retain actual event/controller/source identities and first failure. Original C-reviewed controller remains installed pending this correction; do not change master/default branch to make manual dispatch available.
+
+No product source/integration, runtime/save/history change or pass claim. C's subsequent concrete result review still precedes product integration. Known33.179067s and official exported completion/Title/fresh Load/normal clean exit remain open. No new native run or release.
+
+---
+
+# Gallery fixture candidate prepared — external C review gate
+
+20 October 2026 Hong Kong. Director [6284909302](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6284909302) selects this bounded coverage repair. Consumed C's design review6284770583; that review is not approval of an unseen implementation. Product remains a01497d17eafd2ea512aa530fd12f33dbd622db8, draft/unmerged.
+
+## Exact candidate and outcome
+
+Candidate 27fe2eb5dbea6345e62d83c611146a2e5199a944, tree ed3493c40dc36d8346e42ee60d466e01bcc53ee3, branch codex/a-gallery-register-fixture-final-20261020 changes only tests/ui/render_gallery_version_register.gd (blob e6588aa48022554444f4bef2e27e0ef00bd7497f). Earlier preparation6de7a06e is superseded and must not be run or integrated.
+
+Expected outcome: the real GalleryReplayOwner exposes the fixture's two historical variants, then all18 existing rendered combinations pass without Profile/storage writes or replay starts. This is a candidate, not an executed pass.
+
+Nested FixtureEntryCatalog accepts exactly ending.alone.normal and ending.alone.dark_mode in en, with their existing physical DTL path and exact labels. All other inputs return fixture_entry_unavailable. The Script is installed after configure_replay and before Gallery mount. Real get_variants, signature/discovery/chronology and physical-resource checks remain untouched; no synthesized owner results or global cache/registration changes.
+
+Setup measurements retain two positive locator results, four negative ID/locale probes, and actual owner responses for0/1/2 records (nine receipts). Expected exact signature identities are checked before sample rendering. Existing zero/single collapse and18 locale/font/palette combinations remain. Static comparison confirms nine existing function bodies unchanged: _sample, _collapse, _catalog, _alone, _id, _near, _key, _frames and _check. Existing chronology/selection, wrapped cues, fit/overflow, keyboard/focus/pixels and storage/replay invariance assertions are retained.
+
+Failure obligations: unsupported lookup must fail, real-owner availability must succeed for both explicitly reached records, and every sample/assertion/process gate must pass. Physical availability still does not prove label execution or playable replay.
+
+## Inventory and qualification preparation
+
+Current GameState inventory contains no reference to this test. SaveManager inventory has exactly two references to initialize at lines59/60. Final helper placement preserves both lines; no runtime/autoload call sites or inventory bytes are changed. No regeneration is claimed or performed.
+
+[Prepared focused controller](gallery-register-controller.yml) is an inert review artifact, not installed under .github/workflows. It copies the existing rendered-journey Ubuntu24.04 runner setup, official checksum-pinned Godot4.6.3 standard, software display/speech preparation,8-minute import and5-minute render steps,240-second xvfb command, original error regex and exact18-tuple success marker. No later/broad journey jobs are included. It pins candidate commit/tree, records source/controller/event/run/attempt, retains actual import/render exits without accepting nonzero status, and validates18 unique expected tuples/screenshots and nine setup receipts. YAML and embedded Python syntax checked offline; no Godot or PowerShell executed. Relevant engine deadlines/error gates are unchanged.
+
+C must review this exact source/controller before installation and ONE focused cloud run. Director authorizes that run without another round trip after C no-blocker. After focused success, C reviews concrete result before A integrates exact changes plus necessary evidence/restart notes using expected-head protection. Reconcile current heads then observe naturally triggered CI; report the next causal failure without expanding scope. PR30 remains workflow-only.
+
+Original failed Gallery artifact and integrated startup evidence remain in the preceding diagnosis packet0ec8ee86; no repeat archive audit or startup test. Known33.179067s transition and official exported persisted completion/Title/fresh Load/normal clean exit remain open. No native Windows dispatch, merge/release, master/integration move or engine promotion.
+
+This section supersedes the earlier proposal-only next step below.
+
+---
+
+# Integrated startup observed; Gallery fixture diagnosis — 20 October 2026
+
+Under Director [6284320191](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6284320191), observed existing run39376387344 without redispatch. Run completed failure; settings was cancelled, not passed. Product remains a01497d17eafd2ea512aa530fd12f33dbd622db8, draft/unmerged. Base3ae6d9138fb53c388380c78550cf6082eafc0ea3 and master0c8b2384415d71bd3de4ff7408640bbf60b63740 unchanged. This report is isolated from the product branch.
+
+## Integrated startup boundary
+
+Windows export job118477179867 succeeded on PR merge checkout3ea83dd3adaa60b27a635dcf9ca21cd53d876091, tree7a2fe7e29975dabaf46c58f5fb17f4bd71d07f5c (same tree as producta01497d1). Its official4.6.3 receipt reports117 verified runtime-data files, isolated startup success and package audit. EXE91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6; PCKf658a37133f8c67319e06685ecb53d7909e62253aa820f0f183779812cd6b74f; inner package764b473dffe4a4bfe6035d76ceb7e82fbd755b4e4d7a7e6b4fab82b567b36cf0,99453494bytes. These are job receipts, not a repeated independent full-package verification. Prior focused39375120098 and C's archive review remain accepted within their scope.
+
+## First rendered journey barrier
+
+Job118477179879 fails its initial Gallery register step at render_gallery_version_register.gd:157: "plural register missing". Original artifact12243706795 is preserved byte-for-byte as gallery-register-original.zip:1081bytes, SHA25680af4975f4bcf40042095a305d4af7e6427977858c0cea617e4beb79b0ee3988. Its two members are measurements.json and render.log. Measurements record19 checks, collapsed_counts[0,1],0 samples of18 requested tuples, ok=false. Later journey steps were not reached; no seven-day/ending/replay acceptance follows.
+
+At producta01497d1, the test records normal and dark Alone signatures, with TEST display cues, but leaves the real GalleryReplayOwner on the production DialogicTimelineCatalog. DialogicEntryManifest.load_default selects scene_story_registration.json:8 entries, only ending.alone.normal for Alone. get_variants fails closed if any reached record is unavailable; GalleryScene clears its versions before this query and leaves them empty on refusal. The first plural sample follows addition of dark Alone. This causal chain is a source-based diagnosis; the artifact logs only the UI assertion, not the exact owner error code. Independent read-only consumer review agrees. This is a historical fixture/catalogue mismatch, not demonstrated current player Gallery failure or the previously fixed pre_challenge rehearsal stall.
+
+## ONE proposed correction, awaiting C/Director disposition
+
+Observable outcome: the existing mounted Gallery TEST fixture renders two explicitly available historical variants and completes its unchanged18-tuple inspection without writes or replay starts. The fixture owns synthetic availability; GalleryReplayOwner retains real signature/discovery/resource checks.
+
+Smallest change: in tests/ui/render_gallery_version_register.gd, introduce a nested test-only Script catalogue and assign it through the existing replay owner's _entry_catalog seam after configure_replay and before mounting. Accept exactly ending.alone.normal and ending.alone.dark_mode, English only, using their exact existing labels in res://dialogic/timelines/en/ending/alone.dtl. Reject every other ID/locale. Both labels physically exist (independent source review). Do not alter production registration, global caches, replay admission, saved records, runtime owners or history seals.
+
+Failure obligations: unknown entries/locales remain rejected; missing physical resources remain unavailable; fixture setup must explicitly establish two valid variants before UI sampling. Retain collapsed0/1, chronology/identity, two rows,18 locale/font/palette tuples, wrapped cues, fit/overflow, keyboard/focus/pixels, unchanged Profile/storage and zero replay starts. Minimal future qualification: one focused cloud standard4.6.3 rendered execution of this exact existing test with setup diagnostics and retained screenshots/measurements/clean process receipt. C reviews the exact candidate first. No new test execution or implementation occurred in this diagnosis packet.
+
+Player impact is indirect: repair restores trustworthy regression coverage and removes the first CI journey barrier; it does not add a production dark ending or prove replay execution. The related integration fixture appears to share this setup assumption, but expanding its suite is not assigned or certified here.
+
+## Remaining delivery priority
+
+This bounded review establishes no new supported runtime defect; it does not classify every red job. Existing inventory classifications remain, including retired fixture/census errors. The known33.179067s transition and official exported rendered completion persisted → Title → fresh Load → normal clean exit remain open and take delivery priority. A Gallery fixture pass would not close them. Before a new native dispatch, reconcile the current package against the existing failed journey and name a changed condition that makes a run informative. Director6284320191 assigns no new native dispatch.
+
+Next: external C reviews this concrete diagnosis/proposal; Director selects the bounded correction versus the unresolved native delivery route. No broad rerun, accepted archive re-audit, merge/release or master/integration movement. Existing inventory/restart sections below are historical where superseded.
+
+---
+
 # Source-discovery correction integrated into PR36 — 20 October 2026 Hong Kong
 
 Consumed external [C6284259718](https://github.com/Siuuuers/dwm/pull/36#issuecomment-6284259718) and [relay6284261786](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6284261786) under Director6276663610. C independently verified the complete original archive and found no blocker to the exact bounded integration. This supersedes the pending-review/pending-integration wording below.
