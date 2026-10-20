@@ -1,3 +1,39 @@
+# Supported Gallery caption candidate — external C review pending
+
+20 October 2026. Director6286370300 accepted stale test setup and authorized this bounded TEST-only candidate. Source7aee979d/treef37214d6 uses normal Alone core/primary versions, one coherent catalogue/native programme, complete setup receipts and exact scroll/version checks. No production owner/guard, shared historical helper or integration-suite repair. Existing five connected attempts and90 projection statuses retained.
+
+[Exact candidate, coverage map, runner and gate](../evidence/phase_2r/inventory_refresh_20261020/gallery-caption-candidate/README.md). Internal source review is not external C acceptance. No Godot/PowerShell execution, controller installation, cloud dispatch or runtime pass. C must review exact candidate/runner before ONE focused qualification under the existing instruction. Product2c188cd5/controllera3c37fb2 unchanged. Register repair stays closed; unsupported dark-Alone integration coverage remains unqualified. Native exported delivery/33.179067s latency stay open. Draft/unmerged; master/integration untouched.
+
+---
+
+# Gallery caption diagnosis — stale setup proposed; C disposition pending
+
+20 October 2026. Under Director6286021317, A traced the exact configure_reached_caption_collection request at product2c188cd55eccad94f9a6bbf139384548be0289ea. Historical Sylvia fixture entries cannot satisfy SoloReadingSession's current frozen-schema membership check: normal selected scene registration contains Day1..Day7 and ending.alone.normal. Expected reading_catalogue_invalid is SOURCE-INFERRED; original run39387121967 only captured ok=false. No new engine execution or runtime fix.
+
+[Full request, validation-order, PR1 comparison and coverage map](../evidence/phase_2r/inventory_refresh_20261020/gallery-caption-diagnosis/README.md). Independent internal coverage review agrees that native CaptionLayer acknowledgement, real Menu exit/physical History writes, refusal/uncertainty custody, exact return context and 90 rendered status combinations are not replaced by existing fake-playhead/fake-storage coverage. This is not external C acceptance.
+
+Next: external C reviews stale-setup disposition and bounded test-only redesign on a supported registered entry with a coherent native programme. Do not merely reuse the register availability seam, rename IDs, restore PR1 transient-discard behavior, remove the connected obligation, or alter production registration. No follow-on repair until disposition selected. A new diagnostic solely to recover the discarded code is not necessary for classification; exact first-branch attribution remains unobserved.
+
+Report branch only. Product2c188cd5/controllera3c37fb2/master0c8b2384/integration3ae6d913 unchanged; PR1 comparisona6decec3. No workflow launch, merge or release. Completed register repair stays closed. Known33.179067s latency and official exported persisted completion/Title/fresh Load/normal clean exit stay open and priority.
+
+---
+
+# Post-integration Gallery CI observation — 20 October 2026
+
+Product2c188cd55eccad94f9a6bbf139384548be0289ea integrated C6285722481's accepted repair under Director6284909302. Naturally triggered run39387121967 confirms public API surface job118509509013 SUCCESS, including unchanged committed-inventory verification, and Windows exported startup118512156463 SUCCESS. No new full-package audit repeated.
+
+Rendered journey job118512156600 now PASSES "Render witnessed-version register fixtures" with GALLERY_VERSION_REGISTER_RENDER_VERIFIED tuples=18. The next step, "Render admitted Gallery caption collection", executes and fails with exit1: GALLERY_CAPTION_COLLECTION_RENDER_FAILED: explicit replay caption admission rejected. Original artifact12248237640 records5 checks,ok=false,publications=[],samples=[],captures0. Later complete journeys and Solo Save/Load steps are skipped, not failed gameplay executions.
+
+At current source tests/ui/render_gallery_caption_collection.gd blob df618bd473a027511a3c6b77671b828ecb9c52ae, line66 calls real DialogicBridge.configure_reached_caption_collection(FIXTURE.catalogue(), admissions) after ready startup and successful fixture locator initialization. The test reduces its return to ok=false; no underlying refusal code is captured. Therefore this is a confirmed admission/setup barrier, not yet a demonstrated player replay defect or a proven cause. It precedes Gallery discovery, reached recording and mounting.
+
+Original failed ZIP is retained under evidence/phase_2r/inventory_refresh_20261020/gallery-post-integration39387121967:1043bytes,SHA2568e74207f8cc86b3c52e206eb5b3e04dfa4b1f111ece8dba9dcdcfe846a4a173a, matching live artifact digest, CRC clean with measurements.json/render.log. Raw job log and job snapshot accompany it. Integrated passing register artifact12248730515 remains indexed in artifact metadata; the fully accepted original focused evidence is already preserved in product, so no repeat acceptance/archive review is opened.
+
+Next recommendation to Director: a bounded read-only admission diagnosis comparing this fixture's request with the current real owner's configuration/refusal contract, retaining startup ownership and capturing the actual refusal reason. Do not assume the previous two-ID seam is appropriate here; this fixture exercises a different admission owner. No patch or new test dispatch is assigned by this observation. Do not expand the completed register repair.
+
+Product remains2c188cd5,draft/unmerged; controllera3c37fb2 untouched. Master0c8b2384/base3ae6d913 unchanged. Other CI jobs were still active at snapshot; no whole-workflow completion claim. Known33.179067s transition and official exported persisted completion/Title/fresh Load/normal clean exit remain open. No merge/release or native retry.
+
+---
+
 # Gallery fixture repair integrated — 20 October 2026
 
 External C [6285722481](https://github.com/Siuuuers/dwm/pull/36#issuecomment-6285722481) accepted concrete result787c7f21 under Director6284909302. This publication integrates exact test blobe6588aa48022554444f4bef2e27e0ef00bd7497f plus the retained original failure/success evidence and existing handoffs into unchanged PR36 producta01497d1 using expected-head protection.
