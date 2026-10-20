@@ -1,3 +1,11 @@
+# Legacy journey coverage mapped — supported gaps preserved
+
+20 October 2026. Read-only follow-up to C6288750841: all six legacy journey cases now have an explicit disposition. Retired desktop/calendar/Hospital orchestration is separated from accepted scene terminal/retry/board recovery and private Practice milestones. Unique gaps remain: actual Gallery replay completion, native active-board Quick Save/Load consent and restoration, rendered empty/historical Practice journeys, and full frozen-spec equality. Fixed neutral-ending evidence does not qualify conditional ending selection.
+
+[Coverage matrix, source anchors, evidence limits and proposed next scope](../evidence/phase_2r/inventory_refresh_20261020/legacy-journey-coverage/README.md). No runtime/test/workflow edit or engine run/dispatch. Gallery caption repair remains closed. Product83da/PR30 controller6d911b68/master/integration unchanged; this report is isolated. Native exported persisted completion→Title→fresh Load→clean exit and measured33.179067s transition remain open priorities. External Director/C selection precedes any follow-on implementation; internal audit is not that gate.
+
+---
+
 # Gallery repair integrated and ordinary CI observed — downstream startup mismatch reported
 
 20 October2026. Product83da885c integrates C6287046415's exact accepted caption fixture, canonical inventories and evidence with expected-head protection from2c188cd5. Natural run39395858652 confirms public inventories, exported startup, Gallery register and Gallery caption collection PASS. No focused rerun or manual broad dispatch.
