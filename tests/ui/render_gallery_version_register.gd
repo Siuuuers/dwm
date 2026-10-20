@@ -10,6 +10,14 @@ const GALLERY := preload("res://scenes/menu/GalleryScene.tscn")
 const CATALOG := preload("res://scripts/ui/gallery/GalleryRecordCatalog.gd")
 const SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
 
+# Synthetic historical availability for layout only; never the production catalogue.
+class FixtureEntryCatalog extends RefCounted:
+	static func get_entry(entry_id: String, locale: String) -> Dictionary:
+		if locale != "en" or entry_id not in ["ending.alone.normal", "ending.alone.dark_mode"]:
+			return {"ok": false, "code": &"fixture_entry_unavailable"}
+		return {"ok": true, "value": {"path": "res://dialogic/timelines/en/ending/alone.dtl",
+			"label": entry_id}}
+
 class ReplayBridge extends RefCounted:
 	signal reached_replay_finished(result: Dictionary)
 	var starts: Array[String] = []
@@ -32,6 +40,7 @@ var _samples: Array[Dictionary] = []
 var _failures: Array[String] = []
 var _checks := 0
 var _collapsed_counts: Array[int] = []
+var _setup_receipts: Array[Dictionary] = []
 
 func _initialize() -> void:
 	_run.call_deferred()
@@ -74,14 +83,20 @@ func _run() -> void:
 			or not _check(_gallery.configure_replay(_bridge).get("ok", false), "Replay owner"):
 		_finish()
 		return
+	if not _configure_fixture_catalog():
+		_finish()
+		return
 	_viewport.add_child(_gallery)
 	_gallery.open_in_title_host()
 	await _frames()
-	if not _collapse(0):
+	if not _owner_variants_receipt(0) or not _collapse(0):
 		_finish()
 		return
 	for dark: bool in [false, true]:
 		if not _check(_profile.record_reached_presentation(_alone(dark)).get("ok", false), "reached fixture"):
+			_finish()
+			return
+		if not _owner_variants_receipt(2 if dark else 1):
 			_finish()
 			return
 		_profile.publish_restore()
@@ -103,6 +118,40 @@ func _run() -> void:
 		overflowing = overflowing or float(sample.paper_content_extent) > 512.0
 	_check(fitting and overflowing, "missing fitting or overflowing rendered paper")
 	_finish()
+
+func _configure_fixture_catalog() -> bool:
+	var owner: RefCounted = _gallery.get("_replay_owner")
+	if not _check(owner != null, "fixture replay owner missing"): return false
+	owner.set("_entry_catalog", FixtureEntryCatalog)
+	for entry_id: String in ["ending.alone.normal", "ending.alone.dark_mode"]:
+		var resolved: Dictionary = FixtureEntryCatalog.get_entry(entry_id, "en")
+		_setup_receipts.append({"entry_id": entry_id, "locale": "en", "resolution": resolved})
+		if not _check(resolved.get("ok", false)
+				and resolved.value.path == "res://dialogic/timelines/en/ending/alone.dtl"
+				and resolved.value.label == entry_id, "fixture locator rejected"): return false
+	for probe: Array in [["ending.alone.unknown", "en"], ["ending.alone.normal", "zh_CN"],
+			["ending.alone.dark_mode", "zh_HK"], ["ending.alone.normal", ""]]:
+		var rejected: Dictionary = FixtureEntryCatalog.get_entry(str(probe[0]), str(probe[1]))
+		_setup_receipts.append({"entry_id": probe[0], "locale": probe[1], "resolution": rejected})
+		if not _check(not rejected.get("ok", true)
+				and rejected.get("code") == &"fixture_entry_unavailable", "unsupported fixture lookup admitted"):
+			return false
+	return true
+
+func _owner_variants_receipt(count: int) -> bool:
+	var owner: RefCounted = _gallery.get("_replay_owner")
+	var result: Dictionary = owner.get_variants("ending.alone")
+	_setup_receipts.append({"expected_count": count, "owner_variants": result.duplicate(true)})
+	if not _check(result.get("ok", false), "real owner rejected fixture variants"): return false
+	var records: Array = result.value.records
+	var actual: Array[String] = []
+	for record: Dictionary in records: actual.append(str(record.signature_id))
+	var expected: Array[String] = []
+	if count >= 1: expected.append(_id(false))
+	if count == 2: expected.append(_id(true))
+	actual.sort()
+	expected.sort()
+	return _check(actual == expected, "real owner fixture variant identities differ")
 
 func _alone(dark: bool) -> Dictionary:
 	return {"entry_id": "ending.alone.dark_mode" if dark else "ending.alone.normal", "schema_version": 1,
@@ -247,6 +296,7 @@ func _finish() -> void:
 			report.store_string(JSON.stringify({"ok": _failures.is_empty(), "checks": _checks,
 				"failures": _failures, "samples": _samples, "requested_tuples": 18,
 				"collapsed_counts": _collapsed_counts, "fixture_only_cues": true,
+				"setup_receipts": _setup_receipts, "fixture_only_availability": true,
 				"physical_size": [640, 360], "logical_size": [1280, 720],
 				"scope": "Mounted Gallery with real owners and noncanonical TEST cues. Viewport keyboard injection and renderer pixels; no OS keyboard, UIA, authored production cue completeness, or production cutover claim."}, "\t") + "\n")
 			report.close()
