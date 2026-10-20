@@ -356,15 +356,30 @@
   ],
   "reviewed_markdown_paths": [
     "AGENTS.md",
+    "docs/design/2026-09-02-narrative-constitution-working-decision-ledger.md",
+    "docs/design/2026-10-09-priscilla-flow-behavior-amendment.md",
+    "docs/superpowers/specs/2026-08-28-seven-day-two-pass-constellation-design.md",
     "story/01-core-story-bible.md",
     "story/02-character-relationship-handbook.md",
+    "story/03-seven-day-production-map.md",
+    "story/04-public-project-profile.md",
+    "story/05-canon-amendments-2026-07-19.md",
+    "story/06-seven-day-scene-beatbook.md",
+    "story/07-seven-day-causal-matrix.md",
+    "story/08-narrative-style-manual.md",
+    "story/09-priscilla-foundation-amendment.md",
     "story/AGENTS.md",
     "story/README.md",
     "story/auditions/2026-08-30-angela-lavinia-day-2-focus-audition-design.md",
     "story/auditions/2026-08-30-room-217-group-adaptation-audition-record.md",
     "story/auditions/2026-08-31-seven-day-owner-review-constellation-audition.md",
     "story/auditions/README.md",
+    "story/auditions/day-1-photo-book-working-draft.md",
+    "story/auditions/day-3-sylvia-fork-working-draft.md",
+    "story/auditions/priscilla-seven-day-working-plot.md",
+    "story/library/03-seven-day-plot-material-library.md",
     "story/maintenance/our-pl-upload-recovery.md",
+    "story/maintenance/pl-session-sources/2026-10-08/README.md",
     "story/maintenance/source-migration.md",
     "story/relationships/priscilla-lavinia/AGENTS.md",
     "story/relationships/priscilla-lavinia/README.md",
@@ -375,12 +390,229 @@
     "story/relationships/priscilla-lavinia/auditions/2026-09-12-day-1-priscilla-lavinia-retrospective-reflex-audition.md",
     "story/relationships/priscilla-lavinia/auditions/2026-09-26-priscilla-lavinia-day-2-portrait-dark-love-read-through.md",
     "story/relationships/priscilla-lavinia/auditions/day-2-portrait-development.md",
+    "story/relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md",
     "story/relationships/priscilla-lavinia/auditions/day-2-sweet-love-portrait.md",
     "story/relationships/priscilla-lavinia/auditions/day-6-dark-notebook.md",
+    "story/relationships/priscilla-lavinia/auditions/day-6-dark-photograph.md",
     "story/relationships/priscilla-lavinia/auditions/day-6-sweet-ambiguous-refusal.md",
     "story/relationships/priscilla-lavinia/auditions/day-6-sweet-love-dance.md",
+    "story/relationships/priscilla-lavinia/development/2026-10-08-session-capture.md",
     "story/relationships/priscilla-lavinia/intimacy-and-ordinary-company.md",
     "story/relationships/priscilla-lavinia/relationship.md",
     "story/relationships/priscilla-lavinia/seven-day-options.md"
+  ],
+  "historical_snapshot_scope": "Existing excerpt hashes, protected blocks and narrative/runtime flags describe the 2026-10-01 curation; later owner-authorized changes are recorded separately below.",
+  "later_consolidations": [
+    {
+      "date": "2026-10-20",
+      "baseline_commit": "f1df045a840a79ef9c728f46a03ecce7877f96c9",
+      "publication_pull_request": "https://github.com/Siuuuers/dwm/pull/41",
+      "scope": "Owner-requested Day 3 notice revision, durable direction integration, current flow consolidation and navigation curation",
+      "receipt": "story/maintenance/source-migration.md#current-story-consolidation-2026-10-20",
+      "source_scope": "Visible conversation; verified current source snapshot; relevant retained audition, development and design passages. Missing full raw history remains open.",
+      "current_flow_owner": "story/09-priscilla-foundation-amendment.md",
+      "compatibility_entry": "docs/design/2026-10-09-priscilla-flow-behavior-amendment.md",
+      "curated_working_entries": [
+        "story/README.md",
+        "story/auditions/README.md",
+        "story/relationships/priscilla-lavinia/README.md",
+        "story/auditions/priscilla-seven-day-working-plot.md"
+      ],
+      "accepted_direction_integrated": "Sylvia's occasional personal notices; exact coffee origin and future discrepancies remain unselected.",
+      "proposals_promoted_to_fixed_events": false,
+      "runtime_changed": false,
+      "merge_requested": false,
+      "protected_archive_branch_retained": true,
+      "source_baseline_files": [
+        {
+          "path": "AGENTS.md",
+          "git_blob": "35a5f19b35e6fc97a52d1f10b03cda1b85e7cb31"
+        },
+        {
+          "path": "story/AGENTS.md",
+          "git_blob": "ac91b09dd13e461f9da3496325dff0f884cf7887"
+        },
+        {
+          "path": "story/README.md",
+          "git_blob": "dc061be83cde79caa6d2752c1fecc92b83d56deb"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/AGENTS.md",
+          "git_blob": "a935c48633d2592d994df8477b971299854a67d1"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/README.md",
+          "git_blob": "512bcc01e175e2002d701fd0fdfec5dcb407cdef"
+        },
+        {
+          "path": "story/maintenance/source-migration.md",
+          "git_blob": "16c89cdbe313636c165171e7d4ee0f9934275071"
+        },
+        {
+          "path": "story/01-core-story-bible.md",
+          "git_blob": "d194dea77be487ec036793ff0e7e7be533727a3c"
+        },
+        {
+          "path": "story/02-character-relationship-handbook.md",
+          "git_blob": "01048180982bfac85c34d41186d24b2a85cde25a"
+        },
+        {
+          "path": "story/03-seven-day-production-map.md",
+          "git_blob": "ed5fdbd243f409398eb8fc10a94972d2b5ec68a8"
+        },
+        {
+          "path": "story/04-public-project-profile.md",
+          "git_blob": "9bcc737a6e45b466d70ced93368c330834b2e818"
+        },
+        {
+          "path": "story/05-canon-amendments-2026-07-19.md",
+          "git_blob": "ca529d24ee1e4b0f250b1b13270c31dfa55d2a0f"
+        },
+        {
+          "path": "story/06-seven-day-scene-beatbook.md",
+          "git_blob": "b75f111330b38fd988fb997b6b0dc3f204376fa3"
+        },
+        {
+          "path": "story/07-seven-day-causal-matrix.md",
+          "git_blob": "16352cdf7479e2663c05571c845d01ffe2fdb651"
+        },
+        {
+          "path": "story/08-narrative-style-manual.md",
+          "git_blob": "c4833a1503936fc66eaf67760906203ff4b50bd9"
+        },
+        {
+          "path": "story/09-priscilla-foundation-amendment.md",
+          "git_blob": "b141b471c19c577f03cc31cd0cf330f0a21fa136"
+        },
+        {
+          "path": "story/auditions/2026-08-30-angela-lavinia-day-2-focus-audition-design.md",
+          "git_blob": "08f9a4fbb80cbcbf6abbca65f194c3cd98c33c8e"
+        },
+        {
+          "path": "story/auditions/2026-08-30-room-217-group-adaptation-audition-record.md",
+          "git_blob": "1fd85692c724cfb348a8d81851af7e7a002369cd"
+        },
+        {
+          "path": "story/auditions/2026-08-31-seven-day-owner-review-constellation-audition.md",
+          "git_blob": "6bbdc51cb9f4d892ae4ce5c5afa54b30f3e799b9"
+        },
+        {
+          "path": "story/auditions/README.md",
+          "git_blob": "cf7f960d332974cd01ca9fe69fe5960491e7a0cf"
+        },
+        {
+          "path": "story/auditions/day-1-photo-book-working-draft.md",
+          "git_blob": "485c8809452d50e65d103ce7b1ced97ee22b1d0f"
+        },
+        {
+          "path": "story/auditions/day-3-sylvia-fork-working-draft.md",
+          "git_blob": "579cab4187c746f599e53b66881d7019821a3351"
+        },
+        {
+          "path": "story/auditions/priscilla-seven-day-working-plot.md",
+          "git_blob": "42169f1c446843a70a78c96c119e9460fdbc4ba0"
+        },
+        {
+          "path": "story/library/03-seven-day-plot-material-library.md",
+          "git_blob": "7097eeecf7e046ca9460024199ff4a8ff8c102ab"
+        },
+        {
+          "path": "story/maintenance/our-pl-upload-recovery.md",
+          "git_blob": "dd65a4d70a9faa494db46085739fd190338bad69"
+        },
+        {
+          "path": "story/maintenance/pl-session-sources/2026-10-08/README.md",
+          "git_blob": "56c7d47c9b4f0c15708d37e19f4834c562becbef"
+        },
+        {
+          "path": "story/maintenance/source-migration.json",
+          "git_blob": "a90e838f42b83694b573debb787132c433d6ab68"
+        },
+        {
+          "path": "story/maintenance/verify_consolidation.py",
+          "git_blob": "efee2a95216355bf180a319b5542766a99718e6f"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md",
+          "git_blob": "228385dcd953064885964edf9e3493061bcd2462"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-2-four-form-causal-spine-audition.md",
+          "git_blob": "43a70fdc7435085d3bf30103b814c66f808a0dc0"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-6-sweet-imagined-refusal-audition.md",
+          "git_blob": "691c98ce2fa0221c3b86031751dfd30ff168ade8"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/auditions/2026-09-07-priscilla-lavinia-day-6-sweet-love-interrupted-hearing-audition.md",
+          "git_blob": "fe90bc68df5bb578519838372faab54cf7e21720"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/auditions/2026-09-12-day-1-priscilla-lavinia-retrospective-reflex-audition.md",
+          "git_blob": "f3792a9b34cb2cebf38c32b910acb33dcc39df2d"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/auditions/2026-09-26-priscilla-lavinia-day-2-portrait-dark-love-read-through.md",
+          "git_blob": "8bc169fa41355384c01cf36ee1e65537e76d696c"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/auditions/day-2-portrait-development.md",
+          "git_blob": "7b9ecbcb38c6be19ab973a17f754b37199ad3c03"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md",
+          "git_blob": "eaffdfd0117f681ffdb080e8fc55c1029f113480"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/auditions/day-2-sweet-love-portrait.md",
+          "git_blob": "5a7b0800e55e16cae3ee10c68077a503f0b61f16"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/auditions/day-6-dark-notebook.md",
+          "git_blob": "ae89186de0ac280e8cf724656803b6f7bc157c27"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/auditions/day-6-dark-photograph.md",
+          "git_blob": "c0d6f19a45b73bb81e609b171a55555ec86b4a3a"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/auditions/day-6-sweet-ambiguous-refusal.md",
+          "git_blob": "51d9a33311fcdaaf49910b28cc4e3bc5761aa702"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/auditions/day-6-sweet-love-dance.md",
+          "git_blob": "592fe48396a216bf9e2aad7202af7c577fd8d6ab"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/development/2026-10-08-session-capture.md",
+          "git_blob": "399be8e5a0441a71980c2f26b2e17d9cb3693114"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/intimacy-and-ordinary-company.md",
+          "git_blob": "ab36739aa955a859405b30ee9e12d19d44773d36"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/relationship.md",
+          "git_blob": "bae60ea6e09264408e03d932e00c6b4280004c95"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/seven-day-options.md",
+          "git_blob": "43b27c7f278699f00bbd4bf2f7526213376b02c0"
+        },
+        {
+          "path": "docs/design/2026-10-09-priscilla-flow-behavior-amendment.md",
+          "git_blob": "ae07a8eb725e6ee869ba2b02f148dd44b291ef48"
+        },
+        {
+          "path": "docs/design/2026-09-02-narrative-constitution-working-decision-ledger.md",
+          "git_blob": "c7018cbc945c2c624435a31a8f7584e334b794ec"
+        },
+        {
+          "path": "docs/superpowers/specs/2026-08-28-seven-day-two-pass-constellation-design.md",
+          "git_blob": "68202b70bc1e9a4642fb689a85630a8c4af5c3a2"
+        }
+      ]
+    }
   ]
 }

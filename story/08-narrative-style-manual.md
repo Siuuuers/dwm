@@ -1,6 +1,7 @@
 ---
 document_status: reconciled_writer_facing_reference
 compiled_on: 2026-09-06
+updated_on: 2026-10-20
 sectional_audit:
   - sections_1_to_4_reconciled_2026-09-06
   - sections_5_to_8_reconciled_2026-09-06
@@ -28,21 +29,31 @@ distils approved cross-scene craft law from the
 into a form that can be used while plotting, drafting, and auditing messages,
 dating scenes, and endings.
 
-**Current status: reconciled writer-facing reference.** Sections 1–13 have
-completed bounded same-context adversarial audits, and the directly coupled
-Bible, Handbook, August-design, Causal-Matrix, and runtime-record conflicts
-recorded in Section 12.5 have received a bounded consistency pass. This status does not approve
+**Current status: reconciled writer-facing reference.** The September compilation's
+Sections 1–13 completed bounded same-context adversarial audits, and the directly
+coupled Bible, Handbook, August-design, Causal-Matrix, and runtime-record conflicts
+recorded in Section 12.5 received a bounded consistency pass. This status does not approve
 unfinished Day 1–7 plots, exact dialogue, staging, response-family allocation,
 progression predicates, ending eligibility, or implementation. Each promoted
 rule retains the approval status of its cited source. Open canon migrations and
 plot decisions remain explicitly open.
 
+**Current Priscilla chapter:** read the
+[foundation amendment](09-priscilla-foundation-amendment.md) for the sole-Priscilla
+viewpoint, private self-talk, flowing days, current A–E conduct and Observer
+knowledge, and one identically presented Dark P–L ending. It controls current
+use wherever this manual retains Angela-era surface, anchor, board, Hospital or
+ending examples. The October consolidation folds reusable craft from the current
+discussion into the sections below; it does not renew the September audits or
+promote an audition's exact scene.
+
 Authority remains divided by responsibility:
 
 1. the project owner's latest explicit approval supersedes earlier proposals;
-2. the [August 7 design](../docs/design/2026-08-07-seven-day-dialogic-flow-design.md)
-   owns intended mechanics and Dialogic flow unless a later approved amendment
-   says otherwise;
+2. the [foundation amendment](09-priscilla-foundation-amendment.md) owns the
+   current chapter's scoped authoring and flow contract; the
+   [August 7 design](../docs/design/2026-08-07-seven-day-dialogic-flow-design.md)
+   retains compatible intended mechanics, subject to later approved amendments;
 3. the [Core Story Bible](01-core-story-bible.md) owns fictional truth,
    character history, relationship facts, and unresolved causes, subject to
    explicitly recorded later owner decisions;
@@ -61,8 +72,10 @@ the conflict in the maintenance register, identify the later approved rule,
 update the owning document first, and repair only the affected derived passages
 in the same bounded transaction. When authority or scope remains unsettled,
 leave the collision marked open rather than choosing convenient wording.
-Route-specific facts remain in the Bible, Causal Matrix, Scene Beatbook, or
-decision ledger; they should appear here only as clearly labelled examples.
+Route-specific facts remain with their current Bible or relationship owner;
+candidate action and dialogue remain in their owning auditions. Retained Matrix,
+Beatbook and decision-ledger examples keep their recorded status. They should
+appear here only as clearly labelled examples.
 
 A normative instruction is usable only when its upstream status is
 owner-confirmed or explicitly retained. A later explicit approval governs the
@@ -141,7 +154,13 @@ and
 
 ## 3. Observable surfaces and evidence lanes
 
-The audience receives plot through exactly three current narrative surface
+**Scope:** the three-surface contract and Angela examples below are retained
+container guidance. Current chapter delivery, private self-talk and character
+access follow the foundation amendment; these examples grant neither an Angela
+viewpoint nor a new Lavinia/Sylvia viewpoint. The evidence distinctions remain
+usable with Priscilla as the current anchor.
+
+The retained container delivers plot through exactly three narrative surface
 classes:
 
 1. **messages**;
@@ -258,6 +277,10 @@ Before writing a continuous passage, the production record identifies one
 eligible perceptual anchor. That anchor remains stable until a clear authorized
 passage boundary.
 
+For current chapter writing, that anchor is Priscilla throughout; Section 4.2
+applies the unmarked method to her. The following eligibility list records the
+earlier Angela/pair container and does not authorize current viewpoint changes.
+
 - Angela may anchor an Angela-attended or Angela-owned passage only while she
   is conscious and physically able to perceive the stated fact.
 - An authorized audience-visible Priscilla–Lavinia surface may declare
@@ -303,6 +326,12 @@ smooth or natural. Judge what the passage reveals and how it reads; do not
 force awkward omission merely to keep a sentence unmarked. This flexibility
 applies to narrative perception as well as speech.
 
+When a looking or posture tag adds little, attend to the selected page, distance,
+pressure or bodily adjustment instead. The replacement must earn its place:
+removing “I look” may leave the next reply doing all the necessary work. Muscle
+description is an available focus, not a compulsory translation of every action.
+Keep direct motion when its clarity, speed or force serves the passage better.
+
 Priscilla remains the sole perceptual anchor. Writer-only notes identify the
 anchor, physical actor, dialogue speaker or addressee, and referent wherever
 the audience text leaves them uncertain; record only distinctions needed by
@@ -314,8 +343,11 @@ Both display fields can use this prose. As an editorial default, the story
 field carries the continuing encounter through Priscilla's attention; self-talk
 gives a private passage its own emphasis, whether an inward answer, hesitation,
 proposed action or perceptual fixation. Neither field requires a grammatical
-"I," proves an interpretation, or exposes another woman's mind. Keep one
-authored reading order and avoid duplicating a perception as its own explanation.
+"I," proves an interpretation, or exposes another woman's mind. A private
+association need not be an interactive thought or a Challenge; classify its
+operation under the foundation rather than inferring a control from its diction.
+Keep one authored reading order and avoid duplicating a perception as its own
+explanation.
 These are drafting conventions, not implemented routing syntax. The
 foundation governs the retained historical construction below.
 
@@ -418,8 +450,8 @@ removing the microscopic attention would weaken this scene's intimacy or
 unease. Urgent facts, blunt action, direct speech, and rapid absurd eruptions may
 need none.
 
-For the two authored Priscilla–Lavinia pair-only window blueprints, draft both
-essential causal plots before assigning anchors, then run a short anchor-swap
+For the retained Angela-era Priscilla–Lavinia pair-only window blueprints, draft
+both essential causal plots before assigning anchors, then run a short anchor-swap
 audition on each decisive beat. Paired-anchor counterpoint remains a strong
 ensemble default: prefer one Priscilla-bound and one Lavinia-bound blueprint
 when their lawful limitations preserve richer uncertainty, active choice, and
@@ -500,6 +532,14 @@ An absurdity can burst out before someone fully reflects. Surprise does not
 prove literal causelessness, dissociation, quantum origin, incapacity, or
 release from responsibility.
 
+An ordinary opportunity can support a ridiculous action without a disclosed
+origin story. A person may invent a rule, exploit a practical convention or
+follow an irrational local impulse because it pleases or serves her now. The
+writer needs enough context for this occasion to work, not a childhood cause,
+diagnosis or explanation for every habit. Established fictional pressure and
+human initiative keep their respective scope; an uncanny resemblance alone
+does not select an Observer intervention.
+
 ## 7. Dialogue, action, objects, and recurrence
 
 ### 7.1 Dialogue and interaction
@@ -525,6 +565,14 @@ not feel brutally arranged to deliver the author's thesis. A line or pause
 should exist because someone wants, notices, avoids, protects, enjoys, or
 misreads something.
 
+Chosen company is itself an adequate immediate want. An encounter can give its
+present participants shared amusement, disagreement, fascination or ordinary
+pleasure even when either has stronger romantic concerns elsewhere. An absent
+person may shape jealousy, avoidance, timing or attention without occupying the
+whole conversation. Judge that person's actual effect rather than counting
+mentions or imposing a day-by-day cast ban. A genuine invitation needs no
+invented errand to justify it.
+
 ### 7.2 Objects and spatial details
 
 Foregrounded or recurring objects do practical work before they accumulate
@@ -540,6 +588,13 @@ of attention it receives; it need not diagnose Lavinia, invite decoding or
 return later. Conversely, a conspicuous object or procedure designed chiefly
 to announce a theme should be reduced or removed.
 
+For an extended book, game or other shared object, ask why this particular
+person acquires, keeps using or shares it. Irritation and enjoyment may coexist;
+a poor book can still supply curiosity, amusement or wanted company. If any
+substitute would do, first ask whether its specific content needs the present
+emphasis. Either give that content a local use or reduce its prominence; not
+every ordinary prop needs a unique hidden meaning.
+
 ### 7.3 Repetition and discrepancy
 
 Repetition earns its place when an exact object, phrase, action, or spatial
@@ -553,8 +608,21 @@ to imitate *La Jalousie*. The work may permit incompatible readings; it may not
 secretly decree one observation wrong without supplying a lawful basis for
 revision.
 
-**Approved route-specific model, not a universal quota:** the umbrella history
-uses a relationally scoped facet mosaic. No one carrier recaps its offscreen
+A familiar habit can be recognizable without becoming a reliable emotional
+cipher. Recognition of somebody's manner does not authenticate who made the
+current object, whom it addresses, what she wants today or whether the act
+succeeds. Background may stay in author notes at its actual selected or proposed
+status. Reuse should allow changed function, recipient, company or consequence;
+it need not reenact the same question until somebody finally supplies its answer.
+
+Near echoes and exact repetitions offer different evidence. An exact match is
+more checkable; altered phrasing can let resemblance remain uncertain but may
+also pass unnoticed. Choose the strength the moment needs. Neither form
+guarantees déjà vu or proves its cause, and the current Day 1 near echo is no
+universal ban on literal repetition.
+
+**Retained route-specific model, not a current placement or universal quota:**
+the umbrella history uses a relationally scoped facet mosaic. No one carrier recaps its offscreen
 event; different messages, dating scenes, or endings may expose different
 present facts, while even their audience-visible union leaves chronology,
 initiation, motive, and relationship meaning unresolved. An umbrella remains
@@ -626,6 +694,13 @@ responsibility, create consent, or certify deeper love. Sweet need not cure
 earlier violations. Totally Dark need not be more sincere, passionate, or
 truthful.
 
+Wanted company may continue after an objection or a harmful act. Let the welcome,
+refusal and consequence remain specific: staying can express a present desire
+without settling the dispute. When successive scenes return from intrusion to
+renewed closeness, compare what actually changed and what remains difficult.
+Automatic reconnection can flatten their differences; this is a craft question,
+not a requirement for departure, extra punishment or a conciliatory beat.
+
 Before assigning Totally Dark, record who chooses which darker instrument,
 whose identifiable protected interest becomes expendable, and what concrete
 consequence follows. The form does not require every participant to share the
@@ -649,6 +724,14 @@ is permitted to express desire, style must not force her into coyness merely to
 preserve ambiguity.
 
 ## 9. Writing board-selected continuations and impulse variation
+
+**Current-use boundary:** the foundation owns the present A–E meanings,
+optional-thought/Challenge distinction and first-Perfect Observer knowledge.
+The Angela/pair explosion cutoff, Group subject, run-frozen pair form and
+two-to-four-family guidance below are retained historical mechanics, not rules
+for the current Priscilla forks. Reusable principles are authored human conduct,
+specific consequence and exact reasons for convergence. Awareness of an
+external will does not make characters know a nondiegetic board result.
 
 The Minesweeper board is nondiegetic. Characters never know that a board result
 caused their conduct; inside the fiction, established wants and the immediate
@@ -817,8 +900,8 @@ Identify:
 
 - the authorized narrative surface and the unit's practical entry and exit;
 - the practical activity and immediate want of each materially active
-  character, including a self-sufficient want unrelated to Angela where that
-  independence matters;
+  character, including wanted company and interests beyond an absent third
+  person where that independence matters;
 - the exact fact, report, record, or inference each active character can
   lawfully possess;
 - the dramatic burden: a recognizable change in action, evidence,
@@ -838,7 +921,11 @@ scene is long; expand it when the scene carries more causal risk.
 
 ### 11.2 Challenge and board module
 
-For a challenged scene, add:
+Apply the current foundation's result contract. Read the retained technical
+items below only where compatible; they do not introduce readiness tiers,
+Angela-era board classes or impulse machinery into the current chapter.
+
+For a challenged scene, add only the applicable items:
 
 - the board class, its counterfactual subject, and every reachable terminal
   cause;
@@ -932,8 +1019,8 @@ is not a mark of quality:
 - **Earned turn:** If the established want, pressure, opportunity, or cost were
   removed, would the turn become arbitrary?
 - **Effect economy:** Does each extended movement change leverage, knowledge,
-  expectation, consent, access, or felt rhythm, or establish a baseline needed
-  for a later difference?
+  expectation, consent, access, or felt rhythm, sustain specific wanted company,
+  or establish a baseline needed for a later difference?
 - **Decorative mystery:** Does withholding the information change any choice,
   evidence relation, consequence, or later interpretation?
 - **Socially exact absurdity:** Does the bizarre act follow a local personal or
@@ -1004,6 +1091,22 @@ that material left upstream has been approved.
 | Section 9: romantic geometry | Section 8 records presentation consequences; Section 12.5 tracks canon drift | Exact romantic facts and ending eligibility remain Bible/plot work |
 | Sections 10–13: love signals, cast, scene construction, evidence | Sections 7, 8, 10, and 11 | Character-specific plot applications and claims still requiring research |
 | Section 14: workflow and ablation cadence | Sections 12 and 13 | Implementation planning and unresolved plot queue |
+
+**October current-source consolidation, 2026-10-20:** the visible Day 1–3
+discussion and its [working checkpoint](auditions/priscilla-seven-day-working-plot.md),
+the current [Day 3 audition](auditions/day-3-sylvia-fork-working-draft.md), and
+[ordinary-company development](relationships/priscilla-lavinia/intimacy-and-ordinary-company.md)
+inform Sections 4.2, 6, 7, 8 and 13.3. The older
+[constellation](../docs/superpowers/specs/2026-08-28-seven-day-two-pass-constellation-design.md)'s
+character-local want, removal and selection tests were compared with the ledger material above;
+their reusable substance was already present. New consolidation clarifies
+functional field placement, familiar habits without diagnostic certainty,
+participant attention, changed recurrence and bounded impact claims. Exact
+dialogue, card history/anomalies, photograph choices, the book's near echo,
+Day 2 contact, Day 3 intake and Challenge placements, and proposed intimate
+history stay with their audition or relationship owner at their existing status.
+This is a bounded source pass, not recovery of unavailable conversations or
+approval of those scene details.
 
 ### 12.4 September source classification
 
@@ -1081,8 +1184,10 @@ and
 [Sections 12–13 audit](../docs/design/2026-09-06-narrative-style-manual-sections-12-13-audit.md).
 Their completion makes this manual usable as a writer-facing style gate. It does
 not convert examples into canon, close the open plot queue, authorize code, or
-replace later owner review. The owner declined subagent and cross-model review,
-so all four records disclose their same-context limitation.
+replace later owner review. For those September audits, the owner declined
+subagent and cross-model review, so all four records disclose their same-context
+limitation; this records that pass's scope rather than restricting later authorized
+collaboration.
 
 ### 13.2 Plot-to-dialogue use sequence
 
@@ -1114,6 +1219,14 @@ and any instruction whose removal improves the work. Stop when the named claim
 survives its recorded checks and no further high-confidence in-scope defect
 remains. Preserve unresolved questions and superseded provenance instead of
 stretching the pass until it appears comprehensive.
+
+Judge shock and memorability in the complete encounter and selected reading.
+A direct eruption can be earned; a quiet refusal or comic misfit can be the
+stronger local turn. Distinct scenes need not each furnish a spectacular harm
+or isolated clip. Proposed emotional effects and reading times remain editorial
+estimates until tested with a performance or audience; intensity, immersion and
+social-media sharing cannot be certified by an author audit. Ask what a moment
+changes and why it belongs to these people before adding another escalation.
 
 ### 13.4 Plot audits at successive levels
 

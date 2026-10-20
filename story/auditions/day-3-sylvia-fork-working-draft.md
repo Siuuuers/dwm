@@ -1,7 +1,7 @@
 # Day 3: An Improvement
 
-**Current audition:** 2026-10-20, after the owner's 13:38 Asia/Hong_Kong request to examine the meeting and card, character faithfulness, meaningful motion, cinematic immersion and memorable/shocking moments. The 03:38 placement correction remains: no shared Challenge and one in each relationship continuation.  
-**Reviewed predecessor:** [1383721](https://github.com/Siuuuers/dwm/blob/13837210f22742e9cdaf17e6b62bf048a43a29c4/story/auditions/day-3-sylvia-fork-working-draft.md). The exact shared-origin clarification, visibility changes and cuts are recorded in Section 8.  
+**Current audition:** 2026-10-20, after the owner's acceptance of Sylvia's occasional notice-writing manner and request to integrate useful development into the story sources. The 03:38 placement correction remains: no shared Challenge and one in each relationship continuation.  
+**Reviewed predecessor:** [f1df045](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/day-3-sylvia-fork-working-draft.md). The present change is the familiar “Another notice?” cue and the scoped author note below. The preceding full-family review remains in Section 8 with its own inspected revision.  
 **Status:** **AUDITIONING**. The owner's placement correction governs this Day 3 audition. Exact new speech, physical acts, result continuations and timing remain proposals. This packet supplies the shared encounter and two bounded branch families on the leading intake, not every earlier history, the whole Day 3/week, or executable DTL.  
 **Leading intake:** [Day 1 D](day-1-photo-book-working-draft.md#d-lost-the-rehearsal-is-sent) → [Day 2 D, staying treatment](../relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md#current-staying-audition-wanted-company-after-the-strike).
 
@@ -11,7 +11,7 @@ Read Sections 1–3 once. The shared exhibition has **no Challenge**. Its insinu
 
 The later optional relationship thought has one **Yes** opportunity: Yes → the Sylvia fork; passing → the Lavinia fork. Read the selected fork's common prefix, then exactly one local result A/B/C/D/E. E uses C's complete human continuation with its specified private awareness insertion. Never concatenate different result tails.
 
-There are **two authored Day 3 Challenges, one reachable in a particular reading**. A zero-Challenge reading is valid on either relationship route. These are prose families under the [current foundation](../09-priscilla-foundation-amendment.md#4-local-choices-and-challenge-meaning) and [flow](../../docs/design/2026-10-09-priscilla-flow-behavior-amendment.md#3-challenge-opportunity), not implemented DTL labels or a new five-button menu. The later relationship thought remains separate from either board.
+There are **two authored Day 3 Challenges, one reachable in a particular reading**. A zero-Challenge reading is valid on either relationship route. These are prose families under the [current foundation and flow](../09-priscilla-foundation-amendment.md#4-local-choices-and-challenge-meaning), not implemented DTL labels or a new five-button menu. The later relationship thought remains separate from either board.
 
 The exact late-Day-3 relationship placement remains the current audition against the earlier Day 4 candidate. The user's correction does not create a quota for other days or make the unavailable branch count toward later mastery or awareness.
 
@@ -35,7 +35,7 @@ A cream rectangle. Two black lines. Above it, the white surface is clean except 
 
 Beside the door, a woman presses a label flat against the wall. One corner lifts when she takes her thumb away. She presses it again.
 
-“What have you written?”
+“Another notice?”
 
 Sylvia holds the pen behind her back.
 
@@ -990,15 +990,15 @@ Each branch now has two ordinary private passages plus its one actionable Challe
 
 ## 7. Size, intensity and observation cuts
 
-Audience-word counts exclude headings, labels and author notes; they include private and actionable thoughts. Contractions count as one word and hyphenated parts separately. Shared Sections 1–3 contain **729 words**: 365 in the empty display, 284 in the explanation and 80 in the evening bridge and relationship thought. The P–L prefix is 369; P–S is 307. The table counts the selected prefix plus exactly one result, never the full A–E menu as play time.
+Audience-word counts exclude headings, labels and author notes; they include private and actionable thoughts. Contractions count as one word and hyphenated parts separately. Shared Sections 1–3 contain **727 words**: 363 in the empty display, 284 in the explanation and 80 in the evening bridge and relationship thought. The P–L prefix is 369; P–S is 307. The table counts the selected prefix plus exactly one result, never the full A–E menu as play time.
 
 | Selected local result | P–L fork words | Shared + P–L | P–S fork words | Shared + P–S |
 |---|---:|---:|---:|---:|
-| A | 515 | 1,244 | 452 | 1,181 |
-| B | 505 | 1,234 | 433 | 1,162 |
-| C | 558 | 1,287 | 451 | 1,180 |
-| D | 688 | 1,417 | 539 | 1,268 |
-| E | 598 | 1,327 | 497 | 1,226 |
+| A | 515 | 1,242 | 452 | 1,179 |
+| B | 505 | 1,232 | 433 | 1,160 |
+| C | 558 | 1,285 | 451 | 1,178 |
+| D | 688 | 1,415 | 539 | 1,266 |
+| E | 598 | 1,325 | 497 | 1,224 |
 
 **Proposed staging budget, not measured play time:** roughly 4–6 minutes for the shared encounter and bridge; 4–6 for P–L D or 3–5 for P–S D. That gives about 8–12 or 7–11 minutes for the corresponding shared-plus-fork audition. Other tails are shorter but have their own pauses and endpoints. Reading pace, performance, transitions and optional board/decision time can change those estimates. This is not a duration for all of Day 3.
 
@@ -1010,7 +1010,23 @@ The final contact in either D is not a confession of every motive. P–L's socia
 
 ## 8. Review, carry and remaining development
 
+### Current notice habit and its limits, 2026-10-20
+
+**Accepted direction:** Sylvia sometimes writes a personal preference as an arrangement already in force. The manner can accommodate care, irritation, an invitation, a joke or a claim on someone's attention. It is occasional, improvised and responsive to the moment. It is not a permanent deck, a dislike-only signal or a code that Priscilla can reliably decipher. The [Handbook](../02-character-relationship-handbook.md) owns this reusable character guidance; the [Style Manual](../08-narrative-style-manual.md) owns the distinction between familiarity, interpretation and proof.
+
+**Audience change:** “Another notice?” replaces “What have you written?” The next “Go and read it” now answers familiarity with a fresh invitation. Priscilla recognizes how Sylvia arranges a preference; the audience need not receive an origin story, a decoded emotional message or a statement of whom Sylvia loves. The surrounding writing, borrowed pen, shared pleasure, human insinuation and disposal remain the current audition. No new Challenge or supernatural event is added.
+
+**Private background candidate — AUDITIONING, not fixed history:** on an earlier university afternoon, Priscilla leaves her coffee to help or talk with someone. Sylvia keeps the seat with a scrap reading *Taken. Back in a minute.* On returning, Priscilla asks, “Did I say a minute?” Sylvia answers, “Your coffee's getting cold,” and moves the cup nearer. This could be the first occasion Priscilla notices the personal claim inside a useful arrangement. It is one possible remembered occasion, not a selected date, an established first meeting, the childhood origin of a habit, or a flashback required in this scene. The useful possibility is that she enjoys being kept a place and notices the return Sylvia has presumed.
+
+**Later recurrence — unselected:** a human could alter a notice; unchanged wording could acquire a different apparent recipient through placement; or a later discrepancy could leave cause unresolved after a real custody gap. Those options have different evidence. Priscilla's familiarity would not certify authorship or supernatural interference. A visibly untouched inscription rewriting itself, a notice carrying genuinely inaccessible knowledge, or cross-save alteration would require a separate decision about power and access. None occurs on Day 3. Prefer a later return only if its use changes the relationship or observation; the present card is binned and need not return as an object.
+
+The proposed coffee dialogue, its possible placement in their history and any later anomaly remain separate from acceptance of the general manner. Sylvia's stronger Lavinia attachment and Priscilla's limited understanding of it are unchanged. This scene can belong to Priscilla and Sylvia without turning their shared idiom into proof of romantic priority.
+
+**Bounded check:** compared the changed opening with the complete shared encounter, both fork entrances and the existing result seams. The complete Sections 1–5 audience body matches f1df045 apart from the single question replacement; Section 7 adjusts the totals by two words. This consolidation does not enlarge the earlier full-family review, measure play time, select every scene detail, or close the remaining intake/week/history work.
+
 ### Current motive, voice and cinematic review, 2026-10-20
+
+**Retained preceding review:** the following findings describe the earlier 13:38 revision and its inspected source. Statements about that pass's five files or unchanged bibles retain that scope; the later notice and story-owner consolidation are recorded above and in the [migration receipt](../maintenance/source-migration.md#current-story-consolidation-2026-10-20).
 
 **Source and scope:** the owner asks at 13:38 Asia/Hong_Kong why Sylvia has the card and why the women meet; whether the shared encounter and each relationship continuation have a thrilling, shocking, socially shareable moment; and whether the whole current Day 3 uses the women's own voices, meaningful motions and immersive cinematic action. The inspected predecessor is [1383721](https://github.com/Siuuuers/dwm/blob/13837210f22742e9cdaf17e6b62bf048a43a29c4/story/auditions/day-3-sylvia-fork-working-draft.md). This pass reads the complete available shared encounter, both prefixes, every A–D continuation and both specified E readings on Day 1 D → Day 2 D-staying. It does not claim a complete remaining Day 3, other incoming histories or seven-day audit.
 

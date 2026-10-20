@@ -12,10 +12,10 @@ also read [the local guide](story/relationships/priscilla-lavinia/AGENTS.md) and
 ## Current foundation amendment, 2026-10-09
 
 Before applying legacy cast, dating, viewpoint, route, Challenge or ending rules,
-read the [approved Priscilla amendment](story/09-priscilla-foundation-amendment.md)
-and its [intended-behavior amendment](docs/design/2026-10-09-priscilla-flow-behavior-amendment.md).
-They supersede only their named conflicts in older owners and guides. The unchanged
-source bodies remain reference material with compatible facts and existing holds;
+read the [current Priscilla foundation and intended flow](story/09-priscilla-foundation-amendment.md).
+The current flow was consolidated there on 2026-10-20; its former external path is
+a compatibility entry. These scoped amendments supersede only their named conflicts
+in older owners and guides. Retained source bodies preserve compatible facts and holds;
 they do not silently restore Angela, sisterhood, an alternative POV, mandatory
 four-form selection, the old explosion cutoff or a preselected partner.
 

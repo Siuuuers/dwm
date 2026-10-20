@@ -1,276 +1,86 @@
 # Story workspace
 
-## Current Day 3: motive, voice and cinematic review, 2026-10-20
+**Current chapter:** Priscilla's seven flowing days. This is the working home for narrative truth, character guidance, authoring flow, craft and scene auditions. Read the current foundation before retained material whose Angela, calendar, viewpoint or ending rules conflict with it.
 
-Read the [latest checkpoint](auditions/priscilla-seven-day-working-plot.md#current-day-3-motive-voice-and-cinematic-review-2026-10-20)
-and [Day 3 owner](auditions/day-3-sylvia-fork-working-draft.md). The review covers
-the complete available shared encounter and both bounded A–E fork families on
-Day 1 D → Day 2 D staying. No hard collision with the controlling current bibles
-was identified; the scene still needed clearer physical origins, more distinctive
-Sylvia conduct and fewer explanations of actions already visible.
+## Start with the work you are doing
 
-Sylvia now visibly makes the label from a gallery leaflet. The paintings provide
-the outing's ordinary occasion; Priscilla's interest in Sylvia diverts it. The
-helper's interrupted departure, withdrawn touch and discarded card retain their
-actual consequence. Selected cuts tighten the exit and cinema; Sylvia's existing
-aisle arrangement becomes audible, the café gets an actual question, and Lavinia's
-already-authored throw is explicitly visible. Section 8 of the owner records the
-reasons, source scope and remaining weaknesses.
-
-The architecture stays **zero shared Challenges → the separate Yes/default
-relationship thought → one optional Challenge in the selected continuation**.
-Two opportunities are authored, one reachable in a reading. Both fork families
-retain their actual outcomes, private aftermath and C-plus-recognition E contract.
-The gallery's cold harm, P–L's physical eruption and P–S's attention reversal
-offer different kinds of intensity; no audience or virality test is claimed.
-
-The [Day 1](auditions/day-1-photo-book-working-draft.md) and
-[Day 2](relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md)
-prose remains unchanged. Exact new words and staging remain **AUDITIONING**.
-Other intakes, the remaining day/week, sustained Sylvia plotting, complete DTL
-and protected historical holds remain open. No Bible amendment is required for
-these local repairs.
-
-**Capture destination:** five existing Markdown files in [PR #41](https://github.com/Siuuuers/dwm/pull/41),
-under standing Markdown/push authorization. Use the current GitHub owner; no new
-downloadable copy is produced. The [reviewed predecessor](https://github.com/Siuuuers/dwm/blob/13837210f22742e9cdaf17e6b62bf048a43a29c4/story/auditions/day-3-sylvia-fork-working-draft.md)
-retains its earlier exact prose, counts and review scope in Git.
-
-## Current Day 3 Sylvia meeting and fork audition, 2026-10-19
-
-**Historical entry:** the earlier common grievance, concealed call and proposed
-next-day S–L contact are preserved in the [previous packet](https://github.com/Siuuuers/dwm/blob/016c3ceb833d6c0f35d634d68c77899223bff49d/story/auditions/day-3-sylvia-fork-working-draft.md).
-The revision above replaces those events, not their capture history.
-
-## Current Day 2 staying audition and trace comparison, 2026-10-19
-
-**Historical entry:** the chosen stay survives with the revised tail above;
-the former voice comparison and rehearsal echo are preserved in the
-[previous Day 2 source](https://github.com/Siuuuers/dwm/blob/016c3ceb833d6c0f35d634d68c77899223bff49d/story/relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md).
-Its exact earlier trace-destruction source remains unrecovered within the bounded
-search. That limit does not close the protected historical audit.
-
-## Current book and attention experiment, 2026-10-19 at 15:24
-
-The owner's latest refinement favors the details Priscilla notices and asks
-whether an almost familiar sentence would work better than exact repetition.
-Read the [current comparison](auditions/priscilla-seven-day-working-plot.md#current-attention-and-near-echo-refinement-2026-10-19-at-1524)
-and the [complete Day 1 audition](auditions/day-1-photo-book-working-draft.md).
-The aunt's printed words now resemble Lavinia's message with changed wording
-and order; a later glance becomes the visible reading progress around Sylvia's
-finger. Exact prose remains **AUDITIONING**. First Perfect still supplies first
-Observer identification. The [wider reference triage](auditions/priscilla-seven-day-working-plot.md#current-book-and-observer-reference-2026-10-19-at-1403)
-retains its scope; no new powers or character directions are selected.
-
-**Capture destination:** the existing [PR #41](https://github.com/Siuuuers/dwm/pull/41)
-branch under the owner's standing Markdown/push authorization. The preceding
-complete reading remains at `82d3d939eed9728b7e6d2375f694f1a33d140125`; versions
-stay in Git. The checkpoint records a bounded same-model craft review,
-not audience, runtime, performed audio, full-week or historical-audit testing.
-Next judge the complete reading and its Day 2 carry; the full-week DTL gate
-and exact narrative selections remain open. PR metadata establishes the actual
-publication and merge state.
-
-## Current Day 1 book revision, 2026-10-19 at 13:17
-
-Read the [current book checkpoint](auditions/priscilla-seven-day-working-plot.md#current-day-1-book-revision-2026-10-19-at-1317)
-and the [revised complete Day 1 audition](auditions/day-1-photo-book-working-draft.md).
-The owner challenges the generic novel's replaceability, Sylvia's reason to
-buy and continue it, and its limited absurdity, while particularly valuing
-“I wanted to see you.” The new candidate is an invented comic novel,
-*The Funeral Rehearsal*, integrated across the book-dependent passages and
-callbacks of the existing family. Its exact text and synopsis remain AUDITIONING.
-
-**Capture destination:** existing [PR #41](https://github.com/Siuuuers/dwm/pull/41),
-under the owner's explicit authorization to update Markdown and push versions.
-Use Git commits to retain predecessors; no new manuscript or PR per revision.
-Two same-model readers checked appeal and dependencies, followed by the root's
-bounded repairs. Runtime/audio, audience testing and full-week review are NOT RUN.
-The current branch and merge state are established by PR metadata. Day 2's
-same-copy transfer, exact plot selection and the whole-week DTL gate remain open.
-
-## Current Sylvia and perception clarification, 2026-10-19
-
-Begin with the [current checkpoint](auditions/priscilla-seven-day-working-plot.md#current-sylvia-and-perception-clarification-2026-10-19):
-Sylvia's greater romantic attachment is Lavinia, her seven-day plan includes
-obstructing P–L, and the old astronomy-class first meeting is the adaptation
-basis. The owner retains the optional second photograph and prefers reduced
-grammatical person and partly withheld referents in Priscilla-bound prose,
-with names and pronouns available for beauty, smoothness and naturalness.
-The owning Bible, foundation, Handbook and style sections now record that scope.
-
-**Capture destination:** the existing [PR #41](https://github.com/Siuuuers/dwm/pull/41)
-branch, based on inspected `a7126a5c21c3545c05588b9ac38f8b2c682d8e82`. The owner
-authorizes Markdown updates and pushes at 13:17; use successive commits in the
-existing files for version history. PR metadata establishes the current head
-and merge state. The subsequent book-dependent revision is linked above; the
-remaining scene choices retain their audition status. At the later fork,
-Priscilla may suspect Sylvia's attraction
-while misunderstanding its extent or strategic importance. Lavinia's romantic
-response remains deliberately unresolved for the writers; exact disclosures,
-specific acts and P–S resolution remain open. The existing P–L ending and
-whole-week gate survive.
-
-## Current Day 1 audition checkpoint, 2026-10-19
-
-The [complete Day 1 reading copy](auditions/day-1-photo-book-working-draft.md)
-now joins the photograph, chosen book performance, consequential messages,
-integrated private self-talk, both responses to one optional photo thought, all
-five local Challenge continuations, and the matching private-call openings.
-Read one continuation at a time; the Dark-development reading begins with D.
-
-**Status:** AUDITIONING. This is a complete narrative audition, with exact
-dialogue and mapping still unselected. It is not executable DTL or a completed
-week. The [bounded review](auditions/day-1-photo-book-working-draft.md#7-review-against-and-challenge-to-the-bibles)
-tests action/access, consequence, voice and the scope of existing rules.
-The Handbook's voice test now operates across characteristic exchanges, allowing
-ordinary replies and shared performance without erasing distinct voices.
-
-**Capture:** the owner's full-audition request, same-scene self-talk development,
-new prose and variations, source challenges, and remaining Day 2 dependencies
-are recorded in the [working checkpoint](auditions/priscilla-seven-day-working-plot.md#current-day-1-audition-and-self-talk-checkpoint-2026-10-19).
-[PR #41](https://github.com/Siuuuers/dwm/pull/41) is the repository destination;
-its metadata establishes publication and merge state. Exact self-talk routing,
-the first-recognition wording, Day 2's same-book possibility, the full week,
-and the older residence/bar/residue audit retain their stated open scope.
-
-**Next writing unit:** judge the complete Day 1 readings and their carry into
-the current Day 2 candidate. The whole-week plot gate still precedes complete
-production DTL; it does not prevent this narrative audition.
-
-## Current P–L ending direction, 2026-10-18
-
-Priscilla–Lavinia now targets one identically presented Dark ending; earlier
-variations change events and interpretation without requiring different final
-text or staging. The current plotting target takes the available Dark options.
-Read the [scoped ending amendment](09-priscilla-foundation-amendment.md#pl-specific-ending-amendment-2026-10-18),
-[Priscilla judgment refinement](01-core-story-bible.md#current-pl-judgment-2026-10-18),
-and [attributed development checkpoint](auditions/priscilla-seven-day-working-plot.md#current-pl-direction-and-development-checkpoint-2026-10-18).
-
-The author endorses the previous methods for development. The 2026-10-19
-refinement makes motive/test disclosure selective, with Priscilla's perceptual
-self-talk available when useful; read the [current style guidance](08-narrative-style-manual.md#42-unmarked-focal-presence).
-Exact scenes and the jealousy/climax applications
-remain AUDITIONING. The new character direction does not select an older strike
-or resolve Day 1–2, residence, bar/residue or chronology holds. P–S and the fork
-retain their scope; the older restart text cannot restore a Sweet P–L endpoint.
-
-**Capture:** the checkpoint includes the same-ending, preference-based-restraint
-and jealous-testing refinement, followed by the 2026-10-19 clarification about
-working notes, selective disclosure and perceptual self-talk. [PR #41](https://github.com/Siuuuers/dwm/pull/41) is the documentation
-destination; its metadata determines draft/merge status.
-
-## Retained chapter development checkpoint, 2026-10-10
-
-The [working plot register](auditions/priscilla-seven-day-working-plot.md)
-captures recoverable post-foundation discussion and distinguishes author
-directions from assistant proposals. Read its source coverage, not a remembered
-summary, to determine what was actually preserved.
-
-- [Day 1](auditions/day-1-photo-book-working-draft.md): photo, book performance,
-  consequential messages and an unselected voice-message Challenge family.
-- [Day 2](relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md):
-  return/bar structure, distinct aftermath alternatives and the valued
-  tenderness-versus-departure reversal.
-
-**Status:** AUDITIONING, not canon or complete DTL. These packets identify the
-latest assembled fragments and later unintegrated proposals separately. The
-same-book loan, Day 2 escalation, exact Challenge mapping and full week remain
-open; the older chronological bar/residue audit is not closed.
-
-**Capture/publication:** the recoverable discussion through the Day 2 structure
-and recording request is documented in [PR #33](https://github.com/Siuuuers/dwm/pull/33),
-with the owner's publication/merge authorization recorded as C15. Consult the
-actual PR and commit metadata for merge state. A merged checkpoint does not
-approve its scene candidates. PR #1, runtime and protected source history are
-outside this documentation packet.
-
-**Next writing unit:** assemble the leading Day 2 candidate at scene scope,
-compare its reachable continuations, and preserve its cross-day consequences.
-The whole-week plot gate still precedes complete DTL production.
-
-## Retained foundation checkpoint, 2026-10-09
-
-Read the [approved foundation amendment](09-priscilla-foundation-amendment.md)
-before applying conflicting passages in the older owners below. Its scope map
-identifies what changes and what remains protected, provisional or unresolved.
-Read [intended behavior](../docs/design/2026-10-09-priscilla-flow-behavior-amendment.md)
-for the code consequences; publication is not a runtime implementation claim.
-
-The active direction is sole-Priscilla chapter flow, no in-world Angela, a
-childhood-friend Sylvia, optional local Challenge outcomes and a later single
-self-talk route fork. Yes leads toward Sylvia; ignoring defaults to Lavinia.
-Sweet/Dark ending form is selected at run creation independently of that fork.
-Ambiguous/Love is not a mandatory second axis. Perfect-based awareness does not
-require an observer confrontation or invalidate a healing relationship ending.
-
-**Checkpoint scope:** the owner's foundation discussion and separate-PR publication
-request are captured. Exact childhood history, whole-week plot, fork wording and
-placement, ending scenes, awareness thresholds and technical selection details
-remain open. Existing residence/bar/residue holds remain open. General praise does
-not approve nearby auditions, and reference horror examples are not a catalogue.
-
-**Repository status:** this checkpoint belongs to the documentation PR that contains
-these changes. Consult its metadata for open/merged state; this prose is not a claim
-that `master` has changed. PR #1's implementation branch is separate and untouched.
-The earlier local 15-file insertion package is not presented as already applied.
-This PR retains the long source owners and publishes scoped amendments instead.
-
-**Next creative unit:** audition one complete shared route-fork scene with both
-immediate continuations, compare healing Sweet and frightening Dark ending
-treatments, then fit selected choices into the whole seven-day causal structure.
-Do not restart the settled foundation or begin complete DTL before that plot gate.
-
-## Retained workspace navigation and earlier capture
-
-The map and dated history below retain their source scope. Use the current
-amendment first; older calendar and four-form labels are not active obligations.
-
-**Narrative working home.** The legacy audition directory has been consolidated
-here. This directory includes current narrative authorities, retained auditions,
-and attributed development evidence; its location is not a canon stamp.
-
-| Question | Start here |
+| Task | Read |
 |---|---|
-| Fixed fictional truth and history | [Core Story Bible](01-core-story-bible.md) |
-| Individual characters and other relationships | [Character & Relationship Handbook](02-character-relationship-handbook.md) |
-| Priscilla–Lavinia relationship and current candidates | [P–L working home](relationships/priscilla-lavinia/README.md) |
-| Shared, other-pair and whole-week auditions | [Audition index](auditions/README.md) |
-| Windows, occurrence and selection | [Seven-Day Causal Matrix](07-seven-day-causal-matrix.md) |
-| Approved scene expansion | [Scene Beatbook](06-seven-day-scene-beatbook.md) |
-| Style, perception and review | [Narrative Style Manual](08-narrative-style-manual.md) |
-| Authoring and four-exchange capture | [Narrative guide](AGENTS.md) |
-| Source provenance and preservation checks | [Migration receipt](maintenance/source-migration.md) |
+| Resume the latest scene | [Day 3: An Improvement](auditions/day-3-sylvia-fork-working-draft.md) |
+| Understand the current chapter and intended flow | [Priscilla foundation and flow](09-priscilla-foundation-amendment.md) |
+| See what exists, what carries forward and what is still open | [Seven-day working map](auditions/priscilla-seven-day-working-plot.md) |
+| Write or revise a character | [Core Bible](01-core-story-bible.md), then the relevant [Handbook](02-character-relationship-handbook.md) dossier |
+| Work on Priscilla–Lavinia | [Pair working home](relationships/priscilla-lavinia/README.md) and [relationship guidance](relationships/priscilla-lavinia/relationship.md) |
+| Choose perception, self-talk, dialogue or scene rhythm | [Style Manual](08-narrative-style-manual.md), especially §§4.2, 6–8 and 11–13 |
+| Check authoring practice and decision scope | [Narrative guide](AGENTS.md) |
+| Recover an older version or the reason for a migration | [Source provenance](maintenance/source-migration.md) |
 
-The existing lifecycle remains `UNSELECTED → AUDITIONING → SELECTED FOR APPROVAL →
-APPROVED`, with `REOPENED` where applicable. Retained designs, local preferences,
-reaction tests and audition verdicts are not interchangeable with approval of
-history, complete scenes, placement or runtime behavior. Room 2.17 keeps its
-bounded approved-but-unplaced core; its adaptations and placement remain distinct.
+A normal writing pass needs the requested scene, foundation and relevant character/style sections. The retained archive is available when a concrete history or alternative requires it.
 
-## How to work without rereading the entire archive
+## Current Day 1–3 readings
 
-Open the requested current passage, then its development notes when a decision
-needs review. Selected passages and focused development notes sit beside the topic they explain;
-questions, stated reasons, alternative versions and unresolved continuations have
-not been discarded. They are evidence to interpret, not live instructions.
+| Day | Current manuscript | Scope |
+|---|---|---|
+| 1 | [Photo and book](auditions/day-1-photo-book-working-draft.md) | Complete bounded reading with optional photograph, private self-talk, local A–E continuations and coda; exact prose remains AUDITIONING. |
+| 2 | [Return and bar](relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md) | Leading Day 1 D intake, local result family and competing D aftermaths; the staying treatment is the current continuation into Day 3. |
+| 3 | [An Improvement: shared Sylvia encounter and two forks](auditions/day-3-sylvia-fork-working-draft.md) | Familiar notice manner in the shared gallery scene; separate later relationship thought; one Challenge in each mutually exclusive fork. Two authored, one reachable. |
 
-Fixed history remains in the Bible. The Handbook retains individual dossiers;
-its P–L pair section is transferred unchanged into the pair's relationship owner,
-with a backpointer at the old heading. Technical behavior records remain under
-`docs/design/`; their live story links are repaired, not their mechanics rewritten.
+The Day 3 manuscript supplies a bounded shared encounter and both fork families after Day 1 D → Day 2 D-staying. It is not every incoming history or the complete remaining day/week. [The audition index](auditions/README.md) also routes retained shared work.
 
-## Consolidation checkpoint — 2026-10-01
+There is one **identically presented Dark Priscilla–Lavinia ending**. Softer and harsher local conduct can create different actual histories and readings of it. Those facts still need compatible carry; the Priscilla–Sylvia resolution remains open. Complete DTL follows the whole-week plot review, while bounded prose auditions can continue now.
 
-The supplied conversation has been reviewed for preservation and then selectively curated; not all 50 exchanges need active reproduction.
-Nine distinct auditions are relocated, the thematic checkpoint and secondary
-archive are distributed by topic, and the old source directory is absent from
-this working tree. Both exact transcript snapshots remain retrievable in retained
-Git history. See [the exchange map](maintenance/our-pl-upload-recovery.md) for
-coverage and [the verification program](maintenance/verify_consolidation.py) for
-reproducible integrity checks.
+## Where each kind of information belongs
 
-This is a documentation checkpoint on PR #3, not a claim that `master` has already
-changed or that the whole story passed review. No scene winner, new intimate
-history, injury, calendar placement or code behavior is selected by migration.
-Earlier missing bar/residue evidence remains an explicit narrative hold.
+| Owner | Responsibility |
+|---|---|
+| [01 Core Bible](01-core-story-bible.md) | Fictional truth, protected history, current character facts, and genuinely unresolved causes |
+| [02 Handbook](02-character-relationship-handbook.md) | Individual wants, voices, behavior, relationships and limits of knowledge |
+| [08 Style Manual](08-narrative-style-manual.md) | Reusable writing and review practice, including unmarked perception, private thoughts, natural absurdity and meaningful recurrence |
+| [09 Foundation and flow](09-priscilla-foundation-amendment.md) | Current cast/POV, seven-day flow, Yes/default route, optional thoughts, Challenge results, awareness and ending boundaries; intended implementation handoff |
+| [P–L relationship](relationships/priscilla-lavinia/relationship.md) | Specialized pair guidance delegated by the Handbook |
+| [Working map](auditions/priscilla-seven-day-working-plot.md) | Current scene status, cross-day dependencies and unselected development possibilities |
+| Day manuscripts and pair development | Actual scenes, result alternatives, local revision reasons and bounded reviews |
+| [Maintenance](maintenance/source-migration.md) and exact Git versions | Source disposition and superseded development evidence |
+
+A new reusable decision belongs in its existing owner. A new file is useful when it has a distinct continuing responsibility; it is not needed for each discussion turn. Keep the complete scene in its day owner instead of copying it into a bible. Source status travels with the material: an audition, private hypothesis and unresolved cause do not become fixed history through relocation.
+
+## Retained production and reference material
+
+The [Production Map](03-seven-day-production-map.md) retains a derived, plot-neutral schema; the [Beatbook](06-seven-day-scene-beatbook.md) and [Causal Matrix](07-seven-day-causal-matrix.md) retain earlier production and selection records. Their old calendar, Angela and four-form arrangements do not place the new Priscilla week. Compatible protected facts and scoped approvals remain available; Room 2.17's approved-but-unplaced core does not acquire a placement.
+
+The [historical amendments](05-canon-amendments-2026-07-19.md), [Plot Material Library](library/03-seven-day-plot-material-library.md), older auditions and [P–L source index](maintenance/pl-session-sources/2026-10-08/README.md) preserve alternatives. [04 Public Project Profile](04-public-project-profile.md) is current-facing public-copy work, with its own publication status.
+
+Current story semantics from the former external flow amendment now live in09. Its [old path](../docs/design/2026-10-09-priscilla-flow-behavior-amendment.md) is a compatibility entry. Unaffected engineering contracts remain with their technical owners; story documents do not certify implemented UI, labels or runtime behavior.
+
+## Latest consolidation and next writing step
+
+On 2026-10-20, the owner requested the Day 3 habit revision and integration of useful conversation/audition material. The current character, style and flow owners receive reusable guidance; this home and the working map replace repeated chronological restart instructions. [The consolidation receipt](maintenance/source-migration.md#current-story-consolidation-2026-10-20) records exact source versions, dispositions and review limits.
+
+Next, review the current Day 3 reading, then develop the selected relationship's next consequential scene and its actual intake. Day 4–7 placement, the full alternate intakes and ending carry remain open. There is no need to reconstruct the earlier shared fork or restart the settled foundation.
+
+Publication state comes from [PR #41](https://github.com/Siuuuers/dwm/pull/41) and Git metadata. This guide does not claim a merge or a finished week.
+
+## Previous section bookmarks
+
+<details>
+<summary>Open the earlier checkpoint sections in their exact Git version</summary>
+
+These are historical destinations, not additional current instructions. Older subsection bookmarks lead to their containing source section. The full pre-consolidation text remains at the verified f1df045 revision; its scene status and publication claims retain their dated scope.
+
+| Earlier section | Exact source |
+|---|---|
+| <a id="current-day-3-motive-voice-and-cinematic-review-2026-10-20"></a>Current Day 3: motive, voice and cinematic review, 2026-10-20 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/README.md#current-day-3-motive-voice-and-cinematic-review-2026-10-20) |
+| <a id="current-day-3-sylvia-meeting-and-fork-audition-2026-10-19"></a>Current Day 3 Sylvia meeting and fork audition, 2026-10-19 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/README.md#current-day-3-sylvia-meeting-and-fork-audition-2026-10-19) |
+| <a id="current-day-2-staying-audition-and-trace-comparison-2026-10-19"></a>Current Day 2 staying audition and trace comparison, 2026-10-19 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/README.md#current-day-2-staying-audition-and-trace-comparison-2026-10-19) |
+| <a id="current-book-and-attention-experiment-2026-10-19-at-1524"></a>Current book and attention experiment, 2026-10-19 at 15:24 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/README.md#current-book-and-attention-experiment-2026-10-19-at-1524) |
+| <a id="current-day-1-book-revision-2026-10-19-at-1317"></a>Current Day 1 book revision, 2026-10-19 at 13:17 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/README.md#current-day-1-book-revision-2026-10-19-at-1317) |
+| <a id="current-sylvia-and-perception-clarification-2026-10-19"></a>Current Sylvia and perception clarification, 2026-10-19 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/README.md#current-sylvia-and-perception-clarification-2026-10-19) |
+| <a id="current-day-1-audition-checkpoint-2026-10-19"></a>Current Day 1 audition checkpoint, 2026-10-19 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/README.md#current-day-1-audition-checkpoint-2026-10-19) |
+| <a id="current-pl-ending-direction-2026-10-18"></a>Current P–L ending direction, 2026-10-18 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/README.md#current-pl-ending-direction-2026-10-18) |
+| <a id="retained-chapter-development-checkpoint-2026-10-10"></a>Retained chapter development checkpoint, 2026-10-10 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/README.md#retained-chapter-development-checkpoint-2026-10-10) |
+| <a id="retained-foundation-checkpoint-2026-10-09"></a>Retained foundation checkpoint, 2026-10-09 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/README.md#retained-foundation-checkpoint-2026-10-09) |
+| <a id="retained-workspace-navigation-and-earlier-capture"></a>Retained workspace navigation and earlier capture | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/README.md#retained-workspace-navigation-and-earlier-capture) |
+| <a id="how-to-work-without-rereading-the-entire-archive"></a>How to work without rereading the entire archive | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/README.md#how-to-work-without-rereading-the-entire-archive) |
+| <a id="consolidation-checkpoint--2026-10-01"></a>Consolidation checkpoint — 2026-10-01 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/README.md#consolidation-checkpoint--2026-10-01) |
+
+</details>

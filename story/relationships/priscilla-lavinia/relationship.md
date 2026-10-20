@@ -1,5 +1,14 @@
 # Priscilla–Lavinia — relationship development
 
+**Current reading, consolidated 2026-10-20:** apply the
+[Priscilla foundation](../../09-priscilla-foundation-amendment.md) and the
+[current character directions](../../01-core-story-bible.md#character-canon-essentials)
+first, then this file's developing pursuit, company and conduct guidance.
+The transferred block retains exact earlier wording for provenance; its
+old tier/deck and universal relationship-gravity statements do not override
+the current fork or the single identically presented P–L Dark ending.
+Protected history and its explicit migration hold remain in force.
+
 **Role:** owner of the pair-specific guidance transferred unchanged from the Handbook, followed by clearly separated working development. The Bible still owns fixed history; individual dossiers remain in the Handbook.
 
 ## Established pair guidance
@@ -54,6 +63,48 @@ records the author's newer jealousy and abusive-testing direction. Exact acts
 remain auditions. A test can be deliberate, an impulse can be unplanned, and a
 later explanation need not disclose its complete cause. No older strike or
 Observer-caused act is selected by that direction.
+
+### Current seven-day performance
+
+The [2026-10-18 direction](../../01-core-story-bible.md#current-pl-judgment-2026-10-18)
+distinguishes three things: what Priscilla wants, what she thinks Lavinia
+wants, and what Priscilla chooses to do. A costly concession can be real
+while her moral judgment remains unchanged. Wanting to preserve closeness
+can lead to obedience, a new approach or another intrusion; it is not a
+flawless rule predicting which she will choose. Do not undo actual restraint
+by inventing a hidden repetition after the scene.
+
+Lavinia's capacity for emotionally impulsive, abusive testing is current
+development direction. A deliberate test, an angry impulse and a later
+claim that the impulse was a test are different possibilities. Neither her
+belief that Priscilla deserves it nor Priscilla's intense response settles
+what the act means. Chosen later company can be genuinely enjoyable and
+remain separate from forgiveness or permission for the earlier harm.
+
+**Leading motive audition, not a fixed history:** jealousy of Priscilla's
+wider attention may matter more to a present test than the disclosure
+grievance Lavinia invokes. Keep the real intervention and professional
+fear; their existence does not explain the whole week, and calling on that
+grievance does not prove that every act was revenge. The
+[checkpoint's jealousy proposal](../../auditions/priscilla-seven-day-working-plot.md#jealousy-and-preference-based-restraint-current-assistant-audition)
+preserves this distinction. Priscilla's popularity may include competence,
+wit and real outside attachments; being liked is not itself evidence that
+she manipulated everyone.
+
+The current ending is one identical P–L Dark presentation. Earlier acts
+still happen or do not happen in their own continuation. A respected
+departure, welcomed touch, injury or disclosed confidence cannot be quietly
+reversed to make the final scene convenient. The final passage need not
+recite those differences, but its common events must remain possible after
+each reachable history.
+
+Private orientation can preserve a selected unrevealed fact, a fallible
+interpretation or an unresolved cause without supplying a clue for each.
+Keep those statuses separate. A close observation can disclose Priscilla's
+fixation more clearly than Lavinia's purpose; it need not authenticate a
+hidden test. This consolidates the checkpoint's
+[selective-disclosure clarification](../../auditions/priscilla-seven-day-working-plot.md#selective-disclosure-and-priscillas-perception-u4--2026-10-19)
+without selecting a new incident or a required disclosure sequence.
 
 ## 3. Why the company is worth wanting
 
@@ -183,6 +234,11 @@ alternatives.
 
 ## 6. Different variations reveal different facets
 
+The Sweet/Ambiguous/Love scene families named below are retained craft
+resources. They do not require those old four forms in the current chapter,
+select a later Sweet scene, or create a second P–L ending. Their complete
+scene prose remains in the individual auditions.
+
 The [dance](auditions/day-6-sweet-love-dance.md) shares a present physical activity. The [imagined refusal](auditions/day-6-sweet-ambiguous-refusal.md) makes a private rehearsal jointly playable. The [notebook](auditions/day-6-dark-notebook.md) distinguishes voluntarily shown intimacy from information taken beyond its limit. This is an organizing interpretation, not a rule that every variant must repeat the same symbol or teach a boundary lesson.
 
 Sweet must not become affection rationed by relationship labels. Dark must not become a shorter Sweet scene with pleasure removed, a generic fight, or an automatic moral punishment. Harm can yield wanted attention without becoming justified. The user's repeated objection to thin Dark scenes was about character-specific desire and dramatic richness, not a request for random violence or endless escalation.
@@ -213,5 +269,16 @@ The former portrait/intimacy checkpoint is now represented by its useful content
 | Former navigation, capture and review reporting, §§0–1,12 | [Archival provenance](../../maintenance/source-migration.md); no repeated working prose |
 
 ## Sources and curation
+
+The 2026-10-20 consolidation brings the current chapter's performance and
+disclosure rules into this pair owner from the working checkpoint's
+**Current P–L direction and development checkpoint, 2026-10-18**, especially
+**Owner directions and current scope**, **One identical finale, different
+actual histories and readings**, **Jealousy and preference-based restraint**,
+and the **Selective disclosure** clarification dated 2026-10-19. It preserves
+the separation between owner-approved capacities and assistant motive or
+scene auditions. The exact
+[pre-consolidation relationship file](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/relationships/priscilla-lavinia/relationship.md)
+remains available with its earlier wording.
 
 The established Handbook pair section above is byte-for-byte unchanged. The scoped correction and the differing-improvement reading derive from export E02; ordinary pleasure and fallible interpretation recur throughout E01–07. Exact surrounding exchanges and former commentary remain in the [pre-curation record](https://github.com/Siuuuers/dwm/blob/3b553e1a3d986fa0de3be4a529f895cba4d9acca/story/relationships/priscilla-lavinia/relationship.md) and the [original-source map](../../maintenance/our-pl-upload-recovery.md). The working document keeps what helps a writing decision, not a complete transcript. Older missing-history and narrative-selection holds remain open.

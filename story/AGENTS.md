@@ -2,9 +2,9 @@
 
 ## Current foundation boundary
 
-Read [the approved Priscilla amendment](09-priscilla-foundation-amendment.md)
-and [current intended behavior](../docs/design/2026-10-09-priscilla-flow-behavior-amendment.md)
-before using the retained guidance below. Their named changes override older
+Read [the current Priscilla foundation and intended flow](09-priscilla-foundation-amendment.md)
+before using the retained guidance below. The former external flow document is a
+compatibility entry after the 2026-10-20 consolidation. The named changes override older
 Angela, alternate-viewpoint, scheduling and explosion-cutoff instructions.
 Compatible craft, source discipline, selection and four-exchange capture remain.
 Current chapter-development records are routed through [the story home](README.md)
@@ -30,11 +30,11 @@ not every document on every task.
 | Individual voices, wants, conduct, language, knowledge | `story/02-character-relationship-handbook.md`; P–L pair guidance in `story/relationships/priscilla-lavinia/relationship.md` |
 | P–L working entry, current scene candidates, and capture status | `story/relationships/priscilla-lavinia/README.md`; pair guidance is delegated explicitly; canon and selection status remain distinct |
 | Presentation, lenses, dialogue, scene cards, review | `story/08-narrative-style-manual.md`, especially applicable craft sections and Sections 11-13 |
-| Fixed windows, placement and selection status | `story/07-seven-day-causal-matrix.md` |
+| Current chapter flow and scope; retained placement/selection records | `story/09-priscilla-foundation-amendment.md`; `story/07-seven-day-causal-matrix.md` retains the lifecycle and historical records without imposing the superseded calendar |
 | New day or premise auditions | `docs/superpowers/specs/2026-08-28-seven-day-two-pass-constellation-design.md`, subject to later approved resets |
-| Intended mechanics and Dialogic flow | `docs/design/2026-08-07-seven-day-dialogic-flow-design.md` and approved amendments |
+| Current authoring flow; unaffected intended technical mechanics | `story/09-priscilla-foundation-amendment.md`; `docs/design/2026-08-07-seven-day-dialogic-flow-design.md` and compatible approved technical amendments |
 | Future response, progression, persistence and replay behavior | `docs/design/2026-09-02-relationship-progression-runtime-behavior-record.md` |
-| Decision evidence and current auditions | `docs/design/2026-09-02-narrative-constitution-working-decision-ledger.md`, `story/auditions/README.md`, and the linked active record |
+| Current development and relevant earlier decision evidence | `story/auditions/priscilla-seven-day-working-plot.md`, `story/auditions/README.md`, and the linked active record; retrieve the historical `docs/design/2026-09-02-narrative-constitution-working-decision-ledger.md` when needed |
 Current auditions live under `story/`; raw originals are retained at the exact Git
 revisions in `story/maintenance/source-migration.md`. Relocation and extraction do
 not change approval scope. Current owners use checkout-relative links; historical

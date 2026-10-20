@@ -1,5 +1,17 @@
 # Seven-Day Causal Matrix
 
+**Current reading boundary, 2026-10-20:** this Matrix preserves the selection
+lifecycle and historical placement records. Its fixed calendar, Angela access,
+old pair-window/form and global explosion restrictions do not govern the current
+Priscilla chapter. Apply the [current foundation and flow](09-priscilla-foundation-amendment.md)
+first; the [working map](auditions/priscilla-seven-day-working-plot.md) records the
+current auditions and open dependencies without becoming a second placement authority.
+
+The dated freeze/reopening statements below describe their earlier scope.
+Compatible protected facts, explicit approvals and Room 2.17's unplaced-core
+boundary survive; no new current-week row or scene placement is approved here.
+
+
 ## Authority and Status
 
 PASS ONE HISTORICAL FREEZE — 2026-08-28

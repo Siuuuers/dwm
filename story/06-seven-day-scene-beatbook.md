@@ -1,5 +1,15 @@
 # Seven-Day Scene Beatbook
 
+**Current reading boundary, 2026-10-20:** the entries and authority discussion
+below retain their earlier production scope. The
+[current foundation and flow](09-priscilla-foundation-amendment.md) supersede
+conflicting cast, calendar, viewpoint, response and ending assumptions. Current
+Day 1–3 prose lives in the [audition index](auditions/README.md); it has not been
+promoted into this Beatbook by consolidation. Room 2.17's protected approved core
+remains unplaced. Retained examples and coverage forms do not become obligations
+for the new chapter.
+
+
 This is a private, spoiler-complete, writer-facing record of scene development at its explicitly stated current status. It preserves close causal work, reference dialogue, variant design, and rejected interpretations that would make the Seven-Day Production Map unreadable if repeated there. The former Day 1 constellation is reopened reference under the selective reset; Room 2.17 retains its separately stated approved-core, placement-unselected boundary.
 
 ## Authority and Use

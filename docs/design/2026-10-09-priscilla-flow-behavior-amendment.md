@@ -1,121 +1,44 @@
 # Priscilla chapter flow: intended-behavior amendment
 
-**Date:** 2026-10-09  
-**Status:** approved directional changes plus explicitly marked recommendations and open implementation decisions.  
-**Scope:** documentation only; no code, schema, test, workflow or PR #1 change is authorized or certified by this file.
+**Current role:** compatibility entry.  
+**Original decision date:** 2026-10-09  
+**Consolidated:** 2026-10-20  
+**Status:** the current narrative and intended-flow contract is now owned by [story/09-priscilla-foundation-amendment.md](../../story/09-priscilla-foundation-amendment.md). Approved directions, engineering recommendations and open decisions retain their distinct status. This documentation move changes no code or runtime behavior.
 
 ## Authority
 
-Read the [approved narrative amendment](../../story/09-priscilla-foundation-amendment.md) with the affected [September behavior record](2026-09-02-relationship-progression-runtime-behavior-record.md) and [August Dialogic flow](2026-08-07-seven-day-dialogic-flow-design.md). This is a scoped later amendment of those intended-behavior owners, not an assertion that the runtime implements it. Unaffected behavior remains with the existing owners.
+Read the [foundation's authority and reading order](../../story/09-priscilla-foundation-amendment.md#authority-and-reading-order) for the current contract. The former full text remains at the immutable [pre-consolidation source](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/docs/design/2026-10-09-priscilla-flow-behavior-amendment.md).
 
-The older universal Angela-absent explosion cutoff (September Section 2.2.1) and mandatory frozen four-form requirement (Section 2.3) do not govern the new chapter flow. Their historic tests and records keep their original scope; they are not evidence that this pivot passes tests.
+This path and its former section headings remain so existing links reach the replacement owner. Unaffected technical contracts retain the [September behavior record](2026-09-02-relationship-progression-runtime-behavior-record.md) and [August Dialogic flow](2026-08-07-seven-day-dialogic-flow-design.md) as owners, subject to the foundation's [scoped supersession](../../story/09-priscilla-foundation-amendment.md#7-scoped-supersession-map) and [technical handoff](../../story/09-priscilla-foundation-amendment.md#91-terminal-identities-and-unaffected-technical-ownership). No historical test record certifies this pivot.
 
 ## 1. Separate selection responsibilities
 
+Current owner: [chapter flow and the relationship choice](../../story/09-priscilla-foundation-amendment.md#2-chapter-flow-and-the-relationship-choice), [ending form and local conduct](../../story/09-priscilla-foundation-amendment.md#3-ending-form-is-separate-from-partner-and-local-conduct), and [ordinary optional thoughts](../../story/09-priscilla-foundation-amendment.md#41-optional-thoughts).
+
 ### P–L ending scope correction, 2026-10-18
 
-Apply the [P–L-specific narrative amendment](../../story/09-priscilla-foundation-amendment.md#pl-specific-ending-amendment-2026-10-18):
-P–L has one identically presented Dark relationship ending. Earlier local
-variations may change actual conduct, consequences and audience interpretation;
-the ending need not vary its text or staging. Every depicted final fact must
-remain compatible with each incoming history. The available Dark-options
-continuation is the present plotting target. The retained run-level Sweet/Dark
-wording cannot require two P–L endpoints. Compatible P–S scope and the
-Yes-to-P–S / default-to-P–L fork remain.
-
-Keep the five Challenge meanings in Section 3. Evidence differences are an
-additional effect of authored continuations, not a global replacement of their
-conduct or awareness consequences. A Perfect does not reveal Lavinia's private
-mind; Priscilla cannot use knowledge acquired only in another playthrough.
-One common ending selects no new result IDs, selection policy, save migration,
-dispatch code or optional Observer epilogue. The handling of any retained
-run-level form for P–L remains open until needed by the selected story.
-This is intended narrative behavior, not runtime implementation.
-
-Start narrative play directly in Day 1 DTL. Dating/schedule allocation, Angela attendance, old solo/pair activation and Angela-specific ending invitations must not gate the new story. Ordinary device functions are not deleted merely because their former narrative obligations retire.
-
-Select the larger Sweet/Dark ending form at genuinely new-run creation. Do not select a partner there. The old mandatory `ambiguous_sweet`, `ambiguous_dark`, `love_sweet`, `love_dark` combination contract is superseded. Replacement identifiers, draw/witnessing policy and any necessary old-save disposition remain OPEN; this is not permission to build a compatibility framework without a demonstrated need.
-
-A single later optional self-talk choice selects the sustained storyline: Yes leads to Priscilla-Sylvia; ignoring leads to Priscilla-Lavinia. The other woman can still appear. A normal thought choice is neither a Challenge nor a Perfect. Local outcomes do not reroll the ending form or replace the selected storyline through competing affection totals.
-
-Ambiguous/Love is not a separate compulsory axis. Any retained numerical relationship state has only its explicitly approved purpose; it does not manufacture desire, consent, truth, observer knowledge or an ending circumstance.
+Current owner: [P–L-specific ending amendment](../../story/09-priscilla-foundation-amendment.md#pl-specific-ending-amendment-2026-10-18). The one identically presented Dark P–L ending retains its precise scope; compatible P–S direction and the Yes/default relationship fork remain with their respective sections.
 
 ## 2. Optional thought presentation
 
-Show one proposed thought/action and one Yes control. The default alternative need not be displayed. Passing the authored opportunity follows the default and removes the control; no mandatory No or confirmation menu is selected.
-
-RECOMMENDATION: tie expiry to script progress rather than elapsed reading time. Make the important fork's immediate action intelligible, without presenting an affection leaderboard or promising a selected chapter/line. Auto, keyboard ordering, replay and stale-input handling require bounded review against the actual presentation owners.
+Current owner: [Section 4.1, Optional thoughts](../../story/09-priscilla-foundation-amendment.md#41-optional-thoughts). Presentation review and unselected input details are retained in [Sections 9.2–9.4](../../story/09-priscilla-foundation-amendment.md#92-recommended-implementation-invariants).
 
 ## 3. Challenge opportunity
 
-The DTL start label makes the optional Challenge available; the end label closes its opportunity. The story has a valid continuation when the player does not start it.
-
-Opening the panel pauses DTL. Closing resumes DTL and preserves an unfinished board so it can be resumed within the same opportunity. Closing alone does not commit the unfinished outcome. Resolve the result at the end label and select its subsequent authored continuation.
-
-| State at resolution | Story consequence |
-|---|---|
-| Never started | Priscilla follows her ordinary choice in the actual circumstances. |
-| Started, unfinished | She chooses not to take the relevant action. The fictional action need not have begun. |
-| Lost | Scene-specific Dark conduct/consequence; not an automatic visibility cutoff. |
-| Won, not Perfect | Scene-specific Sweet continuation. |
-| Perfect | Successful continuation plus first recognition or further awareness development. |
-
-Where the runtime uses `Perfect`, `Solved` and `Exploded`, preserve their distinct terminal identities until a separately approved reconciliation changes them. This amendment does not redefine scoring. Perfect and ordinary success may share appropriate action text without sharing awareness consequences.
-
-Preserve particular facts later passages consume, not a global personality/tone meter or an exhaustive version of the remaining week for every result. Compatible local branches can converge; irreversible consequences cannot be erased to obtain convergence. Withdrawal cannot retroactively undo an already completed act.
+Current owner: [Sections 4.2–4.3, Challenge opportunities and local meanings](../../story/09-priscilla-foundation-amendment.md#42-challenge-opportunities). Distinct terminal identities and unchanged scoring ownership are retained in [Section 9.1](../../story/09-priscilla-foundation-amendment.md#91-terminal-identities-and-unaffected-technical-ownership).
 
 ## 4. Awareness and the ending boundary
 
-Only the first Perfect enables recognition. Once aware, Priscilla can recognize subsequent completed interventions, including ordinary wins and losses. An unfinished attempt supplies no new recognized effect and does not erase existing awareness. Further Perfects may deepen her understanding. Exact counts, opportunity identities and awareness passages remain OPEN; earlier illustrative thresholds are not constants to implement.
-
-Knowledge, attitude and capability are separate. The women do not receive each other's private knowledge automatically. No mandatory observer romance or independent awareness meter for every woman is selected.
-
-All Perfect is not an unconditional Deicide or Quit trigger. It cannot switch the relationship, automatically cancel Sweet closure, or require an observer epilogue. Any special response requires its authored predicate and established fictional means. A possible observer passage follows a complete human ending and must not undo it.
-
-For a selected forced-exit event, record the required state/results before exiting. No real fault, reload punishment, cross-save awakening or save/load-horror subsystem is required. Existing ordinary persistence responsibilities remain in force.
+Current owner: [Section 5, Observer knowledge and possible epilogues](../../story/09-priscilla-foundation-amendment.md#5-observer-knowledge-and-possible-epilogues).
 
 ## 5. Recommended implementation invariants
 
-These are engineering recommendations for later review, not selected APIs or a claim of passing tests:
-
-- One logical resolution owner per opportunity; dependent facts are applied once, not again on panel closure, resumption or redisplay.
-- A completed result survives panel closure. Reopening the same attempt is not a new attempt. Confirm the already intended one-attempt policy against the active runtime before implementation.
-- Distinguish panel inspection from actually starting play. First meaningful board input is the recommended boundary, not a newly approved rule.
-- Thought-choice expiry follows the authored opportunity. Replay/history displays cannot activate live choices. Review Auto and keyboard/input ordering explicitly.
-- Both relationship storylines remain reachable with zero Challenges. The fork does not require a hidden affection quota or a Perfect.
-- Loading preserves the selected ending form and the route/state of that save. Returning to a pre-fork save can allow the other branch; presentation alone does not award a fresh Perfect.
-- Count distinct resolved opportunities for awareness. For any future all-Perfect predicate, define the required set explicitly: shared plus selected-route opportunities, not inaccessible alternate-route boards or merely the boards the player happened to finish.
-- No premature finale because all boards encountered so far are Perfect. A special ending still has an authored ending condition.
-- Reuse existing DTL, state, persistence and panel owners. This file selects no service, class, variable schema, save migration or automatic repair architecture.
+Current owner: [Section 9.2, Recommended implementation invariants](../../story/09-priscilla-foundation-amendment.md#92-recommended-implementation-invariants). These remain recommendations for later review.
 
 ## 6. Acceptance cases for future implementation
 
-These are acceptance specifications, NOT executed game tests.
-
-| Case | Expected boundary |
-|---|---|
-| New run | Starts the chapter narrative without a dating/schedule prerequisite; ending form and partner selection remain distinct. |
-| Ignore important thought | Default P-L continuation; route is not selected by a hidden score. |
-| Select its Yes | P-S continuation, including in a zero-Challenge run. |
-| Ordinary optional thought | No automatic Challenge start, Perfect, or observer recognition. |
-| Ignore Challenge | DTL reaches its authored ordinary continuation; no required Play/Skip interruption. |
-| Open/close unfinished | Pause/resume and suspension, not immediate withdrawal. |
-| Resume before end | Continues the same unresolved opportunity; no duplicate consequence. |
-| Opportunity ends unresolved | Chooses not to do the relevant action; does not erase already performed acts. |
-| Lose | Authored later Dark continuation, not the retired global explosion cutoff. |
-| Ordinary win before any Perfect | Sweet local continuation without identifying the observer. |
-| First Perfect | Recognition becomes available at the opportunity's authored resolution, not before its cause. |
-| Later ordinary completed result | Can be recognized without pretending it was another Perfect. |
-| Later unfinished | No newly recognized interference; previous knowledge remains. |
-| Local tone differs from ending form | Preserve concrete consequences; do not reroll the whole form or erase the scene. |
-| Reopen, replay, load | No duplicate result, route commitment, awareness credit or unintended live input. |
-| All Perfect | May still end with Lavinia/Sylvia and no observer confrontation. |
-| Selected forced exit | Required results recorded first; the exit is not a new crash-recovery or save/load-horror system. |
+Current owner: [Section 9.3, Acceptance cases for future implementation](../../story/09-priscilla-foundation-amendment.md#93-acceptance-cases-for-future-implementation). These are specifications, not executed tests.
 
 ## 7. Open decisions and inspection limits
 
-OPEN: precise attempt-start boundary; terminal/scoring and attempt-identity reconciliation; route/opportunity IDs and authored labels; replacement ending-form selection/witnessing policy; awareness thresholds; Auto/replay/input handling; device ownership and Contacts migration; exact epilogue conditions; and any justified save-format changes.
-
-The dialogue/plot fork, childhood rewrite, full week and concrete endings remain with the narrative owners. Documentation publication does not settle them.
-
-Baseline inspection is against `master` at `d35b8f878128663b4e27675fc6fdb11c234143eb`, not a whole-code audit of PR #1. Runtime, Godot, cloud behavior, accessibility, performance, exhaustive reachability and independent narrative review are NOT RUN by this amendment. Existing evidence remains historical evidence of its recorded source and scope.
+Current owner: [Section 9.4, Open implementation decisions and evidence limits](../../story/09-priscilla-foundation-amendment.md#94-open-implementation-decisions-and-evidence-limits), with narrative work in [Section 8](../../story/09-priscilla-foundation-amendment.md#8-explicitly-open-work-and-next-plotting-unit). The preserved historical baseline and unrun verification scope are recorded there.

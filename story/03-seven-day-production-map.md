@@ -1,5 +1,13 @@
 # Seven-Day Production Map
 
+**Current scope, 2026-10-20:** this remains a retained, derived, plot-neutral schema.
+Apply the [current foundation and flow](09-priscilla-foundation-amendment.md)
+before any conflicting calendar or response assumptions below. The schema does
+not place the current week. Its approval entry condition remains a production
+gate; current prose auditions and dependencies live in the
+[working map](auditions/priscilla-seven-day-working-plot.md), not in schema fields.
+
+
 ## Derived Authority and Entry Condition
 
 This Map is a derived, plot-neutral production template. The August design

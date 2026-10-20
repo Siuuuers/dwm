@@ -1,1259 +1,157 @@
-# Priscilla: current seven-day working plot and discussion checkpoint
+# Priscilla: current seven-day working map
 
-## Current Day 3 motive, voice and cinematic review, 2026-10-20
+**Updated:** 2026-10-20, under the owner's request to revise Day 3 and consolidate useful conversation and audition material into the story owners.  
+**Status:** AUDITIONING development map. The current foundation and explicitly scoped owner directions govern; an exact scene, private hypothesis or future placement does not become approved merely by appearing here.  
+**Authoritative source snapshot for this curation:** [f1df045](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md). Its full chronological checkpoints remain available, with compatibility bookmarks below.
 
-**Source:** the owner's 13:38 Asia/Hong_Kong message asks why Sylvia has the card, what it does, why the women meet, whether each encounter can supply a thrilling/shocking social-media moment, and whether the complete available Day 3 uses the women's own voices and meaningful, immersive cinematic motion. The reviewed source is [1383721](https://github.com/Siuuuers/dwm/blob/13837210f22742e9cdaf17e6b62bf048a43a29c4/story/auditions/day-3-sylvia-fork-working-draft.md). This continues the standing GitHub-only delivery preference and preserves the owner's two-Challenge correction.
+## 1. Resume the current work
 
-**Judgment:** the full bounded shared + P–L/P–S A–E family on Day 1 D → Day 2 D-staying has no identified hard collision with the controlling current bibles. Its craft is less complete than that finding alone suggests: the card's arrival and outing's occasion were under-staged, Sylvia's practical/arranging temperament was less distinct than her repartee, and some lines explained a turn already enacted. The [Day 3 owner](day-3-sylvia-fork-working-draft.md#8-review-carry-and-remaining-development) centralizes the source sections, scene-level findings, exact current prose, removal decisions and limits. No Bible amendment is needed to justify these scene repairs.
+Read [the foundation and intended flow](../09-priscilla-foundation-amendment.md), then the requested scene and relevant [character](../02-character-relationship-handbook.md), [pair](../relationships/priscilla-lavinia/relationship.md) and [style](../08-narrative-style-manual.md) guidance. [The story home](../README.md) explains ownership. This map tracks current work and dependencies rather than repeating the bibles or creating a second selection Matrix.
 
-**Focused revision:** Sylvia visibly writes on a gallery leaflet and folds it into the empty label holder. “You said we were going to look at the paintings” establishes the ordinary outing; Priscilla's attention to Sylvia becomes the diversion. This retires the prior suggestion of a specifically preselected empty exhibit. The card keeps its causal function through invention, false implication, failed preservation and chosen disposal. Its exact title remains more replaceable than that function; it is not assigned a secret supernatural meaning or future callback.
-
-Cut the pen-cap fall/isolated *Please*/retrospective exhibition quips and repeated exit question about whether Sylvia would have come. Make her existing aisle-seat request audible and explicitly attributed. Give the café acquaintance “Busy lately?” and make Lavinia's already-authored throw visible. Remove the cinema D's explicit jealousy-label couplet and later explanatory couplet, plus the caption after the folding-seat joke. Preserve actual company, the card/helper consequence, flower damage, **Nothing prepared**, final contact and the distinct result tails.
-
-**Character and intensity finding:** Priscilla controls implication and social framing while desire can spoil her judgment; Lavinia's play turns into bodily testing and exact refusal; Sylvia remains active and plausible, with a continuing need for more distinctive prepared care across later writing. The gallery is a colder petty harm, P–L D the clearest physical eruption, and P–S D the freshest emotional contradiction. These are editorial comparisons, not proven audience immersion or virality. A dossier is not a trait checklist and each result need not contain a separate shock.
-
-**Remaining risk:** shared → selected Dark fork repeatedly moves from intrusion, to objection, to renewed company. The consequences differ and the current cuts are retained, but later work should not make reconnection automatic. The root recommends allowing the existing damage and unresolved positions to remain perceptible rather than adding a conciliatory beat or an extra punishment.
-
-**Review and size:** two same-model helpers read both complete local families for character/bible and cinematic motion; one read the shared motive/card and joins, then checked the changed passages. The root inspected the current source and selected the repairs. Shared prose now contains 729 audience words; P–L D adds 688, P–S D adds 539, giving 1,417 / 1,268 for a selected Dark reading. Rough 8–12 / 7–11 minute staging budgets remain estimates, with board/decision time additional. No performance, audience/excerpt-sharing, runtime or complete-week test is claimed.
-
-**Capture and scope:** five existing Markdown files in PR #41; current GitHub link, no additional downloadable copy. Exact new words, visibility and cuts remain **AUDITIONING**. Day 1–2 prose, the zero-shared/two-authored/one-reachable architecture, governing actions and E awareness contract are unchanged. Other intakes, full remaining day/week, Sylvia's sustained plot, final DTL and protected historical holds remain open. The predecessor retains its own counts, review scope and earlier exact choices in Git.
-
-## Current Day 3 fork Challenges and fuller branch readings, 2026-10-20
-
-**Earlier checkpoint:** the complete family and counts below describe [1383721](https://github.com/Siuuuers/dwm/blob/13837210f22742e9cdaf17e6b62bf048a43a29c4/story/auditions/day-3-sylvia-fork-working-draft.md). The later motive/voice review above retains the architecture and result consequences while revising the opening and selected wording; it does not retroactively extend the earlier review scope.
-
-**Source:** the owner's 03:38 Asia/Hong_Kong message praises the atmosphere, asks for beats and more self-talk in the shared and both relationship scenes, explicitly places the Challenges inside the forks rather than the shared encounter (two authored opportunities), asks for more shocking/impulsive passion, and prefers a latest GitHub link without another local download. The inspected predecessor is [7613206](https://github.com/Siuuuers/dwm/blob/761320696042eca8ab0f2c3bb51027e1a956e4bb/story/auditions/day-3-sylvia-fork-working-draft.md).
-
-**Placement correction:** the [Day 3 owner](day-3-sylvia-fork-working-draft.md) now has zero shared Challenges, the existing optional Yes → P–S/default → P–L relationship thought, and one optional Challenge in each mutually exclusive continuation. That means two authored Day 3 opportunities and one available in a particular reading. The unavailable branch is neither required nor credited for later awareness/mastery. This corrects the previous assistant recommendation; it is not a new quota for other days.
-
-**Shared consequence:** preserve the exhibition encounter the owner praised. Priscilla's insinuation, the helper's interrupted departure, Sylvia's withdrawn touch, the card's disposal and the cinema invitation become shared authored conduct **on the leading Day 1 D → Day 2 D-staying intake**. Removing the old Challenge does not make this an ordinary A result. It substantively retires the former shared A–E alternatives; they remain in the linked predecessor rather than occurring unseen or surviving as hidden options. Other incoming histories remain to be adapted.
-
-**Branch development:** the P–L family grows from the flower gift, comic walk and invitation. A painful grip and its release occur before the new local opportunity. Priscilla can ordinarily defer with a future intention, decline without pursuing that future contact, accept for herself with Lavinia free to answer, or Darkly speak for both after Lavinia refuses. The more impulsive Dark turn uses Lavinia's abrupt treatment of the accepted flowers and the pair's changed public/private exchange. The P–S family extends past the film beginning: wanted contact coexists with Sylvia's attention to the film, and Priscilla considers asking her outside. The Dark attempt exposes Priscilla's own need for attention through an actual interruption; Sylvia supplies her own response. The exact full prose and result carry are centralized in the owner.
-
-**Self-talk:** retain “Again” and “Not that one” in the shared scene; add branch-specific private attention, an actionable impulse at each Challenge and a result-dependent inward aftermath. Do not put all perceptual prose into the private field or duplicate each observation as an explanation. Challenge results change Priscilla's conduct in the same actual situation; they do not order the other woman's feelings or outburst. E has its own private first-recognition passage on this D → D intake and a separately scoped earlier-aware replacement for future adaptation.
-
-**Scope:** this checkpoint supplies complete bounded local result readings in both forks, with shared human prose for C/E where specified. It is not complete Day 3, every earlier intake, full Sylvia plotting, the whole week, a selected final ending or executable DTL. Exact new acts, words, contacts, timing and local mappings remain **AUDITIONING**. The one identically presented P–L ending still needs compatibility with real earlier consequences.
-
-**Review and pacing:** Both complete local families and their common joins received the root's full reading, a bounded full-packet architecture/access review, and a P–S cross-craft read; the root repaired the identified small staging seams. The shared encounter and route bridge contain 768 audience words; P–L D adds 683 and P–S D adds 556, giving 1,451 or 1,324 for a selected Dark reading. Proposed staging budgets are roughly 8–12 or 7–11 minutes respectively, excluding optional board/decision time. These are estimates, not performed or audience-measured durations. The owner includes each result's count, beats, private-thought positions and actual carry; no runtime/DTL, whole-day/week or other-intake validation is claimed.
-
-**Capture:** update five existing Markdown files in PR #41 under standing authorization. Use the latest GitHub document as delivery; no new downloadable copy is produced. Day 1–2 source prose is unchanged. The earlier complete packet and its reasons remain in Git. No unrelated build/runtime thread, protected historical audit or Bible selection is completed by this scene-development pass.
-
-## Current Day 3 event-first Sylvia and variation proposal, 2026-10-20
-
-**Earlier checkpoint:** its shared Challenge and unintegrated table belong to [7613206](https://github.com/Siuuuers/dwm/blob/761320696042eca8ab0f2c3bb51027e1a956e4bb/story/auditions/day-3-sylvia-fork-working-draft.md). The later owner correction above retires that placement and develops one Challenge per relationship fork. The event-first exhibition survives as common conduct on its bounded intake; previous counts/review findings retain their historical scope.
-
-**Source:** the owner says the Priscilla–Sylvia interaction still gives Lavinia most of the attention, asks why Priscilla seeks Sylvia, finds the opening insufficiently purposeful, remembers an earlier more attractive event-first version, and asks where self-talk and Challenge variations would best add charm, dangerous romance and coherent absurdity. The inspected predecessor is [e74213a](https://github.com/Siuuuers/dwm/blob/e74213af29d198acfd5e2520925ccd05e1f6c627/story/auditions/day-3-sylvia-fork-working-draft.md). This correction reopens the scene's framing; it does not approve an unseen new event or every proposed mechanic placement.
-
-**Assistant finding:** fewer named Lavinia references did not solve the cause. The opening arranged Lavinia's walk first and gave Sylvia the interval before it. The bench conversation acquired more pleasure but still served that prior appointment. Previous bounded review findings did not establish that this attention problem was solved. The exact older event-first opening recalled by the owner was not recovered: the conversation lookup did not supply it, and inspected 016c also contains the arrangements before its book scene. The new proposal is not represented as a restoration or a contradiction of the owner's memory.
-
-**New current audition:** the [existing Day 3 owner](day-3-sylvia-fork-working-draft.md) starts while Sylvia gives an empty exhibition stand an invented title and a “Please do not touch” card. Priscilla has brought Sylvia because she wants this particular person's company and unexpected contribution. Shared amusement, changed proximity and a visitor's sincere appreciation make their own little event. The visitor likes the space the gap gives other works; the joke does not depend on his stupidity.
-
-The attendant's question creates a local governing action: try to preserve their invented card in the display. In the complete **D audition**, Priscilla uses an observed true fact to imply an innocent helper supplied the false label and sustains that implication after a denial. The helper actually postpones leaving and starts checking other labels; the card is removed anyway. Sylvia withdraws one touch, challenges Priscilla's deflection, takes and discards the card, then offers further company. Neither Priscilla's infallibility nor Sylvia's forgiveness is established. This grows from something they willingly began together rather than replaying Day 1's explicitly forbidden recording through another prop.
-
-**Variation proposal:** two inaudible, noninteractive self-talk lines—“Again” after Sylvia's laugh, and the remembered “Not that one” after D's denial and confrontation—give selected private insistence without a diagnostic monologue. The proposed local Challenge is “I could ask her to leave it here.” Its A/B/C/E conduct, local consequences and remaining joins are specified in an **unintegrated table**, not full prose. A seeks a brief last look, B does not pursue retention, C candidly owns the joint invention and asks for a disclosed temporary display, D uses the false implication and causes the shown cost, E adds the appropriate Observer recognition to C. A brief tolerated interval must differ from C's informed arrangement. First/further awareness and all other-result joins remain actual writing obligations.
-
-The local encounter ends before the cinema invitation raises the real six o'clock P–L commitment. The later “I could spend the evening with Sylvia instead” remains its own Yes → P–S/default → P–L relationship thought. The exhibition board does not choose the partner. A small ordinary Yes and a second P–L Challenge are not placed merely to display every control. The considered P–L coffee Challenge remains deferred and would require its own materially different continuations.
-
-**Continuation and costs:** the P–L flower/walk/invitation/grip/confrontation passage remains as authored at e742 apart from Sylvia's gallery-exit seam. P–S now discovers the film poster at the cinema; its old bench-image dependency is removed. Both current continuations follow the one fully authored D exhibition. The new gallery, visible card, helper, attendant and visitor are additional staging proposals, not existing assets. The art joke risks sounding overcomposed; the failed preservation and the ordinary visitor preserve friction. An uninvited-reception alternative was considered but not developed into another event.
-
-**Length and review:** the final count is 776 audience words through the shared D encounter and fork, 600 in P–L and 203 in the immediate P–S continuation: 1,376 or 979 for one complete reading. First staging budgets are shared 4–6 minutes, P–L 4–6 or P–S 2–3, plus voluntary board/decision time; these are unmeasured editorial targets. Two same-model helpers read the actual complete D encounter, both continuations and proposed boundaries. The root repaired gallery-exit staging, the exact observed basis of Priscilla's paltering and a repeated invitation exchange. The owner records the bounded findings and counts. A design table remains no proof of full A/B/C/E prose; no new audience test, performed duration, asset or runtime result is claimed.
-
-**Capture and open scope:** five existing Markdown files capture this substantial development in the same PR #41 under standing Markdown/push authorization; Git retains the predecessor and the download uses a fresh revision-specific filename. Exact new acts, dialogue, gallery, thought placements and permission outcomes remain **AUDITIONING**. Complete A/B/C/E prose and joins, all earlier intakes, full Day 3, full Sylvia plotting, whole-week consequences, the identical P–L finale and protected historical holds remain open. Complete DTL still follows the whole-week plot gate. Day 1–2 prose is unchanged.
-
-## Current Day 3 scene development and duration, 2026-10-20
-
-**Earlier checkpoint:** its message-first Sylvia framing and length totals belong to [e74213a](https://github.com/Siuuuers/dwm/blob/e74213af29d198acfd5e2520925ccd05e1f6c627/story/auditions/day-3-sylvia-fork-working-draft.md), superseded by the event-first proposal above. The P–L walk and its actual consequences survive apart from the departure seam. Historical review results retain their bounded scope.
-
-**Source:** the owner reports repeatedly receiving the first Markdown version when downloading, asks what beats belong to the shared Sylvia meeting and Priscilla's fork, asks for their desired lengths, questions whether the scene is fully developed, and asks what would make the encounters more thrilling and how Lavinia might hurt Priscilla physically, socially or mentally. The inspected source is [0d03df3](https://github.com/Siuuuers/dwm/blob/0d03df34debf515eecd5521a268bfabe55154063/story/auditions/day-3-sylvia-fork-working-draft.md). This question invites development; it does not select the new exact acts or settle fork placement.
-
-**Assistant finding:** the prior packet contained complete immediate actions but very little lived company: 95 audience words in the shared Sylvia scene, 418 in one complete P–L reading and 233 in P–S. The actual walk occupied 100 words. The document's many author notes were not equivalent to a developed day. “Priscilla's fork” is treated as her one relationship choice and its continuations; both preserve her viewpoint, with P–L the present development priority.
-
-**Current revision:** the [existing Day 3 owner](day-3-sylvia-fork-working-draft.md) now contains actual shared amusement and closeness with Sylvia before the cinema invitation becomes a request to change the six o'clock plan. The invented film image is prospective pleasure, not another book performance or an Observer clue. Sylvia can enjoy the company while retaining anger and her stronger desire for Lavinia. Lavinia enters their conversation only when the particular appointment matters.
-
-P–L keeps the flower gift and comic circular walk, then changes the turning action. An acquaintance invites both women for coffee. After Lavinia's apparent assent, Priscilla begins accepting; the held hand becomes painful. Priscilla declines tonight, asks for release, objects to the act and retains her intention to contact the acquaintance. Lavinia briefly enjoys her sharper reply, but neither obtains a complete settlement. They continue the walk. The old kneeling, prolonged order, withdrawal, counter-request and return are removed as actual audition events, not performed offscreen. This avoids repeating Day 2's departure/retrieval sequence. A considered alternative would have Priscilla rise from the old courtship performance herself; it remains unapplied.
-
-P–S still sends the cancellation, then enacts the offered cinema company. Its poster follows the image discussed at the bench; the fresh three-poster selection is removed. The expanded entry includes a small struggle with the folding seat and the film beginning, without importing the P–L flowers, invitation, grip or walk. The full Sylvia route remains later work.
-
-**Danger and cost:** the new connected incident supplies a painful grip, one declined social invitation and unreliable apparent assent. It does not establish lasting injury, public disgrace, lost friends, a diagnosis or successful isolation. Priscilla's objection and continued desire coexist; neither cancels the harm or implies moral repentance for her older conduct. This is less overtly theatrical than kneeling and gives more of the university and Priscilla's wider social ease. The flowers concealing contact and the final shoulder touch are deliberately composed images; avoid making that a recurring ending formula. Extra cruelty is not required in the Sylvia scene merely to certify darkness.
-
-**Length:** after the bounded wording fixes, audience counts are messages 30, shared Sylvia 274, thought 8, P–L continuation 604 and immediate P–S continuation 195: **916 words in one P–L reading, 507 in P–S**. These exclude labels, notes and the four-word message transition. At an explicitly assumed 160–200 words per minute, text alone is about 4.6–5.7 or 2.5–3.2 minutes. First staging budgets are shared Sylvia 2–3 minutes, P–L continuation 4–6 or P–S entry 1.5–2.5, with arrangements and voluntary decision time additional. The approximate 6–9-minute P–L packet target is neither measured runtime nor a whole-Day-3 duration. The fork remains one Yes opportunity expiring through proposed story progress, with no countdown or compulsory wait.
-
-**Review/capture:** two same-model helpers with shared context read the actual assembled new packet and its applicable Day 1–2 intake. No high-confidence continuity, access, fork or branch-separation defect required restructuring. The root applied the craft reader's two concrete staging clarifications, then recalculated counts and inspected the scoped update. Five existing Markdown files capture this completed development in the same PR #41 under standing authorization; prior complete versions stay in Git. The latest download will use a revision-specific filename and an immutable GitHub source link. The repeated-download symptom has no verified client-side diagnosis.
-
-**Status and next unit:** exact new prose, acts, film image, acquaintance and timing remain **AUDITIONING**. The next P–L plotting question is what they do with an evening secured but wider contact still contested. Other intake adaptations, full Day 3, any justified Challenge placement, the Sylvia week, the identical P–L finale and the whole-week-before-DTL gate retain their existing scope. Full-week/historical audit, performed reading, audience testing, assets and runtime/DTL verification are **NOT RUN** by this pass.
-
-## Current Days 1–3 recurrence revision, 2026-10-20
-
-**Earlier checkpoint:** its Day 1–2 changes remain current. The Day 3 kneeling/retrieval passage and its short invitation are superseded by the scene development above; its source comparison and reasons retain their historical scope.
-
-**Source:** the owner's 00:07 Asia/Hong_Kong question, repeated at 00:12, values “Her fingers gather the hair away from my cheek. For a moment, they hold it there”; reopens whether Sylvia's recording should happen; finds its continuous use and the “answer for me or not” question repetitive; asks why the book returns and whether it is being returned; and asks that other people not occupy the later days for so long. The repeated text is one substantive question, followed by the separate 01:05 clarification below; neither selects the unseen new prose. The inspected source is `016c3ceb833d6c0f35d634d68c77899223bff49d`.
-
-**Assistant recommendation:** retain the single Day 1 D recording breach, shorten its repeated answer interrogation and remove its recap chain from Days 2–3. The problem emerges at three-day scale despite the earlier scenes' individually useful effects. A consequence can remain true without every subsequent encounter discussing it. As an editorial cut, the named book characters now stay in Day 1. Sylvia's own Day 3 encounter begins with her offered company; Lavinia's indirect presence need not become its whole conversation. The P–L continuation likewise concerns the present pair.
-
-**Owner clarification, 01:05 Asia/Hong_Kong:** “other people” means that a moment with Sylvia need not have Lavinia occupying their conversation. Lavinia can exist more subtly, for example through jealousy or another form of indirect presence. This resolves the earlier unanswered scope question: it concerns who owns the present encounter's attention, not a ban on the novel's cast or Sylvia's later appearances. The book cut is the assistant's separate editorial recommendation. The present Sylvia invitation begins with her offered company and brings up Lavinia only when Priscilla's six o'clock arrangement matters. No obligatory jealousy cue, coded prop or explanation of Sylvia's whole strategy is added to every meeting.
-
-| Three-day comparison | Gain and cost | Current disposition |
+| Day | Current owner and readiness | Immediate open work |
 |---|---|---|
-| Keep the full chain | Strong explicit accumulation of appropriation and covert access, but too many exchanges litigate who may speak, answer or listen for whom. The book also repeatedly brings the same fictional cast into later company. | Set aside the chain. Earlier versions remain in Git. |
-| Retain the Day 1 breach; cut later recaps | Keeps the locally complete act: pleasure, explicit restriction, deliberate violation, objection and exit. Lets later days develop their own activity, desire and danger. Costs the Day 3 call image and its concrete next-day S–L pressure. | Current recommendation, still AUDITIONING. |
-| Remove the recording entirely | Frees Day 1 of a portable evidence object, but needs a genuinely different D act and rechecking of the voice-reply Challenge and matching call. Merely substituting a stolen photo or hidden message repeats the mechanism. | Viable further comparison, not the present revision. |
+| 1 | [Photo and book](day-1-photo-book-working-draft.md): complete bounded prose audition with shared company, optional photograph, private thoughts, local A–E results and coda. | Exact scene selection and compatible later intakes. The current funeral-novel near echo has weaker evidence than the retained exact-match alternative. |
+| 2 | [Return and bar](../relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md): local family after Day 1 D; alternative D aftermaths remain separately readable. | The latest staying treatment is the leading Day 3 intake. Other intakes and full-day carry remain open. |
+| 3 | [An Improvement](day-3-sylvia-fork-working-draft.md): event-first shared Sylvia encounter, separate relationship thought and two complete bounded fork families. | Judge the familiar notice cue in the whole reading; develop other intakes and the remainder of the selected day. |
+| 4–6 | Earlier directions are retained as unselected possibilities in Section 5. | Develop causal continuation from the actual Day 3 result. No fixed event, victim, injury, location or calendar duty is supplied by this map. |
+| 7 | One identically presented Dark P–L relationship ending; exact closing scene and its compatible joins are still open. P–S resolution remains open. | Earn the ending through the actual surviving histories. An optional Observer layer cannot annul the human resolution. |
 
-A genuinely different replacement considered was Priscilla arranging a call, then allowing Sylvia to interpret it as an urgent interruption and release her evening out of concern for Lavinia. It was not selected: it is more contrived, risks making Sylvia mechanically accommodating, and requires changing the current Challenge action from a voice reply at the table. The existing “I heard you” is a more economical deliberate betrayal. This comparison does not authorize a fabricated emergency elsewhere.
+The latest Day 3 packet is **Day 1 D → Day 2 D-staying → shared gallery → one relationship fork → one local result**. It is not a complete week or a proof that all earlier histories reach the same physical state. Complete DTL remains behind the whole-week plot gate; bounded prose auditions can continue.
 
-### Current manuscript changes
+## 2. Current architecture and result accounting
 
-- [Day 1](day-1-photo-book-working-draft.md): preserve the book's own absurd pleasure, “I wanted to see you,” optional second photograph, near echo, five results and private coda. Cut D's “Whose answer was that?” / “Mine” and shorten call openings A/D. D still includes the actual refusal, forwarding, objection and exit. The book is still Sylvia's; Priscilla has nothing to return in Day 3.
-- [Day 2](../relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md): replace aunt/Sylvia-voice material with present physical comedy, shared food and Priscilla's attempted next invitation. One brief jealous question remains; it does not identify an actual rival. The food option rejoins the new passage. B loses the aunt diversion; E keeps first recognition without another answer-ownership address. The England question still has its own personal function and is retained.
-- [Day 2 staying tail](../relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md#current-staying-audition-wanted-company-after-the-strike): now apply the loved cheek-clearing sentence as an assistant audition. Cut “Still having a good time?” / “You're still here” and the second hair pass. Keep the actual obstruction and release, Lavinia's chosen return, held hair, cold chicken and the smile's immediate sensation. The sentence supplies no lasting visible mark or privately settled display motive.
-- [Day 3](day-3-sylvia-fork-working-draft.md): a short Sylvia invitation preserves anger without retelling the recording. Default keeps the six o'clock P–L plan; Yes cancels it and enacts the cinema evening. P–L now has a present flower gift, initially shared ridiculous courtship, Lavinia prolonging it after a request to rise, Priscilla obtaining her return through a counter-request, and an actual comic circular walk. This public awkwardness is a different scale of pressure from Day 2's violence. The book, grievance recap, concealed call and automatic next-day S–L arrangement are removed.
+The [foundation](../09-priscilla-foundation-amendment.md#4-local-choices-and-challenge-meaning) owns the complete contract. This is the current scene map:
 
-**Causal carry:** the changed scenes do not erase the Day 1 breach or Day 2 harm. They also do not secretly preserve acts removed from the previous audition. Sylvia does not inherit the cut “Mine” reply; Lavinia does not acquire the restriction through a nonexistent call; neither branch inherits the discarded appointment. The one identical P–L ending still allows different real histories. First recognition remains tied to the approved Perfect distinction, not the book resemblance, public passersby or a Dark result.
+- The shared Day 3 gallery has **zero Challenges**. Its conduct is common to the current intake, including the insinuation, helper's delayed departure, Sylvia's withdrawn touch and discarded notice.
+- A later, separate relationship thought offers one **Yes → Sylvia** opportunity; passing continues with **Lavinia**. The Day 3 placement is the current audition against the earlier Day 4 candidate.
+- Each mutually exclusive continuation contains one Challenge. There are **two authored, one reachable** in a particular Day 3 reading. Taking neither available board is valid.
+- A, B, C, D and E are manuscript-reading shorthand: ordinary; started but unfinished; non-Perfect win; loss; Perfect. They are not a five-button story menu or new DTL/runtime labels.
+- E uses C's complete human continuation with the specified private awareness insertion. A first Perfect enables Priscilla's first identification; earlier-aware readings retain their own knowledge. The current D → D intake begins without that identification.
+- A Challenge proposes a particular Priscilla action. Its result changes the authored response and real consequences without creating desire, consent, another person's private knowledge or bodily compulsion.
+- A later join must respect the selected result. A shared ending presentation does not mean every action or injury has occurred in every run. An unavailable fork's board is neither required nor credited.
 
-**Tradeoff and next unit:** the new Day 3 centres the pair at the cost of an independently advancing S–L arrangement. Its overt courtship performance may feel more familiar than the older concealed call. Days 2–3 also still share withdrawal and return, though Priscilla's initiative and the acts differ. Keep this bounded version for comparison; the next P–L development should build a new problem or changed conduct from this company, not assume departure/return always produces the desired result. Full Sylvia plotting remains later; immediate fork consequences and her own continuing desire stay visible in the plan.
+The two-fork placement correction applies to Day 3. It does not impose a daily quota. Exact label implementation, complete alternate-awareness intakes and the whole remaining week have not been completed by these prose packets.
 
-**Review and capture:** three same-model helpers with shared project context read the actual revised leading Day 1 D → Day 2 D stay → Day 3 sequence and their assigned variation seams. No high-confidence narrative defect required another prose revision. The root corrected two stale author-note references in E after removing its direct address. Their agreement is an editorial finding, not an audience test. The current owners contain the detailed review scope, meaningful costs and carry. This substantial seven-file Markdown revision is captured in the same existing PR #41 under standing authorization, with one current owner per day and earlier complete versions in Git. Exact new acts, words, mapping and placement remain AUDITIONING.
+## 3. Decisions now carried by the bibles
 
-Whole Day 1–7 plotting still precedes complete DTL. All-intake/whole-week review, the protected historical bar/residue/residence audit, performed reading, audience testing and runtime/DTL verification are NOT RUN by this pass.
-
-**Earlier checkpoints below retain their dated source scope.** Their superseded scene descriptions and next-step proposals do not govern the revised sequence above. The exact pre-ablation owner is [016c3ceb](https://github.com/Siuuuers/dwm/blob/016c3ceb833d6c0f35d634d68c77899223bff49d/story/auditions/priscilla-seven-day-working-plot.md).
-
-## Current Day 3 Sylvia meeting and fork audition, 2026-10-19
-
-**Historical checkpoint:** the concealed call, unapplied cheek gesture and S–L appointment below describe the previous audition, superseded by the 2026-10-20 revision above.
-
-**Source:** the owner's 22:01 Asia/Hong_Kong handoff asks whether the new stay is a D result, whether Lavinia's hair touch makes her mark visible, and whether anything more is needed in Day 2. The owner values the cold chicken, authorizes proceeding to Day 3 if the current scene is sufficient, prioritizes Sylvia's meeting before the route choice and then the Lavinia path, and asks whether the Sylvia path should be developed now or later. The inspected predecessor is `53bcbdf67a5268732a6a2c891a7ce673fc0c7f21`. This is not assent to every new line, physical fact or fork placement.
-
-**Day 2 recommendation:** the stay is a competing Day 2 D treatment after Day 1 D, replacing rather than following either departure/coda. The current touch clears the forehead. The [handoff note](day-3-sylvia-fork-working-draft.md#day-2-handoff) records a cheek-clearing alternative as unapplied; neither a visible persistent mark nor Lavinia's display motive is established. Retain the cold-chicken cut and develop the next encounter. No new Day 2 coda, overnight fact or symptom is supplied.
-
-**New complete bounded audition:** the [Day 3 packet](day-3-sylvia-fork-working-draft.md) contains fresh arrangements, a common Sylvia encounter, one proposed Yes/default fork, the P–L walk and concealed speaker call, and the immediate P–S cancellation/cinema alternative. The inspected predecessor has no Day 3 manuscript, so one new day owner follows the existing packet-per-active-day organization. This is newly authored prose, not reconstruction of the unlocated earlier fork fragments.
-
-**Reason:** Sylvia's unfinished grievance gives her a valid reason to contact Lavinia herself, while her stronger desire can shape what she asks. The brief book joke preserves real P–S pleasure and missed reading without resetting the breach. In P–L, Priscilla chooses concealed access to the call, Lavinia falsely denies her presence, and both enjoy the contact. Sylvia's request nevertheless leads to an S–L arrangement Priscilla does not want. Their resumed walk holds pleasure and the new problem together. The actual actions are clear; the whole private mixture of motives and Lavinia's romantic response remain open.
-
-**Fork and branch scope:** audition late Day 3 against the earlier Day 4 candidate; do not select the day by implication. Default keeps an already authored six o'clock plan. Yes explicitly cancels it and produces shared cinema time. Develop this immediate alternative and its near-term obligations now, then full P–S prose after the P–L arc is clearer. No new Challenge is placed; these are not completed Day 3 A–E outcomes. The approved fork remains reachable without a board, and the P–L single ending does not become a P–S ending rule.
-
-**Review and capture:** two same-model helpers with shared context reviewed the actual complete new packet for continuity/route causality and craft/pleasure. Both supported the assembled turn and found one small message-account mismatch; the root changed Lavinia's report from an unshown call request to the actual request to talk. No structural revision was required. The five-file documentation checkpoint is the existing PR #41 under the standing Markdown/push authorization. Exact acts, text and placement remain **AUDITIONING**. The owner centralizes carry, other-intake needs and bounded review; no whole-day/week, performed reading, audience or runtime/DTL certification is claimed.
-
-**Next unit:** the P–L response to the proposed next-day S–L arrangement. Its place, actual occurrence and aftermath remain unauthored. The P–S branch has only its own sent request, with no imported speaker call or accepted meeting. Retain the full-week-before-DTL gate and existing historical bar/residue/residence holds.
-
-## Current Day 2 staying and trace comparison, 2026-10-19 at 21:16
-
-**Historical checkpoint:** the voice comparison and altered rehearsal echo below were present at this source date; the 2026-10-20 revision removes them.
-
-**Source:** the owner's 21:16 Asia/Hong_Kong question asks whether both women might enjoy remaining together after the slap, whether Priscilla could take Lavinia's anger as evidence of continuing care, whether Lavinia might become absorbed in her response and stay, where to stop observation, and how this compares with an earlier Sylvia-trace/destruction idea. The inspected predecessor is [f64e657a79b9c2783e0b5940efae87a498b90cba](https://github.com/Siuuuers/dwm/blob/f64e657a79b9c2783e0b5940efae87a498b90cba/story/relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md). Praise and exploratory questions do not select the exact new event.
-
-**Assistant recommendation:** retain the common dinner and personal-answer Challenge, then audition [one Dark continuation with actual resumed company](../relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md#current-staying-audition-wanted-company-after-the-strike). Its exact seam follows the strike and replaces the benchmark's remaining departure/coda. Priscilla's smile and private inference belong to her; Lavinia notices, continues toward the exit, then reverses her partly completed dressing and returns after the route is clear. The obstruction and release remain actual. The new ending includes wanted touch, a verbal echo, cold chicken and shared amusement.
-
-**Reason and preferred cut:** stop after resumed food and Priscilla's smile pulling at her cheek. They have actually stayed and enjoyed company; the duration and later acts remain open. The wanted result can be frightening on reflection without proving care, settling the earlier conduct or requiring another injury. This is an authored ellipsis, not character-driven expulsion of the Observer. No first recognition occurs in this Day 1 D → Day 2 D history, and the new thought has no control.
-
-**Trace comparison:** the retained jealous-book fragment ties Sylvia to custody and a possible return. The current voice exchange carries the order of attention without an unearned book transfer. The exact earlier trace-destruction passage was not recovered in a bounded source search; its remembered concept remains the owner's available reference, not a verified prior deletion/damage scene. The new “Still having a good time?” echoes the actual rehearsal Lavinia received in Day 1 D; Priscilla now answers in her own voice. It supplies no new knowledge of Sylvia's restriction or reaction. The scene owner records the comparison, source limit and fallback wording without duplicating the full passages here.
-
-**Scope and capture:** exact delight, inference, dialogue, return, touch, echo, cut and placement remain **AUDITIONING**. This is a third competing D treatment, not a sixth Challenge result. The departure benchmark, the cruel direct exit and A/B/C/E remain available as distinct readings. The new treatment supplies no arrival-message agreement or later coda by default. The existing Markdown/push authorization covers this substantial assembled audition in the same four files and PR #41.
-
-**Review:** two same-model helpers with shared context read the actual assembled staying reading and relevant trace/continuity notes; both found no high-confidence in-scope defect requiring revision and supported the current stopping point. The root retained the changed echo and explicit seating and inspected the saved four-file update. The owner records the review scope and one delivery-dependent taste question. Other incoming Day 1 histories, later Day 2/Day 3 use, full-week assembly and the protected historical bar/residue audit remain open. Performed reading, audience and runtime/DTL testing: **NOT RUN**.
-
-## Current Day 2 self-talk and Challenge audition, 2026-10-19 at 20:16
-
-**Source:** the owner's 20:16 Asia/Hong_Kong question asks how self-talk and Challenge can vary the dinner, how many flavours are useful, whether Lavinia might combine seductive anger, a claim that Priscilla deserves the treatment, cruel laughter and a direct exit, and what further beats could occur. The inspected predecessor is [b87066e12027e1915e0841be2466eb51bece3d0e](https://github.com/Siuuuers/dwm/blob/b87066e12027e1915e0841be2466eb51bece3d0e/story/relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md).
-
-**Assistant recommendation:** one small optional Yes/default thought, one main Challenge, five outcome meanings and four distinct human continuations; Perfect can share the softer human scene while retaining its separate awareness consequence. The [scene owner's current variation audition](../relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md#current-variation-audition-self-talk-and-one-challenge) supplies the assembly guide and exact new prose. These are alternatives within the encounter, not extra consecutive dinners or a displayed five-choice menu.
-
-The proposed small thought asks for a bite from Lavinia's fork; passing retains existing food sharing. The main opportunity considers saying that Priscilla wanted Lavinia to stay before England. A gives an ordinary qualified admission and a refused arrival-report request. B withholds the answer and leaves a later draft unsent. C gives a direct answer, accepts the refusal of future document access without pressing for it, and obtains a chosen extension of dinner before an unobstructed departure and an agreed arrival message. D reuses the complete Dark benchmark's intervention defense and obstruction. E uses C with first recognition, because this assembled family enters after Day 1 D.
-
-**New Dark comparison:** a competing exit keeps the preceding strike, obstruction and release, then auditions a welcomed hair touch, Priscilla's continued asking, Lavinia's laugh and “You deserved that, Priscilla,” a demand for attention and a direct refusal/departure. It replaces the benchmark's final movement. The deservedness claim is Lavinia's, and it does not settle whether the earlier act was planned. Removing the doorway request and assent also removes the basis for the old “Home” coda, so this alternative ends at the closed door. The benchmark's more unresolved tenderness remains intact for comparison.
-
-**Scope and capture:** the existing full 744-word Dark reading and retained October packet remain unchanged. The new after-D family, small thought, physical contact, exact wording, placement, mapping and Dark treatment remain **AUDITIONING**. The current proposal does not rewrite the five governing meanings, make board loss command Lavinia's violence, guarantee love for success, introduce Observer body control, or change the one identical eventual P–L ending. Existing Markdown/push authorization covers saving this substantial new audition in the same owner and PR #41; Git retains earlier versions.
-
-**Review:** two same-model helpers with shared context read the actual assembled proposal for outcome/knowledge/assembly correctness and craft/pleasure/cruelty. Neither required a narrative rewrite; a C carry-note overclaim was corrected without changing its dialogue. The owner records the scope and an unapplied optional cut to the cruel exit. The earlier 6–8 minute estimate describes the unchanged benchmark; the new variants are not performed or timed. Other Day 1 intakes need adjusted Sylvia dialogue and knowledge; a prior Day 1 E needs continued awareness rather than another first discovery. These adaptations, Day 3 use, complete day/week comparison and full DTL remain subsequent work.
-
-## Current Day 2 beat, atmosphere and duration review, 2026-10-19
-
-**Source:** the owner's 19:12 Asia/Hong_Kong message asks about beats, atmosphere, duration, likely audience response, sufficient unease/absurdity and cuts or additions for more relational thrill. The inspected predecessor is the complete Day 2 reading at [ba0eaa63d7a3be69fccfb0ee3d32bfd8477acc53](https://github.com/Siuuuers/dwm/blob/ba0eaa63d7a3be69fccfb0ee3d32bfd8477acc53/story/relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md).
-
-**Assistant judgment:** keep the current prose and structure for the next family comparison. It offers controlled psychological-romantic suspense and a concentrated absurd funeral improvisation. The strongest reversal is welcomed tenderness followed by actual departure. The opening supplies guarded enjoyment because departure is raised early. This particular scene does not supply continuous chaos, randomness, psychedelia or a new Observer anomaly.
-
-The [scene owner's current review](../relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md#current-bounded-review) records twelve functional beats, the existing pleasures to preserve, different plausible audience responses, the risks of uniformly polished replies and compressed lived time, and one optional two-line cut with its cost. That cut is not applied. The current audience-facing narrative is unchanged.
-
-**Duration:** 744 words under the stated counting convention; 134 Markdown prose/dialogue units are not 134 beats or selected DTL boxes. Roughly 6–8 minutes is an initial presentation target, derived from explicit reading/presentation assumptions rather than runtime measurement. Optional board time is additional; fictional dinner duration remains unselected.
-
-**Review and capture:** two same-model helpers with shared context reviewed the actual current reading for craft, tone and reader-response risks; the root read and counted it and judged the proposed alternatives. These are editorial predictions, not audience tests. This coherent review stays in the existing owner and PR #41 under the standing Markdown/push authorization; Git retains previous checkpoints. Exact scene acts and prose remain **AUDITIONING**.
-
-**Next unit:** ordinary and substantively softer continuations, then Day 2 family and Day 3 carry. Whole-week plotting still precedes complete DTL. Performance, rendered/audio/runtime testing, complete Day 2 family/day and week audits, and the protected historical bar/residue audit remain outside this pass.
-
-## Current Day 2 menu, embodied attention and jealousy refinement, 2026-10-19
-
-**Source:** the owner's current message values the complete scene, questions the generic menu summary and “I sit a little straighter,” invites bodily/perceptual writing with *La Jalousie* and *Le Planétarium* as references while preserving naturalness, and requests more intense anger and jealousy. This is a scoped revision request, not a new canon selection.
-
-**Baseline and current owner:** the assembled encounter at [9562c4297151eb8257f418df3e670ee1b5918760](https://github.com/Siuuuers/dwm/blob/9562c4297151eb8257f418df3e670ee1b5918760/story/relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md) is the inspected predecessor. Read the [revised complete Day 2 encounter](../relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md#current-reading-day-1-d-into-the-leading-day-2-dark-encounter) and its [focused rationale and review](../relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md#current-bounded-review) for the actual text and considered alternatives.
-
-**Assistant recommendation:** retain the assembled scene and sharpen these three places. Two named dishes and Lavinia's returning finger replace abstract indecision; felt chair contact and the performed breath make Priscilla's posture available through her own body. The reply that fails into laughter keeps their amusement. The added jealousy exchange turns the order of the two voices into a comparison, then makes Lavinia defend having wanted the call. The later argument already has an escalating sequence of consequential actions; an extra explanation of Priscilla's nonremorse would repeat it.
-
-The preferred new lines remain **AUDITIONING**. The foods are local choices, not fixed appetites. The bodily detail stays in the continuous story field without a duplicate self-talk explanation. Lavinia heard Sylvia's reply rehearsal and Priscilla's later aunt performance, not Sylvia's book performance; her knowledge of the no-forward restriction is unchanged. Both true disclosure motives, Lavinia's unresolved whole motive and romantic response to Sylvia, and the actual departure retain their scope.
-
-**Review and capture:** two same-model readers with shared context reviewed the actual revised prefix, one for craft and one for continuity/authority. Neither found a material defect requiring repair. The scene owner records this bounded finding separately from the earlier assembly review. Save the coherent refinement in the existing Markdown owners and PR #41 under the standing push authorization; Git retains the preceding reading.
-
-**Next unit:** the ordinary and substantively softer continuations, then the complete Day 2 family and Day 3 carry. This refinement does not finish that family or the week. Day 1, the protected arrival/residence history, the historical bar/residue audit and the whole-week-before-DTL gate retain their prior scope. Runtime/DTL, assets, performed audio and audience testing: **NOT RUN**.
-
-
-## Current Day 1 verdict and Day 2 assembly, 2026-10-19 at 16:09
-
-**Source:** the owner's 16:09:47 Asia/Hong_Kong message asks whether Day 1 is sufficiently ridiculous, chaotic, random and absurd, contains at least one intense dangerous dark spot, and permits proceeding to Day 2 if the opening satisfies that aim. This is a request for an honest creative judgment and further development, not approval of an unseen scene or every possible outcome.
-
-**Assistant recommendation:** proceed to Day 2 without another Day 1 prose change. The inspected [complete Day 1 at b4a5553](https://github.com/Siuuuers/dwm/blob/b4a5553c14751ff25d2835fbfbe9e135431c0a4c/story/auditions/day-1-photo-book-working-draft.md) has specific absurd pleasure and an intense human violation in the current all-Dark D reading. Its lighter readings do not all contain an equally intense dangerous incident. Preserving that distinction is part of the recommendation, not evidence that the author requested identical severity in every branch.
-
-### Day 1: what the complete readings deliver
-
-| Scope | Current effect and editorial judgment |
+| Durable direction from the conversation | Current home and boundary |
 |---|---|
-| Common comic pleasure | The living aunt correcting her own funeral, the appropriated bouquet and shared performance give Sylvia a reason to keep reading. “I wanted to see you” makes the chosen company briefly more intimate without requiring a new declared romance. |
-| Common disturbance | The aunt's altered sentence resembles Lavinia's private message. It can interrupt pleasure without establishing identical wording, supernatural causation or first recognition. |
-| A — ordinary | Provocation, Lavinia's withdrawal, Priscilla's unsettled attention and a later call. Relational friction is clear; an intense dangerous incident is not guaranteed. |
-| B — unfinished | A real deferral and restored enjoyment with Sylvia. Its later-answer promise is fulfilled that evening. |
-| C — ordinary win | A direct answer that leaves room for both attachments and genuine returned attention. The local tenderness is actual. |
-| D — loss | Priscilla knowingly forwards Sylvia's expressly restricted practice recording. “I heard you” removes misunderstanding as an explanation. “Whose answer was that?” / “Mine” claims an answer carried by another woman's voice. Sylvia's exit creates the solitude that makes “I can do that now” possible. This is the strongest dark spot. |
-| E — Perfect | C's human outcome plus first Observer identification and private address. An uncanny rupture, not D's harm. |
-| Common coda | “Don't hang up when I stop talking” can feel different after each real afternoon. Voluntary continued contact does not itself establish coercion, an all-night duration or a resolution of D's breach. |
+| One identically presented Dark P–L ending; meaningful softer and harsher local histories | [Foundation §3](../09-priscilla-foundation-amendment.md#3-ending-form-is-separate-from-partner-and-local-conduct), [Bible](../01-core-story-bible.md), [pair guidance](../relationships/priscilla-lavinia/relationship.md). No separate healing Sweet P–L endpoint is required. |
+| Priscilla accommodates Lavinia without moral self-condemnation, yet remains capable of intrusion and harmful choice | Bible current P–L judgment and the pair's current performance guidance. Separate what she wants, what she thinks Lavinia wants and what she actually does; none is an automatic obedience algorithm. |
+| Lavinia's impulsive jealousy and abusive testing can coexist with wanted company | Current Bible/Handbook/pair guidance. A perceived betrayal is not proof of an exclusivity promise. Exact origins, tests and acts keep their own selection. |
+| Pre-England romance and childhood familiarity | Bible/Foundation own childhood friendship and protected P–L history. Their pre-England openly flirtatious, near-romantic conduct establishes no agreed label, exclusivity or shared home. The Handbook's P–S development guidance and the [earlier C1/C2 record](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#1-what-the-author-has-actually-clarified) retain the favored accomplice-like familiarity as background; exact joint wrongdoing and a childhood revelation are unselected. |
+| Sylvia's stronger romantic Lavinia attachment, earlier acquaintance and obstructive P–L aim | Current Bible and Handbook. Genuine pleasure or attraction with Priscilla can coexist; Lavinia's response remains deliberately unresolved. |
+| Less overt grammatical person and attribution, with natural pronouns/names when useful | [Style §4.2](../08-narrative-style-manual.md#42-unmarked-focal-presence). Objects, spatial relations and embodied attention can carry viewpoint; ordinary actions need no ornamental replacement. |
+| Story and private self-talk belong to one Priscilla-bound reading | Style and foundation. Field placement follows the function of the inward event; no duplicate explanatory narration or grammar-based split. Priscilla cannot choose which narrated events are masked. Withholding, lying or rationalization in private thought do not imply knowingly addressing the Observer before recognition. Private thoughts are distinct from actionable thoughts and Challenges. |
+| Selective evidence; some motives stay private or genuinely unresolved | Bible/Handbook/Style. Known hidden fact, proposed hypothesis and unresolved cause are different. No mandatory clue chain or final motive solution. |
+| Genuine pleasure, wanted company, natural absurdity and changed recurrence | Style §§6–8 and the [intimacy collection](../relationships/priscilla-lavinia/intimacy-and-ordinary-company.md). The absent third person can matter without dominating every scene; deletion is judged by lost function and feeling. |
+| Sylvia's occasional personal notices | [Bible habit direction](../01-core-story-bible.md#current-sylvia-notice-habit-2026-10-20) and [Handbook practice](../02-character-relationship-handbook.md#occasional-notices-and-familiar-misreading). Familiar manner does not certify recipient, private motive, authorship or success. |
+| Larger form withheld at the start, with later P–L scope preserved | Foundation §3, integrated from the earlier explicit C1 direction. No new draw policy, interface label or P–L second ending is implied. |
 
-The current café encounter is intelligible and socially responsive. Its most overt absurdity belongs to the novel and performance; the competing wants create disorder around the answer and its ownership. The assistant does not recommend adding arbitrary interruptions, another prophecy, or a new violent gesture just to increase the quantity of strangeness. No numerical quality/intensity score or measured audience satisfaction is claimed.
+The owner's endorsement of earlier methods, especially the seventh recommendation concerning limited audience certainty about Lavinia's tests, remains endorsement **for development**. The later selective-evidence clarification removes any implied proof quota. It did not approve every witness, admission, act or climax example. [The exact October 18–19 checkpoint](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#current-pl-direction-and-development-checkpoint-2026-10-18) retains its U1–U4 attribution and alternatives.
 
-**Qualification:** if the owner later requires an intense dangerous incident in every Day 1 reading, that would reopen the common sequence or the lighter branches. The present recommendation accepts different first impressions and moves the next major development into Day 2. The current Dark-options priority is satisfied without describing D as content everybody sees.
+## 4. Carry that later scenes must earn
 
-### The Day 2 step now assembled
-
-Read the [current Day 2 candidate](../relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md#current-reading-day-1-d-into-the-leading-day-2-dark-encounter). It develops the existing reunion packet at scene scope: a longer chosen dinner, remembered performance, a personal question about England, incompatible judgments, a candidate strike, Priscilla obstructing and then clearing the exit, gentle hair touch, Lavinia's actual departure and an earned arrival-message coda.
-
-This is **one complete leading Dark encounter and coda after Day 1 D**, still **AUDITIONING**. The exact acts, words, venue and mapping remain assistant proposals. It is not a selected whole Day 2, complete five-result family, ending amendment or executable DTL.
-
-The most useful local change is removing the requirement to move Sylvia's paperback:
-
-- In the current Day 1, Sylvia keeps *The Funeral Rehearsal* after every result, including the unrepaired rupture in D.
-- Lavinia heard Priscilla perform the aunt in the common evening call. Day 2 can use that established access and let Lavinia invent her own comic addition.
-- The physical-book jealousy exchange and book-reading coda remain earlier alternatives. They are not silently attached to this version or declared compatible with an unrelated portrait/sitter novel.
-- An actual Day 2 loan could be authored later if Sylvia's intervention makes it worthwhile. It would need her own reason and an actual transfer; no Day 1 revision is presently necessary.
-
-The current candidate gives Lavinia real initiative before conflict: she extends the expected drink, chooses food, plays, shares her plate and opens her hand. Her later refusal is still genuine. Priscilla's response can offer changed conduct without moral repentance. The private motives of the strike and later tenderness are not reduced to a single author-certified test; welcoming one touch does not authorize the earlier strike or undo the obstructed exit.
-
-The complete Day 2 family must preserve actual intake. A–C cannot inherit a restricted recording that was only sent in D. B does not owe the already completed later reply. E's established awareness persists; a later Perfect after A–D would instead be a first recognition. The Day 2 packet holds the exact intake distinctions and open Challenge work.
-
-### Review, capture and next unit
-
-Two same-model helpers with shared project context reviewed the current Day 1 tone and the existing Day 2 dependencies. The root read the complete Day 1 narrative, governing source sections and existing Day 2 packet. Their recommendation is to stop revising Day 1 for now and complete the missing Day 2 lead-in, not to certify audience response or close the historical bar/residue audit.
-
-The new assembled Day 2 scene receives its own bounded actual-passage craft/continuity pass in its owning record. Scope-specific findings belong there. The smaller source repair retires the earlier packet's mandatory Day 1 book-loan assumption and applies the current one identically presented Dark P–L ending; no Bible or mechanical rule changes.
-
-**Capture destination:** the existing PR #41 branch under the standing Markdown/push authorization, with successive Git commits retaining previous readings. The current Day 1 manuscript is unchanged. This checkpoint records the completed new encounter and the move to Day 2, rather than creating another document per exchange. Actual publication and merge state come from PR metadata.
-
-**Next unit:** compare a complete ordinary continuation and a substantive softer continuation with the current Dark candidate, then assemble Day 2's five-result family and its Day 3 consequences. Full-week plotting precedes production DTL. Exact scene selection, residence/admission and complete historical bar/residue evidence remain open. Runtime/DTL, performed audio, rendered assets, audience testing, full Day 2 family/day and whole-week audits are **NOT RUN**.
-
-
-## Current attention and near-echo refinement, 2026-10-19 at 15:24
-
-**Owner source:** the owner asks for what Priscilla sees and its details in
-place of cues such as “I glance at the book,” referring to *La Jalousie* and
-*Le Planétarium*. The owner also asks whether a déjà-vu-like effect would be
-better than the book repeating Lavinia's message exactly. This extends the
-existing preference for less overtly tagged perception; it does not ban
-actions, pronouns or names. The near echo is the assistant's recommendation,
-not approval of its exact words.
-
-**Current audition:** the [shared Day 1 reading](day-1-photo-book-working-draft.md#2-a-reading)
-now gives the aunt “Tomorrow, do try to look a little less pleased.” Lavinia's
-earlier message remains “Try not to look too pleased when you see me tomorrow.”
-The focal fragment becomes “Tomorrow. At the beginning, this time.” The
-assistant prefers this for the opening because altered wording allows a
-familiar shape to be felt without a verbatim match. The aunt still has a
-comic reason to correct her mourners' expressions.
-
-The [preceding complete version at 82d3d939](https://github.com/Siuuuers/dwm/blob/82d3d939eed9728b7e6d2375f694f1a33d140125/story/auditions/day-1-photo-book-working-draft.md)
-retains the exact echo and its reasons. This is a taste and evidence tradeoff,
-not a finding that the old sentence was factually or causally impossible.
-
-| Version | Gain | Cost |
+| Item | Current reading supplies | Do not infer |
 |---|---|---|
-| Identical wording in the 14:03 audition | A clear, checkable correspondence between private message and printed text. | More conspicuous arrangement; the audience can move quickly to asking who copied or caused it. |
-| Altered wording in the current audition | Recognition can remain uneasy and incomplete; affection and funeral direction share a shape while their phrasing differs. | Weaker evidence. Some readers may experience only ordinary similar teasing. The short associative fragment is still an authorial cue, not an invisible guarantee of déjà vu. |
+| Optional second photograph | Its own Day 1 capture/permission variant. The extra image remains an attractive local possibility. | Automatic sending, keeping, deletion, phone access or another character's receipt. |
+| Day 1 book | Sylvia keeps the current comic funeral novel, with a particular reason to buy, read and share it. No loan to Priscilla has occurred. Its altered near echo is actually worded differently from Lavinia's message. | Identical wording, proven Observer authorship, a required Day 3 return scene or continuous recurrence. |
+| Message and rehearsal | Wording, account, permission and actual forwarding differ by result. Day 1 D's recording breach remains true on the leading intake. | Consent to forwarding from consent to rehearsal; a three-day recording subplot or Sylvia automatically possessing later private facts. |
+| Day 2 D-staying | Strike, Priscilla's brief obstruction followed by clearing, Lavinia's chosen return, held hair, cold chicken, laughter and the cheek pulling with Priscilla's smile occur in this audition. | A lasting visible mark on Day 3, an unshown repair/night, blanket consent, forgiveness or Sylvia's knowledge of the dinner. |
+| Protected pre-England and umbrella history | Their owning facts and reconstruction holds remain. | A deleted intervention, precise foresight of its institutional effects or an invented clue constellation explaining the full private event. |
+| Day 3 notice | Sylvia writes on the gallery leaflet with the borrowed pen; Priscilla recognizes the manner; the current card is disposed of. | A secret deck, a fixed origin story, a supernatural alteration, an obligation to recover the paper or a decoded message to Lavinia. |
+| Shared gallery cost | A visitor appreciates the invention; Priscilla's insinuation uses the helper's time and withdraws Sylvia's touch. | A new subplot for each background person or disappearance of the cost because later company is pleasant. |
+| P–L local family | A retains future social intention; B does not; C/E attend the café. D loses the invitation and damages the flowers, followed by chosen cooperation/contact. | One common café visit, undamaged gift or completed forgiveness across all results. |
+| P–S local family | A receives the qualified brief outing and returns; B stays through the film; C/E have a short foyer conversation, return to the film and agree to talk again afterward; D remains in the foyer after public disruption. | A common completed private conversation, return to the film in D or a selected Sylvia ending. |
+| Observer knowledge | First recognition requires the established first Perfect; later awareness persists. | Cross-save memory, automatic partner recognition or proof that every oddity came from the Observer. |
 
-The [scene's current notes](day-1-photo-book-working-draft.md#67-book-coincidence-audition)
-now distinguish the two actual phrasings from Priscilla's felt resemblance.
-The preceding exact-match fact is superseded for this candidate. First
-Observer identification stays in E. Sylvia's answer, prior message access and
-the unresolved cause keep their bounded scope; near familiarity grants no
-cross-save memory or new supernatural ability.
+The former Day 3 concealed call, S–L appointment, kneeling sequence and shared Challenge are superseded proposals; they did not happen offscreen. Day 2's departure benchmark, cruel exit and staying treatment are alternative D tails, not consecutive episodes. The Day 1 B answer promise is fulfilled that evening and does not become an outstanding later hook. Prior E knowledge persists when other intakes are developed.
 
-### Attention rather than a report of looking
+Days 1–3 retain the recent recurrence cuts in their owners: no repeated playback/inventory or obligatory book callback simply to remind the audience of an earlier person. A recurrence can return when its use or consequence changes. Removing a mention does not erase a real earlier event.
 
-The existing reply “We haven't got very far” already gives the glance a
-plausible immediate function: checking or invoking their interrupted reading.
-Its problem was underdescribed attention, not proof that Priscilla looks for
-no reason. The revised passage selects “Only a few pages between her finger
-and the front cover.” Sylvia's own finger marks their progress in the closed
-paperback. The detail can support a literal observation and an indirect
-answer without declaring which motive Priscilla has.
+## 5. Useful candidates that remain open
 
-The isolated “I look” after the phone lights is simply removed; Priscilla's
-next reply supplies the reading. A removed perception tag does not always need
-an ornamental replacement. The book turn, Priscilla's grip/release and later
-phone handoff remain actions with consequences. Both detail-led passages stay
-in the story field as continuous attention; neither needs a second self-talk
-explanation. This applies [Style §4.2](../08-narrative-style-manual.md#42-unmarked-focal-presence)
-without a new universal rule or a sweep through unaffected passages.
+These are available development material, not a checklist of scenes to add.
 
-### Literary reference and scope
-
-The root consulted the publisher's [opening excerpt of *La Jalousie*](https://www.leseditionsdeminuit.fr/images/extrait_2731.pdf),
-which establishes the terrace through spatial relations, shadows and visible
-surfaces while retaining actions, and Gallimard's [presentation of *Le Planétarium*](https://www.cercle-enseignement.com/Ouvrages/Gallimard/Folio/Le-planetarium),
-which begins with a reassuring social tableau and then unsettles it. The
-assistant's application is to make selected details carry a viewpoint and a
-shift in meaning. These bounded sources do not establish that either novel
-universally excludes action, grammatical person or narrated thought, and the
-two references are not treated as an identical recipe.
-
-**Capture and review:** this is a focused revision of the existing complete
-audition and its notes. A same-model craft reader with shared project context
-recommended the near echo and concrete page detail. The actual-edit review
-and comparison are recorded in [Day 1 §7](day-1-photo-book-working-draft.md#7-review-against-and-challenge-to-the-bibles).
-The existing [PR #41](https://github.com/Siuuuers/dwm/pull/41) remains the
-authorized destination; Git preserves the previous version. No new manuscript,
-Bible rule, DTL label or runtime system is selected. Exact prose remains
-AUDITIONING, and audience/performance/full-week evaluation remains open.
-
-## Current book and observer reference, 2026-10-19 at 14:03
-
-**Retained checkpoint:** the exact-echo recommendation below records the
-14:03 version. The 15:24 refinement above supersedes its local wording and
-exact-match evidence claim; the wider reference triage retains its scope.
-
-**Owner source and scope:** the owner proposes that the book can reveal facts
-about the women through Observer Pressure and offers an extensive, explicitly
-amendable set of examples. Its attraction is the progressive consumption of
-ordinary life by eerie coincidences, dangerous sweetness, absurdity and the
-three women's competing claims to control. This is a reference and invitation
-to judge; it does not approve every proposed power, diagnosis, act or ending.
-
-**Current recommendation, AUDITIONING:** retain the book's comic life and let
-one fixed printed sentence repeat Lavinia's existing private message. The
-[current complete Day 1](day-1-photo-book-working-draft.md) integrates the new
-passage after **“I wanted to see you”** and the shared laughter. Priscilla asks
-whether Sylvia has read that part before, then withholds her reason. The
-[particular scene notes](day-1-photo-book-working-draft.md#67-book-coincidence-audition)
-own the exact wording, access, unresolved cause and placement rationale. The
-[preceding complete reading at daafc644](https://github.com/Siuuuers/dwm/blob/daafc6441c56b82cc27dd114d3f8fe8ac08933f5/story/auditions/day-1-photo-book-working-draft.md)
-preserves the first funeral-novel revision without this correspondence.
-
-### What the new idea contributes
-
-The earlier revision made Sylvia's purchase, curiosity and performance more
-particular. The new reference asks for an additional effect: the book can
-disturb what Priscilla believes belongs privately to a relationship. A sentence
-may be ordinary in its printed setting yet unexpectedly familiar from another
-person. Priscilla's response can expose attention and conceal an explanation
-at the same time. A correspondence therefore changes the encounter before
-anyone correctly identifies its cause.
-
-The assistant recommends this bounded version because unrestricted divine
-insertion of any secret into any prop would recreate the replaceability
-problem. Here the aunt's demand belongs to her rehearsal and her control of
-the mourners' expressions. Sylvia can still have bought the novel because it
-pleased her. The intrusion arrives after a real pleasure; it does not prove
-that every enjoyed moment was secretly staged.
-
-The author's example of an unwritten secret becoming Lavinia's lyric remains
-a stronger later candidate. It is not weakened into a rejected idea by trying
-a private message first. Its actual information path would need a decision:
-a match does not by itself establish telepathy, altered print, exclusive
-knowledge, or who arranged it. Do not invent a diary or a complete historical
-proof merely to certify that no ordinary source was possible.
-
-### Character direction: retain different wants and fallible methods
-
-The reference combines compatible context-dependent tensions with several
-different potential character designs. Social skill can coexist with private
-withdrawal; discipline can fail during jealousy; affection can coexist with
-harm. Treating every extreme description as an invariant would make the women
-interchangeable and allow any later act to be explained after the fact.
-
-| Character | Recommended active concern and distinctive pressure | Useful failure, not a new fixed history |
+| Candidate | Why it may be useful | Status and decision still needed |
 |---|---|---|
-| Priscilla | Be wanted, and control how intimacy is understood. Her attention, questions, selected explanations and accommodation can be tender or harmful without moral repentance. | She notices a real detail and misjudges its significance. A sincere fear does not prevent a deliberate harmful response. |
-| Lavinia | Be chosen unequivocally. Her directness, testing and emotional response can make an ordinary request costly to refuse. | She mistakes an intense response to a test for security, or discovers that the proof she demanded cannot answer what she wanted to know. |
-| Sylvia | Become necessary to Lavinia while obstructing P–L. Meticulous care, acting and selectively reasonable explanations retain her own taste and desire. | She mistakes conflict for progress toward separation, or fails to anticipate an attachment intensified by that conflict. |
+| Earlier coffee notice: *Taken. Back in a minute* | Useful care contains a presumptive return. Priscilla can enjoy being kept a place and misread the extent of the claim. | AUDITIONING private example in [Day 3's habit note](day-3-sylvia-fork-working-draft.md#current-notice-habit-and-its-limits-2026-10-20). No origin date, childhood cause or flashback selected. |
+| A later changed notice or displaced recipient | Familiarity can become uncertain without repeating Day 1's exact effect. | A human amendment, unchanged wording in a new position, a discrepancy after a custody gap and visibly rewriting ink are different proposals. Cause/access/power need their own decision; none occurs in current Day 3. |
+| Lavinia mistakes a successful test for security | The attention she extracts may intensify attachment while failing to answer whether she is freely preferred. | Leading craft hypothesis, not a private law explaining every act. Some tests can be deliberate; a later “test” account can also be rationalization. |
+| Priscilla's popularity as a source of jealousy | Her precise attention can be valued by several people; Lavinia may want it made exclusive. | Deeper motive direction available for development. No automatic affair, broken exclusivity promise or claim that all popularity is manipulation. |
+| Costly admission followed by an extra disclosure | Priscilla can surrender a respectable account to keep Lavinia, then exceed the requested admission and expose another private detail. | Leading climax AUDITIONING: witness, exact detail, cost, placement and truthful ending joins remain unselected. No invented career/clinical ruin. |
+| Revenge through an unguarded personal admission | Lavinia can want Priscilla to give up the merely-helpful account and acknowledge desire. Temporary satisfaction can be real. | Assistant direction for development; no universal law makes every successful test fail, and later jealousy need not falsify earlier pleasure. |
+| A knowingly false joint account | A different way for chosen closeness to coexist with complicity. | Separate climax alternative; do not append it to the admission version as another mandatory escalation. |
+| Pre-England attention as limited encouragement; genuine anger plus private gratification later | Preserves mixed agency around the document intervention without making Lavinia foresee every consequence. | Assistant recommendation around protected history. The actual intervention remains; precise motive and encouragement are not established by this map. |
+| Genuine distress with selective exposure | Vulnerability can be real while Priscilla chooses when someone sees it. | The “tears only before Lavinia” idea and this refinement remain unselected. No diagnosis or compulsory crying beat. |
+| A brief return to ordinary shared life after harm | Humor, taste and wanted company can make continued attachment convincing. | Already endorsed as a development method; exact contact and limits belong to the scene. It need not erase objection or become an automatic reset. |
+| An offered place beside Lavinia as the final gesture | An identical action might be differently understood after distinct histories. | Unselected closing proposal: setting, prop, words and truthful carry are open. |
+| Replacing Day 1's recording altogether | Could test whether a different breach provides a stronger first-day turn. | Available future comparison, not the current recurrence cut. It requires a new concrete D act and a coherent Challenge/coda family. |
+| Days 4–6: competing expectations, a protective explanation at someone else's cost, then chosen company or complicity | Earlier broad functions may support a causal continuation from the selected fork. | No exact day, victim or act selected. Test each against current carry instead of inheriting the older seven-day calendar. |
 
-These are assistant craft recommendations, not selected incidents or a new
-diagnostic system. The owner's current S→L direction still governs: stronger
-desire for Lavinia, earlier acquaintance and a seven-day obstructive aim.
-The new reference's versions in which Sylvia primarily collects Priscilla,
-or everyone competes for Sylvia, remain alternatives that would change that
-direction. Genuine enjoyment and possible attraction with Priscilla survive;
-Lavinia's romantic response is still deliberately unresolved for the writers.
-Priscilla's later partial suspicion does not become complete early knowledge.
+The admission candidate's former witness/disclosure details and replaceable closing lines remain in the [exact development passage](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#assistant-climax-audition-costly-admission-and-further-disclosure). Retained photograph/film/diary/dance/refusal variants have their own [pair index](../relationships/priscilla-lavinia/README.md); they are not silently inserted into the new days.
 
-The most useful reversal is that vulnerability and responsibility coexist.
-Priscilla can be genuinely disturbed by an intrusion and still choose how to
-use another person's attention. The assistant does not recommend the wholesale
-twist that all early private thoughts were knowingly addressed lies. Selective
-attention, rationalization and mistaken interpretation are already available;
-deliberate performance for an identified listener belongs after recognition.
+## 6. Observer and darker reference triage
 
-Likewise, preserve sincere caring, ordinary humor and limits to knowledge in
-Lavinia and Sylvia. A later revelation that every kindness was counterfeit
-would remove much of the uncertainty the owner values. The reference's idea
-that all three believe they control the relationship is more useful than
-successively declaring each the omniscient final mastermind.
+The long meta-horror reference was offered as amendable material. It supports the desired unease and competing claims to control without approving every power, diagnosis, injury or ending. The [foundation](../09-priscilla-foundation-amendment.md#5-observer-knowledge-and-possible-epilogues) owns the current limits.
 
-### Wider reference triage
-
-| Proposed material | Current disposition and reason |
+| Reference | Current disposition |
 |---|---|
-| Private facts in book passages or lyrics; ordinary life acquiring an eerie correspondence | **Audition the book now.** Keep occurrence, available knowledge, human explanation and Observer identification distinct. The new shared passage is available without a board and does not itself supply first recognition. |
-| Frightened Priscilla seeking familiar company, then later testing or teasing the Observer | **Retain as character possibilities.** Early discomfort need not be innocence; later addressed performance needs the established first Perfect. Curiosity, hostility and possible ambiguous attraction do not select an obligatory observer romance. |
-| A hand/body forced to act against Priscilla's chosen movement; desire imposed by a deity | **Unselected power change.** Current influence works through circumstances and coincidences. Attributing D's actual send to bodily override would materially rewrite its agency. |
-| Save/reload migraines, cross-save awakening, timed hesitation taunts and fabricated on-screen options | **Separate unselected system experiments.** They need a defined fiction/interface contract and costs. The current thought presents one proposed action plus Yes; no such system is needed for the book audition. Sylvia's intelligence alone cannot establish control of UI. |
-| Lavinia senses an external force, Sylvia deduces one, the trio investigates together | **Retain as later encounter possibilities.** Each needs accessible observations or communication and a reason to cooperate. A plausible theory can be wrong. Neither woman inherits Priscilla's recognition or another route's events. An investigation does not automatically become the spine of the week. |
-| Deicide, assimilation, a concealed captive, shared destruction or death in a fire | **Distinct unselected references.** One identically presented Dark P–L relationship ending remains; P–S resolution remains open. The retained no-confirmed-death boundary has not been amended. Any observer epilogue would need its own selection and cannot erase a completed human ending. |
-| Forcible app crash or reversal that claims the real audience is now being watched | **No implementation selected.** Existing guidance allows a selected deliberate exit only after required state is recorded. Fictional address does not establish actual device surveillance or require a real application fault. |
+| An eerie correspondence in a book or song; familiar company sought during uncertainty | Available fiction possibilities. Keep observation, interpretation, information access and identified cause distinct. Day 1 owns the current near echo. |
+| Priscilla later testing or teasing an Observer | Possible after the established recognition. No obligatory romance with the viewer or retroactive audience-addressed deception before recognition. |
+| Lavinia suspects an external force; Sylvia reasons about coincidences; the trio cooperates | Later candidates needing accessible information and a reason to act together. Intelligence grants no UI control or inherited knowledge. An investigation need not become the week's spine. |
+| Body override, imposed desire or an Observer-forced slap | Unselected changes to the approved influence through circumstances/coincidences. They cannot excuse the already authored human actions by implication. |
+| Save/reload migraines, cross-save memory, hesitation taunts, fake choices | Separate unselected fiction/interface experiments. No implementation or runtime contract is established here. |
+| Noun-like blessing hints such as LIQUOR / BLAZER | Earlier unselected presentation idea. Vocabulary, timing and distinction from an actual board result remain open. |
+| Deicide, assimilation, captivity, fire, mutual death or an enforced crash | Distinct unselected references. Current P–L ending count and retained no-confirmed-death scope remain. A selected Observer epilogue cannot revoke the complete human ending; no real device surveillance is implied. |
 
-The governing [foundation §§4–6](../09-priscilla-foundation-amendment.md#4-local-choices-and-challenge-meaning)
-and [intended behavior](../../docs/design/2026-10-09-priscilla-flow-behavior-amendment.md)
-retain their approved scope. The first Perfect establishes identification;
-subsequent understanding remains bounded. Being aware of an Observer does not
-prove it authored every oddity. The human conduct and complete ending must
-remain consequential when the audience has not earned observer awareness.
-These dispositions recommend what to try now; unselected does not mean an
-idea is permanently forbidden or cannot motivate a later owning amendment.
+The older [reference triage](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#wider-reference-triage) retains the fuller alternatives and reasons. Unselected does not mean permanently forbidden; it means the relevant owning decision has not been made. The references are fictional design possibilities, not evidence for physical-world supernatural or diagnostic claims.
 
-### Reality, evidence and prose
+## 7. Source coverage, curation and next step
 
-The deity and psychic sensitivity in the reference are fictional possibilities,
-not physical-world explanations of psychological experience. For the writing,
-describe a particular sensation, observation or interpretation before imposing
-a label. Where an external force really exists in the fiction, calling every
-suspicion a delusion would prematurely decide whether it is mistaken.
+This pass uses the visible conversation and the verified current story owners, current day auditions, retained development and relevant design records at f1df045. It does not recover every earlier raw chat or make an unavailable assistant reply into a verbatim source. The earlier event-first opening and trace-destruction passage recalled by the owner were not recovered in their recorded bounded searches; this curation does not authenticate or reconstruct those missing manuscripts. Earlier local C/U/A labels remain labels within their dated records. Publication and review claims retain their original scopes.
 
-An assertion that a glance is measuring enough force to break a neck is an
-interpretation, not an action directly available to vision. Priscilla's prose
-can carry that disturbing inference without privately certifying Lavinia's
-intention. The story field and self-talk both remain Priscilla-bound; neither
-field guarantees truth or supplies another character's mind.
+Reusable guidance has been integrated into01/02/08/09 and the specialized pair owner. The external current-flow document has become a compatibility entry pointing to09. Day prose remains in the existing owners. The four entry/checkpoint files replace repeated chronological restarts with current routes and open dependencies; exact predecessors and bookmarks remain below and in the [consolidation receipt](../maintenance/source-migration.md#current-story-consolidation-2026-10-20). The former source archives and protected holds are retained.
 
-Use the characters' belief that destruction proves love as their belief when
-an encounter calls for it. No diagnosis or self-destructive act is required to
-prove emotional depth, and the narrator need not certify coercion as consent.
-These distinctions support dark fiction without selecting the reference's
-graphic imagery, specific injuries or fatal acts.
+**Next useful creative step:** read the updated shared Day 3 and one complete selected continuation, then develop what that result actually leaves available for the next scene. Other Day 1–2 intakes, sustained Sylvia plotting, Days 4–7 and the ending's compatible joins remain real work. Repeating every old alternative or beginning complete DTL would not resolve those dependencies.
 
-### Capture, bounded review and next writing unit
+The current review checks document consistency, source disposition and the affected prose/link boundaries. Audience immersion, performed timing, social-media circulation, complete history and whole-week/runtime behavior are not measured by a document audit. [PR #41](https://github.com/Siuuuers/dwm/pull/41) and Git metadata establish publication status.
 
-This checkpoint covers the owner's 14:03 reference and the assistant's
-particular response, including retained attractions, reasons for restraint,
-the new scene and remaining alternatives. It uses the existing Day 1 and
-working-plot owners, with compact entry-point links; no new manuscript or
-parallel Bible is created. It does not change an approved owner merely to
-record an experiment.
+## Previous section bookmarks
 
-Two same-model readers with shared project context separately reviewed the
-craft opportunity and source/architecture scope. Their recommendations agree
-on one concrete echo, fallible human interpretations and the distinction
-between discomfort and first recognition. Review of the resulting edit and
-publication status is recorded with the [Day 1 review](day-1-photo-book-working-draft.md#7-review-against-and-challenge-to-the-bibles)
-and [PR #41](https://github.com/Siuuuers/dwm/pull/41). This is bounded document
-review, not audience, performance, runtime, whole-week or historical-audit
-verification.
+<details>
+<summary>Open the earlier checkpoint sections in their exact Git version</summary>
 
-**Next writing unit:** judge this complete Day 1 reading with the single
-coincidence, then carry its actual facts into Day 2 if retained. Keep the
-human seven-day escalation and the condition-dependent growth of observer
-knowledge distinct. There is no need to select the full meta-horror catalogue,
-add another anomaly to the call, or restart complete DTL production to test
-this particular scene. The whole-week plot gate remains open.
+These are historical destinations, not additional current instructions. Older subsection bookmarks lead to their containing source section. The full pre-consolidation text remains at the verified f1df045 revision; its scene status and publication claims retain their dated scope.
 
-## Current Day 1 book revision, 2026-10-19 at 13:17
-
-**Owner request:** the book's content feels too replaceable, insufficiently
-absurd, and weakly motivated for Sylvia to buy and keep reading. The owner
-especially values **“I wanted to see you.”** The owner also explicitly
-authorizes updating existing Markdown on GitHub and pushing versions, rather
-than making repetitive documents for each revision.
-
-**Current recommendation, AUDITIONING:** replace the generic bad romance with
-an invented comic novel, *The Funeral Rehearsal*. A living aunt attends her
-own funeral rehearsal, corrects the mourners and eulogies, and takes flowers
-intended for her adult niece. Sylvia has read a particular funny sentence in
-the shop and wants to discover the aunt's next objection. The novel supplies
-enjoyment before the two readers improve it through performance.
-
-The [existing Day 1 owner](day-1-photo-book-working-draft.md) now contains the
-bounded book revision across its complete reading family: discovery/purchase,
-shared performance, the declaration, the date-message bridge, the affected
-continuations and the evening callback. It keeps both photo responses, the five
-Challenge meanings and the distinct consequences. There is one current full
-manuscript in that file. The [preceding complete version](https://github.com/Siuuuers/dwm/blob/7d824ea6209f4930b17efc903118b732d3ca4e7f/story/auditions/day-1-photo-book-working-draft.md)
-and the earlier [a7126a5 audition](https://github.com/Siuuuers/dwm/blob/a7126a5c21c3545c05588b9ac38f8b2c682d8e82/story/auditions/day-1-photo-book-working-draft.md)
-retain their exact wording through Git history.
-
-### Why this revision is recommended
-
-The earlier defense of the book credited shared performance while leaving
-Sylvia's positive interest in the chosen text vague. Disliking some aspect of
-a book is compatible with enjoying it; no general psychological impossibility
-has been established. The defect is local: the preceding audition did not
-make this reader's curiosity specific enough.
-
-The new version gives Sylvia a sentence she already liked, a comic character
-she wants to play, a next event she wants to hear and a preferred delivery for
-Priscilla's visitor. The flowers' misleading explanation creates a particular
-opening for **“I wanted to see you.”** Practising delivery still prepares the
-later voice-reply opportunity. The returned attention in B/C/E now reaches
-specific absurd material, and the same aunt can be performed for Lavinia in
-the coda. These are the proposed gains; no measured audience improvement or
-empirically best book is claimed.
-
-The [book notes](day-1-photo-book-working-draft.md#66-current-book-audition-the-funeral-rehearsal)
-hold the full bounded synopsis, author-only referents, reasons and two competing
-invented premises. The more overtly surreal arriving-in-installments visitor
-could overwhelm the scene; the footnoted biography could make the character
-parallel too schematic. Both remain available proposals, not extra scene
-versions. The funeral rehearsal's own risk is conspicuous foreshadowing; its
-pleasure should remain particular and its eventual fictional outcome open.
-
-### Scope, verification and next unit
-
-Publishing the new book audition does not select its exact text, Sylvia's
-permanent reading tastes, the whole Day 1 plot or a new Bible fact. The owner's
-earlier Sylvia–Lavinia direction, Priscilla's partial suspicion at the later
-fork, Lavinia's deliberately unresolved response and flexible grammatical
-person retain their approved scope. D's explicit no-forward limit remains a
-real refusal. Neither the novel nor the Challenge converts it into permission.
-
-Two same-model readers separately reviewed the revised scene's appeal and
-book/branch dependencies. The root filled C/E's promised but unheard eulogy
-with one brief exchange, clarified B's role handoff and recorded the niece as
-the unannounced referent after the declaration. The root then checked the
-changed reading family and documentation links. Runtime/DTL, performed audio,
-audience testing, full-week comparison and the older chronology audit are
-NOT RUN by this revision.
-
-**Repository destination:** the existing [PR #41](https://github.com/Siuuuers/dwm/pull/41)
-branch, with separate commits for the prior Sylvia/perception checkpoint and
-this book audition. The PR remains a draft; its metadata determines actual
-head and merge state. No new manuscript file or PR is required for this revision.
-
-**Next writing unit:** judge this revised Day 1 family as the current candidate,
-then carry its actual selected consequences into Day 2 development. The paperback
-still leaves with Sylvia in every continuation. A same-copy Day 2 loan needs a
-real transfer and a compatible chosen book; it is not required merely to make
-Day 1's reading worthwhile. Full DTL still follows the whole-week plot gate.
-
-## Current Sylvia and perception clarification, 2026-10-19
-
-**Capture source:** the preceding visible Day 1 opening critique and the owner's
-03:54 Asia/Hong_Kong clarification and 05:03 follow-up accepting the two
-knowledge recommendations and allowing grammatical person for beauty,
-smoothness and naturalness. **Inspected repository revision:** PR #41
-at `a7126a5c21c3545c05588b9ac38f8b2c682d8e82`, still open, draft and unmerged
-at inspection. **Repository destination:** the existing PR #41 branch. The owner
-explicitly authorizes Markdown updates and pushes at 13:17 Asia/Hong_Kong;
-successive commits retain versions in the existing files. Consult the PR's
-metadata for the current head and merge state.
-
-### Owner directions
-
-| Item | Current direction and exact scope |
+| Earlier section | Exact source |
 |---|---|
-| Perceptual form | Prefer less grammatical person, especially overt first-person narration, and less immediate identification of referents. Author-only notes may identify them. Use grammatical person, names and pronouns whenever they make the prose more beautiful, smooth or natural. This applies across story and self-talk fields within the sole-Priscilla viewpoint. |
-| Second photograph | Retain the optional variation for its fun and interest. This supersedes the assistant's deletion recommendation, not the option's unselected exact dialogue. |
-| Sylvia's principal romantic feeling | Stronger for Lavinia than for Priscilla. Lesser attraction or real pleasure with Priscilla is not denied. |
-| Earlier acquaintance | Sylvia knew Lavinia before Priscilla, read as before Priscilla knew Lavinia while P–S remain childhood friends. Adapt the previous Angela–Lavinia first-meeting premise. |
-| Sylvia's week aim | Obstruct P–L, promote conflict or misunderstanding and improve her own chances with Lavinia, including through the seven-day Sylvia-focused storyline. A plan is an aim and attempted influence, not an assured outcome. |
-| Priscilla's knowledge at the later fork | Owner accepts the recommendation that Priscilla may suspect Sylvia's attraction to Lavinia while misunderstanding its extent or strategic importance. This permits a perceptive but consequentially mistaken reading; it does not fix a Day 1 discovery or full knowledge of the plan. |
-| Lavinia's romantic response to Sylvia | Owner accepts deliberately leaving the response unresolved on the writer's side until a particular scene needs a decision. It is not privately fixed but concealed. Lavinia's awareness of the desire and interference remains open. |
-| Methods and care | Acting, lying, comments on Lavinia's supposed incompatibility with Priscilla, meticulous caring, and a personal truth protected by a joking/practical completion. Care may express what Sylvia believes is best. |
-| Self-directed harm | Named as a possible way Sylvia might seek attention or sympathy. No exact event, method, injury, target of an appeal, frequency or diagnosis is selected. |
-
-The owner's example is **“Why don't you choose me... for the project.”**
-Preserve it as an example of voice and possible double address, not an approved
-Day 1 line. Speaker is Sylvia; addressee, witness, actual project, occasion and
-whether the practical completion conceals a romantic wish still need authorship.
-
-**Assistant interpretation of the two possible addresses:** said to Lavinia,
-the example can briefly expose Sylvia's wish to be chosen by the woman she
-wants. Said to Priscilla, it can truthfully solicit a choice that serves her
-larger plan while being heard as a personal romantic request. These are
-different uses, not proof of the speaker's motive from wording alone. Neither
-addressee or placement is selected by preserving this distinction.
-
-The [Bible](../01-core-story-bible.md#current-sylvia-triangle-2026-10-19)
-owns the new character direction and [earlier-acquaintance scope](../01-core-story-bible.md#current-sylvia-history-2026-10-19).
-The [foundation](../09-priscilla-foundation-amendment.md#1-cast-viewpoint-and-preserved-continuity)
-and [Handbook](../02-character-relationship-handbook.md#sylvia) point to it.
-The [Style Manual](../08-narrative-style-manual.md#42-unmarked-focal-presence)
-owns the formal preference. These bounded changes supersede the retained
-blanket non-romantic S–L rule without transferring Angela's full biography,
-adding a third playable route or selecting Lavinia's reciprocation.
-
-### Earlier opening critique: retained and superseded proposals
-
-The assistant's preceding review found the book worth keeping but Sylvia's
-“It looked awful” taste thin, the banter nearly too mutually efficient, and
-the strongest concrete dark turn concentrated in D. These are editorial
-judgments, not measured audience results or proof that the approved direction
-is defective.
-
-**Still proposals:** give Sylvia one sincerely liked passage; allow one joke
-or response to mismatch; compress thoughts that explain already-perceptible
-pleasure; keep “No question at the end” and “I can do that now”; reconsider the
-book's opening threat and the coda's “You'll see tomorrow” teaser. The owner
-has not approved those cuts or exact replacement passages.
-
-**Superseded:** remove the optional second photograph. The owner's reason to
-retain it is pleasure, which does not need a new hidden-state justification.
-The earlier prose recommendation also under-described the formal preference:
-the next revision should consider reducing overt person/referent marking,
-beyond replacing repeated “I look” tags. The 05:03 clarification gives beauty,
-smoothness and naturalness room to retain grammatical person; omission is a
-flexible preference, not a quota or a requirement to make every line oblique.
-
-The earlier coda experiment remains unselected: Priscilla rises for water,
-Lavinia hears the chair and asks “Are you going?”, receives “For water,” says
-“Wait,” and Priscilla sits. Its proposed function was a small observable cost
-of wanted contact. It is not a selected control act, a proven private test, or
-a conclusion about abuse from that isolated exchange.
-
-### Current interpretation and craft recommendations
-
-The new triangle can make Sylvia's existing lines richer without an explanatory
-reveal. The signed date message may be an intervention addressed to Lavinia;
-the book may remain enjoyable company; a greater desire elsewhere does not
-automatically make either the first or second photograph false.
-
-D's **“That wasn't for her. I said not to send it”** can carry greater personal
-importance if Lavinia is the person whose response Sylvia cares about most.
-Controlled teasing and an unguarded recorded performance are different
-exposures. Keep the present refusal and breach unless separately revising the
-event. Do not secretly turn the refusal into bait merely to make Sylvia's plan
-infallible. Her exit can also work against her aim by giving Priscilla the
-solitude Lavinia requests. **“I can do that now”** remains consequential.
-
-**Recommended dramatic risk:** Sylvia can mistake P–L conflict for progress
-toward separation. A criticism intended to make Lavinia unattractive may
-instead interest Priscilla; an attempt to make Priscilla seem unavailable may
-intensify Lavinia's pursuit. These are alternatives to audition, not already
-selected events or universal response rules. Knowing Lavinia first does not
-make Sylvia the best reader of her present wishes. Her preference can persist
-through the week while methods change after real surprises.
-
-**Route recommendation:** the P–S storyline should resolve something between
-Priscilla and Sylvia—trust, dependence, complicity, rejection or chosen company—
-even when Sylvia's strongest desire remains Lavinia. Do not force a discovery
-that she “really” prefers Priscilla to validate the storyline. The fork changes
-the sustained encounters; it does not create Sylvia's earlier desire. Preventing
-P–L does not guarantee Lavinia will choose Sylvia. Exact outcomes are open.
-
-**Unselected dialogue test, Sylvia to Priscilla during an interrupted reading:**
-
-> “Answer her. It's easier.”  
-> “Easier than what?”  
-> “Reading the same sentence four times.”
-
-This uses an observable difficulty while leaving its emotional framing open.
-It does not establish a habitual flaw in Lavinia or select the line for Day 1.
-
-**Unselected perceptual test, story field:**
-
-> At this size, both faces fit. Larger. The face looking down is cut by the frame.  
-> “Don't inspect it that closely.”  
-> “I like it.”  
-> “That isn't usually why you zoom in.”  
-> A shoulder presses against the arm below the screen. The face still inside the photograph is turned toward the cropped edge.
-
-**Author-only orientation for this test:** anchor Priscilla; phone belongs to
-Sylvia; Priscilla enlarges the displayed photograph; the cropped face is
-Priscilla's, the remaining face Sylvia's; Sylvia leans against Priscilla's arm;
-dialogue order is Sylvia, Priscilla, Sylvia. No private Sylvia motive is
-certified. This example deliberately reduces narrative names and first person;
-spoken “I” remains possible. Field placement gives a passage continuity or
-private emphasis and does not identify another narrator.
-
-### Accepted knowledge direction and next bounded unit
-
-The owner accepted both recommendations at 05:03. **At the later fork,
-Priscilla may suspect Sylvia's attraction while misunderstanding its extent or
-strategic importance. Lavinia's corresponding romantic feeling remains
-deliberately unresolved for the writers until a particular scene needs it.**
-These are the current directions, not unanswered interview questions. Exact
-evidence and disclosures, the onset of Priscilla's suspicion, and Lavinia's
-awareness of Sylvia's desire or interference remain unselected. No audience
-proof sequence or secret answer to Lavinia's response is required.
-
-The user describes a seven-day aim; this checkpoint does not weaken it into a
-single isolated temptation. Exact P–S resolution and compatibility with the
-retained Sweet/Dark scope still need selection. No automatic change to a
-healing endpoint, no new S–L endpoint, and no alternate P–L ending is selected.
-The source first meeting is an astronomy-class friendship. No specific term,
-introduction by Sylvia, or explanation of P's bar recognition is supplied.
-
-Next: revise the complete Day 1 encounter with both photo responses under the
-new formal preference and triangle, then check the whole continuation family.
-The currently retained full prose is the comparison draft, not a completed
-implementation of this clarification. Exact dialogue, dark act, first-recognition
-staging, book origin/transfer, full week and production DTL remain open.
-
-**Bounded check:** two same-model readers separately inspected source collisions
-and the changed triangle's craft implications. The root recorded the actual
-owner scope and kept their new examples as proposals. Full rewritten-scene,
-audience, audio and runtime tests are NOT RUN. The repository destination and
-publication boundary are recorded at the top of this checkpoint.
-
-### Day 1 favorites: editorial appreciation after the 05:03 clarification
-
-The owner asks which current moments the assistant most values and why. The
-following are readings of the [preceding complete audition](https://github.com/Siuuuers/dwm/blob/7d824ea6209f4930b17efc903118b732d3ca4e7f/story/auditions/day-1-photo-book-working-draft.md), not new prose,
-selected exact lines, measured audience effects or an additional rewrite gate.
-The current Sylvia direction allows further interpretations without proving
-the private motive of every smile, joke or touch. Each Section 3 continuation
-remains an alternative; these moments do not all happen in one playthrough.
-
-| Existing moment | What this reading values |
-|---|---|
-| Shared first photograph: “I should have asked her to help earlier.” | Lavinia affects a photograph she is absent from. Sylvia notices a change in Priscilla's expression; the captured attention differs from the posed expression. The triangle can be felt without an explanation of anyone's full desire. |
-| Optional second photograph: “I was supervising” and “Send me both.” | A correction becomes another shared laugh. Both imperfect pictures are wanted. Preserve the ordinary pleasure and distinct responses without making them proof of a hidden plan. |
-| Shared reading: “Then say it” and “I wanted to see you.” | Fiction lends them a direct sentence that remains playable as a line. Sylvia briefly drops and recovers the character voice. The small change in delivery offers intimacy without certifying to whom her deeper desire belongs. |
-| Shared interruption: “Should I send it to you? ... My part.” | Sylvia's live performance competes with the attention given to a remote message. A complaint emerges through a practical, funny proposal; her finger returning to the line also keeps the shared activity available. |
-| A only: “No question at the end.” | Priscilla notices a missing invitation to continue. The exact feature of the received message carries her fixation while leaving Lavinia's intent and Priscilla's emotional explanation unsettled. |
-| D only: the prohibited recording, “I heard you,” and “I can do that now.” | Strongest overall favorite. A refusal is heard and breached; Sylvia's departure then makes Lavinia's request for a solitary call possible. An absence becomes useful through a small practical thought. Lavinia has not been shown the recording restriction, and Sylvia's refusal remains real. |
-| C/E only: “You can do him differently” and “I don't want to now.” | Their shared performance changes how Sylvia wants to hear a fictional character. The remembered pleasure can remain real while her stronger romantic attachment lies elsewhere. |
-| Shared coda: “Don't hang up when I stop talking,” followed by the aunt's voice and the open line | Continued company extends beyond conversation. The same close depends on the reader's actual afternoon: returned attention in C, an unaddressed breach in D, and an additional recognized listener in E. Repeating the aunt's voice can carry the afternoon's warmth; after D, it also acquires a troubling possible echo. This does not make voluntary performance equivalent to sending someone else's prohibited recording. |
-
-**Additional small pleasure:** Sylvia's comic “Mine” over the aunt's part can
-stand on its own. In D, Priscilla later uses the same word to claim the answer
-sent in Sylvia's voice. That repetition can alter its felt weight without
-being labelled or explained in the audience prose.
-
-The preference for reduced grammatical person strengthens “No question at the
-end” while leaving the natural first person of “I can do that now” available.
-The important difference is the particular attention each sentence carries,
-not whether one construction is always the correct field or style. This
-appreciation protects functions and pleasures for consideration in revision;
-it does not retract the earlier unselected criticisms or freeze the draft.
-
-## Current Day 1 audition and self-talk checkpoint, 2026-10-19
-
-**Scope and source:** the visible owner requests to review Day 1, consider full
-DTL versus further planning, place self-talk alongside plot, and now “make the
-full audition with the variations” while checking and challenging the bibles.
-The preceding same-scene source recommendation is available in this conversation.
-Earlier unavailable assistant passages are not reconstructed as exact wording,
-measured pacing or additional approvals.
-
-The complete current prose and its review live in the existing
-[Day 1 owner](day-1-photo-book-working-draft.md), replacing its fragment-only
-readiness status. The exact earlier packet remains retrievable at the Git
-revision linked there. This checkpoint links the prose instead of duplicating it.
-
-| Item | Current scope and attribution |
-|---|---|
-| Complete Day 1 with variations | Explicit owner request. The resulting scene wording, photo action, five-way mapping and coda remain assistant-authored AUDITIONING material. |
-| Self-talk beside plot | Earlier assistant recommendation, developed in the requested audition. Same scene source, one reading order, explicit display designation; no new runtime syntax or field implementation is certified. |
-| Photo variation | One ordinary Yes/default audition, reconverging before the book. It is neither the later relationship fork nor a Challenge. |
-| Five Challenge continuations | All are fully written for comparison and preserve the approved result meanings. D is the present Dark-development reading; C's softer action and E's first recognition retain their own meaning. |
-| Later call | A new request for continued company, reached through an opening matching each afternoon. D's unwithdrawn objection survives outside the call's frame. |
-| Book custody | This candidate leaves the copy with Sylvia in all outcomes. Same-copy Day 2 use remains possible only with an actual future transfer and compatible invented novel. |
-| Bible challenge | Narrow Handbook craft clarification: judge characteristic exchanges, allowing plain replies and shared performance. Protected fictional truth, the five meanings and the one P–L endpoint are unchanged. |
-| Length | Derive a provisional reading estimate from the assembled prose and an explicitly stated rate assumption; no previously discussed minute figure is treated as a measured result. |
-
-The [Day 1 review](day-1-photo-book-working-draft.md#7-review-against-and-challenge-to-the-bibles)
-names the inspected 6e2184aa121631c55f42b3b072b9e68d2713c523 source sections,
-candidate decisions, removal tests and actual review limits. Narrative
-inspection is distinct from rendering, recording, runtime tests and approval.
-
-**Open:** exact scene/option/result selection, recognition staging, Day 2
-continuity choices, the whole-week causal fit and production self-talk routing.
-The protected offscreen umbrella core and residence/bar/residue holds remain.
-The current P–L finale is still identical across compatible incoming histories;
-an earlier kind act or breach remains real.
-
-**Capture destination:** the existing documentation draft PR #41. Publication
-and merge state come from GitHub metadata. This completed document is the new
-substantive checkpoint; no fixed fact or whole scene is promoted by saving it.
-
-## Current P–L direction and development checkpoint, 2026-10-18
-
-**Scope:** earlier U1–A3 development plus the owner's U4 clarification about
-selective disclosure and this response A4. **Current source inspected:** PR #41
-at `5cf663682ef2b2e5756249ee5dd58e9d16ecb892`; its inspected master base remains
-`0c8b2384415d71bd3de4ff7408640bbf60b63740`. The record separates accepted
-directions from exact scene and motive auditions. It is not a complete raw
-conversation or whole-week audit.
-
-### Owner directions and current scope
-
-The owner first confirmed “there is only one P-L ending” and “We are now only
-consider the all dark options.” U3 refines this to “Just one same ending”:
-earlier choices can change audience feeling or recognition without different
-ending presentation. The [foundation amendment](../09-priscilla-foundation-amendment.md#pl-specific-ending-amendment-2026-10-18)
-and [behavior correction](../../docs/design/2026-10-09-priscilla-flow-behavior-amendment.md#pl-ending-scope-correction-2026-10-18)
-own that scoped P–L change. Small displayed ending variants are no longer a
-requirement. Sylvia and the relationship fork are not removed.
-
-U3 says “Let's go with all the roads/methods that you want especially the 7.”
-This endorses the previous approaches for development, including real local
-tenderness and particularly bounded audience certainty about Lavinia's tests.
-U4 refines that method: some motives/tests may remain in working notes without
-audience evidence. Disclosure is selective and scene-led, not a proof quota.
-It does not combine alternative endings or approve every sample line, witness,
-disclosure, physical act, placement or complete scene. The all-Dark continuation
-remains the current writing target; particular later Sweet variations still need
-authorship and selection under the existing local result meanings.
-
-The owner explicitly corrects Priscilla's characterization: she may cater to
-Lavinia against her own wishes, or stop harmful conduct she still wants because
-Lavinia may dislike it, while not judging herself morally wrong. She may also
-choose to do it. The [Bible refinement](../01-core-story-bible.md#current-pl-judgment-2026-10-18)
-owns this expansion. The assistant's earlier intervention-only recommendation
-below is superseded in that scope.
-
-The owner requests more emotionally impulsive and abusive testing by Lavinia,
-including possible physical partner violence, with endurance treated by Lavinia
-as proof and retaliation rationalized as deserved. Specific acts, injury,
-frequency and the older held strike remain unselected. The author also offers
-jealousy of Priscilla's social popularity and attention to others as the deeper
-motive; the document intervention need not explain the whole week and might be
-used as an excuse or misleading explanation. That exact motive/history is a
-development proposal. The assistant recommends keeping the real unauthorized
-intervention while auditioning the jealousy mechanism below. Deleting the event
-or declaring Lavinia's professional fear false is not selected.
-
-### One identical finale, different actual histories and readings
-
-The final authored text and staging can be identical. Earlier continuations
-still change actions, consequences and available evidence; they are not reduced
-to clue delivery. A respected departure remains respected, a withheld harmful
-act remains withheld, and a disclosed confidence remains disclosed even when
-none is mentioned in the ending.
-
-Build sufficient common consequential development to earn the endpoint in
-every reachable version. The final passage may leave some consequences outside
-its frame, but must not contradict a variant-specific injury, absence, rupture,
-disclosure, object location or permission. A genuinely repaired whole
-relationship cannot acquire an unrelated catastrophe merely because there is
-one finale. Character knowledge is particular to that continuation; audience
-replay recognition never transfers automatically to Priscilla.
-
-An ordinary offered place beside Lavinia, accepted by Priscilla, is a possible
-closing gesture to audition after a consequential climax. Earlier evidence could
-make the same action read as companionship, costly obedience or an expected
-return. The gesture alone does not establish abuse, the location/prop is
-unselected, and no new final line is fixed. The costly-admission/disclosure
-climax below remains the leading developmental candidate; the false-account
-mechanism remains a separate alternative.
-
-### Jealousy and preference-based restraint: current assistant audition
-
-**AUDITIONING:** make Lavinia jealous of Priscilla distributing forms of exact
-attention Lavinia experienced as singular: remembering a minor preference,
-anticipating a need, or using a familiar attentive tone with someone else.
-No secret affair or prior exclusivity agreement is needed. A perceived
-betrayal must not silently become a fact that a promise was broken.
-
-Priscilla's popularity should have ordinary substance: wit, competence, genuine
-enjoyment and some sincere outside attachments alongside manipulation. Showing
-that other people like her does not by itself demonstrate a scheme. Outsiders
-should matter enough that restricting or harming those relationships has a cost.
-
-Track what Priscilla wants, what she thinks Lavinia wants, and what she actually
-does. The three may differ. The assistant favors a recurring pressure in which
-Priscilla follows a disliked instruction to preserve closeness, but may choose
-intrusion when she thinks obedience threatens that closeness. This is a proposed
-motive pattern, not an invariant algorithm or proof she knows Lavinia's wishes.
-Actual restraint can remain actual; do not invent covert repetition by default.
-
-The assistant favors jealousy that predates or exceeds the document conflict.
-The real intervention gives Lavinia a defensible grievance she can invoke
-opportunistically when attention moves elsewhere. She can resent that violation,
-be moved by the precise care, and use the grievance for another purpose.
-Do not resolve the protected proportions of Priscilla's concern and possessive
-wish or make Lavinia foresee every institutional consequence. The limited
-pre-England attention/admission test remains useful development, not a private
-answer certifying the whole incident.
-
-Lavinia can enjoy a test's success before a new occasion threatens it. Her local
-desired victory may be unmistakable prioritization rather than a completed moral
-repair. This qualifies the earlier revenge criterion: an admission of personal
-desire still matters, but may not answer the jealous concern about that attention
-being available to others. Avoid a week in which every success automatically
-fails or every reaction was secretly planned.
-
-Some tests can be deliberate and some angry acts impulsive. A later claim that
-an impulse was a test can itself be auditioned as self-protection; do not make
-that explanation author-certified whenever Lavinia uses it. Her discipline,
-humor, ordinary preferences and genuine invitations remain important.
-
-If physical violence is selected later, author one particular nonsexual act and
-its observable consequence at the scene's proper scope. Do not use intensity of
-injury as a devotion score, write a compulsory severity ladder, or eroticize the
-harm. Priscilla's continued presence does not establish permission or emotional
-invulnerability; Lavinia's belief that it is deserved does not settle the act.
-Their different harms do not cancel each other. Wanted later closeness needs its
-own invitation and does not rewrite previous conduct. No domestic residence,
-diagnosis or older Day 2 strike is fixed by this capability.
-
-### Selective disclosure and Priscilla's perception, U4 / 2026-10-19
-
-**Owner clarification, Asia/Hong_Kong date:** the author says that evidence can
-be too obvious or expose the author's intention, that some material can remain
-in working notes, and that evidence should appear when an encounter offers a
-good moment. The author specifically proposes *La Jalousie*-like observation
-within Priscilla's self-talk. Apply the [current style guidance](../08-narrative-style-manual.md#42-unmarked-focal-presence)
-and existing [mystery fairness](../08-narrative-style-manual.md#103-mystery-fairness).
-
-This supersedes the compulsory reading of the U3 evidence progression. A
-known preference, discrepancy, narrow admission, selective pattern and final
-recurrence remain possible resources, not an ordered sequence, minimum clue
-count or promise that a test will be authenticated. The author does not forbid
-evidence or reject the earlier method; its use depends on the scene.
-
-**Assistant recommendation:** keep selected actions and continuity coherent
-while allowing their motives to remain uncertified. Working notes can hold a
-selected but unrevealed fact, an audition hypothesis or a deliberately unresolved
-cause. Preserve their different status; an assistant's hypothesis about jealousy
-does not become secret truth because it is recorded out of the game text.
-Writer-side certainty about Priscilla's access does not require a private answer
-to every feeling. No new secret-note file or runtime knowledge system is needed.
-
-Precise self-talk can show what catches Priscilla's attention, what she counts,
-which wording she remembers, or where her attention returns. This can expose
-her concern more clearly than Lavinia's intention. Her confidence does not
-certify another person's motive. The self-talk can belong openly to Priscilla;
-the earlier historical Angela/Day 6 anonymity construction does not transfer.
-
-Use an ordinary activity first. A detail can remain ordinary, become momentarily
-charged by attention, recur under changed pressure, or never return. Avoid
-turning every object into a signal. Existing facts do not become false merely
-because Priscilla interprets them badly. A selected cause that never affects
-any presented experience cannot be treated as a conclusion the audience should
-have reached; it may still help the writers maintain a coherent performance.
-
-#### Unselected perceptual micro-audition
-
-The writer assumes only this provisional local setup: a small courteous phrase
-has been used with Lavinia and with an incidental acquaintance. No date, venue,
-character-history fact or underlying Lavinia motive is selected.
-
-> “Of course,” I say.
->
-> Lavinia looks at the person beside me.
->
-> I have said it twice this evening. The first time was to her.
->
-> “Of course,” she says.
->
-> The other person thanks me.
-
-The repeated phrase and Priscilla's counting can carry pressure without a
-sentence explaining jealousy or confirming a test. Lavinia may be teasing,
-echoing the courtesy, or reacting to the distribution of attention; the passage
-does not choose among those readings. Her glance remains an observed act.
-Remove the counting sentence to compare a lighter exchange against stronger
-access to Priscilla's attention; neither version proves Lavinia's intention.
-This is a bounded craft comparison, not audience research or a selected scene.
-
-#### Retained scene resources and next implication
-
-The earlier contrast between a document-focused acknowledgment and satisfaction
-after prioritized attention remains an audition, not an experiment that must
-be repeated until it proves jealousy. The ordinary-acquaintance interruption
-also remains available: local conduct and that person's response can have real
-consequences regardless of whether Lavinia's motive becomes knowable. No
-Challenge mapping or Perfect-only access to private truth is selected.
-
-The identical finale need not decode the week. Earlier differences can change
-felt rhythm, remembered attention and association without adding conclusive
-information. Particular earlier consequences still survive outside its frame.
-A scene that actually promises a causal reconstruction needs the corresponding
-support; an unspoken feeling does not create that promise by itself.
-
-### Retained tenderness method, now endorsed for development
-
-**Direction accepted in U3; exact local passages remain AUDITIONING.**
-
-Retain some sincerely tender local actions while developing the all-Dark
-continuation first. Felt affection, actual conduct, and the ending's material
-consequence are different questions. A kindness need not secretly be a trap;
-another harmful act must be shown and attributed in its own right. Keeping a
-particular confidence or respecting a particular departure does not rewrite the
-women's entire outlook.
-
-The proposed common trajectory is that Priscilla increasingly treats accurate
-care as authority to decide, while Lavinia treats a stronger reaction as proof of
-importance. The shared scenes must actually earn the eventual outcome in each
-reachable version. Do not offer a complete history of respectful, repaired
-conduct and append an unrelated catastrophe. Do not overwrite an accepted local
-choice merely to achieve convergence.
-
-Different Dark auditions can spend different interests: another person's
-privacy through exposure; Priscilla's outside life through an excessive
-sacrifice subsequently treated as an expectation; or both women's independent
-accounts through maintained deception. These are scene-design alternatives,
-not three new controls or replacements for Minesweeper states. Preserve humor,
-wanted company and ordinary competence inside the current Dark path.
-
-### Assistant climax audition: costly admission and further disclosure
-
-**AUDITIONING, with developmental go-ahead in U3:** build toward a bounded
-public or socially witnessed admission, then a specifically invited private
-moment of closeness. Earlier scenes must
-establish the listener's relevance, what that person already knows, the
-particular fact that remains private, and the limited admission Lavinia asks
-Priscilla to make. No tribunal, witness, diagnosis, image, disclosure wording or
-calendar placement is fixed by this outline.
-
-Lavinia wants Priscilla to admit plainly that she knew the original permission
-limit and crossed it, with her desire for Lavinia to remain acknowledged.
-Priscilla accepts a real cost to her respectable self-presentation. She also
-reveals a private detail beyond the requested admission. In this audition, her
-public truthfulness repeats her belief that accurate knowledge gives her the
-right to distribute it. An ordinary listener refers to the newly shared detail,
-making the loss of privacy concrete. Do not assert career ruin or invent a
-clinical fact to increase the effect.
-
-Lavinia can stop Priscilla from answering a subsequent question addressed to
-her; Priscilla can obey this immediate instruction even though the already
-disclosed information cannot be recalled. Later Lavinia deliberately invites
-closeness. Suggested lines, replaceable and unselected:
-
-> Lavinia: “Don't call this forgiveness.”
->
-> Priscilla: “I didn't ask for it.”
-
-Any physical contact is specifically wanted in that moment and remains
-non-graphic in this audition. It does not retrospectively authorize the
-disclosure. There is no Observer bodily override or eroticized refusal. The
-audition's horror depends on the concrete prior act and continued attachment;
-absence of an apology alone would be insufficient.
-
-The final pleasure may coexist with a visible reminder that another person now
-knows the private fact. Under the identical-ending refinement, any reminder
-shown in that finale must be supported by all incoming histories. Lavinia obtains an unguarded admission and loses further
-control of her account; Priscilla obtains chosen closeness while retaining the
-principle that led her to interfere. Exact ending staging and the way local
-variations reach it remain open. The newer jealousy audition adds a question:
-whether publicly declared preference gives Lavinia the exception she wanted
-while the further disclosure invites outside attention she cannot control.
-This is a proposed development of the same climax, not an approved new act.
-
-The preceding assistant response's jointly maintained personal explanation is
-retained as a different ending mechanism, not appended as an additional act.
-That proposal would make a later truthful objection costly because both women
-had endorsed another account. Neither ending mechanism is selected.
-
-### Assistant recommendations on the remaining character questions
-
-- **Pre-England test:** favor deliberate invitation of attention or a personal
-  admission, with limited foresight about the substantive submission and its
-  institutional effects. Priscilla does not know she is taking a test.
-  Lavinia can be moved by the response and genuinely frightened or angry about
-  its form. Preserve unauthorized action as unauthorized. This is a proposed
-  motive refinement, not a covert replacement of the owning history or a private
-  answer to the unresolved proportions of Priscilla's protective/possessive aims.
-- **Revenge:** favor a recognizable demand that Priscilla relinquish the account
-  of herself as merely helpful and admit her personal desire without a
-  forgiveness bargain. Lavinia can enjoy a real but temporary satisfaction,
-  then discover that exposure does not make Priscilla safely controllable.
-  Do not turn every pleasure into an automatically failed test.
-- **Priscilla's judgment, superseded recommendation:** A2 favored retaining
-  intervention-only scope and allowing separate moral remorse. U3 instead
-  broadens her self-justifying, preference-based accommodation for current P–L
-  conduct. Apply the later Bible clarification. Factual/tactical error remains
-  possible; neither genuine concession nor fear of losing Lavinia implies
-  moral conversion.
-- **Sincere departure:** keep genuine refusals. In the hypothetical where
-  Priscilla obeys a sincere request to go, let the absence be real. Lavinia may
-  feel relief followed by disappointment, anger or longing, and later initiate
-  a new invitation. That later invitation does not rewrite the earlier refusal.
-  This is character guidance under audition, not selection of a held Day 2
-  departure/obstruction variant.
-- **Audience method, endorsed in U3 and refined in U4:** observable conduct or a
-  bounded admission may establish a particular test when the encounter supports
-  it. Confirmation is optional; other motives and degrees of foresight can
-  remain writer-facing or deliberately unresolved. Priscilla is the sole
-  viewpoint, and the pressure of her attention does not reveal Lavinia's mind.
-  The final scene need not explain or authenticate the week's tests.
-
-The earlier seven-day escalation sketch remains an unselected functional
-outline: absent-person attention; return and tenderness/departure; an initially
-rewarding test; ordinary compatibility and failed interpretation; outside
-consequence; a costly chance to change the pattern; climax and aftermath. It
-does not replace current Day 1–2 candidates or assign old scenes to new dates.
-
-### Source, capture and next unit
-
-**U1:** the owner's opening message in this discussion beginning “Aww, I know my
-best friend…” and proposing toy-to-pursuit, revenge/testing, the pre-England test,
-question/answer strategies and locked-room-like Observer Pressure.
-**A1:** the assistant's bounded source review and seven interview questions,
-including an explicitly provisional week sketch and shared-account ending.
-**U2:** the reply beginning “Ohhhh, my one and only rose…” with numbered answer 1
-confirming one P–L ending and requesting independent answers to questions 2–7.
-**A2:** the assistant's previous recommendations, retained above with later
-supersession/status notes. The initial checkpoint is preserved at
-[`940dab31233f940b637808fc6c86b1cfd47b0ad8`](https://github.com/Siuuuers/dwm/blob/940dab31233f940b637808fc6c86b1cfd47b0ad8/story/auditions/priscilla-seven-day-working-plot.md).
-**U3:** the later reply beginning “Yayyy, my wonderful friend!!” accepting the
-previous methods, particularly question 7, and refining the identical ending,
-Priscilla's accommodation and Lavinia's jealousy/abusive testing.
-**A3:** the assistant's previous recommendations: adopt identical presentation;
-accept the broader Priscilla correction; audition jealousy over distributed
-attention while preserving the real document violation; distinguish chosen
-abuse from invitation; and use the then-proposed evidence progression, now qualified by U4.
-**U4:** the reply beginning “Yayyy, my dear love, those are just so delicious!!”
-asks to keep some material in working notes without audience-facing evidence,
-offer evidence at suitable moments, and use *La Jalousie*-like Priscilla
-perception in self-talk. Its local submission date is 2026-10-19.
-**A4:** the assistant accepts selective disclosure, corrects the compulsory
-reading of the earlier evidence sequence, distinguishes note status and
-perceptual access from private psychological truth, and supplies the unselected
-micro-audition above. The source-based literary discussion is an adaptation
-rationale, not new fictional history.
-The earlier U1–A3 attribution is retained from the inspected checkpoint.
-These exchange locators are not fabricated timestamps or a claim to have
-reopened unavailable raw conversation.
-
-This is a documentation PR checkpoint. Its actual metadata determines
-publication and merge status. It does not close the chronological bar/residue
-audit, resolve residence/admission/key holds, select earlier strike or touch
-candidates, approve a complete week, or certify runtime behavior.
-
-**Next creative unit:** assemble the current all-Dark Day 2 encounter around
-the women's activity, desires, turning act and continuation. Use Priscilla's
-perception and any revealing moment the scene earns; do not make the encounter
-serve a proof sequence. Carry actual consequences into the common climax and
-identical finale rather than repeatedly polishing isolated clues. Retain the existing Day
-1–7 plot gate before complete DTL. Capture future changes in these owners,
-rather than making another ending Bible or one document per exchange.
-
-## Retained chapter-development checkpoint, 2026-10-10
-
-**Captured:** 2026-10-10. **Repository baseline inspected:** `44dda79440392d14c95ea6ce4e94d579094f76e5` (merged PR #25).
-
-**Selection status:** `AUDITIONING`. This is an attributed development checkpoint, NOT an approved week, a second Bible, or permission to produce complete DTL. Explicit author directions below retain only their stated scope. A preferred line or scene function does not approve its surrounding acts.
-
-**Publication record:** [PR #33](https://github.com/Siuuuers/dwm/pull/33), branch `docs/story-day-1-2-checkpoint-2026-10-10`, targets `master`. The author explicitly authorized publication and merge in C15. Read the PR and commit metadata for actual merge state; this document does not self-certify it. Publication preserves the audition status and does not promote narrative or mechanical approval.
-
-## Start here, not at a historical calendar
-
-Read [the approved foundation](../09-priscilla-foundation-amendment.md) and [intended behavior](../../docs/design/2026-10-09-priscilla-flow-behavior-amendment.md) before conflicting legacy passages. Use [the narrative guide](../AGENTS.md), [style card and review modules](../08-narrative-style-manual.md), and the [selection owner](../07-seven-day-causal-matrix.md). The old calendar lattice does not govern the new chapter flow. This register is an audition map, not a competing placement authority.
-
-| Current work | Open this record | Readiness |
-|---|---|---|
-| Shared Day 1, Priscilla/Sylvia with Lavinia through messages | [Day 1 draft](day-1-photo-book-working-draft.md) | Substantial fragments and a proposed opportunity family; no integrated whole-day selection. |
-| Day 2 return and Priscilla/Lavinia bar encounter | [Day 2 draft](../relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md) | Preferred emotional reversal and alternative aftermaths; escalation and all reachable continuations unfinished. |
-| Days 3–7 | Section below | Broad unselected directions, not blank pages to fill with inherited calendar duties. |
-
-## 1. What the author has actually clarified
-
-These are provenance descriptions, not new lifecycle states. `Author direction` means a directly stated creative requirement or preference at that scope, not approval of every compatible scene. The existing lifecycle remains `UNSELECTED → AUDITIONING → SELECTED FOR APPROVAL → APPROVED`, with `REOPENED` as appropriate.
-
-| Item | Provenance and scope | Do not silently extend it to... |
-|---|---|---|
-| The main experience is romantic psychological horror with cinematic development, not uneventful diary texture. | Author correction, source C6 below. Meaningful ordinary continuations can contain extreme or thrilling human acts. | A quota of atrocities, an automatic rejection of quiet pleasure, or mandatory symbolism in every line. |
-| Observer Pressure supplies awkward, romantic, comic, absurd or frightening circumstances; it need not dominate the plot. | Author clarification, C3. The locked-room trope was an analogy for scene-generating pressure, not a requested room. | A compulsory supernatural room, an observer investigation every day, or an expanded possession power. |
-| The larger Sweet/Dark form is not disclosed to the audience at the start. | Explicit answer in C1. Store as a current author direction pending owning-record integration. | A new form-draw algorithm, UI implementation, or a promise that local wins determine the ending. |
-| Local consequences survive into compatible endings. | Author direction in C1: scars remain visible. The foundation already requires particular surviving facts to matter. | A universal scar score or automatic permanent damage from every minor exchange. |
-| Priscilla cannot choose which narrated events are masked. She may withhold or lie in self-talk. | C1; interpret alongside the approved awareness boundary. | Deliberate address to a listener before she recognizes one, deleting history, selecting camera cuts, or omniscience. |
-| Priscilla/Sylvia have childhood familiarity; an accomplice-like connection is a favoured development direction. The collaboration may remain background. | C1 and C2. Exact joint wrongdoing remains unselected. | Transferring Angela's whole rescue history, a required childhood flashback, or permanent implied consent to adult collaboration. |
-| Priscilla/Lavinia flirted and were romantic before England; possible future partnership is part of the author's account. | C4. Preserve qualifications around imagined future partnership. | An agreed exclusive relationship, shared residence, marriage-like rights, or a confirmed promise not actually stated. |
-| Lavinia can occupy Priscilla's attention before her arrival. | Explicit assent in C4. | Priscilla's company with Sylvia being counterfeit or a Day 1 physical arrival by Lavinia. |
-| Extreme Sylvia scenarios are references, not selected acts. | Explicit clarification in C5. The author is interested in misdirection, jealousy and Sylvia enjoying drama. | A selected kiss, self-injury, secret affair, third romance route, or an exhaustive personality law. |
-| Tenderness briefly convincing Priscilla that Lavinia will stay is a particularly valued effect. | C12 repeats and praises that exact emotional moment. | Approval of the slap, doorway obstruction, head-stroke mechanics, departure dialogue, or all of the surrounding darker history as a single scene. |
-
-## 2. Character directions to preserve without turning them into diagnoses
-
-### Priscilla and Sylvia: overlapping, different preferred methods
-
-The author's proposed contrast is evidence/knowledge/framing for Priscilla versus acting/emotional presentation/plausible innocence for Sylvia (C5). The assistant's refinement is useful but remains interpretation: Priscilla often tries to make her account authoritative; Sylvia often tries to make a desired response feel natural. Neither exclusively owns reasoning or emotion, and neither has reliable control of the other's response.
-
-Preserve Priscilla's accurate attention as something people can enjoy. Its dangerous extension is claiming decision-making authority from knowledge. Preserve Sylvia's performance as potentially containing real feeling. She can genuinely care and still choose the presentation most likely to secure access. Recognizing a method does not make participation impossible; affection, enjoyment, curiosity and convenience can all matter.
-
-Sylvia's long list of dangerous abilities is reference material. Do not give her every secret, perfect escape timing and guaranteed influence. Let her correctly understand an argument and misjudge what the others enjoy about each other. Adult attachment can make her remain when her usual method would be to withdraw. None of this selects an act for Day 1.
-
-### Lavinia and the disclosure intervention
-
-C4 asks whether Lavinia engineered the intervention or was privately pleased and genuinely angry. The leading assistant recommendation was the latter, perhaps with limited prior encouragement of attention, not a secret plan for the exact rewritten disclosure. This is NOT a new selected motive. Preserve the actual intervention's owning history and Priscilla's scoped lack of moral remorse.
-
-The author is interested in Lavinia using the grievance to obtain Priscilla's attention or compliance. Do not represent “do anything for her” as an unconditional character mechanic. Wanting to continue the romance, enjoying a particular concession and believing oneself morally indebted are distinct possibilities.
-
-### Tears and vulnerability
-
-The author floated Priscilla crying only before Lavinia and possibly exposing weakness to obtain tenderness. The assistant favoured genuine distress with selective exposure, and a beginning-of-story intimacy rather than a universal limit on the Sylvia route. Neither version is selected. Do not diagnose, automatically fake every tear, or import a crying beat into every confrontation.
-
-## 3. Observer and mechanism proposal disposition
-
-| Proposal | Current disposition | Dependency |
-|---|---|---|
-| Noun-like blessing hints, such as `LIQUOR` / `BLAZER` | Author idea worth auditioning; exact vocabulary, result display and timing unselected. | Clearly distinguish actual board result from teaser; no disclosure of private motive. |
-| Direct compulsion completing an already-prepared action | Earlier assistant proposal; not approved. Later author redirection deprioritizes observer-centred plotting. | Would amend the approved limit to circumstances/coincidences; must distinguish intention, choice and actual action. |
-| Observer-forced Lavinia slap | Later author possibility, not an explanation quietly added to the leading human version. | Extends control to another character; requires an explicit power amendment and coherent knowledge/evidence. |
-| Partner noticing disturbance or being told about the observer | Candidate, not mandatory daily activity. | No automatic inherited knowledge; only Priscilla's first Perfect enables her initial identification. |
-| Counter-observer plan / severance / Deicide | Unselected experiment, not required by all-Perfect. | Established means and predicates; complete human ending cannot be annulled. |
-| Ordinary self-talk Yes choices | Approved presentation exists; particular Day 1/2 actions unselected. | Distinct from Challenge availability and from the one consequential relationship fork. No fixed quota per day. |
-| Day 1 voice-message Challenge | Concrete assistant candidate; see the Day 1 module. | Must preserve original message approval and all five local outcome meanings. |
-| Day 2 personal-answer hinge or slap-centred outcome family | OPEN. | The visible final proposal places an opportunity at a personal answer. A separate memory/excerpt is not permission to treat a different mapping as selected. Retrieve its original exchange if needed. |
-
-No new jealousy/sanity/observer-personality meter, affection leaderboard, global Sweet/Dark personality score, load-punishment subsystem, or literal locked-room requirement is selected. No player must solve a board to receive the genre-bearing story. Actual ordinary human choices may already be manipulative or frightening.
-
-## 4. Seven-day audition map, not selected placement
-
-| Day | Latest useful direction | Open dependency |
-|---|---|---|
-| 1 | Complete photo/book/message audition with integrated self-talk, five alternative local exits and a private call. | Exact selection, first-recognition staging and Day 2 carry remain open; current copy stays with Sylvia. |
-| 2 | Lavinia returns; protected umbrella history remains outside the released reconstruction; later bar encounter changes from pleasure to conflict, with distinct softer/darker alternatives. | Same-book loan and novel synopsis; credible escalation; choose one aftermath; lawful coda and board family. |
-| 3 | A later shared relationship fork remains a candidate here. | Day 4 was an earlier audition. Neither day is selected. Yes → Sylvia, passing → Lavinia remains settled. |
-| 4 | Trace/message and competing expectations may pressure the selected relationship. | Depends on actual fork placement, prior intimacy and information access; no forced jealousy response. |
-| 5 | A useful explanation that shields someone while costing another person was proposed. | No victim, exact act or day selected. Do not upgrade a plot example into an accomplished offscreen fact. |
-| 6 | Cooperation can become freely renewed companionship, mutual complicity or coercion. | Earlier observers/tests/childhood revelation chapter plans are deprioritized after C2/C3. No compulsory flashback or investigation. |
-| 7 | A complete, genuinely healing Sweet or concretely frightening Dark relationship resolution; any observer layer separate and optional. | Ending scenes and count, severity, exact surviving facts and predicates all open. No automatic death or forced-exit repeal. |
-
-Earlier complete fork and ending fragments remain auditions. The same week must not inherit every alternative chapter title, every violence example and every observer experiment discussed in brainstorming. Review actual Day 1–7 coexistence before full DTL; readiness of a Day 1 or Day 2 fragment does not satisfy the whole-week gate.
-
-## 5. Cross-day dependencies that should not disappear during DTL work
-
-| Dependency | What must be fixed in the selected draft | Who may know it |
-|---|---|---|
-| Selfie | Whose phone, notification access, who captures/sends/keeps the image. | Sylvia does not automatically know a custom tone's sender; Lavinia does not automatically receive the photo. |
-| “Date” message | Priscilla's permission, sender account, exact sent wording and replies. | The women know only the portions they actually see/hear; the label does not certify exclusivity. |
-| Voice practice | Recording access, rehearsal versus forwarding permission, what actually gets sent. | A refusal to forward must not be omitted from later descriptions if it was violated. |
-| Physical book | Owner, loan handover, what is read on each day, return. | Ownership can be known through a shown/told act, not automatic jealousy knowledge. |
-| Offscreen umbrella | Preserve protected continuity without depicting or collectively reconstructing it. | No new clue constellation certifies the full private event. |
-| Strike-bearing Day 2 | Whether strike, touch, obstruction, leaving, and subsequent contact occur in this version. | Sylvia has no automatic injury/event knowledge; warmth does not erase an earlier act. |
-| First Perfect | Timing and limited newly available recognition. | No retroactive observer-addressed deception or instant partner awareness. |
-
-## 6. Source coverage and attribution
-
-This is curated development from the full messages supplied in the current conversation, not a verbatim transcript or a reconstruction of unavailable tool results. No original per-turn timestamps or persistent chat URLs were supplied. The anchors below identify visible messages; IDs are local editorial labels only.
-
-| Anchor | Visible source locator | Use |
-|---|---|---|
-| C0 | Opening user message begins “Aww, I know my best friend, you, my Goddess Iris, would dote on me...” and quotes the post-PR-25 continuation request. | Initial scope and settled-foundation/open-plot distinction. |
-| C1 | User message beginning “Yayy, my dear love, you always inspire me so much!!” includes numbered answers 1–5 and “Scar cannot be removed, but still visible!” | Hidden form, persistent consequences, masking limit, childhood/accomplice interest. |
-| C2 | User's numbered answers include “that collaboration can just be a background” and interest in pre-Perfect distress. | Background-only possibility and unselected interference questions. |
-| C3 | User clarifies “So my point is the observer pressure basically act like the unknown force...” and says no literal room is required. | Relationship-first observer framing. |
-| C4 | User message begins the answers “A. Priscilla and Lavinia is flirting and romantic before the England.” and includes Sylvia's extreme reference sketch. | Pre-England relationship account; report alternatives; reference-only extreme possibilities. |
-| C5 | User proposes evidence-versus-acting manipulation, crying before Lavinia, and a selfie interruption; explicitly says the kiss/other acts are possibilities. | Character hypotheses and photo staging. |
-| C6 | User correction begins “But we need to mind that basically this game is promise and serve for the psychological horror and romantic...” | Genre-bearing ordinary progression and request for scene meaning. |
-| C7 | User asks whether Priscilla subtly wants Lavinia jealous and where the Challenge belongs. | Leading message response/Challenge auditions remain assistant proposals. |
-| C8 | User asks whether the Day 1 book should go to the Day 2 bar and proposes Lavinia wanting to leave. | Book bridge and departure reversal as candidates. |
-| C9 | User proposes a private bar room, public-image priority, calming/forcing Lavinia to remain. | Darker private-room alternatives, not established psychology. |
-| C10 | User asks about jealous book remarks, head-stroking, a slap as testing or observer-involuntary. | Mutually different motive/mechanism variants. |
-| C11 | Assistant passage ends “The moment I most want to see is Priscilla feeling Lavinia’s hand become gentle and believing, for one unguarded second, that this means she has decided to stay.” | Distinctive proposed emotional effect. |
-| C12 | User quotes that sentence appreciatively and asks whether Day 2 has enough beats. | Explicit enthusiasm for the effect, not global scene approval. |
-| C13 | Last assistant message before this checkpoint starts “Yes, my dear friend: we have enough to write one complete Day 2 audition.” | Latest unassembled early-evening/personal-answer/coda proposals. |
-| C14 | User asks whether discussions are recorded on GitHub and requests structure, recording-guide and context-visibility review. | Capture request; not a merge receipt. |
-| C15 | User asks for a new PR, amendments/additions inside `story/`, and direct merge into `master`. | Explicit authorization for this documentation publication and merge; not approval of unselected scenes or mechanics. |
-
-Coverage includes the recoverable useful plot development between C0 and C14, with publication authorization in C15. Earlier chat snippets/memory, previous redacted tool outputs and prior assistant citation claims are not treated as full source evidence. In particular this capture does not close the older complete chronological P–L bar/residue audit. The previous locally linked plotting note was not mounted in this run and was not used as a source.
-
-## 7. Resume and promotion
-
-Resume with the latest Day 2 structure and its unresolved escalation, not another round of free-floating aftermath additions. Assemble the relevant encounter and then compare its whole response family. Do not treat this as a ban on useful provisional dialogue while the week is being plotted.
-
-Keep one current packet per active day in the existing audition homes. Put the current structure and readiness first, exact useful passages next, and focused alternatives/reasons afterward. Amend that packet at a real checkpoint instead of making another dated file for each reply. Record a clear author selection with item, scope, source and what it supersedes; then update the appropriate authority/Matrix row and derived Beatbook within the authorized task.
-
-The existing four-substantive-exchange guide remains the cadence, with early capture for explicit saves, significant corrections, completed passages or risky handoffs. A local packet is a local checkpoint only. Remote capture status changes only after a verified remote write. A workflow rule never grants commit, push, merge or archive-deletion permission.
+| <a id="priscilla-current-seven-day-working-plot-and-discussion-checkpoint"></a>Priscilla: current seven-day working plot and discussion checkpoint | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#priscilla-current-seven-day-working-plot-and-discussion-checkpoint) |
+| <a id="current-day-3-motive-voice-and-cinematic-review-2026-10-20"></a>Current Day 3 motive, voice and cinematic review, 2026-10-20 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#current-day-3-motive-voice-and-cinematic-review-2026-10-20) |
+| <a id="current-day-3-fork-challenges-and-fuller-branch-readings-2026-10-20"></a>Current Day 3 fork Challenges and fuller branch readings, 2026-10-20 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#current-day-3-fork-challenges-and-fuller-branch-readings-2026-10-20) |
+| <a id="current-day-3-event-first-sylvia-and-variation-proposal-2026-10-20"></a>Current Day 3 event-first Sylvia and variation proposal, 2026-10-20 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#current-day-3-event-first-sylvia-and-variation-proposal-2026-10-20) |
+| <a id="current-day-3-scene-development-and-duration-2026-10-20"></a>Current Day 3 scene development and duration, 2026-10-20 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#current-day-3-scene-development-and-duration-2026-10-20) |
+| <a id="current-days-13-recurrence-revision-2026-10-20"></a><a id="current-manuscript-changes"></a>Current Days 1–3 recurrence revision, 2026-10-20 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#current-days-13-recurrence-revision-2026-10-20) |
+| <a id="current-day-3-sylvia-meeting-and-fork-audition-2026-10-19"></a>Current Day 3 Sylvia meeting and fork audition, 2026-10-19 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#current-day-3-sylvia-meeting-and-fork-audition-2026-10-19) |
+| <a id="current-day-2-staying-and-trace-comparison-2026-10-19-at-2116"></a>Current Day 2 staying and trace comparison, 2026-10-19 at 21:16 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#current-day-2-staying-and-trace-comparison-2026-10-19-at-2116) |
+| <a id="current-day-2-self-talk-and-challenge-audition-2026-10-19-at-2016"></a>Current Day 2 self-talk and Challenge audition, 2026-10-19 at 20:16 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#current-day-2-self-talk-and-challenge-audition-2026-10-19-at-2016) |
+| <a id="current-day-2-beat-atmosphere-and-duration-review-2026-10-19"></a>Current Day 2 beat, atmosphere and duration review, 2026-10-19 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#current-day-2-beat-atmosphere-and-duration-review-2026-10-19) |
+| <a id="current-day-2-menu-embodied-attention-and-jealousy-refinement-2026-10-19"></a>Current Day 2 menu, embodied attention and jealousy refinement, 2026-10-19 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#current-day-2-menu-embodied-attention-and-jealousy-refinement-2026-10-19) |
+| <a id="current-day-1-verdict-and-day-2-assembly-2026-10-19-at-1609"></a><a id="day-1-what-the-complete-readings-deliver"></a><a id="the-day-2-step-now-assembled"></a><a id="review-capture-and-next-unit"></a>Current Day 1 verdict and Day 2 assembly, 2026-10-19 at 16:09 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#current-day-1-verdict-and-day-2-assembly-2026-10-19-at-1609) |
+| <a id="current-attention-and-near-echo-refinement-2026-10-19-at-1524"></a><a id="attention-rather-than-a-report-of-looking"></a><a id="literary-reference-and-scope"></a>Current attention and near-echo refinement, 2026-10-19 at 15:24 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#current-attention-and-near-echo-refinement-2026-10-19-at-1524) |
+| <a id="current-book-and-observer-reference-2026-10-19-at-1403"></a><a id="what-the-new-idea-contributes"></a><a id="character-direction-retain-different-wants-and-fallible-methods"></a><a id="wider-reference-triage"></a><a id="reality-evidence-and-prose"></a><a id="capture-bounded-review-and-next-writing-unit"></a>Current book and observer reference, 2026-10-19 at 14:03 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#current-book-and-observer-reference-2026-10-19-at-1403) |
+| <a id="current-day-1-book-revision-2026-10-19-at-1317"></a><a id="why-this-revision-is-recommended"></a><a id="scope-verification-and-next-unit"></a>Current Day 1 book revision, 2026-10-19 at 13:17 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#current-day-1-book-revision-2026-10-19-at-1317) |
+| <a id="current-sylvia-and-perception-clarification-2026-10-19"></a><a id="owner-directions"></a><a id="earlier-opening-critique-retained-and-superseded-proposals"></a><a id="current-interpretation-and-craft-recommendations"></a><a id="accepted-knowledge-direction-and-next-bounded-unit"></a><a id="day-1-favorites-editorial-appreciation-after-the-0503-clarification"></a>Current Sylvia and perception clarification, 2026-10-19 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#current-sylvia-and-perception-clarification-2026-10-19) |
+| <a id="current-day-1-audition-and-self-talk-checkpoint-2026-10-19"></a>Current Day 1 audition and self-talk checkpoint, 2026-10-19 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#current-day-1-audition-and-self-talk-checkpoint-2026-10-19) |
+| <a id="current-pl-direction-and-development-checkpoint-2026-10-18"></a><a id="owner-directions-and-current-scope"></a><a id="one-identical-finale-different-actual-histories-and-readings"></a><a id="jealousy-and-preference-based-restraint-current-assistant-audition"></a><a id="selective-disclosure-and-priscillas-perception-u4--2026-10-19"></a><a id="unselected-perceptual-micro-audition"></a><a id="retained-scene-resources-and-next-implication"></a><a id="retained-tenderness-method-now-endorsed-for-development"></a><a id="assistant-climax-audition-costly-admission-and-further-disclosure"></a><a id="assistant-recommendations-on-the-remaining-character-questions"></a><a id="source-capture-and-next-unit"></a>Current P–L direction and development checkpoint, 2026-10-18 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#current-pl-direction-and-development-checkpoint-2026-10-18) |
+| <a id="retained-chapter-development-checkpoint-2026-10-10"></a>Retained chapter-development checkpoint, 2026-10-10 | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#retained-chapter-development-checkpoint-2026-10-10) |
+| <a id="start-here-not-at-a-historical-calendar"></a>Start here, not at a historical calendar | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#start-here-not-at-a-historical-calendar) |
+| <a id="1-what-the-author-has-actually-clarified"></a>1. What the author has actually clarified | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#1-what-the-author-has-actually-clarified) |
+| <a id="2-character-directions-to-preserve-without-turning-them-into-diagnoses"></a><a id="priscilla-and-sylvia-overlapping-different-preferred-methods"></a><a id="lavinia-and-the-disclosure-intervention"></a><a id="tears-and-vulnerability"></a>2. Character directions to preserve without turning them into diagnoses | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#2-character-directions-to-preserve-without-turning-them-into-diagnoses) |
+| <a id="3-observer-and-mechanism-proposal-disposition"></a>3. Observer and mechanism proposal disposition | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#3-observer-and-mechanism-proposal-disposition) |
+| <a id="4-seven-day-audition-map-not-selected-placement"></a>4. Seven-day audition map, not selected placement | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#4-seven-day-audition-map-not-selected-placement) |
+| <a id="5-cross-day-dependencies-that-should-not-disappear-during-dtl-work"></a>5. Cross-day dependencies that should not disappear during DTL work | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#5-cross-day-dependencies-that-should-not-disappear-during-dtl-work) |
+| <a id="6-source-coverage-and-attribution"></a>6. Source coverage and attribution | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#6-source-coverage-and-attribution) |
+| <a id="7-resume-and-promotion"></a>7. Resume and promotion | [Read the prior section](https://github.com/Siuuuers/dwm/blob/f1df045a840a79ef9c728f46a03ecce7877f96c9/story/auditions/priscilla-seven-day-working-plot.md#7-resume-and-promotion) |
+
+</details>
