@@ -1,16 +1,19 @@
 extends "res://tests/integration/test_witnessed_caption_runtime.gd"
-## Run only the two test_continue_registered_* cases in a rendered official Windows
-## process with --accessibility always. Inherits the real isolated Dialogic fixture.
+## Diagnostic lane selects only test_continue_initial_registration_observation.
+## Rendered official Windows with --accessibility always; real isolated fixture.
 ## Observes callables supplied by the real native notification, not fresh captures.
 
 class ContinuePublicationProbe extends "res://scripts/ui/witnessed/WitnessedAccessibleContinue.gd":
 	var publications: Array[Dictionary] = []
 	func capture_continue_action() -> Callable:
+		_observe_registration("capture_enter")
 		var action := super.capture_continue_action()
 		publications.append({"action": action,
 			"reveal": _accept_input._caption.get_reveal_generation(),
 			"custody": _accept_input._accessibility_generation,
 			"target": _accept_input._focus_caption().get_instance_id()})
+		_observe_registration("capture_return", {"publications": publications.size(),
+			"reveal": publications.back().reveal, "custody": publications.back().custody})
 		return action
 
 func _mount_continue_publication_probe() -> Control:
@@ -34,8 +37,17 @@ func _mount_continue_publication_probe() -> Control:
 	assert_true(localization.has_key("button.continue"))
 	if not await _mount_root_accept_fixture("Current.\nFollowing."): return null
 	var surface: Control = caption.background_input
+	var observation := {"window": "before set_script through initial wait; excludes earlier mount", "counts": {"notification": 0, "element": 0, "admission": 0,
+		"capture_enter": 0, "capture_return": 0, "action_registered": 0}, "last": {},
+		"events": [{"stage": "before_install", "usec": Time.get_ticks_usec(),
+			"facts": {"surface_id": surface.get_instance_id(), "script": str(surface.get_script())}}]}
+	surface.set_meta(&"continue_registration_observation", observation)
 	surface.set_script(ContinuePublicationProbe)
+	surface._observe_registration("after_install", {"script": str(surface.get_script()),
+		"publications": surface.publications.size()})
 	surface.bind_accessible_continue(caption.accept_input, get_node("/root/LocalizationManager"))
+	surface._observe_registration("after_rebind", {"label": surface._label,
+		"source_visible": surface._source_visible, "available": surface._available})
 	surface.set_process(true)
 	assert_eq(surface._label, localization.t("button.continue"))
 	assert_true(surface._source_visible, "mounted Continue source is admitted")
@@ -48,8 +60,28 @@ func _await_publication(surface: Control, reveal: int) -> Dictionary:
 		for publication: Dictionary in surface.publications:
 			if publication.reveal == reveal: return publication
 		await get_tree().create_timer(0.01).timeout
+	_emit_registration_snapshot(surface, "timeout")
 	assert_true(false, "Continue did not register a native action for reveal %d" % reveal)
 	return {}
+
+func _emit_registration_snapshot(surface: Control, outcome: String) -> void:
+	var observation: Dictionary = surface.get_meta(&"continue_registration_observation")
+	observation["final"] = {"outcome": outcome, "usec": Time.get_ticks_usec(),
+		"surface_id": surface.get_instance_id(), "script": str(surface.get_script()),
+		"publications": surface.publications.size(), "label": surface._label,
+		"available": surface._available, "source_visible": surface._source_visible,
+		"visible_in_tree": surface.is_visible_in_tree(),
+		"reveal": caption.caption_text.get_reveal_generation()}
+	print("CONTINUE_REGISTRATION_OBSERVATION " + JSON.stringify(observation))
+
+func test_continue_initial_registration_observation() -> void:
+	var surface: Control = await _mount_continue_publication_probe()
+	if surface == null: return
+	var reveal: int = caption.caption_text.get_reveal_generation()
+	var publication := await _await_publication(surface, reveal)
+	if publication.is_empty(): return
+	_emit_registration_snapshot(surface, "initial_registration_observed")
+	# Deliberately stop before completion or invoking the registered action.
 
 func _check_registered_completion(organic: bool) -> void:
 	var surface: Control = await _mount_continue_publication_probe()
@@ -110,3 +142,4 @@ func test_continue_registered_action_refreshes_after_organic_finish() -> void:
 
 func test_continue_registered_action_refreshes_after_manual_finish() -> void:
 	await _check_registered_completion(false)
+
