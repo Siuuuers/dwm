@@ -20,8 +20,8 @@ jobs:
         shell: pwsh
     env:
       PRODUCT_SHA: b7fb0e549f028f72717bd5ee9e4905517a365fdf
-      SOURCE_SHA: c6ba4934914e7d3222d658352c61d04d0e57c374
-      PREPARATION_SHA256: 80d9abe7f3d79fb0d275ca79b3120d09988da0d85dc9fcea79581802b4ce8020
+      SOURCE_SHA: bd421313cc3d368244e0c9d12e70a8b40552bbdb
+      PREPARATION_SHA256: df3d9e136c2b4afb1b0e2fb78c18e510b45c0b7e72fb6ce00a45a2c7e8eaeba3
       CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
     steps:
       - uses: actions/checkout@v7
