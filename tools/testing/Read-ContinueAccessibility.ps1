@@ -23,6 +23,8 @@ $elements = $null
 $result = 1
 
 . (Join-Path $PSScriptRoot 'Save-ContinueReaderEvent.ps1')
+. (Join-Path $PSScriptRoot 'Select-ContinueEngineChild.ps1')
+$selectionObserved = $false
 
 try {
     Save-ReaderEvent 'reader_start'
@@ -108,9 +110,16 @@ public static class DwmContinueReader {
         Assert-Launcher
         # Never enumerate or attach to arbitrary desktop processes/windows.
         $children = @(Get-CimInstance Win32_Process -Filter "ParentProcessId = $launcherPid")
-        if ($children.Count -gt 1) { throw 'UIA_AMBIGUOUS_ENGINE_CHILD' }
-        if ($children.Count -eq 1) {
-            $identity = Get-EngineIdentity $children[0]
+        $selection = Select-ContinueEngineChild -Children $children -LauncherId $launcherPid -EngineExecutable $enginePath
+        $record['child_selection'] = $selection.receipt
+        # One initial sample; later identity/failure/completion receipts retain the latest inventory.
+        if (-not $selectionObserved) {
+            Save-ReaderEvent 'child_selection'
+            $selectionObserved = $true
+        }
+        if ($null -ne $selection.error) { throw $selection.error }
+        if ($null -ne $selection.candidate) {
+            $identity = Get-EngineIdentity $selection.candidate
             if ($null -eq $record.identity) {
                 $record.identity = $identity
                 $native = [Diagnostics.Process]::GetProcessById([int]$identity.pid)
