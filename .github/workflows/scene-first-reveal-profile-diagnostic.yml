@@ -1,6 +1,6 @@
 # INERT REVIEW CANDIDATE. Install only after external C source review.
 # Focused candidate only: C exact packet review and Director scope reconciliation precede installation.
-name: Focused caption Text and Continue qualification
+name: First Continue registration observation
 on:
   pull_request:
     paths:
@@ -19,9 +19,9 @@ jobs:
       run:
         shell: pwsh
     env:
-      PRODUCT_SHA: b7fb0e549f028f72717bd5ee9e4905517a365fdf
-      SOURCE_SHA: bd421313cc3d368244e0c9d12e70a8b40552bbdb
-      PREPARATION_SHA256: df3d9e136c2b4afb1b0e2fb78c18e510b45c0b7e72fb6ce00a45a2c7e8eaeba3
+      PRODUCT_SHA: 3cc4da9a27645b794efbda059fad236f1bcf4532
+      SOURCE_SHA: 285312ef0e0af2443deaf09503787a599f9503a5
+      PREPARATION_SHA256: f2099431c7762fca70f121ecf4c89df4b0bf021759627874fc845437a8e823d7
       CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
     steps:
       - uses: actions/checkout@v7
@@ -29,7 +29,7 @@ jobs:
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
-          ref: b7fb0e549f028f72717bd5ee9e4905517a365fdf
+          ref: 3cc4da9a27645b794efbda059fad236f1bcf4532
       - name: Pin external preparation helpers
         id: preparation_helpers
         run: |
@@ -148,14 +148,6 @@ jobs:
           $PSNativeCommandUseErrorActionPreference = $false
           & pwsh -NoLogo -NoProfile -NonInteractive -File ./tools/testing/Invoke-ContinuePublicationChecks.ps1 -RepositoryRoot $env:GITHUB_WORKSPACE -ExpectedSource $env:PRODUCT_SHA
           if ($LASTEXITCODE -ne 0) { throw "FOCUSED_RUNNER_EXIT: $LASTEXITCODE" }
-      - name: Native caption Text and same-story Continue
-        id: native
-        timeout-minutes: 8
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $PSNativeCommandUseErrorActionPreference = $false
-          & powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File ./tools/testing/Invoke-CaptionNativeAccept.ps1
-          if ($LASTEXITCODE -ne 0) { throw "NATIVE_RUNNER_EXIT: $LASTEXITCODE" }
       - name: Always retain and check source after focused tests
         if: always() && steps.preparation_restore.outcome == 'success'
         run: |
@@ -184,3 +176,4 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 7
+
