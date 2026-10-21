@@ -1,0 +1,110 @@
+{
+  "jobs": [
+    {
+      "id": 119115004289,
+      "name": "delivery",
+      "status": "in_progress",
+      "conclusion": null,
+      "run_id": 39568034876,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "in_progress",
+          "conclusion": null,
+          "number": 2
+        },
+        {
+          "name": "Pin external preparation helpers",
+          "status": "pending",
+          "conclusion": null,
+          "number": 3
+        },
+        {
+          "name": "Capture clean source before index cleanup",
+          "status": "pending",
+          "conclusion": null,
+          "number": 4
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "pending",
+          "conclusion": null,
+          "number": 5
+        },
+        {
+          "name": "Verify exact qualification checkout and PowerShell syntax",
+          "status": "pending",
+          "conclusion": null,
+          "number": 6
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "pending",
+          "conclusion": null,
+          "number": 7
+        },
+        {
+          "name": "Import once with isolated user configuration",
+          "status": "pending",
+          "conclusion": null,
+          "number": 8
+        },
+        {
+          "name": "Always retain imported bytes before any restore",
+          "status": "pending",
+          "conclusion": null,
+          "number": 9
+        },
+        {
+          "name": "Restore only verified pinned project settings and check source",
+          "status": "pending",
+          "conclusion": null,
+          "number": 10
+        },
+        {
+          "name": "Focused rendered registration and input checks",
+          "status": "pending",
+          "conclusion": null,
+          "number": 11
+        },
+        {
+          "name": "Native caption Text and same-story Continue",
+          "status": "pending",
+          "conclusion": null,
+          "number": 12
+        },
+        {
+          "name": "Always retain and check source after focused tests",
+          "status": "pending",
+          "conclusion": null,
+          "number": 13
+        },
+        {
+          "name": "Preserve focused evidence even after failure",
+          "status": "pending",
+          "conclusion": null,
+          "number": 14
+        },
+        {
+          "name": "Preserve raw preparation evidence",
+          "status": "pending",
+          "conclusion": null,
+          "number": 15
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "pending",
+          "conclusion": null,
+          "number": 30
+        }
+      ]
+    }
+  ]
+}
