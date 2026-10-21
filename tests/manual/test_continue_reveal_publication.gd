@@ -13,9 +13,16 @@ func _continue_registration_phase(phase: String) -> void:
 		_early_observation.phases[phase] = {"counts": _early_observation.zero_counts.duplicate(), "last": {}}
 	var boundary := {"phase": phase, "usec": Time.get_ticks_usec(),
 		"surface_id": _early_observation.get("owner_id", 0)}
-	if is_instance_valid(caption):
+	boundary["layout_id"] = 0
+	boundary["layout_parent_id"] = 0
+	boundary["layout_parent_present"] = false
+	if is_instance_valid(layout):
 		boundary["layout_id"] = layout.get_instance_id()
-		boundary["layout_parent_id"] = layout.get_parent().get_instance_id()
+		var layout_parent := layout.get_parent()
+		if is_instance_valid(layout_parent):
+			boundary["layout_parent_id"] = layout_parent.get_instance_id()
+			boundary["layout_parent_present"] = true
+	if is_instance_valid(caption) and is_instance_valid(caption.background_input):
 		boundary["surface_id"] = caption.background_input.get_instance_id()
 	_early_observation.boundaries.append(boundary)
 
