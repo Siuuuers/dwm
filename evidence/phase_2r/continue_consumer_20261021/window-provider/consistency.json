@@ -1,0 +1,10 @@
+{
+  "source": "39a9d23616229aa709ff4c7de7d726d48bee8890",
+  "helper": "86e2fbdd1458c02e5a85a52ce317f15d99398932",
+  "controller_sha256": "011c88ae9136c5f56b3285c4c08a7a48aeca9a3f1c381b1db2bd5d78055ca68f",
+  "helper_sha256": "4c854eecfb924e74fb2b4708e141bedc4590c41715b64b7ae1f73d02d4fc7406",
+  "published_source_helper_readback": "byte-equal",
+  "helper_python_ast": "pass",
+  "runtime_execution": "none; cloud C clearance pending",
+  "active_controller": "bc9bda82163ee5dc3a8f8b27d7b952422f65d14a"
+}
