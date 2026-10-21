@@ -1,0 +1,17 @@
+{
+  "source": "1ee15f07b315fa762495a6bb93d07d91201ae600",
+  "expected_cases": 1,
+  "registration_cases": 1,
+  "diagnostic_only": true,
+  "rendered": true,
+  "accessibility": "always",
+  "tests": [
+    {
+      "id": "initial-observation",
+      "path": "tests/manual/test_continue_reveal_publication.gd",
+      "name": "test_continue_initial_registration_observation",
+      "expected_cases": 1
+    }
+  ],
+  "console_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a"
+}

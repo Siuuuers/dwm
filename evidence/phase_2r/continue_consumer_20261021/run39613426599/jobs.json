@@ -1,0 +1,161 @@
+{
+  "total_count": 1,
+  "jobs": [
+    {
+      "id": 119268012351,
+      "run_id": 39613426599,
+      "workflow_name": "First Continue registration observation",
+      "head_branch": "codex/scene-runtime-integration-controller-20261009",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/39613426599",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAbxO1xPw",
+      "head_sha": "1caf3f2c95ac1e7817d22eebd314c0bd725bef94",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/119268012351",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/39613426599/job/119268012351",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-21T14:03:23Z",
+      "started_at": "2026-10-21T14:03:25Z",
+      "completed_at": "2026-10-21T14:06:22Z",
+      "name": "delivery",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-21T14:03:27Z",
+          "completed_at": "2026-10-21T14:03:28Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-21T14:03:28Z",
+          "completed_at": "2026-10-21T14:03:55Z"
+        },
+        {
+          "name": "Pin external preparation helpers",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-21T14:03:55Z",
+          "completed_at": "2026-10-21T14:03:57Z"
+        },
+        {
+          "name": "Capture clean source before index cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-21T14:03:57Z",
+          "completed_at": "2026-10-21T14:04:11Z"
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-21T14:04:11Z",
+          "completed_at": "2026-10-21T14:04:12Z"
+        },
+        {
+          "name": "Verify exact qualification checkout and PowerShell syntax",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-21T14:04:12Z",
+          "completed_at": "2026-10-21T14:04:12Z"
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-21T14:04:12Z",
+          "completed_at": "2026-10-21T14:04:14Z"
+        },
+        {
+          "name": "Import once with isolated user configuration",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-21T14:04:14Z",
+          "completed_at": "2026-10-21T14:05:04Z"
+        },
+        {
+          "name": "Always retain imported bytes before any restore",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-21T14:05:04Z",
+          "completed_at": "2026-10-21T14:05:17Z"
+        },
+        {
+          "name": "Restore only verified pinned project settings and check source",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-10-21T14:05:17Z",
+          "completed_at": "2026-10-21T14:05:31Z"
+        },
+        {
+          "name": "Focused rendered registration and input checks",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 11,
+          "started_at": "2026-10-21T14:05:31Z",
+          "completed_at": "2026-10-21T14:05:56Z"
+        },
+        {
+          "name": "Always retain and check source after focused tests",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-10-21T14:05:56Z",
+          "completed_at": "2026-10-21T14:06:10Z"
+        },
+        {
+          "name": "Preserve focused evidence even after failure",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-21T14:06:10Z",
+          "completed_at": "2026-10-21T14:06:11Z"
+        },
+        {
+          "name": "Preserve raw preparation evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-10-21T14:06:11Z",
+          "completed_at": "2026-10-21T14:06:17Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 28,
+          "started_at": "2026-10-21T14:06:17Z",
+          "completed_at": "2026-10-21T14:06:19Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 29,
+          "started_at": "2026-10-21T14:06:19Z",
+          "completed_at": "2026-10-21T14:06:20Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/119268012351",
+      "labels": [
+        "windows-2022"
+      ],
+      "runner_id": 1000004202,
+      "runner_name": "GitHub Actions 1000004202",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    }
+  ]
+}

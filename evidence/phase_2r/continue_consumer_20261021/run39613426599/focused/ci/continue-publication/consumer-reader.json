@@ -1,0 +1,24 @@
+{
+    "reader_pid":  1100,
+    "clock":  "system UTC Unix milliseconds; elapsed uses Stopwatch",
+    "status":  "starting",
+    "ok":  false,
+    "discovered":  false,
+    "identity":  null,
+    "hwnd":  null,
+    "attachment_started_unix_msec":  null,
+    "attachment_completed_unix_msec":  null,
+    "discovery_started_unix_msec":  null,
+    "discovery_completed_unix_msec":  null,
+    "reader_completed_unix_msec":  null,
+    "descendant_count":  null,
+    "error":  null,
+    "exit_code":  null,
+    "events":  [
+                   {
+                       "stage":  "reader_start",
+                       "unix_msec":  1792591544567,
+                       "elapsed_msec":  676.1595
+                   }
+               ]
+}

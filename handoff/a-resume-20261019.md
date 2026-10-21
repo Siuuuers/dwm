@@ -1,3 +1,9 @@
+## Coordinator A — consumer attempt failed before attachment (2026-10-21)
+
+Run39613426599/attempt1 failed at reader receipt File.Replace before identity/UIA calls; published receipt stale, temporary receipt preserves error. Registration still1case,16/17 assertions,exit1,zero notifications;11 boundaries/no SCRIPT ERROR. Child/reader exit1, no forced reader/cleanup errors. Failed attachment/clock-incomparable, not a timely-discovery test. Originals/hash/CRC and166 Git parts retained in evidence/phase_2r/continue_consumer_20261021/run39613426599/README.md. C actual-result review and Director disposition for narrow receipt writer repair are next; no retry authorized. Active controller1caf3f2 unchanged, product/master/integration unchanged.
+
+---
+
 ## Coordinator A — reviewed consumer attempt launched (2026-10-21)
 
 Director6317374204 and external C6317665215/6317669086 cleared the exact candidate. Immediately checked active controller8e6cb51cd521b6fbbf093b660fd6ba945116c388 and completed prior runs; installed with expected-head protection.
