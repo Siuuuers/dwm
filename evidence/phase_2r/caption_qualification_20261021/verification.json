@@ -1,0 +1,25 @@
+{
+  "core_functions_ast_identical_to_13c34ff20": {
+    "require": true,
+    "write": true,
+    "read": true,
+    "select_custody": true,
+    "check_pin": true,
+    "enforce_report": true,
+    "before": true,
+    "restore": true,
+    "decode_generated_uid": true
+  },
+  "offline_tests": 15,
+  "result": "PASS",
+  "command": "PYTHONPATH=/workspace/scratch/ca93921d28dc/dwm/evidence/phase_2r/import_integrity_20261020 python -m unittest discover -s /workspace/scratch/ca93921d28dc/caption-policy-candidate -p test_prepare_caption.py",
+  "warning": "Inherited capture_import ResourceWarning: unclosed object-reader stdout handles. No Godot or PowerShell execution. Final 15-test run after independent audit and exact source pin substitution passed.",
+  "files": {
+    "test-stderr.log": "6f009299da4c54679f74e22fe27dc37d88aa70dfe663f05d60ffcf6554121bad",
+    "prepare_caption.py": "70d6f93523ba45854cd748082fe663814236d56ccff2e9abd39027205f4cb271",
+    "test-stdout.log": "9c4c04112026f0fffd2105723a57b3455ca214f1418ca598cdf863f15b3484d7",
+    "test_prepare_caption.py": "38d8cffd3fd1a3efe531761259e04e393c5d09aaaeea41b24cd95b58e3a20f64"
+  },
+  "qualification_source": "b2cb75a792790f7bf396073b1586026fa1e20482",
+  "independent_policy_review": "No material blocker; nine retained functions AST-identical; exact source blob verified; all 15 tests inspected."
+}

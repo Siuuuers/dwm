@@ -1,0 +1,32 @@
+{
+  "static_only": true,
+  "powershell_parser_executed": false,
+  "engine_execution": false,
+  "unchanged_driver_functions": [
+    "Read-Stage",
+    "Write-CaptionJson",
+    "Assert-SameLiveState",
+    "Assert-Capture",
+    "Assert-PhysicalTarget",
+    "Invoke-ReviewWheel"
+  ],
+  "driver_launch_result_cleanup_body_unchanged_except_scope": true,
+  "fixture_existing_changed_functions": [
+    "_state"
+  ],
+  "fixture_new_functions": [
+    "_rect_array"
+  ],
+  "pid_reserved_variable_absent": true,
+  "finite_logical_geometry_guard_present": true,
+  "files": {
+    "tools/testing/Invoke-CaptionNativeAccept.ps1": {
+      "bytes": 36593,
+      "sha256": "3666b945dd87614f47769ea8f0503f2530e3f889a125449f2a0a5b0617797ac3"
+    },
+    "tests/manual/verify_caption_native_accept.gd": {
+      "bytes": 16806,
+      "sha256": "659190acc45cb51bd5f9bb85fdd06ad65b2f4fb4d943bca8679e0f217c20fa7f"
+    }
+  }
+}
