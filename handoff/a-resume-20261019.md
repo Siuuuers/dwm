@@ -1,3 +1,13 @@
+# Focused attempt complete — setup passes; initial native registration still fails
+
+21 October2026. Run39568034876 attempt1/job119115004289 FAILED first rendered case:1 test,13/14 assertions,exit1. Preparation/import/exact restore/post-test guards passed. Real Profile/Localization setup, Continue label and source/action admission passed. Initial native action capture remained unobserved; organic completion was not reached. Seven remaining cases/native fixture skipped. One-attempt authorization consumed; no retry.
+
+[Original evidence, exact outcome and next bounded recommendation](../evidence/phase_2r/caption_qualification_20261021/run39568034876/README.md). Both original ZIPs durably preserved as84 exact parts with compressed custody/member manifest, hashes/CRC and upload blob verification. Prior UID/parser audit not repeated. Separate ordinary CI39568034634 failed inventory/prerequisite gates; no combined pass claim.
+
+Next: C actual-result review and Director selection of a first-case observation of notification/element/admission/probe behavior. Keep initialized real owners, original waits and native registration boundary; no forced notification, fresh-action fallback or speculative production fix. No new cloud attempt/controller update. Standing publication permission carries forward; product/master/integration unchanged, no export/merge/release.
+
+---
+
 # Cleared pin-alignment attempt running — resume with actual result inspection
 
 21 October2026 (Hong Kong). C6311096627/6311101088 and Director6311321080 cleared ONE attempt on sourceb7fb0e549f028f72717bd5ee9e4905517a365fdf with helperbd421313cc3d368244e0c9d12e70a8b40552bbdb. Final [pin-consistency receipt](../evidence/phase_2r/caption_qualification_20261021/pin-consistency-20261021.json) was recorded before installation; all controller/helper/source/project/preset/Continue-owner checks passed, without engine execution.

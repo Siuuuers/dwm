@@ -1,0 +1,216 @@
+{
+  "jobs": [
+    {
+      "id": 119114997236,
+      "name": "Windows / public API surface contracts",
+      "status": "completed",
+      "conclusion": "failure",
+      "run_id": 39568034634,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Record fixture and schema version census",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Verify native caption discovery and Normal Accept",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Verify isolated runner contracts and timeout diagnostics",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        },
+        {
+          "name": "Verify committed public inventories without regeneration",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 10
+        },
+        {
+          "name": "Verify public inventory drift and read-only contracts",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 11
+        },
+        {
+          "name": "Upload canonical inventories and retirement evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 24
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 25
+        }
+      ]
+    },
+    {
+      "id": 119117020962,
+      "name": "Windows / seven-day retained history",
+      "status": "completed",
+      "conclusion": "failure",
+      "run_id": 39568034634,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Require the Day7 producer and all four comparison jobs",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 2
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        }
+      ]
+    },
+    {
+      "id": 119117021604,
+      "name": "Windows / exported release startup",
+      "status": "completed",
+      "conclusion": "skipped",
+      "run_id": 39568034634,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 119117021653,
+      "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+      "status": "completed",
+      "conclusion": "skipped",
+      "run_id": 39568034634,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 119117021714,
+      "name": "Windows / seven-day retained history producer",
+      "status": "completed",
+      "conclusion": "skipped",
+      "run_id": 39568034634,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 119117021944,
+      "name": "Windows / paired checkpoint performance",
+      "status": "completed",
+      "conclusion": "skipped",
+      "run_id": 39568034634,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 119117022193,
+      "name": "Rendered captionless timed hold / Pause and fresh-input continuation",
+      "status": "completed",
+      "conclusion": "skipped",
+      "run_id": 39568034634,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 119117022260,
+      "name": "Windows / ${{ matrix.suite }}",
+      "status": "completed",
+      "conclusion": "skipped",
+      "run_id": 39568034634,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 119117022410,
+      "name": "Rendered desktop and dialogue / Linux software OpenGL",
+      "status": "completed",
+      "conclusion": "skipped",
+      "run_id": 39568034634,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 119117022618,
+      "name": "Windows / ${{ matrix.comparison }} comparison",
+      "status": "completed",
+      "conclusion": "skipped",
+      "run_id": 39568034634,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 119117022626,
+      "name": "Rendered Hospital / manual command refusal and saved-fixture restore",
+      "status": "completed",
+      "conclusion": "skipped",
+      "run_id": 39568034634,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 119117023030,
+      "name": "Rendered ordered ending / physical boundary and exact fresh Load",
+      "status": "completed",
+      "conclusion": "skipped",
+      "run_id": 39568034634,
+      "logs_url": null,
+      "steps": null
+    }
+  ]
+}

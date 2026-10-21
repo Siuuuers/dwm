@@ -1,0 +1,16 @@
+[
+  {
+    "artifact": 12330178553,
+    "size": 10804151,
+    "sha256": "c0ff7dbcd05c08948f52e384c674c7305e0f037c3532c018fbdf0578e42241e3",
+    "crc": "pass",
+    "members": 5280
+  },
+  {
+    "artifact": 12329669332,
+    "size": 3093,
+    "sha256": "381c15173774f1a84d05fcaf6b9c5b2d89065feb966c3a53e3dd989586d6b09e",
+    "crc": "pass",
+    "members": 4
+  }
+]
