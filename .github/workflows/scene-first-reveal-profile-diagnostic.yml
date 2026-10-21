@@ -19,9 +19,9 @@ jobs:
       run:
         shell: pwsh
     env:
-      PRODUCT_SHA: f4228bd96afacdc182f895c8638e15eb2258c8e8
-      SOURCE_SHA: 249d82c4f1f63695236a69eda82480fe812a9632
-      PREPARATION_SHA256: 1a02a4f8ddd85328274a72bf41d1cfe6275087ef6b6d51fa5573064e257d4570
+      PRODUCT_SHA: bf0c0b1048b1f4cb0959e36f17ce0032780867f3
+      SOURCE_SHA: 6597de2a2f686753ffd9097e8b630b3b1b7337c0
+      PREPARATION_SHA256: 7a51e4b0e7e61db09da46b3c365b7cd3ae78cd538f5b39d2e58f535f60dc6e44
       CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
     steps:
       - uses: actions/checkout@v7
@@ -29,7 +29,7 @@ jobs:
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
-          ref: f4228bd96afacdc182f895c8638e15eb2258c8e8
+          ref: bf0c0b1048b1f4cb0959e36f17ce0032780867f3
       - name: Windows PowerShell 5 shared receipt writer preflight
         id: receipt_preflight
         shell: powershell
@@ -75,14 +75,39 @@ jobs:
       - name: Native COM capability preflight without game or window access
         id: native_preflight
         timeout-minutes: 2
-        shell: powershell
+        # Match the reader's pwsh parent and ProcessStartInfo launch mechanics.
+        shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
           $output = Join-Path $env:RUNNER_TEMP 'native-provider-preflight'
           New-Item -ItemType Directory -Force $output | Out-Null
-          & powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File ./tools/testing/Test-ContinueNativeProvider.ps1 -OutputDirectory $output *> (Join-Path $output 'preflight.log')
-          $code = $LASTEXITCODE
-          @{exit_code=$code; source=$env:PRODUCT_SHA; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'} | ConvertTo-Json | Set-Content (Join-Path $output 'process.json') -Encoding utf8
+          $start = New-Object Diagnostics.ProcessStartInfo
+          $start.FileName = Join-Path $env:SystemRoot 'System32/WindowsPowerShell/v1.0/powershell.exe'
+          $script = Join-Path $env:GITHUB_WORKSPACE 'tools/testing/Test-ContinueNativeProvider.ps1'
+          $start.Arguments = '-NoLogo -NoProfile -NonInteractive -File "' + $script + '" -OutputDirectory "' + $output + '"'
+          $start.UseShellExecute = $false
+          $start.CreateNoWindow = $true
+          $start.RedirectStandardOutput = $true
+          $start.RedirectStandardError = $true
+          $process = New-Object Diagnostics.Process
+          $process.StartInfo = $start
+          $code = 1
+          try {
+            if (-not $process.Start()) { throw 'NATIVE_PREFLIGHT_START_FAILED' }
+            $stdout = $process.StandardOutput.ReadToEndAsync()
+            $stderr = $process.StandardError.ReadToEndAsync()
+            if (-not $process.WaitForExit(90000)) {
+              $process.Kill($true)
+              $null = $process.WaitForExit(10000)
+              throw 'NATIVE_PREFLIGHT_TIMEOUT'
+            }
+            if (-not [Threading.Tasks.Task]::WaitAll([Threading.Tasks.Task[]]@($stdout, $stderr), 5000)) { throw 'NATIVE_PREFLIGHT_OUTPUT_TIMEOUT' }
+            [IO.File]::WriteAllText((Join-Path $output 'preflight.log'), $stdout.GetAwaiter().GetResult() + $stderr.GetAwaiter().GetResult())
+            $code = $process.ExitCode
+          } finally {
+            @{exit_code=$code; source=$env:PRODUCT_SHA; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'} | ConvertTo-Json | Set-Content (Join-Path $output 'process.json') -Encoding utf8
+            $process.Dispose()
+          }
           if ($code -ne 0) { throw "NATIVE_PREFLIGHT_EXIT: $code" }
           $result = Get-Content (Join-Path $output 'result.json') -Raw | ConvertFrom-Json
           if ($result.passed -ne $true -or $result.exit_code -ne 0) { throw 'NATIVE_PREFLIGHT_NOT_PASSED' }
@@ -240,3 +265,4 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 7
+
