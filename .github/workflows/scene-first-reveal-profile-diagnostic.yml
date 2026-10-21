@@ -19,9 +19,9 @@ jobs:
       run:
         shell: pwsh
     env:
-      PRODUCT_SHA: 2def8cd137ee72b78a41414a34d40bd4b7384576
-      SOURCE_SHA: 9febfa24f6eae5c4250ca8f5dad484181a0ce945
-      PREPARATION_SHA256: 076cb0e2627aa9f0dcf508f4972980a04bb196a1209b382adb880cb0e2dfcb95
+      PRODUCT_SHA: 1ee15f07b315fa762495a6bb93d07d91201ae600
+      SOURCE_SHA: cd5d74f7bc72322dbb48e1592900552f757b3956
+      PREPARATION_SHA256: c52a62f68ea3ea61d1fe8be90d431f5640182424b8e62c3b3c1f783880841eb7
       CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
     steps:
       - uses: actions/checkout@v7
@@ -29,7 +29,7 @@ jobs:
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
-          ref: 2def8cd137ee72b78a41414a34d40bd4b7384576
+          ref: 1ee15f07b315fa762495a6bb93d07d91201ae600
       - name: Pin external preparation helpers
         id: preparation_helpers
         run: |
@@ -71,7 +71,7 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           if ((git rev-parse HEAD).Trim() -cne $env:PRODUCT_SHA) { throw 'PRODUCT_PIN_MISMATCH' }
-          foreach ($path in @('tools/testing/Invoke-ContinuePublicationChecks.ps1','tools/testing/Invoke-CaptionNativeAccept.ps1','tools/testing/Invoke-IsolatedGodot.ps1')) {
+          foreach ($path in @('tools/testing/Invoke-ContinuePublicationChecks.ps1','tools/testing/Invoke-CaptionNativeAccept.ps1','tools/testing/Invoke-IsolatedGodot.ps1','tools/testing/Read-ContinueAccessibility.ps1')) {
             $tokens=$null; $parseErrors=$null
             $null=[Management.Automation.Language.Parser]::ParseFile((Join-Path $env:GITHUB_WORKSPACE $path),[ref]$tokens,[ref]$parseErrors)
             if ($parseErrors.Count -ne 0) { throw ($parseErrors | Out-String) }
