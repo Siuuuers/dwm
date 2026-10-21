@@ -1,3 +1,15 @@
+# Current checkpoint — run39588849613 reviewed, diagnostic correction pending
+
+Focused attempt1/job119184434437 FAILED:1 case,16/18 assertions,child/GUT exit1; timeout plus null-parent diagnostic error at manual fixture line18. XML root/suite failure-count discrepancy preserved.
+Immutable result/correction: https://github.com/Siuuuers/dwm/blob/88476be1e7e7e5275ddce4dcac622141bfb504aa/evidence/phase_2r/continue_early_observation_20261021/run39588849613/README.md
+Both original archives retained in166 parts; sizes/hashes/CRC and reconstruction verified.
+3 projection +8 retirement request/return pairs, zero handler notifications in all recorded phases. Early instance/tree/reparent records present, same surface; mounted_settle phase boundary missing because parentless layout lookup threw. No clean/noninterfering diagnostic claim, backend cause or gameplay conclusion.
+Exact inert correction in packet candidate/test_continue_reveal_publication.gd guards layout/parent and caption/background independently, records absent parent0/false, always appends boundary. Only recorder changes; runtime/mount/request/capture/wait unchanged. Static review only, not installed or engine-tested.
+Next C reviews actual outcome and correction; Director reconciles consumed attempt and next authorization. Do not rerun automatically or add speculative instrumentation. After reconciliation, A can promote exact corrected source and align helper PRODUCT/controller hashes together for review.
+Active controller remains b968bede9db9bc795b418aee753d83918a81d8dc; tested sourcecb9724686/helperae2aae7a. Product/master/integration untouched; no export/merge/release. Ordinary39588849462 separate public API/history failures and downstream skips. Standing publication permission persists.
+
+---
+
 # Early construction observation launched — 2026-10-21
 
 Status: RUNNING, results pending; no runtime qualification.
