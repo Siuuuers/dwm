@@ -1,0 +1,12 @@
+{
+  "source": "cb9724686be5efb0c0930a2543501074fdc7302c",
+  "source_tree": "82f731e53ed4a7ab800f20f93f8ef2a560e0ce98",
+  "helper": "ae2aae7a726da8f0117b3168b4c96f1edab34608",
+  "helper_sha256": "86dfbbae68570179ee9bee09021c6ea5a798e3beed9ae5dae81846b741eb8f61",
+  "runtime_source_blob": "4f0f81b8f8f0c02a4bc7ed06909d9be840fc1ab0",
+  "controller_sha256": "fed655a475b1e52110389fcce5dca4451ce8d65a21e19950b048b90aa7cc97ec",
+  "expected_active_controller": "0c65bae649e1b02471285a3cad6ba257b3465a99",
+  "capture_sha256": "a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379",
+  "external_c_clearance": false,
+  "dispatched": false
+}
