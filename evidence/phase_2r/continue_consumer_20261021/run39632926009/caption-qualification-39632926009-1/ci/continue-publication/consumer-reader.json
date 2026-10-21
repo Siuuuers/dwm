@@ -1,0 +1,125 @@
+{
+    "reader_pid":  2508,
+    "clock":  "system UTC Unix milliseconds; elapsed uses Stopwatch",
+    "status":  "engine_exited",
+    "ok":  true,
+    "discovered":  true,
+    "identity":  {
+                     "pid":  4828,
+                     "parent_pid":  1088,
+                     "executable":  "D:\\a\\_temp\\godot-4.6.3\\Godot_v4.6.3-stable_win64.exe",
+                     "command_line":  "D:\\a\\_temp\\godot-4.6.3\\Godot_v4.6.3-stable_win64.exe --rendering-method gl_compatibility --audio-driver Dummy --path D:\\a\\dwm\\dwm --log-file D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\continue-publication-initial-observation.log --accessibility always -s res://addons/gut/gut_cmdln.gd -gconfig= -gtest=res://tests/manual/test_continue_reveal_publication.gd -gunit_test_name=test_continue_initial_registration_observation -gexit -glog=2 -gdisable_colors -gjunit_xml_file=res://.godot/ci/continue-publication/initial-observation.xml",
+                     "created_utc":  "2026-10-21T16:16:39.1620850Z",
+                     "native_start_ticks":  "639281961991620857",
+                     "launcher_pid":  1088
+                 },
+    "hwnd":  262422,
+    "attachment_started_unix_msec":  1792599401879,
+    "attachment_completed_unix_msec":  1792599407638,
+    "discovery_started_unix_msec":  1792599407682,
+    "discovery_completed_unix_msec":  1792599407830,
+    "reader_completed_unix_msec":  1792599415740,
+    "descendant_count":  0,
+    "error":  null,
+    "exit_code":  0,
+    "events":  [
+                   {
+                       "stage":  "reader_start",
+                       "unix_msec":  1792599399511,
+                       "elapsed_msec":  139.579
+                   },
+                   {
+                       "stage":  "identity_start",
+                       "unix_msec":  1792599401735,
+                       "elapsed_msec":  2356.4549
+                   },
+                   {
+                       "stage":  "child_selection",
+                       "unix_msec":  1792599401815,
+                       "elapsed_msec":  2437.1932
+                   },
+                   {
+                       "stage":  "identity_bound",
+                       "unix_msec":  1792599401853,
+                       "elapsed_msec":  2475.3261
+                   },
+                   {
+                       "stage":  "attachment_start",
+                       "unix_msec":  1792599401879,
+                       "elapsed_msec":  2502.2142000000003
+                   },
+                   {
+                       "stage":  "attachment_return",
+                       "unix_msec":  1792599407638,
+                       "elapsed_msec":  8259.7213000000011
+                   },
+                   {
+                       "stage":  "discovery_start",
+                       "unix_msec":  1792599407682,
+                       "elapsed_msec":  8303.5767
+                   },
+                   {
+                       "stage":  "discovery_success",
+                       "unix_msec":  1792599407830,
+                       "elapsed_msec":  8452.3441
+                   },
+                   {
+                       "stage":  "provider_observation_start",
+                       "unix_msec":  1792599407833,
+                       "elapsed_msec":  8455.8428
+                   },
+                   {
+                       "stage":  "provider_observation_complete",
+                       "unix_msec":  1792599407847,
+                       "elapsed_msec":  8469.3524
+                   },
+                   {
+                       "stage":  "engine_exit_observed",
+                       "unix_msec":  1792599415740,
+                       "elapsed_msec":  16362.088600000001
+                   },
+                   {
+                       "stage":  "reader_complete",
+                       "unix_msec":  1792599415740,
+                       "elapsed_msec":  16368.278100000001
+                   }
+               ],
+    "binding":  {
+                    "launcher_pid":  1088,
+                    "launcher_start_ticks":  "639281961991383153",
+                    "console_path":  "D:\\a\\_temp\\godot-4.6.3\\Godot_v4.6.3-stable_win64_console.exe",
+                    "engine_path":  "D:\\a\\_temp\\godot-4.6.3\\Godot_v4.6.3-stable_win64.exe",
+                    "arguments":  "--rendering-method gl_compatibility --audio-driver Dummy --path D:\\a\\dwm\\dwm --log-file D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\continue-publication-initial-observation.log --accessibility always -s res://addons/gut/gut_cmdln.gd -gconfig= -gtest=res://tests/manual/test_continue_reveal_publication.gd -gunit_test_name=test_continue_initial_registration_observation -gexit -glog=2 -gdisable_colors -gjunit_xml_file=res://.godot/ci/continue-publication/initial-observation.xml",
+                    "started_unix_msec":  1792599399148
+                },
+    "child_selection":  {
+                            "child_count":  2,
+                            "engine_candidate_count":  1,
+                            "selected_pid":  4828,
+                            "inventory_truncated":  false,
+                            "children":  [
+                                             {
+                                                 "pid":  6628,
+                                                 "parent_pid":  1088,
+                                                 "executable":  "C:\\Windows\\system32\\conhost.exe",
+                                                 "disposition":  "other_executable"
+                                             },
+                                             {
+                                                 "pid":  4828,
+                                                 "parent_pid":  1088,
+                                                 "executable":  "D:\\a\\_temp\\godot-4.6.3\\Godot_v4.6.3-stable_win64.exe",
+                                                 "disposition":  "engine_executable"
+                                             }
+                                         ]
+                        },
+    "engine_start_ticks":  639281961991620857,
+    "provider_observation":  {
+                                 "scope":  "existing UIA element after discovery; descriptive only",
+                                 "started_unix_msec":  1792599407832,
+                                 "completed_unix_msec":  1792599407846,
+                                 "framework_id":  "Win32",
+                                 "class_name":  "Engine",
+                                 "control_type":  "ControlType.Window",
+                                 "native_window_handle":  262422
+                             }
+}

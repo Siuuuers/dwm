@@ -1,0 +1,17 @@
+{
+  "runner_image": "win22",
+  "runner_image_version": "20261012.333.1",
+  "os": "Microsoft Windows NT 10.0.20348.0",
+  "architecture": "X64",
+  "capture_sha256": "a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379",
+  "python": "Python 3.12.10",
+  "source": "86e2fbdd1458c02e5a85a52ce317f15d99398932",
+  "attempt": "1",
+  "product": "39a9d23616229aa709ff4c7de7d726d48bee8890",
+  "controller": "ff27c641e7bb521b9544ea03f08a9ff75c2ef6aa",
+  "run_id": "39632926009",
+  "workflow": "1457c6b9e22808a2dd385c4eabf9daa0881b388b",
+  "preparation_sha256": "4c854eecfb924e74fb2b4708e141bedc4590c41715b64b7ae1f73d02d4fc7406",
+  "powershell": "7.6.6",
+  "git": "git version 2.56.0.windows.2"
+}

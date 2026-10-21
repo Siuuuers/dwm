@@ -1,0 +1,30 @@
+{
+  "arguments": [
+    "--headless",
+    "--path",
+    "D:\\a\\dwm\\dwm",
+    "--import",
+    "--log-file",
+    "D:\\a\\_temp\\preparation-evidence\\import.log"
+  ],
+  "timeout_minutes": 8,
+  "project_settings": "original and post-import project.godot bytes and hashes retained by capture helper",
+  "executable": "D:\\a\\_temp\\godot-4.6.3\\Godot_v4.6.3-stable_win64_console.exe",
+  "cwd": "D:\\a\\dwm\\dwm",
+  "editor_settings": "fresh isolated APPDATA and LOCALAPPDATA; no settings injected",
+  "started_utc": "2026-10-21T16:15:05.4475169Z",
+  "environment": {
+    "XDG_CONFIG_HOME": null,
+    "USERPROFILE": "C:\\Users\\runneradmin",
+    "GODOT_USER_HOME": null,
+    "LANG": null,
+    "APPDATA": "D:\\a\\_temp\\import-user\\appdata",
+    "LOCALAPPDATA": "D:\\a\\_temp\\import-user\\localappdata",
+    "TMP": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp",
+    "LC_ALL": null,
+    "GODOT_EDITOR_SETTINGS": null,
+    "TEMP": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp",
+    "XDG_DATA_HOME": null,
+    "DWM_TEST_ROOT": "D:\\a\\_temp\\import-user\\test-root"
+  }
+}

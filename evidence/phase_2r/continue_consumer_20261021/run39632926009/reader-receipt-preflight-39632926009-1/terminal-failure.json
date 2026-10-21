@@ -1,0 +1,29 @@
+{
+    "status":  "failed",
+    "ok":  false,
+    "error":  "PREFLIGHT_SENTINEL_FAILURE",
+    "exit_code":  null,
+    "reader_completed_unix_msec":  null,
+    "events":  [
+                   {
+                       "stage":  "reader_start",
+                       "unix_msec":  1792599278962,
+                       "elapsed_msec":  11.5485
+                   },
+                   {
+                       "stage":  "identity_start",
+                       "unix_msec":  1792599279994,
+                       "elapsed_msec":  1030.1258
+                   },
+                   {
+                       "stage":  "identity_start",
+                       "unix_msec":  1792599279994,
+                       "elapsed_msec":  1038.3522
+                   },
+                   {
+                       "stage":  "failure",
+                       "unix_msec":  1792599280009,
+                       "elapsed_msec":  1048.0774000000001
+                   }
+               ]
+}

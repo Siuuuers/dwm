@@ -1,0 +1,66 @@
+{
+  "handles": {
+    "reader_hwnd": 262422,
+    "uia_raw": 262422,
+    "uia_unsigned32": 262422,
+    "surface": 262422,
+    "root": 262422
+  },
+  "window_identity": {
+    "display_server": "Windows",
+    "process_id": 4828,
+    "root_window": {
+      "embedded": false,
+      "instance_id": 26910655914,
+      "native_handle": 262422,
+      "present": true,
+      "window_id": 0
+    },
+    "sampled_ticks_msec": 15682,
+    "sampled_unix_msec": 1792599414862.0,
+    "surface_window": {
+      "embedded": false,
+      "instance_id": 26910655914,
+      "native_handle": 262422,
+      "present": true,
+      "window_id": 0
+    }
+  },
+  "provider_observation": {
+    "scope": "existing UIA element after discovery; descriptive only",
+    "started_unix_msec": 1792599407832,
+    "completed_unix_msec": 1792599407846,
+    "framework_id": "Win32",
+    "class_name": "Engine",
+    "control_type": "ControlType.Window",
+    "native_window_handle": 262422
+  },
+  "counts": {
+    "action_registered": 0,
+    "admission": 0,
+    "after_install": 1,
+    "after_rebind": 1,
+    "before_install": 1,
+    "bind_enter": 2,
+    "bind_return": 2,
+    "capture_enter": 0,
+    "capture_return": 0,
+    "element": 0,
+    "enter_tree": 2,
+    "exit_tree": 1,
+    "instance_init": 2,
+    "notification": 0,
+    "owner_capture_enter": 0,
+    "owner_capture_return": 0,
+    "projection_changed": 3,
+    "queue_request": 3,
+    "queue_return": 3,
+    "retirement_queue_request": 8,
+    "retirement_queue_return": 8
+  },
+  "limits": [
+    "sequential observations",
+    "fixture snapshot final-only",
+    "metadata not proof of activation"
+  ]
+}

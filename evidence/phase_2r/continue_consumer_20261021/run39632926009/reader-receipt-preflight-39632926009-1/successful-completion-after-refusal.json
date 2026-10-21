@@ -1,0 +1,44 @@
+{
+    "status":  "stopped_by_owner",
+    "ok":  true,
+    "error":  null,
+    "exit_code":  0,
+    "reader_completed_unix_msec":  1792599280306,
+    "events":  [
+                   {
+                       "stage":  "reader_start",
+                       "unix_msec":  1792599278962,
+                       "elapsed_msec":  11.5485
+                   },
+                   {
+                       "stage":  "identity_start",
+                       "unix_msec":  1792599279994,
+                       "elapsed_msec":  1030.1258
+                   },
+                   {
+                       "stage":  "identity_start",
+                       "unix_msec":  1792599279994,
+                       "elapsed_msec":  1038.3522
+                   },
+                   {
+                       "stage":  "failure",
+                       "unix_msec":  1792599280009,
+                       "elapsed_msec":  1048.0774000000001
+                   },
+                   {
+                       "stage":  "reader_complete",
+                       "unix_msec":  1792599280009,
+                       "elapsed_msec":  1056.9769000000001
+                   },
+                   {
+                       "stage":  "locked-publication",
+                       "unix_msec":  1792599280040,
+                       "elapsed_msec":  1076.7204000000002
+                   },
+                   {
+                       "stage":  "reader_complete",
+                       "unix_msec":  1792599280306,
+                       "elapsed_msec":  1356.6775
+                   }
+               ]
+}
