@@ -127,7 +127,7 @@ foreach ($plan in $plans) {
     $logPath = Join-Path $RepositoryRoot ".godot/phase2r_logs/$logName"
     $reportPath = Join-Path $output "$($plan.id).xml"
     if (Test-Path -LiteralPath $logPath) { throw "CONTINUE_LOG_NOT_FRESH: $logName" }
-    $arguments = @('--accessibility', 'always', '-s', 'res://addons/gut/gut_cmdln.gd',
+    $arguments = @('--verbose', '--accessibility', 'always', '-s', 'res://addons/gut/gut_cmdln.gd',
         '-gconfig=', "-gtest=res://$($plan.path)", "-gunit_test_name=$($plan.name)",
         '-gexit', '-glog=2', '-gdisable_colors',
         "-gjunit_xml_file=res://.godot/ci/continue-publication/$($plan.id).xml")
