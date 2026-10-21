@@ -1,3 +1,11 @@
+# Current A checkpoint — early observation ready for C review
+
+21 October2026 Hong Kong. Director6313768169's concrete early-construction packet is prepared: [exact source/helper/controller review](https://github.com/Siuuuers/dwm/blob/fcd9be15e18dc208bcebccc8991773d5be4b5353/evidence/phase_2r/continue_early_observation_20261021/README.md). Sourcecb9724686be5efb0c0930a2543501074fdc7302c; helperae2aae7a726da8f0117b3168b4c96f1edab34608; controller SHA256fed655a475b1e52110389fcce5dca4451ce8d65a21e19950b048b90aa7cc97ec. Four source files observe ordinary construction, two existing request sites and natural delivery through reparent/rebind, retaining phase counts beyond prefix cap. Original single-case runner/wait/failure behavior unchanged. Internal review/static checks pass; external C exact clearance pending. No cloud run or active controller replacement. After C clears, ONE official Windows4.6.3-standard attempt already conditionally authorized; recheck active0c65bae6 and use expected-head guard. No further user confirmation. Prior failed results remain failed; no gameplay qualification, product/master/integration change, export/merge/release. Standing publication permission continues.
+
+Earlier entries below are historical.
+
+---
+
 # Current A outcome — 21 October2026 Hong Kong
 
 Run39580271894 FAILED: one initial-registration case,13/14 assertions,child exit1. Explicit counters show ZERO accessibility-update notifications during the post-mount/pre-rebind-through-timeout observation window; element/admission/capture stages were never reached. Initial/final cached Continue projection admitted and final visible; not continuous-state or earlier-mount proof. Preparation policies pass. No gameplay/completion qualification.
