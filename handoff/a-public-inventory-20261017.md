@@ -1,3 +1,11 @@
+# Ending ownership reconciliation complete — no supported product patch
+
+21 October 2026 Hong Kong. C6307684038 closed actual result review; Director6307707224 selected source-first ending caption exposure. Read current productc8358870 canonical rendered/accessibility/ordinary input/ending completion owners and reused previous root-order, committed/query and iterator experiments. No new GDScript ownership defect established; no patch or conditional qualification run. Master still41592fcc; controller4a902667 remains consumed.
+
+[Source findings and ONE proposed read-only point-lookup discriminator](../evidence/phase_2r/ending_ownership_20261021/README.md). Current original failure23 UIA entries exactly equal the prefix of Day7-closing41 entries (same PID/HWND); caption/transport suffix disappears. Sequential snapshots do not prove topology or cause. Retained provider source gives point lookup a different raw-child path from known filtered-sibling traversal, with shared filtering/geometry limits. No alternate acceptance selector/action or new engine campaign.
+
+Next: C reviews this source explanation/proposal; Director selects diagnostic scope because no concrete product correction supports the conditional runtime authorization. Existing build/UID/result reviews stay closed. No engine/PowerShell run, controller/product edit, merge/release or master/integration movement. Standing coordination messaging authorization applies.
+
 # Bounded UID Windows result: preparation passes; ending-caption Load fails
 
 21 October 2026 Hong Kong. Both C gates6298097130/6298344570 cleared; one Director6297698097/6298163134 attempt consumed. Controller4a902667 installed exact reviewed bytes fromc0bb500f with expected-head protection. [Run39476916285](https://github.com/Siuuuers/dwm/actions/runs/39476916285), job118815142853: preparation/export/package/final UID policy PASS; Capability/Create PASS with clean exits; Load FAIL at `UIA_UNAVAILABLE_OR_TIMEOUT: TEST Seven-day ending.` with forced cleanup; TerminalLoad SKIPPED. No retry.

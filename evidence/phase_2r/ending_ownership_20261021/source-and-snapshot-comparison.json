@@ -1,0 +1,45 @@
+{
+  "product": "c8358870d3ece92d5f8cc7ba65aefe34a746be5c",
+  "source_blobs": {
+    "scripts/ui/EndingScene.gd": "ae9bf01b2692213cfadeea7ffde81c66db3120cf",
+    "scenes/ending/EndingScene.tscn": "a82ff62fe3324684bfd16c33cfa7cc5afe417203",
+    "scripts/ui/witnessed/WitnessedAccessibleCaption.gd": "99539f8135a72ae24934a6088c3582239a30c36c",
+    "scripts/ui/witnessed/WitnessedCaptionLayer.gd": "22c28568d6c6ffcf5938b276327196442ca5fb1f",
+    "scenes/ui/witnessed/WitnessedCaptionLayer.tscn": "cc60bf88912f297e7a3b77cf5791bd057990b967",
+    "scripts/ui/witnessed/WitnessedAcceptInput.gd": "f57f57085d0048bb32c50159683ec6f24d41f727",
+    "scripts/application/ending/DialogicEndingPlaybackPort.gd": "92938009297730e6887369d4fa3e596a77511d01"
+  },
+  "same_run_comparison": {
+    "run": 39476916285,
+    "pid": 6348,
+    "hwnd": 655954,
+    "day7_count": 41,
+    "failure_count": 23,
+    "failure_equals_exact_day7_prefix": true,
+    "inputs": {
+      "day-7-closing.uia.json": "9126bcfae3ba1b0e314c2ea2da7ba2f3725f0aa2f6a24ff1e8196f462633ecbb",
+      "failure.uia.json": "cf65d8b02f307b83cef59d1ec34410cf0fe0032a4bed25a6fa405a7f43574979"
+    },
+    "day7_suffix_names": [
+      "Check Computer ",
+      "Settings ",
+      "Backup ",
+      "Save ",
+      "Load ",
+      " ",
+      "TEST Day7 closing. ",
+      "TEST Day7 closing.",
+      "TEST Day7 opening.",
+      "History ",
+      "Skip \u00b7 Off ",
+      "Auto \u00b7 Off ",
+      "Save ",
+      "Load ",
+      "Next ",
+      "18:48",
+      "DialogicNode_ButtonSound ",
+      ""
+    ]
+  },
+  "limits": "Sequential snapshots, not a topology or causality proof; no engine execution."
+}
