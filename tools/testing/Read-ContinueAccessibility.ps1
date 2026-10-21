@@ -22,23 +22,7 @@ $window = $null
 $elements = $null
 $result = 1
 
-function Save-ReaderEvent([string]$Stage) {
-    $now = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
-    switch ($Stage) {
-        'attachment_start' { $record.attachment_started_unix_msec = $now }
-        'attachment_return' { $record.attachment_completed_unix_msec = $now }
-        'discovery_start' { $record.discovery_started_unix_msec = $now }
-        'discovery_success' { $record.discovery_completed_unix_msec = $now }
-        'reader_complete' { $record.reader_completed_unix_msec = $now }
-    }
-    $events.Add([ordered]@{ stage = $Stage; unix_msec = $now;
-        elapsed_msec = $clock.Elapsed.TotalMilliseconds })
-    $record.events = @($events.ToArray())
-    $temporary = $ReceiptPath + '.tmp'
-    [IO.File]::WriteAllText($temporary, (ConvertTo-Json $record -Depth 8), $utf8)
-    if ([IO.File]::Exists($ReceiptPath)) { [IO.File]::Replace($temporary, $ReceiptPath, $null) }
-    else { [IO.File]::Move($temporary, $ReceiptPath) }
-}
+. (Join-Path $PSScriptRoot 'Save-ContinueReaderEvent.ps1')
 
 try {
     Save-ReaderEvent 'reader_start'
