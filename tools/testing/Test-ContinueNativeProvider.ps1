@@ -18,14 +18,23 @@ try {
         throw 'NATIVE_PREFLIGHT_REQUIRES_WINDOWS_PS5_X64'
     }
     foreach ($name in @('Read-ContinueNativeProvider.ps1', 'Invoke-IsolatedGodot.ps1',
-        'Invoke-ContinuePublicationChecks.ps1', 'Test-ContinueNativeProvider.ps1')) {
+        'Invoke-ContinuePublicationChecks.ps1', 'Test-ContinueNativeProvider.ps1', 'Get-ContinueFileSha256.ps1')) {
         $tokens = $null; $errors = $null
         $null = [Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot $name), [ref]$tokens, [ref]$errors)
         if ($errors.Count -ne 0) { throw ($errors | Out-String) }
     }
     $record.checks += 'PS5 syntax'
+    . (Join-Path $PSScriptRoot 'Get-ContinueFileSha256.ps1')
+    # Exercise the same module-independent hashing used by the isolated reader.
+    $hashFixture = Join-Path $OutputDirectory 'hash-fixture.bin'
+    [IO.File]::WriteAllBytes($hashFixture, [byte[]]@(97, 98, 99, 10))
+    if ((Get-ContinueFileSha256 -LiteralPath $hashFixture) -cne 'edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb') {
+        throw 'NATIVE_PREFLIGHT_HASH_BYTES_MISMATCH'
+    }
+    [IO.File]::Delete($hashFixture)
+    $record.checks += 'Full-byte SHA256 with final LF and released stream'
     $path = Join-Path $PSScriptRoot 'ContinueNativeProvider.cs'
-    $record['interop_sha256'] = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant()
+    $record['interop_sha256'] = (Get-ContinueFileSha256 -LiteralPath $path)
     Add-Type -Path $path
     $session = New-Object DwmNativeProvider.Session
     $record['assembly'] = $session.GetType().Assembly.FullName
@@ -53,3 +62,4 @@ try {
     [IO.File]::WriteAllText($resultPath, (ConvertTo-Json $record -Depth 8), (New-Object Text.UTF8Encoding($false)))
 }
 exit $code
+

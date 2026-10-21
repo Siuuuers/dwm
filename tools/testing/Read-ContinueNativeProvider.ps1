@@ -25,6 +25,7 @@ $nativeSession = $null
 $record['client_route'] = 'managed-discovery-then-native-COM-provenance'
 $record['native_provider'] = [ordered]@{ status = 'not_started'; operations = @(); cleanup_errors = @(); identity_verified = $false; diagnostic_only = $true }
 
+. (Join-Path $PSScriptRoot 'Get-ContinueFileSha256.ps1')
 . (Join-Path $PSScriptRoot 'Save-ContinueReaderEvent.ps1')
 . (Join-Path $PSScriptRoot 'Select-ContinueEngineChild.ps1')
 $selectionObserved = $false
@@ -181,16 +182,16 @@ public static class DwmContinueReader {
                 $record.native_provider.status = 'loading_interop'
                 Save-ReaderEvent 'native_interop_start'
                 $interopPath = Join-Path $PSScriptRoot 'ContinueNativeProvider.cs'
-                $record.native_provider['interop_sha256'] = (Get-FileHash -LiteralPath $interopPath -Algorithm SHA256).Hash.ToLowerInvariant()
+                $record.native_provider['interop_sha256'] = (Get-ContinueFileSha256 -LiteralPath $interopPath)
                 $record.native_provider['powershell'] = $PSVersionTable.PSVersion.ToString()
                 $record.native_provider['clr'] = [Environment]::Version.ToString()
                 $record.native_provider['process_bits'] = [IntPtr]::Size * 8
                 $record.native_provider['reader_path'] = $PSCommandPath
-                $record.native_provider['reader_sha256'] = (Get-FileHash -LiteralPath $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant()
+                $record.native_provider['reader_sha256'] = (Get-ContinueFileSha256 -LiteralPath $PSCommandPath)
                 $uiaCorePath = Join-Path $env:SystemRoot 'System32/UIAutomationCore.dll'
                 $record.native_provider['uia_core'] = [ordered]@{ path = $uiaCorePath;
                     file_version = [Diagnostics.FileVersionInfo]::GetVersionInfo($uiaCorePath).FileVersion;
-                    sha256 = (Get-FileHash -LiteralPath $uiaCorePath -Algorithm SHA256).Hash.ToLowerInvariant() }
+                    sha256 = (Get-ContinueFileSha256 -LiteralPath $uiaCorePath) }
                 Add-Type -Path $interopPath
                 $nativeSession = New-Object DwmNativeProvider.Session
                 $record.native_provider['assembly'] = $nativeSession.GetType().Assembly.FullName
@@ -303,3 +304,4 @@ public static class DwmContinueReader {
     Save-ReaderEvent 'reader_complete'
 }
 exit $result
+
