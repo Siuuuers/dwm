@@ -1,0 +1,85 @@
+{
+  "total_count": 4,
+  "artifacts": [
+    {
+      "id": 12365150415,
+      "node_id": "MDg6QXJ0aWZhY3QxMjM2NTE1MDQxNQ==",
+      "name": "engine-selection-preflight-39638614243-1",
+      "size_in_bytes": 1439,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12365150415",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12365150415/zip",
+      "expired": false,
+      "digest": "sha256:6387cdec48dced4bd9d24d4e10b5addd457afae91e37a25e40429f490175ab8f",
+      "created_at": "2026-10-21T16:52:39Z",
+      "updated_at": "2026-10-21T16:52:39Z",
+      "expires_at": "2026-10-28T16:52:38Z",
+      "workflow_run": {
+        "id": 39638614243,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/scene-runtime-integration-controller-20261009",
+        "head_sha": "a19be156f97c88afddbc7d36d7e0418fea4e86b4"
+      }
+    },
+    {
+      "id": 12364260704,
+      "node_id": "MDg6QXJ0aWZhY3QxMjM2NDI2MDcwNA==",
+      "name": "reader-receipt-preflight-39638614243-1",
+      "size_in_bytes": 3554,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12364260704",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12364260704/zip",
+      "expired": false,
+      "digest": "sha256:978409e7c62e91ec474be1be68e52b32d2910f5edb0f26b07ff429733036530f",
+      "created_at": "2026-10-21T16:52:37Z",
+      "updated_at": "2026-10-21T16:52:37Z",
+      "expires_at": "2026-10-28T16:52:36Z",
+      "workflow_run": {
+        "id": 39638614243,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/scene-runtime-integration-controller-20261009",
+        "head_sha": "a19be156f97c88afddbc7d36d7e0418fea4e86b4"
+      }
+    },
+    {
+      "id": 12363941950,
+      "node_id": "MDg6QXJ0aWZhY3QxMjM2Mzk0MTk1MA==",
+      "name": "caption-preparation-39638614243-1",
+      "size_in_bytes": 10807613,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12363941950",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12363941950/zip",
+      "expired": false,
+      "digest": "sha256:3e9f6ba2c05fb6b30075b5243579c4681bf3dd7f54b17e2d74ff2d78bd0e7416",
+      "created_at": "2026-10-21T16:55:03Z",
+      "updated_at": "2026-10-21T16:55:03Z",
+      "expires_at": "2026-10-28T16:54:58Z",
+      "workflow_run": {
+        "id": 39638614243,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/scene-runtime-integration-controller-20261009",
+        "head_sha": "a19be156f97c88afddbc7d36d7e0418fea4e86b4"
+      }
+    },
+    {
+      "id": 12363482552,
+      "node_id": "MDg6QXJ0aWZhY3QxMjM2MzQ4MjU1Mg==",
+      "name": "caption-qualification-39638614243-1",
+      "size_in_bytes": 12769,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12363482552",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12363482552/zip",
+      "expired": false,
+      "digest": "sha256:7d6b728cae68bdf164bbd11139bb6e4bf685e0d819c0c806b767af9180d85184",
+      "created_at": "2026-10-21T16:54:57Z",
+      "updated_at": "2026-10-21T16:54:57Z",
+      "expires_at": "2026-10-28T16:54:56Z",
+      "workflow_run": {
+        "id": 39638614243,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/scene-runtime-integration-controller-20261009",
+        "head_sha": "a19be156f97c88afddbc7d36d7e0418fea4e86b4"
+      }
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "runner_exit": 1,
+  "registration": "timeout",
+  "attachment": "discovered",
+  "timing": "clock_incomparable",
+  "reader": {
+    "reader_pid": 4424,
+    "clock": "system UTC Unix milliseconds; elapsed uses Stopwatch",
+    "status": "engine_exited",
+    "ok": true,
+    "discovered": true,
+    "identity": {
+      "pid": 4628,
+      "parent_pid": 2764,
+      "executable": "D:\\a\\_temp\\godot-4.6.3\\Godot_v4.6.3-stable_win64.exe",
+      "command_line": "D:\\a\\_temp\\godot-4.6.3\\Godot_v4.6.3-stable_win64.exe --rendering-method gl_compatibility --audio-driver Dummy --path D:\\a\\dwm\\dwm --log-file D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\continue-publication-initial-observation.log --verbose --accessibility always -s res://addons/gut/gut_cmdln.gd -gconfig= -gtest=res://tests/manual/test_continue_reveal_publication.gd -gunit_test_name=test_continue_initial_registration_observation -gexit -glog=2 -gdisable_colors -gjunit_xml_file=res://.godot/ci/continue-publication/initial-observation.xml",
+      "created_utc": "2026-10-21T16:54:25.753031Z",
+      "native_start_ticks": "639281984657530310",
+      "launcher_pid": 2764
+    },
+    "hwnd": 197098,
+    "attachment_started_unix_msec": 1792601667973,
+    "attachment_completed_unix_msec": 1792601673648,
+    "discovery_started_unix_msec": 1792601673694,
+    "discovery_completed_unix_msec": 1792601673838,
+    "reader_completed_unix_msec": 1792601682263,
+    "descendant_count": 0,
+    "error": null,
+    "exit_code": 0,
+    "events": [
+      {
+        "stage": "reader_start",
+        "unix_msec": 1792601666107,
+        "elapsed_msec": 158.7721
+      },
+      {
+        "stage": "identity_start",
+        "unix_msec": 1792601667827,
+        "elapsed_msec": 1867.5384000000001
+      },
+      {
+        "stage": "child_selection",
+        "unix_msec": 1792601667914,
+        "elapsed_msec": 1954.5099
+      },
+      {
+        "stage": "identity_bound",
+        "unix_msec": 1792601667954,
+        "elapsed_msec": 1994.2377000000001
+      },
+      {
+        "stage": "attachment_start",
+        "unix_msec": 1792601667973,
+        "elapsed_msec": 2014.2808
+      },
+      {
+        "stage": "attachment_return",
+        "unix_msec": 1792601673648,
+        "elapsed_msec": 7688.7039
+      },
+      {
+        "stage": "discovery_start",
+        "unix_msec": 1792601673694,
+        "elapsed_msec": 7734.920700000001
+      },
+      {
+        "stage": "discovery_success",
+        "unix_msec": 1792601673838,
+        "elapsed_msec": 7878.1513
+      },
+      {
+        "stage": "provider_observation_start",
+        "unix_msec": 1792601673842,
+        "elapsed_msec": 7881.733300000001
+      },
+      {
+        "stage": "provider_observation_complete",
+        "unix_msec": 1792601673853,
+        "elapsed_msec": 7893.214300000001
+      },
+      {
+        "stage": "engine_exit_observed",
+        "unix_msec": 1792601682263,
+        "elapsed_msec": 16303.128
+      },
+      {
+        "stage": "reader_complete",
+        "unix_msec": 1792601682263,
+        "elapsed_msec": 16309.263200000001
+      }
+    ],
+    "binding": {
+      "launcher_pid": 2764,
+      "launcher_start_ticks": "639281984657267414",
+      "console_path": "D:\\a\\_temp\\godot-4.6.3\\Godot_v4.6.3-stable_win64_console.exe",
+      "engine_path": "D:\\a\\_temp\\godot-4.6.3\\Godot_v4.6.3-stable_win64.exe",
+      "arguments": "--rendering-method gl_compatibility --audio-driver Dummy --path D:\\a\\dwm\\dwm --log-file D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\continue-publication-initial-observation.log --verbose --accessibility always -s res://addons/gut/gut_cmdln.gd -gconfig= -gtest=res://tests/manual/test_continue_reveal_publication.gd -gunit_test_name=test_continue_initial_registration_observation -gexit -glog=2 -gdisable_colors -gjunit_xml_file=res://.godot/ci/continue-publication/initial-observation.xml",
+      "started_unix_msec": 1792601665737
+    },
+    "child_selection": {
+      "child_count": 2,
+      "engine_candidate_count": 1,
+      "selected_pid": 4628,
+      "inventory_truncated": false,
+      "children": [
+        {
+          "pid": 6896,
+          "parent_pid": 2764,
+          "executable": "C:\\Windows\\system32\\conhost.exe",
+          "disposition": "other_executable"
+        },
+        {
+          "pid": 4628,
+          "parent_pid": 2764,
+          "executable": "D:\\a\\_temp\\godot-4.6.3\\Godot_v4.6.3-stable_win64.exe",
+          "disposition": "engine_executable"
+        }
+      ]
+    },
+    "engine_start_ticks": 639281984657530310,
+    "provider_observation": {
+      "scope": "existing UIA element after discovery; descriptive only",
+      "started_unix_msec": 1792601673840,
+      "completed_unix_msec": 1792601673852,
+      "framework_id": "Win32",
+      "class_name": "Engine",
+      "control_type": "ControlType.Window",
+      "native_window_handle": 197098
+    }
+  },
+  "lifecycle": {
+    "child_exit": 1,
+    "reader_started": true,
+    "reader_exit": 0,
+    "reader_forced": false,
+    "error": null,
+    "cleanup_errors": [],
+    "completed_unix_msec": 1792601682334
+  },
+  "window": {
+    "original": {
+      "deadline_ticks_msec": 15602,
+      "start_clock": {
+        "ticks_after": 10602,
+        "ticks_before": 10602,
+        "unix_msec": 1792601676374.0
+      }
+    },
+    "end_clock": {
+      "ticks_after": 15625,
+      "ticks_before": 15625,
+      "unix_msec": 1792601681397.0
+    },
+    "deadline_earliest_unix_msec": 1792601681374.0,
+    "deadline_latest_unix_msec": 1792601681374.0,
+    "boundary_margin_msec": 12,
+    "clock_drift_limit_msec": 10
+  },
+  "clock_drift_msec": 0.0,
+  "reader_clock_drift_max_msec": 12.038799999999355,
+  "discovery_start_from_window_msec": null,
+  "discovery_end_from_window_msec": null,
+  "analysis_error": null,
+  "qualified": false
+}
