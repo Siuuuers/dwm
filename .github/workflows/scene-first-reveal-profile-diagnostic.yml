@@ -19,9 +19,9 @@ jobs:
       run:
         shell: pwsh
     env:
-      PRODUCT_SHA: b95a6de6a633b1d199bffc540d87a89a05513a5e
-      SOURCE_SHA: f1bf66ce689a1358cb217563e6996997536bc4b0
-      PREPARATION_SHA256: 1220b4570afc48abcf894b6f8dd1489ce857eb1bc54674e41212dc6aa2fc2719
+      PRODUCT_SHA: 39a9d23616229aa709ff4c7de7d726d48bee8890
+      SOURCE_SHA: 86e2fbdd1458c02e5a85a52ce317f15d99398932
+      PREPARATION_SHA256: 4c854eecfb924e74fb2b4708e141bedc4590c41715b64b7ae1f73d02d4fc7406
       CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
     steps:
       - uses: actions/checkout@v7
@@ -29,7 +29,7 @@ jobs:
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
-          ref: b95a6de6a633b1d199bffc540d87a89a05513a5e
+          ref: 39a9d23616229aa709ff4c7de7d726d48bee8890
       - name: Windows PowerShell 5 shared receipt writer preflight
         id: receipt_preflight
         shell: powershell
