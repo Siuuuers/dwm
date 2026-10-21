@@ -1,3 +1,14 @@
+# Continue reveal-completion lifecycle correction
+
+Candidate: 958ab5e072ef76b9c6467937a4b6ca3c7849382c on codex/a-caption-text-20261021, parent 099f3de88a97d1ec0e506b4e683841d08784a4d8.
+Addresses C PR36 comment6308201477 (relay PR30 comment6308203029). Initial design/report remains historical below its original pin.
+
+Observable outcome: after organic or manual caption reveal finishes, the existing Continue surface publishes an action for the new reveal lifetime. The previously published action refuses; the replacement advances once through the existing ordinary input owner.
+
+[Lifecycle correction and precise verification limits](../evidence/phase_2r/caption_text_20261021/lifecycle-review.md). C review pending; no runtime execution. Separate native contract remains required before qualification.
+
+---
+
 # User-approved caption text / Continue candidate — review before qualification
 
 21 October 2026 Hong Kong. User selected story text without a button role, preserving ordinary Enter/touch and a separate accessible Continue. Isolated source candidate099f3de88a97d1ec0e506b4e683841d08784a4d8 on codex/a-caption-text-20261021 (parent productc8358870) implements this on the existing tappable BackgroundInput surface. No extra visible rail control, duplicate caption, new command owner or unconditional speech. Next and opt-in Read Aloud semantics remain unchanged.
