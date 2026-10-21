@@ -7,11 +7,23 @@ var _label := ""
 var _available := false
 var _source_visible := false
 
+# Diagnostic seed is set only by the isolated first-registration fixture.
+# _init runs on the actual scene instance, before its ordinary tree entry.
+func _init() -> void:
+	if not has_meta(&"continue_registration_observation") and Engine.has_meta(&"dwm_continue_registration_seed"):
+		var seed: Dictionary = Engine.get_meta(&"dwm_continue_registration_seed")
+		if int(seed.get("owner_id", 0)) == 0:
+			seed["owner_id"] = get_instance_id()
+			set_meta(&"continue_registration_observation", seed)
+	_observe_registration("instance_init")
+
 func bind_accessible_continue(input_owner: Node, localization: Node) -> void:
+	_observe_registration("bind_enter")
 	_accept_input = input_owner
 	_localization = localization
 	_accept_input.bind_accessible_continue(self)
 	_refresh_projection()
+	_observe_registration("bind_return")
 
 func _process(_delta: float) -> void:
 	_refresh_projection()
@@ -29,22 +41,39 @@ func _refresh_projection() -> void:
 	_label = label
 	_source_visible = source_visible
 	_available = available
+	_observe_registration("projection_changed", {"label": _label, "available": _available, "source_visible": _source_visible})
+	_observe_registration("queue_request")
 	queue_accessibility_update()
+	_observe_registration("queue_return")
 
 func capture_continue_action() -> Callable:
-	return _accept_input.capture_accessibility_continue()
+	_observe_registration("owner_capture_enter")
+	var action: Callable = _accept_input.capture_accessibility_continue()
+	if has_meta(&"continue_registration_observation"):
+		_observe_registration("owner_capture_return", {
+			"reveal": _accept_input._caption.get_reveal_generation(),
+			"custody": _accept_input._accessibility_generation,
+			"target": _accept_input._focus_caption().get_instance_id()})
+	return action
 
-# Isolated diagnostic only. Metadata survives the fixture's set_script rebind.
-# Count every boundary; retain at most 24 samples and print only at test completion.
+# Complete totals and last facts per phase outlive the bounded event prefix.
 func _observe_registration(stage: String, facts: Dictionary = {}) -> void:
 	if not has_meta(&"continue_registration_observation"): return
 	var observation: Dictionary = get_meta(&"continue_registration_observation")
+	var phase: String = observation.phase
+	var totals: Dictionary = observation.phases[phase].counts
 	observation.counts[stage] = int(observation.counts.get(stage, 0)) + 1
-	observation.last[stage] = {"usec": Time.get_ticks_usec(), "facts": facts}
+	totals[stage] = int(totals.get(stage, 0)) + 1
+	var sample := {"usec": Time.get_ticks_usec(), "phase": phase, "stage": stage,
+		"surface_id": get_instance_id(), "inside_tree": is_inside_tree(), "facts": facts}
+	observation.last[stage] = sample
+	observation.phases[phase].last[stage] = sample
 	if observation.events.size() < 24:
-		observation.events.append({"stage": stage, "usec": Time.get_ticks_usec(), "facts": facts})
+		observation.events.append(sample)
 
 func _notification(what: int) -> void:
+	if what == NOTIFICATION_ENTER_TREE: _observe_registration("enter_tree")
+	if what == NOTIFICATION_EXIT_TREE: _observe_registration("exit_tree")
 	if what != NOTIFICATION_ACCESSIBILITY_UPDATE: return
 	_observe_registration("notification")
 	var element := get_accessibility_element()
@@ -66,4 +95,5 @@ func _notification(what: int) -> void:
 		DisplayServer.accessibility_update_add_action(element, DisplayServer.ACTION_CLICK,
 			capture_continue_action())
 		_observe_registration("action_registered")
+
 

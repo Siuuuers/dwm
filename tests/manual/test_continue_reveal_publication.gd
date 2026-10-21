@@ -3,6 +3,28 @@ extends "res://tests/integration/test_witnessed_caption_runtime.gd"
 ## Rendered official Windows with --accessibility always; real isolated fixture.
 ## Observes callables supplied by the real native notification, not fresh captures.
 
+var _early_observation: Dictionary = {}
+var _observation_armed := false
+
+func _continue_registration_phase(phase: String) -> void:
+	if _early_observation.is_empty(): return
+	_early_observation.phase = phase
+	if not _early_observation.phases.has(phase):
+		_early_observation.phases[phase] = {"counts": _early_observation.zero_counts.duplicate(), "last": {}}
+	var boundary := {"phase": phase, "usec": Time.get_ticks_usec(),
+		"surface_id": _early_observation.get("owner_id", 0)}
+	if is_instance_valid(caption):
+		boundary["layout_id"] = layout.get_instance_id()
+		boundary["layout_parent_id"] = layout.get_parent().get_instance_id()
+		boundary["surface_id"] = caption.background_input.get_instance_id()
+	_early_observation.boundaries.append(boundary)
+
+func after_each() -> void:
+	if _observation_armed:
+		Engine.remove_meta(&"dwm_continue_registration_seed")
+		_observation_armed = false
+	await super.after_each()
+
 class ContinuePublicationProbe extends "res://scripts/ui/witnessed/WitnessedAccessibleContinue.gd":
 	var publications: Array[Dictionary] = []
 	func capture_continue_action() -> Callable:
@@ -35,16 +57,32 @@ func _mount_continue_publication_probe() -> Control:
 	if not localization_result.get("ok", false): return null
 	assert_eq(localization.get_readiness(), &"ready")
 	assert_true(localization.has_key("button.continue"))
-	if not await _mount_root_accept_fixture("Current.\nFollowing."): return null
+	assert_false(Engine.has_meta(&"dwm_continue_registration_seed"), "observation seed is isolated")
+	if Engine.has_meta(&"dwm_continue_registration_seed"): return null
+	var zeros := {"instance_init": 0, "enter_tree": 0, "exit_tree": 0,
+		"bind_enter": 0, "bind_return": 0, "retirement_queue_request": 0, "retirement_queue_return": 0, "projection_changed": 0, "queue_request": 0, "queue_return": 0,
+		"notification": 0, "element": 0, "admission": 0, "owner_capture_enter": 0,
+		"owner_capture_return": 0, "capture_enter": 0, "capture_return": 0, "action_registered": 0}
+	_early_observation = {"window": "ordinary instance construction through post-rebind wait",
+		"owner_id": 0, "zero_counts": zeros, "counts": zeros.duplicate(), "last": {},
+		"events": [], "boundaries": [], "phases": {}, "phase": "armed"}
+	_continue_registration_phase("armed")
+	Engine.set_meta(&"dwm_continue_registration_seed", _early_observation)
+	_observation_armed = true
+	var mounted: bool = await _mount_root_accept_fixture("Current.\nFollowing.")
+	Engine.remove_meta(&"dwm_continue_registration_seed")
+	_observation_armed = false
+	if not mounted: return null
 	var surface: Control = caption.background_input
-	var observation := {"window": "before set_script through initial wait; excludes earlier mount", "counts": {"notification": 0, "element": 0, "admission": 0,
-		"capture_enter": 0, "capture_return": 0, "action_registered": 0}, "last": {},
-		"events": [{"stage": "before_install", "usec": Time.get_ticks_usec(),
-			"facts": {"surface_id": surface.get_instance_id(), "script": str(surface.get_script())}}]}
-	surface.set_meta(&"continue_registration_observation", observation)
+	assert_true(surface.has_meta(&"continue_registration_observation"), "actual Continue instance was observed before tree entry")
+	if not surface.has_meta(&"continue_registration_observation"): return null
+	assert_eq(int(_early_observation.owner_id), surface.get_instance_id(), "observation belongs to the mounted Continue")
+	_continue_registration_phase("script_replacement")
+	surface._observe_registration("before_install", {"script": str(surface.get_script())})
 	surface.set_script(ContinuePublicationProbe)
 	surface._observe_registration("after_install", {"script": str(surface.get_script()),
 		"publications": surface.publications.size()})
+	_continue_registration_phase("post_mount_rebind")
 	surface.bind_accessible_continue(caption.accept_input, get_node("/root/LocalizationManager"))
 	surface._observe_registration("after_rebind", {"label": surface._label,
 		"source_visible": surface._source_visible, "available": surface._available})
@@ -55,6 +93,7 @@ func _mount_continue_publication_probe() -> Control:
 	return surface
 
 func _await_publication(surface: Control, reveal: int) -> Dictionary:
+	_continue_registration_phase("initial_wait")
 	var deadline := Time.get_ticks_msec() + 5000
 	while Time.get_ticks_msec() < deadline:
 		for publication: Dictionary in surface.publications:
@@ -142,4 +181,5 @@ func test_continue_registered_action_refreshes_after_organic_finish() -> void:
 
 func test_continue_registered_action_refreshes_after_manual_finish() -> void:
 	await _check_registered_completion(false)
+
 

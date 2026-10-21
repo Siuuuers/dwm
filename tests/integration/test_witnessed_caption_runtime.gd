@@ -1039,10 +1039,18 @@ func test_real_text_clear_and_immediate_replacement_invalidate_an_awaiting_nativ
 	assert_eq(caption.caption_text,native)
 	assert_eq(caption.get_caption_projection().retained_captions,[])
 
+# No-op except in the isolated registration observation subclass.
+func _continue_registration_phase(_phase: String) -> void:
+	pass
+
 func _mount_root_accept_fixture(copy: String) -> bool:
+	_continue_registration_phase("initial_mount")
 	if not _mount(): return false
+	_continue_registration_phase("mounted_settle")
 	await _settle()
+	_continue_registration_phase("reparent")
 	layout.reparent(get_tree().root)
+	_continue_registration_phase("root_setup")
 	layout.layer = 129 # Above GUT's own CanvasLayer128, as in the real touch fixture.
 	get_tree().root.size = Vector2i(1280,720)
 	get_tree().root.content_scale_size = Vector2i(1280,720)
@@ -1051,8 +1059,11 @@ func _mount_root_accept_fixture(copy: String) -> bool:
 		caption.caption_text.set_process(false)
 		caption.set_process(false))
 	# Keep the real timeline valid even when a RED run exposes several extra accepts.
+	_continue_registration_phase("timeline_start")
 	runtime.start(_timeline(copy + "\nFixture guard caption.".repeat(16)))
+	_continue_registration_phase("timeline_settle")
 	await _settle()
+	_continue_registration_phase("focus_and_input")
 	caption.caption_text.grab_focus()
 	runtime.Inputs.input_block_timer.stop()
 	assert_false(runtime.paused)
@@ -2108,3 +2119,4 @@ func test_continue_projection_uses_existing_surface_and_follows_source_admission
 	await _settle()
 	assert_eq(_finished, 1)
 	assert_eq(runtime.current_event_idx, 0)
+

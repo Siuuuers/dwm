@@ -135,7 +135,12 @@ func _retire_accessibility_accept() -> void:
 	_accessibility_generation += 1
 	if is_instance_valid(_caption): _caption.queue_accessibility_update()
 	if is_instance_valid(_review_caption): _review_caption.queue_accessibility_update()
-	if is_instance_valid(_accessible_continue): _accessible_continue.queue_accessibility_update()
+	if is_instance_valid(_accessible_continue):
+		if _accessible_continue.has_meta(&"continue_registration_observation"):
+			_accessible_continue.call("_observe_registration", "retirement_queue_request", {"custody": _accessibility_generation})
+		_accessible_continue.queue_accessibility_update()
+		if _accessible_continue.has_meta(&"continue_registration_observation"):
+			_accessible_continue.call("_observe_registration", "retirement_queue_return")
 
 ## Capture both custody lifetime and native reveal identity; equal text is not identity.
 func capture_accessibility_accept(target: Control) -> Callable:
@@ -409,3 +414,4 @@ func _physical_source(event: InputEvent) -> String:
 	if event is InputEventAction:
 		return "action:%s:%s" % [event.device, event.action]
 	return ""
+
