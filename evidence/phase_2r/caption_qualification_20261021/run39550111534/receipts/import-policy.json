@@ -1,0 +1,7 @@
+{
+  "passed": false,
+  "errors": [
+    "UNREVIEWED_GENERATED_INPUT: ['scripts/ui/witnessed/WitnessedAccessibleContinue.gd.uid: INVALID_GENERATED_UID']"
+  ],
+  "settings_exception": true
+}

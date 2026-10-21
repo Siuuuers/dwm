@@ -1,0 +1,552 @@
+{
+  "entries": [
+    {
+      "path": "evidence/phase_2r/challenge_recall_20261017/computer-challenge-recall-restored-selected.png.import",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/a1bc4fe11975661dd0a21de432e15f6f6f55354e4fc7f00944fb3dfed23ea559",
+        "sha256": "a1bc4fe11975661dd0a21de432e15f6f6f55354e4fc7f00944fb3dfed23ea559",
+        "size": 1076,
+        "git_blob": "d7bde740466da566b609b5c5cf2c662d1ddffe0b"
+      },
+      "source": "evidence/phase_2r/challenge_recall_20261017/computer-challenge-recall-restored-selected.png",
+      "classification": "excluded_development_metadata",
+      "exclusion": "evidence/*",
+      "source_blob": "5f0688f72ca1e24adf846bb29c82c1ff53df4241",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "evidence/phase_2r/challenge_recall_20261017/computer-challenge-recall-saved.png.import",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/5042cb9dfef0fff1d74565f5b7a1d8e28479013d3c8bfa2bbb432888d50a7a8d",
+        "sha256": "5042cb9dfef0fff1d74565f5b7a1d8e28479013d3c8bfa2bbb432888d50a7a8d",
+        "size": 1041,
+        "git_blob": "1716d0e7c346f891e6ceb6b89766d637d7d6b988"
+      },
+      "source": "evidence/phase_2r/challenge_recall_20261017/computer-challenge-recall-saved.png",
+      "classification": "excluded_development_metadata",
+      "exclusion": "evidence/*",
+      "source_blob": "4fd1521731cdc1a906678de4000a0e8ee5ea41c5",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "evidence/phase_2r/challenge_recall_20261017/computer-challenge-recall-selected.png.import",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/a77ed16d8208850f4dad965446b8bd6e644a96500df670b5e8c5c5d5decad6ed",
+        "sha256": "a77ed16d8208850f4dad965446b8bd6e644a96500df670b5e8c5c5d5decad6ed",
+        "size": 1049,
+        "git_blob": "4ec228eafce4c068ac3c4b5a7a81fa494730f84d"
+      },
+      "source": "evidence/phase_2r/challenge_recall_20261017/computer-challenge-recall-selected.png",
+      "classification": "excluded_development_metadata",
+      "exclusion": "evidence/*",
+      "source_blob": "097b1234e98f907c85c48d845fa37e483adbab8c",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "evidence/phase_2r/clock_layout_20261016/computer-clock-ending.png.import",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/2817ffb7516600fe7f3cf8969a7a917926e4a1751d20935b6025bfe3de484a34",
+        "sha256": "2817ffb7516600fe7f3cf8969a7a917926e4a1751d20935b6025bfe3de484a34",
+        "size": 1007,
+        "git_blob": "fcb94f2e63439773dfba62a0f8f57b341725760b"
+      },
+      "source": "evidence/phase_2r/clock_layout_20261016/computer-clock-ending.png",
+      "classification": "excluded_development_metadata",
+      "exclusion": "evidence/*",
+      "source_blob": "3065a9ee12a117ea0f390c701ebed5017b5e66d8",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "evidence/phase_2r/clock_layout_20261016/computer-clock-ordinary.png.import",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/0382c11bfb5d3451e46238b1f95b9b671a570b205d1d77ae7863ac2352b296ab",
+        "sha256": "0382c11bfb5d3451e46238b1f95b9b671a570b205d1d77ae7863ac2352b296ab",
+        "size": 1012,
+        "git_blob": "62eb5cf2182c076b376c0b636b94638cef471276"
+      },
+      "source": "evidence/phase_2r/clock_layout_20261016/computer-clock-ordinary.png",
+      "classification": "excluded_development_metadata",
+      "exclusion": "evidence/*",
+      "source_blob": "1a43c9e9affaec2df315d499339f219932b3a287",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "evidence/phase_2r/clock_layout_20261016/computer-clock-title.png.import",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/d8e5f8f9f02fda23e91873a5c05fcca2f78dea9a57c6a2d29765d9b6b0a0bda0",
+        "sha256": "d8e5f8f9f02fda23e91873a5c05fcca2f78dea9a57c6a2d29765d9b6b0a0bda0",
+        "size": 1004,
+        "git_blob": "de05fbdd8fa3a3d0526042586cdff8abb8fd8b80"
+      },
+      "source": "evidence/phase_2r/clock_layout_20261016/computer-clock-title.png",
+      "classification": "excluded_development_metadata",
+      "exclusion": "evidence/*",
+      "source_blob": "2281465f3ab270f91903966653b40af9fbc77da1",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "evidence/phase_2r/load_caption_memory_20261017/day4-restored.png.import",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/2c4f1661994ca6e1aebadf9b4c384e0a4bc8bd34314239f97685b094c6fd0c59",
+        "sha256": "2c4f1661994ca6e1aebadf9b4c384e0a4bc8bd34314239f97685b094c6fd0c59",
+        "size": 990,
+        "git_blob": "763ce2ea33b878131b746e964b53ef05ed6f8c71"
+      },
+      "source": "evidence/phase_2r/load_caption_memory_20261017/day4-restored.png",
+      "classification": "excluded_development_metadata",
+      "exclusion": "evidence/*",
+      "source_blob": "42dc5a5a06683a30be8e1b9ece8a4e29d3f9c0fe",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "evidence/phase_2r/partner_fork_20261017/auto-lavinia.png.import",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/73f7d7da2c1b5694fc9d21aed5feeffb96d0d33c3147b049fccaac37a9e1cb46",
+        "sha256": "73f7d7da2c1b5694fc9d21aed5feeffb96d0d33c3147b049fccaac37a9e1cb46",
+        "size": 980,
+        "git_blob": "8f667e8b4e679b5d85fb68d226912543df119dd6"
+      },
+      "source": "evidence/phase_2r/partner_fork_20261017/auto-lavinia.png",
+      "classification": "excluded_development_metadata",
+      "exclusion": "evidence/*",
+      "source_blob": "c029e50c33f72ff280eb6782b8e21dd2625b392f",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "evidence/phase_2r/partner_fork_20261017/offer.png.import",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/9ab6d5b0cb48db4fbe4ff1e9533cc08cf67d47cbd16b9040ed0083e359254c19",
+        "sha256": "9ab6d5b0cb48db4fbe4ff1e9533cc08cf67d47cbd16b9040ed0083e359254c19",
+        "size": 958,
+        "git_blob": "0ddb86709fffc9341d833829760b355fdda05d1b"
+      },
+      "source": "evidence/phase_2r/partner_fork_20261017/offer.png",
+      "classification": "excluded_development_metadata",
+      "exclusion": "evidence/*",
+      "source_blob": "a59ef0363d224b9f42d53dc1c89fde2155d8dd31",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "evidence/phase_2r/partner_fork_20261017/recovered-sylvia.png.import",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/f38a1e258fb38cbf63d6c265513d612d8966a7e54fba47d7e5e6bbfd6311a3fb",
+        "sha256": "f38a1e258fb38cbf63d6c265513d612d8966a7e54fba47d7e5e6bbfd6311a3fb",
+        "size": 992,
+        "git_blob": "c36e0c67aa311028fc201bf8f4a607aa32df8487"
+      },
+      "source": "evidence/phase_2r/partner_fork_20261017/recovered-sylvia.png",
+      "classification": "excluded_development_metadata",
+      "exclusion": "evidence/*",
+      "source_blob": "2c6b8488c77b7f16fd6e88bc58552c8efc3a8608",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "scripts/ui/witnessed/WitnessedAccessibleContinue.gd.uid",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/c0e20f785330b11513cc95f4b8df19c119039e7a13f9a8f88050f9a0ecd6b8c1",
+        "sha256": "c0e20f785330b11513cc95f4b8df19c119039e7a13f9a8f88050f9a0ecd6b8c1",
+        "size": 19,
+        "git_blob": "0507fd06c8f772275a124c142d8ab46999b62e10"
+      },
+      "source": "scripts/ui/witnessed/WitnessedAccessibleContinue.gd",
+      "classification": "rejected_runtime_generated_uid",
+      "source_blob": "9e37a90dfb3ca1816df85e41fcc849da90bb64fa",
+      "uid_text": "uid://h8dyo01hhdq1",
+      "uid": "559672156520183150",
+      "scope": "focused rendered source test only; no export/package acceptance",
+      "failure": "INVALID_GENERATED_UID"
+    },
+    {
+      "path": "tests/integration/scene_challenge_recall_child.gd.uid",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/17e7276fcd5ee15d40917a767fcd3359b1bada6594eb10636e91fccc522f665c",
+        "sha256": "17e7276fcd5ee15d40917a767fcd3359b1bada6594eb10636e91fccc522f665c",
+        "size": 20,
+        "git_blob": "305cbd715909466a6369fd3f3c125d71de667e55"
+      },
+      "source": "tests/integration/scene_challenge_recall_child.gd",
+      "classification": "excluded_development_metadata",
+      "exclusion": "tests/*",
+      "source_blob": "94e6ab9dfda579b97493e9911387807d02c1baa5",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "tests/integration/scene_partner_fork_child.gd.uid",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/e2bcc3b00e46685c80d59345cc02e037332fd90d1f5958858982a2f3b7fb6e72",
+        "sha256": "e2bcc3b00e46685c80d59345cc02e037332fd90d1f5958858982a2f3b7fb6e72",
+        "size": 20,
+        "git_blob": "a54ca700fe08ea0fdece890d240cc33b73e7c9cf"
+      },
+      "source": "tests/integration/scene_partner_fork_child.gd",
+      "classification": "excluded_development_metadata",
+      "exclusion": "tests/*",
+      "source_blob": "5a39c9b4ca859dbcc0540d97a5981cf5753cdefc",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "tests/integration/test_scene_challenge_recall_create.gd.uid",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/6a8d50b71324a97f8868eb4ecb382b0fe09f67f72994cfe9d85472d7ff5f409b",
+        "sha256": "6a8d50b71324a97f8868eb4ecb382b0fe09f67f72994cfe9d85472d7ff5f409b",
+        "size": 20,
+        "git_blob": "6174f4fe45722162e62db921edf3543a446dec84"
+      },
+      "source": "tests/integration/test_scene_challenge_recall_create.gd",
+      "classification": "excluded_development_metadata",
+      "exclusion": "tests/*",
+      "source_blob": "5f33d05b1aef2088b984758c6dfbd3c9e0eee661",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "tests/integration/test_scene_challenge_recall_load.gd.uid",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/225167ef68f8725ae783aa869df68094cddc304117f7b588119097044e025254",
+        "sha256": "225167ef68f8725ae783aa869df68094cddc304117f7b588119097044e025254",
+        "size": 19,
+        "git_blob": "0e080c41c56de377544e44d83030690db4cd7a6c"
+      },
+      "source": "tests/integration/test_scene_challenge_recall_load.gd",
+      "classification": "excluded_development_metadata",
+      "exclusion": "tests/*",
+      "source_blob": "e014b3485e6a308b06e679798da0d7401447ff89",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "tests/integration/test_scene_clock_layout.gd.uid",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/b74de99063bca857b30fe162728e8755aff2b2d4c0b848671911adc08cf16ac6",
+        "sha256": "b74de99063bca857b30fe162728e8755aff2b2d4c0b848671911adc08cf16ac6",
+        "size": 20,
+        "git_blob": "cdde18154e678805319eca2354301f4f5502a24c"
+      },
+      "source": "tests/integration/test_scene_clock_layout.gd",
+      "classification": "excluded_development_metadata",
+      "exclusion": "tests/*",
+      "source_blob": "706db49231c79eb82e096d5a17814ebaf27493e0",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "tests/integration/test_scene_ending_direct_return.gd.uid",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/ec9e85165c69fd11382bc00d6c4085eeda182399107d504f6c39762e9af70750",
+        "sha256": "ec9e85165c69fd11382bc00d6c4085eeda182399107d504f6c39762e9af70750",
+        "size": 20,
+        "git_blob": "85bca876174e444d40f90501aefb5a7f3e343eb5"
+      },
+      "source": "tests/integration/test_scene_ending_direct_return.gd",
+      "classification": "excluded_development_metadata",
+      "exclusion": "tests/*",
+      "source_blob": "06193c2775f8b08f8f4ae770f8d97093df71af1c",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "tests/integration/test_scene_partner_auto.gd.uid",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/e85a497584c009b87e3dfed1c59c978958ff0355fa006e13240b2eb52537a3cd",
+        "sha256": "e85a497584c009b87e3dfed1c59c978958ff0355fa006e13240b2eb52537a3cd",
+        "size": 19,
+        "git_blob": "c06349083953fcf00b8804ad215363befef1dede"
+      },
+      "source": "tests/integration/test_scene_partner_auto.gd",
+      "classification": "excluded_development_metadata",
+      "exclusion": "tests/*",
+      "source_blob": "13488994dbd020de2dc3b4e21894aa0939e1770c",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "tests/integration/test_scene_partner_create.gd.uid",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/0d5b09c7bf87d3c570838c08b673fe04161f0c0230965e53dcfc2f82db7dc02d",
+        "sha256": "0d5b09c7bf87d3c570838c08b673fe04161f0c0230965e53dcfc2f82db7dc02d",
+        "size": 20,
+        "git_blob": "e7bee5a2e78e46377974cb30d02a5cdc527e90cc"
+      },
+      "source": "tests/integration/test_scene_partner_create.gd",
+      "classification": "excluded_development_metadata",
+      "exclusion": "tests/*",
+      "source_blob": "7ae378ba6ab64515ef57018c3e60d14fe4407734",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "tests/integration/test_scene_partner_manual.gd.uid",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/a94d5d6298192614aa7867e250ed1fb7389ef0815a4d90713edf3c697438929e",
+        "sha256": "a94d5d6298192614aa7867e250ed1fb7389ef0815a4d90713edf3c697438929e",
+        "size": 19,
+        "git_blob": "b50264e320e414050697f3b4b67507c707b3b481"
+      },
+      "source": "tests/integration/test_scene_partner_manual.gd",
+      "classification": "excluded_development_metadata",
+      "exclusion": "tests/*",
+      "source_blob": "216d7d9ea0ccb6cda5fbe7f446d8e98f58b77102",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "tests/integration/test_scene_partner_pending.gd.uid",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/aca7b8709f9882d6f1608be5fb7939ccb4fe3ffa74145bfbd6a5d2b9812faa7d",
+        "sha256": "aca7b8709f9882d6f1608be5fb7939ccb4fe3ffa74145bfbd6a5d2b9812faa7d",
+        "size": 19,
+        "git_blob": "15890c157ce06a984bb4332b5a87be606f7c3695"
+      },
+      "source": "tests/integration/test_scene_partner_pending.gd",
+      "classification": "excluded_development_metadata",
+      "exclusion": "tests/*",
+      "source_blob": "0e57047f43b4014f368bd457b313f572e9f06c65",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "tests/integration/test_scene_partner_recover.gd.uid",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/1c5f3ed4aefb25304e0f2d473c591c945d5675f221009f9ddc2b6be3c73a7b1b",
+        "sha256": "1c5f3ed4aefb25304e0f2d473c591c945d5675f221009f9ddc2b6be3c73a7b1b",
+        "size": 18,
+        "git_blob": "3c7d8531f2191c8d7e34c7c523daa7daef2be387"
+      },
+      "source": "tests/integration/test_scene_partner_recover.gd",
+      "classification": "excluded_development_metadata",
+      "exclusion": "tests/*",
+      "source_blob": "3402be3866526a1fa81f71fa70df8359d8c850b8",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "tests/integration/test_scene_partner_uncertain.gd.uid",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/b127d244f16a546103049627e9631d94001cb6c254656d7191e3c8d344a7249b",
+        "sha256": "b127d244f16a546103049627e9631d94001cb6c254656d7191e3c8d344a7249b",
+        "size": 19,
+        "git_blob": "d673d274b18a323029b3d927eb6a651b752d213e"
+      },
+      "source": "tests/integration/test_scene_partner_uncertain.gd",
+      "classification": "excluded_development_metadata",
+      "exclusion": "tests/*",
+      "source_blob": "e757f0a62a5b1202532c79d5df03034660580037",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "tests/manual/test_continue_reveal_publication.gd.uid",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/e298b1e770ed2add536f9768d1acdbc11cf9131afb27390d1f4695162e1475ba",
+        "sha256": "e298b1e770ed2add536f9768d1acdbc11cf9131afb27390d1f4695162e1475ba",
+        "size": 20,
+        "git_blob": "69e0979fa34e70d8feb0627c5b10d60e31d0f5fd"
+      },
+      "source": "tests/manual/test_continue_reveal_publication.gd",
+      "classification": "excluded_development_metadata",
+      "exclusion": "tests/*",
+      "source_blob": "82b5fdcadfd749215bc341dd825518a2e18df88f",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "tests/support/GalleryCollectionFixture.gd.uid",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/188f8cae84327449a22fcd6182bc13b97ddbb45a7827409fe6eadb3cb3ccc1c3",
+        "sha256": "188f8cae84327449a22fcd6182bc13b97ddbb45a7827409fe6eadb3cb3ccc1c3",
+        "size": 20,
+        "git_blob": "e2e4561fde6e4a888cb5ce35e0fc11a4c68e68f6"
+      },
+      "source": "tests/support/GalleryCollectionFixture.gd",
+      "classification": "excluded_development_metadata",
+      "exclusion": "tests/*",
+      "source_blob": "e1a7347fb3fbee15650da4d1dd8b5e525a485e06",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "tests/support/RetainedFrozenContextFixture.gd.uid",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/0b011e04e79dd3cd881b1fb53416f67559552eb10d644beb91ff8944bbecdb83",
+        "sha256": "0b011e04e79dd3cd881b1fb53416f67559552eb10d644beb91ff8944bbecdb83",
+        "size": 20,
+        "git_blob": "de40b14983bac01c1f51dec34caea414a7dd569c"
+      },
+      "source": "tests/support/RetainedFrozenContextFixture.gd",
+      "classification": "excluded_development_metadata",
+      "exclusion": "tests/*",
+      "source_blob": "f742befa29eec9829d3dbf04aaab4518364aaf76",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "tests/support/SceneChallengeRecallFixture.gd.uid",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/2469f452b139d67f41d5d5f668347ab4c5926c87095375633ee320a54ddcff1e",
+        "sha256": "2469f452b139d67f41d5d5f668347ab4c5926c87095375633ee320a54ddcff1e",
+        "size": 20,
+        "git_blob": "98e2e3bd50ce5aff38bc5412b734e3fae5ff6a67"
+      },
+      "source": "tests/support/SceneChallengeRecallFixture.gd",
+      "classification": "excluded_development_metadata",
+      "exclusion": "tests/*",
+      "source_blob": "7027b4f93d1ca111eefd646483f368f994548abc",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "tests/support/ScenePartnerForkFixture.gd.uid",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/83607499d41164ac20b347de9c18c82dd8443bb525c8a4905f3200d54194f526",
+        "sha256": "83607499d41164ac20b347de9c18c82dd8443bb525c8a4905f3200d54194f526",
+        "size": 20,
+        "git_blob": "4cc4831a2d990124aa625d099fae053eb380879e"
+      },
+      "source": "tests/support/ScenePartnerForkFixture.gd",
+      "classification": "excluded_development_metadata",
+      "exclusion": "tests/*",
+      "source_blob": "d40662207cec9f2a942caf0efebdb8b61335acc6",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "tests/templates/scene_sequence/OptionSlotTemplates.gd.uid",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/693868579062623d0894ab5db7be6a3afdac82be076f8cbd8be1d701bb0745a3",
+        "sha256": "693868579062623d0894ab5db7be6a3afdac82be076f8cbd8be1d701bb0745a3",
+        "size": 20,
+        "git_blob": "1934a2296478b85682cea328a53d7c4587c1c1e5"
+      },
+      "source": "tests/templates/scene_sequence/OptionSlotTemplates.gd",
+      "classification": "excluded_development_metadata",
+      "exclusion": "tests/*",
+      "source_blob": "9e17d8d76c3979b23c019b65b4eb4a6f8f7bc26a",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "tests/unit/test_retained_frozen_context_fixture.gd.uid",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/4ee0eb13a59aae48872c8d7c92d9421345289f411586d517f549bf20f43e04f9",
+        "sha256": "4ee0eb13a59aae48872c8d7c92d9421345289f411586d517f549bf20f43e04f9",
+        "size": 19,
+        "git_blob": "99bda6d000cd2d7d9fa4b6bb6f9112ad3b89d86e"
+      },
+      "source": "tests/unit/test_retained_frozen_context_fixture.gd",
+      "classification": "excluded_development_metadata",
+      "exclusion": "tests/*",
+      "source_blob": "ef09ba823cb3791f964cbda37593eca3c9e8ff32",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "tests/unit/test_scene_author_option_slots.gd.uid",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/305952050e1d58ca2c731b4233f1faa3fc73deea4d3ead65d81c93c20c69bd1a",
+        "sha256": "305952050e1d58ca2c731b4233f1faa3fc73deea4d3ead65d81c93c20c69bd1a",
+        "size": 20,
+        "git_blob": "7af895321a0264bd447f503c0eed2e8ef2f85621"
+      },
+      "source": "tests/unit/test_scene_author_option_slots.gd",
+      "classification": "excluded_development_metadata",
+      "exclusion": "tests/*",
+      "source_blob": "6d977bdfd068235c83dd9e8a2fe7cf0761229ad2",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "tests/unit/test_scene_caption_memory.gd.uid",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/a4fec5898bf209e7cd5a126206ee8ca45ad330bace3f4fcfd6140bf632df168e",
+        "sha256": "a4fec5898bf209e7cd5a126206ee8ca45ad330bace3f4fcfd6140bf632df168e",
+        "size": 19,
+        "git_blob": "ad8b3829d65477ea6ae379886433a72ee45200d9"
+      },
+      "source": "tests/unit/test_scene_caption_memory.gd",
+      "classification": "excluded_development_metadata",
+      "exclusion": "tests/*",
+      "source_blob": "e54ef7914fbe14ae36203221b75454eff724bec1",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "tests/unit/test_scene_challenge_recall.gd.uid",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/e500c5c7745c2626edd1af760474241b8542b46e5ddccf5517ffe8da67bf2231",
+        "sha256": "e500c5c7745c2626edd1af760474241b8542b46e5ddccf5517ffe8da67bf2231",
+        "size": 20,
+        "git_blob": "e6fa2f0a5bb00343446044680e1671606cc67750"
+      },
+      "source": "tests/unit/test_scene_challenge_recall.gd",
+      "classification": "excluded_development_metadata",
+      "exclusion": "tests/*",
+      "source_blob": "e0f0cadc40552aa3072af756515a0fb4a829d2f4",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "tests/unit/test_scene_five_outcomes.gd.uid",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/9e8c555dca2044b55a6c4fa8bf6368ae80e4bd9bed88bda88e75f138ebad754a",
+        "sha256": "9e8c555dca2044b55a6c4fa8bf6368ae80e4bd9bed88bda88e75f138ebad754a",
+        "size": 20,
+        "git_blob": "d584fe9447e67c59c159edf931fce88998f33c91"
+      },
+      "source": "tests/unit/test_scene_five_outcomes.gd",
+      "classification": "excluded_development_metadata",
+      "exclusion": "tests/*",
+      "source_blob": "abc43493bf615a0a642f2ca3ee82a0759418a71d",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "tests/unit/test_scene_partner_contract.gd.uid",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/4cb18959449e320b763d68621ac1afdc7ddbb6d4c074956eb8d09bab19c10dc2",
+        "sha256": "4cb18959449e320b763d68621ac1afdc7ddbb6d4c074956eb8d09bab19c10dc2",
+        "size": 20,
+        "git_blob": "b9bf4fffa8d40fc5e973c6b1425cf82ee2bc797b"
+      },
+      "source": "tests/unit/test_scene_partner_contract.gd",
+      "classification": "excluded_development_metadata",
+      "exclusion": "tests/*",
+      "source_blob": "2c11b9fb6d4080e82348a7cf597e315962de2ff9",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    },
+    {
+      "path": "tests/unit/test_scene_partner_fork_template.gd.uid",
+      "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+      "bytes": {
+        "file": "bytes/c4a334aefc8845e85dd820884262815db53af1013dd89c8f64e3ceb52844c49b",
+        "sha256": "c4a334aefc8845e85dd820884262815db53af1013dd89c8f64e3ceb52844c49b",
+        "size": 19,
+        "git_blob": "44cadf83b52c13ac8eb50875e8d56827a527e530"
+      },
+      "source": "tests/unit/test_scene_partner_fork_template.gd",
+      "classification": "excluded_development_metadata",
+      "exclusion": "tests/*",
+      "source_blob": "6d692cf35a6f5e3521937348edd1bc35de759b1a",
+      "pack_audit": "export preset exclusion only; no package produced or audited in focused lane"
+    }
+  ],
+  "rejected": [
+    "scripts/ui/witnessed/WitnessedAccessibleContinue.gd.uid: INVALID_GENERATED_UID"
+  ],
+  "preset_sha256": "76d904435496d2057572225b796f8b3c74f121a21254d211a6246caaf96efcaa",
+  "ignored_engine_cache": ".godot/",
+  "source_promotion": false
+}

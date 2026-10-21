@@ -1,0 +1,18 @@
+{
+  "source": "b2cb75a792790f7bf396073b1586026fa1e20482",
+  "first_offending_comparison_path": "addons/godot_state_charts/csharp/ResourceWrapper.cs.uid",
+  "sorted_comparison_ordinal": 268,
+  "preceding_valid_comparisons": 267,
+  "git_blob": "840073e71918f6caa3c44d2f7d285a79719c00a8",
+  "sha256": "df7f6b8622494862b33a25de829677dcc8095fc0fcbfa5fea40b638398521b55",
+  "bytes": 20,
+  "hex": "7569643a2f2f64356e783670676b32747237650a",
+  "text": "uid://d5nx6pgk2tr7e\n",
+  "validator_rejection": "exceeds signed63 range",
+  "base34_unsigned_value": "9293216919078013712",
+  "godot_masked_value": "69844882223237904",
+  "runtime_own_decode_in_artifact": {
+    "uid_text": "uid://h8dyo01hhdq1",
+    "uid": "559672156520183150"
+  }
+}

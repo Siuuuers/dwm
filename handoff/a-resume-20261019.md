@@ -1,3 +1,13 @@
+# Focused caption run failed in preparation — attempt consumed
+
+21 October 2026 Hong Kong. Under Director6308784939/C6308823692, exact controlleraf329296a779fd04dd434f6ed51214d1de8ef83b ran ONE focused attempt39550111534, job119057122431. Pins/parser/baseline and official standard4.6.3 import PASS; post-import preparation FAIL while comparing an existing addon UID. Settings restore, all eight rendered cases and native fixture SKIPPED. Focused upload reported no files; original raw preparation ZIP retained and audited. No retry.
+
+[Exact result, original bytes and diagnosis](../evidence/phase_2r/caption_qualification_20261021/run39550111534/README.md). New Continue UID decoded successfully. First comparison refusal is unchanged addons/godot_state_charts/csharp/ResourceWrapper.cs.uid (sorted268): numeric text exceeds strict generated63-bit range but Godot's existing-text parser masks it. No collision established; complete collision audit did not finish. Original ZIP453acfe7…30905,3,366,537 bytes,86 payloads preserved in26 parts; post-download manifest is explicitly distinct from original artifact.
+
+Next C reviews actual failed result; Director selects the narrow existing-UID comparator correction and any later attempt after exact review. Keep strict new-generated UID validation, exact paths/source ownership, all collision checks and original bytes; report peer path. No source normalization or C# skipping. Current controlleraf329296 is consumed, sourceb2cb75a/productc8358870 unchanged. No game/native/spoken-output or ending acceptance. No merge/release/master/integration movement or new user design question. Standing coordination permission applies.
+
+---
+
 # Focused caption qualification packet — exact C/Director review next
 
 21 October 2026 Hong Kong. C6308446763/6308448291 cleared production correction958ab5e at source level. Qualification source **b2cb75a792790f7bf396073b1586026fa1e20482** on codex/a-caption-qualification-20261021 adds only a focused eight-case runner, two-object native driver adaptation and fixture evidence fields. Production source remains unchanged from C review.

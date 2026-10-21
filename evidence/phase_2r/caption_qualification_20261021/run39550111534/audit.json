@@ -1,0 +1,58 @@
+{
+  "run": 39550111534,
+  "attempt": 1,
+  "job": 119057122431,
+  "original_sha256": "453acfe7a6a602d697b124f73d385021cd5ec3c4b315cca8d8985c3811830905",
+  "original_bytes": 3366537,
+  "safe_unique_zip_members_crc_and_extracted_bytes_verified": 86,
+  "original_file_manifest_present": false,
+  "manifest_limitation": "No aggregate file-hash manifest is present in this raw artifact. Archive hash, ZIP CRC, extracted-byte equality, content-addressed bytes and embedded locators verified; do not claim a manifest census.",
+  "content_addressed_byte_files_verified": 41,
+  "byte_locator_occurrences_verified": 41,
+  "origin": {
+    "runner_image": "win22",
+    "runner_image_version": "20261012.333.1",
+    "controller": "af329296a779fd04dd434f6ed51214d1de8ef83b",
+    "capture_sha256": "a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379",
+    "python": "Python 3.12.10",
+    "attempt": "1",
+    "os": "Microsoft Windows NT 10.0.20348.0",
+    "git": "git version 2.56.0.windows.2",
+    "source": "f237e3719204cd4adf0339dfc7b95006fdd050a1",
+    "architecture": "X64",
+    "run_id": "39550111534",
+    "powershell": "7.6.6",
+    "workflow": "ad37bc43d31291257314d7f98e1044081389c6a5",
+    "preparation_sha256": "70d6f93523ba45854cd748082fe663814236d56ccff2e9abd39027205f4cb271",
+    "product": "b2cb75a792790f7bf396073b1586026fa1e20482"
+  },
+  "baseline_tracked_paths_verified": 13422,
+  "raw_changed_paths": [
+    "project.godot"
+  ],
+  "raw_change_is_exact_allowed_settings_pair": true,
+  "allowed_gitlink_index_removals": 2,
+  "generated_entries": 36,
+  "runtime_uid": {
+    "path": "scripts/ui/witnessed/WitnessedAccessibleContinue.gd.uid",
+    "provenance": "fresh pinned checkout, generated after baseline by official import/focused tests",
+    "bytes": {
+      "file": "bytes/c0e20f785330b11513cc95f4b8df19c119039e7a13f9a8f88050f9a0ecd6b8c1",
+      "sha256": "c0e20f785330b11513cc95f4b8df19c119039e7a13f9a8f88050f9a0ecd6b8c1",
+      "size": 19,
+      "git_blob": "0507fd06c8f772275a124c142d8ab46999b62e10"
+    },
+    "source": "scripts/ui/witnessed/WitnessedAccessibleContinue.gd",
+    "classification": "rejected_runtime_generated_uid",
+    "source_blob": "9e37a90dfb3ca1816df85e41fcc849da90bb64fa",
+    "uid_text": "uid://h8dyo01hhdq1",
+    "uid": "559672156520183150",
+    "scope": "focused rendered source test only; no export/package acceptance",
+    "failure": "INVALID_GENERATED_UID"
+  },
+  "first_failure": {
+    "error": "UNREVIEWED_GENERATED_INPUT: ['scripts/ui/witnessed/WitnessedAccessibleContinue.gd.uid: INVALID_GENERATED_UID']"
+  },
+  "classification": "Import exit0 and error filter passed. New Continue UID decoded successfully and pinned owner passed; INVALID_GENERATED_UID occurred later during comparison of another sidecar. No uid_comparisons or offending peer path retained; this artifact alone does not identify the peer or establish collision.",
+  "downstream": "No settings-restore, focused tests, rendering or native qualification evidence in this raw archive. No runtime result or acceptance."
+}

@@ -1,0 +1,9 @@
+IMPORT_POST_CAPTURED entries=3
+Traceback (most recent call last):
+  File "D:\a\_temp\reviewed-preparation\prepare_caption.py", line 227, in <module>
+    capture_and_enforce("import", True)
+  File "D:\a\_temp\reviewed-preparation\prepare_caption.py", line 178, in capture_and_enforce
+    require(not errors, "; ".join(errors))
+  File "D:\a\_temp\reviewed-preparation\prepare_caption.py", line 24, in require
+    raise RuntimeError(message)
+RuntimeError: UNREVIEWED_GENERATED_INPUT: ['scripts/ui/witnessed/WitnessedAccessibleContinue.gd.uid: INVALID_GENERATED_UID']
