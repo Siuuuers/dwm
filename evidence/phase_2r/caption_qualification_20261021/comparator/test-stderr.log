@@ -1,0 +1,116 @@
+test_exact_runtime_owner_admitted_and_retained (test_prepare_caption.PreparationPolicy.test_exact_runtime_owner_admitted_and_retained) ... /workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_export_final_rejected (test_prepare_caption.PreparationPolicy.test_export_final_rejected) ... ok
+test_generated_runtime_input_fails_and_is_retained (test_prepare_caption.PreparationPolicy.test_generated_runtime_input_fails_and_is_retained) ... /workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_known_settings_restore_and_excluded_generated_custody (test_prepare_caption.PreparationPolicy.test_known_settings_restore_and_excluded_generated_custody) ... /workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_malformed_peer_retains_progress_exact_bytes_and_incomplete (test_prepare_caption.PreparationPolicy.test_malformed_peer_retains_progress_exact_bytes_and_incomplete) ... /workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_masked_alias_collision_is_not_missed (test_prepare_caption.PreparationPolicy.test_masked_alias_collision_is_not_missed) ... /workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_new_generated_input_after_export_fails (test_prepare_caption.PreparationPolicy.test_new_generated_input_after_export_fails) ... /workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_peer_first_line_semantics_preserve_unread_bytes (test_prepare_caption.PreparationPolicy.test_peer_first_line_semantics_preserve_unread_bytes) ... /workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_peer_malformed_guard_never_silently_assigns_zero (test_prepare_caption.PreparationPolicy.test_peer_malformed_guard_never_silently_assigns_zero) ... ok
+test_peer_overflow_and_full_engine_alphabet (test_prepare_caption.PreparationPolicy.test_peer_overflow_and_full_engine_alphabet) ... ok
+test_posttest_tracked_mutation_rejected (test_prepare_caption.PreparationPolicy.test_posttest_tracked_mutation_rejected) ... /workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_posttest_uid_mutation_or_deletion_rejected (test_prepare_caption.PreparationPolicy.test_posttest_uid_mutation_or_deletion_rejected) ... /workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_retained_resourcewrapper_peer_uses_engine_mask (test_prepare_caption.PreparationPolicy.test_retained_resourcewrapper_peer_uses_engine_mask) ... /workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_runtime_uid_collision_with_generated_uid_rejected (test_prepare_caption.PreparationPolicy.test_runtime_uid_collision_with_generated_uid_rejected) ... /workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_runtime_uid_collision_with_tracked_uid_rejected (test_prepare_caption.PreparationPolicy.test_runtime_uid_collision_with_tracked_uid_rejected) ... /workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_runtime_uid_format_rejected (test_prepare_caption.PreparationPolicy.test_runtime_uid_format_rejected) ... /workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_runtime_uid_wrong_source_blob_rejected (test_prepare_caption.PreparationPolicy.test_runtime_uid_wrong_source_blob_rejected) ... /workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_sidecar_mutation_fails_with_exact_bytes (test_prepare_caption.PreparationPolicy.test_sidecar_mutation_fails_with_exact_bytes) ... /workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_staged_mutation_fails (test_prepare_caption.PreparationPolicy.test_staged_mutation_fails) ... /workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_unexpected_untracked_file_fails (test_prepare_caption.PreparationPolicy.test_unexpected_untracked_file_fails) ... /workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_unknown_settings_rewrite_fails_without_restoration (test_prepare_caption.PreparationPolicy.test_unknown_settings_rewrite_fails_without_restoration) ... /workspace/scratch/ca93921d28dc/caption-comparator-candidate/prepare_caption.py:195: ResourceWarning: unclosed file <_io.BufferedReader name=5>
+  custody.capture_after()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 2.070s
+
+OK

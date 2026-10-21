@@ -1,0 +1,95 @@
+--- before/test_prepare_caption.py
++++ after/test_prepare_caption.py
+@@ -25,7 +25,7 @@
+                       ".gitignore": b"*.uid\n.godot/\n", "project.godot": b"directory={known}\n",
+                       "export_presets.cfg": b'exclude_filter="tests/*,evidence/*"\n',
+                       "asset.import": b"compression=0\n", "runtime.gd": b"extends Node\n",
+-                      "tests/test.gd": b"extends Node\n", policy.RUNTIME_UID[:-4]: b"extends Control\n",
++                      "tests/test.gd": b"extends Node\n", "tests/another.gd": b"extends Node\n", policy.RUNTIME_UID[:-4]: b"extends Control\n",
+                       "tracked.gd.uid": b"uid://b\n", "evidence/image.png": b"\x00PNG"}
+         for path, data in self.files.items():
+             self.put(path, data)
+@@ -167,6 +167,83 @@
+         with self.assertRaisesRegex(RuntimeError, "FOCUSED_PHASE_ONLY"):
+             policy.capture_and_enforce("final", False)
+ 
++    def test_retained_resourcewrapper_peer_uses_engine_mask(self):
++        path = "addons/godot_state_charts/csharp/ResourceWrapper.cs.uid"
++        original = b"uid://d5nx6pgk2tr7e\n"
++        self.put(path, original)
++        self.git("add", "-f", path)
++        self.git("commit", "-m", "Pin retained ResourceWrapper UID fixture")
++        policy.PRODUCT = self.git("rev-parse", "HEAD").decode().strip()
++        # The new pinned fixture has its own immutable custody baseline; retain
++        # setUp's original evidence instead of attempting to overwrite it.
++        policy.OUTPUT = Path(self.temp.name) / "resourcewrapper-evidence"
++        policy.OUTPUT.mkdir()
++        policy.before()
++        self.prepared_runtime()
++        runtime = next(row for row in self.report("generated-import.json")["entries"] if row["path"] == policy.RUNTIME_UID)
++        peer = next(row for row in runtime["uid_comparisons"] if row["path"] == path)
++        self.assertEqual(peer["uid"], "69844882223237904")
++        self.assertTrue(peer["tracked"])
++        self.assertEqual((policy.OUTPUT / "import" / peer["bytes"]["file"]).read_bytes(), original)
++        self.assertTrue(runtime["uid_comparisons_complete"])
++        self.assertEqual(runtime["uid_peer_count"], len(runtime["uid_comparisons"]))
++        with self.assertRaisesRegex(RuntimeError, "INVALID_GENERATED_UID"):
++            policy.decode_generated_uid(original)  # New runtime validation stays strict.
++
++    def test_malformed_peer_retains_progress_exact_bytes_and_incomplete(self):
++        self.put(policy.RUNTIME_UID, b"uid://c\n")
++        self.put("tests/another.gd.uid", b"uid://d\n")
++        self.put("tests/test.gd.uid", b"not-a-uid\n")
++        with self.assertRaisesRegex(RuntimeError, "UID_COMPARISON_FAILED: tests/test.gd.uid: INVALID_PEER_UID_LINE"):
++            policy.capture_and_enforce("import", True)
++        runtime = next(row for row in self.report("generated-import.json")["entries"] if row["path"] == policy.RUNTIME_UID)
++        self.assertFalse(runtime["uid_comparisons_complete"])
++        self.assertEqual(runtime["uid_comparison_failure_path"], "tests/test.gd.uid")
++        self.assertEqual(runtime["uid_comparisons"][0]["path"], "tests/another.gd.uid")
++        self.assertEqual(runtime["uid_comparisons"][0]["status"], "decoded")
++        peer = runtime["uid_comparisons"][-1]
++        self.assertEqual(peer["path"], "tests/test.gd.uid")
++        self.assertEqual(peer["status"], "failed")
++        self.assertEqual((policy.OUTPUT / "import" / peer["bytes"]["file"]).read_bytes(), b"not-a-uid\n")
++        self.assertLess(len(runtime["uid_comparisons"]), runtime["uid_peer_count"])
++
++    def test_masked_alias_collision_is_not_missed(self):
++        self.put(policy.RUNTIME_UID, b"uid://c\n")
++        self.put("tests/test.gd.uid", b"uid://d4n4ub6itg403\n")  # (2**63)+2 ->2.
++        with self.assertRaisesRegex(RuntimeError, "RUNTIME_UID_COLLISION"):
++            policy.capture_and_enforce("import", True)
++        runtime = next(row for row in self.report("generated-import.json")["entries"] if row["path"] == policy.RUNTIME_UID)
++        self.assertTrue(runtime["uid_comparisons_complete"])
++        self.assertEqual(runtime["collisions"], ["tests/test.gd.uid"])
++        self.assertEqual(len(runtime["uid_comparisons"]), runtime["uid_peer_count"])
++
++    def test_peer_overflow_and_full_engine_alphabet(self):
++        self.assertEqual(policy.decode_peer_uid(b"uid://zzzzzzzzzzzzzzzzzzzz\n")[1], "6692712178577579783")
++        self.assertEqual(policy.decode_peer_uid(b"uid://z")[1], "25")
++        self.assertEqual(policy.decode_peer_uid(b"uid://0")[1], "25")
++        self.assertEqual(policy.decode_peer_uid(b"uid://9")[1], "34")
++        self.assertEqual(policy.decode_peer_uid(b"uid://ba")[1], "34")
++        self.assertEqual(policy.decode_peer_uid(b"uid://aa")[1], "0")
++
++    def test_peer_first_line_semantics_preserve_unread_bytes(self):
++        for data in (b"uid://c", b"uid://c\nignored", b"uid://c\r\nignored", b"uid://c\rignored", b"uid://c\0ignored\xff", b"\xef\xbb\xbfuid://c\nignored"):
++            with self.subTest(data=data):
++                self.assertEqual(policy.decode_peer_uid(data), ("uid://c", "2"))
++        self.put(policy.RUNTIME_UID, b"uid://c\n")
++        original = b"uid://d\r\nignored bytes\xff"
++        self.put("tests/test.gd.uid", original)
++        policy.capture_and_enforce("import", True)
++        runtime = next(row for row in self.report("generated-import.json")["entries"] if row["path"] == policy.RUNTIME_UID)
++        peer = next(row for row in runtime["uid_comparisons"] if row["path"] == "tests/test.gd.uid")
++        self.assertEqual(peer["uid"], "3")
++        self.assertEqual((policy.OUTPUT / "import" / peer["bytes"]["file"]).read_bytes(), original)
++
++    def test_peer_malformed_guard_never_silently_assigns_zero(self):
++        for data in (b"", b"uid://", b"uid://\n", b"uid://<invalid>", b" uid://a", b"uid://A", b"uid://b ", b"uid://\xff"):
++            with self.subTest(data=data):
++                with self.assertRaisesRegex(RuntimeError, "INVALID_PEER_UID_LINE"):
++                    policy.decode_peer_uid(data)
++
+     def test_staged_mutation_fails(self):
+         self.put("asset.import", b"compression=1\n")
+         self.git("add", "asset.import")

@@ -1,0 +1,27 @@
+{
+  "source_pin": "b2cb75a792790f7bf396073b1586026fa1e20482",
+  "before_sha256": "70d6f93523ba45854cd748082fe663814236d56ccff2e9abd39027205f4cb271",
+  "after_sha256": "80d9abe7f3d79fb0d275ca79b3120d09988da0d85dc9fcea79581802b4ce8020",
+  "existing_functions_ast_unchanged": {
+    "require": true,
+    "write": true,
+    "read": true,
+    "select_custody": true,
+    "check_pin": true,
+    "generated": true,
+    "decode_generated_uid": true,
+    "check_runtime_uid": false,
+    "enforce_report": true,
+    "capture_and_enforce": true,
+    "before": true,
+    "restore": true
+  },
+  "new_functions": [
+    "decode_peer_uid"
+  ],
+  "deleted_functions": [],
+  "tests_added": 6,
+  "tests_total": 21,
+  "final_test_run": "21 passed; see verification.json",
+  "strict_new_uid_decoder_unchanged": true
+}

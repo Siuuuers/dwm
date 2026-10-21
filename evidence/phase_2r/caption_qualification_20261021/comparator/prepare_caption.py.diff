@@ -1,0 +1,85 @@
+--- before/prepare_caption.py
++++ after/prepare_caption.py
+@@ -99,7 +99,31 @@
+     return text, str(number)
+ 
+ 
++def decode_peer_uid(data):
++    # Godot 4.6.3 at 35e80b3a: ResourceFormatLoader::get_resource_uid passes
++    # FileAccess::get_line() to ResourceUID::text_to_id. get_line stops at the
++    # first CR, LF, or NUL; trailing bytes stay in custody, not in the UID text.
++    # text_to_id accepts a-z/0-9 (including z/9), accumulates uint64 base34 with
++    # wraparound, then masks to signed63. This is comparison, not normalization.
++    line = re.split(rb"[\r\n\0]", data, maxsplit=1)[0]
++    # String::utf8 consumes one initial UTF-8 BOM (core/string/ustring.cpp).
++    # Only the parsed view changes; the complete original bytes stay retained.
++    if line.startswith(b"\xef\xbb\xbf"):
++        line = line[3:]
++    # Intentionally stricter malformed-input guard: require a nonempty suffix.
++    # Engine text_to_id would accept bare uid:// as zero. We refuse that case
++    # with the exact peer path rather than silently treating missing data as UID0.
++    require(re.fullmatch(rb"uid://[a-z0-9]+", line) is not None, "INVALID_PEER_UID_LINE")
++    text = line.decode("ascii")
++    value = 0
++    for char in text[6:]:
++        digit = ord(char) - ord("a") if "a" <= char <= "z" else ord(char) - ord("0") + 25
++        value = (value * 34 + digit) & 0xFFFFFFFFFFFFFFFF
++    return text, str(value & 0x7FFFFFFFFFFFFFFF)
++
++
+ def check_runtime_uid(entry, baseline):
++    entry["uid_comparisons_complete"] = False
+     source = RUNTIME_UID[:-4]
+     owner = baseline["head_entries"].get(source, {})
+     require(owner.get("oid") == RUNTIME_SOURCE_BLOB and owner.get("mode") in ("100644", "100755"),
+@@ -108,23 +132,37 @@
+     entry.update({"classification": "focused_runtime_generated_uid", "source_blob": owner["oid"],
+                   "uid_text": text, "uid": uid,
+                   "scope": "focused rendered source test only; no export/package acceptance"})
+-    # Check the actual checkout, including ignored generated sidecars. No UID is
+-    # assigned, installed, normalized, or assumed deterministic by this policy.
++    # Check every actual peer, including ignored generated sidecars, by its
++    # effective engine ID. Retain attempted progress and offending bytes even
++    # when malformed input prevents completion; never claim a partial no-collision.
+     tracked = {path for path in baseline["head_entries"] if path.endswith(".uid")}
+     generated_paths = {p.decode("utf-8") for p in custody.git("ls-files", "--others", "-z").stdout.split(b"\0")
+                        if p and not p.startswith(b".godot/") and p.endswith(b".uid")}
++    peers = sorted((tracked | generated_paths) - {RUNTIME_UID})
+     compared, collisions = [], []
+-    for path in sorted((tracked | generated_paths) - {RUNTIME_UID}):
+-        full = ROOT / path
+-        require(full.is_file() and not full.is_symlink(), "UID_COMPARISON_NONREGULAR: " + path)
+-        data = full.read_bytes()
+-        _, other_uid = decode_generated_uid(data)
+-        compared.append({"path": path, "sha256": custody.sha(data), "uid": other_uid,
+-                         "tracked": path in tracked})
+-        if uid == other_uid:
+-            collisions.append(path)
+-    entry["uid_comparisons"] = compared
+-    entry["collisions"] = collisions
++    entry.update({"uid_comparisons": compared, "collisions": collisions,
++                  "uid_comparisons_complete": False, "uid_peer_count": len(peers)})
++    for path in peers:
++        row = {"path": path, "tracked": path in tracked, "source": path[:-4],
++               "source_blob": baseline["head_entries"].get(path[:-4], {}).get("oid"),
++               "tracked_sidecar_blob": baseline["head_entries"].get(path, {}).get("oid"),
++               "status": "pending"}
++        compared.append(row)
++        try:
++            full = ROOT / path
++            require(full.is_file() and not full.is_symlink(), "UID_COMPARISON_NONREGULAR")
++            data = full.read_bytes()
++            row["bytes"] = custody.retain(data)
++            row["sha256"] = row["bytes"]["sha256"]
++            peer_text, other_uid = decode_peer_uid(data)
++            row.update({"line": peer_text, "uid": other_uid, "status": "decoded"})
++            if uid == other_uid:
++                collisions.append(path)
++        except Exception as error:
++            row.update({"status": "failed", "failure": str(error)})
++            entry["uid_comparison_failure_path"] = path
++            raise RuntimeError("UID_COMPARISON_FAILED: " + path + ": " + str(error)) from error
++    entry["uid_comparisons_complete"] = True
+     require(not collisions, "RUNTIME_UID_COLLISION: " + repr(collisions))
+ 
+ 

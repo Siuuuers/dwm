@@ -1,0 +1,17 @@
+{
+  "source": "b2cb75a792790f7bf396073b1586026fa1e20482",
+  "original_artifact_sha256": "453acfe7a6a602d697b124f73d385021cd5ec3c4b315cca8d8985c3811830905",
+  "helper_sha256": "80d9abe7f3d79fb0d275ca79b3120d09988da0d85dc9fcea79581802b4ce8020",
+  "runtime_uid": {
+    "path": "scripts/ui/witnessed/WitnessedAccessibleContinue.gd.uid",
+    "text": "uid://h8dyo01hhdq1",
+    "effective_uid": "559672156520183150",
+    "sha256": "c0e20f785330b11513cc95f4b8df19c119039e7a13f9a8f88050f9a0ecd6b8c1"
+  },
+  "tracked_uid_count": 1692,
+  "generated_uid_count_including_runtime": 26,
+  "peer_count": 1717,
+  "comparison_complete": true,
+  "runtime_collisions": [],
+  "scope": "Offline retained inventory replay only; not Windows qualification, new engine execution or package/cache influence proof."
+}

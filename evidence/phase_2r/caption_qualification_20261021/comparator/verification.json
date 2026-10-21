@@ -1,0 +1,20 @@
+{
+  "command": [
+    "python",
+    "-m",
+    "unittest",
+    "discover",
+    "-v",
+    "-s",
+    "caption-comparator-candidate",
+    "-p",
+    "test_prepare_caption.py"
+  ],
+  "exit_code": 0,
+  "tests": 21,
+  "runtime_execution": false,
+  "helper_sha256": "80d9abe7f3d79fb0d275ca79b3120d09988da0d85dc9fcea79581802b4ce8020",
+  "test_sha256": "8be91f7fdd8ea01d23b7e8e1e67965e1a97f4aae3accf1d836a1e2aaee1333b1",
+  "initial_fixture_correction": "Retained ResourceWrapper regression initially attempted a second capture into immutable baseline; changed test-only output to fresh directory. Capture guard unchanged. Diagnostic failure log retained.",
+  "warnings": "Inherited capture_import ResourceWarnings retained in stderr."
+}
