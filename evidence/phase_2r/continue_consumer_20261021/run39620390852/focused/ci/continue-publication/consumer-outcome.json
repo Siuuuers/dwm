@@ -1,0 +1,87 @@
+{
+  "runner_exit": 1,
+  "registration": "timeout",
+  "attachment": "failed",
+  "timing": "unavailable",
+  "reader": {
+    "reader_pid": 6128,
+    "clock": "system UTC Unix milliseconds; elapsed uses Stopwatch",
+    "status": "failed",
+    "ok": false,
+    "discovered": false,
+    "identity": null,
+    "hwnd": null,
+    "attachment_started_unix_msec": null,
+    "attachment_completed_unix_msec": null,
+    "discovery_started_unix_msec": null,
+    "discovery_completed_unix_msec": null,
+    "reader_completed_unix_msec": 1792594369569,
+    "descendant_count": null,
+    "error": "UIA_AMBIGUOUS_ENGINE_CHILD",
+    "exit_code": 1,
+    "events": [
+      {
+        "stage": "reader_start",
+        "unix_msec": 1792594367743,
+        "elapsed_msec": 141.963
+      },
+      {
+        "stage": "identity_start",
+        "unix_msec": 1792594369508,
+        "elapsed_msec": 1900.3872000000001
+      },
+      {
+        "stage": "failure",
+        "unix_msec": 1792594369563,
+        "elapsed_msec": 1955.2038
+      },
+      {
+        "stage": "reader_complete",
+        "unix_msec": 1792594369569,
+        "elapsed_msec": 1961.7783000000002
+      }
+    ],
+    "binding": {
+      "launcher_pid": 3932,
+      "launcher_start_ticks": "639281911673692050",
+      "console_path": "D:\\a\\_temp\\godot-4.6.3\\Godot_v4.6.3-stable_win64_console.exe",
+      "engine_path": "D:\\a\\_temp\\godot-4.6.3\\Godot_v4.6.3-stable_win64.exe",
+      "arguments": "--rendering-method gl_compatibility --audio-driver Dummy --path D:\\a\\dwm\\dwm --log-file D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\continue-publication-initial-observation.log --accessibility always -s res://addons/gut/gut_cmdln.gd -gconfig= -gtest=res://tests/manual/test_continue_reveal_publication.gd -gunit_test_name=test_continue_initial_registration_observation -gexit -glog=2 -gdisable_colors -gjunit_xml_file=res://.godot/ci/continue-publication/initial-observation.xml",
+      "started_unix_msec": 1792594367378
+    }
+  },
+  "lifecycle": {
+    "child_exit": 1,
+    "reader_started": true,
+    "reader_exit": 1,
+    "reader_forced": false,
+    "error": null,
+    "cleanup_errors": [],
+    "completed_unix_msec": 1792594383349
+  },
+  "window": {
+    "original": {
+      "deadline_ticks_msec": 15033,
+      "start_clock": {
+        "ticks_after": 10033,
+        "ticks_before": 10033,
+        "unix_msec": 1792594377444.0
+      }
+    },
+    "end_clock": {
+      "ticks_after": 15062,
+      "ticks_before": 15062,
+      "unix_msec": 1792594382473.0
+    },
+    "deadline_earliest_unix_msec": 1792594382444.0,
+    "deadline_latest_unix_msec": 1792594382444.0,
+    "boundary_margin_msec": 12,
+    "clock_drift_limit_msec": 10
+  },
+  "clock_drift_msec": 0.0,
+  "reader_clock_drift_max_msec": 6.759199999999964,
+  "discovery_start_from_window_msec": null,
+  "discovery_end_from_window_msec": null,
+  "analysis_error": null,
+  "qualified": false
+}
