@@ -1,0 +1,10 @@
+{
+  "source": "d57fc90af73141f1a19e871e48205adc9788208e",
+  "helper": "ff32e3488257ef3e2ab67ebdb24be7391f0047a9",
+  "source_tree": "1c59f126df7b26dce2066bf8eadcc7c60b45dc2f",
+  "helper_sha256": "7498a6055c0ea3821701c76ac1391fab0ed113fd4f86718eb477a1f8a141258d",
+  "controller_sha256": "f364dc33f5fce86d4abe8d12f64f0dd59ca4952b60b6cc09a1f02f795e4eefe8",
+  "delta": "one --verbose argument; helper/controller pins only",
+  "runtime": "not executed",
+  "readback": "source/helper byte-equal"
+}
