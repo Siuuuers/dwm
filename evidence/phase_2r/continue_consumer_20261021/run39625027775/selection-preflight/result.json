@@ -1,0 +1,418 @@
+{
+    "passed":  true,
+    "exit_code":  0,
+    "error":  null,
+    "powershell":  "5.1.20348.5622",
+    "edition":  "Desktop",
+    "selector_sha256":  "f23734bce9b0d560b311a43f998d1efc694d50509abee0591b5f45f639bfa315",
+    "checks":  [
+                   {
+                       "name":  "zero",
+                       "passed":  true,
+                       "error":  null,
+                       "receipt":  {
+                                       "child_count":  0,
+                                       "engine_candidate_count":  0,
+                                       "selected_pid":  null,
+                                       "inventory_truncated":  false,
+                                       "children":  [
+
+                                                    ]
+                                   }
+                   },
+                   {
+                       "name":  "one-engine",
+                       "passed":  true,
+                       "error":  null,
+                       "receipt":  {
+                                       "child_count":  1,
+                                       "engine_candidate_count":  1,
+                                       "selected_pid":  20,
+                                       "inventory_truncated":  false,
+                                       "children":  [
+                                                        {
+                                                            "pid":  20,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\Godot.exe",
+                                                            "disposition":  "engine_executable"
+                                                        }
+                                                    ]
+                                   }
+                   },
+                   {
+                       "name":  "support-only",
+                       "passed":  true,
+                       "error":  null,
+                       "receipt":  {
+                                       "child_count":  1,
+                                       "engine_candidate_count":  0,
+                                       "selected_pid":  null,
+                                       "inventory_truncated":  false,
+                                       "children":  [
+                                                        {
+                                                            "pid":  21,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        }
+                                                    ]
+                                   }
+                   },
+                   {
+                       "name":  "support-first",
+                       "passed":  true,
+                       "error":  null,
+                       "receipt":  {
+                                       "child_count":  2,
+                                       "engine_candidate_count":  1,
+                                       "selected_pid":  20,
+                                       "inventory_truncated":  false,
+                                       "children":  [
+                                                        {
+                                                            "pid":  21,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  20,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\Godot.exe",
+                                                            "disposition":  "engine_executable"
+                                                        }
+                                                    ]
+                                   }
+                   },
+                   {
+                       "name":  "engine-first",
+                       "passed":  true,
+                       "error":  null,
+                       "receipt":  {
+                                       "child_count":  2,
+                                       "engine_candidate_count":  1,
+                                       "selected_pid":  20,
+                                       "inventory_truncated":  false,
+                                       "children":  [
+                                                        {
+                                                            "pid":  20,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\Godot.exe",
+                                                            "disposition":  "engine_executable"
+                                                        },
+                                                        {
+                                                            "pid":  21,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        }
+                                                    ]
+                                   }
+                   },
+                   {
+                       "name":  "multiple-engines",
+                       "passed":  true,
+                       "error":  "UIA_AMBIGUOUS_ENGINE_CHILD",
+                       "receipt":  {
+                                       "child_count":  2,
+                                       "engine_candidate_count":  2,
+                                       "selected_pid":  null,
+                                       "inventory_truncated":  false,
+                                       "children":  [
+                                                        {
+                                                            "pid":  20,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\Godot.exe",
+                                                            "disposition":  "engine_executable"
+                                                        },
+                                                        {
+                                                            "pid":  22,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\Godot.exe",
+                                                            "disposition":  "engine_executable"
+                                                        }
+                                                    ]
+                                   }
+                   },
+                   {
+                       "name":  "wrong-parent",
+                       "passed":  true,
+                       "error":  "UIA_CHILD_IDENTITY_INVALID",
+                       "receipt":  {
+                                       "child_count":  1,
+                                       "engine_candidate_count":  0,
+                                       "selected_pid":  null,
+                                       "inventory_truncated":  false,
+                                       "children":  [
+                                                        {
+                                                            "pid":  22,
+                                                            "parent_pid":  11,
+                                                            "executable":  "C:\\fixture\\Godot.exe",
+                                                            "disposition":  "invalid_parent_or_pid"
+                                                        }
+                                                    ]
+                                   }
+                   },
+                   {
+                       "name":  "missing-executable",
+                       "passed":  true,
+                       "error":  "UIA_CHILD_IDENTITY_UNAVAILABLE",
+                       "receipt":  {
+                                       "child_count":  2,
+                                       "engine_candidate_count":  1,
+                                       "selected_pid":  null,
+                                       "inventory_truncated":  false,
+                                       "children":  [
+                                                        {
+                                                            "pid":  20,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\Godot.exe",
+                                                            "disposition":  "engine_executable"
+                                                        },
+                                                        {
+                                                            "pid":  22,
+                                                            "parent_pid":  10,
+                                                            "executable":  "",
+                                                            "disposition":  "executable_unavailable"
+                                                        }
+                                                    ]
+                                   }
+                   },
+                   {
+                       "name":  "invalid-pid",
+                       "passed":  true,
+                       "error":  "UIA_CHILD_IDENTITY_INVALID",
+                       "receipt":  {
+                                       "child_count":  1,
+                                       "engine_candidate_count":  0,
+                                       "selected_pid":  null,
+                                       "inventory_truncated":  false,
+                                       "children":  [
+                                                        {
+                                                            "pid":  0,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\Godot.exe",
+                                                            "disposition":  "invalid_parent_or_pid"
+                                                        }
+                                                    ]
+                                   }
+                   },
+                   {
+                       "name":  "bounded-inventory-engine-after-cap",
+                       "passed":  true,
+                       "error":  null,
+                       "receipt":  {
+                                       "child_count":  21,
+                                       "engine_candidate_count":  1,
+                                       "selected_pid":  20,
+                                       "inventory_truncated":  true,
+                                       "children":  [
+                                                        {
+                                                            "pid":  101,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  102,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  103,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  104,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  105,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  106,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  107,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  108,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  109,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  110,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  111,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  112,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  113,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  114,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  115,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  116,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        }
+                                                    ]
+                                   }
+                   },
+                   {
+                       "name":  "ambiguity-after-cap",
+                       "passed":  true,
+                       "error":  "UIA_AMBIGUOUS_ENGINE_CHILD",
+                       "receipt":  {
+                                       "child_count":  22,
+                                       "engine_candidate_count":  2,
+                                       "selected_pid":  null,
+                                       "inventory_truncated":  true,
+                                       "children":  [
+                                                        {
+                                                            "pid":  101,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  102,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  103,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  104,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  105,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  106,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  107,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  108,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  109,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  110,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  111,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  112,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  113,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  114,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  115,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        },
+                                                        {
+                                                            "pid":  116,
+                                                            "parent_pid":  10,
+                                                            "executable":  "C:\\fixture\\other.exe",
+                                                            "disposition":  "other_executable"
+                                                        }
+                                                    ]
+                                   }
+                   }
+               ]
+}

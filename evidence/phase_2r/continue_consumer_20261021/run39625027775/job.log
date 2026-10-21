@@ -1,0 +1,652 @@
+﻿2026-10-21T15:22:22.5326196Z Current runner version: '2.338.0'
+2026-10-21T15:22:22.5358729Z ##[group]Runner Image Provisioner
+2026-10-21T15:22:22.5359578Z Hosted Compute Agent
+2026-10-21T15:22:22.5360106Z Version: 20261012.601
+2026-10-21T15:22:22.5360677Z Commit: f3dc54e1fb89da6852db922499a0233137369e1d
+2026-10-21T15:22:22.5362654Z Build Date: 2026-10-12T17:48:21Z
+2026-10-21T15:22:22.5363297Z Worker ID: {0a23c050-15f5-460e-865d-4578acc0c7f3}
+2026-10-21T15:22:22.5364205Z Region: northcentralus
+2026-10-21T15:22:22.5364746Z Cloud: Azure
+2026-10-21T15:22:22.5365229Z ##[endgroup]
+2026-10-21T15:22:22.5366991Z ##[group]Operating System
+2026-10-21T15:22:22.5367627Z Microsoft Windows Server 2022
+2026-10-21T15:22:22.5368202Z 10.0.20348
+2026-10-21T15:22:22.5368692Z Datacenter
+2026-10-21T15:22:22.5369164Z ##[endgroup]
+2026-10-21T15:22:22.5369707Z ##[group]Runner Image
+2026-10-21T15:22:22.5370247Z Image: windows-2022
+2026-10-21T15:22:22.5370769Z Version: 20261012.333.1
+2026-10-21T15:22:22.5372119Z Included Software: https://github.com/actions/runner-images/blob/win22/20261012.333/images/windows/Windows2022-Readme.md
+2026-10-21T15:22:22.5373589Z Image Release: https://github.com/actions/runner-images/releases/tag/win22%2F20261012.333
+2026-10-21T15:22:22.5374495Z ##[endgroup]
+2026-10-21T15:22:22.5375608Z ##[group]GITHUB_TOKEN Permissions
+2026-10-21T15:22:22.5377911Z Contents: read
+2026-10-21T15:22:22.5378486Z Metadata: read
+2026-10-21T15:22:22.5379008Z ##[endgroup]
+2026-10-21T15:22:22.5381266Z Secret source: Actions
+2026-10-21T15:22:22.5382144Z Cache mode: write
+2026-10-21T15:22:22.5382958Z Prepare workflow directory
+2026-10-21T15:22:22.5778298Z Prepare all required actions
+2026-10-21T15:22:22.5826647Z Getting action download info
+2026-10-21T15:22:22.7896197Z Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-10-21T15:22:23.0322230Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-21T15:22:23.8737344Z Complete job name: delivery
+2026-10-21T15:22:24.1861901Z ##[group]Run actions/checkout@v7
+2026-10-21T15:22:24.1863830Z with:
+2026-10-21T15:22:24.1864485Z   persist-credentials: true
+2026-10-21T15:22:24.1865248Z   ref: b95a6de6a633b1d199bffc540d87a89a05513a5e
+2026-10-21T15:22:24.1866193Z   repository: Siuuuers/dwm
+2026-10-21T15:22:24.1870635Z   token: ***
+2026-10-21T15:22:24.1871295Z   ssh-strict: true
+2026-10-21T15:22:24.1871936Z   ssh-user: git
+2026-10-21T15:22:24.1872563Z   clean: true
+2026-10-21T15:22:24.1873208Z   sparse-checkout-cone-mode: true
+2026-10-21T15:22:24.1873955Z   fetch-depth: 1
+2026-10-21T15:22:24.1874579Z   fetch-tags: false
+2026-10-21T15:22:24.1875215Z   show-progress: true
+2026-10-21T15:22:24.1875871Z   lfs: false
+2026-10-21T15:22:24.1876487Z   submodules: false
+2026-10-21T15:22:24.1877123Z   set-safe-directory: true
+2026-10-21T15:22:24.1878162Z   allow-unsafe-pr-checkout: false
+2026-10-21T15:22:24.1879578Z env:
+2026-10-21T15:22:24.1880499Z   PRODUCT_SHA: b95a6de6a633b1d199bffc540d87a89a05513a5e
+2026-10-21T15:22:24.1881845Z   SOURCE_SHA: f1bf66ce689a1358cb217563e6996997536bc4b0
+2026-10-21T15:22:24.1883233Z   PREPARATION_SHA256: 1220b4570afc48abcf894b6f8dd1489ce857eb1bc54674e41212dc6aa2fc2719
+2026-10-21T15:22:24.1885232Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T15:22:24.1886718Z ##[endgroup]
+2026-10-21T15:22:24.4436943Z Syncing repository: Siuuuers/dwm
+2026-10-21T15:22:24.4439253Z ##[group]Getting Git version info
+2026-10-21T15:22:24.4440085Z Working directory is 'D:\a\dwm\dwm'
+2026-10-21T15:22:24.6987328Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-21T15:22:25.0836690Z git version 2.56.0.windows.2
+2026-10-21T15:22:25.0882383Z ##[endgroup]
+2026-10-21T15:22:25.0896124Z Temporarily overriding HOME='D:\a\_temp\44122612-cef8-43c6-9fea-affd184210a4' before making global git config changes
+2026-10-21T15:22:25.0897662Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-21T15:22:25.0906620Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\dwm\dwm
+2026-10-21T15:22:25.1516464Z Deleting the contents of 'D:\a\dwm\dwm'
+2026-10-21T15:22:25.1520700Z ##[group]Determining repository object format
+2026-10-21T15:22:25.1522795Z ##[endgroup]
+2026-10-21T15:22:25.1524395Z ##[group]Initializing the repository
+2026-10-21T15:22:25.1532345Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\dwm\dwm
+2026-10-21T15:22:25.2472856Z Initialized empty Git repository in D:/a/dwm/dwm/.git/
+2026-10-21T15:22:25.2516527Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/Siuuuers/dwm
+2026-10-21T15:22:25.3184398Z ##[endgroup]
+2026-10-21T15:22:25.3186081Z ##[group]Disabling automatic garbage collection
+2026-10-21T15:22:25.3194786Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+2026-10-21T15:22:25.3502788Z ##[endgroup]
+2026-10-21T15:22:25.3504377Z ##[group]Setting up auth
+2026-10-21T15:22:25.3505576Z Removing SSH command configuration
+2026-10-21T15:22:25.3514222Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-21T15:22:25.3822936Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-21T15:22:26.8406460Z Removing HTTP extra header
+2026-10-21T15:22:26.8421727Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-21T15:22:26.8747596Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-21T15:22:27.3547401Z Removing includeIf entries pointing to credentials config files
+2026-10-21T15:22:27.3564829Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-21T15:22:27.3874189Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-21T15:22:27.8583017Z [command]"C:\Program Files\Git\bin\git.exe" config --file D:\a\_temp\git-credentials-89f83d9b-36b2-4a91-98b5-b3878be8eab2.config http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-10-21T15:22:27.8959037Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/dwm/dwm/.git.path D:\a\_temp\git-credentials-89f83d9b-36b2-4a91-98b5-b3878be8eab2.config
+2026-10-21T15:22:27.9280240Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/dwm/dwm/.git/worktrees/*.path D:\a\_temp\git-credentials-89f83d9b-36b2-4a91-98b5-b3878be8eab2.config
+2026-10-21T15:22:27.9641154Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-89f83d9b-36b2-4a91-98b5-b3878be8eab2.config
+2026-10-21T15:22:27.9953096Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-89f83d9b-36b2-4a91-98b5-b3878be8eab2.config
+2026-10-21T15:22:28.0295271Z ##[endgroup]
+2026-10-21T15:22:28.0295930Z ##[group]Fetching the repository
+2026-10-21T15:22:28.0297261Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin b95a6de6a633b1d199bffc540d87a89a05513a5e
+2026-10-21T15:22:41.7797205Z From https://github.com/Siuuuers/dwm
+2026-10-21T15:22:41.7797995Z  * branch            b95a6de6a633b1d199bffc540d87a89a05513a5e -> FETCH_HEAD
+2026-10-21T15:22:41.7846460Z [command]"C:\Program Files\Git\bin\git.exe" rev-parse --verify --quiet b95a6de6a633b1d199bffc540d87a89a05513a5e^{object}
+2026-10-21T15:22:41.8216419Z b95a6de6a633b1d199bffc540d87a89a05513a5e
+2026-10-21T15:22:41.8256641Z ##[endgroup]
+2026-10-21T15:22:41.8257269Z ##[group]Determining the checkout info
+2026-10-21T15:22:41.8257905Z ##[endgroup]
+2026-10-21T15:22:41.8266532Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+2026-10-21T15:22:41.8701554Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-10-21T15:22:41.9000309Z ##[group]Checking out the ref
+2026-10-21T15:22:41.9009355Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force b95a6de6a633b1d199bffc540d87a89a05513a5e
+2026-10-21T15:22:42.9952407Z Updating files:  35% (4700/13427)
+2026-10-21T15:22:43.0511674Z Updating files:  36% (4834/13427)
+2026-10-21T15:22:43.1184182Z Updating files:  37% (4968/13427)
+2026-10-21T15:22:43.1690449Z Updating files:  38% (5103/13427)
+2026-10-21T15:22:43.2030832Z Updating files:  39% (5237/13427)
+2026-10-21T15:22:43.2340809Z Updating files:  40% (5371/13427)
+2026-10-21T15:22:43.2559921Z Updating files:  41% (5506/13427)
+2026-10-21T15:22:43.2796631Z Updating files:  42% (5640/13427)
+2026-10-21T15:22:43.3014574Z Updating files:  43% (5774/13427)
+2026-10-21T15:22:43.3228512Z Updating files:  44% (5908/13427)
+2026-10-21T15:22:43.3494266Z Updating files:  45% (6043/13427)
+2026-10-21T15:22:43.3829188Z Updating files:  46% (6177/13427)
+2026-10-21T15:22:43.4188075Z Updating files:  47% (6311/13427)
+2026-10-21T15:22:43.4583972Z Updating files:  48% (6445/13427)
+2026-10-21T15:22:43.4944250Z Updating files:  49% (6580/13427)
+2026-10-21T15:22:43.5234936Z Updating files:  50% (6714/13427)
+2026-10-21T15:22:43.5736974Z Updating files:  51% (6848/13427)
+2026-10-21T15:22:43.6081914Z Updating files:  52% (6983/13427)
+2026-10-21T15:22:43.7648212Z Updating files:  53% (7117/13427)
+2026-10-21T15:22:43.8537985Z Updating files:  54% (7251/13427)
+2026-10-21T15:22:43.9595352Z Updating files:  55% (7385/13427)
+2026-10-21T15:22:43.9724422Z Updating files:  55% (7483/13427)
+2026-10-21T15:22:44.0042490Z Updating files:  56% (7520/13427)
+2026-10-21T15:22:44.0396552Z Updating files:  57% (7654/13427)
+2026-10-21T15:22:44.2519506Z Updating files:  58% (7788/13427)
+2026-10-21T15:22:44.3955756Z Updating files:  59% (7922/13427)
+2026-10-21T15:22:44.6515506Z Updating files:  60% (8057/13427)
+2026-10-21T15:22:44.7663630Z Updating files:  61% (8191/13427)
+2026-10-21T15:22:44.9609971Z Updating files:  62% (8325/13427)
+2026-10-21T15:22:45.0749951Z Updating files:  62% (8401/13427)
+2026-10-21T15:22:45.2530977Z Updating files:  63% (8460/13427)
+2026-10-21T15:22:45.2989568Z Updating files:  64% (8594/13427)
+2026-10-21T15:22:45.3350811Z Updating files:  65% (8728/13427)
+2026-10-21T15:22:45.4101154Z Updating files:  66% (8862/13427)
+2026-10-21T15:22:45.6848583Z Updating files:  67% (8997/13427)
+2026-10-21T15:22:45.7185320Z Updating files:  68% (9131/13427)
+2026-10-21T15:22:45.7673857Z Updating files:  69% (9265/13427)
+2026-10-21T15:22:45.7981834Z Updating files:  70% (9399/13427)
+2026-10-21T15:22:45.8288510Z Updating files:  71% (9534/13427)
+2026-10-21T15:22:45.8625977Z Updating files:  72% (9668/13427)
+2026-10-21T15:22:45.8978028Z Updating files:  73% (9802/13427)
+2026-10-21T15:22:45.9347131Z Updating files:  74% (9936/13427)
+2026-10-21T15:22:45.9570890Z Updating files:  75% (10071/13427)
+2026-10-21T15:22:45.9701505Z Updating files:  75% (10164/13427)
+2026-10-21T15:22:46.0080637Z Updating files:  76% (10205/13427)
+2026-10-21T15:22:46.0438173Z Updating files:  77% (10339/13427)
+2026-10-21T15:22:46.0865202Z Updating files:  78% (10474/13427)
+2026-10-21T15:22:46.1134648Z Updating files:  79% (10608/13427)
+2026-10-21T15:22:46.1373148Z Updating files:  80% (10742/13427)
+2026-10-21T15:22:46.1633849Z Updating files:  81% (10876/13427)
+2026-10-21T15:22:46.1858837Z Updating files:  82% (11011/13427)
+2026-10-21T15:22:46.2069596Z Updating files:  83% (11145/13427)
+2026-10-21T15:22:46.2299112Z Updating files:  84% (11279/13427)
+2026-10-21T15:22:46.2493225Z Updating files:  85% (11413/13427)
+2026-10-21T15:22:46.2727298Z Updating files:  86% (11548/13427)
+2026-10-21T15:22:46.2943286Z Updating files:  87% (11682/13427)
+2026-10-21T15:22:46.3124211Z Updating files:  88% (11816/13427)
+2026-10-21T15:22:46.3339096Z Updating files:  89% (11951/13427)
+2026-10-21T15:22:46.3545442Z Updating files:  90% (12085/13427)
+2026-10-21T15:22:46.3748342Z Updating files:  91% (12219/13427)
+2026-10-21T15:22:46.3960712Z Updating files:  92% (12353/13427)
+2026-10-21T15:22:46.4186442Z Updating files:  93% (12488/13427)
+2026-10-21T15:22:46.4424720Z Updating files:  94% (12622/13427)
+2026-10-21T15:22:46.4632633Z Updating files:  95% (12756/13427)
+2026-10-21T15:22:46.4847432Z Updating files:  96% (12890/13427)
+2026-10-21T15:22:46.5044737Z Updating files:  97% (13025/13427)
+2026-10-21T15:22:46.5264554Z Updating files:  98% (13159/13427)
+2026-10-21T15:22:46.5553459Z Updating files:  99% (13293/13427)
+2026-10-21T15:22:46.5553822Z Updating files: 100% (13427/13427)
+2026-10-21T15:22:46.5554113Z Updating files: 100% (13427/13427), done.
+2026-10-21T15:22:46.5810264Z Note: switching to 'b95a6de6a633b1d199bffc540d87a89a05513a5e'.
+2026-10-21T15:22:46.5810768Z 
+2026-10-21T15:22:46.5811112Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-21T15:22:46.5811730Z changes and commit them, and you can discard any commits you make in this
+2026-10-21T15:22:46.5812336Z state without impacting any branches by switching back to a branch.
+2026-10-21T15:22:46.5812600Z 
+2026-10-21T15:22:46.5812790Z If you want to create a new branch to retain commits you create, you may
+2026-10-21T15:22:46.5813232Z do so (now or later) by using -c with the switch command. Example:
+2026-10-21T15:22:46.5813475Z 
+2026-10-21T15:22:46.5813624Z   git switch -c <new-branch-name>
+2026-10-21T15:22:46.5813803Z 
+2026-10-21T15:22:46.5813897Z Or undo this operation with:
+2026-10-21T15:22:46.5814059Z 
+2026-10-21T15:22:46.5814148Z   git switch -
+2026-10-21T15:22:46.5814270Z 
+2026-10-21T15:22:46.5814779Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-21T15:22:46.5815099Z 
+2026-10-21T15:22:46.5815324Z HEAD is now at b95a6de test: select exact engine child before reader attachment
+2026-10-21T15:22:46.6436667Z ##[endgroup]
+2026-10-21T15:22:46.6837878Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-10-21T15:22:46.7117337Z b95a6de6a633b1d199bffc540d87a89a05513a5e
+2026-10-21T15:22:46.7508187Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-10-21T15:22:46.7508710Z [36;1m$ErrorActionPreference = 'Stop'[0m
+2026-10-21T15:22:46.7509146Z [36;1m$output = Join-Path $env:RUNNER_TEMP 'reader-receipt-preflight'[0m
+2026-10-21T15:22:46.7509630Z [36;1mNew-Item -ItemType Directory -Force $output | Out-Null[0m
+2026-10-21T15:22:46.7510606Z [36;1m& powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File ./tools/testing/Test-ContinueReaderReceipt.ps1 -OutputDirectory $output *> (Join-Path $output 'preflight.log')[0m
+2026-10-21T15:22:46.7511431Z [36;1m$code = $LASTEXITCODE[0m
+2026-10-21T15:22:46.7512070Z [36;1m@{exit_code=$code; source=$env:PRODUCT_SHA; run_id='39625027775'; attempt='1'} | ConvertTo-Json | Set-Content (Join-Path $output 'process.json') -Encoding utf8[0m
+2026-10-21T15:22:46.7512759Z [36;1mif ($code -ne 0) { throw "RECEIPT_PREFLIGHT_EXIT: $code" }[0m
+2026-10-21T15:22:46.7513292Z [36;1m$result = Get-Content (Join-Path $output 'result.json') -Raw | ConvertFrom-Json[0m
+2026-10-21T15:22:46.7513920Z [36;1mif ($result.passed -ne $true -or $result.exit_code -ne 0) { throw 'RECEIPT_PREFLIGHT_NOT_PASSED' }[0m
+2026-10-21T15:22:46.7591718Z shell: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.EXE -command ". '{0}'"
+2026-10-21T15:22:46.7592169Z env:
+2026-10-21T15:22:46.7592430Z   PRODUCT_SHA: b95a6de6a633b1d199bffc540d87a89a05513a5e
+2026-10-21T15:22:46.7592786Z   SOURCE_SHA: f1bf66ce689a1358cb217563e6996997536bc4b0
+2026-10-21T15:22:46.7593226Z   PREPARATION_SHA256: 1220b4570afc48abcf894b6f8dd1489ce857eb1bc54674e41212dc6aa2fc2719
+2026-10-21T15:22:46.7593790Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T15:22:46.7594424Z ##[endgroup]
+2026-10-21T15:22:55.5659037Z ##[group]Run actions/upload-artifact@v4
+2026-10-21T15:22:55.5659410Z with:
+2026-10-21T15:22:55.5659668Z   name: reader-receipt-preflight-39625027775-1
+2026-10-21T15:22:55.5660035Z   path: D:\a\_temp/reader-receipt-preflight
+2026-10-21T15:22:55.5660331Z   if-no-files-found: error
+2026-10-21T15:22:55.5660562Z   retention-days: 7
+2026-10-21T15:22:55.5660766Z   compression-level: 6
+2026-10-21T15:22:55.5660972Z   overwrite: false
+2026-10-21T15:22:55.5661197Z   include-hidden-files: false
+2026-10-21T15:22:55.5661430Z env:
+2026-10-21T15:22:55.5661667Z   PRODUCT_SHA: b95a6de6a633b1d199bffc540d87a89a05513a5e
+2026-10-21T15:22:55.5662022Z   SOURCE_SHA: f1bf66ce689a1358cb217563e6996997536bc4b0
+2026-10-21T15:22:55.5662473Z   PREPARATION_SHA256: 1220b4570afc48abcf894b6f8dd1489ce857eb1bc54674e41212dc6aa2fc2719
+2026-10-21T15:22:55.5663037Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T15:22:55.5663453Z ##[endgroup]
+2026-10-21T15:22:55.7498506Z (node:5580) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-21T15:22:55.7499227Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-21T15:22:55.7593871Z With the provided path, there will be 10 files uploaded
+2026-10-21T15:22:55.7598736Z Artifact name is valid!
+2026-10-21T15:22:55.7601006Z Root directory input is valid!
+2026-10-21T15:22:56.0220437Z Beginning upload of artifact content to blob storage
+2026-10-21T15:22:56.0580889Z (node:5580) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-21T15:22:56.1429372Z Uploaded bytes 3532
+2026-10-21T15:22:56.1721823Z Finished uploading artifact content to blob storage!
+2026-10-21T15:22:56.1723327Z SHA256 digest of uploaded artifact zip is af8aeb501516ba510da90a804b7cc46af2ff55f94a962cb20ab37bf42f15aee9
+2026-10-21T15:22:56.1725524Z Finalizing artifact upload
+2026-10-21T15:22:56.4017086Z Artifact reader-receipt-preflight-39625027775-1.zip successfully finalized. Artifact ID 12355893570
+2026-10-21T15:22:56.4018151Z Artifact reader-receipt-preflight-39625027775-1 has been successfully uploaded! Final size is 3532 bytes. Artifact ID is 12355893570
+2026-10-21T15:22:56.4026723Z Artifact download URL: https://github.com/Siuuuers/dwm/actions/runs/39625027775/artifacts/12355893570
+2026-10-21T15:22:56.4283290Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-10-21T15:22:56.4283765Z [36;1m$ErrorActionPreference = 'Stop'[0m
+2026-10-21T15:22:56.4284186Z [36;1m$output = Join-Path $env:RUNNER_TEMP 'engine-selection-preflight'[0m
+2026-10-21T15:22:56.4284668Z [36;1mNew-Item -ItemType Directory -Force $output | Out-Null[0m
+2026-10-21T15:22:56.4285607Z [36;1m& powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File ./tools/testing/Test-ContinueEngineSelection.ps1 -OutputDirectory $output *> (Join-Path $output 'preflight.log')[0m
+2026-10-21T15:22:56.4286461Z [36;1m$code = $LASTEXITCODE[0m
+2026-10-21T15:22:56.4287093Z [36;1m@{exit_code=$code; source=$env:PRODUCT_SHA; run_id='39625027775'; attempt='1'} | ConvertTo-Json | Set-Content (Join-Path $output 'process.json') -Encoding utf8[0m
+2026-10-21T15:22:56.4287814Z [36;1mif ($code -ne 0) { throw "SELECTION_PREFLIGHT_EXIT: $code" }[0m
+2026-10-21T15:22:56.4288342Z [36;1m$result = Get-Content (Join-Path $output 'result.json') -Raw | ConvertFrom-Json[0m
+2026-10-21T15:22:56.4288951Z [36;1mif ($result.passed -ne $true -or $result.exit_code -ne 0) { throw 'SELECTION_PREFLIGHT_NOT_PASSED' }[0m
+2026-10-21T15:22:56.4393662Z shell: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.EXE -command ". '{0}'"
+2026-10-21T15:22:56.4394502Z env:
+2026-10-21T15:22:56.4395117Z   PRODUCT_SHA: b95a6de6a633b1d199bffc540d87a89a05513a5e
+2026-10-21T15:22:56.4397103Z   SOURCE_SHA: f1bf66ce689a1358cb217563e6996997536bc4b0
+2026-10-21T15:22:56.4397835Z   PREPARATION_SHA256: 1220b4570afc48abcf894b6f8dd1489ce857eb1bc54674e41212dc6aa2fc2719
+2026-10-21T15:22:56.4398820Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T15:22:56.4399490Z ##[endgroup]
+2026-10-21T15:22:57.3179020Z ##[group]Run actions/upload-artifact@v4
+2026-10-21T15:22:57.3179388Z with:
+2026-10-21T15:22:57.3179640Z   name: engine-selection-preflight-39625027775-1
+2026-10-21T15:22:57.3179989Z   path: D:\a\_temp/engine-selection-preflight
+2026-10-21T15:22:57.3180289Z   if-no-files-found: error
+2026-10-21T15:22:57.3180516Z   retention-days: 7
+2026-10-21T15:22:57.3180723Z   compression-level: 6
+2026-10-21T15:22:57.3180934Z   overwrite: false
+2026-10-21T15:22:57.3181140Z   include-hidden-files: false
+2026-10-21T15:22:57.3181373Z env:
+2026-10-21T15:22:57.3181604Z   PRODUCT_SHA: b95a6de6a633b1d199bffc540d87a89a05513a5e
+2026-10-21T15:22:57.3181967Z   SOURCE_SHA: f1bf66ce689a1358cb217563e6996997536bc4b0
+2026-10-21T15:22:57.3182401Z   PREPARATION_SHA256: 1220b4570afc48abcf894b6f8dd1489ce857eb1bc54674e41212dc6aa2fc2719
+2026-10-21T15:22:57.3182978Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T15:22:57.3183368Z ##[endgroup]
+2026-10-21T15:22:57.5037025Z (node:5772) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-21T15:22:57.5037752Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-21T15:22:57.5099946Z With the provided path, there will be 3 files uploaded
+2026-10-21T15:22:57.5104929Z Artifact name is valid!
+2026-10-21T15:22:57.5106616Z Root directory input is valid!
+2026-10-21T15:22:57.8173049Z Beginning upload of artifact content to blob storage
+2026-10-21T15:22:57.8394604Z (node:5772) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-21T15:22:57.9542025Z Uploaded bytes 1440
+2026-10-21T15:22:57.9875723Z Finished uploading artifact content to blob storage!
+2026-10-21T15:22:57.9876650Z SHA256 digest of uploaded artifact zip is c295e1b2000c94befa00a1ecee536d39a9d9f33aca513e51755606d5707fa26e
+2026-10-21T15:22:57.9879006Z Finalizing artifact upload
+2026-10-21T15:22:58.2311890Z Artifact engine-selection-preflight-39625027775-1.zip successfully finalized. Artifact ID 12356053474
+2026-10-21T15:22:58.2313132Z Artifact engine-selection-preflight-39625027775-1 has been successfully uploaded! Final size is 1440 bytes. Artifact ID is 12356053474
+2026-10-21T15:22:58.2321446Z Artifact download URL: https://github.com/Siuuuers/dwm/actions/runs/39625027775/artifacts/12356053474
+2026-10-21T15:22:58.2564311Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-10-21T15:22:58.2564790Z [36;1m$ErrorActionPreference = 'Stop'[0m
+2026-10-21T15:22:58.2565207Z [36;1m$output = Join-Path $env:RUNNER_TEMP 'preparation-evidence'[0m
+2026-10-21T15:22:58.2565651Z [36;1mNew-Item -ItemType Directory -Force $output | Out-Null[0m
+2026-10-21T15:22:58.2566474Z [36;1mif ($env:SOURCE_SHA -cnotmatch '^[a-f0-9]{40}$' -or $env:PREPARATION_SHA256 -cnotmatch '^[a-f0-9]{64}$' -or $env:CAPTURE_SHA256 -cnotmatch '^[a-f0-9]{64}$') { throw 'PREPARATION_REVIEW_PINS_REQUIRED' }[0m
+2026-10-21T15:22:58.2567325Z [36;1m$helpers = Join-Path $env:RUNNER_TEMP 'reviewed-preparation'[0m
+2026-10-21T15:22:58.2567774Z [36;1mNew-Item -ItemType Directory -Force $helpers | Out-Null[0m
+2026-10-21T15:22:58.2568183Z [36;1m$prepare = Join-Path $helpers 'prepare_caption.py'[0m
+2026-10-21T15:22:58.2568573Z [36;1m$capture = Join-Path $helpers 'capture_import.py'[0m
+2026-10-21T15:22:58.2569433Z [36;1mInvoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/caption_qualification_20261021/prepare_caption.py" -OutFile $prepare[0m
+2026-10-21T15:22:58.2570843Z [36;1mInvoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/import_integrity_20261020/capture_import.py" -OutFile $capture[0m
+2026-10-21T15:22:58.2571903Z [36;1mif ((Get-FileHash $prepare -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:PREPARATION_SHA256) { throw 'PREPARATION_HASH_MISMATCH' }[0m
+2026-10-21T15:22:58.2572821Z [36;1mif ((Get-FileHash $capture -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:CAPTURE_SHA256) { throw 'CAPTURE_HASH_MISMATCH' }[0m
+2026-10-21T15:22:58.2573426Z [36;1mCopy-Item $prepare, $capture $output[0m
+2026-10-21T15:22:58.2573895Z [36;1m"PREPARATION_HELPER=$prepare" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8[0m
+2026-10-21T15:22:58.2576434Z [36;1m@{product=$env:PRODUCT_SHA; source=$env:SOURCE_SHA; preparation_sha256=$env:PREPARATION_SHA256; capture_sha256=$env:CAPTURE_SHA256; controller='bc9bda82163ee5dc3a8f8b27d7b952422f65d14a'; workflow='08d3ef1dfa71d39379a0cd2571b9a0b6ad32561c'; run_id='39625027775'; attempt='1'; powershell=$PSVersionTable.PSVersion.ToString(); os=[Environment]::OSVersion.ToString(); architecture=[Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString(); runner_image=$env:ImageOS; runner_image_version=$env:ImageVersion; python=(& python --version); git=(& git --version)} | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $output 'preparation-origin.json') -Encoding utf8[0m
+2026-10-21T15:22:58.2624897Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-21T15:22:58.2625255Z env:
+2026-10-21T15:22:58.2625517Z   PRODUCT_SHA: b95a6de6a633b1d199bffc540d87a89a05513a5e
+2026-10-21T15:22:58.2625888Z   SOURCE_SHA: f1bf66ce689a1358cb217563e6996997536bc4b0
+2026-10-21T15:22:58.2626361Z   PREPARATION_SHA256: 1220b4570afc48abcf894b6f8dd1489ce857eb1bc54674e41212dc6aa2fc2719
+2026-10-21T15:22:58.2626935Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T15:22:58.2627345Z ##[endgroup]
+2026-10-21T15:22:59.5933632Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-10-21T15:22:59.5934102Z [36;1m$ErrorActionPreference = 'Stop'[0m
+2026-10-21T15:22:59.5934486Z [36;1m$PSNativeCommandUseErrorActionPreference = $false[0m
+2026-10-21T15:22:59.5934927Z [36;1m$output = Join-Path $env:RUNNER_TEMP 'preparation-evidence'[0m
+2026-10-21T15:22:59.5935648Z [36;1m& python $env:PREPARATION_HELPER --phase before --root $env:GITHUB_WORKSPACE --output $output *> (Join-Path $output 'preparation-before.log')[0m
+2026-10-21T15:22:59.5936273Z [36;1m$code = $LASTEXITCODE[0m
+2026-10-21T15:22:59.5936615Z [36;1mif ($code -ne 0) { throw "PREPARATION_BEFORE_EXIT: $code" }[0m
+2026-10-21T15:22:59.5974300Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-21T15:22:59.5974664Z env:
+2026-10-21T15:22:59.5974911Z   PRODUCT_SHA: b95a6de6a633b1d199bffc540d87a89a05513a5e
+2026-10-21T15:22:59.5975265Z   SOURCE_SHA: f1bf66ce689a1358cb217563e6996997536bc4b0
+2026-10-21T15:22:59.5975772Z   PREPARATION_SHA256: 1220b4570afc48abcf894b6f8dd1489ce857eb1bc54674e41212dc6aa2fc2719
+2026-10-21T15:22:59.5976340Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T15:22:59.5976860Z   PREPARATION_HELPER: D:\a\_temp\reviewed-preparation\prepare_caption.py
+2026-10-21T15:22:59.5977224Z ##[endgroup]
+2026-10-21T15:23:14.2343743Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-10-21T15:23:14.2344227Z [36;1m$ErrorActionPreference = 'Stop'[0m
+2026-10-21T15:23:14.2344616Z [36;1m# These legacy tooling gitlinks have no .gitmodules URLs. Git's[0m
+2026-10-21T15:23:14.2345101Z [36;1m# submodule foreach reads the index even with sparse checkout.[0m
+2026-10-21T15:23:14.2345540Z [36;1m# The source commit and working files remain unchanged.[0m
+2026-10-21T15:23:14.2346127Z [36;1mgit update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1[0m
+2026-10-21T15:23:14.2346699Z [36;1mif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }[0m
+2026-10-21T15:23:14.2347386Z [36;1mgit submodule foreach --recursive 'true'[0m
+2026-10-21T15:23:14.2347739Z [36;1mif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }[0m
+2026-10-21T15:23:14.2385461Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-21T15:23:14.2385819Z env:
+2026-10-21T15:23:14.2386133Z   PRODUCT_SHA: b95a6de6a633b1d199bffc540d87a89a05513a5e
+2026-10-21T15:23:14.2386491Z   SOURCE_SHA: f1bf66ce689a1358cb217563e6996997536bc4b0
+2026-10-21T15:23:14.2386943Z   PREPARATION_SHA256: 1220b4570afc48abcf894b6f8dd1489ce857eb1bc54674e41212dc6aa2fc2719
+2026-10-21T15:23:14.2387518Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T15:23:14.2388046Z   PREPARATION_HELPER: D:\a\_temp\reviewed-preparation\prepare_caption.py
+2026-10-21T15:23:14.2388428Z ##[endgroup]
+2026-10-21T15:23:15.1071858Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-10-21T15:23:15.1072323Z [36;1m$ErrorActionPreference = 'Stop'[0m
+2026-10-21T15:23:15.1072834Z [36;1mif ((git rev-parse HEAD).Trim() -cne $env:PRODUCT_SHA) { throw 'PRODUCT_PIN_MISMATCH' }[0m
+2026-10-21T15:23:15.1074564Z [36;1mforeach ($path in @('tools/testing/Invoke-ContinuePublicationChecks.ps1','tools/testing/Invoke-CaptionNativeAccept.ps1','tools/testing/Invoke-IsolatedGodot.ps1','tools/testing/Read-ContinueAccessibility.ps1','tools/testing/Save-ContinueReaderEvent.ps1','tools/testing/Test-ContinueReaderReceipt.ps1','tools/testing/Select-ContinueEngineChild.ps1','tools/testing/Test-ContinueEngineSelection.ps1')) {[0m
+2026-10-21T15:23:15.1076130Z [36;1m  $tokens=$null; $parseErrors=$null[0m
+2026-10-21T15:23:15.1076749Z [36;1m  $null=[Management.Automation.Language.Parser]::ParseFile((Join-Path $env:GITHUB_WORKSPACE $path),[ref]$tokens,[ref]$parseErrors)[0m
+2026-10-21T15:23:15.1077487Z [36;1m  if ($parseErrors.Count -ne 0) { throw ($parseErrors | Out-String) }[0m
+2026-10-21T15:23:15.1077859Z [36;1m}[0m
+2026-10-21T15:23:15.1116598Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-21T15:23:15.1116983Z env:
+2026-10-21T15:23:15.1117255Z   PRODUCT_SHA: b95a6de6a633b1d199bffc540d87a89a05513a5e
+2026-10-21T15:23:15.1117625Z   SOURCE_SHA: f1bf66ce689a1358cb217563e6996997536bc4b0
+2026-10-21T15:23:15.1118088Z   PREPARATION_SHA256: 1220b4570afc48abcf894b6f8dd1489ce857eb1bc54674e41212dc6aa2fc2719
+2026-10-21T15:23:15.1118657Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T15:23:15.1119182Z   PREPARATION_HELPER: D:\a\_temp\reviewed-preparation\prepare_caption.py
+2026-10-21T15:23:15.1119557Z ##[endgroup]
+2026-10-21T15:23:15.5773793Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-10-21T15:23:15.5774272Z [36;1m$ErrorActionPreference = 'Stop'[0m
+2026-10-21T15:23:15.5774654Z [36;1m$archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'[0m
+2026-10-21T15:23:15.5775450Z [36;1mInvoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive[0m
+2026-10-21T15:23:15.5776287Z [36;1m# SHA256 published with the official 4.6.3-stable release asset.[0m
+2026-10-21T15:23:15.5776816Z [36;1m$expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'[0m
+2026-10-21T15:23:15.5777479Z [36;1mif ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {[0m
+2026-10-21T15:23:15.5778014Z [36;1m  throw 'Godot archive checksum mismatch.'[0m
+2026-10-21T15:23:15.5778300Z [36;1m}[0m
+2026-10-21T15:23:15.5778566Z [36;1m$editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'[0m
+2026-10-21T15:23:15.5779027Z [36;1mExpand-Archive -LiteralPath $archive -DestinationPath $editor[0m
+2026-10-21T15:23:15.5779510Z [36;1m$console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'[0m
+2026-10-21T15:23:15.5780061Z [36;1mif (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }[0m
+2026-10-21T15:23:15.5780667Z [36;1m"GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8[0m
+2026-10-21T15:23:15.5781410Z [36;1m$output = Join-Path $env:RUNNER_TEMP 'preparation-evidence'[0m
+2026-10-21T15:23:15.5781856Z [36;1m& $console --version *> (Join-Path $output 'godot-version.txt')[0m
+2026-10-21T15:23:15.5782213Z [36;1m$code = $LASTEXITCODE[0m
+2026-10-21T15:23:15.5783108Z [36;1m@{archive_sha256=$expected; executable=$console; executable_sha256=(Get-FileHash $console -Algorithm SHA256).Hash.ToLowerInvariant(); version_exit=$code} | ConvertTo-Json | Set-Content (Join-Path $output 'editor.json') -Encoding utf8[0m
+2026-10-21T15:23:15.5784066Z [36;1mif ($code -ne 0) { throw "GODOT_VERSION_EXIT: $code" }[0m
+2026-10-21T15:23:15.5821821Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-21T15:23:15.5822178Z env:
+2026-10-21T15:23:15.5822433Z   PRODUCT_SHA: b95a6de6a633b1d199bffc540d87a89a05513a5e
+2026-10-21T15:23:15.5822782Z   SOURCE_SHA: f1bf66ce689a1358cb217563e6996997536bc4b0
+2026-10-21T15:23:15.5823242Z   PREPARATION_SHA256: 1220b4570afc48abcf894b6f8dd1489ce857eb1bc54674e41212dc6aa2fc2719
+2026-10-21T15:23:15.5823800Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T15:23:15.5824318Z   PREPARATION_HELPER: D:\a\_temp\reviewed-preparation\prepare_caption.py
+2026-10-21T15:23:15.5824678Z ##[endgroup]
+2026-10-21T15:23:17.6102391Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-10-21T15:23:17.6102863Z [36;1m$ErrorActionPreference = 'Stop'[0m
+2026-10-21T15:23:17.6103251Z [36;1m$PSNativeCommandUseErrorActionPreference = $false[0m
+2026-10-21T15:23:17.6103685Z [36;1m$output = Join-Path $env:RUNNER_TEMP 'preparation-evidence'[0m
+2026-10-21T15:23:17.6104129Z [36;1m$userRoot = Join-Path $env:RUNNER_TEMP 'import-user'[0m
+2026-10-21T15:23:17.6104500Z [36;1m$env:APPDATA = Join-Path $userRoot 'appdata'[0m
+2026-10-21T15:23:17.6104867Z [36;1m$env:LOCALAPPDATA = Join-Path $userRoot 'localappdata'[0m
+2026-10-21T15:23:17.6105281Z [36;1m$env:DWM_TEST_ROOT = Join-Path $userRoot 'test-root'[0m
+2026-10-21T15:23:17.6105838Z [36;1mNew-Item -ItemType Directory -Force -Path $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null[0m
+2026-10-21T15:23:17.6106596Z [36;1m$arguments = @('--headless','--path',$env:GITHUB_WORKSPACE,'--import','--log-file',(Join-Path $output 'import.log'))[0m
+2026-10-21T15:23:17.6107140Z [36;1m$config = @{}[0m
+2026-10-21T15:23:17.6107990Z [36;1mforeach ($key in @('APPDATA','LOCALAPPDATA','DWM_TEST_ROOT','USERPROFILE','TEMP','TMP','LANG','LC_ALL','GODOT_EDITOR_SETTINGS','GODOT_USER_HOME','XDG_CONFIG_HOME','XDG_DATA_HOME')) { $config[$key] = [Environment]::GetEnvironmentVariable($key) }[0m
+2026-10-21T15:23:17.6110202Z [36;1m@{executable=$env:GODOT_CONSOLE_PATH; arguments=$arguments; cwd=(Get-Location).Path; environment=$config; project_settings='original and post-import project.godot bytes and hashes retained by capture helper'; editor_settings='fresh isolated APPDATA and LOCALAPPDATA; no settings injected'; timeout_minutes=8; started_utc=[DateTime]::UtcNow.ToString('o')} | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $output 'import-command.json') -Encoding utf8[0m
+2026-10-21T15:23:17.6111890Z [36;1m& $env:GODOT_CONSOLE_PATH @arguments *> (Join-Path $output 'import-console.log')[0m
+2026-10-21T15:23:17.6112311Z [36;1m$code = $LASTEXITCODE[0m
+2026-10-21T15:23:17.6112929Z [36;1m@{exit_code=$code; finished_utc=[DateTime]::UtcNow.ToString('o')} | ConvertTo-Json | Set-Content (Join-Path $output 'import-process.json') -Encoding utf8[0m
+2026-10-21T15:23:17.6113624Z [36;1mif ($code -ne 0) { throw "IMPORT_PROCESS_EXIT: $code" }[0m
+2026-10-21T15:23:17.6114101Z [36;1mif (-not (Test-Path (Join-Path $output 'import.log'))) { throw 'IMPORT_LOG_MISSING' }[0m
+2026-10-21T15:23:17.6114720Z [36;1m$pattern = 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character'[0m
+2026-10-21T15:23:17.6115330Z [36;1m$matches = @(Select-String -Path (Join-Path $output 'import.log') -Pattern $pattern)[0m
+2026-10-21T15:23:17.6116969Z [36;1m@{pattern=$pattern; matches=@($matches | ForEach-Object { $_.ToString() }); passed=($matches.Count -eq 0)} | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $output 'import-filter.json') -Encoding utf8[0m
+2026-10-21T15:23:17.6117917Z [36;1mif ($matches.Count -ne 0) { throw 'Project import reported script errors; inspect import.log.' }[0m
+2026-10-21T15:23:17.6156664Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-21T15:23:17.6157024Z env:
+2026-10-21T15:23:17.6157292Z   PRODUCT_SHA: b95a6de6a633b1d199bffc540d87a89a05513a5e
+2026-10-21T15:23:17.6157654Z   SOURCE_SHA: f1bf66ce689a1358cb217563e6996997536bc4b0
+2026-10-21T15:23:17.6158102Z   PREPARATION_SHA256: 1220b4570afc48abcf894b6f8dd1489ce857eb1bc54674e41212dc6aa2fc2719
+2026-10-21T15:23:17.6158665Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T15:23:17.6159198Z   PREPARATION_HELPER: D:\a\_temp\reviewed-preparation\prepare_caption.py
+2026-10-21T15:23:17.6159702Z   GODOT_CONSOLE_PATH: D:\a\_temp\godot-4.6.3\Godot_v4.6.3-stable_win64_console.exe
+2026-10-21T15:23:17.6160079Z ##[endgroup]
+2026-10-21T15:24:07.1087263Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-10-21T15:24:07.1087751Z [36;1m$ErrorActionPreference = 'Stop'[0m
+2026-10-21T15:24:07.1088141Z [36;1m$PSNativeCommandUseErrorActionPreference = $false[0m
+2026-10-21T15:24:07.1088587Z [36;1m$output = Join-Path $env:RUNNER_TEMP 'preparation-evidence'[0m
+2026-10-21T15:24:07.1089304Z [36;1m& python $env:PREPARATION_HELPER --phase after --root $env:GITHUB_WORKSPACE --output $output *> (Join-Path $output 'preparation-after.log')[0m
+2026-10-21T15:24:07.1089909Z [36;1m$code = $LASTEXITCODE[0m
+2026-10-21T15:24:07.1090243Z [36;1mif ($code -ne 0) { throw "PREPARATION_AFTER_EXIT: $code" }[0m
+2026-10-21T15:24:07.1129665Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-21T15:24:07.1130030Z env:
+2026-10-21T15:24:07.1130298Z   PRODUCT_SHA: b95a6de6a633b1d199bffc540d87a89a05513a5e
+2026-10-21T15:24:07.1130674Z   SOURCE_SHA: f1bf66ce689a1358cb217563e6996997536bc4b0
+2026-10-21T15:24:07.1131176Z   PREPARATION_SHA256: 1220b4570afc48abcf894b6f8dd1489ce857eb1bc54674e41212dc6aa2fc2719
+2026-10-21T15:24:07.1131749Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T15:24:07.1132283Z   PREPARATION_HELPER: D:\a\_temp\reviewed-preparation\prepare_caption.py
+2026-10-21T15:24:07.1132780Z   GODOT_CONSOLE_PATH: D:\a\_temp\godot-4.6.3\Godot_v4.6.3-stable_win64_console.exe
+2026-10-21T15:24:07.1133161Z ##[endgroup]
+2026-10-21T15:24:20.3082685Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-10-21T15:24:20.3083190Z [36;1m$ErrorActionPreference = 'Stop'[0m
+2026-10-21T15:24:20.3083573Z [36;1m$PSNativeCommandUseErrorActionPreference = $false[0m
+2026-10-21T15:24:20.3084026Z [36;1m$output = Join-Path $env:RUNNER_TEMP 'preparation-evidence'[0m
+2026-10-21T15:24:20.3084756Z [36;1m& python $env:PREPARATION_HELPER --phase restore --root $env:GITHUB_WORKSPACE --output $output *> (Join-Path $output 'preparation-restore.log')[0m
+2026-10-21T15:24:20.3085422Z [36;1m$code = $LASTEXITCODE[0m
+2026-10-21T15:24:20.3085768Z [36;1mif ($code -ne 0) { throw "PREPARATION_RESTORE_EXIT: $code" }[0m
+2026-10-21T15:24:20.3123545Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-21T15:24:20.3123901Z env:
+2026-10-21T15:24:20.3124151Z   PRODUCT_SHA: b95a6de6a633b1d199bffc540d87a89a05513a5e
+2026-10-21T15:24:20.3124513Z   SOURCE_SHA: f1bf66ce689a1358cb217563e6996997536bc4b0
+2026-10-21T15:24:20.3134050Z   PREPARATION_SHA256: 1220b4570afc48abcf894b6f8dd1489ce857eb1bc54674e41212dc6aa2fc2719
+2026-10-21T15:24:20.3135021Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T15:24:20.3135579Z   PREPARATION_HELPER: D:\a\_temp\reviewed-preparation\prepare_caption.py
+2026-10-21T15:24:20.3136083Z   GODOT_CONSOLE_PATH: D:\a\_temp\godot-4.6.3\Godot_v4.6.3-stable_win64_console.exe
+2026-10-21T15:24:20.3136702Z ##[endgroup]
+2026-10-21T15:24:33.7833328Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-10-21T15:24:33.7833819Z [36;1m$ErrorActionPreference = 'Stop'[0m
+2026-10-21T15:24:33.7834211Z [36;1m$PSNativeCommandUseErrorActionPreference = $false[0m
+2026-10-21T15:24:33.7835101Z [36;1m& pwsh -NoLogo -NoProfile -NonInteractive -File ./tools/testing/Invoke-ContinuePublicationChecks.ps1 -RepositoryRoot $env:GITHUB_WORKSPACE -ExpectedSource $env:PRODUCT_SHA[0m
+2026-10-21T15:24:33.7836003Z [36;1mif ($LASTEXITCODE -ne 0) { throw "FOCUSED_RUNNER_EXIT: $LASTEXITCODE" }[0m
+2026-10-21T15:24:33.7873163Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-21T15:24:33.7873531Z env:
+2026-10-21T15:24:33.7873810Z   PRODUCT_SHA: b95a6de6a633b1d199bffc540d87a89a05513a5e
+2026-10-21T15:24:33.7874175Z   SOURCE_SHA: f1bf66ce689a1358cb217563e6996997536bc4b0
+2026-10-21T15:24:33.7874634Z   PREPARATION_SHA256: 1220b4570afc48abcf894b6f8dd1489ce857eb1bc54674e41212dc6aa2fc2719
+2026-10-21T15:24:33.7875285Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T15:24:33.7875824Z   PREPARATION_HELPER: D:\a\_temp\reviewed-preparation\prepare_caption.py
+2026-10-21T15:24:33.7876343Z   GODOT_CONSOLE_PATH: D:\a\_temp\godot-4.6.3\Godot_v4.6.3-stable_win64_console.exe
+2026-10-21T15:24:33.7876734Z ##[endgroup]
+2026-10-21T15:24:57.6400647Z {"suite_id":"continue-publication-initial-observation","argv":["--rendering-method","gl_compatibility","--audio-driver","Dummy","--path","D:\\a\\dwm\\dwm","--log-file","D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\continue-publication-initial-observation.log","--accessibility","always","-s","res://addons/gut/gut_cmdln.gd","-gconfig=","-gtest=res://tests/manual/test_continue_reveal_publication.gd","-gunit_test_name=test_continue_initial_registration_observation","-gexit","-glog=2","-gdisable_colors","-gjunit_xml_file=res://.godot/ci/continue-publication/initial-observation.xml"],"exit_code":1,"log_path":"D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\continue-publication-initial-observation.log","test_root":"D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\8654731f-48d4-44ed-bf45-2afd7fe5d2b4","user_dir":"D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\8654731f-48d4-44ed-bf45-2afd7fe5d2b4\\appdata\\Godot\\app_userdata\\DWM","started_at_utc":"2026-10-21T15:24:41.7588822Z","ended_at_utc":"2026-10-21T15:24:57.5989306Z"}
+2026-10-21T15:24:57.7269808Z Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+2026-10-21T15:24:57.7270916Z WARNING: Your video card drivers seem not to support the required OpenGL 3.3 version, switching to ANGLE.
+2026-10-21T15:24:57.7271892Z    at: DisplayServerWindows (platform/windows/display_server_windows.cpp:7421)
+2026-10-21T15:24:57.7274185Z OpenGL API OpenGL ES 3.0 (ANGLE 2.1.1 git hash: aaebda1c5a40) - Compatibility - Using Device: Google Inc. (Microsoft) - ANGLE (Microsoft, Microsoft Basic Render Driver (0x0000008C) Direct3D11 vs_5_0 ps_5_0, D3D11-10.0.20348.5386)
+2026-10-21T15:24:57.7275589Z 
+2026-10-21T15:24:57.7275723Z ---  GUT  ---
+2026-10-21T15:24:57.7277164Z [INFO]:  using [D:/a/dwm/dwm/.godot/phase2r_tests/8654731f-48d4-44ed-bf45-2afd7fe5d2b4/appdata/Godot/app_userdata/DWM] for temporary output.
+2026-10-21T15:24:57.7278666Z Godot version:  4.6.3
+2026-10-21T15:24:57.7280401Z GUT version:  9.6.1
+2026-10-21T15:24:57.7281704Z 
+2026-10-21T15:24:57.7282875Z 
+2026-10-21T15:24:57.7384745Z res://tests/manual/test_continue_reveal_publication.gd
+2026-10-21T15:24:57.7386682Z * test_continue_initial_registration_observation
+2026-10-21T15:24:57.7388570Z     [Passed]:  ["Windows"] expected to not equal ["headless"]:  this test requires native accessibility registration
+2026-10-21T15:24:57.7389813Z     [Passed]:  isolated Continue profile initializes
+2026-10-21T15:24:57.7391233Z     [Passed]:  isolated Continue localization initializes
+2026-10-21T15:24:57.7392949Z     [Passed]:  [STRING_NAME(ready)] expected to equal [STRING_NAME(ready)]:  
+2026-10-21T15:24:57.7394156Z     [Passed] 
+2026-10-21T15:24:57.7398275Z     [Passed]:  observation seed is isolated
+2026-10-21T15:24:57.7399011Z     [Passed]:  standalone style exists before production selection
+2026-10-21T15:24:57.7400167Z     [Passed]:  Expected [DialogicLayout_WitnessedCaption:<CanvasLayer#491824089715>(default_layout_base.gd)] to be anything but NULL:  
+2026-10-21T15:24:57.7402004Z     [Passed]:  Expected [WitnessedCaptionLayer:<Node#492428069509>(WitnessedCaptionLayer.gd)] to be anything but NULL:  real Styles loader selected WitnessedCaptionLayer
+2026-10-21T15:24:57.7403263Z     [Passed] 
+2026-10-21T15:24:57.7403618Z     [Passed] 
+2026-10-21T15:24:57.7404249Z     [Passed]:  actual Continue instance was observed before tree entry
+2026-10-21T15:24:57.7406216Z     [Passed]:  [492914608802] expected to equal [492914608802]:  observation belongs to the mounted Continue
+2026-10-21T15:24:57.7407146Z     [Passed]:  ["Continue"] expected to equal ["Continue"]:  
+2026-10-21T15:24:57.7408611Z     [Passed]:  mounted Continue source is admitted
+2026-10-21T15:24:57.7409843Z     [Passed]:  mounted Continue action is admitted
+2026-10-21T15:24:57.7471408Z CONTINUE_REGISTRATION_OBSERVATION {"boundaries":[{"layout_id":0,"layout_parent_id":0,"layout_parent_present":false,"phase":"armed","surface_id":0,"usec":9522097},{"layout_id":0,"layout_parent_id":0,"layout_parent_present":false,"phase":"initial_mount","surface_id":0,"usec":9522116},{"layout_id":491824089715,"layout_parent_id":0,"layout_parent_present":false,"phase":"mounted_settle","surface_id":492914608802,"usec":9532035},{"layout_id":491824089715,"layout_parent_id":272713648737,"layout_parent_present":true,"phase":"reparent","surface_id":492914608802,"usec":9861965},{"layout_id":491824089715,"layout_parent_id":26910655914,"layout_parent_present":true,"phase":"root_setup","surface_id":492914608802,"usec":9870534},{"layout_id":491824089715,"layout_parent_id":26910655914,"layout_parent_present":true,"phase":"timeline_start","surface_id":492914608802,"usec":9873858},{"layout_id":491824089715,"layout_parent_id":26910655914,"layout_parent_present":true,"phase":"timeline_settle","surface_id":492914608802,"usec":9877117},{"layout_id":491824089715,"layout_parent_id":26910655914,"layout_parent_present":true,"phase":"focus_and_input","surface_id":492914608802,"usec":9941496},{"layout_id":491824089715,"layout_parent_id":26910655914,"layout_parent_present":true,"phase":"script_replacement","surface_id":492914608802,"usec":9943488},{"layout_id":491824089715,"layout_parent_id":26910655914,"layout_parent_present":true,"phase":"post_mount_rebind","surface_id":492914608802,"usec":9943580},{"layout_id":491824089715,"layout_parent_id":26910655914,"layout_parent_present":true,"phase":"initial_wait","surface_id":492914608802,"usec":9948390}],"counts":{"action_registered":0,"admission":0,"after_install":1,"after_rebind":1,"before_install":1,"bind_enter":2,"bind_return":2,"capture_enter":0,"capture_return":0,"element":0,"enter_tree":2,"exit_tree":1,"instance_init":2,"notification":0,"owner_capture_enter":0,"owner_capture_return":0,"projection_changed":3,"queue_request":3,"queue_return":3,"retirement_queue_request":8,"retirement_queue_return":8},"end_clock":{"ticks_after":14953,"ticks_before":14953,"unix_msec":1792596296761.0},"events":[{"facts":{},"inside_tree":false,"phase":"initial_mount","stage":"instance_init","surface_id":492914608802,"usec":9526284},{"facts":{},"inside_tree":true,"phase":"mounted_settle","stage":"enter_tree","surface_id":492914608802,"usec":9543704},{"facts":{},"inside_tree":true,"phase":"mounted_settle","stage":"bind_enter","surface_id":492914608802,"usec":9603304},{"facts":{"custody":2},"inside_tree":true,"phase":"mounted_settle","stage":"retirement_queue_request","surface_id":492914608802,"usec":9603317},{"facts":{},"inside_tree":true,"phase":"mounted_settle","stage":"retirement_queue_return","surface_id":492914608802,"usec":9603323},{"facts":{"available":false,"label":"Continue","source_visible":false},"inside_tree":true,"phase":"mounted_settle","stage":"projection_changed","surface_id":492914608802,"usec":9603362},{"facts":{},"inside_tree":true,"phase":"mounted_settle","stage":"queue_request","surface_id":492914608802,"usec":9603368},{"facts":{},"inside_tree":true,"phase":"mounted_settle","stage":"queue_return","surface_id":492914608802,"usec":9603373},{"facts":{},"inside_tree":true,"phase":"mounted_settle","stage":"bind_return","surface_id":492914608802,"usec":9603378},{"facts":{"custody":3},"inside_tree":true,"phase":"mounted_settle","stage":"retirement_queue_request","surface_id":492914608802,"usec":9603391},{"facts":{},"inside_tree":true,"phase":"mounted_settle","stage":"retirement_queue_return","surface_id":492914608802,"usec":9603395},{"facts":{},"inside_tree":true,"phase":"reparent","stage":"exit_tree","surface_id":492914608802,"usec":9863019},{"facts":{},"inside_tree":true,"phase":"reparent","stage":"enter_tree","surface_id":492914608802,"usec":9864161},{"facts":{"custody":4},"inside_tree":true,"phase":"timeline_start","stage":"retirement_queue_request","surface_id":492914608802,"usec":9876905},{"facts":{},"inside_tree":true,"phase":"timeline_start","stage":"retirement_queue_return","surface_id":492914608802,"usec":9876913},{"facts":{"custody":5},"inside_tree":true,"phase":"timeline_settle","stage":"retirement_queue_request","surface_id":492914608802,"usec":9881637},{"facts":{},"inside_tree":true,"phase":"timeline_settle","stage":"retirement_queue_return","surface_id":492914608802,"usec":9881645},{"facts":{"custody":6},"inside_tree":true,"phase":"timeline_settle","stage":"retirement_queue_request","surface_id":492914608802,"usec":9881758},{"facts":{},"inside_tree":true,"phase":"timeline_settle","stage":"retirement_queue_return","surface_id":492914608802,"usec":9881764},{"facts":{"custody":7},"inside_tree":true,"phase":"timeline_settle","stage":"retirement_queue_request","surface_id":492914608802,"usec":9881781},{"facts":{},"inside_tree":true,"phase":"timeline_settle","stage":"retirement_queue_return","surface_id":492914608802,"usec":9881785},{"facts":{"custody":8},"inside_tree":true,"phase":"timeline_settle","stage":"retirement_queue_request","surface_id":492914608802,"usec":9881935},{"facts":{},"inside_tree":true,"phase":"timeline_settle","stage":"retirement_queue_return","surface_id":492914608802,"usec":9881940},{"facts":{"available":true,"label":"Continue","source_visible":true},"inside_tree":true,"phase":"timeline_settle","stage":"projection_changed","surface_id":492914608802,"usec":9882552}],"final":{"available":true,"label":"Continue","outcome":"timeout","publications":0,"reveal":1,"script":"():<GDScript#-9223371773737694807>","source_visible":true,"surface_id":492914608802,"usec":14953120,"visible_in_tree":true},"last":{"after_install":{"facts":{"publications":0,"script":"():<GDScript#-9223371773737694807>"},"inside_tree":true,"phase":"script_replacement","stage":"after_install","surface_id":492914608802,"usec":9943566},"after_rebind":{"facts":{"available":true,"label":"Continue","source_visible":true},"inside_tree":true,"phase":"post_mount_rebind","stage":"after_rebind","surface_id":492914608802,"usec":9943819},"before_install":{"facts":{"script":"(res://scripts/ui/witnessed/WitnessedAccessibleContinue.gd):<GDScript#-9223371870525454432>"},"inside_tree":true,"phase":"script_replacement","stage":"before_install","surface_id":492914608802,"usec":9943517},"bind_enter":{"facts":{},"inside_tree":true,"phase":"post_mount_rebind","stage":"bind_enter","surface_id":492914608802,"usec":9943595},"bind_return":{"facts":{},"inside_tree":true,"phase":"post_mount_rebind","stage":"bind_return","surface_id":492914608802,"usec":9943809},"enter_tree":{"facts":{},"inside_tree":true,"phase":"reparent","stage":"enter_tree","surface_id":492914608802,"usec":9864161},"exit_tree":{"facts":{},"inside_tree":true,"phase":"reparent","stage":"exit_tree","surface_id":492914608802,"usec":9863019},"instance_init":{"facts":{},"inside_tree":true,"phase":"script_replacement","stage":"instance_init","surface_id":492914608802,"usec":9943550},"projection_changed":{"facts":{"available":true,"label":"Continue","source_visible":true},"inside_tree":true,"phase":"post_mount_rebind","stage":"projection_changed","surface_id":492914608802,"usec":9943788},"queue_request":{"facts":{},"inside_tree":true,"phase":"post_mount_rebind","stage":"queue_request","surface_id":492914608802,"usec":9943797},"queue_return":{"facts":{},"inside_tree":true,"phase":"post_mount_rebind","stage":"queue_return","surface_id":492914608802,"usec":9943803},"retirement_queue_request":{"facts":{"custody":9},"inside_tree":true,"phase":"post_mount_rebind","stage":"retirement_queue_request","surface_id":492914608802,"usec":9943612},"retirement_queue_return":{"facts":{},"inside_tree":true,"phase":"post_mount_rebind","stage":"retirement_queue_return","surface_id":492914608802,"usec":9943621}},"owner_id":492914608802,"phase":"initial_wait","phases":{"armed":{"counts":{"action_registered":0,"admission":0,"bind_enter":0,"bind_return":0,"capture_enter":0,"capture_return":0,"element":0,"enter_tree":0,"exit_tree":0,"instance_init":0,"notification":0,"owner_capture_enter":0,"owner_capture_return":0,"projection_changed":0,"queue_request":0,"queue_return":0,"retirement_queue_request":0,"retirement_queue_return":0},"last":{}},"focus_and_input":{"counts":{"action_registered":0,"admission":0,"bind_enter":0,"bind_return":0,"capture_enter":0,"capture_return":0,"element":0,"enter_tree":0,"exit_tree":0,"instance_init":0,"notification":0,"owner_capture_enter":0,"owner_capture_return":0,"projection_changed":0,"queue_request":0,"queue_return":0,"retirement_queue_request":0,"retirement_queue_return":0},"last":{}},"initial_mount":{"counts":{"action_registered":0,"admission":0,"bind_enter":0,"bind_return":0,"capture_enter":0,"capture_return":0,"element":0,"enter_tree":0,"exit_tree":0,"instance_init":1,"notification":0,"owner_capture_enter":0,"owner_capture_return":0,"projection_changed":0,"queue_request":0,"queue_return":0,"retirement_queue_request":0,"retirement_queue_return":0},"last":{"instance_init":{"facts":{},"inside_tree":false,"phase":"initial_mount","stage":"instance_init","surface_id":492914608802,"usec":9526284}}},"initial_wait":{"counts":{"action_registered":0,"admission":0,"bind_enter":0,"bind_return":0,"capture_enter":0,"capture_return":0,"element":0,"enter_tree":0,"exit_tree":0,"instance_init":0,"notification":0,"owner_capture_enter":0,"owner_capture_return":0,"projection_changed":0,"queue_request":0,"queue_return":0,"retirement_queue_request":0,"retirement_queue_return":0},"last":{}},"mounted_settle":{"counts":{"action_registered":0,"admission":0,"bind_enter":1,"bind_return":1,"capture_enter":0,"capture_return":0,"element":0,"enter_tree":1,"exit_tree":0,"instance_init":0,"notification":0,"owner_capture_enter":0,"owner_capture_return":0,"projection_changed":1,"queue_request":1,"queue_return":1,"retirement_queue_request":2,"retirement_queue_return":2},"last":{"bind_enter":{"facts":{},"inside_tree":true,"phase":"mounted_settle","stage":"bind_enter","surface_id":492914608802,"usec":9603304},"bind_return":{"facts":{},"inside_tree":true,"phase":"mounted_settle","stage":"bind_return","surface_id":492914608802,"usec":9603378},"enter_tree":{"facts":{},"inside_tree":true,"phase":"mounted_settle","stage":"enter_tree","surface_id":492914608802,"usec":9543704},"projection_changed":{"facts":{"available":false,"label":"Continue","source_visible":false},"inside_tree":true,"phase":"mounted_settle","stage":"projection_changed","surface_id":492914608802,"usec":9603362},"queue_request":{"facts":{},"inside_tree":true,"phase":"mounted_settle","stage":"queue_request","surface_id":492914608802,"usec":9603368},"queue_return":{"facts":{},"inside_tree":true,"phase":"mounted_settle","stage":"queue_return","surface_id":492914608802,"usec":9603373},"retirement_queue_request":{"facts":{"custody":3},"inside_tree":true,"phase":"mounted_settle","stage":"retirement_queue_request","surface_id":492914608802,"usec":9603391},"retirement_queue_return":{"facts":{},"inside_tree":true,"phase":"mounted_settle","stage":"retirement_queue_return","surface_id":492914608802,"usec":9603395}}},"post_mount_rebind":{"counts":{"action_registered":0,"admission":0,"after_rebind":1,"bind_enter":1,"bind_return":1,"capture_enter":0,"capture_return":0,"element":0,"enter_tree":0,"exit_tree":0,"instance_init":0,"notification":0,"owner_capture_enter":0,"owner_capture_return":0,"projection_changed":1,"queue_request":1,"queue_return":1,"retirement_queue_request":1,"retirement_queue_return":1},"last":{"after_rebind":{"facts":{"available":true,"label":"Continue","source_visible":true},"inside_tree":true,"phase":"post_mount_rebind","stage":"after_rebind","surface_id":492914608802,"usec":9943819},"bind_enter":{"facts":{},"inside_tree":true,"phase":"post_mount_rebind","stage":"bind_enter","surface_id":492914608802,"usec":9943595},"bind_return":{"facts":{},"inside_tree":true,"phase":"post_mount_rebind","stage":"bind_return","surface_id":492914608802,"usec":9943809},"projection_changed":{"facts":{"available":true,"label":"Continue","source_visible":true},"inside_tree":true,"phase":"post_mount_rebind","stage":"projection_changed","surface_id":492914608802,"usec":9943788},"queue_request":{"facts":{},"inside_tree":true,"phase":"post_mount_rebind","stage":"queue_request","surface_id":492914608802,"usec":9943797},"queue_return":{"facts":{},"inside_tree":true,"phase":"post_mount_rebind","stage":"queue_return","surface_id":492914608802,"usec":9943803},"retirement_queue_request":{"facts":{"custody":9},"inside_tree":true,"phase":"post_mount_rebind","stage":"retirement_queue_request","surface_id":492914608802,"usec":9943612},"retirement_queue_return":{"facts":{},"inside_tree":true,"phase":"post_mount_rebind","stage":"retirement_queue_return","surface_id":492914608802,"usec":9943621}}},"reparent":{"counts":{"action_registered":0,"admission":0,"bind_enter":0,"bind_return":0,"capture_enter":0,"capture_return":0,"element":0,"enter_tree":1,"exit_tree":1,"instance_init":0,"notification":0,"owner_capture_enter":0,"owner_capture_return":0,"projection_changed":0,"queue_request":0,"queue_return":0,"retirement_queue_request":0,"retirement_queue_return":0},"last":{"enter_tree":{"facts":{},"inside_tree":true,"phase":"reparent","stage":"enter_tree","surface_id":492914608802,"usec":9864161},"exit_tree":{"facts":{},"inside_tree":true,"phase":"reparent","stage":"exit_tree","surface_id":492914608802,"usec":9863019}}},"root_setup":{"counts":{"action_registered":0,"admission":0,"bind_enter":0,"bind_return":0,"capture_enter":0,"capture_return":0,"element":0,"enter_tree":0,"exit_tree":0,"instance_init":0,"notification":0,"owner_capture_enter":0,"owner_capture_return":0,"projection_changed":0,"queue_request":0,"queue_return":0,"retirement_queue_request":0,"retirement_queue_return":0},"last":{}},"script_replacement":{"counts":{"action_registered":0,"admission":0,"after_install":1,"before_install":1,"bind_enter":0,"bind_return":0,"capture_enter":0,"capture_return":0,"element":0,"enter_tree":0,"exit_tree":0,"instance_init":1,"notification":0,"owner_capture_enter":0,"owner_capture_return":0,"projection_changed":0,"queue_request":0,"queue_return":0,"retirement_queue_request":0,"retirement_queue_return":0},"last":{"after_install":{"facts":{"publications":0,"script":"():<GDScript#-9223371773737694807>"},"inside_tree":true,"phase":"script_replacement","stage":"after_install","surface_id":492914608802,"usec":9943566},"before_install":{"facts":{"script":"(res://scripts/ui/witnessed/WitnessedAccessibleContinue.gd):<GDScript#-9223371870525454432>"},"inside_tree":true,"phase":"script_replacement","stage":"before_install","surface_id":492914608802,"usec":9943517},"instance_init":{"facts":{},"inside_tree":true,"phase":"script_replacement","stage":"instance_init","surface_id":492914608802,"usec":9943550}}},"timeline_settle":{"counts":{"action_registered":0,"admission":0,"bind_enter":0,"bind_return":0,"capture_enter":0,"capture_return":0,"element":0,"enter_tree":0,"exit_tree":0,"instance_init":0,"notification":0,"owner_capture_enter":0,"owner_capture_return":0,"projection_changed":1,"queue_request":1,"queue_return":1,"retirement_queue_request":4,"retirement_queue_return":4},"last":{"projection_changed":{"facts":{"available":true,"label":"Continue","source_visible":true},"inside_tree":true,"phase":"timeline_settle","stage":"projection_changed","surface_id":492914608802,"usec":9882552},"queue_request":{"facts":{},"inside_tree":true,"phase":"timeline_settle","stage":"queue_request","surface_id":492914608802,"usec":9882560},"queue_return":{"facts":{},"inside_tree":true,"phase":"timeline_settle","stage":"queue_return","surface_id":492914608802,"usec":9882565},"retirement_queue_request":{"facts":{"custody":8},"inside_tree":true,"phase":"timeline_settle","stage":"retirement_queue_request","surface_id":492914608802,"usec":9881935},"retirement_queue_return":{"facts":{},"inside_tree":true,"phase":"timeline_settle","stage":"retirement_queue_return","surface_id":492914608802,"usec":9881940}}},"timeline_start":{"counts":{"action_registered":0,"admission":0,"bind_enter":0,"bind_return":0,"capture_enter":0,"capture_return":0,"element":0,"enter_tree":0,"exit_tree":0,"instance_init":0,"notification":0,"owner_capture_enter":0,"owner_capture_return":0,"projection_changed":0,"queue_request":0,"queue_return":0,"retirement_queue_request":1,"retirement_queue_return":1},"last":{"retirement_queue_request":{"facts":{"custody":4},"inside_tree":true,"phase":"timeline_start","stage":"retirement_queue_request","surface_id":492914608802,"usec":9876905},"retirement_queue_return":{"facts":{},"inside_tree":true,"phase":"timeline_start","stage":"retirement_queue_return","surface_id":492914608802,"usec":9876913}}}},"registration_window":{"deadline_ticks_msec":14948,"start_clock":{"ticks_after":9948,"ticks_before":9948,"unix_msec":1792596291756.0}},"window":"ordinary instance construction through post-rebind wait","zero_counts":{"action_registered":0,"admission":0,"bind_enter":0,"bind_return":0,"capture_enter":0,"capture_return":0,"element":0,"enter_tree":0,"exit_tree":0,"instance_init":0,"notification":0,"owner_capture_enter":0,"owner_capture_return":0,"projection_changed":0,"queue_request":0,"queue_return":0,"retirement_queue_request":0,"retirement_queue_return":0}}
+2026-10-21T15:24:57.7521509Z     [Failed]:  Continue did not register a native action for reveal 1
+2026-10-21T15:24:57.7521876Z       at line -1
+2026-10-21T15:24:57.7522095Z 0/1 passed.
+2026-10-21T15:24:57.7522213Z 
+2026-10-21T15:24:57.7522217Z 
+2026-10-21T15:24:57.7522220Z 
+2026-10-21T15:24:57.7522223Z 
+2026-10-21T15:24:57.7522318Z ==============================================
+2026-10-21T15:24:57.7522601Z = Run Summary
+2026-10-21T15:24:57.7523176Z ==============================================
+2026-10-21T15:24:57.7523395Z 
+2026-10-21T15:24:57.7523559Z res://tests/manual/test_continue_reveal_publication.gd
+2026-10-21T15:24:57.7523930Z - test_continue_initial_registration_observation
+2026-10-21T15:24:57.7524329Z     [Failed]:  Continue did not register a native action for reveal 1
+2026-10-21T15:24:57.7524677Z           at line -1
+2026-10-21T15:24:57.7524815Z 
+2026-10-21T15:24:57.7524890Z Totals
+2026-10-21T15:24:57.7525076Z ------
+2026-10-21T15:24:57.7525264Z Scripts               1
+2026-10-21T15:24:57.7525497Z Tests                 1
+2026-10-21T15:24:57.7525730Z Passing Tests      none
+2026-10-21T15:24:57.7525948Z Failing Tests         1
+2026-10-21T15:24:57.7526152Z Asserts           16/17
+2026-10-21T15:24:57.7526368Z Time              6.273s
+2026-10-21T15:24:57.7526514Z 
+2026-10-21T15:24:57.7526517Z 
+2026-10-21T15:24:57.7526708Z Ran Tests matching "test_continue_initial_registration_observation"
+2026-10-21T15:24:57.7527091Z ---- 1 failing tests ----
+2026-10-21T15:24:57.7527264Z 
+2026-10-21T15:24:57.7527495Z Results saved to res://.godot/ci/continue-publication/initial-observation.xml
+2026-10-21T15:24:57.7527911Z [INFO]:  Exiting with code 1
+2026-10-21T15:24:57.8822885Z [31;1mException: [0mD:\a\dwm\dwm\tools\testing\Invoke-ContinuePublicationChecks.ps1:141[0m
+2026-10-21T15:24:57.8823708Z [31;1m[0m[36;1mLine |[0m
+2026-10-21T15:24:57.8824432Z [31;1m[0m[36;1m[36;1m 141 | [0m         [36;1mthrow "CONTINUE_CHILD_FAILED: $($plan.id) exit $result"[0m
+2026-10-21T15:24:57.8826319Z [31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+2026-10-21T15:24:57.8827446Z [31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mCONTINUE_CHILD_FAILED: initial-observation exit 1[0m
+2026-10-21T15:24:58.0892627Z [31;1mException: [0mD:\a\_temp\a834218d-7c6b-4940-baf9-dcd57007c449.ps1:5[0m
+2026-10-21T15:24:58.0893482Z [31;1m[0m[36;1mLine |[0m
+2026-10-21T15:24:58.0894241Z [31;1m[0m[36;1m[36;1m   5 | [0m …  ($LASTEXITCODE -ne 0) { [36;1mthrow "FOCUSED_RUNNER_EXIT: $LASTEXITCODE"[0m }[0m
+2026-10-21T15:24:58.0894977Z [31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+2026-10-21T15:24:58.0895607Z [31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mFOCUSED_RUNNER_EXIT: 1[0m
+2026-10-21T15:24:58.1090965Z ##[error]Process completed with exit code 1.
+2026-10-21T15:24:58.1264309Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-10-21T15:24:58.1264963Z [36;1m$ErrorActionPreference = 'Stop'[0m
+2026-10-21T15:24:58.1265561Z [36;1m$PSNativeCommandUseErrorActionPreference = $false[0m
+2026-10-21T15:24:58.1266272Z [36;1m$output = Join-Path $env:RUNNER_TEMP 'preparation-evidence'[0m
+2026-10-21T15:24:58.1267326Z [36;1m& python $env:PREPARATION_HELPER --phase post-tests --root $env:GITHUB_WORKSPACE --output $output *> (Join-Path $output 'preparation-post-tests.log')[0m
+2026-10-21T15:24:58.1268090Z [36;1mif ($LASTEXITCODE -ne 0) { throw "POST_TESTS_POLICY_EXIT: $LASTEXITCODE" }[0m
+2026-10-21T15:24:58.1305586Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-21T15:24:58.1305951Z env:
+2026-10-21T15:24:58.1306220Z   PRODUCT_SHA: b95a6de6a633b1d199bffc540d87a89a05513a5e
+2026-10-21T15:24:58.1306588Z   SOURCE_SHA: f1bf66ce689a1358cb217563e6996997536bc4b0
+2026-10-21T15:24:58.1307093Z   PREPARATION_SHA256: 1220b4570afc48abcf894b6f8dd1489ce857eb1bc54674e41212dc6aa2fc2719
+2026-10-21T15:24:58.1307684Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T15:24:58.1308218Z   PREPARATION_HELPER: D:\a\_temp\reviewed-preparation\prepare_caption.py
+2026-10-21T15:24:58.1308713Z   GODOT_CONSOLE_PATH: D:\a\_temp\godot-4.6.3\Godot_v4.6.3-stable_win64_console.exe
+2026-10-21T15:24:58.1309116Z ##[endgroup]
+2026-10-21T15:25:11.5091861Z ##[group]Run actions/upload-artifact@v4
+2026-10-21T15:25:11.5092251Z with:
+2026-10-21T15:25:11.5092499Z   name: caption-qualification-39625027775-1
+2026-10-21T15:25:11.5092917Z   path: D:\a\dwm\dwm/.godot/ci
+D:\a\dwm\dwm/.godot/phase2r_logs
+
+2026-10-21T15:25:11.5093291Z   include-hidden-files: true
+2026-10-21T15:25:11.5093553Z   if-no-files-found: error
+2026-10-21T15:25:11.5093796Z   retention-days: 7
+2026-10-21T15:25:11.5094029Z   compression-level: 6
+2026-10-21T15:25:11.5094253Z   overwrite: false
+2026-10-21T15:25:11.5094467Z env:
+2026-10-21T15:25:11.5094709Z   PRODUCT_SHA: b95a6de6a633b1d199bffc540d87a89a05513a5e
+2026-10-21T15:25:11.5095088Z   SOURCE_SHA: f1bf66ce689a1358cb217563e6996997536bc4b0
+2026-10-21T15:25:11.5095542Z   PREPARATION_SHA256: 1220b4570afc48abcf894b6f8dd1489ce857eb1bc54674e41212dc6aa2fc2719
+2026-10-21T15:25:11.5096119Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T15:25:11.5096680Z   PREPARATION_HELPER: D:\a\_temp\reviewed-preparation\prepare_caption.py
+2026-10-21T15:25:11.5097192Z   GODOT_CONSOLE_PATH: D:\a\_temp\godot-4.6.3\Godot_v4.6.3-stable_win64_console.exe
+2026-10-21T15:25:11.5097575Z ##[endgroup]
+2026-10-21T15:25:11.7034178Z (node:8168) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-21T15:25:11.7034910Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-21T15:25:11.7130115Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-10-21T15:25:11.7133016Z The least common ancestor is D:\a\dwm\dwm\.godot. This will be the root directory of the artifact
+2026-10-21T15:25:11.7135372Z With the provided path, there will be 9 files uploaded
+2026-10-21T15:25:11.7139157Z Artifact name is valid!
+2026-10-21T15:25:11.7140862Z Root directory input is valid!
+2026-10-21T15:25:11.9768654Z Beginning upload of artifact content to blob storage
+2026-10-21T15:25:12.0090869Z (node:8168) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-21T15:25:12.1249713Z Uploaded bytes 8524
+2026-10-21T15:25:12.1548616Z Finished uploading artifact content to blob storage!
+2026-10-21T15:25:12.1549530Z SHA256 digest of uploaded artifact zip is 571a467e830732a7e1036047509c2b2835f6910ec7c87bb2ff970f4b4b1e1f4f
+2026-10-21T15:25:12.1552065Z Finalizing artifact upload
+2026-10-21T15:25:12.3915826Z Artifact caption-qualification-39625027775-1.zip successfully finalized. Artifact ID 12356906211
+2026-10-21T15:25:12.3917498Z Artifact caption-qualification-39625027775-1 has been successfully uploaded! Final size is 8524 bytes. Artifact ID is 12356906211
+2026-10-21T15:25:12.3925973Z Artifact download URL: https://github.com/Siuuuers/dwm/actions/runs/39625027775/artifacts/12356906211
+2026-10-21T15:25:12.4192855Z ##[group]Run actions/upload-artifact@v4
+2026-10-21T15:25:12.4193242Z with:
+2026-10-21T15:25:12.4193482Z   name: caption-preparation-39625027775-1
+2026-10-21T15:25:12.4193825Z   path: D:\a\_temp/preparation-evidence
+2026-10-21T15:25:12.4194118Z   include-hidden-files: true
+2026-10-21T15:25:12.4194381Z   if-no-files-found: error
+2026-10-21T15:25:12.4194611Z   retention-days: 7
+2026-10-21T15:25:12.4194832Z   compression-level: 6
+2026-10-21T15:25:12.4195051Z   overwrite: false
+2026-10-21T15:25:12.4195257Z env:
+2026-10-21T15:25:12.4195500Z   PRODUCT_SHA: b95a6de6a633b1d199bffc540d87a89a05513a5e
+2026-10-21T15:25:12.4195858Z   SOURCE_SHA: f1bf66ce689a1358cb217563e6996997536bc4b0
+2026-10-21T15:25:12.4196329Z   PREPARATION_SHA256: 1220b4570afc48abcf894b6f8dd1489ce857eb1bc54674e41212dc6aa2fc2719
+2026-10-21T15:25:12.4196906Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T15:25:12.4197461Z   PREPARATION_HELPER: D:\a\_temp\reviewed-preparation\prepare_caption.py
+2026-10-21T15:25:12.4197969Z   GODOT_CONSOLE_PATH: D:\a\_temp\godot-4.6.3\Godot_v4.6.3-stable_win64_console.exe
+2026-10-21T15:25:12.4198374Z ##[endgroup]
+2026-10-21T15:25:12.5942415Z (node:1232) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-21T15:25:12.5943152Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-21T15:25:13.5093689Z With the provided path, there will be 5280 files uploaded
+2026-10-21T15:25:13.5099801Z Artifact name is valid!
+2026-10-21T15:25:13.5101756Z Root directory input is valid!
+2026-10-21T15:25:13.8919740Z Beginning upload of artifact content to blob storage
+2026-10-21T15:25:16.5761715Z (node:1232) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-21T15:25:17.1061100Z Uploaded bytes 8388608
+2026-10-21T15:25:17.8458970Z Uploaded bytes 10807653
+2026-10-21T15:25:17.8807742Z Finished uploading artifact content to blob storage!
+2026-10-21T15:25:17.8811907Z SHA256 digest of uploaded artifact zip is 9538b63fe893c57773bef9e020025de62ee48039bf66ef65bc2820845423677e
+2026-10-21T15:25:17.8814782Z Finalizing artifact upload
+2026-10-21T15:25:18.1598407Z Artifact caption-preparation-39625027775-1.zip successfully finalized. Artifact ID 12356801591
+2026-10-21T15:25:18.1600022Z Artifact caption-preparation-39625027775-1 has been successfully uploaded! Final size is 10807653 bytes. Artifact ID is 12356801591
+2026-10-21T15:25:18.1611957Z Artifact download URL: https://github.com/Siuuuers/dwm/actions/runs/39625027775/artifacts/12356801591
+2026-10-21T15:25:18.2096885Z Post job cleanup.
+2026-10-21T15:25:18.3798573Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-21T15:25:18.4078841Z git version 2.56.0.windows.2
+2026-10-21T15:25:18.4143020Z Temporarily overriding HOME='D:\a\_temp\d8d46d51-42aa-43bc-afb6-9540c04a9411' before making global git config changes
+2026-10-21T15:25:18.4144248Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-21T15:25:18.4155412Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\dwm\dwm
+2026-10-21T15:25:18.4483727Z Removing SSH command configuration
+2026-10-21T15:25:18.4494656Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-21T15:25:18.4850628Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-21T15:25:18.9428790Z Removing HTTP extra header
+2026-10-21T15:25:18.9439362Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-21T15:25:18.9734825Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-21T15:25:19.5359698Z Removing includeIf entries pointing to credentials config files
+2026-10-21T15:25:19.5370504Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-21T15:25:19.5635815Z includeif.gitdir:D:/a/dwm/dwm/.git.path
+2026-10-21T15:25:19.5636942Z includeif.gitdir:D:/a/dwm/dwm/.git/worktrees/*.path
+2026-10-21T15:25:19.5637781Z includeif.gitdir:/github/workspace/.git.path
+2026-10-21T15:25:19.5638534Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-21T15:25:19.5676516Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/dwm/dwm/.git.path
+2026-10-21T15:25:19.5939524Z D:\a\_temp\git-credentials-89f83d9b-36b2-4a91-98b5-b3878be8eab2.config
+2026-10-21T15:25:19.5975749Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/dwm/dwm/.git.path D\:\\a\\_temp\\git\-credentials\-89f83d9b\-36b2\-4a91\-98b5\-b3878be8eab2\.config
+2026-10-21T15:25:19.6272805Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/dwm/dwm/.git/worktrees/*.path
+2026-10-21T15:25:19.6534293Z D:\a\_temp\git-credentials-89f83d9b-36b2-4a91-98b5-b3878be8eab2.config
+2026-10-21T15:25:19.6568525Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/dwm/dwm/.git/worktrees/*.path D\:\\a\\_temp\\git\-credentials\-89f83d9b\-36b2\-4a91\-98b5\-b3878be8eab2\.config
+2026-10-21T15:25:19.6862956Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-21T15:25:19.7122966Z /github/runner_temp/git-credentials-89f83d9b-36b2-4a91-98b5-b3878be8eab2.config
+2026-10-21T15:25:19.7195759Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-89f83d9b\-36b2\-4a91\-98b5\-b3878be8eab2\.config
+2026-10-21T15:25:19.7518613Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-21T15:25:19.7782504Z /github/runner_temp/git-credentials-89f83d9b-36b2-4a91-98b5-b3878be8eab2.config
+2026-10-21T15:25:19.7817095Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-89f83d9b\-36b2\-4a91\-98b5\-b3878be8eab2\.config
+2026-10-21T15:25:19.8139755Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-21T15:25:20.2896437Z Removing credentials config 'D:\a\_temp\git-credentials-89f83d9b-36b2-4a91-98b5-b3878be8eab2.config'
+2026-10-21T15:25:20.3083628Z Cleaning up orphan processes
+2026-10-21T15:25:20.3566178Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

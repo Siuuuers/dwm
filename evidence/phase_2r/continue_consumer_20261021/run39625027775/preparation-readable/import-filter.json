@@ -1,0 +1,5 @@
+{
+  "pattern": "SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character",
+  "passed": true,
+  "matches": []
+}

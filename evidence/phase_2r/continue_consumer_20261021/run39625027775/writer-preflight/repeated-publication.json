@@ -1,0 +1,24 @@
+{
+    "status":  "starting",
+    "ok":  false,
+    "error":  null,
+    "exit_code":  null,
+    "reader_completed_unix_msec":  null,
+    "events":  [
+                   {
+                       "stage":  "reader_start",
+                       "unix_msec":  1792596174137,
+                       "elapsed_msec":  11.4929
+                   },
+                   {
+                       "stage":  "identity_start",
+                       "unix_msec":  1792596175186,
+                       "elapsed_msec":  1046.1836
+                   },
+                   {
+                       "stage":  "identity_start",
+                       "unix_msec":  1792596175202,
+                       "elapsed_msec":  1055.8587
+                   }
+               ]
+}
