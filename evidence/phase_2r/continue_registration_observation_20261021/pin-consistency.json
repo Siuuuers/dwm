@@ -1,0 +1,13 @@
+{
+  "source": "3cc4da9a27645b794efbda059fad236f1bcf4532",
+  "controller_sha256": "32adf323d50b1c41b620cc5794897cf0b05903e5bfd803a3e72090853d7ecd01",
+  "helper_sha256": "f2099431c7762fca70f121ecf4c89df4b0bf021759627874fc845437a8e823d7",
+  "checks": "Python AST, YAML parsing, exact source pins, single plan, original deadline/capture count; no Godot or PowerShell execution",
+  "source_tree": "e24475ff36e1e5c45569a9609eb6dc018e126f85",
+  "helper": "285312ef0e0af2443deaf09503787a599f9503a5",
+  "runtime_source_blob": "8864c08ad50b6cd32acaf17033fe7fef9542013a",
+  "capture_sha256": "a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379",
+  "active_controller": "e2a48222f811f953d4a41ccfe0cbfd68d6f25a8f",
+  "external_c_clearance": false,
+  "dispatched": false
+}
