@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)][string]$RepositoryRoot,
-    [Parameter(Mandatory = $true)][ValidatePattern('^[0-9a-f]{40}$')][string]$ExpectedSource
+    [Parameter(Mandatory = $true)][ValidatePattern('^[0-9a-f]{40}$')][string]$ExpectedSource,
+    [switch]$NativeProviderProvenance
 )
 
 Set-StrictMode -Version Latest
@@ -44,6 +45,8 @@ foreach ($plan in $plans) {
 }
 $manifest = [ordered]@{ source = $source; expected_cases = 1; registration_cases = 1; diagnostic_only = $true;
     rendered = $true; accessibility = 'always'; tests = $plans;
+    native_provider_provenance = [bool]$NativeProviderProvenance;
+    client_route = $(if ($NativeProviderProvenance) { 'managed-discovery-then-native-COM-provenance' } else { 'managed-baseline' });
     console_sha256 = (Get-FileHash -LiteralPath $env:GODOT_CONSOLE_PATH -Algorithm SHA256).Hash.ToLowerInvariant() }
 [IO.File]::WriteAllText((Join-Path $output 'selection.json'), ($manifest | ConvertTo-Json -Depth 6), $utf8)
 function Write-ConsumerOutcome([string]$LogPath, [int]$RunnerExit) {
@@ -133,7 +136,7 @@ foreach ($plan in $plans) {
         "-gjunit_xml_file=res://.godot/ci/continue-publication/$($plan.id).xml")
     & $helper -SuiteId "continue-publication-$($plan.id)" -LogName $logName `
         -EvidenceLogPath '.godot/ci/continue-publication/isolation.jsonl' `
-        -TimeoutSeconds 120 -Rendered -ContinueAccessibilityConsumer -GodotArgs $arguments
+        -TimeoutSeconds 120 -Rendered -ContinueAccessibilityConsumer -NativeProviderProvenance:$NativeProviderProvenance -GodotArgs $arguments
     $result = $LASTEXITCODE
     $consumerOutcome = Write-ConsumerOutcome -LogPath $logPath -RunnerExit $result
     if ($result -ne 0) {

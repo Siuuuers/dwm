@@ -29,7 +29,10 @@ param(
     [switch]$Rendered,
 
     # Narrow opt-in for the single Continue registration prerequisite check.
-    [switch]$ContinueAccessibilityConsumer
+    [switch]$ContinueAccessibilityConsumer,
+
+    # Isolated changed-client diagnostic; default managed reader is preserved.
+    [switch]$NativeProviderProvenance
 )
 
 Set-StrictMode -Version Latest
@@ -115,7 +118,8 @@ function Invoke-GodotChild {
         [string]$DwmTestRoot,
         [int]$TimeoutSeconds,
         [string]$TimeoutLogPath,
-        [string]$ConsumerDirectory = ""
+        [string]$ConsumerDirectory = "",
+        [bool]$UseNativeProviderProvenance = $false
     )
     $start = New-Object Diagnostics.ProcessStartInfo
     $start.FileName = $Executable
@@ -154,8 +158,9 @@ function Invoke-GodotChild {
             [IO.File]::WriteAllText($bindingPath, (ConvertTo-Json $binding), (New-Object Text.UTF8Encoding($false)))
             $readerStart = New-Object Diagnostics.ProcessStartInfo
             $readerStart.FileName = Join-Path $env:SystemRoot 'System32/WindowsPowerShell/v1.0/powershell.exe'
+            $readerScript = if ($UseNativeProviderProvenance) { 'Read-ContinueNativeProvider.ps1' } else { 'Read-ContinueAccessibility.ps1' }
             $readerArguments = @('-NoLogo','-NoProfile','-NonInteractive','-File',
-                (Join-Path $PSScriptRoot 'Read-ContinueAccessibility.ps1'),
+                (Join-Path $PSScriptRoot $readerScript),
                 '-BindingPath',$bindingPath,'-ReceiptPath',$receiptPath,'-StopPath',$stopPath)
             $readerStart.Arguments = [string]::Join(' ', @($readerArguments | ForEach-Object { ConvertTo-NativeArgument ([string]$_) }))
             $readerStart.UseShellExecute = $false
@@ -307,6 +312,7 @@ $resultCode = 124
 $phase = 'isolation'
 
 try {
+    if ($NativeProviderProvenance -and -not $ContinueAccessibilityConsumer) { throw 'NATIVE_PROVIDER_SCOPE_INVALID' }
     if ($ContinueAccessibilityConsumer -and (-not $Rendered -or
         $SuiteId -cne 'continue-publication-initial-observation' -or
         $EvidenceLogPath -cne '.godot/ci/continue-publication/isolation.jsonl' -or
@@ -414,7 +420,7 @@ try {
                 if (Test-Path -LiteralPath (Join-Path $consumerDirectory $name)) { throw 'CONTINUE_CONSUMER_OUTPUT_NOT_FRESH' }
             }
         }
-        $requested = Invoke-GodotChild -Executable $godotExecutable -Arguments $argv -AppData $childAppData -LocalAppData $childLocalAppData -DwmTestRoot $childDwmRoot -TimeoutSeconds $TimeoutSeconds -TimeoutLogPath $timeoutLog -ConsumerDirectory $consumerDirectory
+        $requested = Invoke-GodotChild -Executable $godotExecutable -Arguments $argv -AppData $childAppData -LocalAppData $childLocalAppData -DwmTestRoot $childDwmRoot -TimeoutSeconds $TimeoutSeconds -TimeoutLogPath $timeoutLog -ConsumerDirectory $consumerDirectory -UseNativeProviderProvenance ([bool]$NativeProviderProvenance)
         $endedAt = [DateTime]::UtcNow.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
         $resultCode = [int]$requested.ExitCode
         # GUT exits 0 while silently downgrading an unloadable suite to a warning, so a requested
