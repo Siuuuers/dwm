@@ -10,12 +10,12 @@ import shutil
 import sys
 import capture_import as custody
 
-PRODUCT = "b7fb0e549f028f72717bd5ee9e4905517a365fdf"
+PRODUCT = "3cc4da9a27645b794efbda059fad236f1bcf4532"
 PROJECT = "5e8009d890f9e4359b24bb68a59fdec1bf56ef0a3ea94be06c3e43a6d2353053"
 IMPORTED_PROJECT = "6880d26a04484587a54c63e0a98072984b6adac7ac3e9d07e8d138e934428fdd"
 PRESET = "76d904435496d2057572225b796f8b3c74f121a21254d211a6246caaf96efcaa"
 RUNTIME_UID = "scripts/ui/witnessed/WitnessedAccessibleContinue.gd.uid"
-RUNTIME_SOURCE_BLOB = "9e37a90dfb3ca1816df85e41fcc849da90bb64fa"
+RUNTIME_SOURCE_BLOB = "8864c08ad50b6cd32acaf17033fe7fef9542013a"
 GITLINKS = {".claude/skills/godot-prompter/1.10.0", ".claude/skills/superpowers/6.1.1"}
 
 
@@ -270,3 +270,4 @@ if __name__ == "__main__":
     except Exception as error:
         write(args.phase + "-failure.json", {"error": str(error)})
         raise
+
