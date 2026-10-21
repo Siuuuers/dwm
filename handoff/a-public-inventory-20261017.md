@@ -1,3 +1,15 @@
+# Current checkpoint — guarded fixture committed; C alignment review pending
+
+Director6315805172 authorizes one corrected same-scope attempt AFTER C confirms committed-byte equality and source/helper/controller alignment. C6315777372 already cleared substantive fixture correction; do not repeat that review.
+Source2def8cd137ee72b78a41414a34d40bd4b7384576 is exactly one fixture change; candidate SHA2560616c046ba80a6044e513415079593efd1673530e2afc8f85249346efcf33c44.
+Helper9febfa24f6eae5c4250ca8f5dad484181a0ce945 changes only PRODUCT. Runtime owner blob4f0f81b8f8f0c02a4bc7ed06909d9be840fc1ab0 unchanged.
+[Complete alignment packet](../evidence/phase_2r/continue_early_observation_20261021/null-parent-correction/README.md); controller remains inert. Static Python/YAML/hash/pin checks pass; no cloud run or runtime acceptance.
+Active controllerb968bede remains unchanged; recheck with expected-head protection only after C alignment clearance. No further user/Director confirmation, no automatic retry.
+Prior39588849613 remains failed with null-parent SCRIPT ERROR and original XML discrepancy. Next result must distinguish a nonthrowing parent-absent boundary from actual registration success/failure.
+No product/master/integration movement, export/merge/release. Standing publication permission persists. Earlier entries below are historical where superseded.
+
+---
+
 # Current checkpoint — run39588849613 reviewed, diagnostic correction pending
 
 Focused attempt1/job119184434437 FAILED:1 case,16/18 assertions,child/GUT exit1; timeout plus null-parent diagnostic error at manual fixture line18. XML root/suite failure-count discrepancy preserved.
