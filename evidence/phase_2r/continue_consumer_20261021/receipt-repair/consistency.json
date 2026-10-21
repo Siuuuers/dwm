@@ -1,0 +1,23 @@
+{
+  "source": "023f2d501ef0726075d3dd706535860bf2615ae6",
+  "helper": "46d9d6eead37cc67e7349ba07c02fc1da76b6f9b",
+  "preparation_sha256": "3276b74abee01c669dd9ccc2ccf6b4e7c1dca0c7a309d403ffd20c24304209e8",
+  "sha256": {
+    "tools/testing/Read-ContinueAccessibility.ps1": "506c5ea95901c2622ec769f91c6de5655dfc2b5c683d7038ab5d895a14c07fe9",
+    "tools/testing/Save-ContinueReaderEvent.ps1": "665f9e37a0fefd001935ea93da7dc3f2e5a343b23be6fc4087e10a26030aa0fa",
+    "tools/testing/Test-ContinueReaderReceipt.ps1": "235142ebf10dd1f9c1e298ea084ec220fefb76053af54f35804edd800b28f508",
+    "receipt-controller.yml": "42c560ad082a7e6ca337758cfecbba14f36b8370b3c4614d203f327d4a9ed675"
+  },
+  "checks": {
+    "reader_other_bytes_unchanged": true,
+    "shared_writer_only_argument_change": true,
+    "helper_only_PRODUCT_changed": true,
+    "yaml_parse": true,
+    "python_ast": true,
+    "preflight_before_all_Godot": true,
+    "master_has_no_reader_or_preflight": true,
+    "published_source_and_helper_readback_equal": true
+  },
+  "windows_runtime_executed": false,
+  "external_C_clearance": false
+}
