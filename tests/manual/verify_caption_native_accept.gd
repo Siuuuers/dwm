@@ -255,9 +255,18 @@ func _state() -> Dictionary:
 		"review_offset": review, "live_visible": _caption.caption_text.is_visible_in_tree(),
 		"review_visible": _caption.review_current.is_visible_in_tree(),
 		"live_focused": _caption.caption_text.has_focus(), "review_focused": _caption.review_current.has_focus(),
+		"continue_label": _caption.background_input._label,
+		"continue_available": _caption.background_input._available,
+		"continue_source_visible": _caption.background_input._source_visible,
+		"continue_rect": _rect_array(_caption.background_input),
+		"target_rect": _rect_array(_caption.review_current if review > 0 else _caption.caption_text),
 		"target_text": _caption.review_current.get_parsed_text() if review > 0 else _caption.caption_text.get_parsed_text(),
 		"simple_history": _runtime.History.simple_history_content.duplicate(true),
 		"full_history": _runtime.History.full_event_history_content.duplicate(true)}
+
+func _rect_array(control: Control) -> Array:
+	var rect: Rect2 = control.get_global_transform_with_canvas() * Rect2(Vector2.ZERO, control.size)
+	return [rect.position.x, rect.position.y, rect.size.x, rect.size.y]
 
 func _ready(stage: String, title: String) -> bool:
 	if not _elapsed_reveal_frozen():
@@ -307,3 +316,4 @@ func _finish(ok: bool, phase: String) -> void:
 		result.ok = false
 	print("CAPTION_RESULT " + JSON.stringify(result))
 	quit(0 if ok else 1)
+

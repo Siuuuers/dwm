@@ -30,6 +30,19 @@ public static class DwmCaptionNative {
     [StructLayout(LayoutKind.Sequential)]
     public struct Point { public int X; public int Y; }
     [StructLayout(LayoutKind.Sequential)]
+    public struct Rect { public int Left, Top, Right, Bottom; }
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool GetClientRect(IntPtr window, out Rect rect);
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool ClientToScreen(IntPtr window, ref Point point);
+    public static int[] ClientBounds(IntPtr window) {
+        Rect rect;
+        Point origin = new Point();
+        if (!GetClientRect(window, out rect) || !ClientToScreen(window, ref origin))
+            throw new Win32Exception(Marshal.GetLastWin32Error());
+        return new int[] { origin.X, origin.Y, rect.Right - rect.Left, rect.Bottom - rect.Top };
+    }
+    [StructLayout(LayoutKind.Sequential)]
     public struct MouseInput {
         public int dx, dy;
         public uint mouseData, dwFlags, time;
@@ -146,6 +159,9 @@ function Resolve-Caption([object]$Ready, [object]$Expected) {
     if ($Ready.window_title -cne $title -or $targetPid -le 0 -or $Ready.physical_contacts -ne 0 -or
         $Ready.run_token -cne $identity -or $Ready.anything_pressed -or $Ready.tree_paused -or $Ready.runtime_paused -or
         -not $Ready.input_delay_stopped -or -not $Ready.source_admitted -or -not $Ready.window_focused -or
+        -not $Ready.continue_available -or -not $Ready.continue_source_visible -or
+        $Ready.continue_label -cne 'Continue' -or @($Ready.continue_rect).Count -ne 4 -or
+        @($Ready.target_rect).Count -ne 4 -or
         $Ready.stage -cne $Expected.stage -or $Ready.ended -ne 0 -or
         $Ready.text -cne $captions[$Expected.event_index] -or $Ready.event_index -ne $Expected.event_index -or
         $Ready.target_text -cne $captions[$Expected.target_index] -or $Ready.review_offset -ne $Expected.review_offset -or
@@ -186,6 +202,7 @@ function Resolve-Caption([object]$Ready, [object]$Expected) {
     $native = [Diagnostics.Process]::GetProcessById($targetPid)
     $window = $null
     $target = $null
+    $continueTarget = $null
     $deadline = [Diagnostics.Stopwatch]::StartNew()
     while ($deadline.Elapsed.TotalSeconds -lt 10) {
         $native.Refresh()
@@ -197,6 +214,7 @@ function Resolve-Caption([object]$Ready, [object]$Expected) {
             $snapshot = @($elements | ForEach-Object {
                 [ordered]@{ name = $_.Current.Name; type = $_.Current.ControlType.ProgrammaticName;
                     enabled = $_.Current.IsEnabled; offscreen = $_.Current.IsOffscreen;
+                    focused = $_.Current.HasKeyboardFocus; pid = $_.Current.ProcessId;
                     automation_id = $_.Current.AutomationId; runtime_id = @($_.GetRuntimeId());
                     physical_rectangle = @($_.Current.BoundingRectangle.X, $_.Current.BoundingRectangle.Y,
                         $_.Current.BoundingRectangle.Width, $_.Current.BoundingRectangle.Height);
@@ -204,25 +222,59 @@ function Resolve-Caption([object]$Ready, [object]$Expected) {
             })
             [IO.File]::WriteAllText((Join-Path $output ($Ready.stage + '-tree.json')),
                 (ConvertTo-Json -InputObject $snapshot -Depth 8), $utf8)
-            # Match the visible action's text, which differs from live text in review.
+            # Read prose from its actual focused Text node. Invocation belongs only
+            # to the separately projected, geometry-bound background Continue.
             $matches = @($elements | Where-Object {
-                $_.Current.Name.TrimEnd() -ceq $Ready.target_text -and -not $_.Current.IsOffscreen
+                $_.Current.Name.TrimEnd() -ceq $Ready.target_text -and -not $_.Current.IsOffscreen -and
+                    $_.Current.HasKeyboardFocus
             })
-            $actionable = @($matches | Where-Object {
-                $candidatePattern = $null
-                $_.Current.IsEnabled -and $_.TryGetCurrentPattern(
-                    [Windows.Automation.InvokePattern]::Pattern, [ref]$candidatePattern)
-            })
-            if ($actionable.Count -gt 1) { throw 'CAPTION_UIA_AMBIGUOUS' }
-            if ($actionable.Count -eq 1) { $target = $actionable[0]; break }
+            if ($matches.Count -gt 1) { throw 'CAPTION_UIA_AMBIGUOUS' }
+            if ($matches.Count -eq 1) {
+                $prose = $matches[0]
+                $prosePattern = $null
+                if ($prose.Current.ProcessId -ne $targetPid -or -not $prose.Current.IsEnabled -or
+                    $prose.Current.ControlType -ne [Windows.Automation.ControlType]::Text -or
+                    $prose.TryGetCurrentPattern([Windows.Automation.InvokePattern]::Pattern, [ref]$prosePattern)) {
+                    throw 'CAPTION_PROSE_ROLE_OR_ACTION_INVALID'
+                }
+                Assert-InWindow $prose $window $targetPid
+                Assert-FixtureRectangle $prose $Ready.target_rect $native.MainWindowHandle
+                $continueMatches = @($elements | Where-Object {
+                    $_.Current.Name.TrimEnd() -ceq $Ready.continue_label -and -not $_.Current.IsOffscreen
+                })
+                $storyActions = @()
+                foreach ($candidate in $continueMatches) {
+                    # Pause's Continue is a different, small rectangle and cannot qualify.
+                    if (-not $candidate.Current.BoundingRectangle.Contains($prose.Current.BoundingRectangle)) { continue }
+                    if ($candidate.Current.ProcessId -ne $targetPid) { throw 'CONTINUE_FOREIGN_PROCESS' }
+                    Assert-InWindow $candidate $window $targetPid
+                    $candidatePattern = $null
+                    if ($candidate.Current.ControlType -ne [Windows.Automation.ControlType]::Button -or
+                        -not $candidate.Current.IsEnabled -or
+                        -not $candidate.TryGetCurrentPattern([Windows.Automation.InvokePattern]::Pattern, [ref]$candidatePattern)) {
+                        throw 'CONTINUE_ACTION_INVALID'
+                    }
+                    Assert-FixtureRectangle $candidate $Ready.continue_rect $native.MainWindowHandle
+                    if ([Windows.Automation.Automation]::Compare($prose, $candidate)) { throw 'CONTINUE_IS_PROSE' }
+                    $storyActions += $candidate
+                }
+                if ($storyActions.Count -gt 1) { throw 'CONTINUE_UIA_AMBIGUOUS' }
+                if ($storyActions.Count -eq 1) {
+                    $target = $prose
+                    $continueTarget = $storyActions[0]
+                    break
+                }
+            }
         }
         Start-Sleep -Milliseconds 100
     }
-    if ($null -eq $target) { throw "CAPTION_UIA_NOT_FOUND: $($Ready.stage)" }
+    if ($null -eq $target -or $null -eq $continueTarget -or $deadline.Elapsed.TotalSeconds -ge 10) {
+        throw "CAPTION_TEXT_OR_CONTINUE_NOT_FOUND_IN_DEADLINE: $($Ready.stage)"
+    }
     $pattern = $null
-    if (-not $target.Current.IsEnabled -or
-        -not $target.TryGetCurrentPattern([Windows.Automation.InvokePattern]::Pattern, [ref]$pattern)) {
-        throw 'CAPTION_INVOKE_PATTERN_MISSING'
+    if (-not $continueTarget.Current.IsEnabled -or
+        -not $continueTarget.TryGetCurrentPattern([Windows.Automation.InvokePattern]::Pattern, [ref]$pattern)) {
+        throw 'CONTINUE_INVOKE_PATTERN_MISSING'
     }
     $runtimeId = @($target.GetRuntimeId())
     if ($isReview -and $observations.Count -gt 0 -and
@@ -236,11 +288,45 @@ function Resolve-Caption([object]$Ready, [object]$Expected) {
         if ([double]::IsNaN($value) -or [double]::IsInfinity($value)) { throw 'CAPTION_NATIVE_NONFINITE_RECTANGLE' }
     }
     $binding = [pscustomobject]@{ target = $target; pattern = $pattern; window = $window;
+        continue_target = $continueTarget; continue_runtime_id = @($continueTarget.GetRuntimeId());
+        continue_rectangle = $continueTarget.Current.BoundingRectangle;
         window_handle = $native.MainWindowHandle.ToInt64(); pid = $targetPid;
         runtime_id = $runtimeId; rectangle = $rectangle; ready = $Ready; process_identity = $processIdentity;
         physical_rectangle = @($rectangle.X, $rectangle.Y, $rectangle.Width, $rectangle.Height) }
     $native.Dispose()
     return $binding
+}
+
+function Assert-InWindow($Element, $Window, [int]$ElementProcessId) {
+    if ($Element.Current.ProcessId -ne $ElementProcessId) { throw 'CAPTION_ELEMENT_FOREIGN_PROCESS' }
+    $node = $Element
+    for ($depth = 0; $null -ne $node -and $depth -lt 64; $depth++) {
+        if ([Windows.Automation.Automation]::Compare($node, $Window)) { return }
+        $node = [Windows.Automation.TreeWalker]::RawViewWalker.GetParent($node)
+    }
+    throw 'CAPTION_ELEMENT_OUTSIDE_BOUND_WINDOW'
+}
+
+function Assert-FixtureRectangle($Element, $Logical, [IntPtr]$Handle) {
+    $client = [DwmCaptionNative]::ClientBounds($Handle)
+    if ($client[2] -le 0 -or $client[3] -le 0) { throw 'CAPTION_CLIENT_RECTANGLE_INVALID' }
+    if (@($Logical).Count -ne 4) { throw 'CAPTION_FIXTURE_LOGICAL_RECTANGLE_INVALID' }
+    foreach ($value in @($Logical)) {
+        if ([double]::IsNaN([double]$value) -or [double]::IsInfinity([double]$value)) {
+            throw 'CAPTION_FIXTURE_LOGICAL_RECTANGLE_NONFINITE'
+        }
+    }
+    if ([double]$Logical[2] -le 0 -or [double]$Logical[3] -le 0) { throw 'CAPTION_FIXTURE_LOGICAL_RECTANGLE_EMPTY' }
+    $actual = $Element.Current.BoundingRectangle
+    $expected = @(($client[0] + [double]$Logical[0] * $client[2] / 1280.0),
+        ($client[1] + [double]$Logical[1] * $client[3] / 720.0),
+        ([double]$Logical[2] * $client[2] / 1280.0), ([double]$Logical[3] * $client[3] / 720.0))
+    $values = @($actual.X, $actual.Y, $actual.Width, $actual.Height)
+    for ($i = 0; $i -lt 4; $i++) {
+        if ([double]::IsNaN($values[$i]) -or [double]::IsInfinity($values[$i]) -or
+            [Math]::Abs($values[$i] - $expected[$i]) -gt 1.0) { throw 'CAPTION_FIXTURE_GEOMETRY_MISMATCH' }
+    }
+    if ($actual.IsEmpty -or $actual.Width -le 2 -or $actual.Height -le 2) { throw 'CAPTION_FIXTURE_EMPTY_GEOMETRY' }
 }
 
 function Write-CaptionJson([string]$Name, [object]$Value) {
@@ -277,9 +363,26 @@ function Assert-NativeBoundary([object]$Binding) {
         -not $Binding.target.Current.IsEnabled -or $Binding.target.Current.IsOffscreen -or
         $Binding.target.Current.ProcessId -ne $Binding.pid -or
         ($Binding.target.GetRuntimeId() -join ',') -cne ($Binding.runtime_id -join ',') -or
-        $Binding.target.Current.Name.TrimEnd() -cne $Binding.ready.target_text) {
+        $Binding.target.Current.Name.TrimEnd() -cne $Binding.ready.target_text -or
+        -not $Binding.target.Current.HasKeyboardFocus -or
+        $Binding.target.Current.ControlType -ne [Windows.Automation.ControlType]::Text) {
         throw "CAPTION_NATIVE_CUSTODY: $($Binding.ready.stage); held_keys=$($keys -join ',')"
     }
+    Assert-InWindow $Binding.target $Binding.window $Binding.pid
+    Assert-InWindow $Binding.continue_target $Binding.window $Binding.pid
+    $prosePattern = $null
+    $continuePattern = $null
+    if ($Binding.target.TryGetCurrentPattern([Windows.Automation.InvokePattern]::Pattern, [ref]$prosePattern) -or
+        -not $Binding.continue_target.Current.IsEnabled -or $Binding.continue_target.Current.IsOffscreen -or
+        $Binding.continue_target.Current.ControlType -ne [Windows.Automation.ControlType]::Button -or
+        $Binding.continue_target.Current.Name.TrimEnd() -cne $Binding.ready.continue_label -or
+        ($Binding.continue_target.GetRuntimeId() -join ',') -cne ($Binding.continue_runtime_id -join ',') -or
+        -not $Binding.continue_target.Current.BoundingRectangle.Equals($Binding.continue_rectangle) -or
+        -not $Binding.continue_target.TryGetCurrentPattern([Windows.Automation.InvokePattern]::Pattern, [ref]$continuePattern)) {
+        throw 'CAPTION_TEXT_CONTINUE_BINDING_CHANGED'
+    }
+    Assert-FixtureRectangle $Binding.target $Binding.ready.target_rect $handle
+    Assert-FixtureRectangle $Binding.continue_target $Binding.ready.continue_rect $handle
 }
 
 function Assert-PhysicalTarget([object]$Binding, [object]$Point) {
@@ -310,6 +413,12 @@ function Invoke-Caption([object]$Ready, [object]$Expected) {
         window_handle = $binding.window_handle; window = $binding.window.Current.Name;
         name = $binding.target.Current.Name; type = $binding.target.Current.ControlType.ProgrammaticName;
         runtime_id = $binding.runtime_id; process = $binding.process_identity;
+        prose_has_keyboard_focus = $binding.target.Current.HasKeyboardFocus; prose_has_invoke = $false;
+        continue_name = $binding.continue_target.Current.Name;
+        continue_type = $binding.continue_target.Current.ControlType.ProgrammaticName;
+        continue_runtime_id = $binding.continue_runtime_id;
+        continue_physical_rectangle = @($binding.continue_rectangle.X, $binding.continue_rectangle.Y,
+            $binding.continue_rectangle.Width, $binding.continue_rectangle.Height);
         physical_rectangle = $binding.physical_rectangle; foreground = $binding.window_handle;
         method = 'Windows.UIAutomation.InvokePattern.Invoke'; attempted_calls = 1; returned = $false;
         invocations = 0; ready = $Ready }
@@ -459,7 +568,7 @@ try {
         wheel_entry = $wheelObservation; process_identity = $boundProcess;
         console_sha256 = (Get-FileHash $consolePath -Algorithm SHA256).Hash.ToLowerInvariant();
         engine_sha256 = (Get-FileHash $enginePath -Algorithm SHA256).Hash.ToLowerInvariant();
-        scope = 'Mounted fixture; native wheel entry plus UIA return. Nonzero count is seeded with elapsed reveal disabled. No speech, ScrollPattern, production consequences or timed-lifecycle claim. PNGs are Godot viewport captures.' }
+        scope = 'Mounted fixture; focused prose Text without InvokePattern, separate fixture-geometry-bound Continue, native wheel entry plus UIA return. Nonzero count is seeded with elapsed reveal disabled. No speech, ScrollPattern, production consequences or timed-lifecycle claim. PNGs are Godot viewport captures.' }
     [IO.File]::WriteAllText((Join-Path $output 'receipt.json'), (ConvertTo-Json $receipt -Depth 25), $utf8)
     Write-Output 'CAPTION_NATIVE_ACCEPT_VERIFIED'
 } catch {
@@ -477,3 +586,4 @@ try {
             sha256 = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant() } })
     Write-CaptionJson 'files.sha256.json' $files
 }
+
