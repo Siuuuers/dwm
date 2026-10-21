@@ -26,7 +26,10 @@ param(
     [switch]$KeepRoot,
 
     # Opt-in real window/renderer; isolation and exit-code checks stay identical.
-    [switch]$Rendered
+    [switch]$Rendered,
+
+    # Narrow opt-in for the single Continue registration prerequisite check.
+    [switch]$ContinueAccessibilityConsumer
 )
 
 Set-StrictMode -Version Latest
@@ -111,7 +114,8 @@ function Invoke-GodotChild {
         [string]$LocalAppData,
         [string]$DwmTestRoot,
         [int]$TimeoutSeconds,
-        [string]$TimeoutLogPath
+        [string]$TimeoutLogPath,
+        [string]$ConsumerDirectory = ""
     )
     $start = New-Object Diagnostics.ProcessStartInfo
     $start.FileName = $Executable
@@ -125,10 +129,42 @@ function Invoke-GodotChild {
     $start.EnvironmentVariables['DWM_TEST_ROOT'] = $DwmTestRoot
     $process = New-Object Diagnostics.Process
     $process.StartInfo = $start
+    $processStarted = $false
+    $reader = $null
+    $readerStarted = $false
+    $readerForced = $false
+    $readerExit = $null
+    $childExit = $null
+    $consumerError = $null
+    $stopPath = $null
     try {
-        if (-not $process.Start()) { throw 'GODOT_START_FAILED' }
+        $processStarted = $process.Start()
+        if (-not $processStarted) { throw 'GODOT_START_FAILED' }
         $stdoutTask = $process.StandardOutput.ReadToEndAsync()
         $stderrTask = $process.StandardError.ReadToEndAsync()
+        if (-not [string]::IsNullOrWhiteSpace($ConsumerDirectory)) {
+            # Start concurrently, without delaying mount or waiting for Continue.
+            $bindingPath = Join-Path $ConsumerDirectory 'consumer-binding.json'
+            $receiptPath = Join-Path $ConsumerDirectory 'consumer-reader.json'
+            $stopPath = Join-Path $ConsumerDirectory 'consumer-stop'
+            $binding = [ordered]@{ launcher_pid = $process.Id;
+                launcher_start_ticks = $process.StartTime.ToUniversalTime().Ticks.ToString();
+                console_path = $Executable; engine_path = ($Executable -replace '_console\.exe$', '.exe');
+                arguments = $start.Arguments; started_unix_msec = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds() }
+            [IO.File]::WriteAllText($bindingPath, (ConvertTo-Json $binding), (New-Object Text.UTF8Encoding($false)))
+            $readerStart = New-Object Diagnostics.ProcessStartInfo
+            $readerStart.FileName = Join-Path $env:SystemRoot 'System32/WindowsPowerShell/v1.0/powershell.exe'
+            $readerArguments = @('-NoLogo','-NoProfile','-NonInteractive','-File',
+                (Join-Path $PSScriptRoot 'Read-ContinueAccessibility.ps1'),
+                '-BindingPath',$bindingPath,'-ReceiptPath',$receiptPath,'-StopPath',$stopPath)
+            $readerStart.Arguments = [string]::Join(' ', @($readerArguments | ForEach-Object { ConvertTo-NativeArgument ([string]$_) }))
+            $readerStart.UseShellExecute = $false
+            $readerStart.CreateNoWindow = $true
+            $reader = New-Object Diagnostics.Process
+            $reader.StartInfo = $readerStart
+            $readerStarted = $reader.Start()
+            if (-not $readerStarted) { throw 'CONTINUE_READER_START_FAILED' }
+        }
         $waitMilliseconds = if ($TimeoutSeconds -eq 0) { -1 } else { $TimeoutSeconds * 1000 }
         $timedOut = -not $process.WaitForExit($waitMilliseconds)
         if ($timedOut) {
@@ -149,9 +185,53 @@ function Invoke-GodotChild {
             [Console]::Error.WriteLine("GODOT_TIMEOUT_OUTPUT: $TimeoutLogPath")
         }
         $exitCode = if ($timedOut) { 124 } else { $process.ExitCode }
+        $childExit = $exitCode
+        if ($readerStarted) {
+            [IO.File]::WriteAllText($stopPath, 'child_finished')
+            if (-not $reader.WaitForExit(5000)) {
+                $readerForced = $true
+                $reader.Kill($true)
+                if (-not $reader.WaitForExit(10000)) { throw 'CONTINUE_READER_TERMINATION_TIMEOUT' }
+            }
+            $readerExit = $reader.ExitCode
+            if ($exitCode -eq 0 -and ($readerForced -or $readerExit -ne 0)) { $exitCode = 127 }
+        }
         return [pscustomobject]@{ ExitCode = $exitCode; Stdout = $stdout; Stderr = $stderr }
+    } catch {
+        $consumerError = $_.Exception.Message
+        throw
     } finally {
-        $process.Dispose()
+        # Attempt both cleanups even if one fails; retain the first exception.
+        $cleanupErrors = New-Object Collections.Generic.List[string]
+        try {
+            if ($readerStarted) {
+                try {
+                    if (-not $reader.HasExited) {
+                        $readerForced = $true
+                        $reader.Kill($true)
+                        if (-not $reader.WaitForExit(10000)) { throw 'CONTINUE_READER_CLEANUP_TIMEOUT' }
+                    }
+                    $readerExit = $reader.ExitCode
+                } catch { $cleanupErrors.Add($_.Exception.Message) }
+            }
+            if (-not [string]::IsNullOrWhiteSpace($ConsumerDirectory)) {
+                try {
+                    if ($processStarted -and -not $process.HasExited) {
+                        $process.Kill($true)
+                        if (-not $process.WaitForExit(10000)) { throw 'CONTINUE_ENGINE_CLEANUP_TIMEOUT' }
+                    }
+                } catch { $cleanupErrors.Add($_.Exception.Message) }
+                $lifecycle = [ordered]@{ child_exit = $childExit; reader_started = $readerStarted;
+                    reader_exit = $readerExit; reader_forced = $readerForced; error = $consumerError;
+                    cleanup_errors = @($cleanupErrors.ToArray());
+                    completed_unix_msec = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds() }
+                [IO.File]::WriteAllText((Join-Path $ConsumerDirectory 'consumer-lifecycle.json'),
+                    (ConvertTo-Json $lifecycle), (New-Object Text.UTF8Encoding($false)))
+            }
+        } finally {
+            if ($null -ne $reader) { $reader.Dispose() }
+            $process.Dispose()
+        }
     }
 }
 
@@ -227,6 +307,12 @@ $resultCode = 124
 $phase = 'isolation'
 
 try {
+    if ($ContinueAccessibilityConsumer -and (-not $Rendered -or
+        $SuiteId -cne 'continue-publication-initial-observation' -or
+        $EvidenceLogPath -cne '.godot/ci/continue-publication/isolation.jsonl' -or
+        $NextGodotArgs.Count -ne 0 -or $ThirdGodotArgs.Count -ne 0)) {
+        throw 'CONTINUE_CONSUMER_SCOPE_INVALID'
+    }
     if (-not (Test-Path -LiteralPath $projectPath -PathType Leaf)) { throw 'PROJECT_ROOT_INVALID' }
     if ([string]::IsNullOrWhiteSpace($SuiteId)) { throw 'SUITE_ID_EMPTY' }
     if ([string]::IsNullOrWhiteSpace($LogName) -or [IO.Path]::GetFileName($LogName) -cne $LogName) { throw 'LOG_NAME_INVALID' }
@@ -322,7 +408,13 @@ try {
         $displayArgs = if ($Rendered) { @('--rendering-method','gl_compatibility','--audio-driver','Dummy') } else { @('--headless') }
         $argv = @($displayArgs) + @('--path',$repositoryRoot,'--log-file',$logPath) + @($childPlan.Arguments)
         $startedAt = [DateTime]::UtcNow.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
-        $requested = Invoke-GodotChild -Executable $godotExecutable -Arguments $argv -AppData $childAppData -LocalAppData $childLocalAppData -DwmTestRoot $childDwmRoot -TimeoutSeconds $TimeoutSeconds -TimeoutLogPath $timeoutLog
+        $consumerDirectory = if ($ContinueAccessibilityConsumer) { Split-Path -Parent $evidenceFull } else { '' }
+        if ($ContinueAccessibilityConsumer) {
+            foreach ($name in @('consumer-binding.json','consumer-reader.json','consumer-lifecycle.json','consumer-stop')) {
+                if (Test-Path -LiteralPath (Join-Path $consumerDirectory $name)) { throw 'CONTINUE_CONSUMER_OUTPUT_NOT_FRESH' }
+            }
+        }
+        $requested = Invoke-GodotChild -Executable $godotExecutable -Arguments $argv -AppData $childAppData -LocalAppData $childLocalAppData -DwmTestRoot $childDwmRoot -TimeoutSeconds $TimeoutSeconds -TimeoutLogPath $timeoutLog -ConsumerDirectory $consumerDirectory
         $endedAt = [DateTime]::UtcNow.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
         $resultCode = [int]$requested.ExitCode
         # GUT exits 0 while silently downgrading an unloadable suite to a warning, so a requested

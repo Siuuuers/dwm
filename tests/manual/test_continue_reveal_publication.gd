@@ -99,9 +99,19 @@ func _mount_continue_publication_probe() -> Control:
 	assert_true(surface._available, "mounted Continue action is admitted")
 	return surface
 
+# Same-machine UTC is comparable with the external Windows reader. Bracket it
+# with monotonic ticks so timing analysis can reject clock drift/ambiguous edges.
+func _consumer_clock_sample() -> Dictionary:
+	var before := Time.get_ticks_msec()
+	var unix_msec := Time.get_unix_time_from_system() * 1000.0
+	return {"ticks_before": before, "unix_msec": unix_msec,
+		"ticks_after": Time.get_ticks_msec()}
+
 func _await_publication(surface: Control, reveal: int) -> Dictionary:
 	_continue_registration_phase("initial_wait")
 	var deadline := Time.get_ticks_msec() + 5000
+	_early_observation["registration_window"] = {"deadline_ticks_msec": deadline,
+		"start_clock": _consumer_clock_sample()}
 	while Time.get_ticks_msec() < deadline:
 		for publication: Dictionary in surface.publications:
 			if publication.reveal == reveal: return publication
@@ -112,6 +122,7 @@ func _await_publication(surface: Control, reveal: int) -> Dictionary:
 
 func _emit_registration_snapshot(surface: Control, outcome: String) -> void:
 	var observation: Dictionary = surface.get_meta(&"continue_registration_observation")
+	observation["end_clock"] = _consumer_clock_sample()
 	observation["final"] = {"outcome": outcome, "usec": Time.get_ticks_usec(),
 		"surface_id": surface.get_instance_id(), "script": str(surface.get_script()),
 		"publications": surface.publications.size(), "label": surface._label,
@@ -188,5 +199,3 @@ func test_continue_registered_action_refreshes_after_organic_finish() -> void:
 
 func test_continue_registered_action_refreshes_after_manual_finish() -> void:
 	await _check_registered_completion(false)
-
-
