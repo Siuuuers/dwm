@@ -1,0 +1,21 @@
+{
+  "source": "b95a6de6a633b1d199bffc540d87a89a05513a5e",
+  "helper": "f1bf66ce689a1358cb217563e6996997536bc4b0",
+  "preparation_sha256": "1220b4570afc48abcf894b6f8dd1489ce857eb1bc54674e41212dc6aa2fc2719",
+  "sha256": {
+    "tools/testing/Read-ContinueAccessibility.ps1": "0d74c57bbf46ab01c2620c647d878266ca4e10311c04728854d1de52084fbac8",
+    "tools/testing/Select-ContinueEngineChild.ps1": "f23734bce9b0d560b311a43f998d1efc694d50509abee0591b5f45f639bfa315",
+    "tools/testing/Test-ContinueEngineSelection.ps1": "edfb00ba4a9c6c6d1c4e2c7d5848b298bc027215274cf1b4c38c5a12f4259163",
+    "selection-controller.yml": "8cf7656691b89c9e833e4192fac382c10e389ae20ce9a1947c444ec8b6c8b9e9"
+  },
+  "static_checks": {
+    "identity_function_unchanged": true,
+    "remaining_reader_unchanged": true,
+    "yaml_parse": true,
+    "python_ast": true,
+    "preflight_before_helpers_and_all_Godot": true,
+    "published_source_and_helper_byte_equal": true
+  },
+  "windows_runtime_executed": false,
+  "external_C_clearance": false
+}
