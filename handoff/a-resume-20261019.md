@@ -1,3 +1,17 @@
+# A launch checkpoint — 21 October 2026 (Hong Kong)
+
+C6312905215/6312908458 cleared exact packet72734fbd under Director6312648905. ONE official Windows Godot4.6.3-standard first-registration observation attempt is running: https://github.com/Siuuuers/dwm/actions/runs/39580271894 attempt1/job119155868837. Results pending; no qualification claim.
+
+Immediate PR30 recheck confirmed e2a48222f811f953d4a41ccfe0cbfd68d6f25a8f. Expected-head, non-forced update installed controller0c65bae649e1b02471285a3cad6ba257b3465a99, tree817462025c153eba6ac7dca2e6e7777b9705e891. Only the reviewed workflow changed. Retrieved canonical controller and helper bytes exactly matched checked local bytes; SHA25632adf323d50b1c41b620cc5794897cf0b05903e5bfd803a3e72090853d7ecd01 and f2099431c7762fca70f121ecf4c89df4b0bf021759627874fc845437a8e823d7. Source3cc4da9a27645b794efbda059fad236f1bcf4532, helper285312ef0e0af2443deaf09503787a599f9503a5; helper PRODUCT and runtime blob8864c08ad50b6cd32acaf17033fe7fef9542013a aligned. C's unchanged capture/project/preset checks reused.
+
+Single initial case only; unchanged5000ms wait and failure behavior. No completion/action invocation, remaining seven/native/export run or retry. Observation excludes earlier mounting; returned registration does not prove consumer acceptance. Original failures stay failed. Separate automatically triggered ordinary Windows run39580271901 is not focused qualification.
+
+User requested pausing after launch rather than waiting. Resume by reading actual process/log/JUnit and diagnostic output, preserving original artifacts, then posting bounded findings for C review. Do not rerun or infer success. The single attempt is now consumed. Productc8358870, master and integration were not changed. Standing publication permission persists; no merge/release.
+
+---
+
+Earlier checkpoints below are historical and superseded for launch status.
+
 # Current A checkpoint — 21 October 2026: first registration diagnostic prepared
 
 Read [the exact observation packet](https://github.com/Siuuuers/dwm/blob/6faa088c3f7788d7b881a2a6e80f6ed0b690a3f8/evidence/phase_2r/continue_registration_observation_20261021/README.md). Source 3cc4da9a27645b794efbda059fad236f1bcf4532; helper 285312ef0e0af2443deaf09503787a599f9503a5; inert controller SHA256 32adf323d50b1c41b620cc5794897cf0b05903e5bfd803a3e72090853d7ecd01. External C exact review pending. No controller installation/run or product/master/integration change. Director6312648905 authorizes one attempt AFTER C clearance, without another user confirmation. Preserve original waits/failure and standing publication permission. Observation begins before probe script replacement, excludes earlier fixture mount; initial-only result is not completion qualification. Prior entries below are historical.
