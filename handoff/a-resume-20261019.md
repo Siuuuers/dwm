@@ -1,3 +1,178 @@
+> **Standing publication permission:** Read [user-publication-authorization.md](user-publication-authorization.md). The user explicitly approved repository publication of project code/evidence and PR coordination, and requested that this permission carry across sessions. Do not repeat that permission request; preserve the separate external review and test gates.
+
+# Continue initial-publication fixture correction — external C review next
+
+21 October2026. Director6310120484 consumed. Exact correctionb7fb0e549f028f72717bd5ee9e4905517a365fdf adds19 fixture lines to initialize real isolated Profile/Localization owners. Skipped application startup had left Localization uninitialized, so Continue could not become available. No production change, longer wait or forced notification. Internal independent source review passed; external C clearance and cloud qualification remain pending.
+
+[Exact source explanation/controller and verification limits](../evidence/phase_2r/caption_qualification_20261021/continue-fixture-review.md). Both original failed-run39557266487 ZIPs now retained in ordered parts with hashes and reconstructed byte equality; reuse C6310078474 payload audit. Existing preparation helper and all guards unchanged. Proposed controller SHA2560d6ff2d5714eebf179431812a6c62afa0688fb0680882090b24a1b8f5d17183b is inert.
+
+After external C clears the exact packet, ONE attempt is already authorized by Director6310120484: recheck controller464f9ab6, install exact reviewed controller with expected-head protection, preserve eight-case/native success gating and stop at first failure. No automatic retry, exported run, product/master/integration movement, merge or release. No new user architecture choice or additional coordination permission needed. Earlier pending artifact-audit and no-further-attempt statements below are historical and superseded only by this bounded sequence.
+
+---
+
+# Focused caption run failed — initial registration; artifact audit pending
+
+Run39557266487 attempt1 / controller464f9ab654c659d20208223de53b01254241e829 is consumed. Preparation/restoration and post-tests policy passed. First rendered organic case failed to observe Continue's initial native action for reveal1 (GUT1 failure, exit1); remaining seven cases/native fixture did not run. Both uploads passed. [Preliminary result and evidence limits](../evidence/phase_2r/caption_qualification_20261021/run39557266487/README.md).
+
+Execution workspace unavailable: original ZIPs not yet unpacked, independently hashed or committed. Preserve/audit artifacts12326421038 and12326685058 before28 October2026 expiry, then diagnose initial publication. No completion-refresh/gameplay/native acceptance claim. No retry/new dispatch. Source/helper unchanged. C outcome review requested with this limitation; no further cloud attempt authorized.
+
+---
+
+# C-cleared focused cloud attempt started — results pending
+
+21 October 2026. C6309639579 cleared exact packet68577056108ac0ffa00c12e176c23716c09a2119 under Director6309346765. A installed only the reviewed controller with expected-head protection af329296a779fd04dd434f6ed51214d1de8ef83b -> 464f9ab654c659d20208223de53b01254241e829. Controller SHA256 d9aa96f039721dfeabea89d79d79fdb1085cd4811bafb116ad85b2ae237de5cc.
+
+ONE focused attempt is registered: [run39557266487, attempt1](https://github.com/Siuuuers/dwm/actions/runs/39557266487), observed in progress. Qualification source b2cb75a792790f7bf396073b1586026fa1e20482; helper c6ba4934914e7d3222d658352c61d04d0e57c374. No runtime outcome claimed. The ordinary Windows automated workflow also registered automatically as run39557266503; this is not an additional manual dispatch.
+
+Next: inspect actual focused result, clean exits and retained artifacts; preserve immutable evidence and post PR36 outcome for C with PR30 relay. No rerun/retry/new dispatch. First failure stops. No exported gameplay, product/master/integration movement, merge or release. User may return when cloud execution finishes; no continuous monitoring is promised after the turn ends.
+
+---
+
+# Retained UID comparator correction prepared — C exact review next
+
+21 October 2026. C6309090907/6309092712 closed the failed-run review; Director6309346765 selected the narrow comparator correction. [Exact review packet](../evidence/phase_2r/caption_qualification_20261021/uid-comparator-review.md).
+
+Corrected helper c6ba4934914e7d3222d658352c61d04d0e57c374, SHA256 80d9abe7f3d79fb0d275ca79b3120d09988da0d85dc9fcea79581802b4ce8020. Proposed controller SHA256 d9aa96f039721dfeabea89d79d79fdb1085cd4811bafb116ad85b2ae237de5cc. Existing peers use pinned Godot numeric/line semantics; strict newly generated UID validation and all custody/source/path/collision guards remain. Refusals retain peer path/progress. Focused upload skips when tests never started; raw evidence always uploads.
+
+21 Python/Git regressions PASS. Independent retained-inventory replay: 1717 peers decoded, zero collisions against the generated Continue ID. This is not Windows/native/gameplay qualification. Actual run39550111534 remains failed/consumed, with original evidence preserved. Source b2cb75a792790f7bf396073b1586026fa1e20482 and product c8358870 remain unchanged.
+
+Next: C reviews the exact helper/controller delta. After C clears it, Director already authorizes ONE new official Windows4.6.3-standard focused attempt, with expected-head check against consumed controller af329296a779fd04dd434f6ed51214d1de8ef83b. No further user/Director confirmation required; no dispatch or active-controller installation during preparation. First failure stops; no automatic retry, exported gameplay, master/integration movement, merge or release. Standing coordination permission applies.
+
+---
+
+# Focused caption run failed in preparation — attempt consumed
+
+21 October 2026 Hong Kong. Under Director6308784939/C6308823692, exact controlleraf329296a779fd04dd434f6ed51214d1de8ef83b ran ONE focused attempt39550111534, job119057122431. Pins/parser/baseline and official standard4.6.3 import PASS; post-import preparation FAIL while comparing an existing addon UID. Settings restore, all eight rendered cases and native fixture SKIPPED. Focused upload reported no files; original raw preparation ZIP retained and audited. No retry.
+
+[Exact result, original bytes and diagnosis](../evidence/phase_2r/caption_qualification_20261021/run39550111534/README.md). New Continue UID decoded successfully. First comparison refusal is unchanged addons/godot_state_charts/csharp/ResourceWrapper.cs.uid (sorted268): numeric text exceeds strict generated63-bit range but Godot's existing-text parser masks it. No collision established; complete collision audit did not finish. Original ZIP453acfe7…30905,3,366,537 bytes,86 payloads preserved in26 parts; post-download manifest is explicitly distinct from original artifact.
+
+Next C reviews actual failed result; Director selects the narrow existing-UID comparator correction and any later attempt after exact review. Keep strict new-generated UID validation, exact paths/source ownership, all collision checks and original bytes; report peer path. No source normalization or C# skipping. Current controlleraf329296 is consumed, sourceb2cb75a/productc8358870 unchanged. No game/native/spoken-output or ending acceptance. No merge/release/master/integration movement or new user design question. Standing coordination permission applies.
+
+---
+
+# Focused caption qualification packet — exact C/Director review next
+
+21 October 2026 Hong Kong. C6308446763/6308448291 cleared production correction958ab5e at source level. Qualification source **b2cb75a792790f7bf396073b1586026fa1e20482** on codex/a-caption-qualification-20261021 adds only a focused eight-case runner, two-object native driver adaptation and fixture evidence fields. Production source remains unchanged from C review.
+
+[Exact focused packet, controller and verification limits](../evidence/phase_2r/caption_qualification_20261021/README.md). Helper pinf237e371; controller SHA256fe15e7d7e976dd8dc0919798aa6e6ee8bf41c19c71aebbd77a26e79ae5eefc06. 15 offline Python/Git policy checks pass after independent audit. No Godot/PowerShell/UIA execution. Generated Continue runtime UID receives one exact source-bound allowance, collision checks and unchanged post-test inventory; no export policy relaxation.
+
+Next: C reviews exact source/runner/native/preparation/controller packet; Director reconciles the proposed focused eight-case-plus-native execution scope. Only then A installs the reviewed controller for one authorized attempt. No old unchanged-selector authorization reuse, exported gameplay stage or retry. Native geometry/static-text focus and actual spoken output remain unverified. Original productc8358870/controller4a902667 and consumed failure39476916285 retain their status. Standing coordination-message authorization applies; no new user design choice needed.
+
+---
+
+# Continue reveal-completion lifecycle correction
+
+Candidate: 958ab5e072ef76b9c6467937a4b6ca3c7849382c on codex/a-caption-text-20261021, parent 099f3de88a97d1ec0e506b4e683841d08784a4d8.
+Addresses C PR36 comment6308201477 (relay PR30 comment6308203029). Initial design/report remains historical below its original pin.
+
+Observable outcome: after organic or manual caption reveal finishes, the existing Continue surface publishes an action for the new reveal lifetime. The previously published action refuses; the replacement advances once through the existing ordinary input owner.
+
+[Lifecycle correction and precise verification limits](../evidence/phase_2r/caption_text_20261021/lifecycle-review.md). C review pending; no runtime execution. Separate native contract remains required before qualification.
+
+---
+
+# User-approved caption text / Continue candidate — review before qualification
+
+21 October 2026 Hong Kong. User selected story text without a button role, preserving ordinary Enter/touch and a separate accessible Continue. Isolated source candidate099f3de88a97d1ec0e506b4e683841d08784a4d8 on codex/a-caption-text-20261021 (parent productc8358870) implements this on the existing tappable BackgroundInput surface. No extra visible rail control, duplicate caption, new command owner or unconditional speech. Next and opt-in Read Aloud semantics remain unchanged.
+
+[Exact diff, static checks, source review and bounded qualification plan](../evidence/phase_2r/caption_text_20261021/README.md). Existing assistive callback regressions target Continue; History admission case added. No Godot/PowerShell executed. Native tree/spoken duplication and new action discovery are unverified. This is a deliberate UX change, not proof the old ending failure is fixed.
+
+Next: C reviews source/semantics; A prepares separately reviewed native two-object caption-Text + same-surface Continue contract, retaining clean exits, timeouts, custody and save/history/completion gates. Old driver assumes caption InvokePattern and cannot qualify this design unchanged. Do not silently reuse previous unchanged-selector authorization. Director reconciles new user-approved lane; prior point-lookup proposal parked. Productc8358870/controller4a902667/master41592fcc/integration unchanged; no merge/release. Standing project messaging authorization applies.
+
+# Ending ownership reconciliation complete — no supported product patch
+
+21 October 2026 Hong Kong. C6307684038 closed actual result review; Director6307707224 selected source-first ending caption exposure. Read current productc8358870 canonical rendered/accessibility/ordinary input/ending completion owners and reused previous root-order, committed/query and iterator experiments. No new GDScript ownership defect established; no patch or conditional qualification run. Master still41592fcc; controller4a902667 remains consumed.
+
+[Source findings and ONE proposed read-only point-lookup discriminator](../evidence/phase_2r/ending_ownership_20261021/README.md). Current original failure23 UIA entries exactly equal the prefix of Day7-closing41 entries (same PID/HWND); caption/transport suffix disappears. Sequential snapshots do not prove topology or cause. Retained provider source gives point lookup a different raw-child path from known filtered-sibling traversal, with shared filtering/geometry limits. No alternate acceptance selector/action or new engine campaign.
+
+Next: C reviews this source explanation/proposal; Director selects diagnostic scope because no concrete product correction supports the conditional runtime authorization. Existing build/UID/result reviews stay closed. No engine/PowerShell run, controller/product edit, merge/release or master/integration movement. Standing coordination messaging authorization applies.
+
+# Bounded UID Windows result: preparation passes; ending-caption Load fails
+
+21 October 2026 Hong Kong. Both C gates6298097130/6298344570 cleared; one Director6297698097/6298163134 attempt consumed. Controller4a902667 installed exact reviewed bytes fromc0bb500f with expected-head protection. [Run39476916285](https://github.com/Siuuuers/dwm/actions/runs/39476916285), job118815142853: preparation/export/package/final UID policy PASS; Capability/Create PASS with clean exits; Load FAIL at `UIA_UNAVAILABLE_OR_TIMEOUT: TEST Seven-day ending.` with forced cleanup; TerminalLoad SKIPPED. No retry.
+
+[Original artifacts, exact hashes, screenshot, reproducible audit and scope](../evidence/phase_2r/corrected_delivery_20261020/run39476916285/README.md). Both original ZIPs retained in24 exact numbered parts,205+165 payload manifests and actual package checked. Post-failure image shows ending caption; captured UIA probe lacks it. Autosave checkpoint17 remains ENDING/PRIMARY_PENDING; no Gallery award. This narrows observed rendering/accessibility discrepancy but does not establish its cause or justify altered waits/selectors. Ordinary completion→Title→terminal Load→clean exit remains open.
+
+Next C reviews actual result classification; Director selects next bounded ordinary ending work. Productc8358870, master/integration unchanged; no merge/release/performance acceptance. Active controller4a902667 is consumed, not a retry target. No new game/runtime/save/history edits. Project coordination messages have standing user authorization; older messaging holds below are superseded.
+
+---
+
+# Bounded UID policy candidate ready for external C review
+
+21 October 2026 Hong Kong. Director PR30 comment6297698097 scopes the four-path post-export allowance on frozen productc8358870. Candidate on `codex/a-bounded-uid-20261021`; see [review and immutable pins](../evidence/phase_2r/corrected_delivery_20261020/bounded-uid-review.md). 18 offline Python/Git checks passed; actual retained package replay and independent internal source/evidence audits passed. Inherited ResourceWarnings disclosed. No local Godot/PowerShell or new cloud run.
+
+Only final generated-set equality changes to a four-exact-path allowance with prior bytes preserved, valid actual UID/source provenance, package exclusion and collision checks. Raw/index/settings/restoration guarantees and closed driver/exporter/native blocks retained. Active controller remainsc0bb500f; productc8358870, master41592fcc and integration unchanged.
+
+External C must clear BOTH retained run39456588183 classification and this concrete candidate before the already-conditionally-authorized ONE new official Windows attempt. Internal review is not C clearance. No workflow installation, automatic retry, merge/release or delivery/performance claim. Prior run remains failed; all four native phases were skipped. No PR coordination messages sent in this continuation.
+
+---
+
+# Corrected official attempt stopped after export — no retry
+
+21 October 2026 Hong Kong. Consumed Director6295116783/C6295625088 authorization. Controller `c0bb500fbbfdcc190c0a5a5a045f684d761cee88`, run39456588183 attempt1/job118744955669, productc8358870. Windows preparation/raw/settings/generated guards and export/package audit/headless smoke passed; final preparation failed `GENERATED_INPUT_SET_CHANGED_SINCE_IMPORT`. All four native phases skipped. No delivery/performance acceptance or retry.
+
+Result retained on `codex/a-corrected-delivery-20261020` under `evidence/phase_2r/corrected_delivery_20261020/run39456588183/`. Read README and verification.json. Original preparation ZIP preserved as2 parts (SHA2562fb26f5e4524115d1ee131f2c3f6f131c152214b579cc08e40f8f0676fb18090); delivery original including nested package as22 parts (SHA256db3ffefd94c8c5873134608045213849d2ce469e63d00736f800bcd16f7cf08a). All204+15 manifest payloads and17 package members verified. Package SHA256876ffa5b38f9b3fda75d9e92d73e198b7720fea06af77252eeae56702972fbf5. Source/log/provenance retained; originals not repacked.
+
+Final raw tracked changes0, only2 known gitlink index removals. Prior34 generated inputs unchanged;4 new20-byte tests/fixtures/dialogic/*.dtl.uid: gallery_collection, scene_author_option_slots, scene_challenge_recall, scene_partner_fork_template. PCK inventory2091 payload MD5s verified: those4 sidecars/source DTLs absent as entries, but packaged UID cache contains their source mappings. Do not infer zero influence from exclusion. Existing pack audit117 and headless smoke240 pass, ordinary journeys unexecuted.
+
+Next C reviews exact artifacts/failure/cache distinction; Director scopes narrow UID-generation/accounting continuation. No automatic retry, relaxed equality guard, broad UID exemption or new installation. Exact generation path/runtime relevance unresolved. Closed driver/terminal/deadline reviews remain reusable. No product/runtime/save/history change, merge/release/master/integration movement. Prior failed attempts remain unchanged.
+
+---
+
+# Corrected official delivery candidate prepared — awaiting C integrated review
+
+21 October 2026 Hong Kong /20 October UTC. Director PR30 6295116783 accepted46fbcf22 diagnostic and authorizes ONE corrected official Windows attempt after C clears the concrete integrated preparation delta. No repeat import-only campaign. C prior classification/predicate review6295084107 reused.
+
+Candidate branch `codex/a-corrected-delivery-20261020`; helper immutable source `55e5675eb683ae26c1bb16d511c435c0a1ec1272`; see `evidence/phase_2r/corrected_delivery_20261020/README.md` and inert controller at branch tip. Helper SHA256 `9235be503d2a7bd5d5216e203681a010a40409ab9cea37a06d2245c4cec501d9`; controller SHA256 `3085cd66ddd53ae9d9cef1bd84ce470dd883c9f381c893a11e70760e659b8d35`. Unchanged capture helper a04a8560... reused from import_integrity path; driver remains8adc8c78.
+
+Integrated: exact baseline before known gitlink cleanup; always post-import custody before settings restore; reject every unexpected tracked raw-byte/index change; only exact known project settings hash pair admitted; restore pinned settings bytes then recensus. Generated untracked+ignored source files (excluding .godot cache/output) retain bytes/hashes/provenance; only tracked-owner .import/.uid metadata under tests/evidence admitted and excluded by pinned export preset/existing actual pack audit. Unknown runtime/generated inputs fail. After export, final custody plus exact generated set/hash equality gates unchanged Capability/Create/Load/TerminalLoad. Content-aware Git predicate supplements raw checks, never replaces them. Always-retained external preparation evidence separate from original package/phase artifact.
+
+Seven synthetic Python/Git integration tests and independent focused review passed; YAML/source equality checks confirm closed driver/template/export/native blocks unchanged. No local Godot/PowerShell, cloud execution or active controller move. Inherited object-reader ResourceWarnings disclosed in README; helper remains exact reviewed bytes. Active controllerd4770336, productc8358870, master41592fcc unchanged.
+
+Next: C reviews only integrated preparation/generated-input policy. On no blocker, A may perform one expected-head-protected controller replacement and ONE corrected attempt; prep must pass before export, package audit before native phases. No further Director approval within sequence, but stop first failure/no retry and C result review before delivery acceptance. No merge/release/master/integration/runtime/save/history movement. Prior failures remain unchanged; performance remains open.
+
+---
+
+# Import reproduction complete; correction proposed, no further run authorized
+
+20 October 2026. C6294611362 cleared exact8ce72ca7. Installed controller `d47703368ad96c5ea0338b74b351f9d1c9cc1487` through protected update fromc49990ce. ONE import-only run39450025637/job118722059242 consumed; import and both captures passed, strict gate failed on actual project.godot mutation. No export/native attempt or retry.
+
+Candidate branch `codex/a-import-integrity-20261020` now retains result under `evidence/phase_2r/import_integrity_20261020/run39450025637/`. Original ZIP preserved byte-exact in eight numbered parts; SHA256 `4c802bcd75a55f6293b57c08d79b3d354dbd464bee4f9b64dfb910a9bf355e14`. All51 manifest payloads/52 members verified. Complete13,419-path census including997 tracked.import files: NO sidecar raw-byte changes; only Dialogic timeline dictionary cleared in project.godot; two disclosed gitlink index removals.34 generated untracked paths listed, bytes not retained. Console ObjectDB warning disclosed. Original990 reports remain unclassified retrospectively.
+
+Concrete inert correction `integrity-correction.proposed.patch` replaces stat-sensitive `git diff-files --exit-code` with `git -c diff.autoRefreshIndex=false diff --exit-code` against original delivery controllerc49990ce. Synthetic and independent Git fixtures verify identical-byte acceptance, true edits/deletion rejection, staged-change secondary guard, and exact unchanged index bytes; no local Godot/PowerShell. Rejected exploratory --patch flag is not candidate. Post-capture git status can refresh stat metadata; raw hashes establish unchanged bytes, not refreshed status.
+
+Next: C reviews evidence and exact predicate correction; Director scopes further verification/delivery. Integrated future controller must preserve reviewed capture before approved project-settings restore, strict raw-byte checks and always-upload evidence. No sidecar restore or ignore. Full export/native retry NOT authorized. Product staysc8358870, PR36 draft/unmerged; master/integration/runtime/save/history unchanged.
+
+---
+
+# Import-only diagnostic prepared — awaiting C review
+
+20 October 2026. Director PR30 comment 6293667852 authorizes one pinned import-only reproduction after C clears the exact delta. No second full export/native attempt is authorized. Candidate branch: `codex/a-import-integrity-20261020`; source helper commit `4d4f232da7e234dbbc55d69d34f98930cbc06594`. Read `evidence/phase_2r/import_integrity_20261020/README.md` and inert `controller.proposed.yml` at branch tip.
+
+Product remains `c8358870d3ece92d5f8cc7ba65aefe34a746be5c`; PR30 controller remains `c49990cea18bf16fcb4ed03a432e8ecb662f4b83`. Import diagnosis is not executed. Exact pre/post raw-byte custody, independent settings capture, original index before known gitlink cleanup, attributes/EOL/status, command/version/platform/config, always-retained failure capture, strict gate, hashes and artifact upload are prepared. No restore/exemption/cache assumption. Helper SHA-256 `a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379`; controller SHA-256 `cad54688a26b6faa345596f46b77a86719cb0b1b9389d6d6f0b54c09895ccdad`.
+
+Synthetic Python/Git custody regression passed; YAML/order/source review passed. No local Godot/PowerShell. Internal review's partial-manifest/HEAD-change failure edge was fixed. Next: C exact delta clearance, then one fresh cloud import-only diagnostic; retain original bytes/logs, classify actual changes, propose deterministic preparation correction before seeking full delivery scope. Existing failure evidence remains at `official_delivery_20261020/run39441551063`; previous terminal/driver review is not reopened.
+
+---
+
+# Official delivery attempt stopped before export — no retry
+
+20 October2026. C6293482944 cleared the exact candidate; A installed controllerc49990ce with expected-head protection and ran ONE official attempt39441551063/job118692418355. Source/parser/import/template steps passed, then strict frozen-source check failed on990 tracked `.import` sidecar changes. Export and all four native phases were unexecuted. This is a harness/build-preparation failure, not gameplay evidence. Import ObjectDB warning remains disclosed.
+
+[Original archive, complete log, independent hashes and first-boundary report](../evidence/phase_2r/official_delivery_20261020/run39441551063/README.md). Original33132byte ZIP/7 members/6 manifest payloads verified. Rewritten sidecar bytes were not retained; do not assume harmlessness or broadly waive the guard. No correction/retry, product/master/integration/release movement. Director/C select any next bounded preparation scope. Productc8358870 draft/unmerged; active controllerc49990ce must not receive incidental pushes. Native delivery and performance remain open. Prepared review requests were posted as PR36#6293413102 and PR30#6293416314; earlier unposted wording below is historical.
+
+---
+
+# Official delivery candidate prepared — external C source review next
+
+20 October 2026. Director6293127731 selected one current official Windows acceptance attempt. [Concrete candidate, exact pins and phase map](../evidence/phase_2r/official_delivery_20261020/README.md) extends only the external harness with a separate completed-autosave Load. It verifies the actual acknowledged restore operation, unchanged Profile/Gallery/autosave/manual slots, and clean exit. Existing creator/Day4 journey and strict Wait-One remain unchanged.
+
+Product c8358870 and active controller9f7fe38a are untouched. Candidate source8adc8c78; official Godot4.6.3 tools/templates pinned. No PowerShell/Godot execution or cloud dispatch. External C must review the exact candidate/controller before A installs the workflow for ONE attempt; no automatic retry. Failure stops at the first causal boundary; passing results still require C review. Existing bounded deadline task and six-case map remain closed. Draft/unmerged; master/integration/release unchanged.
+
+This isolated candidate has not been posted as a PR36/PR30 coordination comment. Review text is prepared in the candidate; external messaging needs explicit authorization in this session.
+
+---
+
 # Ordinary deadline correction integrated — bounded task closed
 
 20 October2026. C [6292825342](https://github.com/Siuuuers/dwm/pull/36#issuecomment-6292825342) accepted the original archive/results and cleared exact narrow integration. This commit copies the exact qualified driver blob0b2fbcb8 to tools/testing/Invoke-ExportedGameplay.ps1 and fixture blobeb22c2c3 to tools/testing/Test-ExportedGameplayDeadline.ps1. Product parent83da885c; expected-head protection applies. No game runtime, save/recovery/History owner, active workflow or controller is imported.
