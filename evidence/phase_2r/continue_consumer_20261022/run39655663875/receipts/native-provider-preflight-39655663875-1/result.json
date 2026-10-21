@@ -1,0 +1,46 @@
+{
+    "passed":  true,
+    "exit_code":  0,
+    "diagnostic_only":  true,
+    "scope":  "compile and COM client activation only; no game launch, HWND attachment or property query",
+    "powershell":  "5.1.20348.5622",
+    "clr":  "4.0.30319.42000",
+    "process_bits":  64,
+    "checks":  [
+                   "PS5 syntax",
+                   "PS5 CSharp compilation",
+                   "COM activation and unsupported sentinel",
+                   "COM cleanup"
+               ],
+    "operations":  [
+                       {
+                           "Operation":  "activate",
+                           "PropertyId":  null,
+                           "HResult":  "0x00000000",
+                           "NativeCall":  "UiaGetReservedNotSupportedValue",
+                           "State":  "ok",
+                           "Value":  "ff48dba4-60ef-4201-aa87-54103eef594e",
+                           "ValueType":  "CLSID",
+                           "Error":  null,
+                           "ErrorHResult":  null
+                       }
+                   ],
+    "cleanup_errors":  [
+
+                       ],
+    "error":  null,
+    "interop_sha256":  "81135cc9571654f52ee746bb41e146123c91722abda987d01cb76627922488b6",
+    "assembly":  "55phijuj, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+    "apartment":  "STA",
+    "activation":  {
+                       "Operation":  "activate",
+                       "PropertyId":  null,
+                       "HResult":  "0x00000000",
+                       "NativeCall":  "UiaGetReservedNotSupportedValue",
+                       "State":  "ok",
+                       "Value":  "ff48dba4-60ef-4201-aa87-54103eef594e",
+                       "ValueType":  "CLSID",
+                       "Error":  null,
+                       "ErrorHResult":  null
+                   }
+}

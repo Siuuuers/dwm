@@ -1,0 +1,19 @@
+{
+  "source": "f4228bd96afacdc182f895c8638e15eb2258c8e8",
+  "expected_cases": 1,
+  "registration_cases": 1,
+  "diagnostic_only": true,
+  "rendered": true,
+  "accessibility": "always",
+  "tests": [
+    {
+      "expected_cases": 1,
+      "path": "tests/manual/test_continue_reveal_publication.gd",
+      "id": "initial-observation",
+      "name": "test_continue_initial_registration_observation"
+    }
+  ],
+  "native_provider_provenance": true,
+  "client_route": "managed-discovery-then-native-COM-provenance",
+  "console_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a"
+}

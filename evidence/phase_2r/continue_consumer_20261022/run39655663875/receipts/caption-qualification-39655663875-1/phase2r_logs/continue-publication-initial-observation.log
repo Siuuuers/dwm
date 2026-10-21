@@ -1,0 +1,308 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+TextServer: Added interface "Dummy"
+TextServer: Added interface "ICU / HarfBuzz / Graphite (Built-in)"
+Unrecognized output string "misc2" in mapping:
+030000008a2e0000dd10000000000000,Hand Held Legend GC Ultimate,a:b0,b:b2,back:b17,dpdown:b5,dpleft:b6,dpright:b7,dpup:b4,guide:b18,leftshoulder:b10,leftstick:b8,lefttrigger:a3,leftx:a0,lefty:a1,misc1:b19,misc2:b24,paddle1:b13,paddle2:b12,rightshoulder:b11,rightstick:b9,righttrigger:a4,rightx:a2,righty:a5,start:b16,x:b1,y:b3,platform:Windows,
+Unrecognized output string "misc2" in mapping:
+030000000d0f00000202000000000000,Horipad O Nintendo Switch 2 Controller,a:b1,b:b0,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:b12,leftshoulder:b4,leftstick:b10,lefttrigger:b6,leftx:a0,lefty:a1,misc1:b13,misc2:b14,rightshoulder:b5,rightstick:b11,righttrigger:b7,rightx:a2,righty:a3,start:b9,x:b3,y:b2,platform:Windows,
+Unrecognized output string "misc2" in mapping:
+030000000d0f00009601000000000000,Horipad Steam,a:b0,b:b1,back:b10,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:b12,leftshoulder:b6,leftstick:b13,lefttrigger:b8,leftx:a0,lefty:a1,misc2:b2,paddle1:b5,paddle2:b15,paddle3:b18,paddle4:b19,rightshoulder:b7,rightstick:b14,righttrigger:b9,rightx:a3,righty:a4,start:b11,x:b3,y:b4,platform:Windows,
+Unrecognized output string "misc2" in mapping:
+030000007e0500006920000000000000,Nintendo Switch 2 Pro Controller,a:b0,b:b1,back:b14,dpdown:b8,dpleft:b10,dpright:b9,dpup:b11,guide:b16,leftshoulder:b12,leftstick:b15,lefttrigger:b13,leftx:a0,lefty:a1~,misc1:b17,misc2:b20,paddle1:b18,paddle2:b19,rightshoulder:b4,rightstick:b7,righttrigger:b5,rightx:a2,righty:a3~,start:b6,x:b2,y:b3,platform:Windows,
+Text-to-Speech: SAPI initialized.
+WARNING: Your video card drivers seem not to support the required OpenGL 3.3 version, switching to ANGLE.
+   at: DisplayServerWindows (platform/windows/display_server_windows.cpp:7421)
+Accessibility: window 0 adapter created.
+EGL: EGL_ANGLE_surface_orientation is supported.
+EGL: Using optimal surface orientation: Invert Y
+SDL: Init OK!
+Using "winink" pen tablet driver...
+godot: ENABLING GL DEBUG
+Shader 'CanvasSdfShaderGLES3' SHA256: 746622e1aad735cac06948e8c3a599930a2487cb07f386004b09632137619c6a
+Shader 'SkeletonShaderGLES3' SHA256: ebb5e426a4e7dc35b16d731d19fd2dbb2ad386bc45fd98ac2d5be14fc8b169e9
+Shader 'ParticlesShaderGLES3' SHA256: a8d19e41900805f012ff03254582e6b3edb1439244d4aaf98368786e4608b9fe
+Shader 'ParticlesCopyShaderGLES3' SHA256: e3b9f57bce691164445b983e1c8c6d326f6700ca5b3acd17dba2b9439f937e9c
+Shader 'CopyShaderGLES3' SHA256: 4b67ab47c152ed26b01d35bc017f7687b5361d62499e2aafa5d4b9fc04a691b8
+Shader 'CubemapFilterShaderGLES3' SHA256: cb3288278d8ff18a8861a72c7a44acdb9a53208871d73f89f534d997771df0d5
+Shader 'GlowShaderGLES3' SHA256: ab13a68e2d0d54af33d432e49d7a53fdc941f0e5b56936c85c6b4b0ca675ddd9
+Shader 'PostShaderGLES3' SHA256: b83436dcdfb9b4864b27d9e0e5900eb89cd96c53f8161e4f673e1eaf9008e42b
+Shader 'FeedShaderGLES3' SHA256: 0b8b6c50cd99ef8772e9faa2517ae00c3fd765fbba160ada73bc7b5a1ed57166
+Shader 'CanvasShaderGLES3' SHA256: e6624fe2264e206b0e4d7e025633fd052f5ad01a74f8e4ead975432d9ed35cd4
+Shader 'CanvasOcclusionShaderGLES3' SHA256: 2b3f5dc2ded5925d011636faded9f583971d428e5844e224ce42c7d822130647
+Shader 'SceneShaderGLES3' SHA256: ae7bdf39be385d6c58bd4296942ac7dade1a132b1337f930759d4a5c900eab2c
+Shader 'SkyShaderGLES3' SHA256: c1680d05f955fe38c6e1a5d1632e2ece6ac6983c2dd751b23f5064a3baa0001d
+OpenGL API OpenGL ES 3.0 (ANGLE 2.1.1 git hash: aaebda1c5a40) - Compatibility - Using Device: Google Inc. (Microsoft) - ANGLE (Microsoft, Microsoft Basic Render Driver (0x0000008C) Direct3D11 vs_5_0 ps_5_0, D3D11-10.0.20348.5386)
+
+TextServer: Primary interface set to: "ICU / HarfBuzz / Graphite (Built-in)".
+CORE API HASH: 2475187701
+EDITOR API HASH: 3867286884
+Loading resource: res://addons/gut/gut_cmdln.gd
+SceneTreeFTI: traversal method DEFAULT
+Loading resource: res://addons/gut/version_conversion.gd
+Loading resource: res://addons/gut/gut_loader.gd
+Loading resource: res://addons/gut/warnings_manager.gd
+Loading resource: res://addons/gut/utils.gd
+Loading resource: res://addons/gut/GutScene.tscn
+Loading resource: res://addons/gut/GutScene.gd
+Loading resource: res://addons/gut/gui/NormalGui.tscn
+Loading resource: res://addons/gut/gui/GutSceneTheme.tres
+Loading resource: res://addons/gut/fonts/AnonymousPro-Regular.ttf
+Loading resource: res://.godot/imported/AnonymousPro-Regular.ttf-856c843fd6f89964d2ca8d8ff1724f13.fontdata
+Loading resource: res://addons/gut/gui/gut_gui.gd
+Loading resource: res://addons/gut/fonts/CourierPrime-Regular.ttf
+Loading resource: res://.godot/imported/CourierPrime-Regular.ttf-3babe7e4a7a588dfc9a84c14b4f1fe23.fontdata
+Loading resource: res://addons/gut/gui/ResizeHandle.tscn
+Loading resource: res://addons/gut/gui/ResizeHandle.gd
+Loading resource: res://addons/gut/gui/MinGui.tscn
+Loading resource: res://addons/gut/lazy_loader.gd
+Loading resource: res://addons/gut/thing_counter.gd
+Loading resource: res://addons/gut/version_numbers.gd
+Loading resource: res://addons/gut/gui/editor_globals.gd
+Loading resource: res://addons/gut/gui/gut_user_preferences.gd
+Loading resource: res://addons/gut/gui/RunExternally.tscn
+Loading resource: res://addons/gut/gui/RunExternally.gd
+Loading resource: res://addons/gut/gut_fonts.gd
+Loading resource: res://addons/gut/inner_class_registry.gd
+Loading resource: res://addons/gut/dynamic_gdscript.gd
+Loading resource: res://addons/gut/autofree.gd
+Loading resource: res://addons/gut/awaiter.gd
+Loading resource: res://addons/gut/comparator.gd
+Loading resource: res://addons/gut/collected_test.gd
+Loading resource: res://addons/gut/collected_script.gd
+Loading resource: res://addons/gut/compare_result.gd
+Loading resource: res://addons/gut/diff_formatter.gd
+Loading resource: res://addons/gut/diff_tool.gd
+Loading resource: res://addons/gut/double_tools.gd
+Loading resource: res://addons/gut/doubler.gd
+Loading resource: res://addons/gut/godot_singletons.gd
+Loading resource: res://addons/gut/gut.gd
+Loading resource: res://addons/gut/gut_config.gd
+Loading resource: res://addons/gut/input_factory.gd
+Loading resource: res://addons/gut/input_sender.gd
+Loading resource: res://addons/gut/junit_xml_export.gd
+Loading resource: res://addons/gut/logger.gd
+Loading resource: res://addons/gut/method_maker.gd
+Loading resource: res://addons/gut/one_to_many.gd
+Loading resource: res://addons/gut/gui/option_maker.gd
+Loading resource: res://addons/gut/orphan_counter.gd
+Loading resource: res://addons/gut/parameter_factory.gd
+Loading resource: res://addons/gut/parameter_handler.gd
+Loading resource: res://addons/gut/printers.gd
+Loading resource: res://addons/gut/result_exporter.gd
+Loading resource: res://addons/gut/script_parser.gd
+Loading resource: res://addons/gut/signal_watcher.gd
+Loading resource: res://addons/gut/singleton_parser.gd
+Loading resource: res://addons/gut/spy.gd
+Loading resource: res://addons/gut/stubber.gd
+Loading resource: res://addons/gut/stub_params.gd
+Loading resource: res://addons/gut/stubs.gd
+Loading resource: res://addons/gut/summary.gd
+Loading resource: res://addons/gut/test.gd
+Loading resource: res://addons/gut/test_collector.gd
+Loading resource: res://addons/gut/update_detector.gd
+Loading resource: res://addons/dialogic/Resources/CharacterResourceLoader.gd
+Loading resource: res://addons/dialogic/Resources/TimelineResourceLoader.gd
+Loading resource: res://addons/dialogic/Resources/CharacterResourceSaver.gd
+Loading resource: res://addons/dialogic/Resources/TimelineResourceSaver.gd
+Loading resource: res://autoload/ProfileManager.gd
+Loading resource: res://autoload/GameState.gd
+Loading resource: res://autoload/SaveManager.gd
+Loading resource: res://autoload/LocalizationManager.gd
+Loading resource: res://autoload/AudioManager.gd
+Loading resource: res://autoload/SystemTtsCoordinator.gd
+Loading resource: res://autoload/WindowModeManager.gd
+Loading resource: res://autoload/EffectResolver.gd
+Loading resource: res://autoload/SceneRouter.gd
+Loading resource: res://scenes/overlay/PauseSurface.tscn
+Loading resource: res://scripts/ui/pause/PauseSurface.gd
+Loading resource: res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2
+Loading resource: res://.godot/imported/source-sans-3-regular.ttf.woff2-e8d731430889c54e3a411177ddbdd371.fontdata
+Loading resource: res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf
+Loading resource: res://.godot/imported/source-han-sans-sc-regular.otf-0a176df5494ddbf564882f6fa3e63197.fontdata
+Loading resource: res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf
+Loading resource: res://.godot/imported/source-han-sans-hc-regular.otf-edbb7d6ca258cfcc93ca616282ada129.fontdata
+Loading resource: res://scenes/apps/BackupApp.tscn
+Loading resource: res://scenes/shared/AppWindowBase.tscn
+Loading resource: res://scripts/ui/AppWindowBase.gd
+Loading resource: res://scripts/ui/BackupApp.gd
+Loading resource: res://scenes/apps/SettingsApp.tscn
+Loading resource: res://scripts/ui/SettingsApp.gd
+Loading resource: res://scripts/ui/LocalePresentationRoot.gd
+Loading resource: res://scenes/shared/SettingsContent.tscn
+Loading resource: res://scripts/ui/SettingsContent.gd
+Loading resource: res://scenes/ui/witnessed/WitnessedTransportRecovery.tscn
+Loading resource: res://scripts/ui/witnessed/WitnessedTransportRecovery.gd
+Loading resource: res://autoload/InputManager.gd
+Loading resource: res://autoload/AccessibilityManager.gd
+Loading resource: res://autoload/DialogicBridge.gd
+Loading resource: res://dialogic/styles/witnessed_caption_style.tres
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_FullBackground/full_background_layer.tscn
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_FullBackground/full_background_layer.gd
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Portraits/vn_portrait_layer.tscn
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Portraits/vn_portrait_layer.gd
+Loading resource: res://scenes/ui/witnessed/WitnessedCaptionLayer.tscn
+Loading resource: res://scripts/ui/witnessed/WitnessedAccessibleCaption.gd
+Loading resource: res://scripts/ui/witnessed/WitnessedAcceptInput.gd
+Loading resource: res://scripts/ui/witnessed/WitnessedSkipController.gd
+Loading resource: res://scripts/ui/witnessed/WitnessedTransportRail.gd
+Loading resource: res://scripts/ui/witnessed/WitnessedAutoController.gd
+Loading resource: res://scripts/ui/witnessed/WitnessedSourceCanvas.gd
+Loading resource: res://scripts/ui/witnessed/WitnessedAccessibleReviewCaption.gd
+Loading resource: res://scripts/ui/witnessed/WitnessedAccessibleContinue.gd
+Loading resource: res://scenes/ui/witnessed/WitnessedArtLayer.tscn
+Loading resource: res://scripts/ui/witnessed/WitnessedArtLayer.gd
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_Glossary/glossary_popup_layer.tscn
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_Glossary/glossary_popup_layer.gd
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Choices/vn_choice_layer.tscn
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Choices/vn_choice_layer.gd
+Loading resource: res://addons/dialogic/Example Assets/sound-effects/typing1.wav
+Loading resource: res://.godot/imported/typing1.wav-b241c6aab4ce82bf04caf8687873cae0.sample
+Loading resource: res://addons/dialogic/Example Assets/sound-effects/typing4.wav
+Loading resource: res://.godot/imported/typing4.wav-4e7a00fb19b7dd0bdfd8e323401b6162.sample
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_TextInput/text_input_layer.tscn
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_TextInput/text_input_layer.gd
+Loading resource: res://addons/dialogic/Modules/TextInput/node_text_input.gd
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_History/history_layer.tscn
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_History/history_layer.gd
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_History/example_history_item.tscn
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_History/example_history_item.gd
+Loading resource: res://autoload/ApplicationBootstrap.gd
+Loading resource: res://scenes/apps/ContactListApp.tscn
+Loading resource: res://scripts/ui/ContactListApp.gd
+Loading resource: res://scripts/ui/contacts/ContactsPanel.gd
+MbedTLS: Some X509 certificates could not be parsed (7 certificates skipped).
+Loaded system CA certificates
+Loading resource: res://scripts/accessibility/SystemTtsPort.gd
+Loading resource: res://scripts/audio/SystemTtsDuckPort.gd
+Loading resource: res://addons/dialogic/Modules/Audio/index.gd
+Loading resource: res://addons/dialogic/Modules/Background/index.gd
+Loading resource: res://addons/dialogic/Modules/Call/index.gd
+Loading resource: res://addons/dialogic/Modules/Character/index.gd
+Loading resource: res://addons/dialogic/Modules/Choice/index.gd
+Loading resource: res://addons/dialogic/Modules/Clear/index.gd
+Loading resource: res://addons/dialogic/Modules/Comment/index.gd
+Loading resource: res://addons/dialogic/Modules/Condition/index.gd
+Loading resource: res://addons/dialogic/Modules/Core/index.gd
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/index.gd
+Loading resource: res://addons/dialogic/Modules/End/index.gd
+Loading resource: res://addons/dialogic/Modules/Glossary/index.gd
+Loading resource: res://addons/dialogic/Modules/HighlightPortrait/index.gd
+Loading resource: res://addons/dialogic/Modules/History/index.gd
+Loading resource: res://addons/dialogic/Modules/Jump/index.gd
+Loading resource: res://addons/dialogic/Modules/LayeredPortrait/index.gd
+Loading resource: res://addons/dialogic/Modules/Save/index.gd
+Loading resource: res://addons/dialogic/Modules/Settings/index.gd
+Loading resource: res://addons/dialogic/Modules/Signal/index.gd
+Loading resource: res://addons/dialogic/Modules/Style/index.gd
+Loading resource: res://addons/dialogic/Modules/StyleEditor/index.gd
+Loading resource: res://addons/dialogic/Modules/Text/index.gd
+Loading resource: res://addons/dialogic/Modules/TextInput/index.gd
+Loading resource: res://addons/dialogic/Modules/Variable/index.gd
+Loading resource: res://addons/dialogic/Modules/Voice/index.gd
+Loading resource: res://addons/dialogic/Modules/Wait/index.gd
+Loading resource: res://addons/dialogic/Modules/WaitInput/index.gd
+Loading resource: res://addons/dialogic/Modules/Background/DefaultBackgroundScene/default_background.tscn
+Loading resource: res://addons/dialogic/Modules/Background/DefaultBackgroundScene/default_background.gd
+Loading resource: res://addons/dialogic/Modules/Character/default_portrait.tscn
+Loading resource: res://addons/dialogic/Modules/Character/default_portrait.gd
+Loading resource: res://addons/dialogic/Modules/Audio/event_audio.gd
+Loading resource: res://addons/dialogic/Modules/Background/event_background.gd
+Loading resource: res://addons/dialogic/Modules/Call/event_call.gd
+Loading resource: res://addons/dialogic/Modules/Clear/event_clear.gd
+Loading resource: res://addons/dialogic/Modules/Condition/event_condition.gd
+Loading resource: res://addons/dialogic/Modules/History/event_history.gd
+Loading resource: res://addons/dialogic/Modules/Save/event_save.gd
+Loading resource: res://addons/dialogic/Modules/Settings/event_setting.gd
+Loading resource: res://addons/dialogic/Modules/Style/event_style.gd
+Loading resource: res://addons/dialogic/Modules/TextInput/event_text_input.gd
+Loading resource: res://addons/dialogic/Modules/WaitInput/event_wait_input.gd
+Loading resource: res://addons/gut/cli/gut_cli.gd
+Loading resource: res://addons/gut/cli/optparse.gd
+Loading resource: res://addons/gut/gui/GutRunner.tscn
+Loading resource: res://addons/gut/gui/GutRunner.gd
+---  GUT  ---
+[INFO]:  using [D:/a/dwm/dwm/.godot/phase2r_tests/92b9e2f5-5a77-4ca5-8aaf-f17c3663ec4f/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Loading resource: res://tests/manual/test_continue_reveal_publication.gd
+
+
+res://tests/manual/test_continue_reveal_publication.gd
+* test_continue_initial_registration_observation
+    [Passed]:  ["Windows"] expected to not equal ["headless"]:  this test requires native accessibility registration
+    [Passed]:  isolated Continue profile initializes
+    [Passed]:  isolated Continue localization initializes
+    [Passed]:  [STRING_NAME(ready)] expected to equal [STRING_NAME(ready)]:  
+    [Passed] 
+    [Passed]:  observation seed is isolated
+    [Passed]:  standalone style exists before production selection
+load_threaded_get_status(): No threaded load for resource path 'res://dialogic/styles/witnessed_caption_style.tres' has been initiated or its result has already been collected.
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Base_Default/default_layout_base.tscn
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Base_Default/default_layout_base.gd
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Base_Default/default_layout_base.tscn
+load_threaded_get_status(): No threaded load for resource path 'res://addons/dialogic/Modules/DefaultLayoutParts/Layer_FullBackground/full_background_layer.tscn' has been initiated or its result has already been collected.
+load_threaded_get_status(): No threaded load for resource path 'res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Portraits/vn_portrait_layer.tscn' has been initiated or its result has already been collected.
+Loading resource: res://addons/dialogic/Modules/Character/preview_character.tres
+load_threaded_get_status(): No threaded load for resource path 'res://scenes/ui/witnessed/WitnessedArtLayer.tscn' has been initiated or its result has already been collected.
+load_threaded_get_status(): No threaded load for resource path 'res://scenes/ui/witnessed/WitnessedCaptionLayer.tscn' has been initiated or its result has already been collected.
+load_threaded_get_status(): No threaded load for resource path 'res://addons/dialogic/Modules/DefaultLayoutParts/Layer_Glossary/glossary_popup_layer.tscn' has been initiated or its result has already been collected.
+load_threaded_get_status(): No threaded load for resource path 'res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Choices/vn_choice_layer.tscn' has been initiated or its result has already been collected.
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Choices/choice_panel_normal.tres
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Choices/choice_panel_hover.tres
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Choices/choice_panel_focus.tres
+Loading resource: res://addons/dialogic/Example Assets/sound-effects/typing2.wav
+Loading resource: res://.godot/imported/typing2.wav-64cf50045b34db7d5ef5da984070e0a7.sample
+load_threaded_get_status(): No threaded load for resource path 'res://addons/dialogic/Modules/DefaultLayoutParts/Layer_TextInput/text_input_layer.tscn' has been initiated or its result has already been collected.
+load_threaded_get_status(): No threaded load for resource path 'res://addons/dialogic/Modules/DefaultLayoutParts/Layer_History/history_layer.tscn' has been initiated or its result has already been collected.
+    [Passed]:  Expected [DialogicLayout_WitnessedCaption:<CanvasLayer#491824089715>(default_layout_base.gd)] to be anything but NULL:  
+    [Passed]:  Expected [WitnessedCaptionLayer:<Node#492428069509>(WitnessedCaptionLayer.gd)] to be anything but NULL:  real Styles loader selected WitnessedCaptionLayer
+Loading resource: res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2
+Loading resource: res://.godot/imported/fusion-pixel-8px-proportional-latin.otf.woff2-737dffb47bbecad9bc87e5867ee5bd9a.fontdata
+Loading resource: res://scripts/ui/witnessed/WitnessedSpeechStatus.gd
+Loading resource: res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-zh_hans.otf.woff2
+Loading resource: res://.godot/imported/fusion-pixel-8px-proportional-zh_hans.otf.woff2-72b9af3eb97ba940cfdece3abc823d7c.fontdata
+Loading resource: res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-zh_hant.otf.woff2
+Loading resource: res://.godot/imported/fusion-pixel-8px-proportional-zh_hant.otf.woff2-4af7b5ef7a8498c9e7360605340fba64.fontdata
+Loading resource: res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-ja.otf.woff2
+Loading resource: res://.godot/imported/fusion-pixel-8px-proportional-ja.otf.woff2-26a932e145d8af3a90aca3e47cb93513.fontdata
+Loading resource: res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-ko.otf.woff2
+Loading resource: res://.godot/imported/fusion-pixel-8px-proportional-ko.otf.woff2-9f65d1c9951e6ef76b57735ee0af7e85.fontdata
+    [Passed] 
+    [Passed] 
+    [Passed]:  actual Continue instance was observed before tree entry
+    [Passed]:  [492914608802] expected to equal [492914608802]:  observation belongs to the mounted Continue
+    [Passed]:  ["Continue"] expected to equal ["Continue"]:  
+    [Passed]:  mounted Continue source is admitted
+    [Passed]:  mounted Continue action is admitted
+CONTINUE_REGISTRATION_OBSERVATION {"boundaries":[{"layout_id":0,"layout_parent_id":0,"layout_parent_present":false,"phase":"armed","surface_id":0,"usec":9835932},{"layout_id":0,"layout_parent_id":0,"layout_parent_present":false,"phase":"initial_mount","surface_id":0,"usec":9835949},{"layout_id":491824089715,"layout_parent_id":0,"layout_parent_present":false,"phase":"mounted_settle","surface_id":492914608802,"usec":9846306},{"layout_id":491824089715,"layout_parent_id":272713648737,"layout_parent_present":true,"phase":"reparent","surface_id":492914608802,"usec":10171147},{"layout_id":491824089715,"layout_parent_id":26910655914,"layout_parent_present":true,"phase":"root_setup","surface_id":492914608802,"usec":10180019},{"layout_id":491824089715,"layout_parent_id":26910655914,"layout_parent_present":true,"phase":"timeline_start","surface_id":492914608802,"usec":10183251},{"layout_id":491824089715,"layout_parent_id":26910655914,"layout_parent_present":true,"phase":"timeline_settle","surface_id":492914608802,"usec":10187485},{"layout_id":491824089715,"layout_parent_id":26910655914,"layout_parent_present":true,"phase":"focus_and_input","surface_id":492914608802,"usec":10250918},{"layout_id":491824089715,"layout_parent_id":26910655914,"layout_parent_present":true,"phase":"script_replacement","surface_id":492914608802,"usec":10252307},{"layout_id":491824089715,"layout_parent_id":26910655914,"layout_parent_present":true,"phase":"post_mount_rebind","surface_id":492914608802,"usec":10252401},{"layout_id":491824089715,"layout_parent_id":26910655914,"layout_parent_present":true,"phase":"initial_wait","surface_id":492914608802,"usec":10253137}],"counts":{"action_registered":0,"admission":0,"after_install":1,"after_rebind":1,"before_install":1,"bind_enter":2,"bind_return":2,"capture_enter":0,"capture_return":0,"element":0,"enter_tree":2,"exit_tree":1,"instance_init":2,"notification":0,"owner_capture_enter":0,"owner_capture_return":0,"projection_changed":3,"queue_request":3,"queue_return":3,"retirement_queue_request":8,"retirement_queue_return":8},"end_clock":{"ticks_after":15261,"ticks_before":15261,"unix_msec":1792608514868.0},"events":[{"facts":{},"inside_tree":false,"phase":"initial_mount","stage":"instance_init","surface_id":492914608802,"usec":9840414},{"facts":{},"inside_tree":true,"phase":"mounted_settle","stage":"enter_tree","surface_id":492914608802,"usec":9854415},{"facts":{},"inside_tree":true,"phase":"mounted_settle","stage":"bind_enter","surface_id":492914608802,"usec":9914748},{"facts":{"custody":2},"inside_tree":true,"phase":"mounted_settle","stage":"retirement_queue_request","surface_id":492914608802,"usec":9914761},{"facts":{},"inside_tree":true,"phase":"mounted_settle","stage":"retirement_queue_return","surface_id":492914608802,"usec":9914768},{"facts":{"available":false,"label":"Continue","source_visible":false},"inside_tree":true,"phase":"mounted_settle","stage":"projection_changed","surface_id":492914608802,"usec":9914805},{"facts":{},"inside_tree":true,"phase":"mounted_settle","stage":"queue_request","surface_id":492914608802,"usec":9914812},{"facts":{},"inside_tree":true,"phase":"mounted_settle","stage":"queue_return","surface_id":492914608802,"usec":9914817},{"facts":{},"inside_tree":true,"phase":"mounted_settle","stage":"bind_return","surface_id":492914608802,"usec":9914823},{"facts":{"custody":3},"inside_tree":true,"phase":"mounted_settle","stage":"retirement_queue_request","surface_id":492914608802,"usec":9914836},{"facts":{},"inside_tree":true,"phase":"mounted_settle","stage":"retirement_queue_return","surface_id":492914608802,"usec":9914841},{"facts":{},"inside_tree":true,"phase":"reparent","stage":"exit_tree","surface_id":492914608802,"usec":10172090},{"facts":{},"inside_tree":true,"phase":"reparent","stage":"enter_tree","surface_id":492914608802,"usec":10173417},{"facts":{"custody":4},"inside_tree":true,"phase":"timeline_start","stage":"retirement_queue_request","surface_id":492914608802,"usec":10187280},{"facts":{},"inside_tree":true,"phase":"timeline_start","stage":"retirement_queue_return","surface_id":492914608802,"usec":10187290},{"facts":{"custody":5},"inside_tree":true,"phase":"timeline_settle","stage":"retirement_queue_request","surface_id":492914608802,"usec":10192040},{"facts":{},"inside_tree":true,"phase":"timeline_settle","stage":"retirement_queue_return","surface_id":492914608802,"usec":10192049},{"facts":{"custody":6},"inside_tree":true,"phase":"timeline_settle","stage":"retirement_queue_request","surface_id":492914608802,"usec":10192169},{"facts":{},"inside_tree":true,"phase":"timeline_settle","stage":"retirement_queue_return","surface_id":492914608802,"usec":10192175},{"facts":{"custody":7},"inside_tree":true,"phase":"timeline_settle","stage":"retirement_queue_request","surface_id":492914608802,"usec":10192194},{"facts":{},"inside_tree":true,"phase":"timeline_settle","stage":"retirement_queue_return","surface_id":492914608802,"usec":10192198},{"facts":{"custody":8},"inside_tree":true,"phase":"timeline_settle","stage":"retirement_queue_request","surface_id":492914608802,"usec":10192355},{"facts":{},"inside_tree":true,"phase":"timeline_settle","stage":"retirement_queue_return","surface_id":492914608802,"usec":10192362},{"facts":{"available":true,"label":"Continue","source_visible":true},"inside_tree":true,"phase":"timeline_settle","stage":"projection_changed","surface_id":492914608802,"usec":10193024}],"final":{"available":true,"label":"Continue","outcome":"timeout","publications":0,"reveal":1,"script":"():<GDScript#-9223371773737694807>","source_visible":true,"surface_id":492914608802,"usec":15261130,"visible_in_tree":true},"last":{"after_install":{"facts":{"publications":0,"script":"():<GDScript#-9223371773737694807>"},"inside_tree":true,"phase":"script_replacement","stage":"after_install","surface_id":492914608802,"usec":10252385},"after_rebind":{"facts":{"available":true,"label":"Continue","source_visible":true},"inside_tree":true,"phase":"post_mount_rebind","stage":"after_rebind","surface_id":492914608802,"usec":10252654},"before_install":{"facts":{"script":"(res://scripts/ui/witnessed/WitnessedAccessibleContinue.gd):<GDScript#-9223371870525454432>"},"inside_tree":true,"phase":"script_replacement","stage":"before_install","surface_id":492914608802,"usec":10252337},"bind_enter":{"facts":{},"inside_tree":true,"phase":"post_mount_rebind","stage":"bind_enter","surface_id":492914608802,"usec":10252417},"bind_return":{"facts":{},"inside_tree":true,"phase":"post_mount_rebind","stage":"bind_return","surface_id":492914608802,"usec":10252628},"enter_tree":{"facts":{},"inside_tree":true,"phase":"reparent","stage":"enter_tree","surface_id":492914608802,"usec":10173417},"exit_tree":{"facts":{},"inside_tree":true,"phase":"reparent","stage":"exit_tree","surface_id":492914608802,"usec":10172090},"instance_init":{"facts":{},"inside_tree":true,"phase":"script_replacement","stage":"instance_init","surface_id":492914608802,"usec":10252367},"projection_changed":{"facts":{"available":true,"label":"Continue","source_visible":true},"inside_tree":true,"phase":"post_mount_rebind","stage":"projection_changed","surface_id":492914608802,"usec":10252600},"queue_request":{"facts":{},"inside_tree":true,"phase":"post_mount_rebind","stage":"queue_request","surface_id":492914608802,"usec":10252610},"queue_return":{"facts":{},"inside_tree":true,"phase":"post_mount_rebind","stage":"queue_return","surface_id":492914608802,"usec":10252620},"retirement_queue_request":{"facts":{"custody":9},"inside_tree":true,"phase":"post_mount_rebind","stage":"retirement_queue_request","surface_id":492914608802,"usec":10252434},"retirement_queue_return":{"facts":{},"inside_tree":true,"phase":"post_mount_rebind","stage":"retirement_queue_return","surface_id":492914608802,"usec":10252443}},"owner_id":492914608802,"phase":"initial_wait","phases":{"armed":{"counts":{"action_registered":0,"admission":0,"bind_enter":0,"bind_return":0,"capture_enter":0,"capture_return":0,"element":0,"enter_tree":0,"exit_tree":0,"instance_init":0,"notification":0,"owner_capture_enter":0,"owner_capture_return":0,"projection_changed":0,"queue_request":0,"queue_return":0,"retirement_queue_request":0,"retirement_queue_return":0},"last":{}},"focus_and_input":{"counts":{"action_registered":0,"admission":0,"bind_enter":0,"bind_return":0,"capture_enter":0,"capture_return":0,"element":0,"enter_tree":0,"exit_tree":0,"instance_init":0,"notification":0,"owner_capture_enter":0,"owner_capture_return":0,"projection_changed":0,"queue_request":0,"queue_return":0,"retirement_queue_request":0,"retirement_queue_return":0},"last":{}},"initial_mount":{"counts":{"action_registered":0,"admission":0,"bind_enter":0,"bind_return":0,"capture_enter":0,"capture_return":0,"element":0,"enter_tree":0,"exit_tree":0,"instance_init":1,"notification":0,"owner_capture_enter":0,"owner_capture_return":0,"projection_changed":0,"queue_request":0,"queue_return":0,"retirement_queue_request":0,"retirement_queue_return":0},"last":{"instance_init":{"facts":{},"inside_tree":false,"phase":"initial_mount","stage":"instance_init","surface_id":492914608802,"usec":9840414}}},"initial_wait":{"counts":{"action_registered":0,"admission":0,"bind_enter":0,"bind_return":0,"capture_enter":0,"capture_return":0,"element":0,"enter_tree":0,"exit_tree":0,"instance_init":0,"notification":0,"owner_capture_enter":0,"owner_capture_return":0,"projection_changed":0,"queue_request":0,"queue_return":0,"retirement_queue_request":0,"retirement_queue_return":0},"last":{}},"mounted_settle":{"counts":{"action_registered":0,"admission":0,"bind_enter":1,"bind_return":1,"capture_enter":0,"capture_return":0,"element":0,"enter_tree":1,"exit_tree":0,"instance_init":0,"notification":0,"owner_capture_enter":0,"owner_capture_return":0,"projection_changed":1,"queue_request":1,"queue_return":1,"retirement_queue_request":2,"retirement_queue_return":2},"last":{"bind_enter":{"facts":{},"inside_tree":true,"phase":"mounted_settle","stage":"bind_enter","surface_id":492914608802,"usec":9914748},"bind_return":{"facts":{},"inside_tree":true,"phase":"mounted_settle","stage":"bind_return","surface_id":492914608802,"usec":9914823},"enter_tree":{"facts":{},"inside_tree":true,"phase":"mounted_settle","stage":"enter_tree","surface_id":492914608802,"usec":9854415},"projection_changed":{"facts":{"available":false,"label":"Continue","source_visible":false},"inside_tree":true,"phase":"mounted_settle","stage":"projection_changed","surface_id":492914608802,"usec":9914805},"queue_request":{"facts":{},"inside_tree":true,"phase":"mounted_settle","stage":"queue_request","surface_id":492914608802,"usec":9914812},"queue_return":{"facts":{},"inside_tree":true,"phase":"mounted_settle","stage":"queue_return","surface_id":492914608802,"usec":9914817},"retirement_queue_request":{"facts":{"custody":3},"inside_tree":true,"phase":"mounted_settle","stage":"retirement_queue_request","surface_id":492914608802,"usec":9914836},"retirement_queue_return":{"facts":{},"inside_tree":true,"phase":"mounted_settle","stage":"retirement_queue_return","surface_id":492914608802,"usec":9914841}}},"post_mount_rebind":{"counts":{"action_registered":0,"admission":0,"after_rebind":1,"bind_enter":1,"bind_return":1,"capture_enter":0,"capture_return":0,"element":0,"enter_tree":0,"exit_tree":0,"instance_init":0,"notification":0,"owner_capture_enter":0,"owner_capture_return":0,"projection_changed":1,"queue_request":1,"queue_return":1,"retirement_queue_request":1,"retirement_queue_return":1},"last":{"after_rebind":{"facts":{"available":true,"label":"Continue","source_visible":true},"inside_tree":true,"phase":"post_mount_rebind","stage":"after_rebind","surface_id":492914608802,"usec":10252654},"bind_enter":{"facts":{},"inside_tree":true,"phase":"post_mount_rebind","stage":"bind_enter","surface_id":492914608802,"usec":10252417},"bind_return":{"facts":{},"inside_tree":true,"phase":"post_mount_rebind","stage":"bind_return","surface_id":492914608802,"usec":10252628},"projection_changed":{"facts":{"available":true,"label":"Continue","source_visible":true},"inside_tree":true,"phase":"post_mount_rebind","stage":"projection_changed","surface_id":492914608802,"usec":10252600},"queue_request":{"facts":{},"inside_tree":true,"phase":"post_mount_rebind","stage":"queue_request","surface_id":492914608802,"usec":10252610},"queue_return":{"facts":{},"inside_tree":true,"phase":"post_mount_rebind","stage":"queue_return","surface_id":492914608802,"usec":10252620},"retirement_queue_request":{"facts":{"custody":9},"inside_tree":true,"phase":"post_mount_rebind","stage":"retirement_queue_request","surface_id":492914608802,"usec":10252434},"retirement_queue_return":{"facts":{},"inside_tree":true,"phase":"post_mount_rebind","stage":"retirement_queue_return","surface_id":492914608802,"usec":10252443}}},"reparent":{"counts":{"action_registered":0,"admission":0,"bind_enter":0,"bind_return":0,"capture_enter":0,"capture_return":0,"element":0,"enter_tree":1,"exit_tree":1,"instance_init":0,"notification":0,"owner_capture_enter":0,"owner_capture_return":0,"projection_changed":0,"queue_request":0,"queue_return":0,"retirement_queue_request":0,"retirement_queue_return":0},"last":{"enter_tree":{"facts":{},"inside_tree":true,"phase":"reparent","stage":"enter_tree","surface_id":492914608802,"usec":10173417},"exit_tree":{"facts":{},"inside_tree":true,"phase":"reparent","stage":"exit_tree","surface_id":492914608802,"usec":10172090}}},"root_setup":{"counts":{"action_registered":0,"admission":0,"bind_enter":0,"bind_return":0,"capture_enter":0,"capture_return":0,"element":0,"enter_tree":0,"exit_tree":0,"instance_init":0,"notification":0,"owner_capture_enter":0,"owner_capture_return":0,"projection_changed":0,"queue_request":0,"queue_return":0,"retirement_queue_request":0,"retirement_queue_return":0},"last":{}},"script_replacement":{"counts":{"action_registered":0,"admission":0,"after_install":1,"before_install":1,"bind_enter":0,"bind_return":0,"capture_enter":0,"capture_return":0,"element":0,"enter_tree":0,"exit_tree":0,"instance_init":1,"notification":0,"owner_capture_enter":0,"owner_capture_return":0,"projection_changed":0,"queue_request":0,"queue_return":0,"retirement_queue_request":0,"retirement_queue_return":0},"last":{"after_install":{"facts":{"publications":0,"script":"():<GDScript#-9223371773737694807>"},"inside_tree":true,"phase":"script_replacement","stage":"after_install","surface_id":492914608802,"usec":10252385},"before_install":{"facts":{"script":"(res://scripts/ui/witnessed/WitnessedAccessibleContinue.gd):<GDScript#-9223371870525454432>"},"inside_tree":true,"phase":"script_replacement","stage":"before_install","surface_id":492914608802,"usec":10252337},"instance_init":{"facts":{},"inside_tree":true,"phase":"script_replacement","stage":"instance_init","surface_id":492914608802,"usec":10252367}}},"timeline_settle":{"counts":{"action_registered":0,"admission":0,"bind_enter":0,"bind_return":0,"capture_enter":0,"capture_return":0,"element":0,"enter_tree":0,"exit_tree":0,"instance_init":0,"notification":0,"owner_capture_enter":0,"owner_capture_return":0,"projection_changed":1,"queue_request":1,"queue_return":1,"retirement_queue_request":4,"retirement_queue_return":4},"last":{"projection_changed":{"facts":{"available":true,"label":"Continue","source_visible":true},"inside_tree":true,"phase":"timeline_settle","stage":"projection_changed","surface_id":492914608802,"usec":10193024},"queue_request":{"facts":{},"inside_tree":true,"phase":"timeline_settle","stage":"queue_request","surface_id":492914608802,"usec":10193031},"queue_return":{"facts":{},"inside_tree":true,"phase":"timeline_settle","stage":"queue_return","surface_id":492914608802,"usec":10193037},"retirement_queue_request":{"facts":{"custody":8},"inside_tree":true,"phase":"timeline_settle","stage":"retirement_queue_request","surface_id":492914608802,"usec":10192355},"retirement_queue_return":{"facts":{},"inside_tree":true,"phase":"timeline_settle","stage":"retirement_queue_return","surface_id":492914608802,"usec":10192362}}},"timeline_start":{"counts":{"action_registered":0,"admission":0,"bind_enter":0,"bind_return":0,"capture_enter":0,"capture_return":0,"element":0,"enter_tree":0,"exit_tree":0,"instance_init":0,"notification":0,"owner_capture_enter":0,"owner_capture_return":0,"projection_changed":0,"queue_request":0,"queue_return":0,"retirement_queue_request":1,"retirement_queue_return":1},"last":{"retirement_queue_request":{"facts":{"custody":4},"inside_tree":true,"phase":"timeline_start","stage":"retirement_queue_request","surface_id":492914608802,"usec":10187280},"retirement_queue_return":{"facts":{},"inside_tree":true,"phase":"timeline_start","stage":"retirement_queue_return","surface_id":492914608802,"usec":10187290}}}},"registration_window":{"deadline_ticks_msec":15253,"start_clock":{"ticks_after":10253,"ticks_before":10253,"unix_msec":1792608509860.0}},"window":"ordinary instance construction through post-rebind wait","window_identity":{"display_server":"Windows","process_id":5896,"root_window":{"embedded":false,"instance_id":26910655914,"native_handle":197110,"present":true,"window_id":0},"sampled_ticks_msec":15261,"sampled_unix_msec":1792608514868.0,"surface_window":{"embedded":false,"instance_id":26910655914,"native_handle":197110,"present":true,"window_id":0}},"zero_counts":{"action_registered":0,"admission":0,"bind_enter":0,"bind_return":0,"capture_enter":0,"capture_return":0,"element":0,"enter_tree":0,"exit_tree":0,"instance_init":0,"notification":0,"owner_capture_enter":0,"owner_capture_return":0,"projection_changed":0,"queue_request":0,"queue_return":0,"retirement_queue_request":0,"retirement_queue_return":0}}
+    [Failed]:  Continue did not register a native action for reveal 1
+      at line -1
+0/1 passed.
+
+
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/manual/test_continue_reveal_publication.gd
+- test_continue_initial_registration_observation
+    [Failed]:  Continue did not register a native action for reveal 1
+          at line -1
+
+Totals
+------
+Scripts               1
+Tests                 1
+Passing Tests      none
+Failing Tests         1
+Asserts           16/17
+Time              6.283s
+
+
+Ran Tests matching "test_continue_initial_registration_observation"
+---- 1 failing tests ----
+
+Results saved to res://.godot/ci/continue-publication/initial-observation.xml
+[INFO]:  Exiting with code 1
