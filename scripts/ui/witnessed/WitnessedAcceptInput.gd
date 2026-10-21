@@ -43,6 +43,8 @@ func bind(caption: DialogicNode_DialogText, viewport_control: ScrollContainer, r
 		bind_input_custody(input_owner)
 	_await_initial_neutral = Input.is_action_pressed(_action())
 	_await_page_neutral = _page_is_held()
+	# Both organic and manual finish replace the reveal identity captured by native actions.
+	_caption.finished_revealing_text.connect(_retire_accessibility_accept)
 	_caption.visibility_changed.connect(_cancel_candidate)
 	_caption.focus_exited.connect(_cancel_candidate)
 	_viewport_control.get_v_scroll_bar().value_changed.connect(cancel_pending_accept)
