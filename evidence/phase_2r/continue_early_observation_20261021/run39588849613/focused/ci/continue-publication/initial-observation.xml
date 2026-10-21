@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="1" tests="1" >
+  <testsuite name="tests/manual/test_continue_reveal_publication.gd" tests="1" failures="2" skipped="0" time="5.753848" >
+      <testcase name="test_continue_initial_registration_observation" assertions="18" status="fail" classname="tests/manual/test_continue_reveal_publication.gd" time="5.753848" >
+      <failure message="failed"><![CDATA[Continue did not register a native action for reveal 1
+            at line -1]]></failure></testcase>
+  </testsuite>
+</testsuites>

@@ -1,0 +1,16 @@
+[
+  {
+    "id": 12340178473,
+    "bytes": 4742,
+    "sha256": "d5ae1a261a5ca7c6a41d9503b880b1f2169b1c19b291dedf391ae9863b19973d",
+    "members": 4,
+    "crc": "passed"
+  },
+  {
+    "id": 12340043887,
+    "bytes": 10804146,
+    "sha256": "f7e58b10f0e4e2f9294d12f1fa309de0f34ba396e246cc2b0d99f531ca0aa372",
+    "members": 5280,
+    "crc": "passed"
+  }
+]

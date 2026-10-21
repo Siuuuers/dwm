@@ -1,0 +1,991 @@
+{
+  "boundaries": [
+    {
+      "phase": "armed",
+      "surface_id": 0,
+      "usec": 8334868
+    },
+    {
+      "phase": "initial_mount",
+      "surface_id": 0,
+      "usec": 8334887
+    },
+    {
+      "layout_id": 491824089715,
+      "layout_parent_id": 272713648737,
+      "phase": "reparent",
+      "surface_id": 492914608802,
+      "usec": 8667604
+    },
+    {
+      "layout_id": 491824089715,
+      "layout_parent_id": 26910655914,
+      "phase": "root_setup",
+      "surface_id": 492914608802,
+      "usec": 8676227
+    },
+    {
+      "layout_id": 491824089715,
+      "layout_parent_id": 26910655914,
+      "phase": "timeline_start",
+      "surface_id": 492914608802,
+      "usec": 8679647
+    },
+    {
+      "layout_id": 491824089715,
+      "layout_parent_id": 26910655914,
+      "phase": "timeline_settle",
+      "surface_id": 492914608802,
+      "usec": 8682768
+    },
+    {
+      "layout_id": 491824089715,
+      "layout_parent_id": 26910655914,
+      "phase": "focus_and_input",
+      "surface_id": 492914608802,
+      "usec": 8751977
+    },
+    {
+      "layout_id": 491824089715,
+      "layout_parent_id": 26910655914,
+      "phase": "script_replacement",
+      "surface_id": 492914608802,
+      "usec": 8752925
+    },
+    {
+      "layout_id": 491824089715,
+      "layout_parent_id": 26910655914,
+      "phase": "post_mount_rebind",
+      "surface_id": 492914608802,
+      "usec": 8752989
+    },
+    {
+      "layout_id": 491824089715,
+      "layout_parent_id": 26910655914,
+      "phase": "initial_wait",
+      "surface_id": 492914608802,
+      "usec": 8758121
+    }
+  ],
+  "counts": {
+    "action_registered": 0,
+    "admission": 0,
+    "after_install": 1,
+    "after_rebind": 1,
+    "before_install": 1,
+    "bind_enter": 2,
+    "bind_return": 2,
+    "capture_enter": 0,
+    "capture_return": 0,
+    "element": 0,
+    "enter_tree": 2,
+    "exit_tree": 1,
+    "instance_init": 2,
+    "notification": 0,
+    "owner_capture_enter": 0,
+    "owner_capture_return": 0,
+    "projection_changed": 3,
+    "queue_request": 3,
+    "queue_return": 3,
+    "retirement_queue_request": 8,
+    "retirement_queue_return": 8
+  },
+  "events": [
+    {
+      "facts": {},
+      "inside_tree": false,
+      "phase": "initial_mount",
+      "stage": "instance_init",
+      "surface_id": 492914608802,
+      "usec": 8338966
+    },
+    {
+      "facts": {},
+      "inside_tree": true,
+      "phase": "mounted_settle",
+      "stage": "enter_tree",
+      "surface_id": 492914608802,
+      "usec": 8353434
+    },
+    {
+      "facts": {},
+      "inside_tree": true,
+      "phase": "mounted_settle",
+      "stage": "bind_enter",
+      "surface_id": 492914608802,
+      "usec": 8412549
+    },
+    {
+      "facts": {
+        "custody": 2
+      },
+      "inside_tree": true,
+      "phase": "mounted_settle",
+      "stage": "retirement_queue_request",
+      "surface_id": 492914608802,
+      "usec": 8412560
+    },
+    {
+      "facts": {},
+      "inside_tree": true,
+      "phase": "mounted_settle",
+      "stage": "retirement_queue_return",
+      "surface_id": 492914608802,
+      "usec": 8412566
+    },
+    {
+      "facts": {
+        "available": false,
+        "label": "Continue",
+        "source_visible": false
+      },
+      "inside_tree": true,
+      "phase": "mounted_settle",
+      "stage": "projection_changed",
+      "surface_id": 492914608802,
+      "usec": 8412597
+    },
+    {
+      "facts": {},
+      "inside_tree": true,
+      "phase": "mounted_settle",
+      "stage": "queue_request",
+      "surface_id": 492914608802,
+      "usec": 8412602
+    },
+    {
+      "facts": {},
+      "inside_tree": true,
+      "phase": "mounted_settle",
+      "stage": "queue_return",
+      "surface_id": 492914608802,
+      "usec": 8412606
+    },
+    {
+      "facts": {},
+      "inside_tree": true,
+      "phase": "mounted_settle",
+      "stage": "bind_return",
+      "surface_id": 492914608802,
+      "usec": 8412611
+    },
+    {
+      "facts": {
+        "custody": 3
+      },
+      "inside_tree": true,
+      "phase": "mounted_settle",
+      "stage": "retirement_queue_request",
+      "surface_id": 492914608802,
+      "usec": 8412622
+    },
+    {
+      "facts": {},
+      "inside_tree": true,
+      "phase": "mounted_settle",
+      "stage": "retirement_queue_return",
+      "surface_id": 492914608802,
+      "usec": 8412626
+    },
+    {
+      "facts": {},
+      "inside_tree": true,
+      "phase": "reparent",
+      "stage": "exit_tree",
+      "surface_id": 492914608802,
+      "usec": 8668495
+    },
+    {
+      "facts": {},
+      "inside_tree": true,
+      "phase": "reparent",
+      "stage": "enter_tree",
+      "surface_id": 492914608802,
+      "usec": 8669747
+    },
+    {
+      "facts": {
+        "custody": 4
+      },
+      "inside_tree": true,
+      "phase": "timeline_start",
+      "stage": "retirement_queue_request",
+      "surface_id": 492914608802,
+      "usec": 8682602
+    },
+    {
+      "facts": {},
+      "inside_tree": true,
+      "phase": "timeline_start",
+      "stage": "retirement_queue_return",
+      "surface_id": 492914608802,
+      "usec": 8682610
+    },
+    {
+      "facts": {
+        "custody": 5
+      },
+      "inside_tree": true,
+      "phase": "timeline_settle",
+      "stage": "retirement_queue_request",
+      "surface_id": 492914608802,
+      "usec": 8687188
+    },
+    {
+      "facts": {},
+      "inside_tree": true,
+      "phase": "timeline_settle",
+      "stage": "retirement_queue_return",
+      "surface_id": 492914608802,
+      "usec": 8687197
+    },
+    {
+      "facts": {
+        "custody": 6
+      },
+      "inside_tree": true,
+      "phase": "timeline_settle",
+      "stage": "retirement_queue_request",
+      "surface_id": 492914608802,
+      "usec": 8687310
+    },
+    {
+      "facts": {},
+      "inside_tree": true,
+      "phase": "timeline_settle",
+      "stage": "retirement_queue_return",
+      "surface_id": 492914608802,
+      "usec": 8687315
+    },
+    {
+      "facts": {
+        "custody": 7
+      },
+      "inside_tree": true,
+      "phase": "timeline_settle",
+      "stage": "retirement_queue_request",
+      "surface_id": 492914608802,
+      "usec": 8687331
+    },
+    {
+      "facts": {},
+      "inside_tree": true,
+      "phase": "timeline_settle",
+      "stage": "retirement_queue_return",
+      "surface_id": 492914608802,
+      "usec": 8687335
+    },
+    {
+      "facts": {
+        "custody": 8
+      },
+      "inside_tree": true,
+      "phase": "timeline_settle",
+      "stage": "retirement_queue_request",
+      "surface_id": 492914608802,
+      "usec": 8687546
+    },
+    {
+      "facts": {},
+      "inside_tree": true,
+      "phase": "timeline_settle",
+      "stage": "retirement_queue_return",
+      "surface_id": 492914608802,
+      "usec": 8687552
+    },
+    {
+      "facts": {
+        "available": true,
+        "label": "Continue",
+        "source_visible": true
+      },
+      "inside_tree": true,
+      "phase": "timeline_settle",
+      "stage": "projection_changed",
+      "surface_id": 492914608802,
+      "usec": 8688092
+    }
+  ],
+  "final": {
+    "available": true,
+    "label": "Continue",
+    "outcome": "timeout",
+    "publications": 0,
+    "reveal": 1,
+    "script": "():<GDScript#-9223371773737694807>",
+    "source_visible": true,
+    "surface_id": 492914608802,
+    "usec": 13772644,
+    "visible_in_tree": true
+  },
+  "last": {
+    "after_install": {
+      "facts": {
+        "publications": 0,
+        "script": "():<GDScript#-9223371773737694807>"
+      },
+      "inside_tree": true,
+      "phase": "script_replacement",
+      "stage": "after_install",
+      "surface_id": 492914608802,
+      "usec": 8752978
+    },
+    "after_rebind": {
+      "facts": {
+        "available": true,
+        "label": "Continue",
+        "source_visible": true
+      },
+      "inside_tree": true,
+      "phase": "post_mount_rebind",
+      "stage": "after_rebind",
+      "surface_id": 492914608802,
+      "usec": 8753115
+    },
+    "before_install": {
+      "facts": {
+        "script": "(res://scripts/ui/witnessed/WitnessedAccessibleContinue.gd):<GDScript#-9223371870525454432>"
+      },
+      "inside_tree": true,
+      "phase": "script_replacement",
+      "stage": "before_install",
+      "surface_id": 492914608802,
+      "usec": 8752944
+    },
+    "bind_enter": {
+      "facts": {},
+      "inside_tree": true,
+      "phase": "post_mount_rebind",
+      "stage": "bind_enter",
+      "surface_id": 492914608802,
+      "usec": 8752999
+    },
+    "bind_return": {
+      "facts": {},
+      "inside_tree": true,
+      "phase": "post_mount_rebind",
+      "stage": "bind_return",
+      "surface_id": 492914608802,
+      "usec": 8753107
+    },
+    "enter_tree": {
+      "facts": {},
+      "inside_tree": true,
+      "phase": "reparent",
+      "stage": "enter_tree",
+      "surface_id": 492914608802,
+      "usec": 8669747
+    },
+    "exit_tree": {
+      "facts": {},
+      "inside_tree": true,
+      "phase": "reparent",
+      "stage": "exit_tree",
+      "surface_id": 492914608802,
+      "usec": 8668495
+    },
+    "instance_init": {
+      "facts": {},
+      "inside_tree": true,
+      "phase": "script_replacement",
+      "stage": "instance_init",
+      "surface_id": 492914608802,
+      "usec": 8752965
+    },
+    "projection_changed": {
+      "facts": {
+        "available": true,
+        "label": "Continue",
+        "source_visible": true
+      },
+      "inside_tree": true,
+      "phase": "post_mount_rebind",
+      "stage": "projection_changed",
+      "surface_id": 492914608802,
+      "usec": 8753092
+    },
+    "queue_request": {
+      "facts": {},
+      "inside_tree": true,
+      "phase": "post_mount_rebind",
+      "stage": "queue_request",
+      "surface_id": 492914608802,
+      "usec": 8753097
+    },
+    "queue_return": {
+      "facts": {},
+      "inside_tree": true,
+      "phase": "post_mount_rebind",
+      "stage": "queue_return",
+      "surface_id": 492914608802,
+      "usec": 8753102
+    },
+    "retirement_queue_request": {
+      "facts": {
+        "custody": 9
+      },
+      "inside_tree": true,
+      "phase": "post_mount_rebind",
+      "stage": "retirement_queue_request",
+      "surface_id": 492914608802,
+      "usec": 8753010
+    },
+    "retirement_queue_return": {
+      "facts": {},
+      "inside_tree": true,
+      "phase": "post_mount_rebind",
+      "stage": "retirement_queue_return",
+      "surface_id": 492914608802,
+      "usec": 8753015
+    }
+  },
+  "owner_id": 492914608802,
+  "phase": "initial_wait",
+  "phases": {
+    "armed": {
+      "counts": {
+        "action_registered": 0,
+        "admission": 0,
+        "bind_enter": 0,
+        "bind_return": 0,
+        "capture_enter": 0,
+        "capture_return": 0,
+        "element": 0,
+        "enter_tree": 0,
+        "exit_tree": 0,
+        "instance_init": 0,
+        "notification": 0,
+        "owner_capture_enter": 0,
+        "owner_capture_return": 0,
+        "projection_changed": 0,
+        "queue_request": 0,
+        "queue_return": 0,
+        "retirement_queue_request": 0,
+        "retirement_queue_return": 0
+      },
+      "last": {}
+    },
+    "focus_and_input": {
+      "counts": {
+        "action_registered": 0,
+        "admission": 0,
+        "bind_enter": 0,
+        "bind_return": 0,
+        "capture_enter": 0,
+        "capture_return": 0,
+        "element": 0,
+        "enter_tree": 0,
+        "exit_tree": 0,
+        "instance_init": 0,
+        "notification": 0,
+        "owner_capture_enter": 0,
+        "owner_capture_return": 0,
+        "projection_changed": 0,
+        "queue_request": 0,
+        "queue_return": 0,
+        "retirement_queue_request": 0,
+        "retirement_queue_return": 0
+      },
+      "last": {}
+    },
+    "initial_mount": {
+      "counts": {
+        "action_registered": 0,
+        "admission": 0,
+        "bind_enter": 0,
+        "bind_return": 0,
+        "capture_enter": 0,
+        "capture_return": 0,
+        "element": 0,
+        "enter_tree": 0,
+        "exit_tree": 0,
+        "instance_init": 1,
+        "notification": 0,
+        "owner_capture_enter": 0,
+        "owner_capture_return": 0,
+        "projection_changed": 0,
+        "queue_request": 0,
+        "queue_return": 0,
+        "retirement_queue_request": 0,
+        "retirement_queue_return": 0
+      },
+      "last": {
+        "instance_init": {
+          "facts": {},
+          "inside_tree": false,
+          "phase": "initial_mount",
+          "stage": "instance_init",
+          "surface_id": 492914608802,
+          "usec": 8338966
+        }
+      }
+    },
+    "initial_wait": {
+      "counts": {
+        "action_registered": 0,
+        "admission": 0,
+        "bind_enter": 0,
+        "bind_return": 0,
+        "capture_enter": 0,
+        "capture_return": 0,
+        "element": 0,
+        "enter_tree": 0,
+        "exit_tree": 0,
+        "instance_init": 0,
+        "notification": 0,
+        "owner_capture_enter": 0,
+        "owner_capture_return": 0,
+        "projection_changed": 0,
+        "queue_request": 0,
+        "queue_return": 0,
+        "retirement_queue_request": 0,
+        "retirement_queue_return": 0
+      },
+      "last": {}
+    },
+    "mounted_settle": {
+      "counts": {
+        "action_registered": 0,
+        "admission": 0,
+        "bind_enter": 1,
+        "bind_return": 1,
+        "capture_enter": 0,
+        "capture_return": 0,
+        "element": 0,
+        "enter_tree": 1,
+        "exit_tree": 0,
+        "instance_init": 0,
+        "notification": 0,
+        "owner_capture_enter": 0,
+        "owner_capture_return": 0,
+        "projection_changed": 1,
+        "queue_request": 1,
+        "queue_return": 1,
+        "retirement_queue_request": 2,
+        "retirement_queue_return": 2
+      },
+      "last": {
+        "bind_enter": {
+          "facts": {},
+          "inside_tree": true,
+          "phase": "mounted_settle",
+          "stage": "bind_enter",
+          "surface_id": 492914608802,
+          "usec": 8412549
+        },
+        "bind_return": {
+          "facts": {},
+          "inside_tree": true,
+          "phase": "mounted_settle",
+          "stage": "bind_return",
+          "surface_id": 492914608802,
+          "usec": 8412611
+        },
+        "enter_tree": {
+          "facts": {},
+          "inside_tree": true,
+          "phase": "mounted_settle",
+          "stage": "enter_tree",
+          "surface_id": 492914608802,
+          "usec": 8353434
+        },
+        "projection_changed": {
+          "facts": {
+            "available": false,
+            "label": "Continue",
+            "source_visible": false
+          },
+          "inside_tree": true,
+          "phase": "mounted_settle",
+          "stage": "projection_changed",
+          "surface_id": 492914608802,
+          "usec": 8412597
+        },
+        "queue_request": {
+          "facts": {},
+          "inside_tree": true,
+          "phase": "mounted_settle",
+          "stage": "queue_request",
+          "surface_id": 492914608802,
+          "usec": 8412602
+        },
+        "queue_return": {
+          "facts": {},
+          "inside_tree": true,
+          "phase": "mounted_settle",
+          "stage": "queue_return",
+          "surface_id": 492914608802,
+          "usec": 8412606
+        },
+        "retirement_queue_request": {
+          "facts": {
+            "custody": 3
+          },
+          "inside_tree": true,
+          "phase": "mounted_settle",
+          "stage": "retirement_queue_request",
+          "surface_id": 492914608802,
+          "usec": 8412622
+        },
+        "retirement_queue_return": {
+          "facts": {},
+          "inside_tree": true,
+          "phase": "mounted_settle",
+          "stage": "retirement_queue_return",
+          "surface_id": 492914608802,
+          "usec": 8412626
+        }
+      }
+    },
+    "post_mount_rebind": {
+      "counts": {
+        "action_registered": 0,
+        "admission": 0,
+        "after_rebind": 1,
+        "bind_enter": 1,
+        "bind_return": 1,
+        "capture_enter": 0,
+        "capture_return": 0,
+        "element": 0,
+        "enter_tree": 0,
+        "exit_tree": 0,
+        "instance_init": 0,
+        "notification": 0,
+        "owner_capture_enter": 0,
+        "owner_capture_return": 0,
+        "projection_changed": 1,
+        "queue_request": 1,
+        "queue_return": 1,
+        "retirement_queue_request": 1,
+        "retirement_queue_return": 1
+      },
+      "last": {
+        "after_rebind": {
+          "facts": {
+            "available": true,
+            "label": "Continue",
+            "source_visible": true
+          },
+          "inside_tree": true,
+          "phase": "post_mount_rebind",
+          "stage": "after_rebind",
+          "surface_id": 492914608802,
+          "usec": 8753115
+        },
+        "bind_enter": {
+          "facts": {},
+          "inside_tree": true,
+          "phase": "post_mount_rebind",
+          "stage": "bind_enter",
+          "surface_id": 492914608802,
+          "usec": 8752999
+        },
+        "bind_return": {
+          "facts": {},
+          "inside_tree": true,
+          "phase": "post_mount_rebind",
+          "stage": "bind_return",
+          "surface_id": 492914608802,
+          "usec": 8753107
+        },
+        "projection_changed": {
+          "facts": {
+            "available": true,
+            "label": "Continue",
+            "source_visible": true
+          },
+          "inside_tree": true,
+          "phase": "post_mount_rebind",
+          "stage": "projection_changed",
+          "surface_id": 492914608802,
+          "usec": 8753092
+        },
+        "queue_request": {
+          "facts": {},
+          "inside_tree": true,
+          "phase": "post_mount_rebind",
+          "stage": "queue_request",
+          "surface_id": 492914608802,
+          "usec": 8753097
+        },
+        "queue_return": {
+          "facts": {},
+          "inside_tree": true,
+          "phase": "post_mount_rebind",
+          "stage": "queue_return",
+          "surface_id": 492914608802,
+          "usec": 8753102
+        },
+        "retirement_queue_request": {
+          "facts": {
+            "custody": 9
+          },
+          "inside_tree": true,
+          "phase": "post_mount_rebind",
+          "stage": "retirement_queue_request",
+          "surface_id": 492914608802,
+          "usec": 8753010
+        },
+        "retirement_queue_return": {
+          "facts": {},
+          "inside_tree": true,
+          "phase": "post_mount_rebind",
+          "stage": "retirement_queue_return",
+          "surface_id": 492914608802,
+          "usec": 8753015
+        }
+      }
+    },
+    "reparent": {
+      "counts": {
+        "action_registered": 0,
+        "admission": 0,
+        "bind_enter": 0,
+        "bind_return": 0,
+        "capture_enter": 0,
+        "capture_return": 0,
+        "element": 0,
+        "enter_tree": 1,
+        "exit_tree": 1,
+        "instance_init": 0,
+        "notification": 0,
+        "owner_capture_enter": 0,
+        "owner_capture_return": 0,
+        "projection_changed": 0,
+        "queue_request": 0,
+        "queue_return": 0,
+        "retirement_queue_request": 0,
+        "retirement_queue_return": 0
+      },
+      "last": {
+        "enter_tree": {
+          "facts": {},
+          "inside_tree": true,
+          "phase": "reparent",
+          "stage": "enter_tree",
+          "surface_id": 492914608802,
+          "usec": 8669747
+        },
+        "exit_tree": {
+          "facts": {},
+          "inside_tree": true,
+          "phase": "reparent",
+          "stage": "exit_tree",
+          "surface_id": 492914608802,
+          "usec": 8668495
+        }
+      }
+    },
+    "root_setup": {
+      "counts": {
+        "action_registered": 0,
+        "admission": 0,
+        "bind_enter": 0,
+        "bind_return": 0,
+        "capture_enter": 0,
+        "capture_return": 0,
+        "element": 0,
+        "enter_tree": 0,
+        "exit_tree": 0,
+        "instance_init": 0,
+        "notification": 0,
+        "owner_capture_enter": 0,
+        "owner_capture_return": 0,
+        "projection_changed": 0,
+        "queue_request": 0,
+        "queue_return": 0,
+        "retirement_queue_request": 0,
+        "retirement_queue_return": 0
+      },
+      "last": {}
+    },
+    "script_replacement": {
+      "counts": {
+        "action_registered": 0,
+        "admission": 0,
+        "after_install": 1,
+        "before_install": 1,
+        "bind_enter": 0,
+        "bind_return": 0,
+        "capture_enter": 0,
+        "capture_return": 0,
+        "element": 0,
+        "enter_tree": 0,
+        "exit_tree": 0,
+        "instance_init": 1,
+        "notification": 0,
+        "owner_capture_enter": 0,
+        "owner_capture_return": 0,
+        "projection_changed": 0,
+        "queue_request": 0,
+        "queue_return": 0,
+        "retirement_queue_request": 0,
+        "retirement_queue_return": 0
+      },
+      "last": {
+        "after_install": {
+          "facts": {
+            "publications": 0,
+            "script": "():<GDScript#-9223371773737694807>"
+          },
+          "inside_tree": true,
+          "phase": "script_replacement",
+          "stage": "after_install",
+          "surface_id": 492914608802,
+          "usec": 8752978
+        },
+        "before_install": {
+          "facts": {
+            "script": "(res://scripts/ui/witnessed/WitnessedAccessibleContinue.gd):<GDScript#-9223371870525454432>"
+          },
+          "inside_tree": true,
+          "phase": "script_replacement",
+          "stage": "before_install",
+          "surface_id": 492914608802,
+          "usec": 8752944
+        },
+        "instance_init": {
+          "facts": {},
+          "inside_tree": true,
+          "phase": "script_replacement",
+          "stage": "instance_init",
+          "surface_id": 492914608802,
+          "usec": 8752965
+        }
+      }
+    },
+    "timeline_settle": {
+      "counts": {
+        "action_registered": 0,
+        "admission": 0,
+        "bind_enter": 0,
+        "bind_return": 0,
+        "capture_enter": 0,
+        "capture_return": 0,
+        "element": 0,
+        "enter_tree": 0,
+        "exit_tree": 0,
+        "instance_init": 0,
+        "notification": 0,
+        "owner_capture_enter": 0,
+        "owner_capture_return": 0,
+        "projection_changed": 1,
+        "queue_request": 1,
+        "queue_return": 1,
+        "retirement_queue_request": 4,
+        "retirement_queue_return": 4
+      },
+      "last": {
+        "projection_changed": {
+          "facts": {
+            "available": true,
+            "label": "Continue",
+            "source_visible": true
+          },
+          "inside_tree": true,
+          "phase": "timeline_settle",
+          "stage": "projection_changed",
+          "surface_id": 492914608802,
+          "usec": 8688092
+        },
+        "queue_request": {
+          "facts": {},
+          "inside_tree": true,
+          "phase": "timeline_settle",
+          "stage": "queue_request",
+          "surface_id": 492914608802,
+          "usec": 8688099
+        },
+        "queue_return": {
+          "facts": {},
+          "inside_tree": true,
+          "phase": "timeline_settle",
+          "stage": "queue_return",
+          "surface_id": 492914608802,
+          "usec": 8688104
+        },
+        "retirement_queue_request": {
+          "facts": {
+            "custody": 8
+          },
+          "inside_tree": true,
+          "phase": "timeline_settle",
+          "stage": "retirement_queue_request",
+          "surface_id": 492914608802,
+          "usec": 8687546
+        },
+        "retirement_queue_return": {
+          "facts": {},
+          "inside_tree": true,
+          "phase": "timeline_settle",
+          "stage": "retirement_queue_return",
+          "surface_id": 492914608802,
+          "usec": 8687552
+        }
+      }
+    },
+    "timeline_start": {
+      "counts": {
+        "action_registered": 0,
+        "admission": 0,
+        "bind_enter": 0,
+        "bind_return": 0,
+        "capture_enter": 0,
+        "capture_return": 0,
+        "element": 0,
+        "enter_tree": 0,
+        "exit_tree": 0,
+        "instance_init": 0,
+        "notification": 0,
+        "owner_capture_enter": 0,
+        "owner_capture_return": 0,
+        "projection_changed": 0,
+        "queue_request": 0,
+        "queue_return": 0,
+        "retirement_queue_request": 1,
+        "retirement_queue_return": 1
+      },
+      "last": {
+        "retirement_queue_request": {
+          "facts": {
+            "custody": 4
+          },
+          "inside_tree": true,
+          "phase": "timeline_start",
+          "stage": "retirement_queue_request",
+          "surface_id": 492914608802,
+          "usec": 8682602
+        },
+        "retirement_queue_return": {
+          "facts": {},
+          "inside_tree": true,
+          "phase": "timeline_start",
+          "stage": "retirement_queue_return",
+          "surface_id": 492914608802,
+          "usec": 8682610
+        }
+      }
+    }
+  },
+  "window": "ordinary instance construction through post-rebind wait",
+  "zero_counts": {
+    "action_registered": 0,
+    "admission": 0,
+    "bind_enter": 0,
+    "bind_return": 0,
+    "capture_enter": 0,
+    "capture_return": 0,
+    "element": 0,
+    "enter_tree": 0,
+    "exit_tree": 0,
+    "instance_init": 0,
+    "notification": 0,
+    "owner_capture_enter": 0,
+    "owner_capture_return": 0,
+    "projection_changed": 0,
+    "queue_request": 0,
+    "queue_return": 0,
+    "retirement_queue_request": 0,
+    "retirement_queue_return": 0
+  }
+}
