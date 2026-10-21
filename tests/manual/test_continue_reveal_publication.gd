@@ -120,6 +120,15 @@ func _await_publication(surface: Control, reveal: int) -> Dictionary:
 	assert_true(false, "Continue did not register a native action for reveal %d" % reveal)
 	return {}
 
+func _window_identity_snapshot(window: Window) -> Dictionary:
+	if not is_instance_valid(window): return {"present": false}
+	var window_id := window.get_window_id()
+	var result := {"present": true, "instance_id": window.get_instance_id(),
+		"window_id": window_id, "native_handle": 0, "embedded": window.is_embedded()}
+	if window_id >= 0:
+		result.native_handle = DisplayServer.window_get_native_handle(DisplayServer.WINDOW_HANDLE, window_id)
+	return result
+
 func _emit_registration_snapshot(surface: Control, outcome: String) -> void:
 	var observation: Dictionary = surface.get_meta(&"continue_registration_observation")
 	observation["end_clock"] = _consumer_clock_sample()
@@ -129,6 +138,12 @@ func _emit_registration_snapshot(surface: Control, outcome: String) -> void:
 		"available": surface._available, "source_visible": surface._source_visible,
 		"visible_in_tree": surface.is_visible_in_tree(),
 		"reveal": caption.caption_text.get_reveal_generation()}
+	# Final snapshot only: does not change construction, requests or the original wait.
+	observation["window_identity"] = {"sampled_ticks_msec": Time.get_ticks_msec(),
+		"sampled_unix_msec": Time.get_unix_time_from_system() * 1000.0,
+		"process_id": OS.get_process_id(), "display_server": DisplayServer.get_name(),
+		"surface_window": _window_identity_snapshot(surface.get_window()),
+		"root_window": _window_identity_snapshot(get_tree().root)}
 	print("CONTINUE_REGISTRATION_OBSERVATION " + JSON.stringify(observation))
 
 func test_continue_initial_registration_observation() -> void:

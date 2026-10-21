@@ -164,6 +164,15 @@ public static class DwmContinueReader {
                 $record.discovered = $true
                 $record.status = 'holding_reader'
                 Save-ReaderEvent 'discovery_success'
+                $record['provider_observation'] = [ordered]@{ scope = 'existing UIA element after discovery; descriptive only';
+                    started_unix_msec = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds(); completed_unix_msec = $null }
+                Save-ReaderEvent 'provider_observation_start'
+                $record.provider_observation['framework_id'] = $window.Current.FrameworkId
+                $record.provider_observation['class_name'] = $window.Current.ClassName
+                $record.provider_observation['control_type'] = $window.Current.ControlType.ProgrammaticName
+                $record.provider_observation['native_window_handle'] = $window.Current.NativeWindowHandle
+                $record.provider_observation.completed_unix_msec = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+                Save-ReaderEvent 'provider_observation_complete'
                 break
             }
         } elseif ($null -ne $record.identity) { throw 'UIA_BOUND_ENGINE_DISAPPEARED' }
