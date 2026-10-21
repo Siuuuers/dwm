@@ -1,3 +1,9 @@
+# Current A checkpoint — 21 October 2026: first registration diagnostic prepared
+
+Read [the exact observation packet](https://github.com/Siuuuers/dwm/blob/6faa088c3f7788d7b881a2a6e80f6ed0b690a3f8/evidence/phase_2r/continue_registration_observation_20261021/README.md). Source 3cc4da9a27645b794efbda059fad236f1bcf4532; helper 285312ef0e0af2443deaf09503787a599f9503a5; inert controller SHA256 32adf323d50b1c41b620cc5794897cf0b05903e5bfd803a3e72090853d7ecd01. External C exact review pending. No controller installation/run or product/master/integration change. Director6312648905 authorizes one attempt AFTER C clearance, without another user confirmation. Preserve original waits/failure and standing publication permission. Observation begins before probe script replacement, excludes earlier fixture mount; initial-only result is not completion qualification. Prior entries below are historical.
+
+---
+
 # C-cleared Continue fixture attempt launched
 
 21 October2026 (Hong Kong). External C6310888192/6310891702 cleared exact source b7fb0e549f028f72717bd5ee9e4905517a365fdf and controller SHA2560d6ff2d5714eebf179431812a6c62afa0688fb0680882090b24a1b8f5d17183b under Director6310120484. Expected-head installation from464f9ab654c659d20208223de53b01254241e829 succeeded: controller180006a2391fcff8d5c269f0684e98a8ba423d16.
