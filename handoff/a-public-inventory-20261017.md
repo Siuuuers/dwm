@@ -1,3 +1,13 @@
+# Focused caption qualification packet — exact C/Director review next
+
+21 October 2026 Hong Kong. C6308446763/6308448291 cleared production correction958ab5e at source level. Qualification source **b2cb75a792790f7bf396073b1586026fa1e20482** on codex/a-caption-qualification-20261021 adds only a focused eight-case runner, two-object native driver adaptation and fixture evidence fields. Production source remains unchanged from C review.
+
+[Exact focused packet, controller and verification limits](../evidence/phase_2r/caption_qualification_20261021/README.md). Helper pinf237e371; controller SHA256fe15e7d7e976dd8dc0919798aa6e6ee8bf41c19c71aebbd77a26e79ae5eefc06. 15 offline Python/Git policy checks pass after independent audit. No Godot/PowerShell/UIA execution. Generated Continue runtime UID receives one exact source-bound allowance, collision checks and unchanged post-test inventory; no export policy relaxation.
+
+Next: C reviews exact source/runner/native/preparation/controller packet; Director reconciles the proposed focused eight-case-plus-native execution scope. Only then A installs the reviewed controller for one authorized attempt. No old unchanged-selector authorization reuse, exported gameplay stage or retry. Native geometry/static-text focus and actual spoken output remain unverified. Original productc8358870/controller4a902667 and consumed failure39476916285 retain their status. Standing coordination-message authorization applies; no new user design choice needed.
+
+---
+
 # Continue reveal-completion lifecycle correction
 
 Candidate: 958ab5e072ef76b9c6467937a4b6ca3c7849382c on codex/a-caption-text-20261021, parent 099f3de88a97d1ec0e506b4e683841d08784a4d8.
