@@ -1,0 +1,27 @@
+{
+  "base": "c8358870d3ece92d5f8cc7ba65aefe34a746be5c",
+  "files": [
+    "scenes/ui/witnessed/WitnessedCaptionLayer.tscn",
+    "scripts/ui/witnessed/WitnessedAcceptInput.gd",
+    "scripts/ui/witnessed/WitnessedAccessibleCaption.gd",
+    "scripts/ui/witnessed/WitnessedAccessibleContinue.gd",
+    "scripts/ui/witnessed/WitnessedAccessibleReviewCaption.gd",
+    "scripts/ui/witnessed/WitnessedCaptionLayer.gd",
+    "tests/integration/test_witnessed_caption_runtime.gd"
+  ],
+  "unchanged_function_bodies": [
+    "scripts/ui/witnessed/WitnessedAcceptInput.gd:_accessibility_accept",
+    "scripts/ui/witnessed/WitnessedAcceptInput.gd:_submit",
+    "scripts/ui/witnessed/WitnessedAcceptInput.gd:_input",
+    "scripts/ui/witnessed/WitnessedAcceptInput.gd:_unhandled_input",
+    "scripts/ui/witnessed/WitnessedAcceptInput.gd:handle_background_gui_input",
+    "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_speak_publication",
+    "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_speech_allows_auto",
+    "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_on_normal_accept_requested",
+    "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_on_next_requested",
+    "scripts/ui/witnessed/WitnessedCaptionLayer.gd:_sync_focus"
+  ],
+  "engine_execution": false,
+  "powershell_execution": false,
+  "native_registration_and_speech": "unverified"
+}

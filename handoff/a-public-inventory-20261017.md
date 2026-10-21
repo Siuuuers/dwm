@@ -1,3 +1,11 @@
+# User-approved caption text / Continue candidate — review before qualification
+
+21 October 2026 Hong Kong. User selected story text without a button role, preserving ordinary Enter/touch and a separate accessible Continue. Isolated source candidate099f3de88a97d1ec0e506b4e683841d08784a4d8 on codex/a-caption-text-20261021 (parent productc8358870) implements this on the existing tappable BackgroundInput surface. No extra visible rail control, duplicate caption, new command owner or unconditional speech. Next and opt-in Read Aloud semantics remain unchanged.
+
+[Exact diff, static checks, source review and bounded qualification plan](../evidence/phase_2r/caption_text_20261021/README.md). Existing assistive callback regressions target Continue; History admission case added. No Godot/PowerShell executed. Native tree/spoken duplication and new action discovery are unverified. This is a deliberate UX change, not proof the old ending failure is fixed.
+
+Next: C reviews source/semantics; A prepares separately reviewed native two-object caption-Text + same-surface Continue contract, retaining clean exits, timeouts, custody and save/history/completion gates. Old driver assumes caption InvokePattern and cannot qualify this design unchanged. Do not silently reuse previous unchanged-selector authorization. Director reconciles new user-approved lane; prior point-lookup proposal parked. Productc8358870/controller4a902667/master41592fcc/integration unchanged; no merge/release. Standing project messaging authorization applies.
+
 # Ending ownership reconciliation complete — no supported product patch
 
 21 October 2026 Hong Kong. C6307684038 closed actual result review; Director6307707224 selected source-first ending caption exposure. Read current productc8358870 canonical rendered/accessibility/ordinary input/ending completion owners and reused previous root-order, committed/query and iterator experiments. No new GDScript ownership defect established; no patch or conditional qualification run. Master still41592fcc; controller4a902667 remains consumed.

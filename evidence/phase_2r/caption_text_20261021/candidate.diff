@@ -1,0 +1,218 @@
+--- a/scenes/ui/witnessed/WitnessedCaptionLayer.tscn
++++ b/scenes/ui/witnessed/WitnessedCaptionLayer.tscn
+@@ -1,4 +1,4 @@
+-[gd_scene load_steps=10 format=3]
++[gd_scene load_steps=11 format=3]
+ 
+ [ext_resource type="Script" path="res://scripts/ui/witnessed/WitnessedCaptionLayer.gd" id="1_layer"]
+ [ext_resource type="Script" path="res://scripts/ui/witnessed/WitnessedAccessibleCaption.gd" id="2_text"]
+@@ -10,6 +10,8 @@
+ [ext_resource type="PackedScene" path="res://scenes/ui/witnessed/WitnessedTransportRecovery.tscn" id="8_recovery"]
+ 
+ [ext_resource type="Script" path="res://scripts/ui/witnessed/WitnessedAccessibleReviewCaption.gd" id="9_review"]
++
++[ext_resource type="Script" path="res://scripts/ui/witnessed/WitnessedAccessibleContinue.gd" id="10_continue"]
+ 
+ [node name="WitnessedCaptionLayer" type="Node"]
+ script = ExtResource("1_layer")
+@@ -36,6 +38,7 @@
+ mouse_filter = 2
+ 
+ [node name="BackgroundInput" type="Control" parent="Canvas"]
++script = ExtResource("10_continue")
+ layout_mode = 0
+ offset_right = 1280.0
+ offset_bottom = 656.0
+--- a/scripts/ui/witnessed/WitnessedAcceptInput.gd
++++ b/scripts/ui/witnessed/WitnessedAcceptInput.gd
+@@ -7,6 +7,7 @@
+ const TAP_LIMIT_MSEC := 500
+ 
+ var _scene_input: Control
++var _accessible_continue: Control
+ var _review_caption: Control
+ var _caption: DialogicNode_DialogText
+ var _viewport_control: ScrollContainer
+@@ -53,6 +54,19 @@
+ func bind_scene_input(control: Control) -> void:
+ 	_scene_input = control
+ 
++func bind_accessible_continue(control: Control) -> void:
++	_accessible_continue = control
++	_retire_accessibility_accept()
++
++func is_accessibility_continue_admitted() -> bool:
++	return _admissible() and _contacts.is_empty() and _page_contacts.is_empty() \
++		and not _await_initial_neutral and not Input.is_action_pressed(_action()) and not _page_is_held() \
++		and (not is_instance_valid(_input_custody) or not _input_custody.has_method("get_physical_contacts") \
++		or _input_custody.call("get_physical_contacts").is_empty())
++
++func capture_accessibility_continue() -> Callable:
++	return capture_accessibility_accept(_focus_caption())
++
+ func set_review_caption(control: Control) -> void:
+ 	_review_caption = control
+ 	if is_instance_valid(control) and not control.focus_exited.is_connected(_cancel_candidate):
+@@ -119,6 +133,7 @@
+ 	_accessibility_generation += 1
+ 	if is_instance_valid(_caption): _caption.queue_accessibility_update()
+ 	if is_instance_valid(_review_caption): _review_caption.queue_accessibility_update()
++	if is_instance_valid(_accessible_continue): _accessible_continue.queue_accessibility_update()
+ 
+ ## Capture both custody lifetime and native reveal identity; equal text is not identity.
+ func capture_accessibility_accept(target: Control) -> Callable:
+--- a/scripts/ui/witnessed/WitnessedAccessibleCaption.gd
++++ b/scripts/ui/witnessed/WitnessedAccessibleCaption.gd
+@@ -1,15 +1,10 @@
+ extends DialogicNode_DialogText
+-## Native action registration delegates all admission and advancement to the input owner.
+-
+-var accept_action_provider: Callable
++## Story text remains focusable for ordinary keyboard reading; activation belongs
++## to the existing background Continue surface and WitnessedAcceptInput.
+ 
+ func _notification(what: int) -> void:
+-	if what != NOTIFICATION_ACCESSIBILITY_UPDATE or not accept_action_provider.is_valid(): return
++	if what != NOTIFICATION_ACCESSIBILITY_UPDATE: return
+ 	var element := get_accessibility_element()
+ 	if element.is_valid():
+-		# RichTextLabel's generic container may be omitted by native AT adapters.
+-		# Keep its text children, while exposing this activatable root explicitly.
+-		DisplayServer.accessibility_update_set_role(element, DisplayServer.ROLE_BUTTON)
++		DisplayServer.accessibility_update_set_role(element, DisplayServer.ROLE_STATIC_TEXT)
+ 		DisplayServer.accessibility_update_set_name(element, get_parsed_text())
+-		DisplayServer.accessibility_update_add_action(element, DisplayServer.ACTION_CLICK,
+-			accept_action_provider.call(self))
+--- /dev/null
++++ b/scripts/ui/witnessed/WitnessedAccessibleContinue.gd
+@@ -0,0 +1,51 @@
++extends Control
++## Accessible projection of the real tappable background, not another input owner.
++
++var _accept_input: Node
++var _localization: Node
++var _label := ""
++var _available := false
++var _source_visible := false
++
++func bind_accessible_continue(input_owner: Node, localization: Node) -> void:
++	_accept_input = input_owner
++	_localization = localization
++	_accept_input.bind_accessible_continue(self)
++	_refresh_projection()
++
++func _process(_delta: float) -> void:
++	_refresh_projection()
++
++func _refresh_projection() -> void:
++	var label := ""
++	if is_instance_valid(_localization) and _localization.get_readiness() == &"ready" \
++			and _localization.has_key("button.continue"):
++		label = _localization.t("button.continue")
++	var source_visible: bool = not label.is_empty() and is_visible_in_tree() \
++		and mouse_filter == Control.MOUSE_FILTER_STOP and is_instance_valid(_accept_input) \
++		and _accept_input.is_source_admitted()
++	var available: bool = source_visible and _accept_input.is_accessibility_continue_admitted()
++	if label == _label and available == _available and source_visible == _source_visible: return
++	_label = label
++	_source_visible = source_visible
++	_available = available
++	queue_accessibility_update()
++
++func capture_continue_action() -> Callable:
++	return _accept_input.capture_accessibility_continue()
++
++func _notification(what: int) -> void:
++	if what != NOTIFICATION_ACCESSIBILITY_UPDATE: return
++	var element := get_accessibility_element()
++	if not element.is_valid(): return
++	DisplayServer.accessibility_update_set_role(element, DisplayServer.ROLE_BUTTON)
++	DisplayServer.accessibility_update_set_name(element, _label)
++	var available: bool = _available and is_instance_valid(_accept_input) \
++		and _accept_input.is_accessibility_continue_admitted()
++	DisplayServer.accessibility_update_set_flag(element, DisplayServer.FLAG_HIDDEN,
++		not _source_visible or not is_visible_in_tree() or not is_instance_valid(_accept_input) \
++		or not _accept_input.is_source_admitted())
++	DisplayServer.accessibility_update_set_flag(element, DisplayServer.FLAG_DISABLED, not available)
++	if available:
++		DisplayServer.accessibility_update_add_action(element, DisplayServer.ACTION_CLICK,
++			capture_continue_action())
+--- a/scripts/ui/witnessed/WitnessedAccessibleReviewCaption.gd
++++ b/scripts/ui/witnessed/WitnessedAccessibleReviewCaption.gd
+@@ -1,15 +1,10 @@
+ extends RichTextLabel
+-## Native action registration delegates all admission and advancement to the input owner.
+-
+-var accept_action_provider: Callable
++## Story text remains focusable for ordinary keyboard reading; activation belongs
++## to the existing background Continue surface and WitnessedAcceptInput.
+ 
+ func _notification(what: int) -> void:
+-	if what != NOTIFICATION_ACCESSIBILITY_UPDATE or not accept_action_provider.is_valid(): return
++	if what != NOTIFICATION_ACCESSIBILITY_UPDATE: return
+ 	var element := get_accessibility_element()
+ 	if element.is_valid():
+-		# RichTextLabel's generic container may be omitted by native AT adapters.
+-		# Keep its text children, while exposing this activatable root explicitly.
+-		DisplayServer.accessibility_update_set_role(element, DisplayServer.ROLE_BUTTON)
++		DisplayServer.accessibility_update_set_role(element, DisplayServer.ROLE_STATIC_TEXT)
+ 		DisplayServer.accessibility_update_set_name(element, get_parsed_text())
+-		DisplayServer.accessibility_update_add_action(element, DisplayServer.ACTION_CLICK,
+-			accept_action_provider.call(self))
+--- a/scripts/ui/witnessed/WitnessedCaptionLayer.gd
++++ b/scripts/ui/witnessed/WitnessedCaptionLayer.gd
+@@ -144,8 +144,7 @@
+ 	_refresh_dating_overlay()
+ 	var runtime := get_node_or_null("/root/Dialogic")
+ 	accept_input.bind(caption_text, scroll, runtime)
+-	caption_text.set("accept_action_provider", accept_input.capture_accessibility_accept)
+-	review_current.set("accept_action_provider", accept_input.capture_accessibility_accept)
++	background_input.bind_accessible_continue(accept_input, _localization)
+ 	accept_input.bind_scene_input(background_input)
+ 	accept_input.bind_presentation_admission(_before_normal_accept, _automatic_line_admitted)
+ 	accept_input.bind_local_admission(_reading_source_admitted)
+--- a/tests/integration/test_witnessed_caption_runtime.gd
++++ b/tests/integration/test_witnessed_caption_runtime.gd
+@@ -1950,9 +1950,10 @@
+ 
+ 
+ func _caption_accessibility_action(target: Control = null) -> Callable:
+-	var mounted_target: Control = caption.caption_text if target == null else target
+-	var provider: Callable = mounted_target.get("accept_action_provider")
+-	return provider.call(mounted_target)
++	if target != null:
++		assert_eq(target, caption.accept_input._focus_caption(), "Continue binds the real live/review target")
++	assert_eq(caption.background_input._accept_input, caption.accept_input)
++	return caption.background_input.capture_continue_action()
+ 
+ func test_assistive_caption_accept_completes_then_advances_without_reusing_callback() -> void:
+ 	if not await _mount_root_accept_fixture("Current.\nFollowing."): return
+@@ -2082,3 +2083,28 @@
+ 	assert_eq(caption._scrollback, [])
+ 	assert_eq(caption.get_caption_projection().retained_captions, [])
+ 	assert_eq(_stack_invariants(), before)
++
++func test_continue_projection_uses_existing_surface_and_follows_source_admission() -> void:
++	if not await _mount_root_accept_fixture("Current.\nFollowing."): return
++	var surface: Control = caption.background_input
++	assert_eq(surface.get_script().resource_path, "res://scripts/ui/witnessed/WitnessedAccessibleContinue.gd")
++	assert_eq(surface._label, get_node("/root/LocalizationManager").t("button.continue"))
++	assert_true(surface._available)
++	assert_eq(caption.caption_text.focus_mode, Control.FOCUS_ALL, "text retains keyboard focus")
++	caption._history_open = true
++	surface._refresh_projection()
++	assert_false(surface._available, "History blocks the same ordinary source")
++	assert_false(surface._source_visible, "covered story surface withdraws Continue")
++	var blocked: Callable = surface.capture_continue_action()
++	blocked.call(null)
++	assert_eq(_finished, 0)
++	caption._history_open = false
++	caption.accept_input.retire_input()
++	await _settle()
++	blocked.call(null)
++	assert_eq(_finished, 0, "closing History does not resurrect its callback")
++	assert_true(surface._available)
++	surface.capture_continue_action().call(null)
++	await _settle()
++	assert_eq(_finished, 1)
++	assert_eq(runtime.current_event_idx, 0)
