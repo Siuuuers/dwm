@@ -1,3 +1,14 @@
+# Current checkpoint — UIA consumer candidate ready for C
+
+Director6317374204 selects a harness-only read-only UIA consumer prerequisite; previous recorder/result review closed.
+[Exact candidate and timing/lifetime design](../evidence/phase_2r/continue_consumer_20261021/README.md).
+Source1ee15f07b315fa762495a6bb93d07d91201ae600; helpercd5d74f7bc72322dbb48e1592900552f757b3956; controller SHA256895568de017d7faf3f2274f07654a6bae774a0597888f20b6054acbe27696e3f.
+Four harness/fixture files; production runtime owner blob4f0f81b8 unchanged. Reader attaches only to verified launched engine PID/start/exe/argv/HWND, no action or forced notification. Original5000ms wait/order preserved; discovery, registration and cleanup outcomes separate.
+Internal static audit, Python/YAML and byte/pin checks pass; Windows parser/runtime unexecuted. External C exact review required before ONE already-conditional cloud attempt. Active controller8e6cb51c unchanged; no launch yet/no retry.
+After C clearance recheck head/runs with expected-head protection; no further user/Director confirmation. Prior39604954687 remains failed. Product/master/integration unchanged, no export/merge/release.
+
+---
+
 # Current checkpoint — corrected recorder works; initial registration still fails
 
 Run39604954687 attempt1/job119238645009 FAILURE:1 case,16/17 assertions,child exit1. mounted_settle now explicitly records parent absent0/false and raw focused log has no SCRIPT ERROR; recorder success is separate from qualification.

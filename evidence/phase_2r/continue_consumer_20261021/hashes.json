@@ -1,0 +1,26 @@
+{
+  "Invoke-IsolatedGodot.ps1": {
+    "bytes": 25185,
+    "sha256": "2738a6645b5cd688bc5d8877b6f6748bf604da6c804d60acc6a57e4a2958e8c7"
+  },
+  "Invoke-ContinuePublicationChecks.ps1": {
+    "bytes": 10870,
+    "sha256": "df9d33c84022193e0bfc828ebd1932009ad81596b1d75105b154df9d6b0923c8"
+  },
+  "Read-ContinueAccessibility.ps1": {
+    "bytes": 10685,
+    "sha256": "1582cf40c77fd65896f5993192af88c3d7ab4e34eb1167c4bb84eae82cc9f912"
+  },
+  "test_continue_reveal_publication.gd": {
+    "bytes": 11219,
+    "sha256": "7dc07f156ba40d77dbbfb92304172560c6ac9374606d6170a9b0eb2acd2f0db9"
+  },
+  "prepare_caption.py": {
+    "bytes": 13836,
+    "sha256": "c52a62f68ea3ea61d1fe8be90d431f5640182424b8e62c3b3c1f783880841eb7"
+  },
+  "consumer-controller.yml": {
+    "bytes": 12603,
+    "sha256": "895568de017d7faf3f2274f07654a6bae774a0597888f20b6054acbe27696e3f"
+  }
+}
