@@ -1,0 +1,551 @@
+﻿2026-10-21T06:44:11.1504779Z Current runner version: '2.337.0'
+2026-10-21T06:44:11.1530454Z ##[group]Runner Image Provisioner
+2026-10-21T06:44:11.1531296Z Hosted Compute Agent
+2026-10-21T06:44:11.1531852Z Version: 20261012.601
+2026-10-21T06:44:11.1532435Z Commit: f3dc54e1fb89da6852db922499a0233137369e1d
+2026-10-21T06:44:11.1533123Z Build Date: 2026-10-12T17:48:21Z
+2026-10-21T06:44:11.1533745Z Worker ID: {c92edab0-4a28-4768-b21c-f9f5728c8f55}
+2026-10-21T06:44:11.1534396Z Region: westus
+2026-10-21T06:44:11.1534879Z Cloud: Azure
+2026-10-21T06:44:11.1535341Z ##[endgroup]
+2026-10-21T06:44:11.1536714Z ##[group]Operating System
+2026-10-21T06:44:11.1537324Z Microsoft Windows Server 2022
+2026-10-21T06:44:11.1537874Z 10.0.20348
+2026-10-21T06:44:11.1538379Z Datacenter
+2026-10-21T06:44:11.1538837Z ##[endgroup]
+2026-10-21T06:44:11.1539322Z ##[group]Runner Image
+2026-10-21T06:44:11.1539839Z Image: windows-2022
+2026-10-21T06:44:11.1540325Z Version: 20261012.333.1
+2026-10-21T06:44:11.1541717Z Included Software: https://github.com/actions/runner-images/blob/win22/20261012.333/images/windows/Windows2022-Readme.md
+2026-10-21T06:44:11.1543205Z Image Release: https://github.com/actions/runner-images/releases/tag/win22%2F20261012.333
+2026-10-21T06:44:11.1544097Z ##[endgroup]
+2026-10-21T06:44:11.1545125Z ##[group]GITHUB_TOKEN Permissions
+2026-10-21T06:44:11.1546935Z Contents: read
+2026-10-21T06:44:11.1547473Z Metadata: read
+2026-10-21T06:44:11.1547998Z ##[endgroup]
+2026-10-21T06:44:11.1550079Z Secret source: Actions
+2026-10-21T06:44:11.1550976Z Cache mode: write
+2026-10-21T06:44:11.1551622Z Prepare workflow directory
+2026-10-21T06:44:11.2023236Z Prepare all required actions
+2026-10-21T06:44:11.2071709Z Getting action download info
+2026-10-21T06:44:11.6372024Z Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-10-21T06:44:11.7580145Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-21T06:44:12.0822869Z Complete job name: delivery
+2026-10-21T06:44:12.2565268Z ##[group]Run actions/checkout@v7
+2026-10-21T06:44:12.2566508Z with:
+2026-10-21T06:44:12.2567013Z   persist-credentials: true
+2026-10-21T06:44:12.2567645Z   ref: b2cb75a792790f7bf396073b1586026fa1e20482
+2026-10-21T06:44:12.2568333Z   repository: Siuuuers/dwm
+2026-10-21T06:44:12.2573499Z   token: ***
+2026-10-21T06:44:12.2573966Z   ssh-strict: true
+2026-10-21T06:44:12.2574445Z   ssh-user: git
+2026-10-21T06:44:12.2574902Z   clean: true
+2026-10-21T06:44:12.2575547Z   sparse-checkout-cone-mode: true
+2026-10-21T06:44:12.2576421Z   fetch-depth: 1
+2026-10-21T06:44:12.2577135Z   fetch-tags: false
+2026-10-21T06:44:12.2577882Z   show-progress: true
+2026-10-21T06:44:12.2578597Z   lfs: false
+2026-10-21T06:44:12.2579502Z   submodules: false
+2026-10-21T06:44:12.2580225Z   set-safe-directory: true
+2026-10-21T06:44:12.2580813Z   allow-unsafe-pr-checkout: false
+2026-10-21T06:44:12.2581737Z env:
+2026-10-21T06:44:12.2582201Z   PRODUCT_SHA: b2cb75a792790f7bf396073b1586026fa1e20482
+2026-10-21T06:44:12.2582906Z   SOURCE_SHA: c6ba4934914e7d3222d658352c61d04d0e57c374
+2026-10-21T06:44:12.2583743Z   PREPARATION_SHA256: 80d9abe7f3d79fb0d275ca79b3120d09988da0d85dc9fcea79581802b4ce8020
+2026-10-21T06:44:12.2584770Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T06:44:12.2585519Z ##[endgroup]
+2026-10-21T06:44:12.4109897Z Syncing repository: Siuuuers/dwm
+2026-10-21T06:44:12.4111796Z ##[group]Getting Git version info
+2026-10-21T06:44:12.4112394Z Working directory is 'D:\a\dwm\dwm'
+2026-10-21T06:44:12.5184869Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-21T06:44:12.8558408Z git version 2.56.0.windows.2
+2026-10-21T06:44:12.8605273Z ##[endgroup]
+2026-10-21T06:44:12.8622316Z Temporarily overriding HOME='D:\a\_temp\bf5a0b2a-91e6-495d-b7c0-7d6b018525e7' before making global git config changes
+2026-10-21T06:44:12.8624847Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-21T06:44:12.8637388Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\dwm\dwm
+2026-10-21T06:44:12.9213359Z Deleting the contents of 'D:\a\dwm\dwm'
+2026-10-21T06:44:12.9217709Z ##[group]Determining repository object format
+2026-10-21T06:44:12.9219836Z ##[endgroup]
+2026-10-21T06:44:12.9229711Z ##[group]Initializing the repository
+2026-10-21T06:44:12.9231091Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\dwm\dwm
+2026-10-21T06:44:13.0193856Z Initialized empty Git repository in D:/a/dwm/dwm/.git/
+2026-10-21T06:44:13.0236067Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/Siuuuers/dwm
+2026-10-21T06:44:13.0832881Z ##[endgroup]
+2026-10-21T06:44:13.0834213Z ##[group]Disabling automatic garbage collection
+2026-10-21T06:44:13.0842196Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+2026-10-21T06:44:13.1143950Z ##[endgroup]
+2026-10-21T06:44:13.1146208Z ##[group]Setting up auth
+2026-10-21T06:44:13.1147888Z Removing SSH command configuration
+2026-10-21T06:44:13.1161208Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-21T06:44:13.1472687Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-21T06:44:14.5559183Z Removing HTTP extra header
+2026-10-21T06:44:14.5568598Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-21T06:44:14.5862800Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-21T06:44:15.0402046Z Removing includeIf entries pointing to credentials config files
+2026-10-21T06:44:15.0416837Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-21T06:44:15.0718133Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-21T06:44:15.5593704Z [command]"C:\Program Files\Git\bin\git.exe" config --file D:\a\_temp\git-credentials-6ba7cd86-17ac-473a-abe0-5c184e8d7983.config http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-10-21T06:44:15.5913597Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/dwm/dwm/.git.path D:\a\_temp\git-credentials-6ba7cd86-17ac-473a-abe0-5c184e8d7983.config
+2026-10-21T06:44:15.6292869Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/dwm/dwm/.git/worktrees/*.path D:\a\_temp\git-credentials-6ba7cd86-17ac-473a-abe0-5c184e8d7983.config
+2026-10-21T06:44:15.6568518Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-6ba7cd86-17ac-473a-abe0-5c184e8d7983.config
+2026-10-21T06:44:15.6865471Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-6ba7cd86-17ac-473a-abe0-5c184e8d7983.config
+2026-10-21T06:44:15.7157247Z ##[endgroup]
+2026-10-21T06:44:15.7157744Z ##[group]Fetching the repository
+2026-10-21T06:44:15.7172874Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin b2cb75a792790f7bf396073b1586026fa1e20482
+2026-10-21T06:44:33.8854217Z From https://github.com/Siuuuers/dwm
+2026-10-21T06:44:33.8855265Z  * branch            b2cb75a792790f7bf396073b1586026fa1e20482 -> FETCH_HEAD
+2026-10-21T06:44:33.8898813Z [command]"C:\Program Files\Git\bin\git.exe" rev-parse --verify --quiet b2cb75a792790f7bf396073b1586026fa1e20482^{object}
+2026-10-21T06:44:33.9295666Z b2cb75a792790f7bf396073b1586026fa1e20482
+2026-10-21T06:44:33.9328430Z ##[endgroup]
+2026-10-21T06:44:33.9329260Z ##[group]Determining the checkout info
+2026-10-21T06:44:33.9330146Z ##[endgroup]
+2026-10-21T06:44:33.9338305Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+2026-10-21T06:44:33.9786671Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-10-21T06:44:34.0097948Z ##[group]Checking out the ref
+2026-10-21T06:44:34.0106730Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force b2cb75a792790f7bf396073b1586026fa1e20482
+2026-10-21T06:44:35.2070430Z Updating files:  33% (4435/13422)
+2026-10-21T06:44:35.2342217Z Updating files:  34% (4564/13422)
+2026-10-21T06:44:35.2763392Z Updating files:  35% (4698/13422)
+2026-10-21T06:44:35.3334742Z Updating files:  36% (4832/13422)
+2026-10-21T06:44:35.4010192Z Updating files:  37% (4967/13422)
+2026-10-21T06:44:35.4530295Z Updating files:  38% (5101/13422)
+2026-10-21T06:44:35.4948788Z Updating files:  39% (5235/13422)
+2026-10-21T06:44:35.6030783Z Updating files:  40% (5369/13422)
+2026-10-21T06:44:35.6293510Z Updating files:  41% (5504/13422)
+2026-10-21T06:44:35.6564510Z Updating files:  42% (5638/13422)
+2026-10-21T06:44:35.6821203Z Updating files:  43% (5772/13422)
+2026-10-21T06:44:35.7068874Z Updating files:  44% (5906/13422)
+2026-10-21T06:44:35.7384581Z Updating files:  45% (6040/13422)
+2026-10-21T06:44:35.7748948Z Updating files:  46% (6175/13422)
+2026-10-21T06:44:35.8139209Z Updating files:  47% (6309/13422)
+2026-10-21T06:44:35.8556699Z Updating files:  48% (6443/13422)
+2026-10-21T06:44:35.8947918Z Updating files:  49% (6577/13422)
+2026-10-21T06:44:35.9275133Z Updating files:  50% (6711/13422)
+2026-10-21T06:44:35.9835870Z Updating files:  51% (6846/13422)
+2026-10-21T06:44:36.0206776Z Updating files:  52% (6980/13422)
+2026-10-21T06:44:36.0727594Z Updating files:  53% (7114/13422)
+2026-10-21T06:44:36.1687393Z Updating files:  53% (7155/13422)
+2026-10-21T06:44:36.2588517Z Updating files:  54% (7248/13422)
+2026-10-21T06:44:36.3735160Z Updating files:  55% (7383/13422)
+2026-10-21T06:44:36.4059421Z Updating files:  56% (7517/13422)
+2026-10-21T06:44:36.4465380Z Updating files:  57% (7651/13422)
+2026-10-21T06:44:36.6240386Z Updating files:  58% (7785/13422)
+2026-10-21T06:44:36.6747571Z Updating files:  59% (7919/13422)
+2026-10-21T06:44:36.9318511Z Updating files:  60% (8054/13422)
+2026-10-21T06:44:37.0378418Z Updating files:  61% (8188/13422)
+2026-10-21T06:44:37.0868517Z Updating files:  62% (8322/13422)
+2026-10-21T06:44:37.3278141Z Updating files:  62% (8343/13422)
+2026-10-21T06:44:37.4954871Z Updating files:  63% (8456/13422)
+2026-10-21T06:44:37.5433562Z Updating files:  64% (8591/13422)
+2026-10-21T06:44:37.5836662Z Updating files:  65% (8725/13422)
+2026-10-21T06:44:37.6581088Z Updating files:  66% (8859/13422)
+2026-10-21T06:44:37.9011842Z Updating files:  67% (8993/13422)
+2026-10-21T06:44:37.9379660Z Updating files:  68% (9127/13422)
+2026-10-21T06:44:37.9957676Z Updating files:  69% (9262/13422)
+2026-10-21T06:44:38.0287362Z Updating files:  70% (9396/13422)
+2026-10-21T06:44:38.0613446Z Updating files:  71% (9530/13422)
+2026-10-21T06:44:38.0715172Z Updating files:  72% (9664/13422)
+2026-10-21T06:44:38.0978726Z Updating files:  72% (9708/13422)
+2026-10-21T06:44:38.1347572Z Updating files:  73% (9799/13422)
+2026-10-21T06:44:38.1729844Z Updating files:  74% (9933/13422)
+2026-10-21T06:44:38.2689405Z Updating files:  75% (10067/13422)
+2026-10-21T06:44:38.3399029Z Updating files:  76% (10201/13422)
+2026-10-21T06:44:38.3769432Z Updating files:  77% (10335/13422)
+2026-10-21T06:44:38.4216122Z Updating files:  78% (10470/13422)
+2026-10-21T06:44:38.4531888Z Updating files:  79% (10604/13422)
+2026-10-21T06:44:38.4803571Z Updating files:  80% (10738/13422)
+2026-10-21T06:44:38.5092145Z Updating files:  81% (10872/13422)
+2026-10-21T06:44:38.5338276Z Updating files:  82% (11007/13422)
+2026-10-21T06:44:38.5572927Z Updating files:  83% (11141/13422)
+2026-10-21T06:44:38.5865855Z Updating files:  84% (11275/13422)
+2026-10-21T06:44:38.6094263Z Updating files:  85% (11409/13422)
+2026-10-21T06:44:38.6353569Z Updating files:  86% (11543/13422)
+2026-10-21T06:44:38.6602482Z Updating files:  87% (11678/13422)
+2026-10-21T06:44:38.6812568Z Updating files:  88% (11812/13422)
+2026-10-21T06:44:38.7058423Z Updating files:  89% (11946/13422)
+2026-10-21T06:44:38.7290790Z Updating files:  90% (12080/13422)
+2026-10-21T06:44:38.7523099Z Updating files:  91% (12215/13422)
+2026-10-21T06:44:38.7763372Z Updating files:  92% (12349/13422)
+2026-10-21T06:44:38.8016364Z Updating files:  93% (12483/13422)
+2026-10-21T06:44:38.8296442Z Updating files:  94% (12617/13422)
+2026-10-21T06:44:38.8524515Z Updating files:  95% (12751/13422)
+2026-10-21T06:44:38.8761611Z Updating files:  96% (12886/13422)
+2026-10-21T06:44:38.8989682Z Updating files:  97% (13020/13422)
+2026-10-21T06:44:38.9237311Z Updating files:  98% (13154/13422)
+2026-10-21T06:44:38.9561990Z Updating files:  99% (13288/13422)
+2026-10-21T06:44:38.9562366Z Updating files: 100% (13422/13422)
+2026-10-21T06:44:38.9562646Z Updating files: 100% (13422/13422), done.
+2026-10-21T06:44:38.9818550Z Note: switching to 'b2cb75a792790f7bf396073b1586026fa1e20482'.
+2026-10-21T06:44:38.9818851Z 
+2026-10-21T06:44:38.9819085Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-21T06:44:38.9819549Z changes and commit them, and you can discard any commits you make in this
+2026-10-21T06:44:38.9820004Z state without impacting any branches by switching back to a branch.
+2026-10-21T06:44:38.9820276Z 
+2026-10-21T06:44:38.9820449Z If you want to create a new branch to retain commits you create, you may
+2026-10-21T06:44:38.9820876Z do so (now or later) by using -c with the switch command. Example:
+2026-10-21T06:44:38.9821122Z 
+2026-10-21T06:44:38.9821255Z   git switch -c <new-branch-name>
+2026-10-21T06:44:38.9821423Z 
+2026-10-21T06:44:38.9821516Z Or undo this operation with:
+2026-10-21T06:44:38.9821667Z 
+2026-10-21T06:44:38.9821748Z   git switch -
+2026-10-21T06:44:38.9822160Z 
+2026-10-21T06:44:38.9822377Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-21T06:44:38.9822681Z 
+2026-10-21T06:44:38.9822896Z HEAD is now at b2cb75a Prepare focused caption Text and Continue qualification tests
+2026-10-21T06:44:39.0409285Z ##[endgroup]
+2026-10-21T06:44:39.0748972Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-10-21T06:44:39.1026705Z b2cb75a792790f7bf396073b1586026fa1e20482
+2026-10-21T06:44:39.1407693Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-10-21T06:44:39.1408165Z [36;1m$ErrorActionPreference = 'Stop'[0m
+2026-10-21T06:44:39.1408562Z [36;1m$output = Join-Path $env:RUNNER_TEMP 'preparation-evidence'[0m
+2026-10-21T06:44:39.1409032Z [36;1mNew-Item -ItemType Directory -Force $output | Out-Null[0m
+2026-10-21T06:44:39.1409884Z [36;1mif ($env:SOURCE_SHA -cnotmatch '^[a-f0-9]{40}$' -or $env:PREPARATION_SHA256 -cnotmatch '^[a-f0-9]{64}$' -or $env:CAPTURE_SHA256 -cnotmatch '^[a-f0-9]{64}$') { throw 'PREPARATION_REVIEW_PINS_REQUIRED' }[0m
+2026-10-21T06:44:39.1410771Z [36;1m$helpers = Join-Path $env:RUNNER_TEMP 'reviewed-preparation'[0m
+2026-10-21T06:44:39.1411225Z [36;1mNew-Item -ItemType Directory -Force $helpers | Out-Null[0m
+2026-10-21T06:44:39.1411626Z [36;1m$prepare = Join-Path $helpers 'prepare_caption.py'[0m
+2026-10-21T06:44:39.1412009Z [36;1m$capture = Join-Path $helpers 'capture_import.py'[0m
+2026-10-21T06:44:39.1412981Z [36;1mInvoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/caption_qualification_20261021/prepare_caption.py" -OutFile $prepare[0m
+2026-10-21T06:44:39.1414221Z [36;1mInvoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/import_integrity_20261020/capture_import.py" -OutFile $capture[0m
+2026-10-21T06:44:39.1415320Z [36;1mif ((Get-FileHash $prepare -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:PREPARATION_SHA256) { throw 'PREPARATION_HASH_MISMATCH' }[0m
+2026-10-21T06:44:39.1416458Z [36;1mif ((Get-FileHash $capture -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:CAPTURE_SHA256) { throw 'CAPTURE_HASH_MISMATCH' }[0m
+2026-10-21T06:44:39.1417069Z [36;1mCopy-Item $prepare, $capture $output[0m
+2026-10-21T06:44:39.1417532Z [36;1m"PREPARATION_HELPER=$prepare" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8[0m
+2026-10-21T06:44:39.1420169Z [36;1m@{product=$env:PRODUCT_SHA; source=$env:SOURCE_SHA; preparation_sha256=$env:PREPARATION_SHA256; capture_sha256=$env:CAPTURE_SHA256; controller='464f9ab654c659d20208223de53b01254241e829'; workflow='b0db9d1a9b86e83a781b2d8910de2013ee594421'; run_id='39557266487'; attempt='1'; powershell=$PSVersionTable.PSVersion.ToString(); os=[Environment]::OSVersion.ToString(); architecture=[Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString(); runner_image=$env:ImageOS; runner_image_version=$env:ImageVersion; python=(& python --version); git=(& git --version)} | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $output 'preparation-origin.json') -Encoding utf8[0m
+2026-10-21T06:44:39.1534749Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-21T06:44:39.1535115Z env:
+2026-10-21T06:44:39.1535355Z   PRODUCT_SHA: b2cb75a792790f7bf396073b1586026fa1e20482
+2026-10-21T06:44:39.1535684Z   SOURCE_SHA: c6ba4934914e7d3222d658352c61d04d0e57c374
+2026-10-21T06:44:39.1536134Z   PREPARATION_SHA256: 80d9abe7f3d79fb0d275ca79b3120d09988da0d85dc9fcea79581802b4ce8020
+2026-10-21T06:44:39.1536695Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T06:44:39.1537089Z ##[endgroup]
+2026-10-21T06:44:40.5571110Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-10-21T06:44:40.5571570Z [36;1m$ErrorActionPreference = 'Stop'[0m
+2026-10-21T06:44:40.5571949Z [36;1m$PSNativeCommandUseErrorActionPreference = $false[0m
+2026-10-21T06:44:40.5572403Z [36;1m$output = Join-Path $env:RUNNER_TEMP 'preparation-evidence'[0m
+2026-10-21T06:44:40.5573186Z [36;1m& python $env:PREPARATION_HELPER --phase before --root $env:GITHUB_WORKSPACE --output $output *> (Join-Path $output 'preparation-before.log')[0m
+2026-10-21T06:44:40.5573856Z [36;1m$code = $LASTEXITCODE[0m
+2026-10-21T06:44:40.5574173Z [36;1mif ($code -ne 0) { throw "PREPARATION_BEFORE_EXIT: $code" }[0m
+2026-10-21T06:44:40.5619379Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-21T06:44:40.5619731Z env:
+2026-10-21T06:44:40.5619972Z   PRODUCT_SHA: b2cb75a792790f7bf396073b1586026fa1e20482
+2026-10-21T06:44:40.5620328Z   SOURCE_SHA: c6ba4934914e7d3222d658352c61d04d0e57c374
+2026-10-21T06:44:40.5620823Z   PREPARATION_SHA256: 80d9abe7f3d79fb0d275ca79b3120d09988da0d85dc9fcea79581802b4ce8020
+2026-10-21T06:44:40.5621402Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T06:44:40.5621918Z   PREPARATION_HELPER: D:\a\_temp\reviewed-preparation\prepare_caption.py
+2026-10-21T06:44:40.5622299Z ##[endgroup]
+2026-10-21T06:44:55.0187340Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-10-21T06:44:55.0187773Z [36;1m$ErrorActionPreference = 'Stop'[0m
+2026-10-21T06:44:55.0188192Z [36;1m# These legacy tooling gitlinks have no .gitmodules URLs. Git's[0m
+2026-10-21T06:44:55.0188645Z [36;1m# submodule foreach reads the index even with sparse checkout.[0m
+2026-10-21T06:44:55.0189060Z [36;1m# The source commit and working files remain unchanged.[0m
+2026-10-21T06:44:55.0189651Z [36;1mgit update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1[0m
+2026-10-21T06:44:55.0190215Z [36;1mif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }[0m
+2026-10-21T06:44:55.0190548Z [36;1mgit submodule foreach --recursive 'true'[0m
+2026-10-21T06:44:55.0190882Z [36;1mif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }[0m
+2026-10-21T06:44:55.0231899Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-21T06:44:55.0232246Z env:
+2026-10-21T06:44:55.0232530Z   PRODUCT_SHA: b2cb75a792790f7bf396073b1586026fa1e20482
+2026-10-21T06:44:55.0233782Z   SOURCE_SHA: c6ba4934914e7d3222d658352c61d04d0e57c374
+2026-10-21T06:44:55.0234245Z   PREPARATION_SHA256: 80d9abe7f3d79fb0d275ca79b3120d09988da0d85dc9fcea79581802b4ce8020
+2026-10-21T06:44:55.0234816Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T06:44:55.0235331Z   PREPARATION_HELPER: D:\a\_temp\reviewed-preparation\prepare_caption.py
+2026-10-21T06:44:55.0235691Z ##[endgroup]
+2026-10-21T06:44:55.9387611Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-10-21T06:44:55.9388045Z [36;1m$ErrorActionPreference = 'Stop'[0m
+2026-10-21T06:44:55.9388514Z [36;1mif ((git rev-parse HEAD).Trim() -cne $env:PRODUCT_SHA) { throw 'PRODUCT_PIN_MISMATCH' }[0m
+2026-10-21T06:44:55.9389457Z [36;1mforeach ($path in @('tools/testing/Invoke-ContinuePublicationChecks.ps1','tools/testing/Invoke-CaptionNativeAccept.ps1','tools/testing/Invoke-IsolatedGodot.ps1')) {[0m
+2026-10-21T06:44:55.9390231Z [36;1m  $tokens=$null; $parseErrors=$null[0m
+2026-10-21T06:44:55.9390869Z [36;1m  $null=[Management.Automation.Language.Parser]::ParseFile((Join-Path $env:GITHUB_WORKSPACE $path),[ref]$tokens,[ref]$parseErrors)[0m
+2026-10-21T06:44:55.9391604Z [36;1m  if ($parseErrors.Count -ne 0) { throw ($parseErrors | Out-String) }[0m
+2026-10-21T06:44:55.9391981Z [36;1m}[0m
+2026-10-21T06:44:55.9433631Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-21T06:44:55.9434090Z env:
+2026-10-21T06:44:55.9434448Z   PRODUCT_SHA: b2cb75a792790f7bf396073b1586026fa1e20482
+2026-10-21T06:44:55.9434891Z   SOURCE_SHA: c6ba4934914e7d3222d658352c61d04d0e57c374
+2026-10-21T06:44:55.9435472Z   PREPARATION_SHA256: 80d9abe7f3d79fb0d275ca79b3120d09988da0d85dc9fcea79581802b4ce8020
+2026-10-21T06:44:55.9436234Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T06:44:55.9436916Z   PREPARATION_HELPER: D:\a\_temp\reviewed-preparation\prepare_caption.py
+2026-10-21T06:44:55.9437394Z ##[endgroup]
+2026-10-21T06:44:56.4186270Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-10-21T06:44:56.4186734Z [36;1m$ErrorActionPreference = 'Stop'[0m
+2026-10-21T06:44:56.4187092Z [36;1m$archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'[0m
+2026-10-21T06:44:56.4187882Z [36;1mInvoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive[0m
+2026-10-21T06:44:56.4188674Z [36;1m# SHA256 published with the official 4.6.3-stable release asset.[0m
+2026-10-21T06:44:56.4189194Z [36;1m$expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'[0m
+2026-10-21T06:44:56.4189847Z [36;1mif ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {[0m
+2026-10-21T06:44:56.4190370Z [36;1m  throw 'Godot archive checksum mismatch.'[0m
+2026-10-21T06:44:56.4190635Z [36;1m}[0m
+2026-10-21T06:44:56.4190871Z [36;1m$editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'[0m
+2026-10-21T06:44:56.4191365Z [36;1mExpand-Archive -LiteralPath $archive -DestinationPath $editor[0m
+2026-10-21T06:44:56.4191840Z [36;1m$console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'[0m
+2026-10-21T06:44:56.4192374Z [36;1mif (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }[0m
+2026-10-21T06:44:56.4192982Z [36;1m"GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8[0m
+2026-10-21T06:44:56.4193501Z [36;1m$output = Join-Path $env:RUNNER_TEMP 'preparation-evidence'[0m
+2026-10-21T06:44:56.4193946Z [36;1m& $console --version *> (Join-Path $output 'godot-version.txt')[0m
+2026-10-21T06:44:56.4194299Z [36;1m$code = $LASTEXITCODE[0m
+2026-10-21T06:44:56.4195209Z [36;1m@{archive_sha256=$expected; executable=$console; executable_sha256=(Get-FileHash $console -Algorithm SHA256).Hash.ToLowerInvariant(); version_exit=$code} | ConvertTo-Json | Set-Content (Join-Path $output 'editor.json') -Encoding utf8[0m
+2026-10-21T06:44:56.4196472Z [36;1mif ($code -ne 0) { throw "GODOT_VERSION_EXIT: $code" }[0m
+2026-10-21T06:44:56.4236999Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-21T06:44:56.4237367Z env:
+2026-10-21T06:44:56.4237596Z   PRODUCT_SHA: b2cb75a792790f7bf396073b1586026fa1e20482
+2026-10-21T06:44:56.4237917Z   SOURCE_SHA: c6ba4934914e7d3222d658352c61d04d0e57c374
+2026-10-21T06:44:56.4238357Z   PREPARATION_SHA256: 80d9abe7f3d79fb0d275ca79b3120d09988da0d85dc9fcea79581802b4ce8020
+2026-10-21T06:44:56.4238931Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T06:44:56.4239445Z   PREPARATION_HELPER: D:\a\_temp\reviewed-preparation\prepare_caption.py
+2026-10-21T06:44:56.4239811Z ##[endgroup]
+2026-10-21T06:44:58.9678239Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-10-21T06:44:58.9678704Z [36;1m$ErrorActionPreference = 'Stop'[0m
+2026-10-21T06:44:58.9679083Z [36;1m$PSNativeCommandUseErrorActionPreference = $false[0m
+2026-10-21T06:44:58.9679555Z [36;1m$output = Join-Path $env:RUNNER_TEMP 'preparation-evidence'[0m
+2026-10-21T06:44:58.9679977Z [36;1m$userRoot = Join-Path $env:RUNNER_TEMP 'import-user'[0m
+2026-10-21T06:44:58.9680344Z [36;1m$env:APPDATA = Join-Path $userRoot 'appdata'[0m
+2026-10-21T06:44:58.9680742Z [36;1m$env:LOCALAPPDATA = Join-Path $userRoot 'localappdata'[0m
+2026-10-21T06:44:58.9681128Z [36;1m$env:DWM_TEST_ROOT = Join-Path $userRoot 'test-root'[0m
+2026-10-21T06:44:58.9681693Z [36;1mNew-Item -ItemType Directory -Force -Path $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null[0m
+2026-10-21T06:44:58.9682469Z [36;1m$arguments = @('--headless','--path',$env:GITHUB_WORKSPACE,'--import','--log-file',(Join-Path $output 'import.log'))[0m
+2026-10-21T06:44:58.9683022Z [36;1m$config = @{}[0m
+2026-10-21T06:44:58.9683889Z [36;1mforeach ($key in @('APPDATA','LOCALAPPDATA','DWM_TEST_ROOT','USERPROFILE','TEMP','TMP','LANG','LC_ALL','GODOT_EDITOR_SETTINGS','GODOT_USER_HOME','XDG_CONFIG_HOME','XDG_DATA_HOME')) { $config[$key] = [Environment]::GetEnvironmentVariable($key) }[0m
+2026-10-21T06:44:58.9686218Z [36;1m@{executable=$env:GODOT_CONSOLE_PATH; arguments=$arguments; cwd=(Get-Location).Path; environment=$config; project_settings='original and post-import project.godot bytes and hashes retained by capture helper'; editor_settings='fresh isolated APPDATA and LOCALAPPDATA; no settings injected'; timeout_minutes=8; started_utc=[DateTime]::UtcNow.ToString('o')} | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $output 'import-command.json') -Encoding utf8[0m
+2026-10-21T06:44:58.9687992Z [36;1m& $env:GODOT_CONSOLE_PATH @arguments *> (Join-Path $output 'import-console.log')[0m
+2026-10-21T06:44:58.9688403Z [36;1m$code = $LASTEXITCODE[0m
+2026-10-21T06:44:58.9689016Z [36;1m@{exit_code=$code; finished_utc=[DateTime]::UtcNow.ToString('o')} | ConvertTo-Json | Set-Content (Join-Path $output 'import-process.json') -Encoding utf8[0m
+2026-10-21T06:44:58.9689713Z [36;1mif ($code -ne 0) { throw "IMPORT_PROCESS_EXIT: $code" }[0m
+2026-10-21T06:44:58.9690188Z [36;1mif (-not (Test-Path (Join-Path $output 'import.log'))) { throw 'IMPORT_LOG_MISSING' }[0m
+2026-10-21T06:44:58.9690787Z [36;1m$pattern = 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character'[0m
+2026-10-21T06:44:58.9691392Z [36;1m$matches = @(Select-String -Path (Join-Path $output 'import.log') -Pattern $pattern)[0m
+2026-10-21T06:44:58.9692359Z [36;1m@{pattern=$pattern; matches=@($matches | ForEach-Object { $_.ToString() }); passed=($matches.Count -eq 0)} | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $output 'import-filter.json') -Encoding utf8[0m
+2026-10-21T06:44:58.9693338Z [36;1mif ($matches.Count -ne 0) { throw 'Project import reported script errors; inspect import.log.' }[0m
+2026-10-21T06:44:58.9733242Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-21T06:44:58.9733594Z env:
+2026-10-21T06:44:58.9733828Z   PRODUCT_SHA: b2cb75a792790f7bf396073b1586026fa1e20482
+2026-10-21T06:44:58.9734325Z   SOURCE_SHA: c6ba4934914e7d3222d658352c61d04d0e57c374
+2026-10-21T06:44:58.9734772Z   PREPARATION_SHA256: 80d9abe7f3d79fb0d275ca79b3120d09988da0d85dc9fcea79581802b4ce8020
+2026-10-21T06:44:58.9735330Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T06:44:58.9735838Z   PREPARATION_HELPER: D:\a\_temp\reviewed-preparation\prepare_caption.py
+2026-10-21T06:44:58.9736313Z   GODOT_CONSOLE_PATH: D:\a\_temp\godot-4.6.3\Godot_v4.6.3-stable_win64_console.exe
+2026-10-21T06:44:58.9736678Z ##[endgroup]
+2026-10-21T06:45:49.6289873Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-10-21T06:45:49.6290309Z [36;1m$ErrorActionPreference = 'Stop'[0m
+2026-10-21T06:45:49.6290670Z [36;1m$PSNativeCommandUseErrorActionPreference = $false[0m
+2026-10-21T06:45:49.6291116Z [36;1m$output = Join-Path $env:RUNNER_TEMP 'preparation-evidence'[0m
+2026-10-21T06:45:49.6291854Z [36;1m& python $env:PREPARATION_HELPER --phase after --root $env:GITHUB_WORKSPACE --output $output *> (Join-Path $output 'preparation-after.log')[0m
+2026-10-21T06:45:49.6292504Z [36;1m$code = $LASTEXITCODE[0m
+2026-10-21T06:45:49.6292824Z [36;1mif ($code -ne 0) { throw "PREPARATION_AFTER_EXIT: $code" }[0m
+2026-10-21T06:45:49.6332274Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-21T06:45:49.6332617Z env:
+2026-10-21T06:45:49.6332841Z   PRODUCT_SHA: b2cb75a792790f7bf396073b1586026fa1e20482
+2026-10-21T06:45:49.6333170Z   SOURCE_SHA: c6ba4934914e7d3222d658352c61d04d0e57c374
+2026-10-21T06:45:49.6333652Z   PREPARATION_SHA256: 80d9abe7f3d79fb0d275ca79b3120d09988da0d85dc9fcea79581802b4ce8020
+2026-10-21T06:45:49.6334230Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T06:45:49.6334749Z   PREPARATION_HELPER: D:\a\_temp\reviewed-preparation\prepare_caption.py
+2026-10-21T06:45:49.6335252Z   GODOT_CONSOLE_PATH: D:\a\_temp\godot-4.6.3\Godot_v4.6.3-stable_win64_console.exe
+2026-10-21T06:45:49.6335627Z ##[endgroup]
+2026-10-21T06:46:02.5649930Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-10-21T06:46:02.5650403Z [36;1m$ErrorActionPreference = 'Stop'[0m
+2026-10-21T06:46:02.5650789Z [36;1m$PSNativeCommandUseErrorActionPreference = $false[0m
+2026-10-21T06:46:02.5651246Z [36;1m$output = Join-Path $env:RUNNER_TEMP 'preparation-evidence'[0m
+2026-10-21T06:46:02.5652007Z [36;1m& python $env:PREPARATION_HELPER --phase restore --root $env:GITHUB_WORKSPACE --output $output *> (Join-Path $output 'preparation-restore.log')[0m
+2026-10-21T06:46:02.5652671Z [36;1m$code = $LASTEXITCODE[0m
+2026-10-21T06:46:02.5653003Z [36;1mif ($code -ne 0) { throw "PREPARATION_RESTORE_EXIT: $code" }[0m
+2026-10-21T06:46:02.5694742Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-21T06:46:02.5695107Z env:
+2026-10-21T06:46:02.5695345Z   PRODUCT_SHA: b2cb75a792790f7bf396073b1586026fa1e20482
+2026-10-21T06:46:02.5695695Z   SOURCE_SHA: c6ba4934914e7d3222d658352c61d04d0e57c374
+2026-10-21T06:46:02.5696428Z   PREPARATION_SHA256: 80d9abe7f3d79fb0d275ca79b3120d09988da0d85dc9fcea79581802b4ce8020
+2026-10-21T06:46:02.5697078Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T06:46:02.5697605Z   PREPARATION_HELPER: D:\a\_temp\reviewed-preparation\prepare_caption.py
+2026-10-21T06:46:02.5698093Z   GODOT_CONSOLE_PATH: D:\a\_temp\godot-4.6.3\Godot_v4.6.3-stable_win64_console.exe
+2026-10-21T06:46:02.5698464Z ##[endgroup]
+2026-10-21T06:46:15.9263037Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-10-21T06:46:15.9263459Z [36;1m$ErrorActionPreference = 'Stop'[0m
+2026-10-21T06:46:15.9263818Z [36;1m$PSNativeCommandUseErrorActionPreference = $false[0m
+2026-10-21T06:46:15.9264726Z [36;1m& pwsh -NoLogo -NoProfile -NonInteractive -File ./tools/testing/Invoke-ContinuePublicationChecks.ps1 -RepositoryRoot $env:GITHUB_WORKSPACE -ExpectedSource $env:PRODUCT_SHA[0m
+2026-10-21T06:46:15.9265631Z [36;1mif ($LASTEXITCODE -ne 0) { throw "FOCUSED_RUNNER_EXIT: $LASTEXITCODE" }[0m
+2026-10-21T06:46:15.9306403Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-21T06:46:15.9306740Z env:
+2026-10-21T06:46:15.9306967Z   PRODUCT_SHA: b2cb75a792790f7bf396073b1586026fa1e20482
+2026-10-21T06:46:15.9307296Z   SOURCE_SHA: c6ba4934914e7d3222d658352c61d04d0e57c374
+2026-10-21T06:46:15.9307724Z   PREPARATION_SHA256: 80d9abe7f3d79fb0d275ca79b3120d09988da0d85dc9fcea79581802b4ce8020
+2026-10-21T06:46:15.9308318Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T06:46:15.9308828Z   PREPARATION_HELPER: D:\a\_temp\reviewed-preparation\prepare_caption.py
+2026-10-21T06:46:15.9309321Z   GODOT_CONSOLE_PATH: D:\a\_temp\godot-4.6.3\Godot_v4.6.3-stable_win64_console.exe
+2026-10-21T06:46:15.9309682Z ##[endgroup]
+2026-10-21T06:46:39.6734138Z {"suite_id":"continue-publication-organic","argv":["--rendering-method","gl_compatibility","--audio-driver","Dummy","--path","D:\\a\\dwm\\dwm","--log-file","D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\continue-publication-organic.log","--accessibility","always","-s","res://addons/gut/gut_cmdln.gd","-gconfig=","-gtest=res://tests/manual/test_continue_reveal_publication.gd","-gunit_test_name=test_continue_registered_action_refreshes_after_organic_finish","-gexit","-glog=2","-gdisable_colors","-gjunit_xml_file=res://.godot/ci/continue-publication/organic.xml"],"exit_code":1,"log_path":"D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\continue-publication-organic.log","test_root":"D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\9cad9eec-86ad-4df0-b591-371222b6d0ec","user_dir":"D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\9cad9eec-86ad-4df0-b591-371222b6d0ec\\appdata\\Godot\\app_userdata\\DWM","started_at_utc":"2026-10-21T06:46:24.1976818Z","ended_at_utc":"2026-10-21T06:46:39.6205666Z"}
+2026-10-21T06:46:39.7131146Z Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+2026-10-21T06:46:39.7132416Z WARNING: Your video card drivers seem not to support the required OpenGL 3.3 version, switching to ANGLE.
+2026-10-21T06:46:39.7133696Z    at: DisplayServerWindows (platform/windows/display_server_windows.cpp:7421)
+2026-10-21T06:46:39.7137139Z OpenGL API OpenGL ES 3.0 (ANGLE 2.1.1 git hash: aaebda1c5a40) - Compatibility - Using Device: Google Inc. (Microsoft) - ANGLE (Microsoft, Microsoft Basic Render Driver (0x0000008C) Direct3D11 vs_5_0 ps_5_0, D3D11-10.0.20348.5386)
+2026-10-21T06:46:39.7138658Z 
+2026-10-21T06:46:39.7139738Z ---  GUT  ---
+2026-10-21T06:46:39.7142662Z [INFO]:  using [D:/a/dwm/dwm/.godot/phase2r_tests/9cad9eec-86ad-4df0-b591-371222b6d0ec/appdata/Godot/app_userdata/DWM] for temporary output.
+2026-10-21T06:46:39.7143805Z Godot version:  4.6.3
+2026-10-21T06:46:39.7145641Z GUT version:  9.6.1
+2026-10-21T06:46:39.7147226Z 
+2026-10-21T06:46:39.7149111Z 
+2026-10-21T06:46:39.7151244Z res://tests/manual/test_continue_reveal_publication.gd
+2026-10-21T06:46:39.7152703Z * test_continue_registered_action_refreshes_after_organic_finish
+2026-10-21T06:46:39.7155025Z     [Passed]:  ["Windows"] expected to not equal ["headless"]:  this test requires native accessibility registration
+2026-10-21T06:46:39.7156138Z     [Passed]:  standalone style exists before production selection
+2026-10-21T06:46:39.7158679Z     [Passed]:  Expected [DialogicLayout_WitnessedCaption:<CanvasLayer#273065970280>(default_layout_base.gd)] to be anything but NULL:  
+2026-10-21T06:46:39.7163890Z     [Passed]:  Expected [WitnessedCaptionLayer:<Node#273669950074>(WitnessedCaptionLayer.gd)] to be anything but NULL:  real Styles loader selected WitnessedCaptionLayer
+2026-10-21T06:46:39.7164721Z     [Passed] 
+2026-10-21T06:46:39.7164903Z     [Passed] 
+2026-10-21T06:46:39.7165524Z     [Failed]:  Continue did not register a native action for reveal 1
+2026-10-21T06:46:39.7167880Z       at line -1
+2026-10-21T06:46:39.7169785Z 0/1 passed.
+2026-10-21T06:46:39.7171365Z 
+2026-10-21T06:46:39.7172803Z 
+2026-10-21T06:46:39.7174307Z 
+2026-10-21T06:46:39.7175851Z 
+2026-10-21T06:46:39.7177572Z ==============================================
+2026-10-21T06:46:39.7179255Z = Run Summary
+2026-10-21T06:46:39.7181393Z ==============================================
+2026-10-21T06:46:39.7183064Z 
+2026-10-21T06:46:39.7184951Z res://tests/manual/test_continue_reveal_publication.gd
+2026-10-21T06:46:39.7186604Z - test_continue_registered_action_refreshes_after_organic_finish
+2026-10-21T06:46:39.7188491Z     [Failed]:  Continue did not register a native action for reveal 1
+2026-10-21T06:46:39.7190027Z           at line -1
+2026-10-21T06:46:39.7191583Z 
+2026-10-21T06:46:39.7193351Z Totals
+2026-10-21T06:46:39.7195033Z ------
+2026-10-21T06:46:39.7197156Z Scripts               1
+2026-10-21T06:46:39.7198806Z Tests                 1
+2026-10-21T06:46:39.7200670Z Passing Tests      none
+2026-10-21T06:46:39.7202342Z Failing Tests         1
+2026-10-21T06:46:39.7203833Z Asserts             6/7
+2026-10-21T06:46:39.7205501Z Time              5.896s
+2026-10-21T06:46:39.7206964Z 
+2026-10-21T06:46:39.7208303Z 
+2026-10-21T06:46:39.7210033Z Ran Tests matching "test_continue_registered_action_refreshes_after_organic_finish"
+2026-10-21T06:46:39.7211371Z ---- 1 failing tests ----
+2026-10-21T06:46:39.7212773Z 
+2026-10-21T06:46:39.7214651Z Results saved to res://.godot/ci/continue-publication/organic.xml
+2026-10-21T06:46:39.7216170Z [INFO]:  Exiting with code 1
+2026-10-21T06:46:39.8669943Z [31;1mException: [0mD:\a\dwm\dwm\tools\testing\Invoke-ContinuePublicationChecks.ps1:72[0m
+2026-10-21T06:46:39.8671477Z [31;1m[0m[36;1mLine |[0m
+2026-10-21T06:46:39.8672657Z [31;1m[0m[36;1m[36;1m  72 | [0m         [36;1mthrow "CONTINUE_CHILD_FAILED: $($plan.id) exit $result"[0m
+2026-10-21T06:46:39.8674206Z [31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+2026-10-21T06:46:39.8675592Z [31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mCONTINUE_CHILD_FAILED: organic exit 1[0m
+2026-10-21T06:46:40.0819354Z [31;1mException: [0mD:\a\_temp\a5a10ed0-778e-4302-b3ef-01a7b0cc040e.ps1:5[0m
+2026-10-21T06:46:40.0821179Z [31;1m[0m[36;1mLine |[0m
+2026-10-21T06:46:40.0824575Z [31;1m[0m[36;1m[36;1m   5 | [0m …  ($LASTEXITCODE -ne 0) { [36;1mthrow "FOCUSED_RUNNER_EXIT: $LASTEXITCODE"[0m }[0m
+2026-10-21T06:46:40.0825591Z [31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+2026-10-21T06:46:40.0826373Z [31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mFOCUSED_RUNNER_EXIT: 1[0m
+2026-10-21T06:46:40.1032777Z ##[error]Process completed with exit code 1.
+2026-10-21T06:46:40.1189023Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-10-21T06:46:40.1189464Z [36;1m$ErrorActionPreference = 'Stop'[0m
+2026-10-21T06:46:40.1189826Z [36;1m$PSNativeCommandUseErrorActionPreference = $false[0m
+2026-10-21T06:46:40.1190249Z [36;1m$output = Join-Path $env:RUNNER_TEMP 'preparation-evidence'[0m
+2026-10-21T06:46:40.1190991Z [36;1m& python $env:PREPARATION_HELPER --phase post-tests --root $env:GITHUB_WORKSPACE --output $output *> (Join-Path $output 'preparation-post-tests.log')[0m
+2026-10-21T06:46:40.1191788Z [36;1mif ($LASTEXITCODE -ne 0) { throw "POST_TESTS_POLICY_EXIT: $LASTEXITCODE" }[0m
+2026-10-21T06:46:40.1231347Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-21T06:46:40.1231698Z env:
+2026-10-21T06:46:40.1231936Z   PRODUCT_SHA: b2cb75a792790f7bf396073b1586026fa1e20482
+2026-10-21T06:46:40.1232275Z   SOURCE_SHA: c6ba4934914e7d3222d658352c61d04d0e57c374
+2026-10-21T06:46:40.1232787Z   PREPARATION_SHA256: 80d9abe7f3d79fb0d275ca79b3120d09988da0d85dc9fcea79581802b4ce8020
+2026-10-21T06:46:40.1233366Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T06:46:40.1233888Z   PREPARATION_HELPER: D:\a\_temp\reviewed-preparation\prepare_caption.py
+2026-10-21T06:46:40.1234372Z   GODOT_CONSOLE_PATH: D:\a\_temp\godot-4.6.3\Godot_v4.6.3-stable_win64_console.exe
+2026-10-21T06:46:40.1234748Z ##[endgroup]
+2026-10-21T06:46:53.4195778Z ##[group]Run actions/upload-artifact@v4
+2026-10-21T06:46:53.4196117Z with:
+2026-10-21T06:46:53.4196334Z   name: caption-qualification-39557266487-1
+2026-10-21T06:46:53.4196727Z   path: D:\a\dwm\dwm/.godot/ci
+D:\a\dwm\dwm/.godot/phase2r_logs
+
+2026-10-21T06:46:53.4197075Z   include-hidden-files: true
+2026-10-21T06:46:53.4197317Z   if-no-files-found: error
+2026-10-21T06:46:53.4197577Z   retention-days: 7
+2026-10-21T06:46:53.4197839Z   compression-level: 6
+2026-10-21T06:46:53.4198104Z   overwrite: false
+2026-10-21T06:46:53.4198354Z env:
+2026-10-21T06:46:53.4198640Z   PRODUCT_SHA: b2cb75a792790f7bf396073b1586026fa1e20482
+2026-10-21T06:46:53.4199027Z   SOURCE_SHA: c6ba4934914e7d3222d658352c61d04d0e57c374
+2026-10-21T06:46:53.4199517Z   PREPARATION_SHA256: 80d9abe7f3d79fb0d275ca79b3120d09988da0d85dc9fcea79581802b4ce8020
+2026-10-21T06:46:53.4200149Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T06:46:53.4200812Z   PREPARATION_HELPER: D:\a\_temp\reviewed-preparation\prepare_caption.py
+2026-10-21T06:46:53.4201375Z   GODOT_CONSOLE_PATH: D:\a\_temp\godot-4.6.3\Godot_v4.6.3-stable_win64_console.exe
+2026-10-21T06:46:53.4201801Z ##[endgroup]
+2026-10-21T06:46:53.6099168Z (node:3024) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-21T06:46:53.6100664Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-21T06:46:53.6190824Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-10-21T06:46:53.6194408Z The least common ancestor is D:\a\dwm\dwm\.godot. This will be the root directory of the artifact
+2026-10-21T06:46:53.6195287Z With the provided path, there will be 4 files uploaded
+2026-10-21T06:46:53.6200564Z Artifact name is valid!
+2026-10-21T06:46:53.6203169Z Root directory input is valid!
+2026-10-21T06:46:54.0221258Z Beginning upload of artifact content to blob storage
+2026-10-21T06:46:54.0470105Z (node:3024) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-21T06:46:54.3095011Z Uploaded bytes 2997
+2026-10-21T06:46:54.3828827Z Finished uploading artifact content to blob storage!
+2026-10-21T06:46:54.3830169Z SHA256 digest of uploaded artifact zip is 8bdca9dc7dd535f9679d3e91ce306113b896710caff6c21e62fc5838b4bd7575
+2026-10-21T06:46:54.3832941Z Finalizing artifact upload
+2026-10-21T06:46:54.6609313Z Artifact caption-qualification-39557266487-1.zip successfully finalized. Artifact ID 12326421038
+2026-10-21T06:46:54.6611089Z Artifact caption-qualification-39557266487-1 has been successfully uploaded! Final size is 2997 bytes. Artifact ID is 12326421038
+2026-10-21T06:46:54.6620594Z Artifact download URL: https://github.com/Siuuuers/dwm/actions/runs/39557266487/artifacts/12326421038
+2026-10-21T06:46:54.6891275Z ##[group]Run actions/upload-artifact@v4
+2026-10-21T06:46:54.6891700Z with:
+2026-10-21T06:46:54.6891953Z   name: caption-preparation-39557266487-1
+2026-10-21T06:46:54.6892254Z   path: D:\a\_temp/preparation-evidence
+2026-10-21T06:46:54.6892531Z   include-hidden-files: true
+2026-10-21T06:46:54.6892776Z   if-no-files-found: error
+2026-10-21T06:46:54.6892999Z   retention-days: 7
+2026-10-21T06:46:54.6893222Z   compression-level: 6
+2026-10-21T06:46:54.6893434Z   overwrite: false
+2026-10-21T06:46:54.6893629Z env:
+2026-10-21T06:46:54.6893845Z   PRODUCT_SHA: b2cb75a792790f7bf396073b1586026fa1e20482
+2026-10-21T06:46:54.6894197Z   SOURCE_SHA: c6ba4934914e7d3222d658352c61d04d0e57c374
+2026-10-21T06:46:54.6894643Z   PREPARATION_SHA256: 80d9abe7f3d79fb0d275ca79b3120d09988da0d85dc9fcea79581802b4ce8020
+2026-10-21T06:46:54.6895224Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T06:46:54.6895786Z   PREPARATION_HELPER: D:\a\_temp\reviewed-preparation\prepare_caption.py
+2026-10-21T06:46:54.6896286Z   GODOT_CONSOLE_PATH: D:\a\_temp\godot-4.6.3\Godot_v4.6.3-stable_win64_console.exe
+2026-10-21T06:46:54.6896903Z ##[endgroup]
+2026-10-21T06:46:54.8811094Z (node:1244) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-21T06:46:54.8811957Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-21T06:46:56.1529375Z With the provided path, there will be 5280 files uploaded
+2026-10-21T06:46:56.1536383Z Artifact name is valid!
+2026-10-21T06:46:56.1538696Z Root directory input is valid!
+2026-10-21T06:46:56.6559399Z Beginning upload of artifact content to blob storage
+2026-10-21T06:46:59.3942874Z (node:1244) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-21T06:47:00.5498337Z Uploaded bytes 8388608
+2026-10-21T06:47:00.7390556Z Uploaded bytes 10804157
+2026-10-21T06:47:00.8125181Z Finished uploading artifact content to blob storage!
+2026-10-21T06:47:00.8129943Z SHA256 digest of uploaded artifact zip is 70a784bd64216fa314c5279596941ba63865f729e464261e3b1e4b97b1e9deb1
+2026-10-21T06:47:00.8133276Z Finalizing artifact upload
+2026-10-21T06:47:01.1183150Z Artifact caption-preparation-39557266487-1.zip successfully finalized. Artifact ID 12326685058
+2026-10-21T06:47:01.1184742Z Artifact caption-preparation-39557266487-1 has been successfully uploaded! Final size is 10804157 bytes. Artifact ID is 12326685058
+2026-10-21T06:47:01.1198092Z Artifact download URL: https://github.com/Siuuuers/dwm/actions/runs/39557266487/artifacts/12326685058
+2026-10-21T06:47:01.1714936Z Post job cleanup.
+2026-10-21T06:47:01.4220704Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-21T06:47:01.4573962Z git version 2.56.0.windows.2
+2026-10-21T06:47:01.4638107Z Temporarily overriding HOME='D:\a\_temp\22b11910-12eb-41d3-96d1-2d63e49206c3' before making global git config changes
+2026-10-21T06:47:01.4639374Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-21T06:47:01.4651012Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\dwm\dwm
+2026-10-21T06:47:01.4973197Z Removing SSH command configuration
+2026-10-21T06:47:01.4988125Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-21T06:47:01.5311807Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-21T06:47:02.0557843Z Removing HTTP extra header
+2026-10-21T06:47:02.0571354Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-21T06:47:02.0906674Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-21T06:47:02.6376409Z Removing includeIf entries pointing to credentials config files
+2026-10-21T06:47:02.6387498Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-21T06:47:02.6702731Z includeif.gitdir:D:/a/dwm/dwm/.git.path
+2026-10-21T06:47:02.6703774Z includeif.gitdir:D:/a/dwm/dwm/.git/worktrees/*.path
+2026-10-21T06:47:02.6704392Z includeif.gitdir:/github/workspace/.git.path
+2026-10-21T06:47:02.6705003Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-21T06:47:02.6739490Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/dwm/dwm/.git.path
+2026-10-21T06:47:02.7034732Z D:\a\_temp\git-credentials-6ba7cd86-17ac-473a-abe0-5c184e8d7983.config
+2026-10-21T06:47:02.7079002Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/dwm/dwm/.git.path D\:\\a\\_temp\\git\-credentials\-6ba7cd86\-17ac\-473a\-abe0\-5c184e8d7983\.config
+2026-10-21T06:47:02.7395387Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/dwm/dwm/.git/worktrees/*.path
+2026-10-21T06:47:02.7674730Z D:\a\_temp\git-credentials-6ba7cd86-17ac-473a-abe0-5c184e8d7983.config
+2026-10-21T06:47:02.7716451Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/dwm/dwm/.git/worktrees/*.path D\:\\a\\_temp\\git\-credentials\-6ba7cd86\-17ac\-473a\-abe0\-5c184e8d7983\.config
+2026-10-21T06:47:02.8046921Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-21T06:47:02.8330496Z /github/runner_temp/git-credentials-6ba7cd86-17ac-473a-abe0-5c184e8d7983.config
+2026-10-21T06:47:02.8371739Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-6ba7cd86\-17ac\-473a\-abe0\-5c184e8d7983\.config
+2026-10-21T06:47:02.8743648Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-21T06:47:02.9038793Z /github/runner_temp/git-credentials-6ba7cd86-17ac-473a-abe0-5c184e8d7983.config
+2026-10-21T06:47:02.9119064Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-6ba7cd86\-17ac\-473a\-abe0\-5c184e8d7983\.config
+2026-10-21T06:47:02.9480247Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-21T06:47:03.4490903Z Removing credentials config 'D:\a\_temp\git-credentials-6ba7cd86-17ac-473a-abe0-5c184e8d7983.config'
+2026-10-21T06:47:03.4702744Z Cleaning up orphan processes
+2026-10-21T06:47:03.4735400Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

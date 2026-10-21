@@ -1,3 +1,11 @@
+# Focused caption run failed — initial registration; artifact audit pending
+
+Run39557266487 attempt1 / controller464f9ab654c659d20208223de53b01254241e829 is consumed. Preparation/restoration and post-tests policy passed. First rendered organic case failed to observe Continue's initial native action for reveal1 (GUT1 failure, exit1); remaining seven cases/native fixture did not run. Both uploads passed. [Preliminary result and evidence limits](../evidence/phase_2r/caption_qualification_20261021/run39557266487/README.md).
+
+Execution workspace unavailable: original ZIPs not yet unpacked, independently hashed or committed. Preserve/audit artifacts12326421038 and12326685058 before28 October2026 expiry, then diagnose initial publication. No completion-refresh/gameplay/native acceptance claim. No retry/new dispatch. Source/helper unchanged. C outcome review requested with this limitation; no further cloud attempt authorized.
+
+---
+
 # C-cleared focused cloud attempt started — results pending
 
 21 October 2026. C6309639579 cleared exact packet68577056108ac0ffa00c12e176c23716c09a2119 under Director6309346765. A installed only the reviewed controller with expected-head protection af329296a779fd04dd434f6ed51214d1de8ef83b -> 464f9ab654c659d20208223de53b01254241e829. Controller SHA256 d9aa96f039721dfeabea89d79d79fdb1085cd4811bafb116ad85b2ae237de5cc.
