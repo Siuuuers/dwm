@@ -16,11 +16,30 @@ class ContinuePublicationProbe extends "res://scripts/ui/witnessed/WitnessedAcce
 func _mount_continue_publication_probe() -> Control:
 	assert_ne(DisplayServer.get_name(), "headless", "this test requires native accessibility registration")
 	if DisplayServer.get_name() == "headless": return null
+	# Isolated tests skip application startup; use the real display owners with
+	# in-memory storage, as in the inherited font/style fixture.
+	var profile: Node = preload("res://autoload/ProfileManager.gd").new()
+	var storage: RefCounted = preload("res://scripts/infrastructure/storage/JsonFileStorage.gd").new(
+		"continue-publication-fixture", preload("res://tests/support/FakeFileOps.gd").new())
+	_replace_caption_display_source("ProfileManager", profile)
+	var profile_result: Dictionary = profile.initialize(storage)
+	assert_true(profile_result.get("ok", false), "isolated Continue profile initializes")
+	if not profile_result.get("ok", false): return null
+	var localization: Node = preload("res://autoload/LocalizationManager.gd").new()
+	_replace_caption_display_source("LocalizationManager", localization)
+	var localization_result: Dictionary = localization.initialize(profile)
+	assert_true(localization_result.get("ok", false), "isolated Continue localization initializes")
+	if not localization_result.get("ok", false): return null
+	assert_eq(localization.get_readiness(), &"ready")
+	assert_true(localization.has_key("button.continue"))
 	if not await _mount_root_accept_fixture("Current.\nFollowing."): return null
 	var surface: Control = caption.background_input
 	surface.set_script(ContinuePublicationProbe)
 	surface.bind_accessible_continue(caption.accept_input, get_node("/root/LocalizationManager"))
 	surface.set_process(true)
+	assert_eq(surface._label, localization.t("button.continue"))
+	assert_true(surface._source_visible, "mounted Continue source is admitted")
+	assert_true(surface._available, "mounted Continue action is admitted")
 	return surface
 
 func _await_publication(surface: Control, reveal: int) -> Dictionary:
