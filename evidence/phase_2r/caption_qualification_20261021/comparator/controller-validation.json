@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "helper_commit": "c6ba4934914e7d3222d658352c61d04d0e57c374",
+  "source": "b2cb75a792790f7bf396073b1586026fa1e20482",
+  "helper_sha256": "80d9abe7f3d79fb0d275ca79b3120d09988da0d85dc9fcea79581802b4ce8020",
+  "controller_sha256": "d9aa96f039721dfeabea89d79d79fdb1085cd4811bafb116ad85b2ae237de5cc",
+  "controller_changes_only": [
+    "SOURCE_SHA",
+    "PREPARATION_SHA256",
+    "focused artifact if condition"
+  ],
+  "focused_upload_condition": "always() && (steps.focused.outcome == 'success' || steps.focused.outcome == 'failure' || steps.focused.outcome == 'cancelled')",
+  "raw_always_upload": true,
+  "missing_attempted_test_artifacts_remain_error": true,
+  "runtime_execution": false
+}

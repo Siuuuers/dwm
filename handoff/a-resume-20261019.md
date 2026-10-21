@@ -1,3 +1,15 @@
+# Retained UID comparator correction prepared — C exact review next
+
+21 October 2026. C6309090907/6309092712 closed the failed-run review; Director6309346765 selected the narrow comparator correction. [Exact review packet](../evidence/phase_2r/caption_qualification_20261021/uid-comparator-review.md).
+
+Corrected helper c6ba4934914e7d3222d658352c61d04d0e57c374, SHA256 80d9abe7f3d79fb0d275ca79b3120d09988da0d85dc9fcea79581802b4ce8020. Proposed controller SHA256 d9aa96f039721dfeabea89d79d79fdb1085cd4811bafb116ad85b2ae237de5cc. Existing peers use pinned Godot numeric/line semantics; strict newly generated UID validation and all custody/source/path/collision guards remain. Refusals retain peer path/progress. Focused upload skips when tests never started; raw evidence always uploads.
+
+21 Python/Git regressions PASS. Independent retained-inventory replay: 1717 peers decoded, zero collisions against the generated Continue ID. This is not Windows/native/gameplay qualification. Actual run39550111534 remains failed/consumed, with original evidence preserved. Source b2cb75a792790f7bf396073b1586026fa1e20482 and product c8358870 remain unchanged.
+
+Next: C reviews the exact helper/controller delta. After C clears it, Director already authorizes ONE new official Windows4.6.3-standard focused attempt, with expected-head check against consumed controller af329296a779fd04dd434f6ed51214d1de8ef83b. No further user/Director confirmation required; no dispatch or active-controller installation during preparation. First failure stops; no automatic retry, exported gameplay, master/integration movement, merge or release. Standing coordination permission applies.
+
+---
+
 # Focused caption run failed in preparation — attempt consumed
 
 21 October 2026 Hong Kong. Under Director6308784939/C6308823692, exact controlleraf329296a779fd04dd434f6ed51214d1de8ef83b ran ONE focused attempt39550111534, job119057122431. Pins/parser/baseline and official standard4.6.3 import PASS; post-import preparation FAIL while comparing an existing addon UID. Settings restore, all eight rendered cases and native fixture SKIPPED. Focused upload reported no files; original raw preparation ZIP retained and audited. No retry.
