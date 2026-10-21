@@ -1,3 +1,15 @@
+# Current checkpoint — corrected recorder works; initial registration still fails
+
+Run39604954687 attempt1/job119238645009 FAILURE:1 case,16/17 assertions,child exit1. mounted_settle now explicitly records parent absent0/false and raw focused log has no SCRIPT ERROR; recorder success is separate from qualification.
+Same Continue identity throughout;11 existing requests return, handler notifications and registration remain0. Actual adapter activity was not measured; no backend/ordinary-gameplay cause established.
+[Original evidence and source-supported next decision](../evidence/phase_2r/continue_early_observation_20261021/run39604954687/README.md).
+Both original archives verified against live digests/sizes/CRC and preserved in166 binary parts; bounded preparation receipts pass. Closed UID/parser reviews reused.
+Concrete harness gap: selected GUT lane has no native UIA consumer, while Godot4.6.3 Windows delivery goes through AccessKit update_if_active even with --accessibility always. Recommend C/Director reconcile consumer-attachment prerequisite using existing PID/HWND discovery only; no production workaround or automatic next instrumentation.
+Director6315805172 attempt consumed. C actual-outcome review pending; no retry or new run. Active controller8e6cb51c unchanged. Prior39588849613 retains its failure/XML discrepancy.
+No product/master/integration movement, export/merge/release; standing publication permission persists.
+
+---
+
 # Guarded Continue observation launched — 21 October 2026 Hong Kong
 
 Status: IN PROGRESS; no runtime qualification.

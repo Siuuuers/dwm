@@ -1,0 +1,16 @@
+[
+  {
+    "file": "focused.zip",
+    "bytes": 4445,
+    "sha256": "0a0d6fd3919492c6717603e07c5b0359f75cb03c8a6a0cab49b74713ee50ac8b",
+    "members": 4,
+    "crc_ok": true
+  },
+  {
+    "file": "preparation.zip",
+    "bytes": 10804111,
+    "sha256": "164601019668c12729b4da2383b4940da726a1a8a750cc2b80faaf31c806e251",
+    "members": 5280,
+    "crc_ok": true
+  }
+]
