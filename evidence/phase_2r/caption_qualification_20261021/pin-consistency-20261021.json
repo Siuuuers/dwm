@@ -1,0 +1,15 @@
+{
+  "status": "pass",
+  "product": "b7fb0e549f028f72717bd5ee9e4905517a365fdf",
+  "helper_ref": "bd421313cc3d368244e0c9d12e70a8b40552bbdb",
+  "sha256": {
+    "next_controller": "46b0cde5cbe3b7b00dd7dd500bac8ff9b7d3b91bb596bdfaafcb06d8aa418ea8",
+    "next_helper": "df3d9e136c2b4afb1b0e2fb78c18e510b45c0b7e72fb6ce00a45a2c7e8eaeba3",
+    "next_capture": "a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379",
+    "project": "5e8009d890f9e4359b24bb68a59fdec1bf56ef0a3ea94be06c3e43a6d2353053",
+    "preset": "76d904435496d2057572225b796f8b3c74f121a21254d211a6246caaf96efcaa"
+  },
+  "continue_owner_blob": "9e37a90dfb3ca1816df85e41fcc849da90bb64fa",
+  "controller_expected_head": "180006a2391fcff8d5c269f0684e98a8ba423d16",
+  "scope": "Final configuration consistency only; no engine execution. Imported-project hash remains runtime-gated."
+}
