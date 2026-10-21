@@ -7,6 +7,7 @@ const ACTION_SETTING := "dialogic/text/input_action"
 const TAP_LIMIT_MSEC := 500
 
 var _scene_input: Control
+var _accessible_continue: Control
 var _review_caption: Control
 var _caption: DialogicNode_DialogText
 var _viewport_control: ScrollContainer
@@ -52,6 +53,19 @@ func bind(caption: DialogicNode_DialogText, viewport_control: ScrollContainer, r
 
 func bind_scene_input(control: Control) -> void:
 	_scene_input = control
+
+func bind_accessible_continue(control: Control) -> void:
+	_accessible_continue = control
+	_retire_accessibility_accept()
+
+func is_accessibility_continue_admitted() -> bool:
+	return _admissible() and _contacts.is_empty() and _page_contacts.is_empty() \
+		and not _await_initial_neutral and not Input.is_action_pressed(_action()) and not _page_is_held() \
+		and (not is_instance_valid(_input_custody) or not _input_custody.has_method("get_physical_contacts") \
+		or _input_custody.call("get_physical_contacts").is_empty())
+
+func capture_accessibility_continue() -> Callable:
+	return capture_accessibility_accept(_focus_caption())
 
 func set_review_caption(control: Control) -> void:
 	_review_caption = control
@@ -119,6 +133,7 @@ func _retire_accessibility_accept() -> void:
 	_accessibility_generation += 1
 	if is_instance_valid(_caption): _caption.queue_accessibility_update()
 	if is_instance_valid(_review_caption): _review_caption.queue_accessibility_update()
+	if is_instance_valid(_accessible_continue): _accessible_continue.queue_accessibility_update()
 
 ## Capture both custody lifetime and native reveal identity; equal text is not identity.
 func capture_accessibility_accept(target: Control) -> Callable:
