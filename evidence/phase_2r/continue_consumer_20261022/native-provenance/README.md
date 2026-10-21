@@ -2,6 +2,12 @@
 
 Director scope authorization: PR30 comment6323039180, handoff8678181ef44c389d3f4c5943dc4b10533de9ff25. Prior C actual-result disposition6322520961/6322523809 and A API feasibility6322681010 are consumed. This packet does not clear a run.
 
+## Checksum correction after C review
+
+C6323370250/6323376330 identified one launch blocker in packetadeb08597f3861e0a76ee461ec99c23f964fb685: the declared preparation hash was computed after one final LF was omitted from a local copy. The published helper is unchanged: 13836 UTF-8 bytes, ending in two LF bytes, Git blobfb55c7f9525d8f6469eaaa87eb0f62f65c0c9160, actual SHA2561a02a4f8ddd85328274a72bf41d1cfe6275087ef6b6d51fa5573064e257d4570. Removing one LF reproduces the incorrect earlier digest19febf2379044c202a28e2bf7b2c418a2348653edac4082c487e43497540bfc3.
+
+This correction changes ONLY the inert controller PREPARATION_SHA256 and packet/restart documentation. Controller remains17233 bytes; new SHA256ef0b030b31fa3a68dca2deffefe5cc463352c6fe638beac27e6d7973a6ed9978. Full-byte fetch_file/fetch_blob equality and Git blob SHA1 reconstruction verify the helper, without trimming or newline normalization. Earlier content readback equality did not validate the declared checksum; the corrected digest now comes from those complete bytes. Sourcef4228bd9/helper249d82c4 are unchanged. C completed implementation/ABI/routing/preflight audits are reused; limited C delta verification is required before installation/dispatch. No runtime result claimed.
+
 ## One observable outcome
 
 Determine what provider/proxy description the supported native COM client obtains for the verified game window after the existing managed observation. The diagnostic reader owns this observation. Success of this investigation is a trustworthy distinction between raw description, empty/null/unsupported data, identity failure, API failure and cleanup failure. None of those alone establishes Continue acceptance.
@@ -12,8 +18,8 @@ This is explicitly an additive changed client route: managed FromHandle/FindAll/
 
 - Source f4228bd96afacdc182f895c8638e15eb2258c8e8, tree e563f6f1baecac8717fb63c12603873ce3e5b4b6, parent d57fc90af73141f1a19e871e48205adc9788208e; branch codex/a-native-provenance-source-20261022.
 - Exactly five changed paths, all under tools/testing: new ContinueNativeProvider.cs, Read-ContinueNativeProvider.ps1, Test-ContinueNativeProvider.ps1; opt-in routing changes in Invoke-IsolatedGodot.ps1 and Invoke-ContinuePublicationChecks.ps1. No GDScript/gameplay/save/history edits.
-- Helper249d82c4f1f63695236a69eda82480fe812a9632 changes only prepare_caption.py PRODUCT pin from helperff32e3488257ef3e2ab67ebdb24be7391f0047a9. SHA25619febf2379044c202a28e2bf7b2c418a2348653edac4082c487e43497540bfc3.
-- Inert native-controller.yml SHA256a40428625cd8c2385eec72c125d4f81e5bd80b9cd5cbdda6983d560deafd1953. Source/helper pins and helper hash updated; adds bounded native capability preflight + artifact upload before preparation, new script parse entries, and explicit -NativeProviderProvenance. Active PR30 workflow is not changed.
+- Helper249d82c4f1f63695236a69eda82480fe812a9632 changes only prepare_caption.py PRODUCT pin from helperff32e3488257ef3e2ab67ebdb24be7391f0047a9. SHA2561a02a4f8ddd85328274a72bf41d1cfe6275087ef6b6d51fa5573064e257d4570.
+- Inert native-controller.yml SHA256ef0b030b31fa3a68dca2deffefe5cc463352c6fe638beac27e6d7973a6ed9978. Source/helper pins and helper hash updated; adds bounded native capability preflight + artifact upload before preparation, new script parse entries, and explicit -NativeProviderProvenance. Active PR30 workflow is not changed.
 
 Source SHA256:
 
