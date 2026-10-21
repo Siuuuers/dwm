@@ -1,3 +1,13 @@
+# Current A outcome — 21 October2026 Hong Kong
+
+Run39580271894 FAILED: one initial-registration case,13/14 assertions,child exit1. Explicit counters show ZERO accessibility-update notifications during the post-mount/pre-rebind-through-timeout observation window; element/admission/capture stages were never reached. Initial/final cached Continue projection admitted and final visible; not continuous-state or earlier-mount proof. Preparation policies pass. No gameplay/completion qualification.
+
+[Immutable outcome, both original archives and exact limits](https://github.com/Siuuuers/dwm/blob/ed411846ab7d46efda6bdffc0ff7f8cbbad0f482/evidence/phase_2r/continue_registration_observation_20261021/run39580271894/README.md).166 exact parts retained with reconstruction/CRC/hash/Git-blob verification. Internal outcome review complete; external C review pending. Proposed next boundary is early mounting plus existing queue requests/natural delivery, not a speculative production fix. No next diagnostic installed/run. Director6312648905's single attempt consumed; controller0c65bae6 unchanged. No retries/export/merge/release; product/master/integration unchanged. Standing publication permission persists.
+
+Earlier launch/checkpoints below are historical.
+
+---
+
 # A launch checkpoint — 21 October 2026 (Hong Kong)
 
 C6312905215/6312908458 cleared exact packet72734fbd under Director6312648905. ONE official Windows Godot4.6.3-standard first-registration observation attempt is running: https://github.com/Siuuuers/dwm/actions/runs/39580271894 attempt1/job119155868837. Results pending; no qualification claim.
