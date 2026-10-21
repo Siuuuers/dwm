@@ -1,0 +1,58 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+WARNING: Your video card drivers seem not to support the required OpenGL 3.3 version, switching to ANGLE.
+   at: DisplayServerWindows (platform/windows/display_server_windows.cpp:7421)
+OpenGL API OpenGL ES 3.0 (ANGLE 2.1.1 git hash: aaebda1c5a40) - Compatibility - Using Device: Google Inc. (Microsoft) - ANGLE (Microsoft, Microsoft Basic Render Driver (0x0000008C) Direct3D11 vs_5_0 ps_5_0, D3D11-10.0.20348.5386)
+
+---  GUT  ---
+[INFO]:  using [D:/a/dwm/dwm/.godot/phase2r_tests/ae64f4ca-f6a7-4ebf-9b99-b0c784b4c32b/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/manual/test_continue_reveal_publication.gd
+* test_continue_initial_registration_observation
+    [Passed]:  ["Windows"] expected to not equal ["headless"]:  this test requires native accessibility registration
+    [Passed]:  isolated Continue profile initializes
+    [Passed]:  isolated Continue localization initializes
+    [Passed]:  [STRING_NAME(ready)] expected to equal [STRING_NAME(ready)]:  
+    [Passed] 
+    [Passed]:  standalone style exists before production selection
+    [Passed]:  Expected [DialogicLayout_WitnessedCaption:<CanvasLayer#491807312498>(default_layout_base.gd)] to be anything but NULL:  
+    [Passed]:  Expected [WitnessedCaptionLayer:<Node#492411292292>(WitnessedCaptionLayer.gd)] to be anything but NULL:  real Styles loader selected WitnessedCaptionLayer
+    [Passed] 
+    [Passed] 
+    [Passed]:  ["Continue"] expected to equal ["Continue"]:  
+    [Passed]:  mounted Continue source is admitted
+    [Passed]:  mounted Continue action is admitted
+CONTINUE_REGISTRATION_OBSERVATION {"counts":{"action_registered":0,"admission":0,"after_install":1,"after_rebind":1,"capture_enter":0,"capture_return":0,"element":0,"notification":0},"events":[{"facts":{"script":"(res://scripts/ui/witnessed/WitnessedAccessibleContinue.gd):<GDScript#-9223371870525454432>","surface_id":492897831585},"stage":"before_install","usec":10882742},{"facts":{"publications":0,"script":"():<GDScript#-9223371773737694807>"},"stage":"after_install","usec":10882820},{"facts":{"available":true,"label":"Continue","source_visible":true},"stage":"after_rebind","usec":10883007}],"final":{"available":true,"label":"Continue","outcome":"timeout","publications":0,"reveal":1,"script":"():<GDScript#-9223371773737694807>","source_visible":true,"surface_id":492897831585,"usec":15891529,"visible_in_tree":true},"last":{"after_install":{"facts":{"publications":0,"script":"():<GDScript#-9223371773737694807>"},"usec":10882815},"after_rebind":{"facts":{"available":true,"label":"Continue","source_visible":true},"usec":10883004}},"window":"before set_script through initial wait; excludes earlier mount"}
+    [Failed]:  Continue did not register a native action for reveal 1
+      at line -1
+0/1 passed.
+
+
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/manual/test_continue_reveal_publication.gd
+- test_continue_initial_registration_observation
+    [Failed]:  Continue did not register a native action for reveal 1
+          at line -1
+
+Totals
+------
+Scripts               1
+Tests                 1
+Passing Tests      none
+Failing Tests         1
+Asserts           13/14
+Time              6.306s
+
+
+Ran Tests matching "test_continue_initial_registration_observation"
+---- 1 failing tests ----
+
+Results saved to res://.godot/ci/continue-publication/initial-observation.xml
+[INFO]:  Exiting with code 1

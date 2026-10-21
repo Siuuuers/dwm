@@ -1,0 +1,69 @@
+{
+  "counts": {
+    "action_registered": 0,
+    "admission": 0,
+    "after_install": 1,
+    "after_rebind": 1,
+    "capture_enter": 0,
+    "capture_return": 0,
+    "element": 0,
+    "notification": 0
+  },
+  "events": [
+    {
+      "facts": {
+        "script": "(res://scripts/ui/witnessed/WitnessedAccessibleContinue.gd):<GDScript#-9223371870525454432>",
+        "surface_id": 492897831585
+      },
+      "stage": "before_install",
+      "usec": 10882742
+    },
+    {
+      "facts": {
+        "publications": 0,
+        "script": "():<GDScript#-9223371773737694807>"
+      },
+      "stage": "after_install",
+      "usec": 10882820
+    },
+    {
+      "facts": {
+        "available": true,
+        "label": "Continue",
+        "source_visible": true
+      },
+      "stage": "after_rebind",
+      "usec": 10883007
+    }
+  ],
+  "final": {
+    "available": true,
+    "label": "Continue",
+    "outcome": "timeout",
+    "publications": 0,
+    "reveal": 1,
+    "script": "():<GDScript#-9223371773737694807>",
+    "source_visible": true,
+    "surface_id": 492897831585,
+    "usec": 15891529,
+    "visible_in_tree": true
+  },
+  "last": {
+    "after_install": {
+      "facts": {
+        "publications": 0,
+        "script": "():<GDScript#-9223371773737694807>"
+      },
+      "usec": 10882815
+    },
+    "after_rebind": {
+      "facts": {
+        "available": true,
+        "label": "Continue",
+        "source_visible": true
+      },
+      "usec": 10883004
+    }
+  },
+  "window": "before set_script through initial wait; excludes earlier mount"
+}
