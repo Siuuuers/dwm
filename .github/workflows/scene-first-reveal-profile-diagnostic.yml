@@ -19,9 +19,9 @@ jobs:
       run:
         shell: pwsh
     env:
-      PRODUCT_SHA: 023f2d501ef0726075d3dd706535860bf2615ae6
-      SOURCE_SHA: 46d9d6eead37cc67e7349ba07c02fc1da76b6f9b
-      PREPARATION_SHA256: 3276b74abee01c669dd9ccc2ccf6b4e7c1dca0c7a309d403ffd20c24304209e8
+      PRODUCT_SHA: b95a6de6a633b1d199bffc540d87a89a05513a5e
+      SOURCE_SHA: f1bf66ce689a1358cb217563e6996997536bc4b0
+      PREPARATION_SHA256: 1220b4570afc48abcf894b6f8dd1489ce857eb1bc54674e41212dc6aa2fc2719
       CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
     steps:
       - uses: actions/checkout@v7
@@ -29,7 +29,7 @@ jobs:
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
-          ref: 023f2d501ef0726075d3dd706535860bf2615ae6
+          ref: b95a6de6a633b1d199bffc540d87a89a05513a5e
       - name: Windows PowerShell 5 shared receipt writer preflight
         id: receipt_preflight
         shell: powershell
@@ -49,6 +49,27 @@ jobs:
         with:
           name: reader-receipt-preflight-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/reader-receipt-preflight
+          if-no-files-found: error
+          retention-days: 7
+      - name: Windows PowerShell 5 engine selection preflight
+        id: selection_preflight
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $output = Join-Path $env:RUNNER_TEMP 'engine-selection-preflight'
+          New-Item -ItemType Directory -Force $output | Out-Null
+          & powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File ./tools/testing/Test-ContinueEngineSelection.ps1 -OutputDirectory $output *> (Join-Path $output 'preflight.log')
+          $code = $LASTEXITCODE
+          @{exit_code=$code; source=$env:PRODUCT_SHA; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'} | ConvertTo-Json | Set-Content (Join-Path $output 'process.json') -Encoding utf8
+          if ($code -ne 0) { throw "SELECTION_PREFLIGHT_EXIT: $code" }
+          $result = Get-Content (Join-Path $output 'result.json') -Raw | ConvertFrom-Json
+          if ($result.passed -ne $true -or $result.exit_code -ne 0) { throw 'SELECTION_PREFLIGHT_NOT_PASSED' }
+      - name: Preserve engine selection preflight evidence
+        if: always() && steps.selection_preflight.outcome != 'skipped'
+        uses: actions/upload-artifact@v4
+        with:
+          name: engine-selection-preflight-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/engine-selection-preflight
           if-no-files-found: error
           retention-days: 7
       - name: Pin external preparation helpers
@@ -92,7 +113,7 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           if ((git rev-parse HEAD).Trim() -cne $env:PRODUCT_SHA) { throw 'PRODUCT_PIN_MISMATCH' }
-          foreach ($path in @('tools/testing/Invoke-ContinuePublicationChecks.ps1','tools/testing/Invoke-CaptionNativeAccept.ps1','tools/testing/Invoke-IsolatedGodot.ps1','tools/testing/Read-ContinueAccessibility.ps1','tools/testing/Save-ContinueReaderEvent.ps1','tools/testing/Test-ContinueReaderReceipt.ps1')) {
+          foreach ($path in @('tools/testing/Invoke-ContinuePublicationChecks.ps1','tools/testing/Invoke-CaptionNativeAccept.ps1','tools/testing/Invoke-IsolatedGodot.ps1','tools/testing/Read-ContinueAccessibility.ps1','tools/testing/Save-ContinueReaderEvent.ps1','tools/testing/Test-ContinueReaderReceipt.ps1','tools/testing/Select-ContinueEngineChild.ps1','tools/testing/Test-ContinueEngineSelection.ps1')) {
             $tokens=$null; $parseErrors=$null
             $null=[Management.Automation.Language.Parser]::ParseFile((Join-Path $env:GITHUB_WORKSPACE $path),[ref]$tokens,[ref]$parseErrors)
             if ($parseErrors.Count -ne 0) { throw ($parseErrors | Out-String) }
