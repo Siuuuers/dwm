@@ -1,0 +1,306 @@
+﻿2026-10-21T07:55:26.8737007Z Current runner version: '2.337.0'
+2026-10-21T07:55:26.8760982Z ##[group]Runner Image Provisioner
+2026-10-21T07:55:26.8761783Z Hosted Compute Agent
+2026-10-21T07:55:26.8762291Z Version: 20261012.601
+2026-10-21T07:55:26.8762844Z Commit: f3dc54e1fb89da6852db922499a0233137369e1d
+2026-10-21T07:55:26.8763508Z Build Date: 2026-10-12T17:48:21Z
+2026-10-21T07:55:26.8764095Z Worker ID: {5544430b-7344-40df-bdb0-76d2366a7279}
+2026-10-21T07:55:26.8764743Z Region: westcentralus
+2026-10-21T07:55:26.8765232Z Cloud: Azure
+2026-10-21T07:55:26.8765690Z ##[endgroup]
+2026-10-21T07:55:26.8767076Z ##[group]Operating System
+2026-10-21T07:55:26.8767670Z Microsoft Windows Server 2022
+2026-10-21T07:55:26.8768249Z 10.0.20348
+2026-10-21T07:55:26.8768708Z Datacenter
+2026-10-21T07:55:26.8769161Z ##[endgroup]
+2026-10-21T07:55:26.8769687Z ##[group]Runner Image
+2026-10-21T07:55:26.8770231Z Image: windows-2022
+2026-10-21T07:55:26.8770747Z Version: 20261012.333.1
+2026-10-21T07:55:26.8772107Z Included Software: https://github.com/actions/runner-images/blob/win22/20261012.333/images/windows/Windows2022-Readme.md
+2026-10-21T07:55:26.8773557Z Image Release: https://github.com/actions/runner-images/releases/tag/win22%2F20261012.333
+2026-10-21T07:55:26.8774416Z ##[endgroup]
+2026-10-21T07:55:26.8775403Z ##[group]GITHUB_TOKEN Permissions
+2026-10-21T07:55:26.8777158Z Contents: read
+2026-10-21T07:55:26.8777719Z Metadata: read
+2026-10-21T07:55:26.8778225Z ##[endgroup]
+2026-10-21T07:55:26.8780587Z Secret source: Actions
+2026-10-21T07:55:26.8781858Z Cache mode: write
+2026-10-21T07:55:26.8782641Z Prepare workflow directory
+2026-10-21T07:55:26.9208848Z Prepare all required actions
+2026-10-21T07:55:26.9255440Z Getting action download info
+2026-10-21T07:55:27.2099659Z Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-10-21T07:55:27.3204324Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-21T07:55:27.6325326Z Complete job name: delivery
+2026-10-21T07:55:27.7962152Z ##[group]Run actions/checkout@v7
+2026-10-21T07:55:27.7963201Z with:
+2026-10-21T07:55:27.7963644Z   persist-credentials: true
+2026-10-21T07:55:27.7964191Z   ref: b7fb0e549f028f72717bd5ee9e4905517a365fdf
+2026-10-21T07:55:27.7964788Z   repository: Siuuuers/dwm
+2026-10-21T07:55:27.7968464Z   token: ***
+2026-10-21T07:55:27.7968883Z   ssh-strict: true
+2026-10-21T07:55:27.7969306Z   ssh-user: git
+2026-10-21T07:55:27.7969707Z   clean: true
+2026-10-21T07:55:27.7970130Z   sparse-checkout-cone-mode: true
+2026-10-21T07:55:27.7970643Z   fetch-depth: 1
+2026-10-21T07:55:27.7971069Z   fetch-tags: false
+2026-10-21T07:55:27.7971502Z   show-progress: true
+2026-10-21T07:55:27.7971941Z   lfs: false
+2026-10-21T07:55:27.7972343Z   submodules: false
+2026-10-21T07:55:27.7972778Z   set-safe-directory: true
+2026-10-21T07:55:27.7973275Z   allow-unsafe-pr-checkout: false
+2026-10-21T07:55:27.7973975Z env:
+2026-10-21T07:55:27.7974456Z   PRODUCT_SHA: b7fb0e549f028f72717bd5ee9e4905517a365fdf
+2026-10-21T07:55:27.7975191Z   SOURCE_SHA: c6ba4934914e7d3222d658352c61d04d0e57c374
+2026-10-21T07:55:27.7976049Z   PREPARATION_SHA256: 80d9abe7f3d79fb0d275ca79b3120d09988da0d85dc9fcea79581802b4ce8020
+2026-10-21T07:55:27.7977097Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T07:55:27.7977851Z ##[endgroup]
+2026-10-21T07:55:27.9499434Z Syncing repository: Siuuuers/dwm
+2026-10-21T07:55:27.9502488Z ##[group]Getting Git version info
+2026-10-21T07:55:27.9503888Z Working directory is 'D:\a\dwm\dwm'
+2026-10-21T07:55:28.0531506Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-21T07:55:28.3919639Z git version 2.56.0.windows.2
+2026-10-21T07:55:28.3957965Z ##[endgroup]
+2026-10-21T07:55:28.3972560Z Temporarily overriding HOME='D:\a\_temp\4d6fc634-e796-49da-9f9e-2365115c9a5c' before making global git config changes
+2026-10-21T07:55:28.3973907Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-21T07:55:28.3982944Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\dwm\dwm
+2026-10-21T07:55:28.4554871Z Deleting the contents of 'D:\a\dwm\dwm'
+2026-10-21T07:55:28.4558896Z ##[group]Determining repository object format
+2026-10-21T07:55:28.4561027Z ##[endgroup]
+2026-10-21T07:55:28.4563018Z ##[group]Initializing the repository
+2026-10-21T07:55:28.4571170Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\dwm\dwm
+2026-10-21T07:55:28.5794003Z Initialized empty Git repository in D:/a/dwm/dwm/.git/
+2026-10-21T07:55:28.5829739Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/Siuuuers/dwm
+2026-10-21T07:55:28.6409697Z ##[endgroup]
+2026-10-21T07:55:28.6410521Z ##[group]Disabling automatic garbage collection
+2026-10-21T07:55:28.6418422Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+2026-10-21T07:55:28.6707531Z ##[endgroup]
+2026-10-21T07:55:28.6708927Z ##[group]Setting up auth
+2026-10-21T07:55:28.6709997Z Removing SSH command configuration
+2026-10-21T07:55:28.6723487Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-21T07:55:28.7006882Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-21T07:55:30.2714568Z Removing HTTP extra header
+2026-10-21T07:55:30.2725032Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-21T07:55:30.3009855Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-21T07:55:30.7663713Z Removing includeIf entries pointing to credentials config files
+2026-10-21T07:55:30.7675560Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-21T07:55:30.7952251Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-21T07:55:31.2536496Z [command]"C:\Program Files\Git\bin\git.exe" config --file D:\a\_temp\git-credentials-60423681-f57a-412a-9a55-80b8ad5de554.config http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-10-21T07:55:31.2839034Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/dwm/dwm/.git.path D:\a\_temp\git-credentials-60423681-f57a-412a-9a55-80b8ad5de554.config
+2026-10-21T07:55:31.3136649Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/dwm/dwm/.git/worktrees/*.path D:\a\_temp\git-credentials-60423681-f57a-412a-9a55-80b8ad5de554.config
+2026-10-21T07:55:31.3478902Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-60423681-f57a-412a-9a55-80b8ad5de554.config
+2026-10-21T07:55:31.3775425Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-60423681-f57a-412a-9a55-80b8ad5de554.config
+2026-10-21T07:55:31.4054257Z ##[endgroup]
+2026-10-21T07:55:31.4054659Z ##[group]Fetching the repository
+2026-10-21T07:55:31.4065477Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin b7fb0e549f028f72717bd5ee9e4905517a365fdf
+2026-10-21T07:55:45.0754082Z From https://github.com/Siuuuers/dwm
+2026-10-21T07:55:45.0755027Z  * branch            b7fb0e549f028f72717bd5ee9e4905517a365fdf -> FETCH_HEAD
+2026-10-21T07:55:45.0805816Z [command]"C:\Program Files\Git\bin\git.exe" rev-parse --verify --quiet b7fb0e549f028f72717bd5ee9e4905517a365fdf^{object}
+2026-10-21T07:55:45.1176340Z b7fb0e549f028f72717bd5ee9e4905517a365fdf
+2026-10-21T07:55:45.1204251Z ##[endgroup]
+2026-10-21T07:55:45.1204660Z ##[group]Determining the checkout info
+2026-10-21T07:55:45.1205059Z ##[endgroup]
+2026-10-21T07:55:45.1213012Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+2026-10-21T07:55:45.1666450Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-10-21T07:55:45.1948691Z ##[group]Checking out the ref
+2026-10-21T07:55:45.1956836Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force b7fb0e549f028f72717bd5ee9e4905517a365fdf
+2026-10-21T07:55:46.3154939Z Updating files:  33% (4441/13422)
+2026-10-21T07:55:46.3393278Z Updating files:  34% (4564/13422)
+2026-10-21T07:55:46.3788322Z Updating files:  35% (4698/13422)
+2026-10-21T07:55:46.4347154Z Updating files:  36% (4832/13422)
+2026-10-21T07:55:46.5002104Z Updating files:  37% (4967/13422)
+2026-10-21T07:55:46.5509677Z Updating files:  38% (5101/13422)
+2026-10-21T07:55:46.5869251Z Updating files:  39% (5235/13422)
+2026-10-21T07:55:46.6661522Z Updating files:  40% (5369/13422)
+2026-10-21T07:55:46.6922981Z Updating files:  41% (5504/13422)
+2026-10-21T07:55:46.7179572Z Updating files:  42% (5638/13422)
+2026-10-21T07:55:46.7424366Z Updating files:  43% (5772/13422)
+2026-10-21T07:55:46.7662652Z Updating files:  44% (5906/13422)
+2026-10-21T07:55:46.7950625Z Updating files:  45% (6040/13422)
+2026-10-21T07:55:46.8288413Z Updating files:  46% (6175/13422)
+2026-10-21T07:55:46.8676004Z Updating files:  47% (6309/13422)
+2026-10-21T07:55:46.9072561Z Updating files:  48% (6443/13422)
+2026-10-21T07:55:46.9447974Z Updating files:  49% (6577/13422)
+2026-10-21T07:55:46.9763937Z Updating files:  50% (6711/13422)
+2026-10-21T07:55:47.0267691Z Updating files:  51% (6846/13422)
+2026-10-21T07:55:47.0629896Z Updating files:  52% (6980/13422)
+2026-10-21T07:55:47.2069071Z Updating files:  53% (7114/13422)
+2026-10-21T07:55:47.2645553Z Updating files:  54% (7248/13422)
+2026-10-21T07:55:47.2939327Z Updating files:  54% (7359/13422)
+2026-10-21T07:55:47.4123508Z Updating files:  55% (7383/13422)
+2026-10-21T07:55:47.4434766Z Updating files:  56% (7517/13422)
+2026-10-21T07:55:47.4823079Z Updating files:  57% (7651/13422)
+2026-10-21T07:55:47.6575891Z Updating files:  58% (7785/13422)
+2026-10-21T07:55:47.7079794Z Updating files:  59% (7919/13422)
+2026-10-21T07:55:47.9403839Z Updating files:  60% (8054/13422)
+2026-10-21T07:55:48.1193483Z Updating files:  61% (8188/13422)
+2026-10-21T07:55:48.2839215Z Updating files:  62% (8322/13422)
+2026-10-21T07:55:48.3986867Z Updating files:  62% (8400/13422)
+2026-10-21T07:55:48.5624675Z Updating files:  63% (8456/13422)
+2026-10-21T07:55:48.6097461Z Updating files:  64% (8591/13422)
+2026-10-21T07:55:48.6490118Z Updating files:  65% (8725/13422)
+2026-10-21T07:55:48.7220243Z Updating files:  66% (8859/13422)
+2026-10-21T07:55:48.9602310Z Updating files:  67% (8993/13422)
+2026-10-21T07:55:48.9949397Z Updating files:  68% (9127/13422)
+2026-10-21T07:55:49.0442591Z Updating files:  69% (9262/13422)
+2026-10-21T07:55:49.0765112Z Updating files:  70% (9396/13422)
+2026-10-21T07:55:49.1092692Z Updating files:  71% (9530/13422)
+2026-10-21T07:55:49.1445568Z Updating files:  72% (9664/13422)
+2026-10-21T07:55:49.1811983Z Updating files:  73% (9799/13422)
+2026-10-21T07:55:49.2194970Z Updating files:  74% (9933/13422)
+2026-10-21T07:55:49.2562952Z Updating files:  75% (10067/13422)
+2026-10-21T07:55:49.2670456Z Updating files:  76% (10201/13422)
+2026-10-21T07:55:49.2955086Z Updating files:  76% (10241/13422)
+2026-10-21T07:55:49.3316188Z Updating files:  77% (10335/13422)
+2026-10-21T07:55:49.4707373Z Updating files:  78% (10470/13422)
+2026-10-21T07:55:49.5003376Z Updating files:  79% (10604/13422)
+2026-10-21T07:55:49.5265696Z Updating files:  80% (10738/13422)
+2026-10-21T07:55:49.5551817Z Updating files:  81% (10872/13422)
+2026-10-21T07:55:49.5797630Z Updating files:  82% (11007/13422)
+2026-10-21T07:55:49.6032460Z Updating files:  83% (11141/13422)
+2026-10-21T07:55:49.6286002Z Updating files:  84% (11275/13422)
+2026-10-21T07:55:49.6505682Z Updating files:  85% (11409/13422)
+2026-10-21T07:55:49.6756443Z Updating files:  86% (11543/13422)
+2026-10-21T07:55:49.6999333Z Updating files:  87% (11678/13422)
+2026-10-21T07:55:49.7207076Z Updating files:  88% (11812/13422)
+2026-10-21T07:55:49.7447261Z Updating files:  89% (11946/13422)
+2026-10-21T07:55:49.7679904Z Updating files:  90% (12080/13422)
+2026-10-21T07:55:49.7903294Z Updating files:  91% (12215/13422)
+2026-10-21T07:55:49.8142183Z Updating files:  92% (12349/13422)
+2026-10-21T07:55:49.8392030Z Updating files:  93% (12483/13422)
+2026-10-21T07:55:49.8653147Z Updating files:  94% (12617/13422)
+2026-10-21T07:55:49.8880593Z Updating files:  95% (12751/13422)
+2026-10-21T07:55:49.9118533Z Updating files:  96% (12886/13422)
+2026-10-21T07:55:49.9345274Z Updating files:  97% (13020/13422)
+2026-10-21T07:55:49.9595668Z Updating files:  98% (13154/13422)
+2026-10-21T07:55:49.9901910Z Updating files:  99% (13288/13422)
+2026-10-21T07:55:49.9902479Z Updating files: 100% (13422/13422)
+2026-10-21T07:55:49.9902772Z Updating files: 100% (13422/13422), done.
+2026-10-21T07:55:50.0159273Z Note: switching to 'b7fb0e549f028f72717bd5ee9e4905517a365fdf'.
+2026-10-21T07:55:50.0159747Z 
+2026-10-21T07:55:50.0160062Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-21T07:55:50.0160859Z changes and commit them, and you can discard any commits you make in this
+2026-10-21T07:55:50.0161669Z state without impacting any branches by switching back to a branch.
+2026-10-21T07:55:50.0162157Z 
+2026-10-21T07:55:50.0162461Z If you want to create a new branch to retain commits you create, you may
+2026-10-21T07:55:50.0163216Z do so (now or later) by using -c with the switch command. Example:
+2026-10-21T07:55:50.0163648Z 
+2026-10-21T07:55:50.0163864Z   git switch -c <new-branch-name>
+2026-10-21T07:55:50.0164162Z 
+2026-10-21T07:55:50.0164300Z Or undo this operation with:
+2026-10-21T07:55:50.0164555Z 
+2026-10-21T07:55:50.0164674Z   git switch -
+2026-10-21T07:55:50.0165209Z 
+2026-10-21T07:55:50.0165567Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-21T07:55:50.0166099Z 
+2026-10-21T07:55:50.0166547Z HEAD is now at b7fb0e5 Initialize real display owners in isolated Continue publication fixture
+2026-10-21T07:55:50.0769288Z ##[endgroup]
+2026-10-21T07:55:50.1103553Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-10-21T07:55:50.1378334Z b7fb0e549f028f72717bd5ee9e4905517a365fdf
+2026-10-21T07:55:50.1749310Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-10-21T07:55:50.1749887Z [36;1m$ErrorActionPreference = 'Stop'[0m
+2026-10-21T07:55:50.1750275Z [36;1m$output = Join-Path $env:RUNNER_TEMP 'preparation-evidence'[0m
+2026-10-21T07:55:50.1750743Z [36;1mNew-Item -ItemType Directory -Force $output | Out-Null[0m
+2026-10-21T07:55:50.1751588Z [36;1mif ($env:SOURCE_SHA -cnotmatch '^[a-f0-9]{40}$' -or $env:PREPARATION_SHA256 -cnotmatch '^[a-f0-9]{64}$' -or $env:CAPTURE_SHA256 -cnotmatch '^[a-f0-9]{64}$') { throw 'PREPARATION_REVIEW_PINS_REQUIRED' }[0m
+2026-10-21T07:55:50.1752449Z [36;1m$helpers = Join-Path $env:RUNNER_TEMP 'reviewed-preparation'[0m
+2026-10-21T07:55:50.1752890Z [36;1mNew-Item -ItemType Directory -Force $helpers | Out-Null[0m
+2026-10-21T07:55:50.1753284Z [36;1m$prepare = Join-Path $helpers 'prepare_caption.py'[0m
+2026-10-21T07:55:50.1753641Z [36;1m$capture = Join-Path $helpers 'capture_import.py'[0m
+2026-10-21T07:55:50.1754547Z [36;1mInvoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/caption_qualification_20261021/prepare_caption.py" -OutFile $prepare[0m
+2026-10-21T07:55:50.1755778Z [36;1mInvoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/import_integrity_20261020/capture_import.py" -OutFile $capture[0m
+2026-10-21T07:55:50.1756848Z [36;1mif ((Get-FileHash $prepare -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:PREPARATION_SHA256) { throw 'PREPARATION_HASH_MISMATCH' }[0m
+2026-10-21T07:55:50.1757953Z [36;1mif ((Get-FileHash $capture -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:CAPTURE_SHA256) { throw 'CAPTURE_HASH_MISMATCH' }[0m
+2026-10-21T07:55:50.1758570Z [36;1mCopy-Item $prepare, $capture $output[0m
+2026-10-21T07:55:50.1759029Z [36;1m"PREPARATION_HELPER=$prepare" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8[0m
+2026-10-21T07:55:50.1761645Z [36;1m@{product=$env:PRODUCT_SHA; source=$env:SOURCE_SHA; preparation_sha256=$env:PREPARATION_SHA256; capture_sha256=$env:CAPTURE_SHA256; controller='180006a2391fcff8d5c269f0684e98a8ba423d16'; workflow='4b94bb83466178c1f5aac088dc59e4377a3019ea'; run_id='39565418926'; attempt='1'; powershell=$PSVersionTable.PSVersion.ToString(); os=[Environment]::OSVersion.ToString(); architecture=[Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString(); runner_image=$env:ImageOS; runner_image_version=$env:ImageVersion; python=(& python --version); git=(& git --version)} | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $output 'preparation-origin.json') -Encoding utf8[0m
+2026-10-21T07:55:50.1872498Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-21T07:55:50.1872981Z env:
+2026-10-21T07:55:50.1873284Z   PRODUCT_SHA: b7fb0e549f028f72717bd5ee9e4905517a365fdf
+2026-10-21T07:55:50.1873711Z   SOURCE_SHA: c6ba4934914e7d3222d658352c61d04d0e57c374
+2026-10-21T07:55:50.1874284Z   PREPARATION_SHA256: 80d9abe7f3d79fb0d275ca79b3120d09988da0d85dc9fcea79581802b4ce8020
+2026-10-21T07:55:50.1875006Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T07:55:50.1875537Z ##[endgroup]
+2026-10-21T07:55:51.5579340Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-10-21T07:55:51.5579771Z [36;1m$ErrorActionPreference = 'Stop'[0m
+2026-10-21T07:55:51.5580129Z [36;1m$PSNativeCommandUseErrorActionPreference = $false[0m
+2026-10-21T07:55:51.5580568Z [36;1m$output = Join-Path $env:RUNNER_TEMP 'preparation-evidence'[0m
+2026-10-21T07:55:51.5581338Z [36;1m& python $env:PREPARATION_HELPER --phase before --root $env:GITHUB_WORKSPACE --output $output *> (Join-Path $output 'preparation-before.log')[0m
+2026-10-21T07:55:51.5581975Z [36;1m$code = $LASTEXITCODE[0m
+2026-10-21T07:55:51.5582284Z [36;1mif ($code -ne 0) { throw "PREPARATION_BEFORE_EXIT: $code" }[0m
+2026-10-21T07:55:51.5624867Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-21T07:55:51.5625208Z env:
+2026-10-21T07:55:51.5625434Z   PRODUCT_SHA: b7fb0e549f028f72717bd5ee9e4905517a365fdf
+2026-10-21T07:55:51.5625786Z   SOURCE_SHA: c6ba4934914e7d3222d658352c61d04d0e57c374
+2026-10-21T07:55:51.5626263Z   PREPARATION_SHA256: 80d9abe7f3d79fb0d275ca79b3120d09988da0d85dc9fcea79581802b4ce8020
+2026-10-21T07:55:51.5626847Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T07:55:51.5627363Z   PREPARATION_HELPER: D:\a\_temp\reviewed-preparation\prepare_caption.py
+2026-10-21T07:55:51.5627720Z ##[endgroup]
+2026-10-21T07:55:53.3228057Z [31;1mException: [0mD:\a\_temp\c0961e51-5ea3-4db7-834a-7da458ef9940.ps1:7[0m
+2026-10-21T07:55:53.3229326Z [31;1m[0m[36;1mLine |[0m
+2026-10-21T07:55:53.3230272Z [31;1m[0m[36;1m[36;1m   7 | [0m if ($code -ne 0) { [36;1mthrow "PREPARATION_BEFORE_EXIT: $code"[0m }[0m
+2026-10-21T07:55:53.3231269Z [31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+2026-10-21T07:55:53.3232266Z [31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mPREPARATION_BEFORE_EXIT: 1[0m
+2026-10-21T07:55:53.3686972Z ##[error]Process completed with exit code 1.
+2026-10-21T07:55:53.3867282Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-10-21T07:55:53.3867706Z [36;1m$ErrorActionPreference = 'Stop'[0m
+2026-10-21T07:55:53.3868076Z [36;1m$PSNativeCommandUseErrorActionPreference = $false[0m
+2026-10-21T07:55:53.3868514Z [36;1m$output = Join-Path $env:RUNNER_TEMP 'preparation-evidence'[0m
+2026-10-21T07:55:53.3869947Z [36;1m& python $env:PREPARATION_HELPER --phase after --root $env:GITHUB_WORKSPACE --output $output *> (Join-Path $output 'preparation-after.log')[0m
+2026-10-21T07:55:53.3870571Z [36;1m$code = $LASTEXITCODE[0m
+2026-10-21T07:55:53.3870903Z [36;1mif ($code -ne 0) { throw "PREPARATION_AFTER_EXIT: $code" }[0m
+2026-10-21T07:55:53.3908990Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-21T07:55:53.3909333Z env:
+2026-10-21T07:55:53.3909574Z   PRODUCT_SHA: b7fb0e549f028f72717bd5ee9e4905517a365fdf
+2026-10-21T07:55:53.3909907Z   SOURCE_SHA: c6ba4934914e7d3222d658352c61d04d0e57c374
+2026-10-21T07:55:53.3910383Z   PREPARATION_SHA256: 80d9abe7f3d79fb0d275ca79b3120d09988da0d85dc9fcea79581802b4ce8020
+2026-10-21T07:55:53.3910952Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T07:55:53.3911482Z   PREPARATION_HELPER: D:\a\_temp\reviewed-preparation\prepare_caption.py
+2026-10-21T07:55:53.3911853Z ##[endgroup]
+2026-10-21T07:55:53.9072506Z [31;1mException: [0mD:\a\_temp\d5813851-6d64-4be8-9f7c-9bb2c8af6c36.ps1:7[0m
+2026-10-21T07:55:53.9073642Z [31;1m[0m[36;1mLine |[0m
+2026-10-21T07:55:53.9074527Z [31;1m[0m[36;1m[36;1m   7 | [0m if ($code -ne 0) { [36;1mthrow "PREPARATION_AFTER_EXIT: $code"[0m }[0m
+2026-10-21T07:55:53.9075302Z [31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+2026-10-21T07:55:53.9075949Z [31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mPREPARATION_AFTER_EXIT: 1[0m
+2026-10-21T07:55:53.9531982Z ##[error]Process completed with exit code 1.
+2026-10-21T07:55:53.9743274Z ##[group]Run actions/upload-artifact@v4
+2026-10-21T07:55:53.9743602Z with:
+2026-10-21T07:55:53.9743818Z   name: caption-preparation-39565418926-1
+2026-10-21T07:55:53.9744103Z   path: D:\a\_temp/preparation-evidence
+2026-10-21T07:55:53.9744360Z   include-hidden-files: true
+2026-10-21T07:55:53.9744584Z   if-no-files-found: error
+2026-10-21T07:55:53.9744809Z   retention-days: 7
+2026-10-21T07:55:53.9745002Z   compression-level: 6
+2026-10-21T07:55:53.9745191Z   overwrite: false
+2026-10-21T07:55:53.9745364Z env:
+2026-10-21T07:55:53.9745569Z   PRODUCT_SHA: b7fb0e549f028f72717bd5ee9e4905517a365fdf
+2026-10-21T07:55:53.9745889Z   SOURCE_SHA: c6ba4934914e7d3222d658352c61d04d0e57c374
+2026-10-21T07:55:53.9746320Z   PREPARATION_SHA256: 80d9abe7f3d79fb0d275ca79b3120d09988da0d85dc9fcea79581802b4ce8020
+2026-10-21T07:55:53.9746874Z   CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+2026-10-21T07:55:53.9747427Z   PREPARATION_HELPER: D:\a\_temp\reviewed-preparation\prepare_caption.py
+2026-10-21T07:55:53.9747776Z ##[endgroup]
+2026-10-21T07:55:54.1608155Z (node:6492) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-21T07:55:54.1608855Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-21T07:55:54.1693892Z With the provided path, there will be 7 files uploaded
+2026-10-21T07:55:54.1699043Z Artifact name is valid!
+2026-10-21T07:55:54.1701549Z Root directory input is valid!
+2026-10-21T07:55:54.4921219Z Beginning upload of artifact content to blob storage
+2026-10-21T07:55:54.5238492Z (node:6492) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-21T07:55:54.7201222Z Uploaded bytes 10303
+2026-10-21T07:55:54.7780458Z Finished uploading artifact content to blob storage!
+2026-10-21T07:55:54.7782167Z SHA256 digest of uploaded artifact zip is 6066181480ce70579984ab006efd6f0c7541eb9dce401b6b825d4190ce0d911f
+2026-10-21T07:55:54.7784580Z Finalizing artifact upload
+2026-10-21T07:55:55.0105656Z Artifact caption-preparation-39565418926-1.zip successfully finalized. Artifact ID 12329298201
+2026-10-21T07:55:55.0107059Z Artifact caption-preparation-39565418926-1 has been successfully uploaded! Final size is 10303 bytes. Artifact ID is 12329298201
+2026-10-21T07:55:55.0116865Z Artifact download URL: https://github.com/Siuuuers/dwm/actions/runs/39565418926/artifacts/12329298201
+2026-10-21T07:55:55.0415100Z Post job cleanup.
+2026-10-21T07:55:55.2320323Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-21T07:55:55.2583830Z git version 2.56.0.windows.2
+2026-10-21T07:55:55.2636753Z Temporarily overriding HOME='D:\a\_temp\db4746e7-8900-4778-93eb-69c08823b78a' before making global git config changes
+2026-10-21T07:55:55.2638030Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-21T07:55:55.2649811Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\dwm\dwm
+2026-10-21T07:55:55.2939144Z Removing SSH command configuration
+2026-10-21T07:55:55.2949929Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-21T07:55:55.3249916Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-21T07:55:55.8257102Z fatal: No url found for submodule path '.claude/skills/godot-prompter/1.10.0' in .gitmodules
+2026-10-21T07:55:55.8345005Z ##[warning]The process 'C:\Program Files\Git\bin\git.exe' failed with exit code 128
+2026-10-21T07:55:55.8486182Z Cleaning up orphan processes
+2026-10-21T07:55:55.8517473Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

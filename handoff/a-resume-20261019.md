@@ -1,10 +1,10 @@
-# C-cleared Continue fixture attempt launched
+# Focused run failed before Godot; exact helper pin correction prepared
 
-21 October2026 (Hong Kong). External C6310888192/6310891702 cleared exact source b7fb0e549f028f72717bd5ee9e4905517a365fdf and controller SHA2560d6ff2d5714eebf179431812a6c62afa0688fb0680882090b24a1b8f5d17183b under Director6310120484. Expected-head installation from464f9ab654c659d20208223de53b01254241e829 succeeded: controller180006a2391fcff8d5c269f0684e98a8ba423d16.
+21 October2026. Run39565418926 attempt1/job119106398917 FAILED before baseline capture: unchanged helper PRODUCT=b2cb75a refused actual sourceb7fb0e54 with PRODUCT_PIN_CHANGED. Controller180006a2 is consumed. No Godot install/import, eight-case tests or native fixture ran. Always-after capture also failed from missing baseline; upload passed; checkout cleanup was marked success but logged existing gitlink exit128 warning.
 
-ONE focused [run39565418926](https://github.com/Siuuuers/dwm/actions/runs/39565418926), attempt1, job119106398917 is registered and running. Helper c6ba4934914e7d3222d658352c61d04d0e57c374 unchanged. The eight-case→native success gate and first-failure stop remain. Results pending; no acceptance claim. Separate Windows automated run39565419083 was naturally triggered; it is not another manually dispatched attempt and its result must remain separate.
+[Original evidence, precise diagnosis and inert correction](../evidence/phase_2r/caption_qualification_20261021/run39565418926/README.md). Original10303byte ZIP retained and independently hashed/CRC/member checked. Helper candidatebd421313cc3d368244e0c9d12e70a8b40552bbdb changes only the fixed product pin; proposed controller hash46b0cde5cbe3b7b00dd7dd500bac8ff9b7d3b91bb596bdfaafcb06d8aa418ea8 changes only helper source/hash. Sourceb7fb0e54 and all guards/waits remain unchanged. Offline pin checks pass, no runtime claim.
 
-Next action: inspect actual focused result/logs/artifacts, preserve original bytes and process outcomes, then C reviews the outcome. No retry or further controller update. No exported run, product/master/integration movement, merge or release. Standing user publication permission remains linked below; no repeated user permission request is needed.
+Next: external C actual-result and exact proposal review, then Director selects/reconciles any new attempt. No retry or active controller change. Standing publication permission remains in force. Product/master/integration unchanged; no export/merge/release.
 
 ---
 

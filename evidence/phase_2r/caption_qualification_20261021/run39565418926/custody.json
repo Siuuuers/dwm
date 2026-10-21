@@ -1,0 +1,43 @@
+{
+  "artifact_id": 12329298201,
+  "size": 10303,
+  "sha256": "6066181480ce70579984ab006efd6f0c7541eb9dce401b6b825d4190ce0d911f",
+  "crc": "pass",
+  "members": [
+    {
+      "path": "after-failure.json",
+      "size": 125,
+      "sha256": "2b2dd8ba99cf295d3794d26c0dd06ba5895a669307ab5795bfdd18c61b5d21fc"
+    },
+    {
+      "path": "before-failure.json",
+      "size": 40,
+      "sha256": "d7e4d67c4869f303d86d43a97c2dc0fb1c523a295ad6cf4d530da31777bd858b"
+    },
+    {
+      "path": "capture_import.py",
+      "size": 9663,
+      "sha256": "a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379"
+    },
+    {
+      "path": "preparation-after.log",
+      "size": 1128,
+      "sha256": "662c4298cb6bb3e035d2e4bc004a213062a5c74ee6accd32d266d81c7f7fde3c"
+    },
+    {
+      "path": "preparation-before.log",
+      "size": 572,
+      "sha256": "98d9254a1c35b50f57f3475a7cd2614a73ea250ce4e2643c2be3ffb3502628ec"
+    },
+    {
+      "path": "preparation-origin.json",
+      "size": 713,
+      "sha256": "f2e50f6f2edef7b800eb231896babd2321853cd31125fe6a88047e9042a91f59"
+    },
+    {
+      "path": "prepare_caption.py",
+      "size": 13835,
+      "sha256": "80d9abe7f3d79fb0d275ca79b3120d09988da0d85dc9fcea79581802b4ce8020"
+    }
+  ]
+}
