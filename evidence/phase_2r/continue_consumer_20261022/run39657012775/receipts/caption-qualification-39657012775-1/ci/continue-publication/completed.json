@@ -1,0 +1,11 @@
+[
+  {
+    "id": "initial-observation",
+    "script": "tests/manual/test_continue_reveal_publication.gd",
+    "test": "test_continue_initial_registration_observation",
+    "passed": 1,
+    "skipped": 0,
+    "assertions": 16,
+    "log": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\continue-publication-initial-observation.log"
+  }
+]

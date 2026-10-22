@@ -1,0 +1,270 @@
+{
+    "reader_pid":  792,
+    "clock":  "system UTC Unix milliseconds; elapsed uses Stopwatch",
+    "status":  "engine_exited",
+    "ok":  true,
+    "discovered":  true,
+    "identity":  {
+                     "pid":  1168,
+                     "parent_pid":  8160,
+                     "executable":  "D:\\a\\_temp\\godot-4.6.3\\Godot_v4.6.3-stable_win64.exe",
+                     "command_line":  "D:\\a\\_temp\\godot-4.6.3\\Godot_v4.6.3-stable_win64.exe --rendering-method gl_compatibility --audio-driver Dummy --path D:\\a\\dwm\\dwm --log-file D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\continue-publication-initial-observation.log --verbose --accessibility always -s res://addons/gut/gut_cmdln.gd -gconfig= -gtest=res://tests/manual/test_continue_reveal_publication.gd -gunit_test_name=test_continue_initial_registration_observation -gexit -glog=2 -gdisable_colors -gjunit_xml_file=res://.godot/ci/continue-publication/initial-observation.xml",
+                     "created_utc":  "2026-10-21T18:57:37.5610630Z",
+                     "native_start_ticks":  "639282058575610632",
+                     "launcher_pid":  8160
+                 },
+    "hwnd":  262608,
+    "attachment_started_unix_msec":  1792609058821,
+    "attachment_completed_unix_msec":  1792609064416,
+    "discovery_started_unix_msec":  1792609064461,
+    "discovery_completed_unix_msec":  1792609064584,
+    "reader_completed_unix_msec":  1792609068832,
+    "descendant_count":  0,
+    "error":  null,
+    "exit_code":  0,
+    "events":  [
+                   {
+                       "stage":  "reader_start",
+                       "unix_msec":  1792609057889,
+                       "elapsed_msec":  132.0538
+                   },
+                   {
+                       "stage":  "identity_start",
+                       "unix_msec":  1792609058650,
+                       "elapsed_msec":  883.4102
+                   },
+                   {
+                       "stage":  "child_selection",
+                       "unix_msec":  1792609058754,
+                       "elapsed_msec":  988.02320000000009
+                   },
+                   {
+                       "stage":  "identity_bound",
+                       "unix_msec":  1792609058796,
+                       "elapsed_msec":  1029.6642
+                   },
+                   {
+                       "stage":  "attachment_start",
+                       "unix_msec":  1792609058821,
+                       "elapsed_msec":  1055.2549000000001
+                   },
+                   {
+                       "stage":  "attachment_return",
+                       "unix_msec":  1792609064416,
+                       "elapsed_msec":  6650.938
+                   },
+                   {
+                       "stage":  "discovery_start",
+                       "unix_msec":  1792609064461,
+                       "elapsed_msec":  6695.6782
+                   },
+                   {
+                       "stage":  "discovery_success",
+                       "unix_msec":  1792609064584,
+                       "elapsed_msec":  6819.4757
+                   },
+                   {
+                       "stage":  "provider_observation_start",
+                       "unix_msec":  1792609064586,
+                       "elapsed_msec":  6821.17
+                   },
+                   {
+                       "stage":  "provider_observation_complete",
+                       "unix_msec":  1792609064601,
+                       "elapsed_msec":  6835.3799
+                   },
+                   {
+                       "stage":  "native_interop_start",
+                       "unix_msec":  1792609064605,
+                       "elapsed_msec":  6839.4396000000006
+                   },
+                   {
+                       "stage":  "native_interop_ready",
+                       "unix_msec":  1792609065142,
+                       "elapsed_msec":  7376.0129000000006
+                   },
+                   {
+                       "stage":  "native_activate_start",
+                       "unix_msec":  1792609065190,
+                       "elapsed_msec":  7424.5265
+                   },
+                   {
+                       "stage":  "native_activate_return",
+                       "unix_msec":  1792609065200,
+                       "elapsed_msec":  7433.8234
+                   },
+                   {
+                       "stage":  "native_attach_start",
+                       "unix_msec":  1792609065221,
+                       "elapsed_msec":  7455.6086000000005
+                   },
+                   {
+                       "stage":  "native_attach_return",
+                       "unix_msec":  1792609066907,
+                       "elapsed_msec":  9141.7265
+                   },
+                   {
+                       "stage":  "native_property_30002_start",
+                       "unix_msec":  1792609066929,
+                       "elapsed_msec":  9163.4776
+                   },
+                   {
+                       "stage":  "native_property_30002_return",
+                       "unix_msec":  1792609066936,
+                       "elapsed_msec":  9170.2903
+                   },
+                   {
+                       "stage":  "native_property_30020_start",
+                       "unix_msec":  1792609066957,
+                       "elapsed_msec":  9190.8090000000011
+                   },
+                   {
+                       "stage":  "native_property_30020_return",
+                       "unix_msec":  1792609066958,
+                       "elapsed_msec":  9192.6582
+                   },
+                   {
+                       "stage":  "native_property_30107_start",
+                       "unix_msec":  1792609066993,
+                       "elapsed_msec":  9226.7939
+                   },
+                   {
+                       "stage":  "native_property_30107_return",
+                       "unix_msec":  1792609066996,
+                       "elapsed_msec":  9230.2513
+                   },
+                   {
+                       "stage":  "native_provenance_complete",
+                       "unix_msec":  1792609067035,
+                       "elapsed_msec":  9268.7743000000009
+                   },
+                   {
+                       "stage":  "engine_exit_observed",
+                       "unix_msec":  1792609068824,
+                       "elapsed_msec":  11058.985400000001
+                   },
+                   {
+                       "stage":  "reader_complete",
+                       "unix_msec":  1792609068832,
+                       "elapsed_msec":  11071.1592
+                   }
+               ],
+    "client_route":  "managed-discovery-then-native-COM-provenance",
+    "native_provider":  {
+                            "status":  "observed",
+                            "operations":  [
+                                               {
+                                                   "Operation":  "activate",
+                                                   "PropertyId":  null,
+                                                   "HResult":  "0x00000000",
+                                                   "NativeCall":  "UiaGetReservedNotSupportedValue",
+                                                   "State":  "ok",
+                                                   "Value":  "ff48dba4-60ef-4201-aa87-54103eef594e",
+                                                   "ValueType":  "CLSID",
+                                                   "Error":  null,
+                                                   "ErrorHResult":  null
+                                               },
+                                               {
+                                                   "Operation":  "element_from_handle",
+                                                   "PropertyId":  null,
+                                                   "HResult":  "0x00000000",
+                                                   "NativeCall":  "IUIAutomation.ElementFromHandle",
+                                                   "State":  "ok",
+                                                   "Value":  null,
+                                                   "ValueType":  null,
+                                                   "Error":  null,
+                                                   "ErrorHResult":  null
+                                               },
+                                               {
+                                                   "Operation":  "get_current_property_value_ex",
+                                                   "PropertyId":  30002,
+                                                   "HResult":  "0x00000000",
+                                                   "NativeCall":  "IUIAutomationElement.GetCurrentPropertyValueEx",
+                                                   "State":  "value",
+                                                   "Value":  1168,
+                                                   "ValueType":  "System.Int32",
+                                                   "Error":  null,
+                                                   "ErrorHResult":  null
+                                               },
+                                               {
+                                                   "Operation":  "get_current_property_value_ex",
+                                                   "PropertyId":  30020,
+                                                   "HResult":  "0x00000000",
+                                                   "NativeCall":  "IUIAutomationElement.GetCurrentPropertyValueEx",
+                                                   "State":  "value",
+                                                   "Value":  262608,
+                                                   "ValueType":  "System.Int32",
+                                                   "Error":  null,
+                                                   "ErrorHResult":  null
+                                               },
+                                               {
+                                                   "Operation":  "get_current_property_value_ex",
+                                                   "PropertyId":  30107,
+                                                   "HResult":  "0x00000000",
+                                                   "NativeCall":  "IUIAutomationElement.GetCurrentPropertyValueEx",
+                                                   "State":  "value",
+                                                   "Value":  "[pid:792,providerId:0x401D0 Main:Nested [pid:1168,providerId:0x401D0 Main(parent link):Unidentified Provider (unmanaged:Godot_v4.6.3-stable_win64.exe)]; Hwnd(parent link):Unidentified Provider (managed:MS.Internal.Automation.HwndProxyElementProvider, UIAutomationClient, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35)]",
+                                                   "ValueType":  "System.String",
+                                                   "Error":  null,
+                                                   "ErrorHResult":  null
+                                               }
+                                           ],
+                            "cleanup_errors":  [
+
+                                               ],
+                            "identity_verified":  true,
+                            "diagnostic_only":  true,
+                            "interop_sha256":  "81135cc9571654f52ee746bb41e146123c91722abda987d01cb76627922488b6",
+                            "powershell":  "5.1.20348.5622",
+                            "clr":  "4.0.30319.42000",
+                            "process_bits":  64,
+                            "reader_path":  "D:\\a\\dwm\\dwm\\tools\\testing\\Read-ContinueNativeProvider.ps1",
+                            "reader_sha256":  "08a84082ee6cb2345663e389fc42d42cb1558594ee62f7bb621b9a0a93a3497d",
+                            "uia_core":  {
+                                             "path":  "C:\\Windows\\System32\\UIAutomationCore.dll",
+                                             "file_version":  "7.2.20348.1 (WinBuild.160101.0800)",
+                                             "sha256":  "2b1ea113ebe23c8fda36926f912891a85cab28632cafe5d255905bf66cb149c8"
+                                         },
+                            "assembly":  "5jawiq5s, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                            "apartment":  "STA",
+                            "native_hwnd_uint32":  262608
+                        },
+    "binding":  {
+                    "launcher_pid":  8160,
+                    "launcher_start_ticks":  "639282058575362930",
+                    "console_path":  "D:\\a\\_temp\\godot-4.6.3\\Godot_v4.6.3-stable_win64_console.exe",
+                    "engine_path":  "D:\\a\\_temp\\godot-4.6.3\\Godot_v4.6.3-stable_win64.exe",
+                    "arguments":  "--rendering-method gl_compatibility --audio-driver Dummy --path D:\\a\\dwm\\dwm --log-file D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\continue-publication-initial-observation.log --verbose --accessibility always -s res://addons/gut/gut_cmdln.gd -gconfig= -gtest=res://tests/manual/test_continue_reveal_publication.gd -gunit_test_name=test_continue_initial_registration_observation -gexit -glog=2 -gdisable_colors -gjunit_xml_file=res://.godot/ci/continue-publication/initial-observation.xml",
+                    "started_unix_msec":  1792609057547
+                },
+    "child_selection":  {
+                            "child_count":  2,
+                            "engine_candidate_count":  1,
+                            "selected_pid":  1168,
+                            "inventory_truncated":  false,
+                            "children":  [
+                                             {
+                                                 "pid":  5888,
+                                                 "parent_pid":  8160,
+                                                 "executable":  "C:\\Windows\\system32\\conhost.exe",
+                                                 "disposition":  "other_executable"
+                                             },
+                                             {
+                                                 "pid":  1168,
+                                                 "parent_pid":  8160,
+                                                 "executable":  "D:\\a\\_temp\\godot-4.6.3\\Godot_v4.6.3-stable_win64.exe",
+                                                 "disposition":  "engine_executable"
+                                             }
+                                         ]
+                        },
+    "engine_start_ticks":  639282058575610632,
+    "provider_observation":  {
+                                 "scope":  "existing UIA element after discovery; descriptive only",
+                                 "started_unix_msec":  1792609064586,
+                                 "completed_unix_msec":  1792609064600,
+                                 "framework_id":  "Win32",
+                                 "class_name":  "Engine",
+                                 "control_type":  "ControlType.Window",
+                                 "native_window_handle":  262608
+                             }
+}
