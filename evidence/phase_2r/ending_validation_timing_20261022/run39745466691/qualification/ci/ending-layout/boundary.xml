@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="1" >
+  <testsuite name="tests/integration/test_scene_ending_direct_return.gd" tests="1" failures="0" skipped="0" time="34.440906" >
+      <testcase name="test_direct_ending_accept_returns_without_save" assertions="69" status="pass" classname="tests/integration/test_scene_ending_direct_return.gd" time="34.440906" >
+      </testcase>
+  </testsuite>
+</testsuites>

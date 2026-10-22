@@ -1,0 +1,13 @@
+{
+  "source": "0b9095e5c63275bc4721cd257413d286bcd958b0",
+  "child_exit": 0,
+  "ok": true,
+  "error": null,
+  "script": "tests/integration/test_scene_ending_direct_return.gd",
+  "test": "test_direct_ending_accept_returns_without_save",
+  "log": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\ending-layout-boundary.log",
+  "report": "D:\\a\\dwm\\dwm\\.godot\\ci\\ending-layout\\boundary.xml",
+  "observation": "D:\\a\\dwm\\dwm\\.godot\\ci\\ending-layout-boundary.json",
+  "viewport_capture": "D:\\a\\dwm\\dwm\\.godot\\ci\\ending-layout-boundary.png",
+  "assertions": 69
+}

@@ -1,0 +1,9 @@
+{
+  "archive_digests_match_github": true,
+  "original_zip_members": 5299,
+  "extracted_members_match": true,
+  "content_addressed_blobs_verified": 5205,
+  "actual_event_workflow_commit": "de5db6cda7a7c76f55806d10fbc3e02448d65117",
+  "actual_event_workflow_blob": "b7d3cfb53316adca4566ef823e8f17b6888029d2",
+  "matches_reviewed_workflow": true
+}
