@@ -114,9 +114,13 @@ func create_ordinary_day() -> void:
 	var persistent: Dictionary = game.capture_run_snapshot_input().gameplay.duplicate(true)
 	await _screenshot("ordinary-third-unfinished")
 	await _click(_controls(host, "CheckComputer"))
+	var suspended: Dictionary = _ordinary_board().duplicate(true)
+	assert_eq(suspended.phase, "ACTIVE_SUSPENDED", "Closing Computer suspends the unfinished board.")
+	assert_eq(suspended.board, unfinished.board, "Closing Computer preserves unfinished board progress.")
+	assert_eq(suspended.identity, unfinished.identity, "Closing Computer preserves the same round identity.")
 	await _click(_caption().caption_text)
 	if not await _wait_line("scene.test.b", "line.scene.test.b.two"): return
-	assert_eq(_ordinary_board(), unfinished, "An intra-day caption does not renew or abandon.")
+	assert_eq(_ordinary_board(), suspended, "An intra-day caption does not renew or abandon.")
 	await _click(_caption().caption_text)
 	if not await _wait_line("scene.test.a", "line.scene.test.a.one"): return
 	var renewed: Dictionary = game.capture_run_snapshot_input().duplicate(true)
