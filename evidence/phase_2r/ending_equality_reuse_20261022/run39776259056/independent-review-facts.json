@@ -1,0 +1,37 @@
+{
+  "unit_totals": [
+    {
+      "cases": 28,
+      "assertions": 292
+    },
+    {
+      "cases": 10,
+      "assertions": 121
+    }
+  ],
+  "byte_hashes": 5205,
+  "source_pins": 14,
+  "assertions": [
+    102,
+    234
+  ],
+  "child_wall_seconds": [
+    62.220823,
+    207.589149
+  ],
+  "timings": {
+    "loader_to_witness": 16.386907,
+    "witness_save_back": 40.879291,
+    "remaining_walk": 56.998306,
+    "ending_entry_readiness": 22.438675,
+    "ending_evidence": 0.270269,
+    "ending_accept": 53.102464,
+    "title_after_accept": 0.002707,
+    "completion_checks": 0.201231,
+    "fresh_day1": 6.851849,
+    "writer_1": 15.497503,
+    "writer_2": 17.994503,
+    "writer_3": 19.405063
+  },
+  "phase_marks": 133
+}
