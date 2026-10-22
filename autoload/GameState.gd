@@ -4994,8 +4994,29 @@ func commit_scene_challenge_closure(command: Dictionary, result: Dictionary) -> 
 	candidate.command_receipts[operation.event.command_id] = made.value
 	var validated := _SCENE_EVENT.validate_scene_receipts(candidate.command_receipts, registration.value, _identity_issuer, _scene_save_owner, candidate.contacts)
 	if not validated.ok: return validated
-	var committed: Dictionary = _narrative_checkpoint_port.commit_scene_event(candidate, current.value.checkpoint)
-	if not committed.get("ok", false): return committed
+	var committed: Dictionary
+	if current.value.checkpoint.reading_session.get("boundary") == "control":
+		# Adjacent End retains the authenticated playable cursor. Persist through
+		# the existing same-control custody seam, never the line-event seam.
+		if not _scene_challenge_operation.is_empty(): return _transaction_failure(&"scene_challenge_lease_required", "")
+		var live := capture_live_session()
+		if not live.ok: return live
+		var stable: Dictionary = _scene_save_owner.get_latest_stable_checkpoint()
+		if not stable.get("ok", false): return stable
+		var source: Dictionary = stable.value.bundle.snapshot
+		if source.run_id != candidate.lifecycle.run_id or not _SCENE_EVENT._equal(source.narrative_checkpoint, current.value.checkpoint):
+			return _transaction_failure(&"scene_challenge_source_changed", "")
+		_scene_challenge_operation = {"lease": operation.lease, "session": live.value.duplicate(true),
+			"snapshot": candidate.duplicate(true), "checkpoint": current.value.checkpoint.duplicate(true),
+			"closure_command": command.duplicate(true), "source_snapshot": capture_run_snapshot_input().duplicate(true),
+			"source_sha256": _SCENE_EVENT._sha(source)}
+		committed = _narrative_checkpoint_port.commit_scene_challenge(candidate, current.value.checkpoint)
+		_scene_challenge_operation = {}
+	else:
+		committed = _narrative_checkpoint_port.commit_scene_event(candidate, current.value.checkpoint)
+	if not committed.get("ok", false):
+		if committed.get("committed", false): return _scene_event_fatal(committed.get("code", &"scene_challenge_commit_uncertain"))
+		return committed
 	var after := _scene_runtime_event_context()
 	if not after.get("ok", false) or not _SCENE_EVENT._equal(after.value, current.value) \
 			or not _mutation_gate.is_lease_active(&"causal_transaction", operation.lease):
@@ -5063,9 +5084,18 @@ func _validate_scene_challenge_checkpoint(snapshot: Dictionary, checkpoint: Dict
 	var valid: bool = live.get("ok", false) and admitted.get("ok", false) and stable.get("ok", false)
 	if valid:
 		valid = _SCENE_EVENT._equal(live.value, operation.session) \
-			and _SCENE_EVENT._equal(admitted.value.checkpoint, checkpoint) \
-			and _SCENE_EVENT._equal(capture_run_snapshot_input(), snapshot) \
-			and _scene_challenge_profile_matches(operation.record, operation.reference)
+			and _SCENE_EVENT._equal(admitted.value.checkpoint, checkpoint)
+		if operation.has("closure_command"):
+			var end := validate_scene_challenge_end(operation.closure_command)
+			var expected: Dictionary = operation.source_snapshot.duplicate(true)
+			if end.get("ok", false):
+				expected.command_receipts[_scene_end_operation.event.command_id] = snapshot.command_receipts.get(_scene_end_operation.event.command_id)
+			valid = valid and end.get("ok", false) \
+				and _SCENE_EVENT._equal(capture_run_snapshot_input(), operation.source_snapshot) \
+				and _SCENE_EVENT._equal(expected, snapshot)
+		else:
+			valid = valid and _SCENE_EVENT._equal(capture_run_snapshot_input(), snapshot) \
+				and _scene_challenge_profile_matches(operation.record, operation.reference)
 	if valid and phase != "after_commit":
 		valid = _SCENE_EVENT._sha(stable.value.bundle.snapshot) == operation.source_sha256
 	elif valid:
