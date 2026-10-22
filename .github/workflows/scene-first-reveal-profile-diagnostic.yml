@@ -17,11 +17,11 @@ jobs:
       run:
         shell: pwsh
     env:
-      SOURCE_SHA: 11f7df52759a5addb30e6d97d2c2903fd7eeb1b5
+      SOURCE_SHA: 2146c4435041c2b4ccc467a526f7b127d3980a2f
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: 11f7df52759a5addb30e6d97d2c2903fd7eeb1b5
+          ref: 2146c4435041c2b4ccc467a526f7b127d3980a2f
           persist-credentials: true
       - name: Verify immutable source and committed authored registration
         run: |
