@@ -12,7 +12,7 @@ concurrency:
 jobs:
   inventory-refresh:
     # Explicitly enable only after confirming source/controller pins.
-    if: ${{ github.head_ref == 'codex/cold-load-supportz-followup-20261023' }}
+    if: ${{ false }} # Native outputs adopted from run39870246257.
     name: Windows / Public inventory refresh preparation
     runs-on: windows-2022
     timeout-minutes: 30
