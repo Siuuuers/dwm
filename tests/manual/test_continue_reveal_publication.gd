@@ -41,6 +41,52 @@ func _mount_continue_publication_probe() -> Control:
 	assert_true(surface._available, "mounted Continue action is admitted")
 	return surface
 
+func _await_reader_ready() -> bool:
+	var started := Time.get_ticks_msec()
+	var deadline := started + 5000
+	var path := OS.get_environment("DWM_CONTINUE_READER_RECEIPT")
+	assert_false(path.is_empty(), "native consumer receipt path is required")
+	if path.is_empty(): return false
+	while Time.get_ticks_msec() < deadline:
+		if FileAccess.file_exists(path):
+			# Reuse the existing receipt; an incomplete JSON snapshot is never readiness.
+			var parsed := JSON.new()
+			if parsed.parse(FileAccess.get_file_as_string(path)) == OK:
+				var receipt: Variant = parsed.data
+				if not receipt is Dictionary:
+					assert_true(false, "native consumer receipt must be an object")
+					return false
+				if receipt.get("error") != null or receipt.get("exit_code") != null or receipt.get("status") == "failed":
+					assert_true(false, "native consumer failed or exited before fixture readiness: %s" % str(receipt.get("error")))
+					return false
+				var identity: Variant = receipt.get("identity")
+				if identity is Dictionary and int(identity.get("pid", 0)) != OS.get_process_id():
+					assert_true(false, "native consumer identity belongs to another engine")
+					return false
+				var provider: Variant = receipt.get("native_provider")
+				if provider is Dictionary and (provider.get("status") == "failed" or provider.get("error") != null or provider.get("cleanup_errors", []) != []):
+					assert_true(false, "native provider failed before fixture readiness")
+					return false
+				var provenance_complete := false
+				for event: Variant in receipt.get("events", []):
+					if event is Dictionary and event.get("stage") == "native_provenance_complete":
+						provenance_complete = true
+				var ready: bool = receipt.get("discovered") == true and identity is Dictionary \
+					and int(identity.get("pid", 0)) == OS.get_process_id() and provider is Dictionary \
+					and provider.get("status") == "observed" and provider.get("identity_verified") == true \
+					and provenance_complete and int(receipt.get("reader_pid", 0)) > 0 \
+					and Time.get_ticks_msec() < deadline
+				if ready:
+					print("CONTINUE_READER_READY " + JSON.stringify({"engine_pid": OS.get_process_id(),
+						"reader_pid": receipt.reader_pid, "ready_ticks_msec": Time.get_ticks_msec(),
+						"elapsed_msec": Time.get_ticks_msec() - started, "deadline_ticks_msec": deadline,
+						"receipt_path": path, "native_provider_status": provider.status,
+						"identity_verified": true, "discovered": true, "native_provenance_complete": true}))
+					return true
+		await get_tree().create_timer(0.01).timeout
+	assert_true(false, "native consumer was not ready within its 5000ms readiness deadline")
+	return false
+
 func _await_publication(surface: Control, reveal: int) -> Dictionary:
 	var deadline := Time.get_ticks_msec() + 5000
 	while Time.get_ticks_msec() < deadline:
@@ -53,6 +99,8 @@ func _await_publication(surface: Control, reveal: int) -> Dictionary:
 func _check_registered_completion(organic: bool) -> void:
 	var surface: Control = await _mount_continue_publication_probe()
 	if surface == null: return
+	# Mount has frozen reveal; wait only in this isolated test for its external reader.
+	if not await _await_reader_ready(): return
 	var reveal_before: int = caption.caption_text.get_reveal_generation()
 	var before := await _await_publication(surface, reveal_before)
 	if before.is_empty(): return
