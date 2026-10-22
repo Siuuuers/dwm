@@ -369,6 +369,12 @@ static func bundle_fingerprint(bundle: Variant) -> Dictionary:
 	return {"ok": true, "value": checked.value.fingerprint}
 
 static func inspect_scene(envelope: Variant, bundle: Variant) -> Dictionary:
+	var context := _inspect_scene_context(envelope, bundle)
+	return context.inspection if context.ok else context
+
+## Call-local computed material only. Public entrypoints always inspect fresh inputs.
+## No issuer, Profile, saved-data or cross-call validation authority is retained here.
+static func _inspect_scene_context(envelope: Variant, bundle: Variant) -> Dictionary:
 	if not envelope is Dictionary or typeof(envelope.get("schema_version")) != TYPE_INT or envelope.schema_version != 2:
 		return _fail(&"scene_event_version_invalid")
 	var shaped := _inspect_scene_shape(envelope)
@@ -385,7 +391,7 @@ static func inspect_scene(envelope: Variant, bundle: Variant) -> Dictionary:
 		return _fail(&"scene_marker_mismatch")
 	shaped.value["registration_fingerprint"] = registered.value.fingerprint
 	shaped.value["programme_entry"] = entries[bound.entry_id].duplicate(true)
-	return shaped
+	return {"ok": true, "inspection": shaped, "registered": registered}
 
 static func validate_target(target: Variant, bundle: Variant) -> Dictionary:
 	var checked := validate_bundle_structure(bundle)
@@ -395,10 +401,13 @@ static func validate_target(target: Variant, bundle: Variant) -> Dictionary:
 	return _fail(&"scene_target_unregistered")
 
 static func scene_completion_request(envelope: Dictionary, anchor: Dictionary, bundle: Dictionary) -> Dictionary:
-	var checked := inspect_scene(envelope, bundle)
-	if not checked.ok: return checked
+	var context := _inspect_scene_context(envelope, bundle)
+	if not context.ok: return context
+	return _scene_completion_request_inspected(envelope, anchor, context.inspection, context.registered)
+
+static func _scene_completion_request_inspected(envelope: Dictionary, anchor: Dictionary,
+		checked: Dictionary, registered: Dictionary) -> Dictionary:
 	if envelope.kind != "scene.transition" or not _valid_anchor(anchor, envelope.source): return _fail(&"scene_completion_source_invalid")
-	var registered := validate_bundle_structure(bundle)
 	var target: Dictionary = registered.value.targets[envelope.payload.target_id].target
 	if anchor.line_id != registered.value.markers[envelope.event_id].marker.after_line_id:
 		return _fail(&"event_anchor_invalid")
@@ -418,16 +427,17 @@ static func scene_completion_request(envelope: Dictionary, anchor: Dictionary, b
 		"child_kind": "scene_day_completion", "ordinal": 0, "source_ids": source_ids}}
 
 static func make_scene_receipt(envelope: Dictionary, anchor: Dictionary, result: Dictionary, bundle: Dictionary) -> Dictionary:
-	var checked := inspect_scene(envelope, bundle)
-	if not checked.ok: return checked
+	var context := _inspect_scene_context(envelope, bundle)
+	if not context.ok: return context
+	var checked: Dictionary = context.inspection
+	var registered: Dictionary = context.registered
 	if not _valid_anchor(anchor, envelope.source): return _fail(&"event_anchor_invalid")
-	var registered := validate_bundle_structure(bundle)
 	if anchor.line_id != registered.value.markers[envelope.event_id].marker.after_line_id:
 		return _fail(&"event_anchor_invalid")
-	var validated := validate_scene_result(envelope, result, bundle)
+	var validated := _validate_scene_result_inspected(envelope, result, registered)
 	if not validated.ok: return validated
 	if result.kind == "scene_transition_accepted":
-		var request := scene_completion_request(envelope, anchor, bundle)
+		var request := _scene_completion_request_inspected(envelope, anchor, checked, registered)
 		if not request.ok: return request
 		if not _completion_matches(envelope.issuer_receipt, request.value, result.resolution_receipt):
 			return _fail(&"scene_completion_mismatch")
@@ -437,10 +447,13 @@ static func make_scene_receipt(envelope: Dictionary, anchor: Dictionary, result:
 			"reading_anchor": anchor.duplicate(true), "result": result.duplicate(true)}}}
 
 static func validate_scene_result(envelope: Dictionary, result: Variant, bundle: Dictionary) -> Dictionary:
-	var checked := inspect_scene(envelope, bundle)
-	if not checked.ok: return checked
+	var context := _inspect_scene_context(envelope, bundle)
+	if not context.ok: return context
+	return _validate_scene_result_inspected(envelope, result, context.registered)
+
+static func _validate_scene_result_inspected(envelope: Dictionary, result: Variant,
+		registered: Dictionary) -> Dictionary:
 	if not _json_data(result) or not result is Dictionary or typeof(result.get("kind")) != TYPE_STRING: return _fail(&"scene_result_invalid")
-	var registered := validate_bundle_structure(bundle)
 	var targets: Dictionary = registered.value.targets
 	match result.kind:
 		"thought_resolved":

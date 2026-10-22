@@ -452,3 +452,46 @@ func test_playable_receipt_requires_exact_predecessor_anchor_and_detaches_result
 	assert_false(CONTRACT.make_scene_receipt(event, anchor, result, bundle).ok)
 	assert_eq(event, original_event)
 	assert_eq(bundle, original_bundle)
+
+# These combined faults pin public refusal precedence while internal pure work is
+# shared. Each public entry still validates its own supplied envelope and bundle.
+func test_scene_public_entries_preserve_mixed_invalid_refusal_order() -> void:
+	var event := _scene_event()
+	event.schema_version = 1
+	assert_eq(CONTRACT.inspect_scene(event, {}).code, &"scene_event_version_invalid")
+	assert_eq(CONTRACT.scene_completion_request(event, {}, {}).code, &"scene_event_version_invalid")
+	assert_eq(CONTRACT.make_scene_receipt(event, {}, {}, {}).code, &"scene_event_version_invalid")
+	assert_eq(CONTRACT.validate_scene_result(event, {}, {}).code, &"scene_event_version_invalid")
+	event = _scene_event()
+	assert_eq(CONTRACT.inspect_scene(event, {}).code, &"scene_bundle_invalid")
+	assert_eq(CONTRACT.scene_completion_request(event, {}, {}).code, &"scene_bundle_invalid")
+	assert_eq(CONTRACT.make_scene_receipt(event, {}, {}, {}).code, &"scene_bundle_invalid")
+	assert_eq(CONTRACT.validate_scene_result(event, {}, {}).code, &"scene_bundle_invalid")
+	var bundle := _scene_bundle()
+	assert_eq(CONTRACT.scene_completion_request(event, {}, bundle).code, &"scene_completion_source_invalid")
+	assert_eq(CONTRACT.make_scene_receipt(event, {}, {}, bundle).code, &"event_anchor_invalid")
+	assert_eq(CONTRACT.make_scene_receipt(event, _scene_anchor(), {}, bundle).code, &"scene_result_invalid")
+	assert_eq(CONTRACT.validate_scene_result(event, {}, bundle).code, &"scene_result_invalid")
+
+func test_scene_inspection_detaches_programme_and_revalidates_later_bundle() -> void:
+	var event := _scene_event()
+	var bundle := _scene_bundle()
+	var original: Dictionary = bundle.duplicate(true)
+	var checked: Dictionary = CONTRACT.inspect_scene(event, bundle)
+	assert_true(checked.ok)
+	if not checked.ok: return
+	checked.value.programme_entry.markers[0].payload.target_id = "TEST.changed"
+	checked.value.semantic.payload.target_id = "TEST.changed"
+	assert_eq(bundle, original)
+	assert_eq(event.payload.target_id, "TEST.target")
+	bundle.entry_manifest.TEST = "changed"
+	var changed: Dictionary = CONTRACT.inspect_scene(event, bundle)
+	assert_true(changed.ok)
+	if not changed.ok: return
+	assert_ne(changed.value.registration_fingerprint, checked.value.registration_fingerprint)
+	bundle.extra_table = []
+	assert_eq(CONTRACT.inspect_scene(event, bundle).code, &"scene_bundle_invalid")
+	assert_eq(CONTRACT.scene_completion_request(event, _scene_anchor(), bundle).code, &"scene_bundle_invalid")
+	assert_eq(CONTRACT.make_scene_receipt(event, _scene_anchor(), {}, bundle).code, &"scene_bundle_invalid")
+	assert_eq(CONTRACT.validate_scene_result(event, {}, bundle).code, &"scene_bundle_invalid")
+
