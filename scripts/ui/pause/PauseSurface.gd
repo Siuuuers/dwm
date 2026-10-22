@@ -9,7 +9,7 @@ const PRESENTATION := preload("res://scripts/ui/pause/PauseTheme.gd")
 const ACTION := preload("res://scripts/ui/pause/PauseActionButton.gd")
 const HOST_CONFIRMATION := preload("res://scripts/ui/desktop/DesktopConfirmation.gd")
 const ACTIONS := [&"continue",&"backup",&"settings",&"return"]
-const COPY_KEYS := ["continue","backup","settings","return","title","question","warning","cancel"]
+const COPY_KEYS := ["continue","backup","settings","return","title","question","warning","cancel","back"]
 
 var rows: Dictionary = {}
 var selected_action: StringName = &"continue"
@@ -44,7 +44,7 @@ var _palette := "AfterHours"
 var _colour_preset := "standard"
 var _day := 1
 var _copy := {"continue":"Continue","backup":"Backup","settings":"Settings","return":"Return to Title",
-	"title":"Pause","question":"Return to title?","warning":"No new save will be made. Unsaved progress will be left behind.","cancel":"Cancel"}
+	"title":"Pause","question":"Return to title?","warning":"No new save will be made. Unsaved progress will be left behind.","cancel":"Cancel","back":"Back"}
 
 func _init() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -86,7 +86,6 @@ func _ready() -> void:
 	workfield.size = Vector2(800,656)
 	add_child(workfield)
 	_sheet_back = Button.new()
-	_sheet_back.text = "Back"
 	_sheet_back.position = Vector2(16, 12)
 	_sheet_back.size = Vector2(96, 40)
 	_sheet_back.pressed.connect(handle_back)
@@ -175,6 +174,8 @@ func _can_measure(copy: Dictionary, candidate: Theme) -> bool:
 	return not ACTION.measure(str(copy.cancel),candidate,Vector2(304,96)).is_empty()
 
 func _apply_copy() -> void:
+	_sheet_back.text = _copy.back
+	_sheet_back.accessibility_name = _sheet_back.text
 	accessibility_name = _copy.title
 	for id: StringName in ACTIONS: rows[id].configure(_copy[id],theme,Vector2(416,96),_large_targets)
 	return_button.configure(_copy["return"],theme,Vector2(416,96),_large_targets)

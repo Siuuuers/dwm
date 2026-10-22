@@ -1,0 +1,9 @@
+{
+  "id": "partner-template-unit",
+  "source": "6da7d6bb3a217f00468d5be7d7421fd90536d87e",
+  "test_names": [
+    "test_replaceable_segments_compile_with_isolated_caption_identities"
+  ],
+  "cases": 1,
+  "assertions": 16.0
+}

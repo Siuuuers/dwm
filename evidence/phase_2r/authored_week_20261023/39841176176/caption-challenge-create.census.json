@@ -1,0 +1,9 @@
+{
+  "id": "caption-challenge-create",
+  "source": "0515b6cce1898f3ee9560d8554c3dd68fd605f65",
+  "test_names": [
+    "test_computer_admits_current_cue_and_continue_closes_without_an_extra_caption"
+  ],
+  "cases": 1,
+  "assertions": 41.0
+}

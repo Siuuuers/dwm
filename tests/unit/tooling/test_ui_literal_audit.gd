@@ -367,3 +367,20 @@ func test_dating_copy_rejects_unknown_phrases_untranslated_siblings_and_spoofed_
 	var quoted_helper := source.replace(helper, 'func _ui_text(english: String) -> String:\n\treturn english') \
 		+ '\nvar fake_helper = """\n' + helper + '\n"""'
 	assert_false(_script(path, quoted_helper).get("ok", true), "quoted helper code grants no ownership")
+
+
+func test_scene_thought_and_computer_toggle_owners_are_exact() -> void:
+	var scene_path := "res://scenes/narrative/SceneHost.tscn"
+	var scene_source := FileAccess.get_file_as_string(scene_path)
+	var scene := _scene(scene_path, scene_source)
+	assert_true(scene.get("ok", false), JSON.stringify(scene))
+	var changed := _scene(scene_path, scene_source.replace('text = "Yes"', 'text = "Always yes"'))
+	assert_false(changed.get("ok", true), "changed thought copy cannot inherit the Yes owner")
+	var expression := '_localization.t("scene.controls.close_computer" if _computer_open else "scene.controls.check_computer")'
+	var snippet := "extends Control\nfunc refresh():\n\tbutton.text = " + expression + "\n"
+	var exact := _script("res://scripts/ui/SceneHost.gd", snippet)
+	assert_true(exact.get("ok", false), JSON.stringify(exact))
+	var changed_key := _script("res://scripts/ui/SceneHost.gd", snippet.replace("scene.controls.check_computer", "Untranslated sibling"))
+	assert_false(changed_key.get("ok", true), "changed conditional copy cannot inherit the exact expression owner")
+	var wrong_path := _script("res://scripts/ui/Fixture.gd", snippet)
+	assert_false(wrong_path.get("ok", true), "unrelated paths receive no conditional lookup waiver")

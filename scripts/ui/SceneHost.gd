@@ -4,22 +4,24 @@ extends Control
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const CONTROL_KEYS := {
 	"Settings": "ui.pause.settings", "Backup": "ui.pause.backup",
-	"Save": "button.save", "Load": "button.load", "Contacts": "app.contacts",
+	"Apps": "scene.controls.apps", "Save": "button.save", "Load": "button.load", "Contacts": "app.contacts",
 }
 
 var _actions: Dictionary = {}
 var _computer_open := false
+var _computer_content_visible := false
 var _busy := false
 var _localization: Node
 var _thought_frontier: Dictionary = {}
 var _thought_poll := 0.0
+var _thought_options_offer: Dictionary = {}
 var _profile: Node
 
 func _ready() -> void:
 	$SceneControlsLayer/Surface/ThoughtYes.pressed.connect(_accept_thought)
 	_bind_presentation()
 	$SceneControlsLayer/Surface/Controls/CheckComputer.pressed.connect(_toggle_computer)
-	for action: String in ["settings", "backup", "save", "load", "contacts"]:
+	for action: String in ["settings", "backup", "save", "load", "contacts", "apps"]:
 		get_node("SceneControlsLayer/Surface/Controls/" + action.capitalize()).pressed.connect(_invoke.bind(action))
 	if _actions.is_empty():
 		var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
@@ -34,13 +36,27 @@ func configure_scene_controls(actions: Dictionary) -> void:
 func get_challenge_mount() -> Control:
 	return $SceneControlsLayer/Surface/ChallengeMount
 
+func get_computer_mount() -> Control:
+	return $SceneControlsLayer/Surface/ComputerMount
+
+## Bootstrap selects the retained shell or Challenge view after successful admission.
+## This changes presentation only; it does not acquire or release reading custody.
+func set_computer_content_visible(shown: bool) -> void:
+	_computer_content_visible = shown
+	_update_computer_visibility()
+
+func _update_computer_visibility() -> void:
+	$SceneControlsLayer/Surface/ComputerMount.visible = _computer_open and _computer_content_visible
+	$SceneControlsLayer/Surface/ChallengeMount.visible = _computer_open and not _computer_content_visible
+	$SceneControlsLayer/Surface/Controls/Contacts.visible = _computer_open
+	$SceneControlsLayer/Surface/Controls/Apps.visible = _computer_open
+
 func is_computer_open() -> bool:
 	return _computer_open
 
 func set_computer_open(open: bool) -> void:
 	_computer_open = open
-	$SceneControlsLayer/Surface/ChallengeMount.visible = open
-	$SceneControlsLayer/Surface/Controls/Contacts.visible = open
+	_update_computer_visibility()
 	_refresh_presentation()
 	_update_controls()
 
@@ -78,6 +94,7 @@ func _refresh_presentation(_locale_id: String = "") -> void:
 	var controls: VBoxContainer = $SceneControlsLayer/Surface/Controls
 	controls.theme = presentation
 	$SceneControlsLayer/Surface/ThoughtYes.theme = presentation
+	$SceneControlsLayer/Surface/ThoughtOptions.theme = presentation
 	$SceneControlsLayer/Surface/ThoughtYes.text = _localization.t("scene.thought.yes")
 	$SceneControlsLayer/Surface/ThoughtYes.accessibility_name = $SceneControlsLayer/Surface/ThoughtYes.text
 	for control_name: String in CONTROL_KEYS:
@@ -121,7 +138,7 @@ func _update_controls() -> void:
 	if not is_inside_tree(): return
 	var computer: Callable = _actions.get("computer_close" if _computer_open else "computer_open", Callable())
 	$SceneControlsLayer/Surface/Controls/CheckComputer.disabled = _busy or not computer.is_valid()
-	for action: String in ["settings", "backup", "save", "load", "contacts"]:
+	for action: String in ["settings", "backup", "save", "load", "contacts", "apps"]:
 		var callback: Callable = _actions.get(action, Callable())
 		get_node("SceneControlsLayer/Surface/Controls/" + action.capitalize()).disabled = _busy or not callback.is_valid()
 
@@ -134,7 +151,7 @@ func _process(delta: float) -> void:
 	var button: Button = $SceneControlsLayer/Surface/ThoughtYes
 	var bridge := get_node_or_null("/root/DialogicBridge")
 	var marker: Dictionary = bridge.capture_scene_pending_marker() if bridge != null else {}
-	var available: bool = not _busy and not _computer_open and marker.get("ok", false) and marker.value.kind == "thought.pass"
+	var available: bool = not _busy and not _computer_open and marker.get("ok", false) and marker.value.kind in ["thought.pass", "thought.options"]
 	if available:
 		var game := get_node_or_null("/root/GameState")
 		if game == null: available = false
@@ -144,16 +161,44 @@ func _process(delta: float) -> void:
 				if result.get("kind") == "thought_resolved" and result.opportunity_id == marker.value.payload.opportunity_id:
 					available = false
 	_thought_frontier = bridge.capture_current_line_presentation_frontier() if available else {}
-	button.visible = available and _thought_frontier.get("ok", false)
+	var shown: bool = available and _thought_frontier.get("ok", false)
+	button.visible = shown and marker.value.kind == "thought.pass"
 	button.disabled = not button.visible
+	_refresh_thought_options(marker.value.payload.options if shown and marker.value.kind == "thought.options" else [])
+
+func _refresh_thought_options(options: Array) -> void:
+	var panel: ScrollContainer = $SceneControlsLayer/Surface/ThoughtOptions
+	var column: VBoxContainer = panel.get_node("Options")
+	panel.visible = not options.is_empty()
+	var offer := {"options": options, "frontier": _thought_frontier} if panel.visible else {}
+	if offer == _thought_options_offer: return
+	_thought_options_offer = offer.duplicate(true)
+	for child: Node in column.get_children():
+		column.remove_child(child)
+		child.queue_free()
+	for option: Dictionary in options:
+		var button := Button.new()
+		button.text = option.text
+		button.accessibility_name = option.text
+		button.custom_minimum_size = Vector2(0, 60)
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		# Each visible button owns the presentation proof it was created for.
+		button.pressed.connect(_select_thought.bind(str(option.choice_id), _thought_frontier.duplicate(true)))
+		column.add_child(button)
 
 func _accept_thought() -> void:
+	_select_thought("", _thought_frontier.duplicate(true))
+
+func _select_thought(choice_id: String, expected: Dictionary) -> void:
 	get_viewport().set_input_as_handled()
-	if _busy or _computer_open or not _thought_frontier.get("ok", false): return
-	var expected := _thought_frontier.duplicate(true)
+	if _busy or _computer_open or not expected.get("ok", false): return
 	_busy = true
 	$SceneControlsLayer/Surface/ThoughtYes.disabled = true
+	for button: Button in $SceneControlsLayer/Surface/ThoughtOptions/Options.get_children(): button.disabled = true
 	var game := get_node_or_null("/root/GameState")
-	if game != null: game.accept_scene_thought(expected)
+	if game != null: game.accept_scene_thought(expected, choice_id)
 	_busy = false
+	# A refused click may leave the same offer current; rebuild usable buttons.
+	_thought_options_offer.clear()
 	_thought_poll = 0.0

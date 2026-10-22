@@ -312,7 +312,7 @@ class ReadingBoundaryBridge extends BRIDGE:
 	func validate_reading_checkpoint(_checkpoint: Dictionary, _frames: Dictionary = {}) -> Dictionary:
 		return {"ok": true}
 	func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode: StringName,
-			token_kind: String, _expected_version: int = -1) -> Dictionary:
+			token_kind: String, _expected_version: int = -1, _scene_restore_operation: String = "") -> Dictionary:
 		var admitted: Dictionary = _reading_session.admit(entry_id, context)
 		if not admitted.ok: return admitted
 		if fail_start:

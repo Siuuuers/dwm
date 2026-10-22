@@ -1,5 +1,9 @@
 extends "res://addons/gut/test.gd"
 
+# Explicit historical schema dependency; the production scene registration and
+# its exact prior schema cache are preserved across each retained-contract test.
+var _retained_context := preload("res://tests/support/RetainedFrozenContextFixture.gd").new()
+
 const PLAYBACK := preload("res://scripts/application/run/DatingNarrativePlayback.gd")
 
 class Bridge extends RefCounted:
@@ -63,6 +67,13 @@ var playback: RefCounted
 var command: Dictionary
 
 func before_each() -> void:
+	var installed: Dictionary = _retained_context.install([
+		"dating.solo.priscilla.day2.pre_challenge",
+		"dating.solo.priscilla.day2.post_challenge",
+		"dating.solo.lavinia.day2.pre_challenge",
+		"dating.solo.lavinia.day2.post_challenge",
+	])
+	assert_true(installed.ok, str(installed))
 	bridge = Bridge.new()
 	playback = PLAYBACK.new()
 	command = {"physical_token": "physical:date-one", "completion_transaction_id": "transaction:date-one",
@@ -71,6 +82,7 @@ func before_each() -> void:
 	assert_true(playback.configure(bridge).get("ok", false))
 
 func after_each() -> void:
+	_retained_context.restore()
 	# Production objects live for the application lifetime; release this fixture's cycle.
 	bridge.completion_port = null
 

@@ -68,6 +68,9 @@ var _quick_commands: Node
 var _localization: Object
 var _profile: Object
 var _host_state: Object
+var _scene_external_action := Callable()
+var _scene_input_admission := Callable()
+var _scene_external_busy := false
 var _scene_navigation := false
 var _scene_navigation_failed := false
 var _scene_phase_reader := Callable()
@@ -134,6 +137,27 @@ func configure_scene_navigation(host: Object, phase_reader: Callable,
 		_update_launcher_navigation()
 		_refresh_launcher()
 	return {"ok": true, "code": &"ok"}
+
+func configure_scene_shell_actions(external_action: Callable, input_admission: Callable) -> Dictionary:
+	if not _scene_navigation or not external_action.is_valid() or external_action.get_argument_count() != 1 \
+			or not input_admission.is_valid() or input_admission.get_argument_count() != 0:
+		return {"ok": false, "code": &"invalid_scene_shell_actions"}
+	_scene_external_action = external_action
+	_scene_input_admission = input_admission
+	return {"ok": true}
+
+func _activate_launcher(app_id: StringName) -> void:
+	if _scene_external_busy: return
+	if _scene_navigation and _scene_external_action.is_valid() and app_id in [&"settings", &"backup", &"logout"]:
+		if not _touch_input_admitted(): return
+		_scene_external_busy = true
+		var result: Variant = await _scene_external_action.call(app_id)
+		if not is_inside_tree(): return
+		_scene_external_busy = false
+		if not result is Dictionary or not result.get("ok", false):
+			_route_failure(StringName(result.get("code", "scene_sheet_unavailable")) if result is Dictionary else &"scene_sheet_unavailable")
+		return
+	open_app(app_id)
 
 func _launcher_ids() -> Array[StringName]:
 	return APP_REGISTRY.new().get_scene_ids() if _scene_navigation else APP_REGISTRY.new().get_ids()
@@ -304,7 +328,7 @@ func _build_shell() -> void:
 		launcher_buttons[id] = button
 		button.icon_id = id
 		button.set_icon_texture(ART_MANIFEST.get_texture("launcher.%s" % String(id), Vector2i(48, 48)))
-		button.pressed.connect(open_app.bind(id))
+		button.pressed.connect(_activate_launcher.bind(id))
 	_update_launcher_navigation()
 	status_label = Label.new()
 	status_label.name = "DesktopStatus"
@@ -386,6 +410,8 @@ func _touch_input_admitted() -> bool:
 		return false
 	var input_owner := get_node_or_null("/root/InputManager")
 	if input_owner != null and not input_owner.is_source_input_admitted(): return false
+	if _scene_navigation:
+		return not _scene_external_busy and _scene_input_admission.is_valid() and bool(_scene_input_admission.call())
 	var bridge := get_node_or_null("/root/DialogicBridge")
 	return bridge == null or (not bridge.has_active_playback() and bridge.get_current_timeline_id().is_empty())
 
@@ -685,6 +711,10 @@ func _cancel_logout() -> void:
 	launcher_buttons[&"logout"].grab_focus()
 
 func open_app(app_id: StringName) -> Dictionary:
+	if _scene_input_admission.is_valid() and not bool(_scene_input_admission.call()):
+		return {"ok": false, "code": &"scene_desktop_input_unavailable"}
+	if _scene_external_action.is_valid() and app_id in [&"settings", &"backup", &"logout"]:
+		return {"ok": false, "code": &"scene_external_action_required"}
 	if _scene_navigation_failed: return _route_failure(&"scene_navigation_dispatch_failed")
 	if _run_configuration_required and (not _run_configuration_ready or _run_configuration_masked):
 		return _route_failure(&"run_configuration_unavailable")
@@ -896,10 +926,30 @@ func _warning_navigation_fail(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code, "message": "", "details": {}}
 
 
+## Validate and park the active app before Bootstrap releases reading custody.
+## The visible window/host state remains unchanged until return_home succeeds.
+func prepare_scene_close() -> Dictionary:
+	if not _scene_navigation or _scene_navigation_failed or _run_configuration_masked:
+		return {"ok": false, "code": &"desktop_home_rejected"}
+	if is_instance_valid(_confirmation):
+		return {"ok": false, "code": &"desktop_modal_active"}
+	if _active_id == &"": return {"ok": true}
+	var app: Node = _cached_app_windows.get(_active_id)
+	if not is_instance_valid(app): return {"ok": false, "code": &"desktop_view_unavailable"}
+	if app.has_method("can_return_home") and not app.can_return_home():
+		return {"ok": false, "code": &"desktop_modal_active"}
+	if app.has_method("prepare_return_home"): return app.prepare_return_home()
+	return {"ok": true}
+
 func return_home() -> Dictionary:
 	if _scene_navigation_failed or (_scene_navigation and _run_configuration_masked): return {"ok": false, "code": &"desktop_home_rejected"}
 	if is_instance_valid(_confirmation): return {"ok": false, "code": &"desktop_modal_active"}
 	if _active_id == &"":
+		# Restored sheets now use the external pause host, not a cached app window.
+		# An explicit Home request still belongs to the canonical desktop owner.
+		if _scene_navigation and _scene_external_action.is_valid() \
+				and _host_state.get_state().get("active_app_id") in [&"settings", &"backup"]:
+			return _scene_navigate(&"", true)
 		return {"ok": true}
 	var app: Node = _cached_app_windows.get(_active_id)
 	if not is_instance_valid(app):
@@ -985,6 +1035,13 @@ func _configure_from_bootstrap() -> void:
 		if _active_id == &"": icon_grid.show()
 		status_label.hide()
 		_refresh_launcher()
+	if _scene_navigation:
+		# Scene composition supplies its retained app ports before mounting.
+		# Never bind the legacy calendar desktop or backup shortcuts over them.
+		if reveal_after_configuration and not _run_configuration_masked:
+			show()
+			_focus_initial_launcher.call_deferred()
+		return
 	if _backup_port == null:
 		var save_manager := get_node_or_null("/root/SaveManager")
 		if save_manager != null:

@@ -1,8 +1,24 @@
 extends "res://addons/gut/test.gd"
 
+# Explicit historical schema dependency; the production scene registration and
+# its exact prior schema cache are preserved across each retained-contract test.
+var _retained_context := preload("res://tests/support/RetainedFrozenContextFixture.gd").new()
+
 const CONTEXT := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 const DECK := preload("res://scripts/domain/relationship/PairDeckDraw.gd")
 const SOLO := "dating.solo.priscilla.day2.pre_challenge"
+
+
+func before_each() -> void:
+	# This test's explicit obligation is complete retained 137-entry coverage.
+	var entries: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(CONTEXT.ENTRIES_PATH))
+	var ids: Array = []
+	for entry: Dictionary in entries.entries: ids.append(entry.entry_id)
+	var installed: Dictionary = _retained_context.install(ids)
+	assert_true(installed.ok, str(installed))
+
+func after_each() -> void:
+	_retained_context.restore()
 
 static func solo_fields(entry_id: String = SOLO) -> Dictionary:
 	return {"entry_id": entry_id, "entry_role": "solo_pre_challenge", "day": 2,

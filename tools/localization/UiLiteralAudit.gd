@@ -13,6 +13,16 @@ const VALID_DISPOSITIONS := ["localized_binding", "localized_call", "runtime_dat
 ## Exact dormant scene values with a current, inspectable presenter. Including the literal in the
 ## key prevents changed copy from silently inheriting an obsolete disposition.
 const SCENE_LITERAL_OWNERS := {
+	"res://scenes/narrative/SceneHost.tscn|SceneControlsLayer/Surface/ThoughtYes|text|Yes": {
+		"disposition": "localized_call", "key": "scene.thought.yes",
+		"reason": "SceneHost refreshes the thought control from the catalogue before presentation",
+		"owner_path": "res://scripts/ui/SceneHost.gd",
+		"markers": ['$SceneControlsLayer/Surface/ThoughtYes.text = _localization.t("scene.thought.yes")', '$SceneControlsLayer/Surface/ThoughtYes.accessibility_name = $SceneControlsLayer/Surface/ThoughtYes.text']},
+	"res://scenes/narrative/SceneHost.tscn|SceneControlsLayer/Surface/ThoughtYes|accessibility_name|Yes": {
+		"disposition": "localized_call", "key": "scene.thought.yes",
+		"reason": "SceneHost refreshes the thought control from the catalogue before presentation",
+		"owner_path": "res://scripts/ui/SceneHost.gd",
+		"markers": ['$SceneControlsLayer/Surface/ThoughtYes.text = _localization.t("scene.thought.yes")', '$SceneControlsLayer/Surface/ThoughtYes.accessibility_name = $SceneControlsLayer/Surface/ThoughtYes.text']},
 	"res://scenes/desktop/ComputerDesktop.tscn|DesktopCanvas/NotificationLayer/MinesweeperMessageNotification/NotifContent/NotificationTitle|text|New message": {
 		"disposition": "localized_call", "key": "desktop.notification.new_message_title",
 		"reason": "ComputerDesktop catalogs the hidden notification before show",
@@ -85,6 +95,8 @@ const SCRIPT_LITERAL_OWNERS := {
 ## Exact expression digests keep component-owned locale tables reviewable without granting a
 ## general exemption to any expression that happens to contain locale names.
 const SCRIPT_EXPRESSION_OWNERS := {
+	"res://scripts/ui/SceneHost.gd|text|63ba9546beba1a05053429cb38304c066a977ff7b9fbd98a551cdd1e4cd929e1": {"key": "SceneHost.computer_toggle.inline", "reason": "exact conditional lookup of both registered computer-control catalogue keys"},
+	"res://scripts/ui/ComputerDesktop.gd|text|567dce303cc7221d63217020065864b73436623b13998a5acc2c07cb797159d2": {"key": "ComputerDesktop.launcher.inline", "reason": "exact current launcher title, configured home caption and complete five-locale unavailable fallback"},
 	"res://scripts/ui/ComputerDesktop.gd|text|8430a485cab6df7fed0e8ee884372956dad0bc4415f7aec12594bfe4acb58bd8": {"key": "ComputerDesktop.launcher.inline", "reason": "exact five-locale launcher label and unavailable fallback"},
 	"res://scripts/ui/ComputerDesktop.gd|accessibility_name|bb0b77d6035e06ce98e92d2a75870d80cfa834bbb4627b7df21c87e20b04e094": {"key": "ComputerDesktop.local_time.inline", "reason": "exact five-locale local-time label"},
 	"res://scripts/ui/ComputerDesktop.gd|text|a2bc83fc17b93b8751b921a8fbdcc62d5cb0f9232c546927b70b6228ac42cec9": {"key": "ComputerDesktop.unavailable.inline", "reason": "exact five-locale unavailable status"},

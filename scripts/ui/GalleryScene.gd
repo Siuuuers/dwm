@@ -84,13 +84,26 @@ func _ensure_artwork_gallery() -> void:
 	_gallery_tabs.name = "GalleryTabs"
 	_gallery_tabs.position = _canvas.position + Vector2(32, 0)
 	add_child(_gallery_tabs)
-	for title: String in ["Records", "Artwork"]:
+	for key: String in ["gallery.tab.records", "gallery.tab.artwork"]:
 		var button := Button.new()
-		button.text = title
+		button.text = _localized(key)
+		button.set_meta(&"copy_key", key)
 		button.add_theme_font_size_override("font_size", 20)
-		button.pressed.connect(_show_gallery_tab.bind(title == "Artwork"))
+		button.pressed.connect(_show_gallery_tab.bind(key == "gallery.tab.artwork"))
 		_gallery_tabs.add_child(button)
+	_refresh_artwork_copy()
 	refresh_return_navigation()
+
+func _refresh_artwork_copy() -> void:
+	if not is_instance_valid(_artwork): return
+	var copy := {}
+	for key: String in ARTWORK_GALLERY.DEFAULT_COPY:
+		var parameters: Dictionary = {"number": "{number}"} if key == "title" else ({"title": "{title}"} if key in ["view", "open"] else {})
+		copy[key] = _localized("gallery.artwork." + key, parameters)
+	_artwork.configure_copy(copy)
+	for button: Button in _gallery_tabs.get_children():
+		button.text = _localized(str(button.get_meta(&"copy_key")))
+		button.accessibility_name = button.text
 
 func _show_gallery_tab(artwork: bool) -> void:
 	if has_active_rehearsal() or (_replay_owner != null and _replay_owner.is_playing()): return
@@ -694,10 +707,14 @@ func _set_replay_status(key: String) -> void:
 	_canvas.unavailable_height = height + 16
 	_canvas.queue_redraw()
 
-func _localized(key: String) -> String:
+func _localized(key: String, parameters: Dictionary = {}) -> String:
 	if is_instance_valid(_localization) and _localization.has_method(&"t"):
-		var translated: String = _localization.t(key)
+		var translated: String = _localization.t(key, parameters)
 		if not translated.is_empty() and translated != key: return translated
+	if key.begins_with("gallery.artwork."):
+		return ARTWORK_GALLERY.DEFAULT_COPY.get(key.trim_prefix("gallery.artwork."), "")
+	if key == "gallery.tab.records": return "Records"
+	if key == "gallery.tab.artwork": return "Artwork"
 	return STATUS_FALLBACK.get(key, "Gallery is unavailable.")
 
 func _on_locale_changed(_locale: String) -> void:
@@ -739,6 +756,7 @@ func _refresh_presentation() -> void:
 		control.set("language", locale.replace("_", "-"))
 		control.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_refresh_replay_caption()
+	_refresh_artwork_copy()
 	_sync_practice_button()
 	_canvas.queue_redraw()
 	queue_redraw()

@@ -941,7 +941,7 @@ func _draw_plate() -> void:
 	if not last_result.ok: return
 	_body.draw_rect(Rect2(16, 16, 768, 624), _role("controlled_face"))
 	_body.draw_rect(Rect2(480, 16, 304, 368 if _large else 432), _role("laminate"))
-	var blank_index := 8 - page_index * page_capacity
+	var blank_index := _index_of("supportz") - page_index * page_capacity
 	if blank_index >= 0 and blank_index < page_capacity and not cards.is_empty():
 		var height: float = cards.values()[0].size.y
 		var at := Vector2(16 + (blank_index % 3) * 152, 16 + (blank_index / 3) * (height + 8))
