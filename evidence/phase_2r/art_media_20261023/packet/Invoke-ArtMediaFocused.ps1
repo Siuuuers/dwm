@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)][string]$RepositoryRoot,
-    [Parameter(Mandatory = $true)][ValidatePattern('^[0-9a-f]{40}$')][string]$ExpectedSource
+    [Parameter(Mandatory = $true)][ValidatePattern('^[0-9a-f]{40}$')][string]$ExpectedSource,
+    [switch]$GalleryOnly
 )
 
 Set-StrictMode -Version Latest
@@ -24,6 +25,7 @@ if (Test-Path -LiteralPath $output) { throw 'ART_MEDIA_OUTPUT_NOT_FRESH' }
 New-Item -ItemType Directory -Force -Path $output | Out-Null
 $scripts = @('tests/integration/test_artwork_gallery.gd', 'tests/unit/test_scene_audio_manifest.gd',
     'tests/unit/test_scene_audio_manager.gd', 'tests/unit/test_template_music_assets.gd')
+if ($GalleryOnly) { $scripts = @('tests/integration/test_artwork_gallery.gd') }
 $expectedCounts = @{ 'test_artwork_gallery' = 3; 'test_scene_audio_manifest' = 15;
     'test_scene_audio_manager' = 14; 'test_template_music_assets' = 1 }
 $sourceReceipts = @()
@@ -44,7 +46,7 @@ $selection = [ordered]@{
     runner_sha256 = Get-ContinueFileSha256 -LiteralPath $PSCommandPath;
     isolation_sha256 = Get-ContinueFileSha256 -LiteralPath $helper;
     console_sha256 = Get-ContinueFileSha256 -LiteralPath $env:GODOT_CONSOLE_PATH;
-    rendered = 'Gallery only; three audio suites headless'; child_timeout_seconds = 120; distinct_isolated_children = $true;
+    rendered = 'Gallery rendered; selected audio suites headless'; gallery_only = [bool]$GalleryOnly; child_timeout_seconds = 120; distinct_isolated_children = $true;
     census = 'exact source function names against JUnit; no fixed assertion count';
     scope = 'five-picture Gallery, seven-day split art placement, and shared music manifest/runtime; not full-game acceptance'
 }

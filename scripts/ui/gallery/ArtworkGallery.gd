@@ -55,6 +55,7 @@ func _ready() -> void:
 	layout.add_child(right)
 	_preview = TextureButton.new()
 	_preview.name = "ArtworkPreview"
+	_preview.focus_mode = Control.FOCUS_ALL
 	_preview.ignore_texture_size = true
 	_preview.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 	_preview.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -62,6 +63,7 @@ func _ready() -> void:
 	_preview.pressed.connect(open_viewer)
 	right.add_child(_preview)
 	_caption = Label.new()
+	_caption.add_theme_color_override("font_color", get_theme_color("ink", "Gallery"))
 	_caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_caption.custom_minimum_size.y = 64
 	right.add_child(_caption)

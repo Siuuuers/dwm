@@ -53,6 +53,9 @@ func test_unlock_projection_persists_without_gallery_writes() -> void:
 
 func test_gallery_preview_modal_keys_and_return_focus() -> void:
 	ART.reload_placements()
+	# GUT's diagnostic CanvasLayer (128) otherwise covers the artwork viewer (100).
+	var gut_gui := get_tree().root.get_node_or_null("GutRunner/GutLayer/GutScene") as CanvasItem
+	if gut_gui != null: gut_gui.hide()
 	var probe := InputLeakProbe.new()
 	add_child_autofree(probe)
 	var profile := _profile(STORAGE.new("artwork-viewer.memory", FILES.new()))
@@ -65,6 +68,8 @@ func test_gallery_preview_modal_keys_and_return_focus() -> void:
 	add_child_autofree(gallery)
 	gallery.open_in_title_host()
 	gallery._show_gallery_tab(true)
+	# Both mounting and opening schedule entry focus; settle those before selecting preview.
+	await get_tree().process_frame
 	var artwork: Control = gallery._artwork
 	assert_eq(artwork._rows.size(), 5)
 	assert_true(artwork._rows[2].disabled)
@@ -76,6 +81,7 @@ func test_gallery_preview_modal_keys_and_return_focus() -> void:
 		await RenderingServer.frame_post_draw
 		var preview_image: Image = get_viewport().get_texture().get_image()
 		assert_eq(preview_image.save_png("res://.godot/ci/art-media/artwork-gallery-list.png"), OK)
+	assert_true(artwork._preview.has_focus(), "preview owns focus before opening viewer")
 	artwork._preview.pressed.emit()
 	assert_true(artwork.viewer_is_open())
 	assert_false(home.visible)
