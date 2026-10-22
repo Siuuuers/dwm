@@ -3,6 +3,7 @@ param()
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'Get-ContinueFileSha256.ps1')
 $repositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..')).TrimEnd('\', '/')
 $identity = [guid]::NewGuid().ToString('N')
 $output = Join-Path $repositoryRoot '.godot/ci/caption-native'
@@ -110,6 +111,15 @@ if ($consolePath -notmatch '_console\.exe$') { throw 'CAPTION_PINNED_CONSOLE_NAM
 $enginePath = $consolePath -replace '_console\.exe$', '.exe'
 if (-not (Test-Path -LiteralPath $enginePath -PathType Leaf)) { throw 'CAPTION_ENGINE_MISSING' }
 $boundProcess = $null
+$providerSession = $null
+$providerWindow = $null
+$providerElements = $null
+$providerClosed = $false
+$providerRecord = [ordered]@{ status = 'not_started'; diagnostic_only = $true;
+    run_token = $identity; run_id = $env:GITHUB_RUN_ID; run_attempt = $env:GITHUB_RUN_ATTEMPT;
+    client_route = 'managed-discovery-then-native-COM-provenance'; identity_verified = $false;
+    operations = @(); events = @(); cleanup_errors = @(); error = $null; closed = $false }
+
 $wheelObservation = $null
 $partialPrefix = 'The live fourth'
 $observations = New-Object Collections.Generic.List[object]
@@ -150,6 +160,136 @@ function Read-Stage([string]$Stage) {
         Start-Sleep -Milliseconds 100
     }
     throw "CAPTION_STAGE_TIMEOUT: $Stage"
+}
+
+function Save-CaptionProviderEvent([string]$Stage, [Diagnostics.Stopwatch]$Deadline) {
+    $script:providerRecord.events += [ordered]@{ stage = $Stage;
+        unix_msec = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds();
+        lookup_elapsed_msec = $Deadline.Elapsed.TotalMilliseconds }
+    if ($null -ne $script:providerSession) {
+        $script:providerRecord.operations = @($script:providerSession.Operations)
+    }
+    Write-CaptionJson 'native-provider.json' $script:providerRecord
+}
+
+function Assert-CaptionProviderBinding([Diagnostics.Process]$Native, [IntPtr]$Handle,
+    [object]$ProcessIdentity, [long]$StartTicks, [Diagnostics.Stopwatch]$Deadline) {
+    if ($Deadline.Elapsed.TotalSeconds -ge 10) { throw 'CAPTION_PROVIDER_LOOKUP_DEADLINE' }
+    $child.Refresh()
+    $Native.Refresh()
+    [uint32]$windowPid = 0
+    if ($child.HasExited -or $Native.HasExited -or
+        $Native.StartTime.ToUniversalTime().Ticks -ne $StartTicks -or
+        $Native.MainWindowHandle -ne $Handle -or
+        [DwmCaptionNative]::GetWindowThreadProcessId($Handle, [ref]$windowPid) -eq 0 -or
+        $windowPid -ne [uint32]$ProcessIdentity.pid) { throw 'CAPTION_PROVIDER_BINDING_CHANGED' }
+    $current = Get-CimInstance Win32_Process -Filter "ProcessId = $($ProcessIdentity.pid)"
+    if ($null -eq $current -or [int]$current.ParentProcessId -ne $ProcessIdentity.parent_pid -or
+        [string]$current.ExecutablePath -ine $ProcessIdentity.executable -or
+        [string]$current.CommandLine -cne $ProcessIdentity.command_line -or
+        $current.CreationDate.ToUniversalTime().ToString('o') -cne $ProcessIdentity.created_utc) {
+        throw 'CAPTION_PROVIDER_PROCESS_CHANGED'
+    }
+    if ($Deadline.Elapsed.TotalSeconds -ge 10) { throw 'CAPTION_PROVIDER_LOOKUP_DEADLINE' }
+}
+
+function Start-CaptionProvider([Diagnostics.Process]$Native, [IntPtr]$Handle,
+    [object]$ProcessIdentity, [object]$Window, [object]$Elements, [Diagnostics.Stopwatch]$Deadline) {
+    if ($script:providerRecord.status -cne 'not_started') { throw 'CAPTION_PROVIDER_REPEATED_START' }
+    # Hold the original managed objects alongside the native client through cleanup.
+    $script:providerWindow = $Window
+    $script:providerElements = $Elements
+    $startTicks = $Native.StartTime.ToUniversalTime().Ticks
+    $script:providerRecord['process_identity'] = $ProcessIdentity
+    $script:providerRecord['engine_start_ticks'] = $startTicks.ToString([Globalization.CultureInfo]::InvariantCulture)
+    $script:providerRecord['hwnd'] = $Handle.ToInt64()
+    $script:providerRecord['managed_descendants'] = $Elements.Count
+    try {
+        Assert-CaptionProviderBinding $Native $Handle $ProcessIdentity $startTicks $Deadline
+        $script:providerRecord.status = 'loading_interop'
+        Save-CaptionProviderEvent 'native_interop_start' $Deadline
+        $interopPath = Join-Path $PSScriptRoot 'ContinueNativeProvider.cs'
+        $script:providerRecord['interop_sha256'] = Get-ContinueFileSha256 -LiteralPath $interopPath
+        $script:providerRecord['reader_sha256'] = Get-ContinueFileSha256 -LiteralPath $PSCommandPath
+        $script:providerRecord['powershell'] = $PSVersionTable.PSVersion.ToString()
+        $script:providerRecord['clr'] = [Environment]::Version.ToString()
+        $script:providerRecord['process_bits'] = [IntPtr]::Size * 8
+        $uiaCorePath = Join-Path $env:SystemRoot 'System32/UIAutomationCore.dll'
+        $script:providerRecord['uia_core'] = [ordered]@{ path = $uiaCorePath;
+            file_version = [Diagnostics.FileVersionInfo]::GetVersionInfo($uiaCorePath).FileVersion;
+            sha256 = (Get-ContinueFileSha256 -LiteralPath $uiaCorePath) }
+        Add-Type -Path $interopPath
+        $script:providerSession = New-Object DwmNativeProvider.Session
+        $script:providerRecord['assembly'] = $script:providerSession.GetType().Assembly.FullName
+        $script:providerRecord['apartment'] = $script:providerSession.Apartment
+        Save-CaptionProviderEvent 'native_interop_ready' $Deadline
+        Assert-CaptionProviderBinding $Native $Handle $ProcessIdentity $startTicks $Deadline
+        $script:providerRecord.status = 'activating_client'
+        Save-CaptionProviderEvent 'native_activate_start' $Deadline
+        $operation = $script:providerSession.Activate()
+        Save-CaptionProviderEvent 'native_activate_return' $Deadline
+        if ($operation.State -cne 'ok') { throw 'CAPTION_PROVIDER_ACTIVATION_FAILED' }
+        Assert-CaptionProviderBinding $Native $Handle $ProcessIdentity $startTicks $Deadline
+        $script:providerRecord.status = 'attaching'
+        Save-CaptionProviderEvent 'native_attach_start' $Deadline
+        $operation = $script:providerSession.Attach($Handle)
+        Save-CaptionProviderEvent 'native_attach_return' $Deadline
+        if ($operation.State -cne 'ok') { throw 'CAPTION_PROVIDER_ATTACHMENT_FAILED' }
+        Assert-CaptionProviderBinding $Native $Handle $ProcessIdentity $startTicks $Deadline
+        foreach ($propertyId in @(30002, 30020)) {
+            $script:providerRecord.status = 'verifying_identity'
+            Save-CaptionProviderEvent "native_property_${propertyId}_start" $Deadline
+            $operation = $script:providerSession.Read($propertyId)
+            Save-CaptionProviderEvent "native_property_${propertyId}_return" $Deadline
+            Assert-CaptionProviderBinding $Native $Handle $ProcessIdentity $startTicks $Deadline
+            if ($operation.State -cne 'value' -or $operation.Value -isnot [int]) {
+                throw "CAPTION_PROVIDER_IDENTITY_UNAVAILABLE: $propertyId"
+            }
+            if ($propertyId -eq 30002 -and $operation.Value -ne [int]$ProcessIdentity.pid) {
+                throw 'CAPTION_PROVIDER_PID_MISMATCH'
+            }
+            if ($propertyId -eq 30020) {
+                $normalized = [BitConverter]::ToUInt32([BitConverter]::GetBytes([int]$operation.Value), 0)
+                $handle64 = $Handle.ToInt64()
+                $upper = $handle64 -shr 32
+                if (($upper -ne 0 -and $upper -ne -1) -or
+                    [long]$normalized -ne ($handle64 -band 4294967295L)) { throw 'CAPTION_PROVIDER_HWND_MISMATCH' }
+                $script:providerRecord['native_hwnd_uint32'] = [long]$normalized
+            }
+        }
+        $script:providerRecord.identity_verified = $true
+        $script:providerRecord.status = 'reading_provenance'
+        Save-CaptionProviderEvent 'native_property_30107_start' $Deadline
+        $operation = $script:providerSession.Read(30107)
+        Save-CaptionProviderEvent 'native_property_30107_return' $Deadline
+        Assert-CaptionProviderBinding $Native $Handle $ProcessIdentity $startTicks $Deadline
+        if ($operation.State -notin @('value', 'empty', 'null', 'null_variant', 'unsupported')) {
+            throw 'CAPTION_PROVIDER_PROVENANCE_FAILED'
+        }
+        # The raw description is diagnostic only, never a caption/Continue pass grammar.
+        $script:providerRecord.status = 'observed'
+        Save-CaptionProviderEvent 'native_provenance_complete' $Deadline
+    } catch {
+        $script:providerRecord.status = 'failed'
+        $script:providerRecord.error = $_.Exception.Message
+        Save-CaptionProviderEvent 'native_failure' $Deadline
+        throw
+    }
+}
+
+function Close-CaptionProvider {
+    if ($script:providerClosed) { return }
+    $script:providerClosed = $true
+    if ($null -ne $script:providerSession) {
+        try { $script:providerSession.Dispose() }
+        catch { $script:providerRecord.cleanup_errors += $_.Exception.Message }
+        $script:providerRecord.operations = @($script:providerSession.Operations)
+        $script:providerRecord.cleanup_errors += @($script:providerSession.CleanupErrors)
+    }
+    [GC]::KeepAlive($script:providerElements)
+    [GC]::KeepAlive($script:providerWindow)
+    $script:providerRecord.closed = $true
+    Write-CaptionJson 'native-provider.json' $script:providerRecord
 }
 
 function Resolve-Caption([object]$Ready, [object]$Expected) {
@@ -204,6 +344,7 @@ function Resolve-Caption([object]$Ready, [object]$Expected) {
     $target = $null
     $continueTarget = $null
     $deadline = [Diagnostics.Stopwatch]::StartNew()
+    try {
     while ($deadline.Elapsed.TotalSeconds -lt 10) {
         $native.Refresh()
         if ($native.MainWindowHandle -ne [IntPtr]::Zero -and $native.MainWindowTitle -ceq $title) {
@@ -211,6 +352,14 @@ function Resolve-Caption([object]$Ready, [object]$Expected) {
             if ($window.Current.ProcessId -ne $targetPid) { throw 'CAPTION_WINDOW_PROCESS_MISMATCH' }
             $elements = $window.FindAll([Windows.Automation.TreeScope]::Descendants,
                 [Windows.Automation.Condition]::TrueCondition)
+            if ($script:providerRecord.status -ceq 'not_started') {
+                Start-CaptionProvider $native $native.MainWindowHandle $processIdentity $window $elements $deadline
+            } elseif ($script:providerRecord.status -cne 'observed' -or
+                $script:providerRecord.hwnd -ne $native.MainWindowHandle.ToInt64() -or
+                $script:providerRecord.engine_start_ticks -cne
+                    $native.StartTime.ToUniversalTime().Ticks.ToString([Globalization.CultureInfo]::InvariantCulture)) {
+                throw 'CAPTION_PROVIDER_BOUND_WINDOW_CHANGED'
+            }
             $snapshot = @($elements | ForEach-Object {
                 [ordered]@{ name = $_.Current.Name; type = $_.Current.ControlType.ProgrammaticName;
                     enabled = $_.Current.IsEnabled; offscreen = $_.Current.IsOffscreen;
@@ -293,8 +442,8 @@ function Resolve-Caption([object]$Ready, [object]$Expected) {
         window_handle = $native.MainWindowHandle.ToInt64(); pid = $targetPid;
         runtime_id = $runtimeId; rectangle = $rectangle; ready = $Ready; process_identity = $processIdentity;
         physical_rectangle = @($rectangle.X, $rectangle.Y, $rectangle.Width, $rectangle.Height) }
-    $native.Dispose()
     return $binding
+    } finally { $native.Dispose() }
 }
 
 function Assert-InWindow($Element, $Window, [int]$ElementProcessId) {
@@ -348,7 +497,7 @@ function Assert-Capture([object]$Capture, [string]$Stage) {
         $Capture.sha256 -cnotmatch '^[a-f0-9]{64}$') { throw "CAPTION_CAPTURE_IDENTITY: $Stage" }
     $path = Join-Path $output $Capture.file
     if (-not (Test-Path -LiteralPath $path -PathType Leaf) -or
-        (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $Capture.sha256) {
+        (Get-ContinueFileSha256 -LiteralPath $path) -cne $Capture.sha256) {
         throw "CAPTION_CAPTURE_HASH: $Stage"
     }
 }
@@ -562,12 +711,18 @@ try {
     }
     $source = (& git -C $repositoryRoot rev-parse HEAD).Trim()
     if ($LASTEXITCODE -ne 0) { throw 'CAPTION_SOURCE_UNKNOWN' }
+    if ($script:providerRecord.status -cne 'observed' -or -not $script:providerRecord.identity_verified) {
+        throw 'CAPTION_PROVIDER_NOT_OBSERVED'
+    }
+    # Keep both routes alive until the game exits; cleanup must pass before success.
+    Close-CaptionProvider
+    if (@($script:providerRecord.cleanup_errors).Count -ne 0) { throw 'CAPTION_PROVIDER_CLEANUP_FAILED' }
     $receipt = [ordered]@{ ok = $true; checkout = $source; run_id = $env:GITHUB_RUN_ID;
         run_attempt = $env:GITHUB_RUN_ATTEMPT; native_invocations = 9; runtime = $result;
         review_return_verified = $true; native_wheel_entry_verified = $true; run_token = $identity;
-        wheel_entry = $wheelObservation; process_identity = $boundProcess;
-        console_sha256 = (Get-FileHash $consolePath -Algorithm SHA256).Hash.ToLowerInvariant();
-        engine_sha256 = (Get-FileHash $enginePath -Algorithm SHA256).Hash.ToLowerInvariant();
+        wheel_entry = $wheelObservation; process_identity = $boundProcess; native_provider = $script:providerRecord;
+        console_sha256 = (Get-ContinueFileSha256 -LiteralPath $consolePath);
+        engine_sha256 = (Get-ContinueFileSha256 -LiteralPath $enginePath);
         scope = 'Mounted fixture; focused prose Text without InvokePattern, separate fixture-geometry-bound Continue, native wheel entry plus UIA return. Nonzero count is seeded with elapsed reveal disabled. No speech, ScrollPattern, production consequences or timed-lifecycle claim. PNGs are Godot viewport captures.' }
     [IO.File]::WriteAllText((Join-Path $output 'receipt.json'), (ConvertTo-Json $receipt -Depth 25), $utf8)
     Write-Output 'CAPTION_NATIVE_ACCEPT_VERIFIED'
@@ -578,12 +733,23 @@ try {
         invocations = @($observations.ToArray()); run_id = $env:GITHUB_RUN_ID; run_attempt = $env:GITHUB_RUN_ATTEMPT })
     throw
 } finally {
-    if ($started -and -not $child.HasExited) { & taskkill.exe /PID $child.Id /T /F | Out-Null }
-    $child.Dispose()
-    if ($previousDpi -ne [IntPtr]::Zero) { [void][DwmCaptionNative]::SetThreadDpiAwarenessContext($previousDpi) }
-    $files = @(Get-ChildItem -LiteralPath $output -File | Where-Object { $_.Name -cne 'files.sha256.json' } |
-        Sort-Object Name | ForEach-Object { [ordered]@{ file = $_.Name; bytes = $_.Length;
-            sha256 = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant() } })
-    Write-CaptionJson 'files.sha256.json' $files
+    try {
+        try {
+            if ($started -and -not $child.HasExited) { & taskkill.exe /PID $child.Id /T /F | Out-Null }
+        } finally { $child.Dispose() }
+    } finally {
+        try { Close-CaptionProvider } finally {
+            try {
+                if ($previousDpi -ne [IntPtr]::Zero) { [void][DwmCaptionNative]::SetThreadDpiAwarenessContext($previousDpi) }
+            } finally {
+                $files = @(Get-ChildItem -LiteralPath $output -File | Where-Object { $_.Name -cne 'files.sha256.json' } |
+                    Sort-Object Name | ForEach-Object { [ordered]@{ file = $_.Name; bytes = $_.Length;
+                        sha256 = (Get-ContinueFileSha256 -LiteralPath $_.FullName) } })
+                Write-CaptionJson 'files.sha256.json' $files
+            }
+        }
+        if (@($script:providerRecord.cleanup_errors).Count -ne 0) { throw 'CAPTION_PROVIDER_CLEANUP_FAILED' }
+    }
 }
+
 

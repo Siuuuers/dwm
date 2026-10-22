@@ -18,7 +18,7 @@ try {
         throw 'NATIVE_PREFLIGHT_REQUIRES_WINDOWS_PS5_X64'
     }
     foreach ($name in @('Read-ContinueNativeProvider.ps1', 'Invoke-IsolatedGodot.ps1',
-        'Invoke-ContinuePublicationChecks.ps1', 'Test-ContinueNativeProvider.ps1', 'Get-ContinueFileSha256.ps1')) {
+        'Invoke-ContinuePublicationChecks.ps1', 'Test-ContinueNativeProvider.ps1', 'Get-ContinueFileSha256.ps1', 'Invoke-CaptionNativeAccept.ps1')) {
         $tokens = $null; $errors = $null
         $null = [Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot $name), [ref]$tokens, [ref]$errors)
         if ($errors.Count -ne 0) { throw ($errors | Out-String) }

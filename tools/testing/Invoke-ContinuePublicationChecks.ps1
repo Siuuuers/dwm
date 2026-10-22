@@ -13,6 +13,8 @@ $helper = Join-Path $RepositoryRoot 'tools/testing/Invoke-IsolatedGodot.ps1'
 $output = Join-Path $RepositoryRoot '.godot/ci/continue-publication'
 $utf8 = New-Object Text.UTF8Encoding($false)
 if ($env:OS -cne 'Windows_NT') { throw 'CONTINUE_WINDOWS_REQUIRED' }
+if (-not $NativeProviderProvenance) { throw 'CONTINUE_NATIVE_CONSUMER_REQUIRED' }
+. (Join-Path $PSScriptRoot 'Get-ContinueFileSha256.ps1')
 if ([string]::IsNullOrWhiteSpace($env:GODOT_CONSOLE_PATH) -or
     -not (Test-Path -LiteralPath $env:GODOT_CONSOLE_PATH -PathType Leaf) -or
     [IO.Path]::GetFileName($env:GODOT_CONSOLE_PATH) -cne 'Godot_v4.6.3-stable_win64_console.exe') {
@@ -28,7 +30,14 @@ New-Item -ItemType Directory -Force -Path $output | Out-Null
 $runtimePath = 'tests/integration/test_witnessed_caption_runtime.gd'
 $publicationPath = 'tests/manual/test_continue_reveal_publication.gd'
 $plans = @(
-    @{ id = 'initial-observation'; path = $publicationPath; name = 'test_continue_initial_registration_observation' }
+    @{ id = 'organic'; path = $publicationPath; name = 'test_continue_registered_action_refreshes_after_organic_finish' },
+    @{ id = 'manual'; path = $publicationPath; name = 'test_continue_registered_action_refreshes_after_manual_finish' },
+    @{ id = 'pointer'; path = $runtimePath; name = 'test_actual_background_and_caption_accept_share_one_release_gesture' },
+    @{ id = 'keyboard'; path = $runtimePath; name = 'test_actual_enter_and_same_frame_unrelated_packets_issue_one_accept' },
+    @{ id = 'touch'; path = $runtimePath; name = 'test_actual_current_short_tap_accepts_but_drag_only_scrolls' },
+    @{ id = 'review'; path = $runtimePath; name = 'test_review_background_click_returns_live_before_a_fresh_click_reveals' },
+    @{ id = 'speech-start'; path = $runtimePath; name = 'test_speech_starts_with_visible_primary_during_reveal_without_speaker_or_markup' },
+    @{ id = 'speech-cancel'; path = $runtimePath; name = 'test_accept_or_custody_cancels_current_speech_and_uncover_cannot_replay' }
 )
 
 # GUT -gunit_test_name is a substring filter, not a list or regular expression.
@@ -42,86 +51,57 @@ foreach ($plan in $plans) {
         ForEach-Object { $_.Groups[1].Value } | Where-Object { $_.Contains($plan.name) })
     if ($names.Count -ne 1 -or $names[0] -cne $plan.name) { throw "CONTINUE_FILTER_NOT_UNIQUE: $($plan.name)" }
     $plan['expected_cases'] = 1
+    $plan['native_consumer'] = $plan.path -ceq $publicationPath
 }
-$manifest = [ordered]@{ source = $source; expected_cases = 1; registration_cases = 1; diagnostic_only = $true;
+$manifest = [ordered]@{ source = $source; expected_cases = 8; registration_cases = 2;
     rendered = $true; accessibility = 'always'; tests = $plans;
-    native_provider_provenance = [bool]$NativeProviderProvenance;
-    client_route = $(if ($NativeProviderProvenance) { 'managed-discovery-then-native-COM-provenance' } else { 'managed-baseline' });
+    client_route = 'managed-discovery-then-native-COM-provenance for two publication cases only';
     console_sha256 = (Get-FileHash -LiteralPath $env:GODOT_CONSOLE_PATH -Algorithm SHA256).Hash.ToLowerInvariant() }
 [IO.File]::WriteAllText((Join-Path $output 'selection.json'), ($manifest | ConvertTo-Json -Depth 6), $utf8)
-function Write-ConsumerOutcome([string]$LogPath, [int]$RunnerExit) {
-    # Compare same-machine UTC samples, bracketed by the fixture's original
-    # monotonic registration clock. Never reset or extend that deadline.
-    $outcome = [ordered]@{ runner_exit = $RunnerExit; registration = 'unobserved';
-        attachment = 'unobserved'; timing = 'unavailable'; reader = $null; lifecycle = $null;
-        window = $null; clock_drift_msec = $null; reader_clock_drift_max_msec = $null;
-        discovery_start_from_window_msec = $null;
-        discovery_end_from_window_msec = $null; analysis_error = $null; qualified = $false }
-    try {
-        $readerPath = Join-Path $output 'consumer-reader.json'
-        $lifecyclePath = Join-Path $output 'consumer-lifecycle.json'
-        if (Test-Path -LiteralPath $readerPath) {
-            $outcome.reader = Get-Content -LiteralPath $readerPath -Raw | ConvertFrom-Json
-            $outcome.attachment = if ($outcome.reader.discovered) { 'discovered' } else { 'failed' }
-        }
-        if (Test-Path -LiteralPath $lifecyclePath) {
-            $outcome.lifecycle = Get-Content -LiteralPath $lifecyclePath -Raw | ConvertFrom-Json
-        }
-        $lines = @(Get-Content -LiteralPath $LogPath | Where-Object { $_.StartsWith('CONTINUE_REGISTRATION_OBSERVATION ') })
-        if ($lines.Count -ne 1) { throw 'CONSUMER_OBSERVATION_COUNT' }
-        $observation = $lines[0].Substring('CONTINUE_REGISTRATION_OBSERVATION '.Length) | ConvertFrom-Json
-        $outcome.registration = $observation.final.outcome
-        $window = $observation.registration_window
-        $clock = $window.start_clock
-        $endClock = $observation.end_clock
-        $offset = [double]$clock.unix_msec - (([double]$clock.ticks_before + [double]$clock.ticks_after) / 2.0)
-        $endOffset = [double]$endClock.unix_msec - (([double]$endClock.ticks_before + [double]$endClock.ticks_after) / 2.0)
-        $outcome.clock_drift_msec = $endOffset - $offset
-        $earliestDeadline = [double]$clock.unix_msec + [double]$window.deadline_ticks_msec - [double]$clock.ticks_after
-        $latestDeadline = [double]$clock.unix_msec + [double]$window.deadline_ticks_msec - [double]$clock.ticks_before
-        $outcome.window = [ordered]@{ original = $window; end_clock = $endClock;
-            deadline_earliest_unix_msec = $earliestDeadline; deadline_latest_unix_msec = $latestDeadline;
-            boundary_margin_msec = 12; clock_drift_limit_msec = 10 }
-        # Reader may discover before the fixture window starts. Its existing
-        # UTC/Stopwatch event pairs cover that earlier interval through cleanup.
-        $readerClockValid = $false
-        if ($null -ne $outcome.reader) {
-            $events = @($outcome.reader.events)
-            if ($events.Count -ge 2 -and $events[0].stage -ceq 'reader_start' -and
-                $events[-1].stage -ceq 'reader_complete') {
-                $maximumDrift = 0.0
-                foreach ($event in $events) {
-                    $drift = ([double]$event.unix_msec - [double]$events[0].unix_msec) -
-                        ([double]$event.elapsed_msec - [double]$events[0].elapsed_msec)
-                    $maximumDrift = [Math]::Max($maximumDrift, [Math]::Abs($drift))
-                }
-                $outcome.reader_clock_drift_max_msec = $maximumDrift
-                $readerClockValid = $maximumDrift -le 10
-            }
-        }
-        if (-not $readerClockValid -or [Math]::Abs($outcome.clock_drift_msec) -gt 10 -or
-            ([double]$clock.ticks_after - [double]$clock.ticks_before) -gt 10 -or
-            ([double]$endClock.ticks_after - [double]$endClock.ticks_before) -gt 10) {
-            $outcome.timing = 'clock_incomparable'
-        } elseif ($null -ne $outcome.reader -and $null -ne $outcome.reader.discovery_completed_unix_msec) {
-            $done = [double]$outcome.reader.discovery_completed_unix_msec
-            $outcome.discovery_start_from_window_msec = [double]$outcome.reader.discovery_started_unix_msec - [double]$clock.unix_msec
-            $outcome.discovery_end_from_window_msec = $done - [double]$clock.unix_msec
-            if ($done -lt ($earliestDeadline - 12)) { $outcome.timing = 'timely' }
-            elseif ($done -gt ($latestDeadline + 12)) { $outcome.timing = 'late' }
-            else { $outcome.timing = 'boundary_ambiguous' }
-        }
-        $outcome.qualified = $RunnerExit -eq 0 -and $outcome.registration -ceq 'initial_registration_observed' -and
-            $outcome.attachment -ceq 'discovered' -and $outcome.timing -ceq 'timely' -and
-            $null -ne $outcome.lifecycle -and $outcome.lifecycle.child_exit -eq 0 -and
-            $outcome.lifecycle.reader_exit -eq 0 -and -not $outcome.lifecycle.reader_forced -and
-            $null -eq $outcome.lifecycle.error -and @($outcome.lifecycle.cleanup_errors).Count -eq 0 -and
-            $outcome.reader.ok
-    } catch {
-        $outcome.analysis_error = $_.Exception.Message
+# Each registered-completion fixture owns its unchanged 5000ms publication waits.
+# Unlike the diagnostic lane, it emits no successful registration clock snapshot.
+# Keep reader clock comparability separate; do not fabricate cross-clock native timing.
+function Assert-ConsumerReceipt([string]$Directory) {
+    $reader = Get-Content -LiteralPath (Join-Path $Directory 'consumer-reader.json') -Raw | ConvertFrom-Json
+    $lifecycle = Get-Content -LiteralPath (Join-Path $Directory 'consumer-lifecycle.json') -Raw | ConvertFrom-Json
+    $binding = Get-Content -LiteralPath (Join-Path $Directory 'consumer-binding.json') -Raw | ConvertFrom-Json
+    if ($reader.ok -ne $true -or $reader.exit_code -ne 0 -or $reader.discovered -ne $true -or
+        $null -ne $reader.error -or $reader.native_provider.status -cne 'observed' -or
+        $reader.native_provider.identity_verified -ne $true -or
+        @($reader.native_provider.cleanup_errors).Count -ne 0 -or
+        $lifecycle.child_exit -ne 0 -or $lifecycle.reader_exit -ne 0 -or
+        $lifecycle.reader_started -ne $true -or $lifecycle.reader_forced -ne $false -or
+        $null -ne $lifecycle.error -or @($lifecycle.cleanup_errors).Count -ne 0) {
+        throw 'CONTINUE_CONSUMER_NOT_CLEAN'
     }
-    [IO.File]::WriteAllText((Join-Path $output 'consumer-outcome.json'), (ConvertTo-Json $outcome -Depth 20), $utf8)
-    return $outcome
+    if ($reader.client_route -cne 'managed-discovery-then-native-COM-provenance' -or
+        $reader.native_provider.reader_sha256 -cne (Get-ContinueFileSha256 -LiteralPath (Join-Path $PSScriptRoot 'Read-ContinueNativeProvider.ps1')) -or
+        $reader.native_provider.interop_sha256 -cne (Get-ContinueFileSha256 -LiteralPath (Join-Path $PSScriptRoot 'ContinueNativeProvider.cs')) -or
+        $reader.identity.launcher_pid -ne $binding.launcher_pid -or
+        $reader.identity.parent_pid -ne $binding.launcher_pid -or
+        $reader.binding.launcher_start_ticks -cne $binding.launcher_start_ticks -or
+        $reader.identity.executable -cne $binding.engine_path -or
+        $reader.binding.arguments -cne $binding.arguments -or
+        $reader.binding.console_path -cne $binding.console_path) {
+        throw 'CONTINUE_CONSUMER_RECEIPT_IDENTITY'
+    }
+    $events = @($reader.events)
+    if ($events.Count -lt 2 -or $events[0].stage -cne 'reader_start' -or
+        $events[-1].stage -cne 'reader_complete') { throw 'CONTINUE_CONSUMER_CLOCK_INCOMPLETE' }
+    $maximumDrift = 0.0
+    foreach ($event in $events) {
+        $drift = ([double]$event.unix_msec - [double]$events[0].unix_msec) -
+            ([double]$event.elapsed_msec - [double]$events[0].elapsed_msec)
+        $maximumDrift = [Math]::Max($maximumDrift, [Math]::Abs($drift))
+    }
+    $summary = [ordered]@{ reader_clock_drift_max_msec = $maximumDrift;
+        reader_clock_drift_limit_msec = 10; clock_comparable = $maximumDrift -le 10;
+        publication_deadline_owner = 'fixture unchanged 5000ms waits';
+        native_query_timing = 'not_classified'; reader_pid = $reader.reader_pid;
+        engine_pid = $reader.identity.pid; hwnd = $reader.hwnd }
+    [IO.File]::WriteAllText((Join-Path $Directory 'consumer-summary.json'),
+        (ConvertTo-Json $summary -Depth 6), $utf8)
+    if ($maximumDrift -gt 10) { throw 'CONTINUE_CONSUMER_CLOCK_INCOMPARABLE' }
 }
 
 $completed = New-Object Collections.Generic.List[object]
@@ -134,16 +114,35 @@ foreach ($plan in $plans) {
         '-gconfig=', "-gtest=res://$($plan.path)", "-gunit_test_name=$($plan.name)",
         '-gexit', '-glog=2', '-gdisable_colors',
         "-gjunit_xml_file=res://.godot/ci/continue-publication/$($plan.id).xml")
-    & $helper -SuiteId "continue-publication-$($plan.id)" -LogName $logName `
-        -EvidenceLogPath '.godot/ci/continue-publication/isolation.jsonl' `
-        -TimeoutSeconds 120 -Rendered -ContinueAccessibilityConsumer -NativeProviderProvenance:$NativeProviderProvenance -GodotArgs $arguments
-    $result = $LASTEXITCODE
-    $consumerOutcome = Write-ConsumerOutcome -LogPath $logPath -RunnerExit $result
+    $useConsumer = [bool]$plan.native_consumer
+    $consumerDirectory = Join-Path $output "consumer-$($plan.id)"
+    $consumerFiles = @('consumer-binding.json', 'consumer-reader.json', 'consumer-lifecycle.json', 'consumer-stop')
+    if ($plan.native_consumer) {
+        if (Test-Path -LiteralPath $consumerDirectory) { throw 'CONTINUE_CASE_OUTPUT_NOT_FRESH' }
+        New-Item -ItemType Directory -Path $consumerDirectory | Out-Null
+    }
+    try {
+        & $helper -SuiteId "continue-publication-$($plan.id)" -LogName $logName `
+            -EvidenceLogPath '.godot/ci/continue-publication/isolation.jsonl' `
+            -TimeoutSeconds 120 -Rendered -ContinueAccessibilityConsumer:$useConsumer `
+            -NativeProviderProvenance:$useConsumer -GodotArgs $arguments
+        $result = $LASTEXITCODE
+    } finally {
+        if ($plan.native_consumer) {
+            # Preserve even failed attempts, then leave the helper's fixed paths fresh.
+            foreach ($name in $consumerFiles) {
+                $path = Join-Path $output $name
+                if (Test-Path -LiteralPath $path) {
+                    Move-Item -LiteralPath $path -Destination (Join-Path $consumerDirectory $name) -ErrorAction Stop
+                }
+            }
+        }
+    }
     if ($result -ne 0) {
         if (Test-Path -LiteralPath $logPath) { Get-Content -LiteralPath $logPath }
         throw "CONTINUE_CHILD_FAILED: $($plan.id) exit $result"
     }
-    if (-not $consumerOutcome.qualified) { throw 'CONTINUE_CONSUMER_PREREQUISITE_NOT_QUALIFIED' }
+    if ($plan.native_consumer) { Assert-ConsumerReceipt $consumerDirectory }
     $log = Get-Content -LiteralPath $logPath -Raw
     if ($log -notmatch '(?m)^Godot Engine v4\.6\.3\.stable\.official\.' -or
         $log -match 'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character') {
@@ -168,5 +167,6 @@ foreach ($plan in $plans) {
     [IO.File]::WriteAllText((Join-Path $output 'completed.json'),
         (ConvertTo-Json -InputObject @($completed.ToArray()) -Depth 6), $utf8)
 }
-if ($completed.Count -ne 1) { throw 'CONTINUE_COMPLETED_COUNT_INVALID' }
-Write-Output 'CONTINUE_INITIAL_OBSERVATION_COMPLETED: 1 exact case; not completion/native qualification'
+if ($completed.Count -ne 8) { throw 'CONTINUE_COMPLETED_COUNT_INVALID' }
+Write-Output 'CONTINUE_PUBLICATION_CHECKS_PASSED: 8 exact cases; 2 registration, 6 input/review/speech; skipped=0'
+

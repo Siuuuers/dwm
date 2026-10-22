@@ -314,7 +314,7 @@ $phase = 'isolation'
 try {
     if ($NativeProviderProvenance -and -not $ContinueAccessibilityConsumer) { throw 'NATIVE_PROVIDER_SCOPE_INVALID' }
     if ($ContinueAccessibilityConsumer -and (-not $Rendered -or
-        $SuiteId -cne 'continue-publication-initial-observation' -or
+        $SuiteId -cnotin @('continue-publication-initial-observation', 'continue-publication-organic', 'continue-publication-manual') -or
         $EvidenceLogPath -cne '.godot/ci/continue-publication/isolation.jsonl' -or
         $NextGodotArgs.Count -ne 0 -or $ThirdGodotArgs.Count -ne 0)) {
         throw 'CONTINUE_CONSUMER_SCOPE_INVALID'
@@ -476,3 +476,4 @@ try {
 }
 if ($null -ne $recordJson) { [Console]::Out.WriteLine($recordJson) }
 exit $resultCode
+
