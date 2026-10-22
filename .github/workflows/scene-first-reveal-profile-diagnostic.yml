@@ -1,6 +1,6 @@
 # INERT REVIEW CANDIDATE. Install only after external C source review.
 # Focused candidate only: C exact packet review and Director scope reconciliation precede installation.
-name: Admission validation reuse and restored ending qualification
+name: Equality hash reuse and restored ending qualification
 on:
   pull_request:
     paths:
@@ -19,9 +19,9 @@ jobs:
       run:
         shell: pwsh
     env:
-      PRODUCT_SHA: 02a6e275dc3188921edc1fc08ac423c08b306a1e
-      SOURCE_SHA: af56bc26f5cc9e600a84af13d4de0be4fd6221a5
-      PREPARATION_SHA256: 8a5365c175f32746db6c0edca88ad8bb8177d27af78a05292c79b460fc775abf
+      PRODUCT_SHA: 4278756add50ea27da8237106260a0efee606cda
+      SOURCE_SHA: b36f5b6773a754bc33a7e9b5c591316b622b426b
+      PREPARATION_SHA256: d239e0cfa6c95bfe1340af72ebe707ceb998423ec5efcb2c08bba3ff835faa6f
       CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
       HARNESS_MANIFEST_SHA256: 19bcca3f6e8d016fa8c221b1395b5f21b66c219a56df2e6017a3ce3e971d6976
     steps:
@@ -30,7 +30,7 @@ jobs:
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
-          ref: 02a6e275dc3188921edc1fc08ac423c08b306a1e
+          ref: 4278756add50ea27da8237106260a0efee606cda
       - name: Pin external preparation helpers
         id: preparation_helpers
         run: |
@@ -42,7 +42,7 @@ jobs:
           New-Item -ItemType Directory -Force $helpers | Out-Null
           $prepare = Join-Path $helpers 'prepare_caption.py'
           $capture = Join-Path $helpers 'capture_import.py'
-          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_admission_reuse_20261022/prepare_caption.py" -OutFile $prepare
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_equality_reuse_20261022/prepare_caption.py" -OutFile $prepare
           Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/import_integrity_20261020/capture_import.py" -OutFile $capture
           if ((Get-FileHash $prepare -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:PREPARATION_SHA256) { throw 'PREPARATION_HASH_MISMATCH' }
           if ((Get-FileHash $capture -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:CAPTURE_SHA256) { throw 'CAPTURE_HASH_MISMATCH' }
@@ -75,13 +75,13 @@ jobs:
           $harness = Join-Path $env:RUNNER_TEMP 'clean-focused-harness'
           New-Item -ItemType Directory -Force $harness | Out-Null
           $manifest = Join-Path $harness 'manifest.json'
-          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_admission_reuse_20261022/manifest.json" -OutFile $manifest
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_equality_reuse_20261022/manifest.json" -OutFile $manifest
           if ((Get-FileHash $manifest -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:HARNESS_MANIFEST_SHA256) { throw 'HARNESS_MANIFEST_HASH_MISMATCH' }
           foreach ($entry in (Get-Content $manifest -Raw | ConvertFrom-Json)) {
             $name = [IO.Path]::GetFileName($entry.path)
             if ($entry.path -notlike 'tools/testing/*' -or $name -notmatch '^[A-Za-z0-9.-]+$') { continue }
             $path = Join-Path $harness $name
-            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_admission_reuse_20261022/$name" -OutFile $path
+            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_equality_reuse_20261022/$name" -OutFile $path
             if ((Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $entry.sha256) { throw "HARNESS_HASH_MISMATCH: $name" }
             if ($name.EndsWith('.ps1')) {
               $tokens=$null; $parseErrors=$null
