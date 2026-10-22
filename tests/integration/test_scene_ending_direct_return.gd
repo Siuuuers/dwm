@@ -86,7 +86,23 @@ func test_direct_ending_accept_returns_without_save() -> void:
 	assert_false(observation.clock_visible, "ending does not borrow the ordinary clock")
 	assert_eq(ProjectSettings.get_setting("dialogic/layout/default_style", ""), default_style)
 	assert_eq(ProjectSettings.get_setting("dialogic/layout/end_behaviour", 0), end_behaviour)
+	# Comparative measurement only: retain the short route's real Accept and all
+	# completion assertions. The inherited writer forwards to the production owner.
+	if not _install_ending_writer_timing(): return
+	_ending_phase_timing = true
+	var had_checkpoint_profile: bool = OS.has_environment("DWM_CHECKPOINT_PROFILE")
+	var previous_checkpoint_profile: String = OS.get_environment("DWM_CHECKPOINT_PROFILE")
+	OS.set_environment("DWM_CHECKPOINT_PROFILE", "1")
+	_ending_phase("direct_ending.accept.begin")
 	await _accept()
+	_ending_phase("direct_ending.accept.return")
+	game._ending_checkpoint_writer = _original_ending_writer
+	if had_checkpoint_profile:
+		OS.set_environment("DWM_CHECKPOINT_PROFILE", previous_checkpoint_profile)
+	else:
+		OS.unset_environment("DWM_CHECKPOINT_PROFILE")
+	_ending_phase_timing = false
+	assert_gt(_ending_writer_calls, 0, "fresh Accept must exercise the real checkpoint writer")
 	if not await _wait_route(MENU): return
 	var finished: Dictionary = game._run_lifecycle.to_dict()
 	assert_eq(finished.state, "COMPLETED")
