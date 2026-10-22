@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="3" >
+  <testsuite name="tests/integration/test_artwork_gallery.gd" tests="3" failures="0" skipped="0" time="0.988974" >
+      <testcase name="test_unlock_projection_persists_without_gallery_writes" assertions="28" status="pass" classname="tests/integration/test_artwork_gallery.gd" time="0.257101" >
+      </testcase>
+      <testcase name="test_gallery_preview_modal_keys_and_return_focus" assertions="21" status="pass" classname="tests/integration/test_artwork_gallery.gd" time="0.491595" >
+      </testcase>
+      <testcase name="test_seven_day_art_assets_and_split_placement" assertions="67" status="pass" classname="tests/integration/test_artwork_gallery.gd" time="0.240278" >
+      </testcase>
+  </testsuite>
+</testsuites>

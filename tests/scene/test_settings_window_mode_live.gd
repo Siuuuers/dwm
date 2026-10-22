@@ -20,16 +20,18 @@ class PhysicalWindow extends RefCounted:
 	func capture_output() -> Dictionary:
 		if not available: return {"ok": false, "code": &"window_output_unavailable"}
 		return {"ok": true, "value": state.duplicate(true)}
-	func apply_mode(mode: String) -> Dictionary:
+	func apply_mode(mode: String, _window_size: String = "1280x720") -> Dictionary:
 		operations.append(["apply", mode])
 		state = {"mode": mode, "position": Vector2i.ZERO,
-			"size": Vector2i(1600, 900) if mode == "borderless" else Vector2i(1280, 720)}
+			"size": Vector2i(1600, 900) if mode == "borderless" else preload("res://scripts/display/WindowModePort.gd").WINDOW_SIZES[_window_size]}
 		if fail_apply:
 			fail_apply = false
 			return {"ok": false, "code": &"injected_window_apply"}
 		return {"ok": true}
-	func output_matches(mode: String) -> bool:
-		return available and state.mode == mode
+	func output_matches(mode: String, _window_size: String = "1280x720") -> bool:
+		return available and state.mode == mode and (mode == "borderless" or state.size == preload("res://scripts/display/WindowModePort.gd").WINDOW_SIZES[_window_size])
+	func get_available_window_sizes() -> Array[String]:
+		return ["1280x720", "1600x900"]
 	func restore_output(snapshot: Dictionary) -> Dictionary:
 		operations.append(["restore", snapshot.duplicate(true)])
 		state = snapshot.duplicate(true)
@@ -236,3 +238,23 @@ func test_actual_preferences_confirmation_resets_both_outputs_once_and_preserves
 	assert_false(_playback.bus_states[&"Music"].muted)
 	assert_eq(_playback.output_mode, "stereo")
 	assert_eq(_surface.gui_get_focus_owner(), reset)
+
+func test_window_size_picker_disables_oversized_choices_and_retains_size_in_borderless() -> void:
+	_mount()
+	_content.select_category("display")
+	await _settle()
+	var option: OptionButton = _content.control_for(&"preferences.display.window_size")
+	assert_false(option.disabled)
+	assert_eq(option.item_count, 3)
+	assert_eq(option.get_item_text(1), "1600 × 900")
+	assert_true(option.is_item_disabled(2), "1920×1080 must fit the current monitor before selection")
+	await _select_option(option, "1600x900")
+	assert_eq(_profile.get_preference(&"preferences.display.window_size"), "1600x900")
+	assert_eq(_physical.state.size, Vector2i(1600, 900))
+	await _select_option(_content.control_for(WINDOW_PATH), "borderless")
+	assert_true(option.disabled)
+	assert_eq(option.get_item_metadata(option.selected), "1600x900")
+	assert_false(_content.statuses[&"preferences.display.window_size"].text.is_empty())
+	await _select_option(_content.control_for(WINDOW_PATH), "windowed")
+	assert_false(option.disabled)
+	assert_eq(_physical.state.size, Vector2i(1600, 900))

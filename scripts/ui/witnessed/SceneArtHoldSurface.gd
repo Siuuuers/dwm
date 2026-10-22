@@ -1,6 +1,7 @@
 extends Control
 ## Transient art-only reading surface. Its Continue starts the original DTL; it witnesses no text.
 signal continue_requested(token: String)
+const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const ART_VIEW := preload("res://scripts/ui/art/SceneArtView.gd")
 const CAPTION_THEME := preload("res://scripts/ui/witnessed/WitnessedCaptionTheme.gd")
 const RUN_PRESENTATION := preload("res://scripts/ui/witnessed/WitnessedRunPresentation.gd")
@@ -11,6 +12,7 @@ var _footer: ColorRect
 var _token := ""
 var _entry_id := ""
 var _percent := 100
+var _font_style := "pixel"
 var _locale := "en"
 var _show_portraits := true
 var _palette := "AfterHours"
@@ -29,11 +31,11 @@ var _capture_id := 0
 var _input_owner: Node
 
 func configure(entry_id: String, token: String, percent: int = 100,
-		locale: String = "en", show_portraits: bool = true) -> bool:
+		locale: String = "en", show_portraits: bool = true, font_style: String = "pixel") -> bool:
 	# Standalone legacy callers may mount before LocalizationManager initializes.
 	if locale.is_empty(): locale = "en"
 	if not configure_presentation(locale, percent, _palette, _high_contrast,
-			_colour_preset, _large_targets, _day): return false
+			_colour_preset, _large_targets, _day, font_style): return false
 	_token = token
 	_entry_id = entry_id
 	_show_portraits = show_portraits
@@ -49,6 +51,7 @@ func configure(entry_id: String, token: String, percent: int = 100,
 	art.name = "SceneArt"
 	add_child(art)
 	art.configure_entry(entry_id, percent, false, show_portraits)
+	art.set_split_input_admission(_split_input_admitted)
 	art.draw.connect(_on_art_drawn)
 	_footer = ColorRect.new()
 	_footer.name = "ContinueFooter"
@@ -69,14 +72,15 @@ func configure(entry_id: String, token: String, percent: int = 100,
 
 func configure_presentation(locale: String = "en", text_percent: int = 100,
 		palette: String = "AfterHours", high_contrast: bool = false,
-		colour_preset: String = "standard", large_targets: bool = false, day: int = 1) -> bool:
+		colour_preset: String = "standard", large_targets: bool = false, day: int = 1, font_style: String = "pixel") -> bool:
 	if _retired: return false
 	var next_theme: Theme = CAPTION_THEME.build(locale, text_percent, palette,
-		high_contrast, colour_preset, large_targets, day)
+		high_contrast, colour_preset, large_targets, day, false, font_style)
 	if next_theme == null: return false
 	var resize_art := text_percent != _percent
 	_locale = locale.replace("_", "-")
 	_percent = text_percent
+	_font_style = font_style
 	_palette = palette
 	_day = day
 	_high_contrast = high_contrast
@@ -93,7 +97,7 @@ func configure_presentation(locale: String = "en", text_percent: int = 100,
 func configure_run_presentation(owner: Object) -> bool:
 	var installed: Dictionary = RUN_PRESENTATION.read(owner)
 	if installed.is_empty() or not configure_presentation(_locale, _percent,
-			installed.palette, _high_contrast, _colour_preset, _large_targets, installed.day): return false
+			installed.palette, _high_contrast, _colour_preset, _large_targets, installed.day, _font_style): return false
 	_run_owner = owner
 	return true
 
@@ -123,8 +127,8 @@ func _apply_presentation() -> void:
 	if is_instance_valid(_footer):
 		_footer.color = theme.get_color("deep", "WitnessedCaption")
 	if is_instance_valid(next_button):
-		next_button.text = {"en": "Continue", "zh-CN": "\u7ee7\u7eed", "zh-HK": "\u7e7c\u7e8c"}[_locale]
-		next_button.add_theme_font_size_override("font_size", int(20 * _percent / 100.0))
+		next_button.text = {"en": "Continue", "zh-CN": "\u7ee7\u7eed", "zh-HK": "\u7e7c\u7e8c", "ja": "続ける", "ko": "계속"}[_locale]
+		next_button.add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(_locale, _percent, 20, _font_style))
 	# Continue stays 384x48 at (448,656); the fixed 80px footer contains its ring.
 	# Large-target preference belongs to shared theme, without moving this action.
 
@@ -139,35 +143,45 @@ func _ready() -> void:
 		var contrast: Variant = profile.get_preference(&"preferences.accessibility.high_contrast", _high_contrast)
 		var preset: Variant = profile.get_preference(&"preferences.accessibility.colour_differentiation", _colour_preset)
 		var targets: Variant = profile.get_preference(&"preferences.accessibility.large_targets", _large_targets)
-		if contrast is bool and preset is String and targets is bool:
-			configure_presentation(_locale, _percent, _palette, contrast, preset, targets, _day)
+		var font_style: Variant = profile.get_preference(&"preferences.accessibility.font_style", "pixel")
+		if contrast is bool and preset is String and targets is bool and font_style is String:
+			configure_presentation(_locale, _percent, _palette, contrast, preset, targets, _day, font_style)
 	var localization := get_node_or_null("/root/LocalizationManager")
 	if localization != null and localization.has_signal("locale_changed"):
 		localization.connect("locale_changed", _on_locale_changed)
 
 func _on_preference_changed(path: StringName, value: Variant) -> void:
 	match path:
+		&"preferences.accessibility.font_style":
+			if value is String:
+				configure_presentation(_locale, _percent, _palette, _high_contrast, _colour_preset, _large_targets, _day, value)
 		&"preferences.accessibility.text_size":
 			if value is int:
-				configure_presentation(_locale, value, _palette, _high_contrast, _colour_preset, _large_targets, _day)
+				configure_presentation(_locale, value, _palette, _high_contrast, _colour_preset, _large_targets, _day, _font_style)
 		&"preferences.accessibility.high_contrast":
 			if value is bool:
-				configure_presentation(_locale, _percent, _palette, value, _colour_preset, _large_targets, _day)
+				configure_presentation(_locale, _percent, _palette, value, _colour_preset, _large_targets, _day, _font_style)
 		&"preferences.accessibility.colour_differentiation":
 			if value is String:
-				configure_presentation(_locale, _percent, _palette, _high_contrast, value, _large_targets, _day)
+				configure_presentation(_locale, _percent, _palette, _high_contrast, value, _large_targets, _day, _font_style)
 		&"preferences.accessibility.large_targets":
 			if value is bool:
-				configure_presentation(_locale, _percent, _palette, _high_contrast, _colour_preset, value, _day)
+				configure_presentation(_locale, _percent, _palette, _high_contrast, _colour_preset, value, _day, _font_style)
 
 func _on_locale_changed(locale: String) -> void:
-	configure_presentation(locale, _percent, _palette, _high_contrast, _colour_preset, _large_targets, _day)
+	configure_presentation(locale, _percent, _palette, _high_contrast, _colour_preset, _large_targets, _day, _font_style)
 
 func _on_art_drawn() -> void:
 	if not _retired: _drawn = true
 
 func has_drawn_art() -> bool:
 	return _drawn and not _retired
+
+func _split_input_admitted() -> bool:
+	var admitted := _input_owner == null or not _input_owner.has_method("is_source_input_admitted") \
+		or bool(_input_owner.is_source_input_admitted())
+	return _drawn and not _retired and not _paused and not _covered and not _await_neutral \
+		and is_inside_tree() and is_visible_in_tree() and not get_tree().paused and admitted
 
 func _process(_delta: float) -> void:
 	if _retired: return
@@ -178,22 +192,26 @@ func _process(_delta: float) -> void:
 	var admitted := _input_owner == null or not _input_owner.has_method("is_source_input_admitted") \
 		or bool(_input_owner.is_source_input_admitted())
 	var enabled := _drawn and not _paused and not _covered and not _await_neutral \
-		and not get_tree().paused and admitted
+		and not get_tree().paused and admitted and not art.is_split_dragging()
 	var was_disabled := next_button.disabled
 	next_button.disabled = not enabled
 	if enabled and was_disabled and is_visible_in_tree(): next_button.grab_focus()
 
 func _on_continue() -> void:
-	if _retired or _paused or _covered or not _drawn or _await_neutral or next_button.disabled: return
+	if _retired or _paused or _covered or not _drawn or _await_neutral or next_button.disabled \
+			or art.is_split_dragging(): return
 	next_button.disabled = true
 	continue_requested.emit(_token)
 
 func set_presentation_paused(value: bool) -> void:
 	_paused = value
-	if value: next_button.disabled = true
+	if value:
+		art.cancel_split_input()
+		next_button.disabled = true
 
 func retire() -> void:
 	_retired = true
+	art.cancel_split_input()
 	hide()
 	set_process(false)
 	next_button.disabled = true
@@ -209,6 +227,7 @@ func capture_pause_view(source: Dictionary) -> Dictionary:
 func cover_pause_view(anchor: Dictionary) -> bool:
 	if _retired or anchor != _anchor or _anchor.is_empty(): return false
 	_covered = true
+	art.cancel_split_input()
 	hide()
 	return true
 

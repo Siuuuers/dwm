@@ -1,0 +1,157 @@
+{
+  "repository": "Siuuuers/dwm",
+  "run_id": 35642962190,
+  "run_number": 47,
+  "head_sha": "17c31be1014f70592b06a76c23a48a965e310384",
+  "tested_merge_sha": "dba429ba7432642e253e218e2095eaec799e43fa",
+  "status": "completed",
+  "success_jobs": 14,
+  "failed_jobs": 3,
+  "jobs": [
+    {
+      "id": 106476469251,
+      "name": "Windows / public API surface contracts",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35642962190/job/106476469251"
+    },
+    {
+      "id": 106477260581,
+      "name": "Windows / exported release startup",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35642962190/job/106477260581"
+    },
+    {
+      "id": 106477260617,
+      "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35642962190/job/106477260617"
+    },
+    {
+      "id": 106477260649,
+      "name": "Rendered desktop and dialogue / Linux software OpenGL",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35642962190/job/106477260649"
+    },
+    {
+      "id": 106477260772,
+      "name": "Windows / new_account",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35642962190/job/106477260772"
+    },
+    {
+      "id": 106477260825,
+      "name": "Windows / endings",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35642962190/job/106477260825"
+    },
+    {
+      "id": 106477260826,
+      "name": "Windows / settings",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35642962190/job/106477260826"
+    },
+    {
+      "id": 106477260859,
+      "name": "Windows / seven-day retained history",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35642962190/job/106477260859"
+    },
+    {
+      "id": 106477260880,
+      "name": "Windows / desktop",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35642962190/job/106477260880"
+    },
+    {
+      "id": 106477260900,
+      "name": "Windows / dating",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35642962190/job/106477260900"
+    },
+    {
+      "id": 106477260906,
+      "name": "Windows / persistence",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35642962190/job/106477260906"
+    },
+    {
+      "id": 106477260920,
+      "name": "Windows / audio",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35642962190/job/106477260920"
+    },
+    {
+      "id": 106477260936,
+      "name": "Windows / minesweeper",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35642962190/job/106477260936"
+    },
+    {
+      "id": 106477260941,
+      "name": "Windows / reading_delivery",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35642962190/job/106477260941"
+    },
+    {
+      "id": 106477260981,
+      "name": "Windows / shop",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35642962190/job/106477260981"
+    },
+    {
+      "id": 106477260992,
+      "name": "Windows / localization",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35642962190/job/106477260992"
+    },
+    {
+      "id": 106477261095,
+      "name": "Windows / paired checkpoint performance",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35642962190/job/106477261095"
+    }
+  ],
+  "focused_success": {
+    "tests": 1536,
+    "scripts": 140,
+    "scopes": 10
+  },
+  "reading_delivery": {
+    "passed": 207,
+    "total": 210,
+    "scripts": 16
+  },
+  "rendered_journeys": {
+    "passed": 3,
+    "total": 5
+  },
+  "pending_repairs": {
+    "export": "Official release template rejects --path; remove only native startup override, retain isolated package working directory and strict checks.",
+    "ending": "Real non-group resolve_day_end receipts have pl_window:null. Guard Dictionary before reading counts; regression uses seven domain closures.",
+    "reading_delivery": "Capture original DTL source bytes at both injection sites. Await fresh native text_started and exact parsed text before Ending/Gallery input; bounded diagnostics verify inferred default-style animation timing."
+  },
+  "pending_repairs_runtime_verified": false,
+  "performance_evidence": "performance/retained-history-run47.json",
+  "claim_limits": [
+    "Run47 applies only to head17c31be and its tested merge; later checkpoint repairs are unverified.",
+    "No accepted Windows release ZIP; final public inventory read-only gate remains pending.",
+    "Single fixed-order parse-cache pair is diagnostic only; broad lag bead stays open."
+  ]
+}

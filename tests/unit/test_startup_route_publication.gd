@@ -15,7 +15,6 @@ class PresentationPort extends RefCounted:
 		begins += 1
 		return {"ok": true}
 	func complete(_command: Dictionary) -> Dictionary: return {"ok": true}
-	func acknowledge_notice(_command: Dictionary) -> Dictionary: return {"ok": true}
 
 var router: Node
 var original_scene: Node

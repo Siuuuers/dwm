@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "status": "accepted",
+  "date": "2026-10-03",
+  "scope": "Bounded ordered-ending visible prior-caption continuity",
+  "observable_outcome": "The last two witnessed caption leaves remain visible through the physical ending boundary; fresh Load restores the same visible window and History silently without repeating consequences.",
+  "baseline": "29e3edf268a420cc649c024e29d022e4ce34a02c",
+  "source": "cdee58fc9fe7a218df9a6b1dbd64f7fa44f5ea49",
+  "runtime_source": "2f236aa7099ca2aec51401bc936e3cb0179e5526",
+  "master_unchanged": "6a5ddf1564870b43aa9140cad7e0e5b12e43f399",
+  "pr": "https://github.com/Siuuuers/dwm/pull/1",
+  "pr_state": "draft, unmerged",
+  "implementation": [
+    "Existing Dialogic native layout retention is opted in only by the generation-bound ending adapter, before natural completion would clear the view. Non-text state still retires normally.",
+    "WitnessedCaptionLayer derives its current/previous two caption leaves from the existing semantic session and ledger. The cached visible projection is ephemeral; no new durable store or save schema.",
+    "Cancellation, foreign replacement, explicit session retirement and early permission revocation release retained view state. Successor input focus uses the existing caption focus owner.",
+    "Expanded real-runtime regressions and rendered writer/fresh-reader journey preserve physical completion, save/recovery and History owners."
+  ],
+  "focused": {
+    "run_id": 37134358433,
+    "url": "https://github.com/Siuuuers/dwm/actions/runs/37134358433",
+    "source": "2f236aa7099ca2aec51401bc936e3cb0179e5526",
+    "workflow_head": "65722488d5f0bdde8dc0a9dfab74f13b352fb6c3",
+    "jobs_passed": 5,
+    "jobs_total": 5,
+    "primary_xml_reports": 4,
+    "primary_cases": 1047,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "manifest": "focused/manifest.json",
+    "rendered_archive": "focused/ending-reading.zip",
+    "post_draw_frames": 40,
+    "successor_frames": 26,
+    "regression_archive": "focused/regression-artifacts.zip"
+  },
+  "broad": {
+    "run_id": 37134912094,
+    "source": "cdee58fc9fe7a218df9a6b1dbd64f7fa44f5ea49",
+    "url": "https://github.com/Siuuuers/dwm/actions/runs/37134912094",
+    "actual_checkout": "1afa1bea1eef66c4132157c377f70a52b25767a7",
+    "jobs_passed": 26,
+    "jobs_total": 26,
+    "primary_xml_reports": 13,
+    "primary_cases": 2596,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "manifest": "broad/manifest.json",
+    "test_execution_audit": "broad/test-execution.json",
+    "rendered_archive": "broad/ending-reading.zip",
+    "regression_archive": "broad/regression-artifacts.zip",
+    "history_gate_archive": "broad/history-gates.zip",
+    "post_draw_frames": 40,
+    "successor_frames": 26
+  },
+  "diagnostics": [
+    {
+      "run_id": 37133896781,
+      "source": "26c95a03050232e51db8c26c56ca3e5d6e87cb59",
+      "workflow_head": "1000034408c02623826eb65f060e79316047e33e",
+      "accepted": false,
+      "archive": "diagnostic1/import.zip",
+      "finding": "GDScript could not infer bool from Callable return. Corrected explicit boolean type; no test acceptance.",
+      "manifest": "diagnostic1/manifest.json"
+    },
+    {
+      "run_id": 37134025564,
+      "source": "f3f88bfb597c2cff5dfb9912b6abcc144e1583a4",
+      "workflow_head": "f09bc0fbf3fc83050d11fb09fe00dec85f101bf3",
+      "accepted": false,
+      "archives": [
+        "diagnostic2/dating.zip",
+        "diagnostic2/ending-reading.zip"
+      ],
+      "finding": "Long successor fixture text wrapped, placing oldest leaf partly outside viewport; shortened noncanonical test text without weakening geometric guard. Dating shared-fixture helpers still assumed one first-entry caption; now publish and retain its complete registered prefix. Reading, persistence and public suites passed. Final candidate also restores successor focus and revokes early retention permission.",
+      "manifest": "diagnostic2/manifest.json"
+    }
+  ],
+  "source_review": "review.json",
+  "acceptance_limits": [
+    "Explicit noncanonical two-step fixture and seeded eligibility; production catalogue registration remains disabled and authored prose/exhaustive variants deferred.",
+    "Visible geometry proof uses short captions in the fixed test viewport; long-caption scrolling and all hardware/locales are not established.",
+    "Auto continuity and complete native all-input/accessibility acceptance remain separate unfinished work.",
+    "Hospital manual Save/Load restriction, save formats, frozen consequences and recovery owners are preserved. No OS-crash or performance claim.",
+    "Godot 4.6.3 standard GDScript and PowerShell run only in cloud; local actions are source/artifact review.",
+    "Intentional storage-refusal controls are separate from primary passing-case counts. Import ObjectDB cleanup warning is qualified; no global warning-free/leak-free claim.",
+    "All 23 unfinished Beads retain status/dependencies. Retained lead export note only; no live Dolt query or synchronization.",
+    "Final records-only descendant is not separately engine-tested. PR draft/unmerged; master unchanged.",
+    "Seven-day retained-history stress uses synthetic checkpoint records and canonical day advancement; timing observations are not an authored playthrough or physical input-to-paint performance guarantee."
+  ],
+  "rendered_proof": {
+    "two_distinct_processes": true,
+    "writer_byte_seal_verified": true,
+    "visible_boundary_continuity": true,
+    "exact_saved_restore": true,
+    "ordered_history": true,
+    "silent_restore": true,
+    "duplicate_neutral": true,
+    "forgery_refused": true,
+    "remaining_completion_once": true,
+    "visual_review": "Actual focused and broad first-successor/restored PNGs inspected: both retained prior leaves visible; restored current caption visible with focus. Initial successor is normally unrevealed.",
+    "geometry_scope": "40 actual post-draw frames in each accepted journey, 26 with successor; finite contained geometry, actual text/order, visibility, effective opacity and prior reveal checked."
+  },
+  "next_slice_review": "next-slice-review.md",
+  "archives": [
+    {
+      "path": "broad/ending-reading.zip",
+      "bytes": 6807191,
+      "sha256": "984974ae51050c643b9c89ad01f4540afe65c34f350c0f4d2e3625d33a5347e0"
+    },
+    {
+      "path": "broad/history-gates.zip",
+      "bytes": 978368,
+      "sha256": "c048336fa9e9b4b713a2daba1284ad55289fe2b82d4f705280b11e993e72f969"
+    },
+    {
+      "path": "broad/regression-artifacts.zip",
+      "bytes": 5940726,
+      "sha256": "889e9d3d1edf6c65c3e6278386d4acb978ab66259275a78e87c8e49315b8a1b0"
+    },
+    {
+      "path": "diagnostic1/import.zip",
+      "bytes": 16177,
+      "sha256": "bd5a595b2ae160d3cda24da263962c7dc4887db080a663f94103b93c781b48f2"
+    },
+    {
+      "path": "diagnostic2/dating.zip",
+      "bytes": 582925,
+      "sha256": "cae42eb89065e54ee7add72f97b775cc5f0a13b30a92b49e9c3006d79e76a524"
+    },
+    {
+      "path": "diagnostic2/ending-reading.zip",
+      "bytes": 2286690,
+      "sha256": "627ef017bfb236c32e153652354af55ff65801e052730ca3e3d513417b0b7109"
+    },
+    {
+      "path": "focused/ending-reading.zip",
+      "bytes": 6807166,
+      "sha256": "1b05174d94f5135548b907bb546c982d640f398ec38a209a3f247347fc371ab5"
+    },
+    {
+      "path": "focused/regression-artifacts.zip",
+      "bytes": 1288012,
+      "sha256": "0187460fc79a8e80a58d009e7c74388e88723e347a2a1a3ec2872f9d89ae564e"
+    }
+  ],
+  "archive_delivery": {
+    "manifest": "archive-delivery.json",
+    "reconstruction": "python restore_archives.py --output /tmp/ending-caption-evidence",
+    "reason": "Compressed verified parts avoid large-payload transport truncation; reconstructed ZIP bytes match the original cloud downloads or documented local bundles."
+  }
+}

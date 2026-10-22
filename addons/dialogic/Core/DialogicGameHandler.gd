@@ -22,6 +22,7 @@ enum States {
 enum ClearFlags {
 	FULL_CLEAR = 0, 		## Clears all subsystems
 	KEEP_VARIABLES = 1, 	## Clears all subsystems and info except for variables
+	KEEP_TEXT = 4,          ## Keeps native text visuals during an admitted caption handoff
 	TIMELINE_INFO_ONLY = 2	## Doesn't clear subsystems but current timeline and index
 	}
 
@@ -30,6 +31,7 @@ var current_timeline: DialogicTimeline = null
 var _timeline_generation := 0
 var _last_started_generation := 0
 var _ending_timeline_count := 0
+var _caption_handoff_guard := Callable()
 ## Copy of the [member current_timeline]'s events.
 var current_timeline_events: Array = []
 
@@ -288,10 +290,17 @@ func preload_timeline(timeline_resource:Variant) -> Variant:
 	return timeline_resource
 
 
+## The adapter supplies a generation-qualified, presentation-only natural-end guard.
+func set_caption_handoff_guard(guard: Callable) -> void:
+	_caption_handoff_guard = guard
+
+
 ## Clears and stops the current timeline.
 ## If [param skip_ending] is `true`, the dialog_ending_timeline is not getting played
 func end_timeline(skip_ending := false) -> void:
-	if not skip_ending and dialog_ending_timeline and current_timeline != dialog_ending_timeline:
+	var retain_caption_layout: bool = not skip_ending and _caption_handoff_guard.is_valid() \
+		and _caption_handoff_guard.call() == true
+	if not retain_caption_layout and not skip_ending and dialog_ending_timeline and current_timeline != dialog_ending_timeline:
 		start(dialog_ending_timeline)
 		return
 
@@ -304,7 +313,7 @@ func end_timeline(skip_ending := false) -> void:
 		timeline_ended_with_generation.emit(ended_generation)
 		return
 
-	if Styles.has_active_layout_node() and Styles.get_layout_node().is_inside_tree():
+	if not retain_caption_layout and Styles.has_active_layout_node() and Styles.get_layout_node().is_inside_tree():
 		match ProjectSettings.get_setting('dialogic/layout/end_behaviour', 0):
 			0:
 				Styles.get_layout_node().get_parent().remove_child(Styles.get_layout_node())

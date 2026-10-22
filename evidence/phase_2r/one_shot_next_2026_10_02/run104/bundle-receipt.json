@@ -1,0 +1,11 @@
+{
+  "archive": "next-run104-diagnostics.tar.gz",
+  "archive_member_count": 108,
+  "bytes": 5601173,
+  "evidence_kind": "failed-run-diagnostic-only",
+  "excluded_file_count": 141,
+  "manifest_sha256": "609e5eedc4305031efab6f3e1b1debf67ebaac7149c7c11de6c7d60436170d0a",
+  "payload_file_count": 106,
+  "round_trip_verified": true,
+  "sha256": "0ea861916e1679726b50af0707471f364f6e9c1843b437ae2debca524c15b539"
+}

@@ -1,0 +1,63 @@
+{
+  "parent": "e6d445343c292342310359faa898aabd2959f4db",
+  "base_tree": "35c3039ced343fbf59fecb08ca0aefd741a0f4c2",
+  "tree": "dab7fa8085d9556b1617281c37038172cead9332",
+  "files": [
+    {
+      "path": "scripts/ui/SettingsContent.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "dabb8ce0f0571bfe0193a225fbfec07d4ddbd01b",
+      "bytes": 32466
+    },
+    {
+      "path": "scripts/ui/SettingsResetConfirmation.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "1fc4c79875078d16e52cb4d4216171e004576d18",
+      "bytes": 3788
+    },
+    {
+      "path": "scripts/ui/pause/PauseQuickCommands.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "3af090553274386e5379942c51402f955f76c14c",
+      "bytes": 13559
+    },
+    {
+      "path": "tests/unit/test_production_pause_controller.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "8c80121b1ce8e6907e5c67bfbb9baf08588d71a2",
+      "bytes": 65119
+    },
+    {
+      "path": "tests/integration/verify_reading_rail_journey.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "08eb0213e49be66d58044ca79aa7bbfccab74fbd",
+      "bytes": 92816
+    },
+    {
+      "path": "tools/testing/run_reading_rail_journey.py",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "825443e422e79800a6238c28d114e9002e7b4423",
+      "bytes": 46890
+    },
+    {
+      "path": "evidence/phase_2r/runtime/game_state_surface.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "3f8b6e629eb6cf861f5e45fecaac2d2928e3e627",
+      "bytes": 561313
+    },
+    {
+      "path": "evidence/phase_2r/runtime/save_manager_surface.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e8849ac53aa774fbfc167d023018129da6408411",
+      "bytes": 149516
+    }
+  ]
+}

@@ -1,0 +1,247 @@
+{
+  "ok": true,
+  "original_artifact": {
+    "sha256": "93128a554128ef6c4bf2ccaee5d0894efbffadac1c0231a0e9a2fb4d177086cb",
+    "bytes": 99431176
+  },
+  "origin": {
+    "source": "e55254dbbafbbfe90f0adc9098e9ca2b79c14708",
+    "fresh_cache": true,
+    "base": "29d9322b537c4a1f461b24c6ff23ce75ed8aa021",
+    "controller": "cd494d3463b117720b7b5755007fbc5f952bfea8",
+    "tree": "e166e051cc5a19c5996f6d70d5c6f0005c5d4be7",
+    "event": "8c644b2faaf0fc672f00880572b6ea9a2d1c1f00"
+  },
+  "canonical_maps": {
+    "import-global_script_class_cache.cfg": {
+      "EndingScene": "res://scripts/ui/EndingScene.gd",
+      "SaveManagerCheckpointPort": "res://scripts/application/run/SaveManagerCheckpointPort.gd"
+    },
+    "global_script_class_cache.cfg": {
+      "EndingScene": "res://scripts/ui/EndingScene.gd",
+      "SaveManagerCheckpointPort": "res://scripts/application/run/SaveManagerCheckpointPort.gd"
+    },
+    "post-export-global_script_class_cache.cfg": {
+      "EndingScene": "res://scripts/ui/EndingScene.gd",
+      "SaveManagerCheckpointPort": "res://scripts/application/run/SaveManagerCheckpointPort.gd"
+    }
+  },
+  "raw_evidence_records_each_probe": 20,
+  "explicit_zero_exit_receipts": 3,
+  "strict_logs_checked": [
+    "import.log",
+    "discovery/probe.log",
+    "discovery/post-export-probe.log",
+    "windows-export/version.console.log",
+    "windows-export/export.console.log",
+    "windows-export/export.log",
+    "windows-export/smoke.console.log",
+    "windows-export/smoke.log",
+    "windows-export/pack-audit.console.log",
+    "windows-export/pack-audit.log"
+  ],
+  "runtime_data_files_verified": 117,
+  "package": {
+    "bytes": 99453780,
+    "file": "DWM-windows-x86_64-validation.zip",
+    "sha256": "ba78a85da8312533968b0f4da5a24202e0dd67807835d7fca0a0d660c99c1fb3"
+  },
+  "package_files": [
+    {
+      "path": "DWM.exe",
+      "bytes": 104659456,
+      "sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6"
+    },
+    {
+      "path": "DWM.pck",
+      "bytes": 66427632,
+      "sha256": "246bf60eaf1cd07678a4ee46766a4f46f05493b4e1008d2efcf1e8ed2d2a1d4d"
+    },
+    {
+      "path": "licenses/addons/dialogic/Example Assets/Fonts/LICENSE.txt",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "path": "licenses/addons/dialogic/Example Assets/sound-effects/LICENSE.txt",
+      "bytes": 169,
+      "sha256": "977908295af53ec78317e3387bb0cd017e03f2aef330fa5952955554a95a9d6f"
+    },
+    {
+      "path": "licenses/addons/godot_state_charts/LICENSE",
+      "bytes": 1067,
+      "sha256": "ff750b7a35accad94d9548e5d040da6df9b328a6eaec2918d217022bcd8276d1"
+    },
+    {
+      "path": "licenses/assets/ui/contacts/fonts/SOURCE-HAN-LICENSE.txt",
+      "bytes": 4463,
+      "sha256": "fcac737e761ec63dbfbdce11030a1780161920d80315edba9c8beff1c2bac5a2"
+    },
+    {
+      "path": "licenses/assets/ui/contacts/fonts/SOURCE-SANS-LICENSE.md",
+      "bytes": 4486,
+      "sha256": "56af9b9c6715597e458284a474dc118a50a4150e9d547c70f7b4a33c3e6a9328"
+    },
+    {
+      "path": "licenses/assets/ui/gallery/fonts/LICENSE-OFL.txt",
+      "bytes": 4418,
+      "sha256": "bc518cf64b8032c07690f33cc270c35c179255a6ac8efa7c165ebae7e8f76a63"
+    },
+    {
+      "path": "licenses/assets/ui/gallery/fonts/upstream-licenses/ark-pixel-OFL.txt",
+      "bytes": 4412,
+      "sha256": "3ab41567e68e3988ba1ef16dd2644eca95ca5648ea12e7d46e6287fc0bbe5aee"
+    },
+    {
+      "path": "licenses/assets/ui/gallery/fonts/upstream-licenses/boutique-bitmap-7x7-OFL.txt",
+      "bytes": 5463,
+      "sha256": "ad588b5ce58a02179b806381339fd380e5110771f2fa91279af026fd3ab97002"
+    },
+    {
+      "path": "licenses/assets/ui/gallery/fonts/upstream-licenses/boutique-bitmap-9x9-OFL.txt",
+      "bytes": 6566,
+      "sha256": "265f3814079511b3f3fce9003cb60a1402fa792849c5cae79e5998939eb02617"
+    },
+    {
+      "path": "licenses/assets/ui/gallery/fonts/upstream-licenses/cubic-11-OFL.txt",
+      "bytes": 5364,
+      "sha256": "2b6e5938e5cffa0b9e183bd05f8c363e174e7ebed1a0556e2855fd1707fa2188"
+    },
+    {
+      "path": "licenses/assets/ui/gallery/fonts/upstream-licenses/galmuri-LICENSE.txt",
+      "bytes": 4360,
+      "sha256": "86a3ee9495f942f0243f18c103da9faca27adb88142613edb8bb852e56c892c1"
+    },
+    {
+      "path": "licenses/assets/ui/gallery/fonts/upstream-licenses/misaki-LICENSE.txt",
+      "bytes": 9016,
+      "sha256": "82929cc3b34c79b6a67f21fe137c7bb165589c9e34ba1441611e493afd67dfca"
+    },
+    {
+      "path": "licenses/assets/ui/gallery/fonts/upstream-licenses/miseki-bitmap-LICENSE.txt",
+      "bytes": 4358,
+      "sha256": "e855b45b384d37c9a778119271bd9c32706e3f1f9f278de0ad47347606eea846"
+    },
+    {
+      "path": "licenses/Godot/LICENSE.txt",
+      "bytes": 1149,
+      "sha256": "b0435e3b3e4e55238f05f4b306f30524a1b2e20147810d436eaa554fa6855c80"
+    },
+    {
+      "path": "licenses/Godot/THIRD-PARTY-NOTICES.json",
+      "bytes": 107502,
+      "sha256": "bf357f64a885fc0ec877b7a9a58645f0bb7207ba0e4deed5de08365c37639c48"
+    }
+  ],
+  "manifest": [
+    {
+      "path": "discovery/global_script_class_cache.cfg",
+      "bytes": 71350,
+      "sha256": "0b453a488220199f4ee2b8bc7604b439fcee34cd3b0f014e5a170f9e57b8bfc5"
+    },
+    {
+      "path": "discovery/import-global_script_class_cache.cfg",
+      "bytes": 71350,
+      "sha256": "0b453a488220199f4ee2b8bc7604b439fcee34cd3b0f014e5a170f9e57b8bfc5"
+    },
+    {
+      "path": "discovery/import-process.json",
+      "bytes": 24,
+      "sha256": "75876e0e3f497cad271143ba85bd4f36569cd81195509043f860dab14265b716"
+    },
+    {
+      "path": "discovery/origin.json",
+      "bytes": 313,
+      "sha256": "777b70592e06ec423787acfaa825fffe2b7a9a614405beaf5e8492585c9f16b9"
+    },
+    {
+      "path": "discovery/post-export-global_script_class_cache.cfg",
+      "bytes": 71350,
+      "sha256": "0b453a488220199f4ee2b8bc7604b439fcee34cd3b0f014e5a170f9e57b8bfc5"
+    },
+    {
+      "path": "discovery/post-export-probe-process.json",
+      "bytes": 24,
+      "sha256": "75876e0e3f497cad271143ba85bd4f36569cd81195509043f860dab14265b716"
+    },
+    {
+      "path": "discovery/post-export-probe.log",
+      "bytes": 118,
+      "sha256": "d4a84c142f667c521fd27a5d7fa97e8bb2565171389cfcfc89155676c33e607f"
+    },
+    {
+      "path": "discovery/probe-process.json",
+      "bytes": 24,
+      "sha256": "75876e0e3f497cad271143ba85bd4f36569cd81195509043f860dab14265b716"
+    },
+    {
+      "path": "discovery/probe.log",
+      "bytes": 118,
+      "sha256": "d4a84c142f667c521fd27a5d7fa97e8bb2565171389cfcfc89155676c33e607f"
+    },
+    {
+      "path": "discovery/verify-source-discovery.gd",
+      "bytes": 2257,
+      "sha256": "420378d8bd07a673373ed57dedc64ede1b31275f968fc8962d48a2e98fbba64f"
+    },
+    {
+      "path": "import.log",
+      "bytes": 222347,
+      "sha256": "c350a8ce483d8d276b67fc4cf88ae5d3dd748099614328ca244bc1e18289b323"
+    },
+    {
+      "path": "windows-export/DWM-windows-x86_64-validation.zip",
+      "bytes": 99453780,
+      "sha256": "ba78a85da8312533968b0f4da5a24202e0dd67807835d7fca0a0d660c99c1fb3"
+    },
+    {
+      "path": "windows-export/export.console.log",
+      "bytes": 259866,
+      "sha256": "4eaacc60d4f07300a32012f1743c17f048609a00adaa7dc989eba4d801b368dc"
+    },
+    {
+      "path": "windows-export/export.log",
+      "bytes": 209214,
+      "sha256": "07c9705aa9718954472380c9d51b648bfd934d3e7d3893c0fc112585bbfd7e6c"
+    },
+    {
+      "path": "windows-export/pack-audit.console.log",
+      "bytes": 12372,
+      "sha256": "92db4d492d465f8cdfc90cb42af358c0042d8b9b3fb15158bb68a7288b39c28d"
+    },
+    {
+      "path": "windows-export/pack-audit.log",
+      "bytes": 12070,
+      "sha256": "0a4259b274e4316c2c4ecd49116bf66cc86c5bdba00a334a26b732e4b6281026"
+    },
+    {
+      "path": "windows-export/SHA256SUMS.txt",
+      "bytes": 101,
+      "sha256": "c5c0a94eeb3df7bd9423ded18de2518733fce6ef60fb57bb62e7c1ae4bfa06e1"
+    },
+    {
+      "path": "windows-export/smoke.console.log",
+      "bytes": 13133,
+      "sha256": "ee72ec451316e135aca94b19ade583e367b28f7a2b90274933aa290d57c867aa"
+    },
+    {
+      "path": "windows-export/smoke.log",
+      "bytes": 12821,
+      "sha256": "5dc2df4897fb93512756d9eac44ad9dfb3e2660e0bc82b1dc47c66ed719c5232"
+    },
+    {
+      "path": "windows-export/validation.json",
+      "bytes": 4628,
+      "sha256": "674e901a8c1c76afea2408da5b8f03cc1d37789fa4f0c9f3ff2c505edd8391a4"
+    },
+    {
+      "path": "windows-export/version.console.log",
+      "bytes": 36,
+      "sha256": "6d2a9f11b6335c8a0993001cd37c40be7d7b46037f6dcbc4a8ee4883f7bb4852"
+    }
+  ],
+  "limitations": [
+    "Unchanged helper enforces subprocess success exits but does not retain separate successful exit receipts for every subprocess.",
+    "No rendered ending, Title, normal Load clean exit, performance or release acceptance."
+  ]
+}

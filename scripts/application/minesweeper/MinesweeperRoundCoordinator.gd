@@ -1219,18 +1219,19 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 		return base_captured
 	var base_snapshot_input: Dictionary = (base_captured["value"] as Dictionary)["snapshot_input"]
 
+	# One result is retained both in the durable projection and the eventual live commit.
+	board_candidate["result_override"] = {
+		"ok": true, "code": &"first_reveal_committed",
+		"value": {"receipt": receipt.duplicate(true), "publication": publication.duplicate(true)},
+		"receipt": {},
+	}
+
 	var composed: Dictionary = _snapshot_composer.call(&"compose", base_snapshot_input,
 		game_state_candidate, board_candidate, consequence_candidate)
 	profile_tick = _consequence_profile_phase(profile, "compose_us", profile_tick)
 	if not composed.get("ok", false):
 		return composed
 	var post_commit_snapshot_input: Dictionary = (composed["value"] as Dictionary)["snapshot_input"]
-
-	board_candidate["result_override"] = {
-		"ok": true, "code": &"first_reveal_committed",
-		"value": {"receipt": receipt.duplicate(true), "publication": publication.duplicate(true)},
-		"receipt": {},
-	}
 
 	var state_backup_captured: Dictionary = _state_port.call(&"capture")
 	profile_tick = _consequence_profile_phase(profile, "state_capture_us", profile_tick)

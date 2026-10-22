@@ -2,7 +2,8 @@ extends Button
 ## A released action with owner-published selection; input never changes commitment.
 
 const ROW := preload("res://scripts/ui/minesweeper/MinesweeperSheetRow.gd")
-const WIDTHS := [80,96,112,128,144,160]
+const MIN_WIDTH := 80
+const MAX_WIDTH := 480
 const ROLES := [&"controlled_face",&"primary_dark_copy",&"dark_registration",&"dark_focus_outer",&"dark_focus_inner",&"selected_plane",&"selected_ink",&"filed_focus_outer",&"filed_focus_inner"]
 
 var public_copy := ""
@@ -33,8 +34,15 @@ func _enter_tree() -> void:
 	size = custom_minimum_size
 
 
+## Size chrome from the same shaped copy and padding used when it is drawn.
+static func single_line_width(copy: String, next_theme: Theme, large: bool) -> int:
+	var padding := 24 if large else 20
+	var measured := ROW.measure_copy(copy,next_theme,MAX_WIDTH-padding)
+	if measured.is_empty() or measured.paragraph.get_line_count() != 1: return 0
+	return maxi(MIN_WIDTH,int(ceilf((measured.paragraph.get_line_width(0)+padding)/2.0))*2)
+
 func configure(copy: String, next_theme: Theme, large: bool, width_logical: int = 128) -> bool:
-	if next_theme == null or width_logical not in WIDTHS: return false
+	if next_theme == null or width_logical < MIN_WIDTH or width_logical > MAX_WIDTH or width_logical % 2 != 0: return false
 	for role: StringName in ROLES:
 		if not next_theme.has_color(role,&"Minesweeper"): return false
 	var inset: int = 8 if large else 6
@@ -94,14 +102,19 @@ func _draw() -> void:
 			draw_rect(Rect2(face.position+Vector2(4,4),Vector2(face.size.x-8,2)),structure)
 		elif is_hovered():
 			draw_rect(Rect2(face.position+Vector2(2,4),Vector2(2,face.size.y-8)),structure)
-	var top: float = floorf((size.y-_text_height)/4.0)*2.0
-	for line: int in _paragraph.get_line_count():
-		var x: float = floorf((size.x-_paragraph.get_line_width(line))/4.0)*2.0
-		_paragraph.draw_line(get_canvas_item(),Vector2(x,top+_baselines[line]-_paragraph.get_line_ascent(line)),line,ink)
+	_draw_copy(ink)
 	if has_focus() and not disabled:
 		draw_rect(Rect2(Vector2.ONE,size-Vector2(2,2)),_role(&"filed_focus_outer" if selected else &"dark_focus_outer"),false,2)
 		draw_rect(Rect2(Vector2(4,4),size-Vector2(8,8)),_role(&"filed_focus_inner" if selected else &"dark_focus_inner"),false,2)
 
 
+func _draw_copy(ink: Color) -> void:
+	var top: float = floorf((size.y-_text_height)/4.0)*2.0
+	for line: int in _paragraph.get_line_count():
+		var x: float = floorf((size.x-_paragraph.get_line_width(line))/4.0)*2.0
+		_paragraph.draw_line(get_canvas_item(),Vector2(x,top+_baselines[line]-_paragraph.get_line_ascent(line)),line,ink)
+
+
 func _role(role: StringName) -> Color:
 	return get_theme_color(role,&"Minesweeper")
+

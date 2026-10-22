@@ -15,8 +15,12 @@ func prepare(input: Dictionary) -> Dictionary:
 		return _fail(&"invalid_audio_input", "audio participant requires prepared preferences")
 	if typeof(input.get("audio_context")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_audio_input", "audio participant requires an audio_context")
-	var prepared: Dictionary = _owner.prepare_semantic_restore(
-		input["audio_context"], {"preferences": input["preferences"]})
+	var profile := {"preferences": input["preferences"]}
+	if input.has("scene_audio_mode"):
+		if input.scene_audio_mode not in ["entry", "load"]:
+			return _fail(&"invalid_audio_input", "invalid scene audio mode")
+		profile["scene_audio_mode"] = input.scene_audio_mode
+	var prepared: Dictionary = _owner.prepare_semantic_restore(input["audio_context"], profile)
 	if not prepared.get("ok", false):
 		return prepared
 	return {"ok": true, "code": &"ok", "value": {"audio_plan": prepared.get("value", {})}}

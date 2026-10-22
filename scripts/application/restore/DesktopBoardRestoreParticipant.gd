@@ -14,16 +14,23 @@ extends RefCounted
 const DESKTOP_BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
 
 var _state: Object = null
+var _issuer: Object = null
 
-func _init(state: Object) -> void:
+func _init(state: Object, issuer: Object = null) -> void:
 	_state = state
+	_issuer = issuer
 
 ## `input.state` is a schema-valid v4 board capture (already remapped, for a restore, by
 ## DesktopContinuationRemapper before this participant ever sees it).
 func prepare(input: Dictionary) -> Dictionary:
 	if typeof(input.get("state")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_board_input", "board participant requires input.state")
-	var prepared: Dictionary = _state.prepare_restore(input["state"])
+	var prepared: Dictionary
+	if input.get("schema_version") == 9:
+		if _issuer == null: return _fail(&"scene_payment_issuer_required", "scene restore requires the retained issuer")
+		prepared = _state.prepare_restore_scene(input["state"], _issuer)
+	else:
+		prepared = _state.prepare_restore(input["state"])
 	if not prepared.get("ok", false):
 		return prepared
 	return {"ok": true, "code": &"ok", "value": {
@@ -51,3 +58,4 @@ func finalize() -> Dictionary:
 
 static func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message}
+

@@ -1,0 +1,907 @@
+{
+  "archive_verified": true,
+  "harness_qualified": true,
+  "focused_suite_passed": false,
+  "original_journey_passed": false,
+  "original_acceptance_passed": false,
+  "problems": [],
+  "qualification_failures": [],
+  "journey_failures": [],
+  "native_modes_not_executed": [
+    "capability",
+    "create",
+    "load"
+  ],
+  "focused_suite": {
+    "passed": false,
+    "status": "failed",
+    "failures": [
+      "Focused outer process did not exit cleanly: 1",
+      "Isolated focused process did not exit cleanly: 1",
+      "Focused XML contains failed, errored or skipped methods",
+      "Focused Godot log contains original script/engine error patterns"
+    ],
+    "plan": {
+      "id": "ending-recovery",
+      "role": "candidate",
+      "path": "tests/scene/test_ending_recovery_localization.gd",
+      "source_commit": "a25fae335247ba8074ea01d44990b3c6cd00f8ba",
+      "source_path": "scripts/ui/EndingScene.gd",
+      "expected_tests": 11,
+      "expected_methods": [
+        "test_retry_copy_follows_locale_without_changing_the_pending_command",
+        "test_normal_playback_exposes_no_return_action_or_error",
+        "test_no_public_ending_title_is_added_by_the_recovery_host",
+        "test_programmatic_pressed_cannot_submit_a_retry",
+        "test_focused_keyboard_activation_submits_one_retry",
+        "test_missing_localization_hides_the_whole_recovery_surface",
+        "test_locale_change_retires_a_held_retry_contact",
+        "test_registered_accessibility_preferences_update_the_recovery_material",
+        "test_retry_focus_and_keyboard_replay_the_same_temporarily_failed_command",
+        "test_later_playback_failure_keeps_retry_focus_and_replays_the_same_command",
+        "test_deferred_order_refresh_ignores_retired_scene_and_freed_layout"
+      ],
+      "timeout_seconds": 180,
+      "headless": true,
+      "scope": "Headless scene integration with simulated input/focus; original exported journey remains native acceptance",
+      "test_sha256": "b2fb73b4957460954c147e3fad0a16601152580a7b129892d85a91c39daa048c",
+      "source_sha256": "1f3a24a2d8bf4c35e8cffe48ca525499981fa1cc7d111bce6856fc5ebfe9529d"
+    },
+    "original_result": {
+      "id": "ending-recovery",
+      "role": "candidate",
+      "path": "tests/scene/test_ending_recovery_localization.gd",
+      "source_commit": "a25fae335247ba8074ea01d44990b3c6cd00f8ba",
+      "source_path": "scripts/ui/EndingScene.gd",
+      "expected_tests": 11,
+      "expected_methods": [
+        "test_retry_copy_follows_locale_without_changing_the_pending_command",
+        "test_normal_playback_exposes_no_return_action_or_error",
+        "test_no_public_ending_title_is_added_by_the_recovery_host",
+        "test_programmatic_pressed_cannot_submit_a_retry",
+        "test_focused_keyboard_activation_submits_one_retry",
+        "test_missing_localization_hides_the_whole_recovery_surface",
+        "test_locale_change_retires_a_held_retry_contact",
+        "test_registered_accessibility_preferences_update_the_recovery_material",
+        "test_retry_focus_and_keyboard_replay_the_same_temporarily_failed_command",
+        "test_later_playback_failure_keeps_retry_focus_and_replays_the_same_command",
+        "test_deferred_order_refresh_ignores_retired_scene_and_freed_layout"
+      ],
+      "timeout_seconds": 180,
+      "headless": true,
+      "scope": "Headless scene integration with simulated input/focus; original exported journey remains native acceptance",
+      "test_sha256": "b2fb73b4957460954c147e3fad0a16601152580a7b129892d85a91c39daa048c",
+      "source_sha256": "1f3a24a2d8bf4c35e8cffe48ca525499981fa1cc7d111bce6856fc5ebfe9529d",
+      "ok": false,
+      "exit_code": 1,
+      "tests": 11,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0,
+      "assertions": 144,
+      "method_assertions": {
+        "test_retry_copy_follows_locale_without_changing_the_pending_command": 30,
+        "test_normal_playback_exposes_no_return_action_or_error": 27,
+        "test_no_public_ending_title_is_added_by_the_recovery_host": 4,
+        "test_programmatic_pressed_cannot_submit_a_retry": 4,
+        "test_focused_keyboard_activation_submits_one_retry": 5,
+        "test_missing_localization_hides_the_whole_recovery_surface": 8,
+        "test_locale_change_retires_a_held_retry_contact": 6,
+        "test_registered_accessibility_preferences_update_the_recovery_material": 16,
+        "test_retry_focus_and_keyboard_replay_the_same_temporarily_failed_command": 10,
+        "test_later_playback_failure_keeps_retry_focus_and_replays_the_same_command": 24,
+        "test_deferred_order_refresh_ignores_retired_scene_and_freed_layout": 10
+      },
+      "verification_failures": [
+        "Focused outer process failed or source/timeout mismatch",
+        "Isolated focused process did not exit cleanly",
+        "Focused XML has failed, errored or skipped cases",
+        "Focused Godot log reports a script/engine error"
+      ],
+      "isolated_process": {
+        "suite_id": "ending-recovery",
+        "argv": [
+          "--headless",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\ending-recovery.log",
+          "-s",
+          "res://addons/gut/gut_cmdln.gd",
+          "-gconfig=",
+          "-gtest=res://tests/scene/test_ending_recovery_localization.gd",
+          "-gexit",
+          "-glog=2",
+          "-gjunit_xml_file=res://.godot/ci/ending-recovery.xml"
+        ],
+        "exit_code": 1,
+        "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\ending-recovery.log",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\5feed2c6-3778-43cc-ba2c-2fa4e6d45821",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\5feed2c6-3778-43cc-ba2c-2fa4e6d45821\\appdata\\Godot\\app_userdata\\DWM",
+        "started_at_utc": "2026-10-18T18:39:37.6692167Z",
+        "ended_at_utc": "2026-10-18T18:39:46.3206062Z"
+      }
+    },
+    "outer_process": {
+      "timeout_seconds": 180,
+      "failure": null,
+      "id": "ending-recovery",
+      "source_commit": "a25fae335247ba8074ea01d44990b3c6cd00f8ba",
+      "elapsed_seconds": 14.4391994,
+      "exit_code": 1
+    },
+    "isolated_process": {
+      "suite_id": "ending-recovery",
+      "argv": [
+        "--headless",
+        "--path",
+        "D:\\a\\dwm\\dwm",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\ending-recovery.log",
+        "-s",
+        "res://addons/gut/gut_cmdln.gd",
+        "-gconfig=",
+        "-gtest=res://tests/scene/test_ending_recovery_localization.gd",
+        "-gexit",
+        "-glog=2",
+        "-gjunit_xml_file=res://.godot/ci/ending-recovery.xml"
+      ],
+      "exit_code": 1,
+      "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\ending-recovery.log",
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\5feed2c6-3778-43cc-ba2c-2fa4e6d45821",
+      "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\5feed2c6-3778-43cc-ba2c-2fa4e6d45821\\appdata\\Godot\\app_userdata\\DWM",
+      "started_at_utc": "2026-10-18T18:39:37.6692167Z",
+      "ended_at_utc": "2026-10-18T18:39:46.3206062Z"
+    },
+    "xml_counts": {
+      "tests": 11,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0,
+      "assertions": 144
+    },
+    "methods": [
+      {
+        "name": "test_retry_copy_follows_locale_without_changing_the_pending_command",
+        "assertions": 30,
+        "status": "pass",
+        "failures": [],
+        "errors": [],
+        "skipped": []
+      },
+      {
+        "name": "test_normal_playback_exposes_no_return_action_or_error",
+        "assertions": 27,
+        "status": "pass",
+        "failures": [],
+        "errors": [],
+        "skipped": []
+      },
+      {
+        "name": "test_no_public_ending_title_is_added_by_the_recovery_host",
+        "assertions": 4,
+        "status": "pass",
+        "failures": [],
+        "errors": [],
+        "skipped": []
+      },
+      {
+        "name": "test_programmatic_pressed_cannot_submit_a_retry",
+        "assertions": 4,
+        "status": "pass",
+        "failures": [],
+        "errors": [],
+        "skipped": []
+      },
+      {
+        "name": "test_focused_keyboard_activation_submits_one_retry",
+        "assertions": 5,
+        "status": "pass",
+        "failures": [],
+        "errors": [],
+        "skipped": []
+      },
+      {
+        "name": "test_missing_localization_hides_the_whole_recovery_surface",
+        "assertions": 8,
+        "status": "pass",
+        "failures": [],
+        "errors": [],
+        "skipped": []
+      },
+      {
+        "name": "test_locale_change_retires_a_held_retry_contact",
+        "assertions": 6,
+        "status": "pass",
+        "failures": [],
+        "errors": [],
+        "skipped": []
+      },
+      {
+        "name": "test_registered_accessibility_preferences_update_the_recovery_material",
+        "assertions": 16,
+        "status": "pass",
+        "failures": [],
+        "errors": [],
+        "skipped": []
+      },
+      {
+        "name": "test_retry_focus_and_keyboard_replay_the_same_temporarily_failed_command",
+        "assertions": 10,
+        "status": "pass",
+        "failures": [],
+        "errors": [],
+        "skipped": []
+      },
+      {
+        "name": "test_later_playback_failure_keeps_retry_focus_and_replays_the_same_command",
+        "assertions": 24,
+        "status": "fail",
+        "failures": [
+          "Unexpected Errors:\n      [1] <engine-0>Method/function failed. Returning: Variant()\n      [2] <engine-0>Method/function failed. Returning: Variant()\n            at line 342"
+        ],
+        "errors": [],
+        "skipped": []
+      },
+      {
+        "name": "test_deferred_order_refresh_ignores_retired_scene_and_freed_layout",
+        "assertions": 10,
+        "status": "fail",
+        "failures": [
+          "Unexpected Errors:\n      [1] <engine-0>Method/function failed. Returning: Variant()\n      [2] <engine-0>Method/function failed. Returning: Variant()\n            at line 365"
+        ],
+        "errors": [],
+        "skipped": []
+      }
+    ],
+    "error_lines": [
+      {
+        "line": 142,
+        "text": "ERROR: The object does not have any 'meta' values with the key 'dialogic_layout_node'."
+      },
+      {
+        "line": 152,
+        "text": "ERROR: The object does not have any 'meta' values with the key 'dialogic_layout_node'."
+      },
+      {
+        "line": 188,
+        "text": "ERROR: The object does not have any 'meta' values with the key 'dialogic_layout_node'."
+      },
+      {
+        "line": 196,
+        "text": "ERROR: The object does not have any 'meta' values with the key 'dialogic_layout_node'."
+      }
+    ],
+    "xml_sha256": "ce4ebcaba31e6772619384d3720f6bc3bb949b8de37aad0e74a3ba3fefedc04b",
+    "log_sha256": "2b2280526c4b4893dac152c3986bf9a9916df28517b12945d73e2c45960b0896",
+    "scope": "Headless scene integration with simulated input/focus; original exported journey remains native acceptance"
+  },
+  "diagnostic_observation_issues": [],
+  "archive": {
+    "receipt": {
+      "bytes": 760741,
+      "sha256": "d47951af394a5433b5b923409ea5d45d55c5292fb4321facf7589e38d55e842e",
+      "run_id": 39155054285,
+      "job_id": 117756447001,
+      "source": "a25fae335247ba8074ea01d44990b3c6cd00f8ba",
+      "tree": "6c44631f8f926461d86b44f29c25c970c22218e9",
+      "controller": "fb8377d546b32542975b867e76de51a619d047ab"
+    },
+    "observed_bytes": 760741,
+    "observed_sha256": "d47951af394a5433b5b923409ea5d45d55c5292fb4321facf7589e38d55e842e"
+  },
+  "origin": {
+    "diagnostic": "Ending root order experiment; original player gates remain authoritative",
+    "tree": "6c44631f8f926461d86b44f29c25c970c22218e9",
+    "reference_run": 39152708408,
+    "reference": "337c2d43e9ff508575f772b1c1b7cf5679be8d0f",
+    "controller": "fb8377d546b32542975b867e76de51a619d047ab",
+    "reference_tree": "1e4e752bd8e532f2e731dfc483be40fcff3bd3fc",
+    "candidate": "a25fae335247ba8074ea01d44990b3c6cd00f8ba"
+  },
+  "independent_attempt_pins": {
+    "name": "initial-order-attempt",
+    "tree": "6c44631f8f926461d86b44f29c25c970c22218e9",
+    "controller": "fb8377d546b32542975b867e76de51a619d047ab",
+    "controller_tree": "6245c3dec56a6ac626efe367288d1604795a6899",
+    "controller_sha256": "ed689d71b8df6d22b677906b8935547cb1cd1fdf139079e0eb1d0f608b58f559",
+    "run_id": 39155054285,
+    "job_id": 117756447001,
+    "candidate_overrides": {
+      "scripts/ui/EndingScene.gd": [
+        "6f4ebb80cef316aa4db0cee940a30eb38d08487d",
+        15872
+      ],
+      "tests/scene/test_ending_recovery_localization.gd": [
+        "babcce483346163a891c2a7c3ef36eabc6522835",
+        16616
+      ]
+    }
+  },
+  "verified_outer_members": 76,
+  "verified_mode_members": 0,
+  "mode_member_counts": {},
+  "source_pins": {
+    "reference/tools/testing/Invoke-ExportedGameplay.ps1": {
+      "git_blob": "e91f912d8351ba7e38401b261d0fb2f0aa3032dc",
+      "bytes": 52927,
+      "sha256": "0e819db31a69824934b771442b7a19c540b54b4c706192fcb152556c2f7a116b"
+    },
+    "reference/tools/testing/Invoke-IsolatedGodot.ps1": {
+      "git_blob": "14b379880b4ad26935ad953d141df8c19e399cf3",
+      "bytes": 19919,
+      "sha256": "1fe67f2db677fb869ee82126834a83d519b77888328a690ec55bbb3fbda7fa5f"
+    },
+    "reference/tools/testing/Invoke-WindowsExportValidation.ps1": {
+      "git_blob": "322d02bbe72d8e2e3c1e5b637fd9ac253ef31fff",
+      "bytes": 19523,
+      "sha256": "5218ab405562d45fc2a7f982159c5a601bc302fbc20a25aa008f65f0e6a340b9"
+    },
+    "reference/tests/tooling/Test-ExportedGameplayDeadline.ps1": {
+      "git_blob": "436c73a380baec1a3bc6ba64d273ff052e316d78",
+      "bytes": 3023,
+      "sha256": "e428814445044a90d3d52f78a56c02a31eb8032b314f7d8b512fb59071711b29"
+    },
+    "reference/project.godot": {
+      "git_blob": "b3e4ec92242535d81845bdc2dc7537e9e3ec122e",
+      "bytes": 14532,
+      "sha256": "5e8009d890f9e4359b24bb68a59fdec1bf56ef0a3ea94be06c3e43a6d2353053"
+    },
+    "reference/export_presets.cfg": {
+      "git_blob": "ccb9409ac1054d0b4b52e78df823c33f532e83fb",
+      "bytes": 1117,
+      "sha256": "76d904435496d2057572225b796f8b3c74f121a21254d211a6246caaf96efcaa"
+    },
+    "reference/scripts/domain/narrative/SceneEventContract.gd": {
+      "git_blob": "30a65a65cab298b36e01eeee82362888339f2ed1",
+      "bytes": 80860,
+      "sha256": "c30a3e7ba86848f600248eff5a70479637682d601c325db407bce2ed956fef4f"
+    },
+    "reference/scripts/domain/run/RunSnapshotSchema.gd": {
+      "git_blob": "b9608a523f788b90f87d8e556f88d485394b6e8b",
+      "bytes": 74097,
+      "sha256": "800b4324aca378e63ceb9ffe81dfe70f7c0be4c8df76cc364e96b6a76f8d0622"
+    },
+    "reference/scripts/application/run/SaveManagerCheckpointPort.gd": {
+      "git_blob": "9306b21bd1e92e1c81c25a709c89470b4e2d8179",
+      "bytes": 59778,
+      "sha256": "09210b048a1a4c06d70b27ead984eba3415df70caef32780f11b3346fedc6e0e"
+    },
+    "reference/scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd": {
+      "git_blob": "5cb4ada73c8faa8ad22405447266ad566f1aa87e",
+      "bytes": 61503,
+      "sha256": "fa1dcc805d4c3d19611367a8571c9c34049a4a473e84ece31b78134fc99d02a3"
+    },
+    "reference/scripts/infrastructure/save/SaveDocumentSchema.gd": {
+      "git_blob": "05be052983999d0757e16a942f38a6b7358286f7",
+      "bytes": 28931,
+      "sha256": "67775a13f975784a21322df0b7f2f6e75fe17a194872beafae1c8a7d6ec61d72"
+    },
+    "reference/autoload/GameState.gd": {
+      "git_blob": "f3ad6905609566025e356747f5873da7ad2290ba",
+      "bytes": 296738,
+      "sha256": "2eab73918b896a60b431b3a23391a09d578f5c2afb377f5b9ddca681da44339c"
+    },
+    "reference/autoload/DialogicBridge.gd": {
+      "git_blob": "6542701617c214f5de9486e7558da03c3c2b6787",
+      "bytes": 272465,
+      "sha256": "e0960e2992cc3ff4d64808aa3f3318b83476fe70435624ace047e8a86259eeb5"
+    },
+    "reference/autoload/SaveManager.gd": {
+      "git_blob": "319449c17e7d3859076d7ba20e362b775f096802",
+      "bytes": 189349,
+      "sha256": "db4dd262f77ebc855bc53a5329eced9f62f23be7879d10b077a02f6d4f89b484"
+    },
+    "reference/scripts/application/backup/BackupPresentationPort.gd": {
+      "git_blob": "4524984d3ef3e74bdcbab1c296232a603f0eb040",
+      "bytes": 10807,
+      "sha256": "fdd9324f74f42f7a60bfad450faba070f56475c60178ca98df9e860277686f77"
+    },
+    "reference/scripts/ui/BackupApp.gd": {
+      "git_blob": "69be339643d27ab6e35efb945e3505915ad2cbb1",
+      "bytes": 48775,
+      "sha256": "a57156c91af4ce981eb0353c93c48525611fd8e90635228a730a97828206a6c7"
+    },
+    "reference/tools/testing/Probe-ExportedWindow.ps1": {
+      "git_blob": "4d678892e911e205a498af5be21afe4ed0242e24",
+      "bytes": 11121,
+      "sha256": "2d72d1ab3bffaa54cd0fbf88c4857769ed5981322261223c0deb58f377c0f2f7"
+    },
+    "reference/tests/unit/test_save_manager_checkpoint_port.gd": {
+      "git_blob": "899458c00949a5da0c56ea9f582fdfd89ce4e67e",
+      "bytes": 88364,
+      "sha256": "0057f11bf374754e5cadf2c7c552a128872121fdff03ae5c7dbefbd6ad993618"
+    },
+    "reference/tests/unit/test_save_document_schema.gd": {
+      "git_blob": "4d5eae755e49da9d14ed1b003b2ce8190b9b92e1",
+      "bytes": 49202,
+      "sha256": "828b731f8926b033c83a670f71dadce2be77b32ca7f4830201012f489cce45ce"
+    },
+    "reference/tests/unit/test_backup_presentation.gd": {
+      "git_blob": "3c5029d294bf29027e0cf662354d13c0b6ff209a",
+      "bytes": 18872,
+      "sha256": "fd51316597783fe0e967f9ff928b2962297ed24473f0c7e5563e15b22cfb124b"
+    },
+    "reference/tests/unit/test_scene_event_contract.gd": {
+      "git_blob": "cde011002b3332325f58afe5c2f79f33af7b8468",
+      "bytes": 31847,
+      "sha256": "44d1151c3507ace3cbcc653cf7abc27befcbed19a9d4a2f123227b4e45d2be5d"
+    },
+    "reference/tests/unit/test_scene_receipt_validation.gd": {
+      "git_blob": "089e33bcb42ddb9a01d20011166645c403331dd2",
+      "bytes": 10604,
+      "sha256": "51de7ed2f3f23b12cc16c45362e346009f28f70a869a578bb8e150a7192da7af"
+    },
+    "reference/tests/unit/test_scene_transition_identity.gd": {
+      "git_blob": "2ce6e7d81a38eebac6d84328f3b6005583b11a4f",
+      "bytes": 10548,
+      "sha256": "b3b69dbed96b61c432993a18c8dda70526d21045a5396d81c7fb47a551935ced"
+    },
+    "reference/tests/unit/test_scene_terminal_lifecycle.gd": {
+      "git_blob": "64be622a49ca0d089787d410c107da652ee25680",
+      "bytes": 12094,
+      "sha256": "74b9ce779d62f37ce35dc60a7ac03988185fcc425c26e9aae95b796729e11e36"
+    },
+    "reference/tests/integration/test_scene_saved_event_anchor.gd": {
+      "git_blob": "4d41738a0d6d5f9c7790e0363ae7e427d0a02d82",
+      "bytes": 15119,
+      "sha256": "a0b9b584b75ee296b516b72ca0f701743edeb84f5f634f7d7a234ff53bf79b3a"
+    },
+    "reference/scripts/ui/witnessed/WitnessedCaptionLayer.gd": {
+      "git_blob": "5c85ce306366917c995db06794e18cb4035b2711",
+      "bytes": 84211,
+      "sha256": "bf1f21e7c2aa0d0d6be1a4ce343a8a0f21b9bc8918a3f3c2b9a817d9d07f712e"
+    },
+    "reference/scripts/ui/witnessed/WitnessedAccessibleCaption.gd": {
+      "git_blob": "c29b306199bf1b8f9ce4352872ff569e2b3f0bd4",
+      "bytes": 1485,
+      "sha256": "b1ce258f4d409cc225ba5d433593edbdef1140e24b5b9807212c00e850a5082e"
+    },
+    "reference/scripts/ui/witnessed/WitnessedSourceCanvas.gd": {
+      "git_blob": "db11d71216b47004da8a3207acaac73e964cffa6",
+      "bytes": 1107,
+      "sha256": "29e8b5ff92531fa052ab501db328ab02c3aad806c8c97600e1f09030448ef385"
+    },
+    "reference/scripts/ui/EndingScene.gd": {
+      "git_blob": "ae9bf01b2692213cfadeea7ffde81c66db3120cf",
+      "bytes": 14766,
+      "sha256": "fb777b204f9650597fde07aa7844c95d5bfbdb8dfa2bf22f2cfa0c01b4939291"
+    },
+    "reference/tests/scene/test_ending_recovery_localization.gd": {
+      "git_blob": "d21e7cea1de6f5a7ec0cc384dc56b9981dec110a",
+      "bytes": 10040,
+      "sha256": "b99ad1d23ee4d9be8ae974659912ea97cf72bc27b624a79838853a765573c30f"
+    },
+    "candidate/tools/testing/Invoke-ExportedGameplay.ps1": {
+      "git_blob": "e91f912d8351ba7e38401b261d0fb2f0aa3032dc",
+      "bytes": 52927,
+      "sha256": "0e819db31a69824934b771442b7a19c540b54b4c706192fcb152556c2f7a116b"
+    },
+    "candidate/tools/testing/Invoke-IsolatedGodot.ps1": {
+      "git_blob": "14b379880b4ad26935ad953d141df8c19e399cf3",
+      "bytes": 19919,
+      "sha256": "1fe67f2db677fb869ee82126834a83d519b77888328a690ec55bbb3fbda7fa5f"
+    },
+    "candidate/tools/testing/Invoke-WindowsExportValidation.ps1": {
+      "git_blob": "322d02bbe72d8e2e3c1e5b637fd9ac253ef31fff",
+      "bytes": 19523,
+      "sha256": "5218ab405562d45fc2a7f982159c5a601bc302fbc20a25aa008f65f0e6a340b9"
+    },
+    "candidate/tests/tooling/Test-ExportedGameplayDeadline.ps1": {
+      "git_blob": "436c73a380baec1a3bc6ba64d273ff052e316d78",
+      "bytes": 3023,
+      "sha256": "e428814445044a90d3d52f78a56c02a31eb8032b314f7d8b512fb59071711b29"
+    },
+    "candidate/project.godot": {
+      "git_blob": "b3e4ec92242535d81845bdc2dc7537e9e3ec122e",
+      "bytes": 14532,
+      "sha256": "5e8009d890f9e4359b24bb68a59fdec1bf56ef0a3ea94be06c3e43a6d2353053"
+    },
+    "candidate/export_presets.cfg": {
+      "git_blob": "ccb9409ac1054d0b4b52e78df823c33f532e83fb",
+      "bytes": 1117,
+      "sha256": "76d904435496d2057572225b796f8b3c74f121a21254d211a6246caaf96efcaa"
+    },
+    "candidate/scripts/domain/narrative/SceneEventContract.gd": {
+      "git_blob": "30a65a65cab298b36e01eeee82362888339f2ed1",
+      "bytes": 80860,
+      "sha256": "c30a3e7ba86848f600248eff5a70479637682d601c325db407bce2ed956fef4f"
+    },
+    "candidate/scripts/domain/run/RunSnapshotSchema.gd": {
+      "git_blob": "b9608a523f788b90f87d8e556f88d485394b6e8b",
+      "bytes": 74097,
+      "sha256": "800b4324aca378e63ceb9ffe81dfe70f7c0be4c8df76cc364e96b6a76f8d0622"
+    },
+    "candidate/scripts/application/run/SaveManagerCheckpointPort.gd": {
+      "git_blob": "9306b21bd1e92e1c81c25a709c89470b4e2d8179",
+      "bytes": 59778,
+      "sha256": "09210b048a1a4c06d70b27ead984eba3415df70caef32780f11b3346fedc6e0e"
+    },
+    "candidate/scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd": {
+      "git_blob": "5cb4ada73c8faa8ad22405447266ad566f1aa87e",
+      "bytes": 61503,
+      "sha256": "fa1dcc805d4c3d19611367a8571c9c34049a4a473e84ece31b78134fc99d02a3"
+    },
+    "candidate/scripts/infrastructure/save/SaveDocumentSchema.gd": {
+      "git_blob": "05be052983999d0757e16a942f38a6b7358286f7",
+      "bytes": 28931,
+      "sha256": "67775a13f975784a21322df0b7f2f6e75fe17a194872beafae1c8a7d6ec61d72"
+    },
+    "candidate/autoload/GameState.gd": {
+      "git_blob": "f3ad6905609566025e356747f5873da7ad2290ba",
+      "bytes": 296738,
+      "sha256": "2eab73918b896a60b431b3a23391a09d578f5c2afb377f5b9ddca681da44339c"
+    },
+    "candidate/autoload/DialogicBridge.gd": {
+      "git_blob": "6542701617c214f5de9486e7558da03c3c2b6787",
+      "bytes": 272465,
+      "sha256": "e0960e2992cc3ff4d64808aa3f3318b83476fe70435624ace047e8a86259eeb5"
+    },
+    "candidate/autoload/SaveManager.gd": {
+      "git_blob": "319449c17e7d3859076d7ba20e362b775f096802",
+      "bytes": 189349,
+      "sha256": "db4dd262f77ebc855bc53a5329eced9f62f23be7879d10b077a02f6d4f89b484"
+    },
+    "candidate/scripts/application/backup/BackupPresentationPort.gd": {
+      "git_blob": "4524984d3ef3e74bdcbab1c296232a603f0eb040",
+      "bytes": 10807,
+      "sha256": "fdd9324f74f42f7a60bfad450faba070f56475c60178ca98df9e860277686f77"
+    },
+    "candidate/scripts/ui/BackupApp.gd": {
+      "git_blob": "69be339643d27ab6e35efb945e3505915ad2cbb1",
+      "bytes": 48775,
+      "sha256": "a57156c91af4ce981eb0353c93c48525611fd8e90635228a730a97828206a6c7"
+    },
+    "candidate/tools/testing/Probe-ExportedWindow.ps1": {
+      "git_blob": "4d678892e911e205a498af5be21afe4ed0242e24",
+      "bytes": 11121,
+      "sha256": "2d72d1ab3bffaa54cd0fbf88c4857769ed5981322261223c0deb58f377c0f2f7"
+    },
+    "candidate/tests/unit/test_save_manager_checkpoint_port.gd": {
+      "git_blob": "899458c00949a5da0c56ea9f582fdfd89ce4e67e",
+      "bytes": 88364,
+      "sha256": "0057f11bf374754e5cadf2c7c552a128872121fdff03ae5c7dbefbd6ad993618"
+    },
+    "candidate/tests/unit/test_save_document_schema.gd": {
+      "git_blob": "4d5eae755e49da9d14ed1b003b2ce8190b9b92e1",
+      "bytes": 49202,
+      "sha256": "828b731f8926b033c83a670f71dadce2be77b32ca7f4830201012f489cce45ce"
+    },
+    "candidate/tests/unit/test_backup_presentation.gd": {
+      "git_blob": "3c5029d294bf29027e0cf662354d13c0b6ff209a",
+      "bytes": 18872,
+      "sha256": "fd51316597783fe0e967f9ff928b2962297ed24473f0c7e5563e15b22cfb124b"
+    },
+    "candidate/tests/unit/test_scene_event_contract.gd": {
+      "git_blob": "cde011002b3332325f58afe5c2f79f33af7b8468",
+      "bytes": 31847,
+      "sha256": "44d1151c3507ace3cbcc653cf7abc27befcbed19a9d4a2f123227b4e45d2be5d"
+    },
+    "candidate/tests/unit/test_scene_receipt_validation.gd": {
+      "git_blob": "089e33bcb42ddb9a01d20011166645c403331dd2",
+      "bytes": 10604,
+      "sha256": "51de7ed2f3f23b12cc16c45362e346009f28f70a869a578bb8e150a7192da7af"
+    },
+    "candidate/tests/unit/test_scene_transition_identity.gd": {
+      "git_blob": "2ce6e7d81a38eebac6d84328f3b6005583b11a4f",
+      "bytes": 10548,
+      "sha256": "b3b69dbed96b61c432993a18c8dda70526d21045a5396d81c7fb47a551935ced"
+    },
+    "candidate/tests/unit/test_scene_terminal_lifecycle.gd": {
+      "git_blob": "64be622a49ca0d089787d410c107da652ee25680",
+      "bytes": 12094,
+      "sha256": "74b9ce779d62f37ce35dc60a7ac03988185fcc425c26e9aae95b796729e11e36"
+    },
+    "candidate/tests/integration/test_scene_saved_event_anchor.gd": {
+      "git_blob": "4d41738a0d6d5f9c7790e0363ae7e427d0a02d82",
+      "bytes": 15119,
+      "sha256": "a0b9b584b75ee296b516b72ca0f701743edeb84f5f634f7d7a234ff53bf79b3a"
+    },
+    "candidate/scripts/ui/witnessed/WitnessedCaptionLayer.gd": {
+      "git_blob": "5c85ce306366917c995db06794e18cb4035b2711",
+      "bytes": 84211,
+      "sha256": "bf1f21e7c2aa0d0d6be1a4ce343a8a0f21b9bc8918a3f3c2b9a817d9d07f712e"
+    },
+    "candidate/scripts/ui/witnessed/WitnessedAccessibleCaption.gd": {
+      "git_blob": "c29b306199bf1b8f9ce4352872ff569e2b3f0bd4",
+      "bytes": 1485,
+      "sha256": "b1ce258f4d409cc225ba5d433593edbdef1140e24b5b9807212c00e850a5082e"
+    },
+    "candidate/scripts/ui/witnessed/WitnessedSourceCanvas.gd": {
+      "git_blob": "db11d71216b47004da8a3207acaac73e964cffa6",
+      "bytes": 1107,
+      "sha256": "29e8b5ff92531fa052ab501db328ab02c3aad806c8c97600e1f09030448ef385"
+    },
+    "candidate/scripts/ui/EndingScene.gd": {
+      "git_blob": "6f4ebb80cef316aa4db0cee940a30eb38d08487d",
+      "bytes": 15872,
+      "sha256": "1f3a24a2d8bf4c35e8cffe48ca525499981fa1cc7d111bce6856fc5ebfe9529d"
+    },
+    "candidate/tests/scene/test_ending_recovery_localization.gd": {
+      "git_blob": "babcce483346163a891c2a7c3ef36eabc6522835",
+      "bytes": 16616,
+      "sha256": "b2fb73b4957460954c147e3fad0a16601152580a7b129892d85a91c39daa048c"
+    }
+  },
+  "retained_source_changes": [
+    "scripts/ui/EndingScene.gd",
+    "tests/scene/test_ending_recovery_localization.gd"
+  ],
+  "controller_sha256": "ed689d71b8df6d22b677906b8935547cb1cd1fdf139079e0eb1d0f608b58f559",
+  "harness": {
+    "reference": "337c2d43e9ff508575f772b1c1b7cf5679be8d0f",
+    "candidate": "a25fae335247ba8074ea01d44990b3c6cd00f8ba",
+    "controller": "fb8377d546b32542975b867e76de51a619d047ab",
+    "shared_files": {
+      "tools/testing/Invoke-ExportedGameplay.ps1": {
+        "sha256": "0e819db31a69824934b771442b7a19c540b54b4c706192fcb152556c2f7a116b",
+        "git_blob": "e91f912d8351ba7e38401b261d0fb2f0aa3032dc"
+      },
+      "tools/testing/Invoke-IsolatedGodot.ps1": {
+        "sha256": "1fe67f2db677fb869ee82126834a83d519b77888328a690ec55bbb3fbda7fa5f",
+        "git_blob": "14b379880b4ad26935ad953d141df8c19e399cf3"
+      },
+      "tools/testing/Invoke-WindowsExportValidation.ps1": {
+        "sha256": "5218ab405562d45fc2a7f982159c5a601bc302fbc20a25aa008f65f0e6a340b9",
+        "git_blob": "322d02bbe72d8e2e3c1e5b637fd9ac253ef31fff"
+      },
+      "tests/tooling/Test-ExportedGameplayDeadline.ps1": {
+        "sha256": "e428814445044a90d3d52f78a56c02a31eb8032b314f7d8b512fb59071711b29",
+        "git_blob": "436c73a380baec1a3bc6ba64d273ff052e316d78"
+      },
+      "project.godot": {
+        "sha256": "5e8009d890f9e4359b24bb68a59fdec1bf56ef0a3ea94be06c3e43a6d2353053",
+        "git_blob": "b3e4ec92242535d81845bdc2dc7537e9e3ec122e"
+      },
+      "export_presets.cfg": {
+        "sha256": "76d904435496d2057572225b796f8b3c74f121a21254d211a6246caaf96efcaa",
+        "git_blob": "ccb9409ac1054d0b4b52e78df823c33f532e83fb"
+      }
+    },
+    "trace_sources": [
+      "scripts/ui/witnessed/WitnessedCaptionLayer.gd",
+      "scripts/ui/witnessed/WitnessedAccessibleCaption.gd",
+      "scripts/ui/witnessed/WitnessedSourceCanvas.gd"
+    ],
+    "unchanged_trace_files": {
+      "scripts/ui/witnessed/WitnessedCaptionLayer.gd": {
+        "sha256": "bf1f21e7c2aa0d0d6be1a4ce343a8a0f21b9bc8918a3f3c2b9a817d9d07f712e",
+        "git_blob": "5c85ce306366917c995db06794e18cb4035b2711"
+      },
+      "scripts/ui/witnessed/WitnessedAccessibleCaption.gd": {
+        "sha256": "b1ce258f4d409cc225ba5d433593edbdef1140e24b5b9807212c00e850a5082e",
+        "git_blob": "c29b306199bf1b8f9ce4352872ff569e2b3f0bd4"
+      },
+      "scripts/ui/witnessed/WitnessedSourceCanvas.gd": {
+        "sha256": "29e8b5ff92531fa052ab501db328ab02c3aad806c8c97600e1f09030448ef385",
+        "git_blob": "db11d71216b47004da8a3207acaac73e964cffa6"
+      }
+    },
+    "changed_paths": [
+      "scripts/ui/EndingScene.gd",
+      "tests/scene/test_ending_recovery_localization.gd"
+    ],
+    "focused_suite": {
+      "id": "ending-recovery",
+      "role": "candidate",
+      "path": "tests/scene/test_ending_recovery_localization.gd",
+      "source_commit": "a25fae335247ba8074ea01d44990b3c6cd00f8ba",
+      "source_path": "scripts/ui/EndingScene.gd",
+      "expected_tests": 11,
+      "expected_methods": [
+        "test_retry_copy_follows_locale_without_changing_the_pending_command",
+        "test_normal_playback_exposes_no_return_action_or_error",
+        "test_no_public_ending_title_is_added_by_the_recovery_host",
+        "test_programmatic_pressed_cannot_submit_a_retry",
+        "test_focused_keyboard_activation_submits_one_retry",
+        "test_missing_localization_hides_the_whole_recovery_surface",
+        "test_locale_change_retires_a_held_retry_contact",
+        "test_registered_accessibility_preferences_update_the_recovery_material",
+        "test_retry_focus_and_keyboard_replay_the_same_temporarily_failed_command",
+        "test_later_playback_failure_keeps_retry_focus_and_replays_the_same_command",
+        "test_deferred_order_refresh_ignores_retired_scene_and_freed_layout"
+      ],
+      "timeout_seconds": 180,
+      "headless": true,
+      "scope": "Headless scene integration with simulated input/focus; original exported journey remains native acceptance",
+      "test_sha256": "b2fb73b4957460954c147e3fad0a16601152580a7b129892d85a91c39daa048c",
+      "source_sha256": "1f3a24a2d8bf4c35e8cffe48ca525499981fa1cc7d111bce6856fc5ebfe9529d"
+    },
+    "source_snapshot_count_per_role": 30,
+    "trace_marker": "DWM_ENDING_PUBLICATION_TRACE",
+    "passive_trace_gate": {
+      "DWM_SAVE_LOAD_PROFILE": "1",
+      "DWM_SAVE_LOAD_CONTEXT": "exported-load-phase-diagnostic"
+    },
+    "runner": "windows-2022",
+    "modes": [
+      "Capability",
+      "Create",
+      "Load"
+    ],
+    "outer_timeout_minutes_per_mode": 10,
+    "step_timeout_seconds": 30,
+    "journey_timeout_seconds": 480,
+    "renderer": "ProjectDefault",
+    "accessibility": "Always",
+    "audio": "Dummy",
+    "load_flags": [
+      "ProfileSaveLoad",
+      "ContinueAfterQuiet",
+      "TraceDay5",
+      "NativeReadyCaptions"
+    ],
+    "load_environment": {
+      "DWM_SAVE_LOAD_PROFILE": "1",
+      "DWM_CHECKPOINT_PROFILE": "1",
+      "DWM_SAVE_LOAD_CONTEXT": "exported-load-phase-diagnostic"
+    },
+    "scope": "One isolated EndingScene order experiment; focused recovery and original player gates remain separate"
+  },
+  "cloud_checks": {
+    "driver_parse": {
+      "errors": [],
+      "ok": true
+    },
+    "original_deadline_cases": {
+      "cases": [
+        {
+          "ok": true,
+          "name": "late_root_refused_before_enumeration"
+        },
+        {
+          "ok": true,
+          "name": "late_match_refused"
+        },
+        {
+          "ok": true,
+          "name": "timely_unique_match_accepted"
+        },
+        {
+          "ok": true,
+          "name": "ambiguous_match_refused"
+        }
+      ],
+      "ok": true,
+      "scope": "Actual Wait-One with fake provider boundaries; no game or UIA qualification"
+    },
+    "import_error_lines": [],
+    "import_native_exit": "Enforced by the pinned controller; no separate native exit receipt is included in this archive."
+  },
+  "package": {
+    "status": "not_executed_or_no_result",
+    "validation": {},
+    "custody_scope": "When export ran, validation and all mode hashes bind one source/package. Executable ZIP bytes are retained as a separate Actions artifact and are absent from this evidence ZIP."
+  },
+  "outcomes": {
+    "capability": {
+      "status": "not_executed",
+      "executed": false,
+      "result_path": "ci/exported-capability/result.json",
+      "result": {},
+      "driver_process": {},
+      "raw_player_gate_passed": false,
+      "driver_process_passed": false,
+      "required_original_files": [],
+      "missing_original_files": [],
+      "original_wait_events": [],
+      "capture_receipts": []
+    },
+    "create": {
+      "status": "not_executed",
+      "executed": false,
+      "result_path": "ci/exported-create/result.json",
+      "result": {},
+      "driver_process": {},
+      "raw_player_gate_passed": false,
+      "driver_process_passed": false,
+      "required_original_files": [],
+      "missing_original_files": [],
+      "original_wait_events": [],
+      "capture_receipts": []
+    },
+    "load": {
+      "status": "not_executed",
+      "executed": false,
+      "result_path": "ci/exported-load/result.json",
+      "result": {},
+      "driver_process": {},
+      "raw_player_gate_passed": false,
+      "driver_process_passed": false,
+      "required_original_files": [],
+      "missing_original_files": [],
+      "original_wait_events": [],
+      "capture_receipts": []
+    }
+  },
+  "original_acceptance": {
+    "scope": "Original bounded driver gates; passive traces are diagnostic evidence",
+    "failures": [
+      "Missing capability result",
+      "Missing create result",
+      "Missing load result",
+      "Capability driver process or step failed",
+      "Create driver process or step failed",
+      "Load driver process or step failed",
+      "Focused ending recovery or method/XML gate failed",
+      "Focused ending recovery result failed its original suite gate",
+      "Diagnostic executable package retention failed"
+    ],
+    "original_outcomes": [],
+    "ok": false
+  },
+  "source_status": {
+    "tracked": [
+      "D  .claude/skills/godot-prompter/1.10.0",
+      "D  .claude/skills/superpowers/6.1.1"
+    ],
+    "untracked": [
+      "?? evidence/phase_2r/challenge_recall_20261017/computer-challenge-recall-restored-selected.png.import",
+      "?? evidence/phase_2r/challenge_recall_20261017/computer-challenge-recall-saved.png.import",
+      "?? evidence/phase_2r/challenge_recall_20261017/computer-challenge-recall-selected.png.import",
+      "?? evidence/phase_2r/clock_layout_20261016/computer-clock-ending.png.import",
+      "?? evidence/phase_2r/clock_layout_20261016/computer-clock-ordinary.png.import",
+      "?? evidence/phase_2r/clock_layout_20261016/computer-clock-title.png.import",
+      "?? evidence/phase_2r/load_caption_memory_20261017/day4-restored.png.import",
+      "?? evidence/phase_2r/partner_fork_20261017/auto-lavinia.png.import",
+      "?? evidence/phase_2r/partner_fork_20261017/offer.png.import",
+      "?? evidence/phase_2r/partner_fork_20261017/recovered-sylvia.png.import",
+      "?? tests/integration/scene_challenge_recall_child.gd.uid",
+      "?? tests/integration/scene_partner_fork_child.gd.uid",
+      "?? tests/integration/test_scene_challenge_recall_create.gd.uid",
+      "?? tests/integration/test_scene_challenge_recall_load.gd.uid",
+      "?? tests/integration/test_scene_clock_layout.gd.uid",
+      "?? tests/integration/test_scene_ending_direct_return.gd.uid",
+      "?? tests/integration/test_scene_partner_auto.gd.uid",
+      "?? tests/integration/test_scene_partner_create.gd.uid",
+      "?? tests/integration/test_scene_partner_manual.gd.uid",
+      "?? tests/integration/test_scene_partner_pending.gd.uid",
+      "?? tests/integration/test_scene_partner_recover.gd.uid",
+      "?? tests/integration/test_scene_partner_uncertain.gd.uid",
+      "?? tests/support/SceneChallengeRecallFixture.gd.uid",
+      "?? tests/support/ScenePartnerForkFixture.gd.uid",
+      "?? tests/templates/scene_sequence/OptionSlotTemplates.gd.uid",
+      "?? tests/unit/test_scene_author_option_slots.gd.uid",
+      "?? tests/unit/test_scene_caption_memory.gd.uid",
+      "?? tests/unit/test_scene_challenge_recall.gd.uid",
+      "?? tests/unit/test_scene_five_outcomes.gd.uid",
+      "?? tests/unit/test_scene_partner_contract.gd.uid",
+      "?? tests/unit/test_scene_partner_fork_template.gd.uid"
+    ]
+  },
+  "save_snapshot_custody": {
+    "status": "not_observed",
+    "live_save_copies": [],
+    "semantics": {
+      "profile_hashes": {}
+    },
+    "semantic_failures": [],
+    "scope": "Copied file bytes are independently bound to manifests and capture receipts. Live failure/quiet files were read separately and are not an atomic checkpoint. Restore checks compare retained original fields; success-only completion checks use completed-autosave.json and final profile receipts. Gallery UI opening is not part of this driver.",
+    "final_slot_limit": "A successful original Load executes the unchanged driver's final source-slot hash guard. There is no separate final source-slot copy on success; retained live copies prove their individual observation times only."
+  },
+  "diagnostic_observations": {
+    "primary_stream": "ci/exported-load/game.stdout.log",
+    "primary_stream_present": false,
+    "primary_stream_bytes": 0,
+    "primary_stream_sha256": null,
+    "publication_record_count": 0,
+    "profile_record_count": 0,
+    "layers": [],
+    "ending_order_timeline": {
+      "project_rows": [],
+      "original_native_ending_events": [],
+      "scope": "Trace rows stay in the original stdout order; native records stay in original events.json order. Root order is reconstructed from same-record Godot node identities. The root CanvasLayer ancestor of the caption is observed; canonical layout metadata and EndingScene's local recovery-panel visibility are not explicit trace fields.",
+      "timing_limit": "Godot ticks and native driver elapsed timers have different origins. Unix/UTC wall times provide approximate context only; no cross-clock duration or provider publication causality is inferred."
+    },
+    "publication_records": [],
+    "profile_records": [],
+    "parse_errors": [],
+    "malformed_trace_lines": [],
+    "scope": "One canonical Load stdout only. No secondary stream is counted and no nested profile totals are added together.",
+    "sampling": "At most seven records per layer: two natural notifications per kind, one text-start, one text-finish and one follow-up. Natural notifications remain eligible after follow-up. Missing/capped records do not prove absence of later events.",
+    "identity_limit": "Godot window IDs, object IDs and accessibility RIDs are internal. No mapping to HWND or UIA RuntimeId is established by these records.",
+    "interpretation_limit": "Game-side accessibility setter records show executed calls, not successful publication of a complete native provider subtree. The passive trace does not qualify original player gates or a fresh performance comparison."
+  },
+  "source_scope": "All 30 retained reference and candidate sources are independently pinned. Full repository ancestry/tree identity additionally relies on the externally reviewed commit pins and the pinned controller's checkout guards; this ZIP is not a complete Git object database.",
+  "verifier_exit_scope": "Exit status qualifies archive/source custody, retained harness checks and the focused suite. Original native journey failure, unexecuted native modes and diagnostic observations remain separate; exit 0 does not mean native acceptance."
+}

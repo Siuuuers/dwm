@@ -8,11 +8,13 @@ signal pending_reply_drawn(rendered_line: Dictionary)
 
 const Row = preload("res://scripts/ui/contacts/ContactsRow.gd")
 const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
+const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const CONTACTS_THEME := preload("res://scripts/ui/contacts/ContactsTheme.gd")
 const FRIENDS := ["priscilla", "lavinia", "sylvia"]
 const NAMES := ["Priscilla", "Lavinia", "Sylvia"]
-const LOCALES := ["en", "zh-CN", "zh-HK"]
+const LOCALES := ["en", "zh-CN", "zh-HK", "ja", "ko"]
 
+var _scene_presentation := false
 var selected_friend := ""
 var rows: Array[Button] = []
 var transcript: ScrollContainer
@@ -61,17 +63,26 @@ func _on_resized() -> void:
 	queue_redraw()
 
 func configure(english: Font, simplified: Font, traditional: Font, text_percent: int = 100,
-		midnight: bool = false, day: int = 1, high_contrast: bool = false, colour_preset: String = "standard") -> bool:
-	if english == null or simplified == null or traditional == null or text_percent not in [100, 125, 150]:
+		midnight: bool = false, day: int = 1, high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> bool:
+	return _configure_context(english, simplified, traditional, text_percent, midnight, day, high_contrast, colour_preset, font_style, false)
+
+func configure_scene(english: Font, simplified: Font, traditional: Font, text_percent: int = 100, midnight: bool = false, high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> bool:
+	return _configure_context(english, simplified, traditional, text_percent, midnight, null, high_contrast, colour_preset, font_style, true)
+
+func _configure_context(english: Font, simplified: Font, traditional: Font, text_percent: int = 100, midnight: bool = false, day: Variant = 1, high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel", scene: bool = false) -> bool:
+	if _scene_presentation and not scene: return false
+	if font_style not in ["pixel","readable"] or english == null or simplified == null or traditional == null or text_percent not in [100, 125, 150]:
 		return false
 	var palette: StringName = &"midnight" if midnight else &"after_hours"
-	var candidate := CONTACTS_THEME.build(english, 24 * text_percent / 100, palette, day, high_contrast, colour_preset)
+	var candidate := CONTACTS_THEME._build_context(english, 24 * text_percent / 100, palette, day, high_contrast, colour_preset, scene)
 	if candidate == null: return false
 	var anchor := _scroll_anchor()
-	_fonts = {"en": english, "zh-CN": simplified, "zh-HK": traditional}
+	_fonts = {"en": english, "zh-CN": simplified, "zh-HK": traditional,
+		"ja": TYPOGRAPHY.font("ja", text_percent, font_style), "ko": TYPOGRAPHY.font("ko", text_percent, font_style)}
 	font_size = 24 * text_percent / 100
+	_scene_presentation = scene
 	theme = candidate
-	_presentation = [palette, day, high_contrast, colour_preset]
+	_presentation = [palette, day, high_contrast, colour_preset, scene]
 	for label in find_children("*", "Label", true, false):
 		_style_label(label, label.get_meta("locale", "en"), label.get_meta("outgoing", false))
 	_apply_materials()
@@ -80,12 +91,20 @@ func configure(english: Font, simplified: Font, traditional: Font, text_percent:
 	return true
 
 func apply_presentation(palette: StringName, day: int, high_contrast: bool, colour_preset: String) -> bool:
+	return _apply_presentation_context(palette, day, high_contrast, colour_preset, false)
+
+func apply_scene_presentation(palette: StringName, high_contrast: bool, colour_preset: String) -> bool:
+	return _apply_presentation_context(palette, null, high_contrast, colour_preset, true)
+
+func _apply_presentation_context(palette: StringName, day: Variant, high_contrast: bool, colour_preset: String, scene: bool = false) -> bool:
+	if _scene_presentation and not scene: return false
 	if _fonts.is_empty(): return false
-	if _presentation == [palette, day, high_contrast, colour_preset]: return true
-	var candidate := CONTACTS_THEME.build(_fonts.en, font_size, palette, day, high_contrast, colour_preset)
+	if _presentation == [palette, day, high_contrast, colour_preset, scene]: return true
+	var candidate := CONTACTS_THEME._build_context(_fonts.en, font_size, palette, day, high_contrast, colour_preset, scene)
 	if candidate == null: return false
+	_scene_presentation = scene
 	theme = candidate
-	_presentation = [palette, day, high_contrast, colour_preset]
+	_presentation = [palette, day, high_contrast, colour_preset, scene]
 	# Retain geometry and the exact pending draw receipt; only materials change.
 	_apply_materials()
 	return true
@@ -112,6 +131,9 @@ func set_projection(friend_id: String, entries: Array, unread: Dictionary, prima
 	var had_transcript_focus := transcript != null and transcript.has_focus()
 	selected_friend = friend_id
 	_entries = entries.duplicate(true)
+	for entry: Dictionary in _entries:
+		if entry.has("presentation"):
+			entry.presentation = preload("res://scripts/narrative/ContactsFrozenContext.gd").immutable_snapshot(entry.presentation)
 	_unread = unread.duplicate(true)
 	_primary = primary_locale
 	_secondary = secondary_locale
@@ -144,6 +166,13 @@ func _valid_projection(friend_id: String, entries: Array, unread: Dictionary, pr
 			return false
 		if not entry.get("outgoing") is bool or not entry.get("texts") is Dictionary:
 			return false
+		if entry.has("presentation"):
+			var presentation: Variant = entry.presentation
+			if not presentation is Dictionary: return false
+			var fields: Dictionary = presentation.get("fields", {})
+			var checked := preload("res://scripts/narrative/FrozenPresentationContext.gd").validate(str(fields.get("entry_id", "")), presentation)
+			if not checked.ok or fields.get("friend_id", friend_id) != friend_id \
+					or fields.get("target_participant_id", friend_id) != friend_id: return false
 		ids[entry.id] = true
 		for locale in [primary, secondary]:
 			if locale != "" and (not entry.texts.get(locale) is String or entry.texts[locale].is_empty()):
@@ -165,7 +194,7 @@ func _update_rows() -> void:
 	for i in range(rows.size()):
 		rows[i].selected = selected_friend == FRIENDS[i]
 		rows[i].unread = _unread.get(FRIENDS[i], false)
-		var words := {"en": ["Open thread", "Unread"], "zh-CN": ["已打开的会话", "未读"], "zh-HK": ["已開啟的對話", "未讀"]}
+		var words := {"en": ["Open thread", "Unread"], "zh-CN": ["已打开的会话", "未读"], "zh-HK": ["已開啟的對話", "未讀"], "ja": ["開いている会話", "未読"], "ko": ["열린 대화", "읽지 않음"]}
 		var facts: Array[String] = []
 		if rows[i].selected:
 			facts.append(words[_primary][0])
@@ -232,6 +261,7 @@ func _append_entry(entry: Dictionary, locales: Array) -> Label:
 	var first_label: Label
 	var margin := MarginContainer.new()
 	margin.set_meta("entry_id", entry.id)
+	if entry.has("presentation"): margin.set_meta("frozen_presentation", entry.presentation)
 	margin.add_theme_constant_override("margin_left", 56 if entry.outgoing else 24)
 	margin.add_theme_constant_override("margin_right", 24)
 	margin.add_theme_constant_override("margin_top", 24)

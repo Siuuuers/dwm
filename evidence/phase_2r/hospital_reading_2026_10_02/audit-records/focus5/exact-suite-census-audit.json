@@ -1,0 +1,54 @@
+{
+  "source": "dca8b35b40e4ba9d80f204c77064357d16f07319",
+  "run_id": 37039358038,
+  "exact_static_census_matched": true,
+  "total": 1591,
+  "suites": [
+    {
+      "suite": "public_surfaces",
+      "scripts": 1,
+      "cases": 11,
+      "failures_errors_skips": 0
+    },
+    {
+      "suite": "desktop",
+      "scripts": 22,
+      "cases": 334,
+      "failures_errors_skips": 0
+    },
+    {
+      "suite": "new_account",
+      "scripts": 15,
+      "cases": 179,
+      "failures_errors_skips": 0
+    },
+    {
+      "suite": "persistence",
+      "scripts": 22,
+      "cases": 230,
+      "failures_errors_skips": 0
+    },
+    {
+      "suite": "reading_delivery",
+      "scripts": 35,
+      "cases": 480,
+      "failures_errors_skips": 0
+    },
+    {
+      "suite": "settings",
+      "scripts": 31,
+      "cases": 357,
+      "failures_errors_skips": 0
+    }
+  ],
+  "excluded_negative_sentinels": [
+    {
+      "file": "artifacts/windows-settings-37039358038-1/ci/storage-refusal/empty/tests.xml",
+      "reason": "Intentional invalid-root refusal sentinel; ordinary settings suite separately verifies this result."
+    },
+    {
+      "file": "artifacts/windows-settings-37039358038-1/ci/storage-refusal/whitespace/tests.xml",
+      "reason": "Intentional invalid-root refusal sentinel; ordinary settings suite separately verifies this result."
+    }
+  ]
+}

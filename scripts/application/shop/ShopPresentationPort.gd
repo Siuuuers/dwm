@@ -1,6 +1,7 @@
 class_name ShopPresentationPort
 extends RefCounted
 const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
+const ITEM_ART := preload("res://scripts/ui/shop/ShopItemArt.gd")
 
 ## Production Shop query/command boundary. The UI receives only presentation rows and item/quantity
 ## commands. Every purchase uses the retained durable participant: one debit and its authored
@@ -8,14 +9,16 @@ const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
 
 signal catalog_changed
 
+const _NOTE_RULES := preload("res://scripts/domain/shop/RunNotePurchaseRules.gd")
+
 const _COPY := preload("res://scripts/ui/shop/ShopCopy.gd")
 const _CAPABILITY_RULES := preload("res://scripts/domain/minesweeper/MinesweeperCapabilityRules.gd")
 
 const _SPECIAL_IDS: Array[String] = ["supportz", "lucky_charm", "debug_key"]
 const _PUBLIC_ORDER: Array[String] = [
-	"coffee", "wine", "pineapple_bun", "bandage_pack", "quiet_tea",
-	"soft_blanket", "weighted_plush", "spa_coupon", "healthy_meal", "protein_box",
-	"pep_note", "premium_care", "lucky_charm", "debug_key", "bookend_keepsake",
+	"wine", "pineapple_bun", "quiet_tea",
+	"soft_blanket", "weighted_plush", "spa_coupon",
+	"premium_care", "lucky_charm", "debug_key", "bookend_keepsake",
 	"metronome_keepsake", "pocket_calculator_keepsake",
 ]
 const _SOURCE_TO_PUBLIC := {
@@ -29,9 +32,9 @@ const _PUBLIC_TO_SOURCE := {
 	"pocket_calculator_keepsake": "sylvia_gift",
 }
 const _BATCHABLE_IDS: Array[String] = [
-	"coffee", "wine", "pineapple_bun", "bandage_pack", "quiet_tea",
-	"soft_blanket", "weighted_plush", "healthy_meal", "protein_box",
-	"pep_note", "premium_care",
+	"wine", "pineapple_bun", "quiet_tea",
+	"soft_blanket", "weighted_plush",
+	"premium_care",
 ]
 
 const _GAME_STATE_METHODS: Array[String] = [
@@ -104,10 +107,10 @@ func get_catalog(locale: String) -> Dictionary:
 	if not admitted.get("ok", false):
 		return admitted
 	var locale_id := locale.replace("-", "_")
-	if locale_id not in ["en", "zh_CN", "zh_HK"]:
+	if locale_id not in ["en", "zh_CN", "zh_HK", "ja", "ko"]:
 		return _fail(&"invalid_shop_locale")
 	var source_items: Variant = _data_catalog.call(&"get_shop_items")
-	if typeof(source_items) != TYPE_ARRAY or (source_items as Array).size() != 18:
+	if typeof(source_items) != TYPE_ARRAY or (source_items as Array).size() != _PUBLIC_ORDER.size() + 1:
 		return _fail(&"shop_catalog_unavailable")
 	var rows_by_id: Dictionary = {}
 	for item: Variant in source_items:
@@ -298,10 +301,15 @@ func _supportz_eligibility() -> Dictionary:
 
 
 func _resolve_item(public_id: String) -> Dictionary:
+	if public_id not in _PUBLIC_ORDER and public_id != "supportz":
+		return _fail(&"unregistered_shop_item")
 	var source_id := str(_PUBLIC_TO_SOURCE.get(public_id, public_id))
 	var raw: Variant = _data_catalog.call(&"get_shop_item", source_id)
 	if typeof(raw) != TYPE_DICTIONARY or (raw as Dictionary).is_empty():
 		return _fail(&"unregistered_shop_item")
+	if source_id in _NOTE_RULES.ITEM_IDS:
+		var checked := _validate_note_record(raw)
+		if not checked.get("ok", false): return checked
 	var item := ShopItemData.new()
 	item.id = source_id
 	item.price = int((raw as Dictionary).get("price", 0))
@@ -315,6 +323,8 @@ func _resolve_item(public_id: String) -> Dictionary:
 
 
 func _validate_quantity(public_id: String, item: ShopItemData, quantity: int) -> Dictionary:
+	if item.id in _NOTE_RULES.ITEM_IDS and quantity != 1:
+		return _fail(&"invalid_quantity")
 	if quantity < 1:
 		return _fail(&"invalid_shop_quantity")
 	if public_id in _SPECIAL_IDS and quantity != 1:
@@ -362,16 +372,7 @@ func _texture(item_id: String, size: int) -> Texture2D:
 	if placed != null:
 		_art[key] = placed
 		return placed
-	var image := Image.create(size, size, false, Image.FORMAT_RGBA8)
-	var hue := float(abs(item_id.hash()) % 360) / 360.0
-	image.fill(Color.from_hsv(hue, 0.28, 0.78, 1.0))
-	var edge := Color.from_hsv(hue, 0.5, 0.34, 1.0)
-	for coordinate: int in size:
-		image.set_pixel(coordinate, 0, edge)
-		image.set_pixel(coordinate, size - 1, edge)
-		image.set_pixel(0, coordinate, edge)
-		image.set_pixel(size - 1, coordinate, edge)
-	var texture := ImageTexture.create_from_image(image)
+	var texture := ITEM_ART.texture(item_id, size)
 	_art[key] = texture
 	return texture
 
@@ -403,3 +404,13 @@ static func _ok(value: Variant) -> Dictionary:
 
 static func _fail(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code, "message": "", "details": {}}
+
+
+static func _validate_note_record(raw: Dictionary) -> Dictionary:
+	if typeof(raw.get("currency")) != TYPE_STRING or raw.currency != "money" \
+			or typeof(raw.get("price")) != TYPE_INT or raw.price != 45 \
+			or typeof(raw.get("max_purchases")) != TYPE_INT or raw.max_purchases != 3 \
+			or not raw.get("effect_ids") is Array or not raw.effect_ids.is_empty():
+		return _fail(&"invalid_note_shop_record")
+	return _ok({})
+

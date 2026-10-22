@@ -1,6 +1,9 @@
 extends Button
 ## The row owns one semantic target. Its wrapped caption owns no input.
 
+var paper_context := false
+var caption_width := 264.0
+var body_width := 296.0
 var selected := false:
 	set(value):
 		selected = value
@@ -16,7 +19,7 @@ func _ready() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	caption = Label.new()
 	caption.position = Vector2(16, 8)
-	caption.size.x = 264
+	caption.size.x = caption_width
 	caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	caption.add_theme_constant_override("line_spacing", 0)
 	caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -91,26 +94,26 @@ func refresh_caption() -> void:
 	if not is_instance_valid(caption): return
 	caption.language = language
 	caption.text = text
-	caption.size = Vector2(264, 0)
+	caption.size = Vector2(caption_width, 0)
 	# Measure the actual localized Label, including fallback-font line metrics.
 	var height := ceilf(caption.get_minimum_size().y / 2) * 2
-	custom_minimum_size = Vector2(296, 16 + maxf(64, height))
-	caption.size = Vector2(264, height)
+	custom_minimum_size = Vector2(body_width, 16 + maxf(64, height))
+	caption.size = Vector2(caption_width, height)
 	accessibility_name = text
 	_sync_caption()
 
 func _sync_caption() -> void:
 	if is_instance_valid(caption):
-		caption.add_theme_color_override("font_color", get_theme_color("paper_ink" if selected else "ink", "Gallery"))
+		caption.add_theme_color_override("font_color", get_theme_color("paper_ink" if selected or paper_context else "ink", "Gallery"))
 
 func _draw() -> void:
 	if not has_theme_color("face", "Gallery"): return
-	var ink := get_theme_color("paper_ink" if selected else "ink", "Gallery")
-	draw_rect(Rect2(Vector2.ZERO, size), get_theme_color("filed" if selected else "face", "Gallery"))
-	draw_rect(Rect2(16, size.y - 2, 264, 2), ink)
-	if selected: draw_rect(Rect2(292, 0, 4, size.y), ink)
+	var ink := get_theme_color("paper_ink" if selected or paper_context else "ink", "Gallery")
+	draw_rect(Rect2(Vector2.ZERO, size), get_theme_color("filed" if selected else ("paper" if paper_context else "face"), "Gallery"))
+	if not paper_context: draw_rect(Rect2(16, size.y - 2, caption_width, 2), ink)
+	if selected: draw_rect(Rect2(body_width - 4, 0, 4, size.y), ink)
 	if is_pressed() or (_pointer_down and _pointer_hover): draw_rect(Rect2(0, 0, size.x, 2), ink)
 	elif _pointer_hover: draw_rect(Rect2(0, 0, 2, size.y), ink)
 	if has_focus(true):
-		draw_rect(Rect2(-7, -7, size.x + 14, size.y + 14), get_theme_color("ink", "Gallery"), false, 2)
-		draw_rect(Rect2(-3, -3, size.x + 6, size.y + 6), get_theme_color("focus", "Gallery"), false, 2)
+		draw_rect(Rect2(-7, -7, size.x + 14, size.y + 14), get_theme_color("paper_ink" if paper_context else "ink", "Gallery"), false, 2)
+		draw_rect(Rect2(-3, -3, size.x + 6, size.y + 6), get_theme_color("paper_focus" if paper_context else "focus", "Gallery"), false, 2)

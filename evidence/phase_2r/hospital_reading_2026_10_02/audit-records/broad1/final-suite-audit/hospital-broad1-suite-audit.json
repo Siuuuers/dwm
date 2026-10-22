@@ -1,0 +1,4399 @@
+{
+  "schema_version": 1,
+  "status": "pass_bounded_12_suite_public_and_negative_control_evidence",
+  "run_id": 37044894986,
+  "attempt": 1,
+  "actual_checkout": "1bc4f6afd759e969f82b9c2134eb178479c19d13",
+  "runtime_source": "856520f09440d9b47cc272de3363009924ffedca",
+  "scope": "Read-only local audit of this attempt’s 12 available ordinary/public suites, public inventories/censuses, exact negative controls and standalone receipts; not whole broad acceptance.",
+  "method": "Reparsed actual XML/JSON/JSONL/log bytes, compared exact named multisets with source-derived recursive ancestry, verified original archive digest/CRC/retained members, independently scanned exact checkout Git blobs. No engine, PowerShell, connector or remote call.",
+  "inputs": {
+    "checklist": {
+      "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-review/checklist.md",
+      "bytes": 14341,
+      "sha256": "ef114d5f6a3d71adb6872f9bd4563d8829c9951901c71839ec01a3e9242e5e85"
+    },
+    "checklist_identities": {
+      "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-review/checklist-identities.json",
+      "bytes": 13332,
+      "sha256": "ce80b4459003683fc885badfbe36dab09e4cf31844dbb68488dffba472a049e9"
+    },
+    "initial_manifest": {
+      "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1.yml.manifest.json",
+      "bytes": 361309,
+      "sha256": "51d8461601dec60a1c9312adfbf5dd36f6f2a2ae1298ad058649836b1dae40a1"
+    },
+    "resolved_census": {
+      "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-suite-audit/resolved-census.json",
+      "bytes": 1430197,
+      "sha256": "d8b84f093dd7a6c2ae3a923e45ea2fac75f88969eb47d7e8f44d144f7d8dff7b"
+    },
+    "jobs_snapshot": {
+      "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-early-logs/jobs-snapshot.json",
+      "bytes": 75135,
+      "sha256": "1382634ed99fc6fee66e927c8d6105b185b3ad2447db3b81d6b78a14397c127d"
+    },
+    "artifact_manifest": {
+      "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifact-manifest.json",
+      "bytes": 16971,
+      "sha256": "3d8b420caf99619bbdd279010ecbd96a17f39b2c11abfc994b5529777c2a0a2b"
+    },
+    "audit_script": {
+      "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-suite-audit/audit_suites.py",
+      "bytes": 28491,
+      "sha256": "8d05147e5aa9388f49657dd691e1b65a542c4fad3cdc7c9f6cf7fafb81222d4c"
+    }
+  },
+  "census_correction": {
+    "initial_prediction": {
+      "predicted_case_executions": 2421,
+      "predicted_script_executions": 204,
+      "predicted_unique_cases": 2417,
+      "predicted_unique_scripts": 203,
+      "suite_case_counts": {
+        "public_surfaces": 11,
+        "minesweeper": 210,
+        "shop": 128,
+        "desktop": 334,
+        "settings": 357,
+        "checkpoint_diagnostics": 22,
+        "new_account": 179,
+        "reading_delivery": 480,
+        "localization": 153,
+        "dating": 167,
+        "persistence": 230,
+        "endings": 106,
+        "audio": 44
+      }
+    },
+    "corrected_full_prediction": {
+      "predicted_case_executions": 2437,
+      "predicted_script_executions": 204,
+      "predicted_unique_cases": 2433,
+      "predicted_unique_scripts": 203
+    },
+    "adjustments": [
+      {
+        "suite": "shop",
+        "script": "tests/scene/test_shop_card.gd",
+        "added_inherited_tests": [
+          "test_maximum_cannot_overflow_exact_currency_total",
+          "test_projected_records_are_detached_from_owner_record_mutation",
+          "test_rejects_bad_price_art_and_field_types",
+          "test_rejects_contradictory_maximum_but_accepts_unaffordable_available",
+          "test_rejects_missing_duplicate_unknown_and_old_keepsake_ids",
+          "test_shuffled_owner_rows_are_reordered_and_private_keys_are_removed",
+          "test_sold_out_item_stays_in_its_fixed_slot",
+          "test_supportz_blank_has_only_public_blank_fields_in_both_states"
+        ],
+        "ancestry": [
+          "tests/scene/test_shop_card.gd",
+          "tests/unit/test_shop_catalog_projection.gd",
+          "addons/gut/test.gd"
+        ]
+      },
+      {
+        "suite": "shop",
+        "script": "tests/scene/test_shop_plate.gd",
+        "added_inherited_tests": [
+          "test_maximum_cannot_overflow_exact_currency_total",
+          "test_projected_records_are_detached_from_owner_record_mutation",
+          "test_rejects_bad_price_art_and_field_types",
+          "test_rejects_contradictory_maximum_but_accepts_unaffordable_available",
+          "test_rejects_missing_duplicate_unknown_and_old_keepsake_ids",
+          "test_shuffled_owner_rows_are_reordered_and_private_keys_are_removed",
+          "test_sold_out_item_stays_in_its_fixed_slot",
+          "test_supportz_blank_has_only_public_blank_fields_in_both_states"
+        ],
+        "ancestry": [
+          "tests/scene/test_shop_plate.gd",
+          "tests/unit/test_shop_catalog_projection.gd",
+          "addons/gut/test.gd"
+        ]
+      }
+    ],
+    "original_manifest_preserved": true,
+    "product_or_test_source_changed_by_audit": false,
+    "explanation": "The original lexical helper counted only own methods. Both Shop scene fixtures inherit the same eight base tests. All other suite predictions, including unexecuted Endings 106, are unchanged."
+  },
+  "actual_totals": {
+    "ordinary_xml": 12,
+    "case_executions": 2331,
+    "script_executions": 192,
+    "unique_script_test_pairs": 2327,
+    "unique_scripts": 191,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "disabled": 0,
+    "intentional_negative_executions_excluded": 166
+  },
+  "suites": {
+    "public_surfaces": {
+      "status": "pass",
+      "xml": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/public-surfaces-37044894986-1/ci/public_surfaces.xml",
+        "bytes": 2505,
+        "sha256": "114395939434d321c5b8f92a44d9ac77dfd98300594c8b71d238c69019e61708"
+      },
+      "cases": 11,
+      "script_executions": 1,
+      "scripts": [
+        {
+          "script": "tests/unit/tooling/test_public_surface_inventory.gd",
+          "test_cases": 11,
+          "passed": 11,
+          "skipped": 0
+        }
+      ],
+      "named_multiset_exact_after_reviewed_inheritance_correction": true,
+      "missing_cases": [],
+      "unexpected_cases": [],
+      "duplicate_cases": [],
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "disabled": 0,
+      "isolation_receipt": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/public-surfaces-37044894986-1/ci/public_surfaces.jsonl",
+        "bytes": 758,
+        "sha256": "16b34ae48b65a5b472a52334b8beaa13227770e46410a09de0426b601c734ffa",
+        "record": {
+          "suite_id": "cloud-public_surfaces",
+          "argv": [
+            "--headless",
+            "--path",
+            "D:\\a\\dwm\\dwm",
+            "--log-file",
+            "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public_surfaces.log",
+            "-s",
+            "res://addons/gut/gut_cmdln.gd",
+            "-gconfig=",
+            "-gtest=res://tests/unit/tooling/test_public_surface_inventory.gd",
+            "-gexit",
+            "-glog=2",
+            "-gjunit_xml_file=res://.godot/ci/public_surfaces.xml"
+          ],
+          "exit_code": 0,
+          "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public_surfaces.log",
+          "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\6e87d8e2-e73d-4556-8c76-fe346639a3f9",
+          "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\6e87d8e2-e73d-4556-8c76-fe346639a3f9\\appdata\\Godot\\app_userdata\\DWM",
+          "started_at_utc": "2026-10-02T18:06:48.8624322Z",
+          "ended_at_utc": "2026-10-02T18:07:29.3975777Z"
+        },
+        "duration_seconds": 40.535145,
+        "isolated_user_dir_strictly_within_test_root": true
+      },
+      "engine_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/public-surfaces-37044894986-1/phase2r_logs/cloud-public_surfaces.log",
+        "bytes": 201946,
+        "sha256": "8a95f3ec2412c5a0a4af8bef657effdcd5f7ce8d054850b39971aab4d4994074",
+        "literal_nul_bytes": 0,
+        "diagnostics": [],
+        "unexpected_diagnostic_count": 0
+      },
+      "import_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/public-surfaces-37044894986-1/ci/import.log",
+        "bytes": 203723,
+        "sha256": "6585a11eae90ceb9068a6807ddbf93b993a3706d449cb18800410211a9d2787c",
+        "literal_nul_bytes": 0,
+        "diagnostics": [],
+        "unexpected_diagnostic_count": 0
+      },
+      "actions_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-early-logs/logs/110963772371.log",
+        "bytes": 811227,
+        "sha256": "5f9836e85b9dcc5a75b41e3320af29cf7f04bb076c8e87532367da4e9da77a7a"
+      },
+      "job_id": 110963772371,
+      "job_name": "Windows / public API surface contracts",
+      "observed_checkout": {
+        "command_line": 162,
+        "command": "[command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H",
+        "output_line": 163,
+        "observed": "1bc4f6afd759e969f82b9c2134eb178479c19d13"
+      },
+      "cloud_gut_result_line": 5313,
+      "cloud_gut_result": {
+        "suite": "public_surfaces",
+        "test_cases": 11,
+        "passed": 11,
+        "skipped": 0,
+        "requested_scripts": 1,
+        "reported_scripts": 1,
+        "scripts": [
+          {
+            "script": "tests/unit/tooling/test_public_surface_inventory.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          }
+        ]
+      },
+      "console_diagnostics": [],
+      "all_job_steps_success": true
+    },
+    "minesweeper": {
+      "status": "pass",
+      "xml": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-minesweeper-37044894986-1/ci/minesweeper.xml",
+        "bytes": 47970,
+        "sha256": "7c5b3ae9210b161078ce72ed2913cbe1f5d98f0cff6cd2088b031e681d947278"
+      },
+      "cases": 210,
+      "script_executions": 22,
+      "scripts": [
+        {
+          "script": "tests/unit/test_minesweeper_theme.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_palette_components.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_app.gd",
+          "test_cases": 22,
+          "passed": 22,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_cell.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_gallery_rehearsal_host.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_dock.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_register.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_panel.gd",
+          "test_cases": 23,
+          "passed": 23,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_worksheet.gd",
+          "test_cases": 19,
+          "passed": 19,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_worksheet_layout.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_worksheet_view_layout.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_view_controls.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_view_preferences.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_zoom_input.gd",
+          "test_cases": 17,
+          "passed": 17,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_scroll_rail.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_sheet_controls.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_information_sheet.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_minesweeper_toggle_bindings.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_minesweeper_new_board_bindings.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_minesweeper_view_gestures.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_minesweeper_challenge_controls.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_minesweeper_desktop_host.gd",
+          "test_cases": 11,
+          "passed": 11,
+          "skipped": 0
+        }
+      ],
+      "named_multiset_exact_after_reviewed_inheritance_correction": true,
+      "missing_cases": [],
+      "unexpected_cases": [],
+      "duplicate_cases": [],
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "disabled": 0,
+      "isolation_receipt": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-minesweeper-37044894986-1/ci/minesweeper.jsonl",
+        "bytes": 1791,
+        "sha256": "b43fb9c4514b37fdf718af5e5ed679516f6250f1604175c02ac7f794a2c64c14",
+        "record": {
+          "suite_id": "cloud-minesweeper",
+          "argv": [
+            "--headless",
+            "--path",
+            "D:\\a\\dwm\\dwm",
+            "--log-file",
+            "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-minesweeper.log",
+            "-s",
+            "res://addons/gut/gut_cmdln.gd",
+            "-gconfig=",
+            "-gtest=res://tests/unit/test_minesweeper_theme.gd,res://tests/unit/test_minesweeper_palette_components.gd,res://tests/unit/test_minesweeper_app.gd,res://tests/unit/test_minesweeper_cell.gd,res://tests/unit/test_gallery_rehearsal_host.gd,res://tests/unit/test_minesweeper_dock.gd,res://tests/unit/test_minesweeper_register.gd,res://tests/unit/test_minesweeper_panel.gd,res://tests/unit/test_minesweeper_worksheet.gd,res://tests/unit/test_minesweeper_worksheet_layout.gd,res://tests/unit/test_minesweeper_worksheet_view_layout.gd,res://tests/unit/test_minesweeper_view_controls.gd,res://tests/unit/test_minesweeper_view_preferences.gd,res://tests/unit/test_minesweeper_zoom_input.gd,res://tests/unit/test_minesweeper_scroll_rail.gd,res://tests/unit/test_minesweeper_sheet_controls.gd,res://tests/unit/test_minesweeper_information_sheet.gd,res://tests/scene/test_minesweeper_toggle_bindings.gd,res://tests/scene/test_minesweeper_new_board_bindings.gd,res://tests/scene/test_minesweeper_view_gestures.gd,res://tests/scene/test_minesweeper_challenge_controls.gd,res://tests/integration/test_minesweeper_desktop_host.gd",
+            "-gexit",
+            "-glog=2",
+            "-gjunit_xml_file=res://.godot/ci/minesweeper.xml"
+          ],
+          "exit_code": 0,
+          "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-minesweeper.log",
+          "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\2dd1ff0c-9527-40d2-927e-7206f998dd08",
+          "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\2dd1ff0c-9527-40d2-927e-7206f998dd08\\appdata\\Godot\\app_userdata\\DWM",
+          "started_at_utc": "2026-10-02T18:09:04.5896536Z",
+          "ended_at_utc": "2026-10-02T18:10:04.9920245Z"
+        },
+        "duration_seconds": 60.402371,
+        "isolated_user_dir_strictly_within_test_root": true
+      },
+      "engine_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-minesweeper-37044894986-1/phase2r_logs/cloud-minesweeper.log",
+        "bytes": 3195237,
+        "sha256": "3b8681b53e2a41a51daf37b6b4af5b0f7c6f6e60e0edda96618c463998b681b8",
+        "literal_nul_bytes": 0,
+        "diagnostics": [],
+        "unexpected_diagnostic_count": 0
+      },
+      "import_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-minesweeper-37044894986-1/ci/import.log",
+        "bytes": 203723,
+        "sha256": "6b4d682eb8df138131feba3dba4c4ac29374bb67d8a688b729cad0b762c1a601",
+        "literal_nul_bytes": 0,
+        "diagnostics": [],
+        "unexpected_diagnostic_count": 0
+      },
+      "actions_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-early-logs/logs/110965240569.log",
+        "bytes": 448404,
+        "sha256": "0f44cb8893967ebe67d426b971a221e1a0d89763a5d7e88f6973278417dce82e"
+      },
+      "job_id": 110965240569,
+      "job_name": "Windows / minesweeper",
+      "observed_checkout": {
+        "command_line": 165,
+        "command": "[command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H",
+        "output_line": 166,
+        "observed": "1bc4f6afd759e969f82b9c2134eb178479c19d13"
+      },
+      "cloud_gut_result_line": 4284,
+      "cloud_gut_result": {
+        "suite": "minesweeper",
+        "test_cases": 210,
+        "passed": 210,
+        "skipped": 0,
+        "requested_scripts": 22,
+        "reported_scripts": 22,
+        "scripts": [
+          {
+            "script": "tests/unit/test_minesweeper_theme.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_palette_components.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_app.gd",
+            "test_cases": 22,
+            "passed": 22,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_cell.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_gallery_rehearsal_host.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_dock.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_register.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_panel.gd",
+            "test_cases": 23,
+            "passed": 23,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_worksheet.gd",
+            "test_cases": 19,
+            "passed": 19,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_worksheet_layout.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_worksheet_view_layout.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_view_controls.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_view_preferences.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_zoom_input.gd",
+            "test_cases": 17,
+            "passed": 17,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_scroll_rail.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_sheet_controls.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_information_sheet.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_minesweeper_toggle_bindings.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_minesweeper_new_board_bindings.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_minesweeper_view_gestures.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_minesweeper_challenge_controls.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_minesweeper_desktop_host.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          }
+        ]
+      },
+      "console_diagnostics": [],
+      "all_job_steps_success": true
+    },
+    "shop": {
+      "status": "pass",
+      "xml": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-shop-37044894986-1/ci/shop.xml",
+        "bytes": 31572,
+        "sha256": "2d2d943677d55edf21486b0c504969335432c24e452989a360887626e930c737"
+      },
+      "cases": 144,
+      "script_executions": 8,
+      "scripts": [
+        {
+          "script": "tests/unit/test_shop_app_purchase_bridge.gd",
+          "test_cases": 13,
+          "passed": 13,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_shop_catalog_projection.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_shop_presentation_port.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_shop_card.gd",
+          "test_cases": 16,
+          "passed": 16,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_shop_plate.gd",
+          "test_cases": 37,
+          "passed": 37,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_shop_desktop_host.gd",
+          "test_cases": 15,
+          "passed": 15,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_minesweeper_shop_transaction.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_shop_purchase_participant.gd",
+          "test_cases": 41,
+          "passed": 41,
+          "skipped": 0
+        }
+      ],
+      "named_multiset_exact_after_reviewed_inheritance_correction": true,
+      "missing_cases": [],
+      "unexpected_cases": [],
+      "duplicate_cases": [],
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "disabled": 0,
+      "isolation_receipt": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-shop-37044894986-1/ci/shop.jsonl",
+        "bytes": 1050,
+        "sha256": "a888d2cf205f70d974acf79dc218757d37715bb340257f2e6d5141da7be9ef93",
+        "record": {
+          "suite_id": "cloud-shop",
+          "argv": [
+            "--headless",
+            "--path",
+            "D:\\a\\dwm\\dwm",
+            "--log-file",
+            "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-shop.log",
+            "-s",
+            "res://addons/gut/gut_cmdln.gd",
+            "-gconfig=",
+            "-gtest=res://tests/unit/test_shop_app_purchase_bridge.gd,res://tests/unit/test_shop_catalog_projection.gd,res://tests/unit/test_shop_presentation_port.gd,res://tests/scene/test_shop_card.gd,res://tests/scene/test_shop_plate.gd,res://tests/integration/test_shop_desktop_host.gd,res://tests/integration/test_minesweeper_shop_transaction.gd,res://tests/unit/test_minesweeper_shop_purchase_participant.gd",
+            "-gexit",
+            "-glog=2",
+            "-gjunit_xml_file=res://.godot/ci/shop.xml"
+          ],
+          "exit_code": 0,
+          "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-shop.log",
+          "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\756499af-1577-4e2c-a35d-8dcc907cece6",
+          "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\756499af-1577-4e2c-a35d-8dcc907cece6\\appdata\\Godot\\app_userdata\\DWM",
+          "started_at_utc": "2026-10-02T18:09:13.2808534Z",
+          "ended_at_utc": "2026-10-02T18:09:35.9564806Z"
+        },
+        "duration_seconds": 22.675627,
+        "isolated_user_dir_strictly_within_test_root": true
+      },
+      "engine_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-shop-37044894986-1/phase2r_logs/cloud-shop.log",
+        "bytes": 863123,
+        "sha256": "c84b0984ef76536e1909d4aea6637685efda3eb8ff2f78e645d69ad9f9748bd8",
+        "literal_nul_bytes": 0,
+        "diagnostics": [],
+        "unexpected_diagnostic_count": 0
+      },
+      "import_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-shop-37044894986-1/ci/import.log",
+        "bytes": 203723,
+        "sha256": "e4af538b703fcbbd9908f243f2dca276291217c65565da434dc63f61ea60ff66",
+        "literal_nul_bytes": 0,
+        "diagnostics": [],
+        "unexpected_diagnostic_count": 0
+      },
+      "actions_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-early-logs/logs/110965240504.log",
+        "bytes": 446263,
+        "sha256": "97b36c85d340d6ed96e878b5f689dc8ad423b9ba26e10dc43ef9f359257a8924"
+      },
+      "job_id": 110965240504,
+      "job_name": "Windows / shop",
+      "observed_checkout": {
+        "command_line": 165,
+        "command": "[command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H",
+        "output_line": 166,
+        "observed": "1bc4f6afd759e969f82b9c2134eb178479c19d13"
+      },
+      "cloud_gut_result_line": 4284,
+      "cloud_gut_result": {
+        "suite": "shop",
+        "test_cases": 144,
+        "passed": 144,
+        "skipped": 0,
+        "requested_scripts": 8,
+        "reported_scripts": 8,
+        "scripts": [
+          {
+            "script": "tests/unit/test_shop_app_purchase_bridge.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_shop_catalog_projection.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_shop_presentation_port.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_shop_card.gd",
+            "test_cases": 16,
+            "passed": 16,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_shop_plate.gd",
+            "test_cases": 37,
+            "passed": 37,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_shop_desktop_host.gd",
+            "test_cases": 15,
+            "passed": 15,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_minesweeper_shop_transaction.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_shop_purchase_participant.gd",
+            "test_cases": 41,
+            "passed": 41,
+            "skipped": 0
+          }
+        ]
+      },
+      "console_diagnostics": [],
+      "all_job_steps_success": true
+    },
+    "desktop": {
+      "status": "pass",
+      "xml": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-desktop-37044894986-1/ci/desktop.xml",
+        "bytes": 75226,
+        "sha256": "8f6628cdc6bb6a46ad027a4996e2071deceb018205775d2f4d6d6393e32d80ce"
+      },
+      "cases": 334,
+      "script_executions": 22,
+      "scripts": [
+        {
+          "script": "tests/unit/test_application_runtime_lifetime.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_application_bootstrap.gd",
+          "test_cases": 11,
+          "passed": 11,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_desktop_day_change_fatal.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_contacts_frozen_context.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_desktop_panel_split.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/desktop_shell/test_desktop_split_touch.gd",
+          "test_cases": 13,
+          "passed": 13,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_desktop_touch_navigation.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_desktop_app_host_state.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_desktop_accessibility_contract.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_desktop_quick_commands.gd",
+          "test_cases": 17,
+          "passed": 17,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_desktop_bootstrap_wiring.gd",
+          "test_cases": 27,
+          "passed": 27,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_desktop_cold_recovery_preparation.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_schedule_desktop_host.gd",
+          "test_cases": 15,
+          "passed": 15,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_phase2r_schedule_desktop_handoff.gd",
+          "test_cases": 111,
+          "passed": 111,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_schedule_app.gd",
+          "test_cases": 40,
+          "passed": 40,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_contacts_run_presentation.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_controls_input_contact_release.gd",
+          "test_cases": 1,
+          "passed": 1,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_angela_stat_overlay.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_stat_hud_week_tint.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_ui_art_placements.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_desktop_logout_consent.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_session_exit_coordinator.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        }
+      ],
+      "named_multiset_exact_after_reviewed_inheritance_correction": true,
+      "missing_cases": [],
+      "unexpected_cases": [],
+      "duplicate_cases": [],
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "disabled": 0,
+      "isolation_receipt": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-desktop-37044894986-1/ci/desktop.jsonl",
+        "bytes": 1822,
+        "sha256": "b551c9d90235a7d4dd96a07a1e3abd6503a3b8b2b0d294e52400ec0b39e0a406",
+        "record": {
+          "suite_id": "cloud-desktop",
+          "argv": [
+            "--headless",
+            "--path",
+            "D:\\a\\dwm\\dwm",
+            "--log-file",
+            "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-desktop.log",
+            "-s",
+            "res://addons/gut/gut_cmdln.gd",
+            "-gconfig=",
+            "-gtest=res://tests/unit/test_application_runtime_lifetime.gd,res://tests/integration/test_application_bootstrap.gd,res://tests/integration/test_desktop_day_change_fatal.gd,res://tests/unit/test_contacts_frozen_context.gd,res://tests/unit/test_desktop_panel_split.gd,res://tests/desktop_shell/test_desktop_split_touch.gd,res://tests/unit/test_desktop_touch_navigation.gd,res://tests/unit/test_desktop_app_host_state.gd,res://tests/unit/test_desktop_accessibility_contract.gd,res://tests/integration/test_desktop_quick_commands.gd,res://tests/integration/test_desktop_bootstrap_wiring.gd,res://tests/unit/test_desktop_cold_recovery_preparation.gd,res://tests/integration/test_schedule_desktop_host.gd,res://tests/integration/test_phase2r_schedule_desktop_handoff.gd,res://tests/unit/test_schedule_app.gd,res://tests/integration/test_contacts_run_presentation.gd,res://tests/scene/test_controls_input_contact_release.gd,res://tests/unit/test_angela_stat_overlay.gd,res://tests/unit/test_stat_hud_week_tint.gd,res://tests/integration/test_ui_art_placements.gd,res://tests/integration/test_desktop_logout_consent.gd,res://tests/unit/test_session_exit_coordinator.gd",
+            "-gexit",
+            "-glog=2",
+            "-gjunit_xml_file=res://.godot/ci/desktop.xml"
+          ],
+          "exit_code": 0,
+          "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-desktop.log",
+          "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\a9f158f4-4ecf-496c-a505-765f34966dea",
+          "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\a9f158f4-4ecf-496c-a505-765f34966dea\\appdata\\Godot\\app_userdata\\DWM",
+          "started_at_utc": "2026-10-02T18:09:34.3383144Z",
+          "ended_at_utc": "2026-10-02T18:11:31.6449272Z"
+        },
+        "duration_seconds": 117.306613,
+        "isolated_user_dir_strictly_within_test_root": true
+      },
+      "engine_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-desktop-37044894986-1/phase2r_logs/cloud-desktop.log",
+        "bytes": 4346882,
+        "sha256": "43bb7b094255376e6874fa53c7960cfbc8fc525b28f5f0ebfdbd3e6ee04e124a",
+        "literal_nul_bytes": 0,
+        "diagnostics": [],
+        "unexpected_diagnostic_count": 0
+      },
+      "import_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-desktop-37044894986-1/ci/import.log",
+        "bytes": 203723,
+        "sha256": "f4986f8116a5d99c2c5d5999c0249b4583c8014f4ad63e0761cc0f3abd743bf9",
+        "literal_nul_bytes": 0,
+        "diagnostics": [],
+        "unexpected_diagnostic_count": 0
+      },
+      "actions_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-early-logs/logs/110965240438.log",
+        "bytes": 455521,
+        "sha256": "ecf3d86b774d95d709487cc2ba39d29cd3565d6082c9cfac347a4313dc974248"
+      },
+      "job_id": 110965240438,
+      "job_name": "Windows / desktop",
+      "observed_checkout": {
+        "command_line": 221,
+        "command": "[command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H",
+        "output_line": 222,
+        "observed": "1bc4f6afd759e969f82b9c2134eb178479c19d13"
+      },
+      "cloud_gut_result_line": 4340,
+      "cloud_gut_result": {
+        "suite": "desktop",
+        "test_cases": 334,
+        "passed": 334,
+        "skipped": 0,
+        "requested_scripts": 22,
+        "reported_scripts": 22,
+        "scripts": [
+          {
+            "script": "tests/unit/test_application_runtime_lifetime.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_application_bootstrap.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_desktop_day_change_fatal.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_contacts_frozen_context.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_desktop_panel_split.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/desktop_shell/test_desktop_split_touch.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_desktop_touch_navigation.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_desktop_app_host_state.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_desktop_accessibility_contract.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_desktop_quick_commands.gd",
+            "test_cases": 17,
+            "passed": 17,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_desktop_bootstrap_wiring.gd",
+            "test_cases": 27,
+            "passed": 27,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_desktop_cold_recovery_preparation.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_schedule_desktop_host.gd",
+            "test_cases": 15,
+            "passed": 15,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_phase2r_schedule_desktop_handoff.gd",
+            "test_cases": 111,
+            "passed": 111,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_schedule_app.gd",
+            "test_cases": 40,
+            "passed": 40,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_contacts_run_presentation.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_controls_input_contact_release.gd",
+            "test_cases": 1,
+            "passed": 1,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_angela_stat_overlay.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_stat_hud_week_tint.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_ui_art_placements.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_desktop_logout_consent.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_session_exit_coordinator.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          }
+        ]
+      },
+      "console_diagnostics": [],
+      "all_job_steps_success": true
+    },
+    "settings": {
+      "status": "pass",
+      "xml": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-settings-37044894986-1/ci/settings.xml",
+        "bytes": 81083,
+        "sha256": "6bf6fe96f32eb1245dbabcd121c6a60f53c15cd439bde2b1bf30ed037f7fbd52"
+      },
+      "cases": 357,
+      "script_executions": 31,
+      "scripts": [
+        {
+          "script": "tests/unit/test_save_manager_parse_cache.gd",
+          "test_cases": 18,
+          "passed": 18,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_backup_quick_actions.gd",
+          "test_cases": 23,
+          "passed": 23,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_quick_status_edge.gd",
+          "test_cases": 11,
+          "passed": 11,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_settings_panel_resize.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_settings_preference_registry.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_shared_week_tint.gd",
+          "test_cases": 2,
+          "passed": 2,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_settings_window_transactions.gd",
+          "test_cases": 13,
+          "passed": 13,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_window_mode_manager.gd",
+          "test_cases": 13,
+          "passed": 13,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_window_mode_port.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_bootstrap_window_output.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_window_mode_live.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_audio_live.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_reset_confirmation.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_folio.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_host_geometry.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_localization_scene.gd",
+          "test_cases": 34,
+          "passed": 34,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_settings_shared_hosts.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_manager.gd",
+          "test_cases": 23,
+          "passed": 23,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_caption_witnesses.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_controls_binding_import.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_steady_interface_profile.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_restore_participants.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_restore_preserves_current_profile.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_restore_production_adapters.gd",
+          "test_cases": 13,
+          "passed": 13,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_desktop_board_persistence.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_minesweeper_first_reveal_transaction.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_save_manager_checkpoint_port.gd",
+          "test_cases": 42,
+          "passed": 42,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_checkpoint_validation_reuse.gd",
+          "test_cases": 21,
+          "passed": 21,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_checkpoint_preparation_retry.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_checkpoint_phase_diagnostics.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_checkpoint_journal.gd",
+          "test_cases": 20,
+          "passed": 20,
+          "skipped": 0
+        }
+      ],
+      "named_multiset_exact_after_reviewed_inheritance_correction": true,
+      "missing_cases": [],
+      "unexpected_cases": [],
+      "duplicate_cases": [],
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "disabled": 0,
+      "isolation_receipt": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-settings-37044894986-1/ci/settings.jsonl",
+        "bytes": 2243,
+        "sha256": "bc4f2f78be9f9d7d88ad1d8db30c534c8b7e6c7c0b8380d43975529b354dac92",
+        "record": {
+          "suite_id": "cloud-settings",
+          "argv": [
+            "--headless",
+            "--path",
+            "D:\\a\\dwm\\dwm",
+            "--log-file",
+            "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-settings.log",
+            "-s",
+            "res://addons/gut/gut_cmdln.gd",
+            "-gconfig=",
+            "-gtest=res://tests/unit/test_save_manager_parse_cache.gd,res://tests/unit/test_backup_quick_actions.gd,res://tests/unit/test_quick_status_edge.gd,res://tests/unit/test_settings_panel_resize.gd,res://tests/unit/test_settings_preference_registry.gd,res://tests/unit/test_shared_week_tint.gd,res://tests/unit/test_settings_window_transactions.gd,res://tests/unit/test_window_mode_manager.gd,res://tests/unit/test_window_mode_port.gd,res://tests/unit/test_bootstrap_window_output.gd,res://tests/scene/test_settings_window_mode_live.gd,res://tests/scene/test_settings_audio_live.gd,res://tests/scene/test_settings_reset_confirmation.gd,res://tests/scene/test_settings_folio.gd,res://tests/scene/test_settings_host_geometry.gd,res://tests/scene/test_settings_localization_scene.gd,res://tests/integration/test_settings_shared_hosts.gd,res://tests/unit/test_profile_manager.gd,res://tests/unit/test_profile_caption_witnesses.gd,res://tests/unit/test_controls_binding_import.gd,res://tests/unit/test_steady_interface_profile.gd,res://tests/unit/test_restore_participants.gd,res://tests/integration/test_restore_preserves_current_profile.gd,res://tests/integration/test_restore_production_adapters.gd,res://tests/integration/test_desktop_board_persistence.gd,res://tests/integration/test_minesweeper_first_reveal_transaction.gd,res://tests/unit/test_save_manager_checkpoint_port.gd,res://tests/unit/test_checkpoint_validation_reuse.gd,res://tests/unit/test_checkpoint_preparation_retry.gd,res://tests/unit/test_checkpoint_phase_diagnostics.gd,res://tests/unit/test_checkpoint_journal.gd",
+            "-gexit",
+            "-glog=2",
+            "-gjunit_xml_file=res://.godot/ci/settings.xml"
+          ],
+          "exit_code": 0,
+          "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-settings.log",
+          "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\77b2f1a7-15e6-4061-92b3-4378dcc6a5ee",
+          "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\77b2f1a7-15e6-4061-92b3-4378dcc6a5ee\\appdata\\Godot\\app_userdata\\DWM",
+          "started_at_utc": "2026-10-02T18:09:08.2216063Z",
+          "ended_at_utc": "2026-10-02T18:11:17.9584726Z"
+        },
+        "duration_seconds": 129.736866,
+        "isolated_user_dir_strictly_within_test_root": true
+      },
+      "engine_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-settings-37044894986-1/phase2r_logs/cloud-settings.log",
+        "bytes": 23254375,
+        "sha256": "9da019cfe8e5099b9f4f3314d2a2a3e0a6df4d2ffefb2baee935aed489ba0ec4",
+        "literal_nul_bytes": 0,
+        "diagnostics": [],
+        "unexpected_diagnostic_count": 0
+      },
+      "import_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-settings-37044894986-1/ci/import.log",
+        "bytes": 203723,
+        "sha256": "15564c16ab19e7a46129209ad6ec39996a12b97e360997da50627256f06c7432",
+        "literal_nul_bytes": 0,
+        "diagnostics": [],
+        "unexpected_diagnostic_count": 0
+      },
+      "actions_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-early-logs/logs/110965240222.log",
+        "bytes": 450957,
+        "sha256": "a9c88ed4f6ce469634595ae655579dad3b409ace0e2fbeec6514b19dc4416d96"
+      },
+      "job_id": 110965240222,
+      "job_name": "Windows / settings",
+      "observed_checkout": {
+        "command_line": 165,
+        "command": "[command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H",
+        "output_line": 166,
+        "observed": "1bc4f6afd759e969f82b9c2134eb178479c19d13"
+      },
+      "cloud_gut_result_line": 4284,
+      "cloud_gut_result": {
+        "suite": "settings",
+        "test_cases": 357,
+        "passed": 357,
+        "skipped": 0,
+        "requested_scripts": 31,
+        "reported_scripts": 31,
+        "scripts": [
+          {
+            "script": "tests/unit/test_save_manager_parse_cache.gd",
+            "test_cases": 18,
+            "passed": 18,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_backup_quick_actions.gd",
+            "test_cases": 23,
+            "passed": 23,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_quick_status_edge.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_settings_panel_resize.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_settings_preference_registry.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_shared_week_tint.gd",
+            "test_cases": 2,
+            "passed": 2,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_settings_window_transactions.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_window_mode_manager.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_window_mode_port.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_bootstrap_window_output.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_settings_window_mode_live.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_settings_audio_live.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_settings_reset_confirmation.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_settings_folio.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_settings_host_geometry.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_settings_localization_scene.gd",
+            "test_cases": 34,
+            "passed": 34,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_settings_shared_hosts.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_manager.gd",
+            "test_cases": 23,
+            "passed": 23,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_caption_witnesses.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_controls_binding_import.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_steady_interface_profile.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_restore_participants.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_restore_preserves_current_profile.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_restore_production_adapters.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_desktop_board_persistence.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_minesweeper_first_reveal_transaction.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_save_manager_checkpoint_port.gd",
+            "test_cases": 42,
+            "passed": 42,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_checkpoint_validation_reuse.gd",
+            "test_cases": 21,
+            "passed": 21,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_checkpoint_preparation_retry.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_checkpoint_phase_diagnostics.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_checkpoint_journal.gd",
+            "test_cases": 20,
+            "passed": 20,
+            "skipped": 0
+          }
+        ]
+      },
+      "console_diagnostics": [],
+      "all_job_steps_success": true
+    },
+    "checkpoint_diagnostics": {
+      "status": "pass",
+      "xml": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-checkpoint_diagnostics-37044894986-1/ci/checkpoint_diagnostics.xml",
+        "bytes": 5448,
+        "sha256": "aa11f83f30e6cb5b79f37b94bbfd6d4789b1869140550c8c6f32321543d51e76"
+      },
+      "cases": 22,
+      "script_executions": 4,
+      "scripts": [
+        {
+          "script": "tests/unit/test_checkpoint_phase_diagnostics.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_normalization_identity.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_checkpoint_history_region_search.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_warm_outgoing_proof_commits.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        }
+      ],
+      "named_multiset_exact_after_reviewed_inheritance_correction": true,
+      "missing_cases": [],
+      "unexpected_cases": [],
+      "duplicate_cases": [],
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "disabled": 0,
+      "isolation_receipt": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-checkpoint_diagnostics-37044894986-1/ci/checkpoint_diagnostics.jsonl",
+        "bytes": 948,
+        "sha256": "0668a3f969c1810889b31661cccc7cd4bbfc6f9af06fd1093b5ddb373c6ff379",
+        "record": {
+          "suite_id": "cloud-checkpoint_diagnostics",
+          "argv": [
+            "--headless",
+            "--path",
+            "D:\\a\\dwm\\dwm",
+            "--log-file",
+            "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-checkpoint_diagnostics.log",
+            "-s",
+            "res://addons/gut/gut_cmdln.gd",
+            "-gconfig=",
+            "-gtest=res://tests/unit/test_checkpoint_phase_diagnostics.gd,res://tests/unit/test_normalization_identity.gd,res://tests/unit/test_checkpoint_history_region_search.gd,res://tests/integration/test_warm_outgoing_proof_commits.gd",
+            "-gexit",
+            "-glog=2",
+            "-gjunit_xml_file=res://.godot/ci/checkpoint_diagnostics.xml"
+          ],
+          "exit_code": 0,
+          "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-checkpoint_diagnostics.log",
+          "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\4db44623-9625-41f9-8363-0625baee0415",
+          "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\4db44623-9625-41f9-8363-0625baee0415\\appdata\\Godot\\app_userdata\\DWM",
+          "started_at_utc": "2026-10-02T18:09:34.3152129Z",
+          "ended_at_utc": "2026-10-02T18:09:48.8489029Z"
+        },
+        "duration_seconds": 14.53369,
+        "isolated_user_dir_strictly_within_test_root": true
+      },
+      "engine_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-checkpoint_diagnostics-37044894986-1/phase2r_logs/cloud-checkpoint_diagnostics.log",
+        "bytes": 12079859,
+        "sha256": "ef7ff09ab281c0380f6ef3576a571f0608f3fd8cad20383b751dfe881746e5e8",
+        "literal_nul_bytes": 0,
+        "diagnostics": [],
+        "unexpected_diagnostic_count": 0
+      },
+      "import_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-checkpoint_diagnostics-37044894986-1/ci/import.log",
+        "bytes": 203723,
+        "sha256": "7f2c027bb997cf92a0e573d36ce2326b22215724a3f53eb1f241e21cd3b997e0",
+        "literal_nul_bytes": 0,
+        "diagnostics": [],
+        "unexpected_diagnostic_count": 0
+      },
+      "actions_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-early-logs/logs/110965240279.log",
+        "bytes": 445856,
+        "sha256": "643c7c64b3487a5c7ef15ab0db385bbaccad0a8aff58cba311366c42d823731b"
+      },
+      "job_id": 110965240279,
+      "job_name": "Windows / checkpoint_diagnostics",
+      "observed_checkout": {
+        "command_line": 164,
+        "command": "[command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H",
+        "output_line": 165,
+        "observed": "1bc4f6afd759e969f82b9c2134eb178479c19d13"
+      },
+      "cloud_gut_result_line": 4283,
+      "cloud_gut_result": {
+        "suite": "checkpoint_diagnostics",
+        "test_cases": 22,
+        "passed": 22,
+        "skipped": 0,
+        "requested_scripts": 4,
+        "reported_scripts": 4,
+        "scripts": [
+          {
+            "script": "tests/unit/test_checkpoint_phase_diagnostics.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_normalization_identity.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_checkpoint_history_region_search.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_warm_outgoing_proof_commits.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          }
+        ]
+      },
+      "console_diagnostics": [],
+      "all_job_steps_success": true
+    },
+    "new_account": {
+      "status": "pass",
+      "xml": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-new_account-37044894986-1/ci/new_account.xml",
+        "bytes": 39870,
+        "sha256": "3f917bc139e6d0664614ad199ff4982f0f16686285213ce98fa719b47fe124cd"
+      },
+      "cases": 179,
+      "script_executions": 15,
+      "scripts": [
+        {
+          "script": "tests/unit/test_canonical_writer_compatibility.gd",
+          "test_cases": 17,
+          "passed": 17,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_continuation_serialization_cache.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_new_acc_title_lifetime.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_run_dark_configuration.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_prepared_new_run.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_new_run_transaction.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_new_run_pair_durability.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_new_run_startup_publication.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_new_run_durability_journal.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_json_file_storage.gd",
+          "test_cases": 14,
+          "passed": 14,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_temporary_storage.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_save_document_schema.gd",
+          "test_cases": 21,
+          "passed": 21,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_run_snapshot_schema.gd",
+          "test_cases": 27,
+          "passed": 27,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/tooling/test_phase2r_closeout_sentinel.gd",
+          "test_cases": 1,
+          "passed": 1,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/tooling/test_phase2r_schedule_gate.gd",
+          "test_cases": 34,
+          "passed": 34,
+          "skipped": 0
+        }
+      ],
+      "named_multiset_exact_after_reviewed_inheritance_correction": true,
+      "missing_cases": [],
+      "unexpected_cases": [],
+      "duplicate_cases": [],
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "disabled": 0,
+      "isolation_receipt": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-new_account-37044894986-1/ci/new_account.jsonl",
+        "bytes": 1454,
+        "sha256": "e0f019e240d8b4dabf4172fd68849e2a2bb28ede39e082cb85e321b5b3f57d2c",
+        "record": {
+          "suite_id": "cloud-new_account",
+          "argv": [
+            "--headless",
+            "--path",
+            "D:\\a\\dwm\\dwm",
+            "--log-file",
+            "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-new_account.log",
+            "-s",
+            "res://addons/gut/gut_cmdln.gd",
+            "-gconfig=",
+            "-gtest=res://tests/unit/test_canonical_writer_compatibility.gd,res://tests/unit/test_continuation_serialization_cache.gd,res://tests/unit/test_new_acc_title_lifetime.gd,res://tests/unit/test_run_dark_configuration.gd,res://tests/integration/test_prepared_new_run.gd,res://tests/integration/test_new_run_transaction.gd,res://tests/integration/test_new_run_pair_durability.gd,res://tests/integration/test_new_run_startup_publication.gd,res://tests/unit/test_new_run_durability_journal.gd,res://tests/unit/test_json_file_storage.gd,res://tests/unit/test_temporary_storage.gd,res://tests/unit/test_save_document_schema.gd,res://tests/unit/test_run_snapshot_schema.gd,res://tests/unit/tooling/test_phase2r_closeout_sentinel.gd,res://tests/unit/tooling/test_phase2r_schedule_gate.gd",
+            "-gexit",
+            "-glog=2",
+            "-gjunit_xml_file=res://.godot/ci/new_account.xml"
+          ],
+          "exit_code": 0,
+          "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-new_account.log",
+          "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\cfa79a67-06a2-4b60-9a9c-e4756b4e41fc",
+          "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\cfa79a67-06a2-4b60-9a9c-e4756b4e41fc\\appdata\\Godot\\app_userdata\\DWM",
+          "started_at_utc": "2026-10-02T18:09:14.2600014Z",
+          "ended_at_utc": "2026-10-02T18:09:41.4062032Z"
+        },
+        "duration_seconds": 27.146202,
+        "isolated_user_dir_strictly_within_test_root": true
+      },
+      "engine_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-new_account-37044894986-1/phase2r_logs/cloud-new_account.log",
+        "bytes": 3086585,
+        "sha256": "e6306c90b589cf8b725e055ef34f315ad910c308a7531206df4ccf03071f70cd",
+        "literal_nul_bytes": 0,
+        "diagnostics": [
+          {
+            "line": 1464,
+            "text": "Unicode parsing error, some characters were replaced with � (U+FFFD): Invalid UTF-8 leading byte (ff)"
+          }
+        ],
+        "unexpected_diagnostic_count": 0
+      },
+      "import_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-new_account-37044894986-1/ci/import.log",
+        "bytes": 203723,
+        "sha256": "c955980fdbc00dd729392a2bc8562269658602b794fccabcc8475d186f33f4d5",
+        "literal_nul_bytes": 0,
+        "diagnostics": [],
+        "unexpected_diagnostic_count": 0
+      },
+      "actions_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-early-logs/logs/110965240365.log",
+        "bytes": 455452,
+        "sha256": "c19a374f2045ad0aa726343d364ec0753636d4f43c4d1cd84fd7aeeff129a3e0"
+      },
+      "job_id": 110965240365,
+      "job_name": "Windows / new_account",
+      "observed_checkout": {
+        "command_line": 220,
+        "command": "[command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H",
+        "output_line": 221,
+        "observed": "1bc4f6afd759e969f82b9c2134eb178479c19d13"
+      },
+      "cloud_gut_result_line": 4340,
+      "cloud_gut_result": {
+        "suite": "new_account",
+        "test_cases": 179,
+        "passed": 179,
+        "skipped": 0,
+        "requested_scripts": 15,
+        "reported_scripts": 15,
+        "scripts": [
+          {
+            "script": "tests/unit/test_canonical_writer_compatibility.gd",
+            "test_cases": 17,
+            "passed": 17,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_continuation_serialization_cache.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_new_acc_title_lifetime.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_run_dark_configuration.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_prepared_new_run.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_new_run_transaction.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_new_run_pair_durability.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_new_run_startup_publication.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_new_run_durability_journal.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_json_file_storage.gd",
+            "test_cases": 14,
+            "passed": 14,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_temporary_storage.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_save_document_schema.gd",
+            "test_cases": 21,
+            "passed": 21,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_run_snapshot_schema.gd",
+            "test_cases": 27,
+            "passed": 27,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/tooling/test_phase2r_closeout_sentinel.gd",
+            "test_cases": 1,
+            "passed": 1,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/tooling/test_phase2r_schedule_gate.gd",
+            "test_cases": 34,
+            "passed": 34,
+            "skipped": 0
+          }
+        ]
+      },
+      "console_diagnostics": [],
+      "all_job_steps_success": true
+    },
+    "reading_delivery": {
+      "status": "pass",
+      "xml": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-reading_delivery-37044894986-1/ci/reading_delivery.xml",
+        "bytes": 110591,
+        "sha256": "83daba87921e8b47e56875d72335a8d830db110e689085aa2f6c7ba6f3ebd9d6"
+      },
+      "cases": 480,
+      "script_executions": 35,
+      "scripts": [
+        {
+          "script": "tests/unit/test_hospital_frozen_context.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_hospital_presentation_port.gd",
+          "test_cases": 27,
+          "passed": 27,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dialogic_presentation_owner_adapter.gd",
+          "test_cases": 20,
+          "passed": 20,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_hospital_dating_adapter_negative_contract.gd",
+          "test_cases": 13,
+          "passed": 13,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_hospital_reading_session_runtime.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_frozen_replay_context.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_delivery_notice.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_narrative_caption_ledger.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_solo_reading_session.gd",
+          "test_cases": 14,
+          "passed": 14,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_solo_reading_catalogue.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_solo_authored_selector_witness.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_solo_authored_selector_runtime.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_dialogic_caption_variant_witness.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_dialogic_next_traversal.gd",
+          "test_cases": 11,
+          "passed": 11,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_dialogic_skip.gd",
+          "test_cases": 23,
+          "passed": 23,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_narrative_caption_ledger_runtime.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_witnessed_reading_rail.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_reading_pause_save.gd",
+          "test_cases": 21,
+          "passed": 21,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dialogic_pause_recovery.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_pause_surface.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_narrative_reading_frontier_runtime.gd",
+          "test_cases": 13,
+          "passed": 13,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_narrative_pause_frontier.gd",
+          "test_cases": 21,
+          "passed": 21,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_witnessed_caption_runtime.gd",
+          "test_cases": 48,
+          "passed": 48,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_witnessed_pause_view.gd",
+          "test_cases": 11,
+          "passed": 11,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_witnessed_auto_controller.gd",
+          "test_cases": 13,
+          "passed": 13,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_witnessed_skip_controller.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_witnessed_transport_recovery.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_witnessed_speech_projection.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_dating_caption_style.gd",
+          "test_cases": 19,
+          "passed": 19,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_scene_art_bindings.gd",
+          "test_cases": 13,
+          "passed": 13,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_scene_art_hold.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_production_pause_controller.gd",
+          "test_cases": 49,
+          "passed": 49,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_hospital_scene.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_day7_font_preferences.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_gallery_replay_owner.gd",
+          "test_cases": 15,
+          "passed": 15,
+          "skipped": 0
+        }
+      ],
+      "named_multiset_exact_after_reviewed_inheritance_correction": true,
+      "missing_cases": [],
+      "unexpected_cases": [],
+      "duplicate_cases": [],
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "disabled": 0,
+      "isolation_receipt": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-reading_delivery-37044894986-1/ci/reading_delivery.jsonl",
+        "bytes": 2556,
+        "sha256": "eb8e08ae2826b0aa88f67c0893a8cd1950e8f7c877b7b028f38adba3952a2057",
+        "record": {
+          "suite_id": "cloud-reading_delivery",
+          "argv": [
+            "--headless",
+            "--path",
+            "D:\\a\\dwm\\dwm",
+            "--log-file",
+            "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-reading_delivery.log",
+            "-s",
+            "res://addons/gut/gut_cmdln.gd",
+            "-gconfig=",
+            "-gtest=res://tests/unit/test_hospital_frozen_context.gd,res://tests/unit/test_hospital_presentation_port.gd,res://tests/unit/test_dialogic_presentation_owner_adapter.gd,res://tests/integration/test_hospital_dating_adapter_negative_contract.gd,res://tests/integration/test_hospital_reading_session_runtime.gd,res://tests/unit/test_frozen_replay_context.gd,res://tests/unit/test_minesweeper_delivery_notice.gd,res://tests/unit/test_narrative_caption_ledger.gd,res://tests/unit/test_solo_reading_session.gd,res://tests/unit/test_solo_reading_catalogue.gd,res://tests/integration/test_solo_authored_selector_witness.gd,res://tests/integration/test_solo_authored_selector_runtime.gd,res://tests/integration/test_dialogic_caption_variant_witness.gd,res://tests/integration/test_dialogic_next_traversal.gd,res://tests/integration/test_dialogic_skip.gd,res://tests/integration/test_narrative_caption_ledger_runtime.gd,res://tests/unit/test_witnessed_reading_rail.gd,res://tests/unit/test_reading_pause_save.gd,res://tests/unit/test_dialogic_pause_recovery.gd,res://tests/unit/test_pause_surface.gd,res://tests/integration/test_narrative_reading_frontier_runtime.gd,res://tests/integration/test_narrative_pause_frontier.gd,res://tests/integration/test_witnessed_caption_runtime.gd,res://tests/unit/test_witnessed_pause_view.gd,res://tests/unit/test_witnessed_auto_controller.gd,res://tests/unit/test_witnessed_skip_controller.gd,res://tests/scene/test_witnessed_transport_recovery.gd,res://tests/integration/test_witnessed_speech_projection.gd,res://tests/integration/test_dating_caption_style.gd,res://tests/unit/test_scene_art_bindings.gd,res://tests/unit/test_scene_art_hold.gd,res://tests/unit/test_production_pause_controller.gd,res://tests/scene/test_hospital_scene.gd,res://tests/unit/test_day7_font_preferences.gd,res://tests/unit/test_gallery_replay_owner.gd",
+            "-gexit",
+            "-glog=2",
+            "-gjunit_xml_file=res://.godot/ci/reading_delivery.xml"
+          ],
+          "exit_code": 0,
+          "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-reading_delivery.log",
+          "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\e5de2e6c-0c64-4257-91b2-5a60ab73741d",
+          "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\e5de2e6c-0c64-4257-91b2-5a60ab73741d\\appdata\\Godot\\app_userdata\\DWM",
+          "started_at_utc": "2026-10-02T18:09:14.9963692Z",
+          "ended_at_utc": "2026-10-02T18:11:37.5359459Z"
+        },
+        "duration_seconds": 142.539576,
+        "isolated_user_dir_strictly_within_test_root": true
+      },
+      "engine_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-reading_delivery-37044894986-1/phase2r_logs/cloud-reading_delivery.log",
+        "bytes": 3346206,
+        "sha256": "b945aec8af7bd1e9b770acc4bc1104eeab585bcfcd201841ad12ad54ca45cbaa",
+        "literal_nul_bytes": 0,
+        "diagnostics": [],
+        "unexpected_diagnostic_count": 0
+      },
+      "import_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-reading_delivery-37044894986-1/ci/import.log",
+        "bytes": 203723,
+        "sha256": "88191f6f0b11a21c864e4af4984b622713c3c476c63f4f3dfdcb45adece0b510",
+        "literal_nul_bytes": 0,
+        "diagnostics": [],
+        "unexpected_diagnostic_count": 0
+      },
+      "actions_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-early-logs/logs/110965240265.log",
+        "bytes": 450884,
+        "sha256": "7ff53cdd3a4d1f64106f194d60fe7c1743379931a5224d7b00b7bf5572621f89"
+      },
+      "job_id": 110965240265,
+      "job_name": "Windows / reading_delivery",
+      "observed_checkout": {
+        "command_line": 170,
+        "command": "[command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H",
+        "output_line": 171,
+        "observed": "1bc4f6afd759e969f82b9c2134eb178479c19d13"
+      },
+      "cloud_gut_result_line": 4289,
+      "cloud_gut_result": {
+        "suite": "reading_delivery",
+        "test_cases": 480,
+        "passed": 480,
+        "skipped": 0,
+        "requested_scripts": 35,
+        "reported_scripts": 35,
+        "scripts": [
+          {
+            "script": "tests/unit/test_hospital_frozen_context.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_hospital_presentation_port.gd",
+            "test_cases": 27,
+            "passed": 27,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dialogic_presentation_owner_adapter.gd",
+            "test_cases": 20,
+            "passed": 20,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_hospital_dating_adapter_negative_contract.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_hospital_reading_session_runtime.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_frozen_replay_context.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_delivery_notice.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_narrative_caption_ledger.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_solo_reading_session.gd",
+            "test_cases": 14,
+            "passed": 14,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_solo_reading_catalogue.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_solo_authored_selector_witness.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_solo_authored_selector_runtime.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_dialogic_caption_variant_witness.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_dialogic_next_traversal.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_dialogic_skip.gd",
+            "test_cases": 23,
+            "passed": 23,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_narrative_caption_ledger_runtime.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_witnessed_reading_rail.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_reading_pause_save.gd",
+            "test_cases": 21,
+            "passed": 21,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dialogic_pause_recovery.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_pause_surface.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_narrative_reading_frontier_runtime.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_narrative_pause_frontier.gd",
+            "test_cases": 21,
+            "passed": 21,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_witnessed_caption_runtime.gd",
+            "test_cases": 48,
+            "passed": 48,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_witnessed_pause_view.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_witnessed_auto_controller.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_witnessed_skip_controller.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_witnessed_transport_recovery.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_witnessed_speech_projection.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_dating_caption_style.gd",
+            "test_cases": 19,
+            "passed": 19,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_scene_art_bindings.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_scene_art_hold.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_production_pause_controller.gd",
+            "test_cases": 49,
+            "passed": 49,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_hospital_scene.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_day7_font_preferences.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_gallery_replay_owner.gd",
+            "test_cases": 15,
+            "passed": 15,
+            "skipped": 0
+          }
+        ]
+      },
+      "console_diagnostics": [],
+      "all_job_steps_success": true
+    },
+    "localization": {
+      "status": "pass",
+      "xml": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-localization-37044894986-1/ci/localization.xml",
+        "bytes": 34700,
+        "sha256": "d9df61bae5efb444a4d7637e9faa0c071a7eac6d0e87c68e3a66b66e8b7c000f"
+      },
+      "cases": 153,
+      "script_executions": 18,
+      "scripts": [
+        {
+          "script": "tests/unit/test_japanese_korean_ui.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_localization.gd",
+          "test_cases": 20,
+          "passed": 20,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_localization_extraction.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_locale_font_preparation.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_gallery_typography.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_font_styles.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_ordinary_reply_echo_state.gd",
+          "test_cases": 11,
+          "passed": 11,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_provisional_correspondence_catalog.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_system_tts_coordinator.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_witnessed_transport_rail.gd",
+          "test_cases": 11,
+          "passed": 11,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_witnessed_speech_status.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_gallery_registrar.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_controls_binding_rules.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_backup_panel_resize.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_backup_presentation.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_desktop_crash_recovery.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_ending_recovery_localization.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/tooling/test_ui_literal_audit.gd",
+          "test_cases": 20,
+          "passed": 20,
+          "skipped": 0
+        }
+      ],
+      "named_multiset_exact_after_reviewed_inheritance_correction": true,
+      "missing_cases": [],
+      "unexpected_cases": [],
+      "duplicate_cases": [],
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "disabled": 0,
+      "isolation_receipt": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-localization-37044894986-1/ci/localization.jsonl",
+        "bytes": 1548,
+        "sha256": "1498147166297765c7a93aecb33dbbf8500b304d41ab3553acccdecb8f85e97a",
+        "record": {
+          "suite_id": "cloud-localization",
+          "argv": [
+            "--headless",
+            "--path",
+            "D:\\a\\dwm\\dwm",
+            "--log-file",
+            "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-localization.log",
+            "-s",
+            "res://addons/gut/gut_cmdln.gd",
+            "-gconfig=",
+            "-gtest=res://tests/unit/test_japanese_korean_ui.gd,res://tests/unit/test_localization.gd,res://tests/unit/test_localization_extraction.gd,res://tests/unit/test_locale_font_preparation.gd,res://tests/unit/test_gallery_typography.gd,res://tests/unit/test_font_styles.gd,res://tests/unit/test_ordinary_reply_echo_state.gd,res://tests/unit/test_provisional_correspondence_catalog.gd,res://tests/unit/test_system_tts_coordinator.gd,res://tests/unit/test_witnessed_transport_rail.gd,res://tests/unit/test_witnessed_speech_status.gd,res://tests/unit/test_gallery_registrar.gd,res://tests/unit/test_controls_binding_rules.gd,res://tests/unit/test_backup_panel_resize.gd,res://tests/unit/test_backup_presentation.gd,res://tests/integration/test_desktop_crash_recovery.gd,res://tests/scene/test_ending_recovery_localization.gd,res://tests/unit/tooling/test_ui_literal_audit.gd",
+            "-gexit",
+            "-glog=2",
+            "-gjunit_xml_file=res://.godot/ci/localization.xml"
+          ],
+          "exit_code": 0,
+          "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-localization.log",
+          "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\8ec0086b-3cee-4fc6-be64-d0d4422085dd",
+          "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\8ec0086b-3cee-4fc6-be64-d0d4422085dd\\appdata\\Godot\\app_userdata\\DWM",
+          "started_at_utc": "2026-10-02T18:09:21.9436987Z",
+          "ended_at_utc": "2026-10-02T18:10:24.3263247Z"
+        },
+        "duration_seconds": 62.382626,
+        "isolated_user_dir_strictly_within_test_root": true
+      },
+      "engine_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-localization-37044894986-1/phase2r_logs/cloud-localization.log",
+        "bytes": 3096108,
+        "sha256": "105854225b87be45c3573fa9457cfa3aa7761328c3a97985753afe211359066b",
+        "literal_nul_bytes": 0,
+        "diagnostics": [],
+        "unexpected_diagnostic_count": 0
+      },
+      "import_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-localization-37044894986-1/ci/import.log",
+        "bytes": 203723,
+        "sha256": "0ffa6345e2e1eb2cd24bf53abbc99ad89df5b511f30e8d1e27673c74d0655eea",
+        "literal_nul_bytes": 0,
+        "diagnostics": [],
+        "unexpected_diagnostic_count": 0
+      },
+      "actions_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-early-logs/logs/110965240429.log",
+        "bytes": 448060,
+        "sha256": "4df2306702abcec65499039ffb3a8f109ebe8c21e5cf61fce53b9082bcda5f19"
+      },
+      "job_id": 110965240429,
+      "job_name": "Windows / localization",
+      "observed_checkout": {
+        "command_line": 170,
+        "command": "[command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H",
+        "output_line": 171,
+        "observed": "1bc4f6afd759e969f82b9c2134eb178479c19d13"
+      },
+      "cloud_gut_result_line": 4289,
+      "cloud_gut_result": {
+        "suite": "localization",
+        "test_cases": 153,
+        "passed": 153,
+        "skipped": 0,
+        "requested_scripts": 18,
+        "reported_scripts": 18,
+        "scripts": [
+          {
+            "script": "tests/unit/test_japanese_korean_ui.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_localization.gd",
+            "test_cases": 20,
+            "passed": 20,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_localization_extraction.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_locale_font_preparation.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_gallery_typography.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_font_styles.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_ordinary_reply_echo_state.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_provisional_correspondence_catalog.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_system_tts_coordinator.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_witnessed_transport_rail.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_witnessed_speech_status.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_gallery_registrar.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_controls_binding_rules.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_backup_panel_resize.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_backup_presentation.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_desktop_crash_recovery.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_ending_recovery_localization.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/tooling/test_ui_literal_audit.gd",
+            "test_cases": 20,
+            "passed": 20,
+            "skipped": 0
+          }
+        ]
+      },
+      "console_diagnostics": [],
+      "all_job_steps_success": true
+    },
+    "dating": {
+      "status": "pass",
+      "xml": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-dating-37044894986-1/ci/dating.xml",
+        "bytes": 37799,
+        "sha256": "6261c453327ecb67dca134f90ee77b2f93123d0e1fd1765ac854d5f172a93359"
+      },
+      "cases": 167,
+      "script_executions": 12,
+      "scripts": [
+        {
+          "script": "tests/unit/test_active_dating_backup_capture.gd",
+          "test_cases": 18,
+          "passed": 18,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_dating_quick_commands.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_frozen_presentation_context.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_narrative_playback.gd",
+          "test_cases": 18,
+          "passed": 18,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_canonical_dating_mastery.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_attempt_runtime.gd",
+          "test_cases": 45,
+          "passed": 45,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_evidence_v8.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_physical_owner.gd",
+          "test_cases": 15,
+          "passed": 15,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_capability_envelope.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_rehearsal_owner.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_presentation_port.gd",
+          "test_cases": 21,
+          "passed": 21,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        }
+      ],
+      "named_multiset_exact_after_reviewed_inheritance_correction": true,
+      "missing_cases": [],
+      "unexpected_cases": [],
+      "duplicate_cases": [],
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "disabled": 0,
+      "isolation_receipt": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-dating-37044894986-1/ci/dating.jsonl",
+        "bytes": 1276,
+        "sha256": "b22c93698b548d5475eba8cce405065dfd02d08fad16af627a626dbd07c7aec0",
+        "record": {
+          "suite_id": "cloud-dating",
+          "argv": [
+            "--headless",
+            "--path",
+            "D:\\a\\dwm\\dwm",
+            "--log-file",
+            "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-dating.log",
+            "-s",
+            "res://addons/gut/gut_cmdln.gd",
+            "-gconfig=",
+            "-gtest=res://tests/unit/test_active_dating_backup_capture.gd,res://tests/integration/test_dating_quick_commands.gd,res://tests/unit/test_frozen_presentation_context.gd,res://tests/unit/test_dating_narrative_playback.gd,res://tests/unit/test_canonical_dating_mastery.gd,res://tests/unit/test_dating_attempt_runtime.gd,res://tests/unit/test_profile_evidence_v8.gd,res://tests/unit/test_dating_physical_owner.gd,res://tests/unit/test_dating_capability_envelope.gd,res://tests/unit/test_dating_rehearsal_owner.gd,res://tests/unit/test_dating_presentation_port.gd,res://tests/integration/test_ordered_ending_real_runtime.gd",
+            "-gexit",
+            "-glog=2",
+            "-gjunit_xml_file=res://.godot/ci/dating.xml"
+          ],
+          "exit_code": 0,
+          "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-dating.log",
+          "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\37db179b-db59-4f6f-8d6f-8b99f4676c22",
+          "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\37db179b-db59-4f6f-8d6f-8b99f4676c22\\appdata\\Godot\\app_userdata\\DWM",
+          "started_at_utc": "2026-10-02T18:09:15.0908154Z",
+          "ended_at_utc": "2026-10-02T18:10:40.5495226Z"
+        },
+        "duration_seconds": 85.458707,
+        "isolated_user_dir_strictly_within_test_root": true
+      },
+      "engine_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-dating-37044894986-1/phase2r_logs/cloud-dating.log",
+        "bytes": 19848937,
+        "sha256": "d0c86cd92d47e6619ea004f06cb014379ef81fbb1caf5679770d0b3739ef83d8",
+        "literal_nul_bytes": 0,
+        "diagnostics": [],
+        "unexpected_diagnostic_count": 0
+      },
+      "import_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-dating-37044894986-1/ci/import.log",
+        "bytes": 203723,
+        "sha256": "6b4d682eb8df138131feba3dba4c4ac29374bb67d8a688b729cad0b762c1a601",
+        "literal_nul_bytes": 0,
+        "diagnostics": [],
+        "unexpected_diagnostic_count": 0
+      },
+      "actions_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-early-logs/logs/110965240340.log",
+        "bytes": 447223,
+        "sha256": "d037104ee2521f348998ee62b71217757753b59ad2ee3f1cd252540987dc97ef"
+      },
+      "job_id": 110965240340,
+      "job_name": "Windows / dating",
+      "observed_checkout": {
+        "command_line": 170,
+        "command": "[command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H",
+        "output_line": 171,
+        "observed": "1bc4f6afd759e969f82b9c2134eb178479c19d13"
+      },
+      "cloud_gut_result_line": 4289,
+      "cloud_gut_result": {
+        "suite": "dating",
+        "test_cases": 167,
+        "passed": 167,
+        "skipped": 0,
+        "requested_scripts": 12,
+        "reported_scripts": 12,
+        "scripts": [
+          {
+            "script": "tests/unit/test_active_dating_backup_capture.gd",
+            "test_cases": 18,
+            "passed": 18,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_dating_quick_commands.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_frozen_presentation_context.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_narrative_playback.gd",
+            "test_cases": 18,
+            "passed": 18,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_canonical_dating_mastery.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_attempt_runtime.gd",
+            "test_cases": 45,
+            "passed": 45,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_evidence_v8.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_physical_owner.gd",
+            "test_cases": 15,
+            "passed": 15,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_capability_envelope.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_rehearsal_owner.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_presentation_port.gd",
+            "test_cases": 21,
+            "passed": 21,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          }
+        ]
+      },
+      "console_diagnostics": [],
+      "all_job_steps_success": true
+    },
+    "persistence": {
+      "status": "pass",
+      "xml": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-persistence-37044894986-1/ci/persistence.xml",
+        "bytes": 51924,
+        "sha256": "7f550e73fb51abcfe30efd5a7fc13ba86c8fda8ebc81a37a3fec3fc833bd2a6d"
+      },
+      "cases": 230,
+      "script_executions": 22,
+      "scripts": [
+        {
+          "script": "tests/unit/test_frozen_run_context.gd",
+          "test_cases": 20,
+          "passed": 20,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_presentation_chronology.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_dating_attempts.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_dating_branches.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_pair_form_witness.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_contact_invitation_state.gd",
+          "test_cases": 42,
+          "passed": 42,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_seven_day_calendar.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_pair_deck_draw.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_pair_deck_draw_port.gd",
+          "test_cases": 11,
+          "passed": 11,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_v4_upgrade.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_new_run_consumption.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_save_migrations.gd",
+          "test_cases": 11,
+          "passed": 11,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_save_manager_journal.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_restore_transaction.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_reading_restore_admission.gd",
+          "test_cases": 22,
+          "passed": 22,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_desktop_consequence_source_port.gd",
+          "test_cases": 14,
+          "passed": 14,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_reading_next_checkpoint.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_unified_restore_contract.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_run_restore_isolation.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_live_run_rollback_isolation.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_save_manager_public_boundaries.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_save_capability.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        }
+      ],
+      "named_multiset_exact_after_reviewed_inheritance_correction": true,
+      "missing_cases": [],
+      "unexpected_cases": [],
+      "duplicate_cases": [],
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "disabled": 0,
+      "isolation_receipt": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-persistence-37044894986-1/ci/persistence.jsonl",
+        "bytes": 1795,
+        "sha256": "989eccdd1dc2e6fdf6a20817983ed77fe22e6f5cdf2acf3779d191aac83f66c8",
+        "record": {
+          "suite_id": "cloud-persistence",
+          "argv": [
+            "--headless",
+            "--path",
+            "D:\\a\\dwm\\dwm",
+            "--log-file",
+            "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-persistence.log",
+            "-s",
+            "res://addons/gut/gut_cmdln.gd",
+            "-gconfig=",
+            "-gtest=res://tests/unit/test_frozen_run_context.gd,res://tests/unit/test_profile_presentation_chronology.gd,res://tests/unit/test_profile_dating_attempts.gd,res://tests/unit/test_profile_dating_branches.gd,res://tests/unit/test_profile_pair_form_witness.gd,res://tests/unit/test_contact_invitation_state.gd,res://tests/unit/test_seven_day_calendar.gd,res://tests/unit/test_pair_deck_draw.gd,res://tests/unit/test_pair_deck_draw_port.gd,res://tests/unit/test_profile_v4_upgrade.gd,res://tests/unit/test_profile_new_run_consumption.gd,res://tests/unit/test_save_migrations.gd,res://tests/integration/test_save_manager_journal.gd,res://tests/integration/test_restore_transaction.gd,res://tests/unit/test_reading_restore_admission.gd,res://tests/unit/test_desktop_consequence_source_port.gd,res://tests/unit/test_reading_next_checkpoint.gd,res://tests/integration/test_unified_restore_contract.gd,res://tests/integration/test_run_restore_isolation.gd,res://tests/integration/test_live_run_rollback_isolation.gd,res://tests/integration/test_save_manager_public_boundaries.gd,res://tests/integration/test_save_capability.gd",
+            "-gexit",
+            "-glog=2",
+            "-gjunit_xml_file=res://.godot/ci/persistence.xml"
+          ],
+          "exit_code": 0,
+          "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-persistence.log",
+          "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\2a0eaee0-06ce-4614-a348-ef245feb0739",
+          "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\2a0eaee0-06ce-4614-a348-ef245feb0739\\appdata\\Godot\\app_userdata\\DWM",
+          "started_at_utc": "2026-10-02T18:09:04.8642088Z",
+          "ended_at_utc": "2026-10-02T18:09:23.8345226Z"
+        },
+        "duration_seconds": 18.970314,
+        "isolated_user_dir_strictly_within_test_root": true
+      },
+      "engine_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-persistence-37044894986-1/phase2r_logs/cloud-persistence.log",
+        "bytes": 3673127,
+        "sha256": "2570b865339de2e59c698b10e38b27d93e9c9e67a79a31acd55acbe368dc23e3",
+        "literal_nul_bytes": 0,
+        "diagnostics": [],
+        "unexpected_diagnostic_count": 0
+      },
+      "import_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-persistence-37044894986-1/ci/import.log",
+        "bytes": 203723,
+        "sha256": "34c0f3a582c9dfd8dcadef72fa1b730b8e492e16d46a0e6d626e73461f45d58e",
+        "literal_nul_bytes": 0,
+        "diagnostics": [],
+        "unexpected_diagnostic_count": 0
+      },
+      "actions_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-early-logs/logs/110965240415.log",
+        "bytes": 449085,
+        "sha256": "3ed70fc2995ef909b5aa2812570be063047b0f957a445ee8247bc8aefdef1d26"
+      },
+      "job_id": 110965240415,
+      "job_name": "Windows / persistence",
+      "observed_checkout": {
+        "command_line": 164,
+        "command": "[command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H",
+        "output_line": 165,
+        "observed": "1bc4f6afd759e969f82b9c2134eb178479c19d13"
+      },
+      "cloud_gut_result_line": 4283,
+      "cloud_gut_result": {
+        "suite": "persistence",
+        "test_cases": 230,
+        "passed": 230,
+        "skipped": 0,
+        "requested_scripts": 22,
+        "reported_scripts": 22,
+        "scripts": [
+          {
+            "script": "tests/unit/test_frozen_run_context.gd",
+            "test_cases": 20,
+            "passed": 20,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_presentation_chronology.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_dating_attempts.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_dating_branches.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_pair_form_witness.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_contact_invitation_state.gd",
+            "test_cases": 42,
+            "passed": 42,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_seven_day_calendar.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_pair_deck_draw.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_pair_deck_draw_port.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_v4_upgrade.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_new_run_consumption.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_save_migrations.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_save_manager_journal.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_restore_transaction.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_reading_restore_admission.gd",
+            "test_cases": 22,
+            "passed": 22,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_desktop_consequence_source_port.gd",
+            "test_cases": 14,
+            "passed": 14,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_reading_next_checkpoint.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_unified_restore_contract.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_run_restore_isolation.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_live_run_rollback_isolation.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_save_manager_public_boundaries.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_save_capability.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          }
+        ]
+      },
+      "console_diagnostics": [],
+      "all_job_steps_success": true
+    },
+    "audio": {
+      "status": "pass",
+      "xml": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-audio-37044894986-1/ci/audio.xml",
+        "bytes": 9437,
+        "sha256": "17caf5200ce9de2efa5e7adeb9656109ea17e8f2be7e4716f2b649e3c14fadef"
+      },
+      "cases": 44,
+      "script_executions": 2,
+      "scripts": [
+        {
+          "script": "tests/unit/test_audio_manager.gd",
+          "test_cases": 23,
+          "passed": 23,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_audio_settings_transactions.gd",
+          "test_cases": 21,
+          "passed": 21,
+          "skipped": 0
+        }
+      ],
+      "named_multiset_exact_after_reviewed_inheritance_correction": true,
+      "missing_cases": [],
+      "unexpected_cases": [],
+      "duplicate_cases": [],
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "disabled": 0,
+      "isolation_receipt": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-audio-37044894986-1/ci/audio.jsonl",
+        "bytes": 752,
+        "sha256": "fe07abcb880046d48515c815acbbdc96eb4f612942a9ae6d4e62092d7943a7bd",
+        "record": {
+          "suite_id": "cloud-audio",
+          "argv": [
+            "--headless",
+            "--path",
+            "D:\\a\\dwm\\dwm",
+            "--log-file",
+            "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-audio.log",
+            "-s",
+            "res://addons/gut/gut_cmdln.gd",
+            "-gconfig=",
+            "-gtest=res://tests/unit/test_audio_manager.gd,res://tests/unit/test_audio_settings_transactions.gd",
+            "-gexit",
+            "-glog=2",
+            "-gjunit_xml_file=res://.godot/ci/audio.xml"
+          ],
+          "exit_code": 0,
+          "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-audio.log",
+          "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\b64635ad-233f-4903-8d90-146fd9851259",
+          "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\b64635ad-233f-4903-8d90-146fd9851259\\appdata\\Godot\\app_userdata\\DWM",
+          "started_at_utc": "2026-10-02T18:09:18.6962468Z",
+          "ended_at_utc": "2026-10-02T18:09:27.2795609Z"
+        },
+        "duration_seconds": 8.583314,
+        "isolated_user_dir_strictly_within_test_root": true
+      },
+      "engine_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-audio-37044894986-1/phase2r_logs/cloud-audio.log",
+        "bytes": 36655,
+        "sha256": "429f1280c96163e5d8493a1020681d592b14eb4ac8035f33a2983b466dcd551c",
+        "literal_nul_bytes": 0,
+        "diagnostics": [],
+        "unexpected_diagnostic_count": 0
+      },
+      "import_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/windows-audio-37044894986-1/ci/import.log",
+        "bytes": 203723,
+        "sha256": "96484172251e8cda0d017d50ecfda192ba3b547e759f289c2d5bf67182d9336d",
+        "literal_nul_bytes": 0,
+        "diagnostics": [],
+        "unexpected_diagnostic_count": 0
+      },
+      "actions_log": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-early-logs/logs/110965240412.log",
+        "bytes": 445453,
+        "sha256": "7754b2025fd978a98422ab01d3bd085d07d44cd7164bab4b93c5bad968f3fab4"
+      },
+      "job_id": 110965240412,
+      "job_name": "Windows / audio",
+      "observed_checkout": {
+        "command_line": 166,
+        "command": "[command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H",
+        "output_line": 167,
+        "observed": "1bc4f6afd759e969f82b9c2134eb178479c19d13"
+      },
+      "cloud_gut_result_line": 4285,
+      "cloud_gut_result": {
+        "suite": "audio",
+        "test_cases": 44,
+        "passed": 44,
+        "skipped": 0,
+        "requested_scripts": 2,
+        "reported_scripts": 2,
+        "scripts": [
+          {
+            "script": "tests/unit/test_audio_manager.gd",
+            "test_cases": 23,
+            "passed": 23,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_audio_settings_transactions.gd",
+            "test_cases": 21,
+            "passed": 21,
+            "skipped": 0
+          }
+        ]
+      },
+      "console_diagnostics": [],
+      "all_job_steps_success": true
+    }
+  },
+  "archive_integrity": {
+    "public-surfaces-37044894986-1": {
+      "api_artifact_id": 11244018173,
+      "archive": {
+        "path": "/workspace/scratch/e58f796fe7a3/attachments/d6e331a4-dbef-44cc-9537-ec69af144196/public-surfaces-37044894986-1.zip",
+        "bytes": 143250,
+        "sha256": "c5c79fc1dde26c2fda43b8f25b508c38aede371e2cd89f78c6207a29d8558c53"
+      },
+      "api_digest": "sha256:c5c79fc1dde26c2fda43b8f25b508c38aede371e2cd89f78c6207a29d8558c53",
+      "zip_crc_ok": true,
+      "all_retained_members_match_original": true,
+      "original_members": 15,
+      "retained_members": [
+        {
+          "member": "ci/import.log",
+          "bytes": 203723,
+          "sha256": "6585a11eae90ceb9068a6807ddbf93b993a3706d449cb18800410211a9d2787c"
+        },
+        {
+          "member": "ci/isolation-timeout.jsonl",
+          "bytes": 658,
+          "sha256": "e85ea80ff6d5404871956daf69d736199779e3777e8c4fed296d296f178eb699"
+        },
+        {
+          "member": "ci/public-surfaces/fixture-version-census.json",
+          "bytes": 238384,
+          "sha256": "5015ccd6d04f03d79afc0bbfcc09b3690b91a6dc1aff06be242a6d977601fea5"
+        },
+        {
+          "member": "ci/public-surfaces/game_state-check.jsonl",
+          "bytes": 997,
+          "sha256": "50f83b34bb656e44506924a84b5f95ca1f9310514760355774e5a20ec70b20d4"
+        },
+        {
+          "member": "ci/public-surfaces/game_state_surface.json",
+          "bytes": 568948,
+          "sha256": "804ca7f1bbe1b929b8c6ce59de390ab15c00f521ddc6290df1fed0a175157631"
+        },
+        {
+          "member": "ci/public-surfaces/retirement-audit.json",
+          "bytes": 563,
+          "sha256": "d246ebf3324702d19d1195709f0572b69d4a60d4749b604c963d604b36e86250"
+        },
+        {
+          "member": "ci/public-surfaces/save_manager-check.jsonl",
+          "bytes": 1009,
+          "sha256": "d90aac071054441e9443c2b6576327519c621dff9a95437f54caa287e8f072fc"
+        },
+        {
+          "member": "ci/public-surfaces/save_manager_surface.json",
+          "bytes": 151143,
+          "sha256": "ccb1a6e576801c4f62cd4c159e89a9e4d9c814cbcf364140c61fc2338365c4d0"
+        },
+        {
+          "member": "ci/public_surfaces.jsonl",
+          "bytes": 758,
+          "sha256": "16b34ae48b65a5b472a52334b8beaa13227770e46410a09de0426b601c734ffa"
+        },
+        {
+          "member": "ci/public_surfaces.xml",
+          "bytes": 2505,
+          "sha256": "114395939434d321c5b8f92a44d9ac77dfd98300594c8b71d238c69019e61708"
+        },
+        {
+          "member": "phase2r_logs/cloud-isolation-timeout.log",
+          "bytes": 105,
+          "sha256": "024608dce65ad25e4cf6cf14cda110234e45b506858606453dbab71388889192"
+        },
+        {
+          "member": "phase2r_logs/cloud-isolation-timeout.log.timeout.log",
+          "bytes": 151,
+          "sha256": "bbfe0f114cd95fdd646d6bed89814dc35f6124e3bf360f0552964a251831cc41"
+        },
+        {
+          "member": "phase2r_logs/cloud-public-surface-game_state-check.log",
+          "bytes": 97,
+          "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+        },
+        {
+          "member": "phase2r_logs/cloud-public-surface-save_manager-check.log",
+          "bytes": 97,
+          "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+        },
+        {
+          "member": "phase2r_logs/cloud-public_surfaces.log",
+          "bytes": 201946,
+          "sha256": "8a95f3ec2412c5a0a4af8bef657effdcd5f7ce8d054850b39971aab4d4994074"
+        }
+      ],
+      "not_retained": []
+    },
+    "windows-minesweeper-37044894986-1": {
+      "api_artifact_id": 11244310365,
+      "archive": {
+        "path": "/workspace/scratch/e58f796fe7a3/attachments/f637bae2-ab2c-4458-8fc0-c0ed21094147/windows-minesweeper-37044894986-1.zip",
+        "bytes": 166298,
+        "sha256": "7b981e4df66160e5888ff31e22515976bb8d9d26033880bfc0d93b2228496a8c"
+      },
+      "api_digest": "sha256:7b981e4df66160e5888ff31e22515976bb8d9d26033880bfc0d93b2228496a8c",
+      "zip_crc_ok": true,
+      "all_retained_members_match_original": true,
+      "original_members": 4,
+      "retained_members": [
+        {
+          "member": "ci/import.log",
+          "bytes": 203723,
+          "sha256": "6b4d682eb8df138131feba3dba4c4ac29374bb67d8a688b729cad0b762c1a601"
+        },
+        {
+          "member": "ci/minesweeper.jsonl",
+          "bytes": 1791,
+          "sha256": "b43fb9c4514b37fdf718af5e5ed679516f6250f1604175c02ac7f794a2c64c14"
+        },
+        {
+          "member": "ci/minesweeper.xml",
+          "bytes": 47970,
+          "sha256": "7c5b3ae9210b161078ce72ed2913cbe1f5d98f0cff6cd2088b031e681d947278"
+        },
+        {
+          "member": "phase2r_logs/cloud-minesweeper.log",
+          "bytes": 3195237,
+          "sha256": "3b8681b53e2a41a51daf37b6b4af5b0f7c6f6e60e0edda96618c463998b681b8"
+        }
+      ],
+      "not_retained": []
+    },
+    "windows-shop-37044894986-1": {
+      "api_artifact_id": 11244545069,
+      "archive": {
+        "path": "/workspace/scratch/e58f796fe7a3/attachments/df4ea56f-9b76-45f5-af88-3585b86a0edc/windows-shop-37044894986-1.zip",
+        "bytes": 65259,
+        "sha256": "61ca79cb72576e92393ba7faefe5af6bffba82cec58d1e60a2531075e5d9a408"
+      },
+      "api_digest": "sha256:61ca79cb72576e92393ba7faefe5af6bffba82cec58d1e60a2531075e5d9a408",
+      "zip_crc_ok": true,
+      "all_retained_members_match_original": true,
+      "original_members": 4,
+      "retained_members": [
+        {
+          "member": "ci/import.log",
+          "bytes": 203723,
+          "sha256": "e4af538b703fcbbd9908f243f2dca276291217c65565da434dc63f61ea60ff66"
+        },
+        {
+          "member": "ci/shop.jsonl",
+          "bytes": 1050,
+          "sha256": "a888d2cf205f70d974acf79dc218757d37715bb340257f2e6d5141da7be9ef93"
+        },
+        {
+          "member": "ci/shop.xml",
+          "bytes": 31572,
+          "sha256": "2d2d943677d55edf21486b0c504969335432c24e452989a360887626e930c737"
+        },
+        {
+          "member": "phase2r_logs/cloud-shop.log",
+          "bytes": 863123,
+          "sha256": "c84b0984ef76536e1909d4aea6637685efda3eb8ff2f78e645d69ad9f9748bd8"
+        }
+      ],
+      "not_retained": []
+    },
+    "windows-desktop-37044894986-1": {
+      "api_artifact_id": 11244310664,
+      "archive": {
+        "path": "/workspace/scratch/e58f796fe7a3/attachments/dad31e9e-1105-487a-b1ff-f77739de9e32/windows-desktop-37044894986-1.zip",
+        "bytes": 292919,
+        "sha256": "9398051677a7e89c98c08335e7b04e7d19f9490b9d78fe7516e5961988fd6697"
+      },
+      "api_digest": "sha256:9398051677a7e89c98c08335e7b04e7d19f9490b9d78fe7516e5961988fd6697",
+      "zip_crc_ok": true,
+      "all_retained_members_match_original": true,
+      "original_members": 4,
+      "retained_members": [
+        {
+          "member": "ci/desktop.jsonl",
+          "bytes": 1822,
+          "sha256": "b551c9d90235a7d4dd96a07a1e3abd6503a3b8b2b0d294e52400ec0b39e0a406"
+        },
+        {
+          "member": "ci/desktop.xml",
+          "bytes": 75226,
+          "sha256": "8f6628cdc6bb6a46ad027a4996e2071deceb018205775d2f4d6d6393e32d80ce"
+        },
+        {
+          "member": "ci/import.log",
+          "bytes": 203723,
+          "sha256": "f4986f8116a5d99c2c5d5999c0249b4583c8014f4ad63e0761cc0f3abd743bf9"
+        },
+        {
+          "member": "phase2r_logs/cloud-desktop.log",
+          "bytes": 4346882,
+          "sha256": "43bb7b094255376e6874fa53c7960cfbc8fc525b28f5f0ebfdbd3e6ee04e124a"
+        }
+      ],
+      "not_retained": []
+    },
+    "windows-settings-37044894986-1": {
+      "api_artifact_id": 11243409363,
+      "archive": {
+        "path": "/workspace/scratch/e58f796fe7a3/attachments/768615c9-3053-44e2-b7eb-fb1230fd08e3/windows-settings-37044894986-1.zip",
+        "bytes": 2706091,
+        "sha256": "700ffe1ed0d37478f9dcb8969b43781c0a0c8b4d79ebbe607028c97aea746275"
+      },
+      "api_digest": "sha256:700ffe1ed0d37478f9dcb8969b43781c0a0c8b4d79ebbe607028c97aea746275",
+      "zip_crc_ok": true,
+      "all_retained_members_match_original": true,
+      "original_members": 31,
+      "retained_members": [
+        {
+          "member": "ci/import.log",
+          "bytes": 203723,
+          "sha256": "15564c16ab19e7a46129209ad6ec39996a12b97e360997da50627256f06c7432"
+        },
+        {
+          "member": "ci/manual-witness-revision-storage.jsonl",
+          "bytes": 690,
+          "sha256": "425bdb23e6d0fdcec36772a198bc8d223bc6084e0c47ae91b74801e59296d611"
+        },
+        {
+          "member": "ci/settings.jsonl",
+          "bytes": 2243,
+          "sha256": "bc4f2f78be9f9d7d88ad1d8db30c534c8b7e6c7c0b8380d43975529b354dac92"
+        },
+        {
+          "member": "ci/settings.xml",
+          "bytes": 81083,
+          "sha256": "6bf6fe96f32eb1245dbabcd121c6a60f53c15cd439bde2b1bf30ed037f7fbd52"
+        },
+        {
+          "member": "ci/storage-refusal/empty/appdata/Godot/app_userdata/DWM/desktop-issuer-root.json",
+          "bytes": 192,
+          "sha256": "357024c3db54d83c8746d10a30b2502d007989b06dfbe26a13405c27aef64d1b"
+        },
+        {
+          "member": "ci/storage-refusal/empty/appdata/Godot/app_userdata/DWM/desktop-publications.json",
+          "bytes": 34,
+          "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+        },
+        {
+          "member": "ci/storage-refusal/empty/appdata/Godot/app_userdata/DWM/dialogic/saves/global_info.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "member": "ci/storage-refusal/empty/appdata/Godot/app_userdata/DWM/profile.json",
+          "bytes": 2744,
+          "sha256": "1d2b6c170f287ce0d7e33cf77ac5ac9ac01a3781e94081643b802a90fd8020b2"
+        },
+        {
+          "member": "ci/storage-refusal/empty/appdata/Godot/app_userdata/DWM/schedule-foundation-publications.json",
+          "bytes": 34,
+          "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+        },
+        {
+          "member": "ci/storage-refusal/empty/console.log",
+          "bytes": 38458,
+          "sha256": "f292da87197009fd9e76dd75921990731af4bc294fbaedc63ccbd1a0bd8ec6f5"
+        },
+        {
+          "member": "ci/storage-refusal/empty/godot.log",
+          "bytes": 36202,
+          "sha256": "a082dd6a95f91768889408a27b7cac436d54d3832c0cee69799a59a96859b898"
+        },
+        {
+          "member": "ci/storage-refusal/empty/repository-after.json",
+          "bytes": 1672604,
+          "sha256": "cdba6b99b4f087d357eaac9bb0fd5ce3589374cb5e246cd275a1617b6774d940"
+        },
+        {
+          "member": "ci/storage-refusal/empty/repository-before.json",
+          "bytes": 1672604,
+          "sha256": "cdba6b99b4f087d357eaac9bb0fd5ce3589374cb5e246cd275a1617b6774d940"
+        },
+        {
+          "member": "ci/storage-refusal/empty/tests.xml",
+          "bytes": 31400,
+          "sha256": "70886894d5fe456200b73268c5e342bb3eabae7d311ccbe5f9cb325be7b9e2eb"
+        },
+        {
+          "member": "ci/storage-refusal/empty/user-dir-console.log",
+          "bytes": 173,
+          "sha256": "804fc8096cb297f54b7f6eb078be027209ad7e74dcbdd1feaca26578446b97fc"
+        },
+        {
+          "member": "ci/storage-refusal/empty/user-dir.log",
+          "bytes": 167,
+          "sha256": "050cd18a30fc39a0de5f5276fbf215790680148732f5c1ee4b46ab0f62fc15ab"
+        },
+        {
+          "member": "ci/storage-refusal/results.json",
+          "bytes": 507,
+          "sha256": "33954a965254e7d2e0829d1aa4cb98761b9ea22748b7390c8640a668f3226cf2"
+        },
+        {
+          "member": "ci/storage-refusal/whitespace/appdata/Godot/app_userdata/DWM/desktop-issuer-root.json",
+          "bytes": 192,
+          "sha256": "c65505bbcc3e8f439051263975156b2536b534c94cb3d31d27beb5406b2d3aa3"
+        },
+        {
+          "member": "ci/storage-refusal/whitespace/appdata/Godot/app_userdata/DWM/desktop-publications.json",
+          "bytes": 34,
+          "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+        },
+        {
+          "member": "ci/storage-refusal/whitespace/appdata/Godot/app_userdata/DWM/dialogic/saves/global_info.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "member": "ci/storage-refusal/whitespace/appdata/Godot/app_userdata/DWM/profile.json",
+          "bytes": 2744,
+          "sha256": "1d2b6c170f287ce0d7e33cf77ac5ac9ac01a3781e94081643b802a90fd8020b2"
+        },
+        {
+          "member": "ci/storage-refusal/whitespace/appdata/Godot/app_userdata/DWM/schedule-foundation-publications.json",
+          "bytes": 34,
+          "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+        },
+        {
+          "member": "ci/storage-refusal/whitespace/console.log",
+          "bytes": 38468,
+          "sha256": "f379edfdf2823f5a688a7e0e0365bc395fa1c63c78e3e43fad58975d081c145f"
+        },
+        {
+          "member": "ci/storage-refusal/whitespace/godot.log",
+          "bytes": 36212,
+          "sha256": "1dfc058948e2e7216436d5ec3ea4deae97a7446366a88e8125bf60fb8dd78ad3"
+        },
+        {
+          "member": "ci/storage-refusal/whitespace/repository-after.json",
+          "bytes": 1672604,
+          "sha256": "cdba6b99b4f087d357eaac9bb0fd5ce3589374cb5e246cd275a1617b6774d940"
+        },
+        {
+          "member": "ci/storage-refusal/whitespace/repository-before.json",
+          "bytes": 1672604,
+          "sha256": "cdba6b99b4f087d357eaac9bb0fd5ce3589374cb5e246cd275a1617b6774d940"
+        },
+        {
+          "member": "ci/storage-refusal/whitespace/tests.xml",
+          "bytes": 31408,
+          "sha256": "5b8746019295822066869de581b26c5ece405003a42fb619f9ee873f553550a3"
+        },
+        {
+          "member": "ci/storage-refusal/whitespace/user-dir-console.log",
+          "bytes": 178,
+          "sha256": "6a6a857d6b70ee157ed1adb4be9a93556313c850c052f5d7d385cda1e0259865"
+        },
+        {
+          "member": "ci/storage-refusal/whitespace/user-dir.log",
+          "bytes": 172,
+          "sha256": "b792f87d4b2febdde77f6b552e3ec0dc42ebed9ef263a47cb1ffdd7bced021bc"
+        },
+        {
+          "member": "phase2r_logs/cloud-manual-witness-revision-storage.log",
+          "bytes": 277,
+          "sha256": "f96a2e17bbe1d842875f49476a8419eab5d7b3419fbfdb2850a3e4df407fc147"
+        },
+        {
+          "member": "phase2r_logs/cloud-settings.log",
+          "bytes": 23254375,
+          "sha256": "9da019cfe8e5099b9f4f3314d2a2a3e0a6df4d2ffefb2baee935aed489ba0ec4"
+        }
+      ],
+      "not_retained": []
+    },
+    "windows-checkpoint_diagnostics-37044894986-1": {
+      "api_artifact_id": 11243413769,
+      "archive": {
+        "path": "/workspace/scratch/e58f796fe7a3/attachments/586293f6-c746-40fc-9807-1ff20e24b914/windows-checkpoint_diagnostics-37044894986-1.zip",
+        "bytes": 602600,
+        "sha256": "c0601bd2c3a884ccb685988bedfdca632969570ce5b5078c23db548916ed7d32"
+      },
+      "api_digest": "sha256:c0601bd2c3a884ccb685988bedfdca632969570ce5b5078c23db548916ed7d32",
+      "zip_crc_ok": true,
+      "all_retained_members_match_original": true,
+      "original_members": 4,
+      "retained_members": [
+        {
+          "member": "ci/checkpoint_diagnostics.jsonl",
+          "bytes": 948,
+          "sha256": "0668a3f969c1810889b31661cccc7cd4bbfc6f9af06fd1093b5ddb373c6ff379"
+        },
+        {
+          "member": "ci/checkpoint_diagnostics.xml",
+          "bytes": 5448,
+          "sha256": "aa11f83f30e6cb5b79f37b94bbfd6d4789b1869140550c8c6f32321543d51e76"
+        },
+        {
+          "member": "ci/import.log",
+          "bytes": 203723,
+          "sha256": "7f2c027bb997cf92a0e573d36ce2326b22215724a3f53eb1f241e21cd3b997e0"
+        },
+        {
+          "member": "phase2r_logs/cloud-checkpoint_diagnostics.log",
+          "bytes": 12079859,
+          "sha256": "ef7ff09ab281c0380f6ef3576a571f0608f3fd8cad20383b751dfe881746e5e8"
+        }
+      ],
+      "not_retained": []
+    },
+    "windows-new_account-37044894986-1": {
+      "api_artifact_id": 11243399889,
+      "archive": {
+        "path": "/workspace/scratch/e58f796fe7a3/attachments/43738cf8-724c-4dfb-9c2f-a25d56b6a0ce/windows-new_account-37044894986-1.zip",
+        "bytes": 238465,
+        "sha256": "20a9fbab9bb19bfddfa666ccaebe8e5d1e666d9f0fc906f9c3e6160ec1c05021"
+      },
+      "api_digest": "sha256:20a9fbab9bb19bfddfa666ccaebe8e5d1e666d9f0fc906f9c3e6160ec1c05021",
+      "zip_crc_ok": true,
+      "all_retained_members_match_original": true,
+      "original_members": 7,
+      "retained_members": [
+        {
+          "member": "ci/import.log",
+          "bytes": 203723,
+          "sha256": "c955980fdbc00dd729392a2bc8562269658602b794fccabcc8475d186f33f4d5"
+        },
+        {
+          "member": "ci/new-account-latency.json",
+          "bytes": 176,
+          "sha256": "02c867979613d3307c31ca63cc12e3183902e324e10e578ac870093991f63137"
+        },
+        {
+          "member": "ci/new-account-latency.jsonl",
+          "bytes": 675,
+          "sha256": "2266eec2a5321f488e9f8722db38cc3e6273b02398b1340dd40f830f0edab453"
+        },
+        {
+          "member": "ci/new_account.jsonl",
+          "bytes": 1454,
+          "sha256": "e0f019e240d8b4dabf4172fd68849e2a2bb28ede39e082cb85e321b5b3f57d2c"
+        },
+        {
+          "member": "ci/new_account.xml",
+          "bytes": 39870,
+          "sha256": "3f917bc139e6d0664614ad199ff4982f0f16686285213ce98fa719b47fe124cd"
+        },
+        {
+          "member": "phase2r_logs/cloud-new-account-latency.log",
+          "bytes": 273,
+          "sha256": "4c0df0261852b84f05e0f6b0ba4b95ab9abca71e8e13e406c90bd629f46b9cf6"
+        },
+        {
+          "member": "phase2r_logs/cloud-new_account.log",
+          "bytes": 3086585,
+          "sha256": "e6306c90b589cf8b725e055ef34f315ad910c308a7531206df4ccf03071f70cd"
+        }
+      ],
+      "not_retained": []
+    },
+    "windows-reading_delivery-37044894986-1": {
+      "api_artifact_id": 11244795107,
+      "archive": {
+        "path": "/workspace/scratch/e58f796fe7a3/attachments/054f0db8-5b4c-4b3f-9e9e-dc2be73c2854/windows-reading_delivery-37044894986-1.zip",
+        "bytes": 202080,
+        "sha256": "3c0257989be8ba328553b0ceb2020c6434d48e40f9229ef2af7b8f301b8ddd78"
+      },
+      "api_digest": "sha256:3c0257989be8ba328553b0ceb2020c6434d48e40f9229ef2af7b8f301b8ddd78",
+      "zip_crc_ok": true,
+      "all_retained_members_match_original": true,
+      "original_members": 4,
+      "retained_members": [
+        {
+          "member": "ci/import.log",
+          "bytes": 203723,
+          "sha256": "88191f6f0b11a21c864e4af4984b622713c3c476c63f4f3dfdcb45adece0b510"
+        },
+        {
+          "member": "ci/reading_delivery.jsonl",
+          "bytes": 2556,
+          "sha256": "eb8e08ae2826b0aa88f67c0893a8cd1950e8f7c877b7b028f38adba3952a2057"
+        },
+        {
+          "member": "ci/reading_delivery.xml",
+          "bytes": 110591,
+          "sha256": "83daba87921e8b47e56875d72335a8d830db110e689085aa2f6c7ba6f3ebd9d6"
+        },
+        {
+          "member": "phase2r_logs/cloud-reading_delivery.log",
+          "bytes": 3346206,
+          "sha256": "b945aec8af7bd1e9b770acc4bc1104eeab585bcfcd201841ad12ad54ca45cbaa"
+        }
+      ],
+      "not_retained": []
+    },
+    "windows-localization-37044894986-1": {
+      "api_artifact_id": 11244325447,
+      "archive": {
+        "path": "/workspace/scratch/e58f796fe7a3/attachments/4df4db4d-7071-45fb-850d-fe2b736e9786/windows-localization-37044894986-1.zip",
+        "bytes": 341267,
+        "sha256": "5d57e56723c6240af35d7c2aba86df2b29685ee941688c0280c00b7a7bf568b3"
+      },
+      "api_digest": "sha256:5d57e56723c6240af35d7c2aba86df2b29685ee941688c0280c00b7a7bf568b3",
+      "zip_crc_ok": true,
+      "all_retained_members_match_original": true,
+      "original_members": 4,
+      "retained_members": [
+        {
+          "member": "ci/import.log",
+          "bytes": 203723,
+          "sha256": "0ffa6345e2e1eb2cd24bf53abbc99ad89df5b511f30e8d1e27673c74d0655eea"
+        },
+        {
+          "member": "ci/localization.jsonl",
+          "bytes": 1548,
+          "sha256": "1498147166297765c7a93aecb33dbbf8500b304d41ab3553acccdecb8f85e97a"
+        },
+        {
+          "member": "ci/localization.xml",
+          "bytes": 34700,
+          "sha256": "d9df61bae5efb444a4d7637e9faa0c071a7eac6d0e87c68e3a66b66e8b7c000f"
+        },
+        {
+          "member": "phase2r_logs/cloud-localization.log",
+          "bytes": 3096108,
+          "sha256": "105854225b87be45c3573fa9457cfa3aa7761328c3a97985753afe211359066b"
+        }
+      ],
+      "not_retained": []
+    },
+    "windows-dating-37044894986-1": {
+      "api_artifact_id": 11243558983,
+      "archive": {
+        "path": "/workspace/scratch/e58f796fe7a3/attachments/f061d02c-e280-4ced-ab2f-6cbc3ead8d45/windows-dating-37044894986-1.zip",
+        "bytes": 637185,
+        "sha256": "3d95577835678c0dcc93ff82399713b44d520966152069c2287f2b536019157b"
+      },
+      "api_digest": "sha256:3d95577835678c0dcc93ff82399713b44d520966152069c2287f2b536019157b",
+      "zip_crc_ok": true,
+      "all_retained_members_match_original": true,
+      "original_members": 4,
+      "retained_members": [
+        {
+          "member": "ci/dating.jsonl",
+          "bytes": 1276,
+          "sha256": "b22c93698b548d5475eba8cce405065dfd02d08fad16af627a626dbd07c7aec0"
+        },
+        {
+          "member": "ci/dating.xml",
+          "bytes": 37799,
+          "sha256": "6261c453327ecb67dca134f90ee77b2f93123d0e1fd1765ac854d5f172a93359"
+        },
+        {
+          "member": "ci/import.log",
+          "bytes": 203723,
+          "sha256": "6b4d682eb8df138131feba3dba4c4ac29374bb67d8a688b729cad0b762c1a601"
+        },
+        {
+          "member": "phase2r_logs/cloud-dating.log",
+          "bytes": 19848937,
+          "sha256": "d0c86cd92d47e6619ea004f06cb014379ef81fbb1caf5679770d0b3739ef83d8"
+        }
+      ],
+      "not_retained": []
+    },
+    "windows-persistence-37044894986-1": {
+      "api_artifact_id": 11243863712,
+      "archive": {
+        "path": "/workspace/scratch/e58f796fe7a3/attachments/cbb85ecb-35ef-48ae-bebd-cdddfb0e0456/windows-persistence-37044894986-1.zip",
+        "bytes": 198347,
+        "sha256": "cb8315fa907330606add78b923abd34ceefa75ced3bc2eadf4f69ddf17a98bc1"
+      },
+      "api_digest": "sha256:cb8315fa907330606add78b923abd34ceefa75ced3bc2eadf4f69ddf17a98bc1",
+      "zip_crc_ok": true,
+      "all_retained_members_match_original": true,
+      "original_members": 6,
+      "retained_members": [
+        {
+          "member": "ci/import.log",
+          "bytes": 203723,
+          "sha256": "34c0f3a582c9dfd8dcadef72fa1b730b8e492e16d46a0e6d626e73461f45d58e"
+        },
+        {
+          "member": "ci/persistence.jsonl",
+          "bytes": 1795,
+          "sha256": "989eccdd1dc2e6fdf6a20817983ed77fe22e6f5cdf2acf3779d191aac83f66c8"
+        },
+        {
+          "member": "ci/persistence.xml",
+          "bytes": 51924,
+          "sha256": "7f550e73fb51abcfe30efd5a7fc13ba86c8fda8ebc81a37a3fec3fc833bd2a6d"
+        },
+        {
+          "member": "ci/save-load-capture.jsonl",
+          "bytes": 627,
+          "sha256": "bc335874db9f5d0ae7c4f0ec9f49aab5cc2bd4b2e7b1d1ef62614253b7adf3de"
+        },
+        {
+          "member": "phase2r_logs/cloud-persistence.log",
+          "bytes": 3673127,
+          "sha256": "2570b865339de2e59c698b10e38b27d93e9c9e67a79a31acd55acbe368dc23e3"
+        },
+        {
+          "member": "phase2r_logs/cloud-save-load-capture.log",
+          "bytes": 119,
+          "sha256": "97474b69beb760ef490fc919a3f8a604c62c701bb876cc39344839106819d290"
+        }
+      ],
+      "not_retained": []
+    },
+    "windows-audio-37044894986-1": {
+      "api_artifact_id": 11244178208,
+      "archive": {
+        "path": "/workspace/scratch/e58f796fe7a3/attachments/43963f01-f64d-418b-b80f-9bc7aad36f7d/windows-audio-37044894986-1.zip",
+        "bytes": 22071,
+        "sha256": "f0d7ea0a23cb5a12ba30a68ea9a2195fc344eb87b9fde426f7f122770c7ea3a6"
+      },
+      "api_digest": "sha256:f0d7ea0a23cb5a12ba30a68ea9a2195fc344eb87b9fde426f7f122770c7ea3a6",
+      "zip_crc_ok": true,
+      "all_retained_members_match_original": true,
+      "original_members": 4,
+      "retained_members": [
+        {
+          "member": "ci/audio.jsonl",
+          "bytes": 752,
+          "sha256": "fe07abcb880046d48515c815acbbdc96eb4f612942a9ae6d4e62092d7943a7bd"
+        },
+        {
+          "member": "ci/audio.xml",
+          "bytes": 9437,
+          "sha256": "17caf5200ce9de2efa5e7adeb9656109ea17e8f2be7e4716f2b649e3c14fadef"
+        },
+        {
+          "member": "ci/import.log",
+          "bytes": 203723,
+          "sha256": "96484172251e8cda0d017d50ecfda192ba3b547e759f289c2d5bf67182d9336d"
+        },
+        {
+          "member": "phase2r_logs/cloud-audio.log",
+          "bytes": 36655,
+          "sha256": "429f1280c96163e5d8493a1020681d592b14eb4ac8035f33a2983b466dcd551c"
+        }
+      ],
+      "not_retained": []
+    }
+  },
+  "public": {
+    "command": "./tools/testing/Invoke-PublicSurfaceValidation.ps1 -EmitPayloads",
+    "command_count": 1,
+    "regeneration": false,
+    "canonical_reproduction_receipt_count": 1,
+    "inventories": {
+      "game_state": {
+        "emitted": {
+          "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/public-surfaces-37044894986-1/ci/public-surfaces/game_state_surface.json",
+          "bytes": 568948,
+          "sha256": "804ca7f1bbe1b929b8c6ce59de390ab15c00f521ddc6290df1fed0a175157631"
+        },
+        "source_path": "evidence/phase_2r/runtime/game_state_surface.json",
+        "source": {
+          "bytes": 568948,
+          "sha256": "804ca7f1bbe1b929b8c6ce59de390ab15c00f521ddc6290df1fed0a175157631"
+        },
+        "byte_identical_to_committed_inventory": true,
+        "check_only_receipt": {
+          "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/public-surfaces-37044894986-1/ci/public-surfaces/game_state-check.jsonl",
+          "bytes": 997,
+          "sha256": "50f83b34bb656e44506924a84b5f95ca1f9310514760355774e5a20ec70b20d4",
+          "record": {
+            "suite_id": "cloud-public-surface-game_state-check",
+            "argv": [
+              "--headless",
+              "--path",
+              "D:\\a\\dwm\\dwm",
+              "--log-file",
+              "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public-surface-game_state-check.log",
+              "-s",
+              "res://tools/runtime/generate_public_surface_inventory.gd",
+              "--",
+              "--script=res://autoload/GameState.gd",
+              "--required=res://evidence/phase_2r/runtime/game_state_required_surface.json",
+              "--output=res://evidence/phase_2r/runtime/game_state_surface.json",
+              "--search-root=res://autoload",
+              "--search-root=res://scripts",
+              "--search-root=res://scenes",
+              "--search-root=res://tests",
+              "--check"
+            ],
+            "exit_code": 0,
+            "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public-surface-game_state-check.log",
+            "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\f533f3ee-bd9f-4745-9a1d-481ac6e90400",
+            "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\f533f3ee-bd9f-4745-9a1d-481ac6e90400\\appdata\\Godot\\app_userdata\\DWM",
+            "started_at_utc": "2026-10-02T18:06:14.1056339Z",
+            "ended_at_utc": "2026-10-02T18:06:29.3616291Z"
+          },
+          "duration_seconds": 15.255996,
+          "isolated_user_dir_strictly_within_test_root": true
+        },
+        "log": {
+          "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/public-surfaces-37044894986-1/phase2r_logs/cloud-public-surface-game_state-check.log",
+          "bytes": 97,
+          "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7",
+          "literal_nul_bytes": 0,
+          "diagnostics": [],
+          "unexpected_diagnostic_count": 0
+        },
+        "pass_markers": 1
+      },
+      "save_manager": {
+        "emitted": {
+          "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/public-surfaces-37044894986-1/ci/public-surfaces/save_manager_surface.json",
+          "bytes": 151143,
+          "sha256": "ccb1a6e576801c4f62cd4c159e89a9e4d9c814cbcf364140c61fc2338365c4d0"
+        },
+        "source_path": "evidence/phase_2r/runtime/save_manager_surface.json",
+        "source": {
+          "bytes": 151143,
+          "sha256": "ccb1a6e576801c4f62cd4c159e89a9e4d9c814cbcf364140c61fc2338365c4d0"
+        },
+        "byte_identical_to_committed_inventory": true,
+        "check_only_receipt": {
+          "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/public-surfaces-37044894986-1/ci/public-surfaces/save_manager-check.jsonl",
+          "bytes": 1009,
+          "sha256": "d90aac071054441e9443c2b6576327519c621dff9a95437f54caa287e8f072fc",
+          "record": {
+            "suite_id": "cloud-public-surface-save_manager-check",
+            "argv": [
+              "--headless",
+              "--path",
+              "D:\\a\\dwm\\dwm",
+              "--log-file",
+              "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public-surface-save_manager-check.log",
+              "-s",
+              "res://tools/runtime/generate_public_surface_inventory.gd",
+              "--",
+              "--script=res://autoload/SaveManager.gd",
+              "--required=res://evidence/phase_2r/runtime/save_manager_required_surface.json",
+              "--output=res://evidence/phase_2r/runtime/save_manager_surface.json",
+              "--search-root=res://autoload",
+              "--search-root=res://scripts",
+              "--search-root=res://scenes",
+              "--search-root=res://tests",
+              "--check"
+            ],
+            "exit_code": 0,
+            "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public-surface-save_manager-check.log",
+            "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\db5ea2d5-de0d-4470-92bb-9424644da150",
+            "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\db5ea2d5-de0d-4470-92bb-9424644da150\\appdata\\Godot\\app_userdata\\DWM",
+            "started_at_utc": "2026-10-02T18:06:34.6730698Z",
+            "ended_at_utc": "2026-10-02T18:06:43.3276278Z"
+          },
+          "duration_seconds": 8.654558,
+          "isolated_user_dir_strictly_within_test_root": true
+        },
+        "log": {
+          "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/public-surfaces-37044894986-1/phase2r_logs/cloud-public-surface-save_manager-check.log",
+          "bytes": 97,
+          "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7",
+          "literal_nul_bytes": 0,
+          "diagnostics": [],
+          "unexpected_diagnostic_count": 0
+        },
+        "pass_markers": 1
+      }
+    },
+    "fixture_census": {
+      "artifact": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/public-surfaces-37044894986-1/ci/public-surfaces/fixture-version-census.json",
+        "bytes": 238384,
+        "sha256": "5015ccd6d04f03d79afc0bbfcc09b3690b91a6dc1aff06be242a6d977601fea5"
+      },
+      "scanned_source_files": 963,
+      "matching_lines": 908,
+      "family_memberships": {
+        "backup_fixture_helper": 7,
+        "run_document_version": 887,
+        "historical_day3_seed": 8,
+        "legacy_prepared_fixture": 4,
+        "empty_contacts_literal": 2
+      },
+      "all_source_records_and_console_records_match": true,
+      "console_summary": {
+        "checkout_ref": "1bc4f6afd759e969f82b9c2134eb178479c19d13",
+        "scanned_files": 963,
+        "matching_lines": 908,
+        "logged_lines": 908,
+        "complete_artifact": ".godot/ci/public-surfaces/fixture-version-census.json",
+        "policy": "Observational census only; historical, refusal and Profile references require review, not automatic failure."
+      },
+      "review": [
+        "Four legacy prepared-fixture mentions are one explicit v5-based current-schema builder and three v6 refusal/skip tests; they do not establish runtime migration.",
+        "Eight valid_day3 seed mentions are test construction inputs. Their builders supply current required context or extract component inputs; the untouched historical filename is not a production acceptance receipt.",
+        "Two literal empty-contacts records are owner-candidate attestation and local snapshot-composer inputs, not admission of a full saved run with empty contacts.",
+        "Schema/version references remain observational. Reproduction of the 908-line census is not independent semantic acceptance of every migration or production content path."
+      ]
+    },
+    "retirement": {
+      "artifact": {
+        "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-extracted/artifacts/public-surfaces-37044894986-1/ci/public-surfaces/retirement-audit.json",
+        "bytes": 563,
+        "sha256": "d246ebf3324702d19d1195709f0572b69d4a60d4749b604c963d604b36e86250"
+      },
+      "source_files": 954,
+      "symbols": [
+        "get_affection_tier",
+        "is_contact_choice_selected",
+        "get_contact_choices",
+        "can_respond_to_invitation",
+        "can_buy_supportz",
+        "has_unread_friend_messages",
+        "prepare_run_candidate",
+        "commit_run_candidate",
+        "get_minesweeper_safety_level",
+        "should_warn_minesweeper_before_schedule_done"
+      ],
+      "independently_recomputed_references": []
+    },
+    "source_scan_identities": {
+      "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-suite-audit/public-source-scan-identities.json",
+      "bytes": 178611,
+      "sha256": "7c6bfb5897b9a82ea08dacc50d417517f5916dcb0765bfb2f28561138ee85ff1"
+    }
+  },
+  "negative_controls_and_standalone": {
+    "subaudit": {
+      "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-suite-audit/negative-controls-subaudit.json",
+      "bytes": 33307,
+      "sha256": "c1e511ac2c2769c5b761adb0550491d629642bfb81f56b58ea7415bced4de9a6"
+    },
+    "status": "pass_bounded_negative_controls_and_standalone",
+    "scope": "Intentional negative controls and standalone receipts only; no ordinary XML census or whole-run acceptance.",
+    "independent_spot_checks": "Reparsed both 83/80/3 XMLs and failure text, matched each complete before/after repository snapshot; ordinary new-account log independently admits exactly the one ff diagnostic."
+  },
+  "endings_absent": {
+    "expected_cases": 106,
+    "expected_scripts": 12,
+    "job_id": 110965240440,
+    "status": "not_executed_installation_failure",
+    "failed_step": "Install Godot 4.6.3 standard",
+    "actions_log": {
+      "path": "/workspace/scratch/e58f796fe7a3/hospital-broad1-early-logs/logs/110965240440.log",
+      "bytes": 48025,
+      "sha256": "75352de669bd9a07e6c2cfac91a4fa6b35bbb1876cac7ef8eea8a5e36d18c5ef"
+    },
+    "observed_checkout": {
+      "command_line": 168,
+      "command": "[command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H",
+      "output_line": 169,
+      "observed": "1bc4f6afd759e969f82b9c2134eb178479c19d13"
+    },
+    "cloud_gut_receipts": 0,
+    "xml_present": false,
+    "retry": "Parent reports this head superseded; no old-head Endings retry required."
+  },
+  "whole_broad_acceptance": false,
+  "limits": [
+    "Parent reports warm/region benchmark guards are stale after the cold-lease repair; broad1 remains blocked/superseded pending corrected-source full broad2.",
+    "The supplied job snapshot contains only 18 completed jobs. This audit makes no complete-24-job success claim.",
+    "No Endings engine execution or XML exists in this attempt; its 106 cases are static prediction only.",
+    "The Hospital rendered semantic audit and other rendered/performance/export components are separate; this report does not replace them.",
+    "Passing fixtures and public byte inventories do not admit production Hospital prose, unexercised ingresses/conditions, all days, pair/ending continuity, graphical Windows or native accessibility."
+  ]
+}

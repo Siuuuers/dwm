@@ -1,0 +1,81 @@
+{
+  "scope": "Synthetic auditor controls only; no current cloud runtime acceptance.",
+  "synthetic_semantic_baseline_passed": true,
+  "negative_control_count": 14,
+  "negative_controls": [
+    {
+      "control": "read-aloud positive control removed",
+      "rejected": true,
+      "reason": "ENABLED_READ_ALOUD_POSITIVE_CONTROL_REQUIRED"
+    },
+    {
+      "control": "partial reveal lost",
+      "rejected": true,
+      "reason": "EXACT_READING_SOURCE_AND_CONTINUE_REQUIRED"
+    },
+    {
+      "control": "saved line advanced",
+      "rejected": true,
+      "reason": "EXACT_READING_SOURCE_AND_CONTINUE_REQUIRED"
+    },
+    {
+      "control": "Settings focus drift",
+      "rejected": true,
+      "reason": "EXACT_SETTINGS_HOST_FOCUS_AND_SUSPENSION_REQUIRED"
+    },
+    {
+      "control": "Autosave mutation",
+      "rejected": true,
+      "reason": "ONLY_QUICK_APPEARS_AND_READER_DISK_IDENTITIES_REMAIN_UNCHANGED"
+    },
+    {
+      "control": "foreign storage owner",
+      "rejected": true,
+      "reason": "EXACT_SINGLE_SUCCESSFUL_ABSENT_QUICK_REVISION_TRANSACTION_REQUIRED"
+    },
+    {
+      "control": "Quick candidate substituted",
+      "rejected": true,
+      "reason": "EXACT_SINGLE_SUCCESSFUL_ABSENT_QUICK_REVISION_TRANSACTION_REQUIRED"
+    },
+    {
+      "control": "transaction marker substituted",
+      "rejected": true,
+      "reason": "EXACT_SINGLE_SUCCESSFUL_ABSENT_QUICK_REVISION_TRANSACTION_REQUIRED"
+    },
+    {
+      "control": "transient saved app",
+      "rejected": true,
+      "reason": "TRANSIENT_SETTINGS_MUST_NOT_OWN_CANONICAL_ROUTE"
+    },
+    {
+      "control": "restored speech repeated",
+      "rejected": true,
+      "reason": "FRESH_RESTORE_MUST_BE_COMPLETE_EXACT_AND_SILENT"
+    },
+    {
+      "control": "bool substituted for zero speech",
+      "rejected": true,
+      "reason": "FRESH_RESTORE_MUST_BE_COMPLETE_EXACT_AND_SILENT"
+    },
+    {
+      "control": "raw Quick corruption",
+      "rejected": true,
+      "reason": "RAW_QUICK_BYTES_MUST_EQUAL_DISK_IDENTITY"
+    },
+    {
+      "control": "trace process swapped",
+      "rejected": true,
+      "reason": "TRACE_SEQUENCE_OR_PROCESS_MISMATCH: settings-read"
+    },
+    {
+      "control": "trace value substituted",
+      "rejected": true,
+      "reason": "ALL_SEVEN_EXECUTED_TRACE_VALUES_MUST_BIND_REPORTS_AND_RAW_QUICK"
+    }
+  ],
+  "auditor_identity": {
+    "bytes": 34153,
+    "sha256": "3086cc010cc0c42551d6813755f6de299b79b607c1761158cba3404560693c1b"
+  }
+}

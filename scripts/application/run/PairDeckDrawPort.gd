@@ -178,3 +178,11 @@ static func _ok(value: Variant) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": value}
 static func _fail(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code}
+
+
+
+## Bootstrap calls this only when the application owner is being destroyed.
+## The condition owner retains the adapter that owns this draw port.
+## Break that lifetime cycle without transactions, signals, or durable writes.
+func release_runtime_dependencies() -> void:
+	_condition_owner = null

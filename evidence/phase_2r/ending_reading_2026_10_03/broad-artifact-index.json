@@ -1,0 +1,246 @@
+{
+  "run_id": 37129223870,
+  "artifacts": [
+    {
+      "id": 11277176283,
+      "name": "warm-outgoing-proof-37129223870-1",
+      "bytes": 463108,
+      "digest": "sha256:520ca4f0f77af2d650ab3b0004afd41bc5295927634175b8e1bb1de8a7dd3f72"
+    },
+    {
+      "id": 11277085352,
+      "name": "lazy-normalization-37129223870-1",
+      "bytes": 49261,
+      "digest": "sha256:4f58d510c0f182ad618dc13c54a2c05dc286a6fd025a4f93dbc20211fbe286bd"
+    },
+    {
+      "id": 11276835104,
+      "name": "windows-endings-37129223870-1",
+      "bytes": 75055,
+      "digest": "sha256:659279d7bf52fe4a134e753fd57eef433211270b5c90f299f1fce71a4d6cf56e"
+    },
+    {
+      "id": 11276770675,
+      "name": "windows-settings-37129223870-1",
+      "bytes": 2768042,
+      "digest": "sha256:7ba7f5d48414ecded9838979d2c4ecd79bcd95c60bd26236a508765535f19f18"
+    },
+    {
+      "id": 11276695488,
+      "name": "cloud-speech-rendered-ending-reading-37129223870-1",
+      "bytes": 385997,
+      "digest": "sha256:a827ba738516eba496ba01b9e4da437d57480258477df34759df4f8d2989430f"
+    },
+    {
+      "id": 11276655454,
+      "name": "cloud-speech-rendered-hospital-reading-37129223870-1",
+      "bytes": 385769,
+      "digest": "sha256:760e6bb7363a0ac3b1ea746ad48719a1b8f21422c932c43da755ce1647644172"
+    },
+    {
+      "id": 11276640404,
+      "name": "cloud-speech-rendered-desktop-37129223870-1",
+      "bytes": 385894,
+      "digest": "sha256:c62637b88341c88fe6fa9c950c3dbefa1f3cf0fd4b756848d8a7ee6157ba5c9d"
+    },
+    {
+      "id": 11276605651,
+      "name": "windows-checkpoint_diagnostics-37129223870-1",
+      "bytes": 602820,
+      "digest": "sha256:b5b0575644f5899f8178c12dd17f366fe99fc23c18724c166a5c409c07f1c414"
+    },
+    {
+      "id": 11276540849,
+      "name": "playable-journeys-37129223870-1",
+      "bytes": 9637103,
+      "digest": "sha256:e045398a5b6829ad23d6cf627e852bc3a8efbcd184dff80dc93f55573f024ee7"
+    },
+    {
+      "id": 11276535692,
+      "name": "public-surfaces-37129223870-1",
+      "bytes": 145583,
+      "digest": "sha256:3bd8798d5b30ffe889dc47dbff0a13c942cd2758df2e574e0811a6d1be68f79a"
+    },
+    {
+      "id": 11276458354,
+      "name": "seven-day-inputs-37129223870",
+      "bytes": 80856,
+      "digest": "sha256:3f8b941ea3b319579d0eb043115aa9d871f746184c9d20ff8e4da7cfb51aee73"
+    },
+    {
+      "id": 11276447029,
+      "name": "windows-desktop-37129223870-1",
+      "bytes": 293716,
+      "digest": "sha256:da6a0c463184574aa66d17dda08c3d295494507c35ca53c857a625e699ee7c01"
+    },
+    {
+      "id": 11276367048,
+      "name": "cloud-speech-rendered-timed-hold-37129223870-1",
+      "bytes": 384162,
+      "digest": "sha256:639e942ffc6afe26627a2401684006d776965efdde5193e01cdf447c42fd5795"
+    },
+    {
+      "id": 11276347223,
+      "name": "windows-dating-37129223870-1",
+      "bytes": 612903,
+      "digest": "sha256:50e0a3627403297dac2f2546ab66a50f5f0b3e8c7f6f09d322809326890c767b"
+    },
+    {
+      "id": 11276342280,
+      "name": "ending-reading-37129223870-1",
+      "bytes": 2313399,
+      "digest": "sha256:951c93cc00980c0249d2ff90f02506ca310602cde99c5a00d9d45d18fa8e44d8"
+    },
+    {
+      "id": 11276302651,
+      "name": "solo-authored-selector-37129223870-1",
+      "bytes": 7014303,
+      "digest": "sha256:a78a61d6634e334da829b207fd0985c35d156332d7704ff2bf2f3613e2e4ea66"
+    },
+    {
+      "id": 11276302386,
+      "name": "angela-overlay-render-37129223870-1",
+      "bytes": 2836154,
+      "digest": "sha256:b926fcd98a82eb44287b616037a9060134e4d4e85db8c807e064794e7115e546"
+    },
+    {
+      "id": 11276277384,
+      "name": "windows-minesweeper-37129223870-1",
+      "bytes": 166441,
+      "digest": "sha256:0fa127e63c2a66a5a819d46e6b8d0fd03454b6ae6a9cdca0d6176e77cca1cc1e"
+    },
+    {
+      "id": 11276234971,
+      "name": "history-region-search-37129223870-1",
+      "bytes": 125994,
+      "digest": "sha256:7c9e5308441e61593dc0e613275a50aed302ecbf00581840520c1e58cb7e1c58"
+    },
+    {
+      "id": 11276227575,
+      "name": "checkpoint-performance-37129223870-1",
+      "bytes": 153529,
+      "digest": "sha256:7ea0aae6144610c05f4f66a792dba20ccb2aaea6940f2a2762c720e43a3e42b4"
+    },
+    {
+      "id": 11276194182,
+      "name": "outgoing-normalization-37129223870-1",
+      "bytes": 24728,
+      "digest": "sha256:8b67725d65c14a1b709e206ac6cf2b01e60c6879aa904a31c034b465067cfd8c"
+    },
+    {
+      "id": 11276177676,
+      "name": "windows-reading_delivery-37129223870-1",
+      "bytes": 308148,
+      "digest": "sha256:4756fd8ecd1c322bc8146642d71dbf144281c1621cdceb24fb0da91a91c41201"
+    },
+    {
+      "id": 11276142770,
+      "name": "hospital-reading-37129223870-1",
+      "bytes": 9000278,
+      "digest": "sha256:8e9323b20102a1c4888144ff8bcdc822281286ea09106afd683e542d94273f88"
+    },
+    {
+      "id": 11276142633,
+      "name": "windows-shop-37129223870-1",
+      "bytes": 65450,
+      "digest": "sha256:81c3b031e5bec96658c01543bca26ad627fc916f1220bc83a9fbc6940dd3e67b"
+    },
+    {
+      "id": 11276142531,
+      "name": "cloud-speech-rendered-journeys-37129223870-1",
+      "bytes": 385214,
+      "digest": "sha256:b773d3210bec4c98e2ca721f8c9de9a8b69fb20be380169efd2c8b0a33d2e8c0"
+    },
+    {
+      "id": 11276137886,
+      "name": "ui-literal-audit-37129223870-1",
+      "bytes": 28988,
+      "digest": "sha256:91b5cfc17db41058ed89f3d17c40a3d4052d7feec3f8d69d7bc8317aa17eb9bc"
+    },
+    {
+      "id": 11276123043,
+      "name": "reading-rail-37129223870-1",
+      "bytes": 11543495,
+      "digest": "sha256:a3140e4872465f560e2d55105c2ca8823b95d9bee063d1cbd9fd06a38381b0dd"
+    },
+    {
+      "id": 11276042723,
+      "name": "delivery-dialogue-render-37129223870-1",
+      "bytes": 15181031,
+      "digest": "sha256:a99a36ab5139a124a972c689ddff77e6ad8bf92ba464375720ebc118b6524b5b"
+    },
+    {
+      "id": 11276037924,
+      "name": "windows-localization-37129223870-1",
+      "bytes": 341309,
+      "digest": "sha256:6bf68d8a2ba2a081b33c02766db0984119a6fb38f90334a58bd6407fe7e9386b"
+    },
+    {
+      "id": 11276037881,
+      "name": "desktop-scaling-render-37129223870-1",
+      "bytes": 11240341,
+      "digest": "sha256:c9db01b0c9726f63324002dca5f34b65a1712d4811792fd1073f8584859de04e"
+    },
+    {
+      "id": 11276004344,
+      "name": "seven-day-history-37129223870-1",
+      "bytes": 315014,
+      "digest": "sha256:b43e0aee9e74db2cc117cf782df35b16647c0631ce794c89382d8c7d00d78384"
+    },
+    {
+      "id": 11275928273,
+      "name": "checkpoint-payloads-37129223870",
+      "bytes": 50078,
+      "digest": "sha256:03a153ba134f4b871ece3c33f7c4294173f83b41d1ac9befcd3fe76ce688e9ee"
+    },
+    {
+      "id": 11275918219,
+      "name": "japanese-korean-ui-render-37129223870-1",
+      "bytes": 7058358,
+      "digest": "sha256:a7c75be9ef60f0198a985081465a2564579d33c2beb5fde355d4400caf4b663d"
+    },
+    {
+      "id": 11275843505,
+      "name": "font-choices-render-37129223870-1",
+      "bytes": 6314139,
+      "digest": "sha256:b4de4ffb67726f191fd6d101c13d41dcdab1e5184c26fca62df6aa8fc98a4354"
+    },
+    {
+      "id": 11275838389,
+      "name": "windows-export-37129223870-1",
+      "bytes": 98887447,
+      "digest": "sha256:bcf6975a56a871bcdd6b320ea0a138684d95cf5f65dac79db72ec693df659c66"
+    },
+    {
+      "id": 11275818289,
+      "name": "windows-persistence-37129223870-1",
+      "bytes": 199497,
+      "digest": "sha256:e5c3b4e6452345e48ea612cee88557f1b24b27f5f2965d728b1da36fbb0cba98"
+    },
+    {
+      "id": 11275793434,
+      "name": "timed-hold-37129223870-1",
+      "bytes": 4844190,
+      "digest": "sha256:d7defb472930a4c4f97cebc895e87fecfc904508d7c521175e6d0449f12de230"
+    },
+    {
+      "id": 11275783794,
+      "name": "playable-startup-render-37129223870-1",
+      "bytes": 1049944,
+      "digest": "sha256:6ed263215333f8a27852b63023950f61c14a056b341806b55f91a1f583cb2416"
+    },
+    {
+      "id": 11275549853,
+      "name": "windows-audio-37129223870-1",
+      "bytes": 22232,
+      "digest": "sha256:67ce92680d252f07571236b2e24ce62a51e22735a063cebfd0d589300a4e24f7"
+    },
+    {
+      "id": 11275524945,
+      "name": "windows-new_account-37129223870-1",
+      "bytes": 238680,
+      "digest": "sha256:4672c6c42c339baf8e2ebd6d8ed0b0883af22ba1547affe17f7c35d8ba95b49c"
+    }
+  ],
+  "scope": "Metadata for every final cloud artifact. Downloaded and byte-verified selections are identified in broad-manifest.json and gates-manifest.json."
+}

@@ -28,7 +28,7 @@ func _run() -> void:
 	for tier: String in ["beginner","intermediate","expert"]:
 		panel.register.difficulties[tier].pressed.emit()
 		if not _check(panel.worksheet.cell_size == 36 and not panel.worksheet.always_fit, "fresh tier defaults to manual 36"): return
-		panel.worksheet.zoom_controls[2].pressed.emit()
+		panel.worksheet.zoom_controls[1].pressed.emit()
 		if not _check(panel.worksheet.always_fit, "explicit Fit toggle is remembered for " + tier): return
 		for percent: int in [100,125,150]:
 			if not _check(panel.configure("en",percent,false),"UI text preference accepted"): return
@@ -56,7 +56,7 @@ func _run() -> void:
 	for index: int in physical.mine_indices:
 		if index not in physical.flagged_indices: mine=index; break
 	if not _check(mine>=0,"fixture has an unflagged mine"): return
-	panel.dock.buttons.reveal.pressed.emit()
+	panel.dock.buttons.flag.pressed.emit()
 	_click_cell(panel.worksheet.grid,mine)
 	await _frames()  # dwm-634.1: the terminal board paints first; settlement runs on the next frames
 	if not _check(panel.public_view.settled,"real loss settles"): return

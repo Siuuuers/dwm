@@ -133,7 +133,7 @@ func verify_main_scene() -> void:
 		check(app.size.is_equal_approx(Vector2(800, 656)), "Actual mounted app content remains 800 by 656 at 150%")
 		check(panel.size.is_equal_approx(Vector2(800, 656)), "Actual mounted Contacts plate remains 800 by 656 at 150%")
 		check(not app.get_node("VBoxContainer/TopBar").visible, "App-local toolbar stays hidden under shared shell")
-		check(is_equal_approx(desktop.get_node("AppStrip").size.y, 64.0), "Desktop-owned toolbar remains 64 pixels high at 150%")
+		check(is_equal_approx(desktop.get_node("DesktopCanvas/AppStrip").size.y, 64.0), "Desktop-owned toolbar remains 64 logical pixels high at 150%")
 		check(is_equal_approx(app.global_position.y - desktop.global_position.y, 64.0), "App content starts below the desktop-owned toolbar")
 		var bounds := app.get_global_rect()
 		print("MAIN_GEOMETRY ", {"viewport": root.size, "main": main.get_global_rect(), "app": bounds, "panel": panel.size})

@@ -55,7 +55,7 @@ func _run() -> void:
 	if file != null:
 		file.store_string(JSON.stringify({"ok": not _failed, "backend": DisplayServer.get_name(),
 			"checks": _checks, "states": _states,
-			"scope": "Native main-window geometry and one real Profile commit; memory-only storage, fake silent audio; no audible or GPU typography claim."}, "\t"))
+			"scope": "Native main-window geometry and real mode/size Profile commits; memory-only storage, fake silent audio; no audible or GPU typography claim."}, "\t"))
 		file.close()
 	print("WINDOW_MODE_NATIVE_VERIFIED checks=%d ok=%s evidence=%s" % [_checks.size(), not _failed, DESTINATION])
 	quit(1 if _failed else 0)
@@ -79,7 +79,10 @@ func _verify_port() -> void:
 	observed = _port.capture_output()
 	if observed.get("ok", false):
 		_states.windowed = _serialize(observed.value)
-		_check(observed.value.size == Vector2i(1280, 720), "windowed_1280_by_720")
+		var usable := DisplayServer.screen_get_usable_rect(observed.value.screen)
+		_check(usable.encloses(Rect2i(observed.value.position, observed.value.size)), "windowed_fits_current_monitor")
+		if "1280x720" in _port.get_available_window_sizes():
+			_check(observed.value.size == Vector2i(1280, 720), "windowed_1280_by_720")
 	else:
 		_check(false, "capture_windowed")
 
@@ -116,6 +119,14 @@ func _verify_manager_pipeline() -> void:
 	_check(not gate.is_fatal_latched(), "shared_gate_healthy")
 	var observed: Dictionary = _port.capture_output()
 	if observed.get("ok", false): _states.manager_commit = _serialize(observed.value)
+	_check(_manager.commit_settings_window_preference("native-window-verification", "windowed").ok, "return_to_windowed")
+	for id: String in _manager.get_available_window_sizes():
+		var changed: Dictionary = _manager.commit_settings_window_size("native-window-verification", id)
+		_check(changed.get("ok", false), "manager_size_" + id)
+		_check(_profile.get_preference(&"preferences.display.window_size") == id, "profile_size_" + id)
+		_check(_port.output_matches("windowed", id), "native_size_" + id)
+		_check(not gate.is_fatal_latched(), "size_gate_healthy_" + id)
+
 
 func _serialize(snapshot: Dictionary) -> Dictionary:
 	return {"owner_id": snapshot.owner_id, "mode": snapshot.mode, "borderless": snapshot.borderless,

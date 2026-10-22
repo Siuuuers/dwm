@@ -49,6 +49,7 @@ func _empty_desktop() -> Dictionary:
 
 func _seed(manager: Node, run_id: String) -> void:
 	var fixture: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(VALID_FIXTURE))
+	fixture["contacts"] = preload("res://scripts/domain/contact/ContactInvitationState.gd").make_defaults()
 	fixture["gameplay"].erase("opening_seen")
 	fixture["gameplay"].erase("tutorial_seen")
 	var lifecycle: Dictionary = fixture["lifecycle"]
@@ -59,6 +60,9 @@ func _seed(manager: Node, run_id: String) -> void:
 	lifecycle["causal_day_instance"] = "causal-day-1"
 	lifecycle["causal_day_instance_issuer_receipt"] = _issuer_receipt("causal-day-1")
 	lifecycle["restore_provenance"] = null
+	lifecycle["active_condition_hospital_plan"] = null
+	lifecycle["condition_hospital_history"] = {}
+	lifecycle["terminal_intent_handoff"] = null
 	assert_true(manager._journal.reset(run_id)["ok"])
 	var seeded: Dictionary = manager.record_stable_checkpoint({
 		"snapshot_input": {
@@ -68,6 +72,8 @@ func _seed(manager: Node, run_id: String) -> void:
 				"registry_fingerprint": null, "entries": [], "commit_receipt": null,
 			},
 			"desktop": _empty_desktop(),
+			"schedule_view": preload("res://scripts/domain/schedule/ScheduleViewState.gd").make_empty(
+				int(lifecycle["day"]), str(lifecycle["causal_day_instance"])).value.view,
 			"dating": fixture["dating"],
 			"applied_effect_transaction_ids": [], "applied_variable_transaction_ids": [],
 		},

@@ -21,6 +21,11 @@ func _quick_available(action: String) -> bool:
 
 
 func commit_action(token: String) -> Dictionary:
+	if _pending.has(token) and _pending[token].get("action") == "save":
+		var prepared: Dictionary = _pause.prepare_backup_save()
+		if not prepared.get("ok", false):
+			cancel_action(token)
+			return prepared
 	if not _pending.has(token) or _pending[token].get("action") != "load":
 		return super.commit_action(token)
 	var released: Dictionary = await _pause.release_for_backup_load()

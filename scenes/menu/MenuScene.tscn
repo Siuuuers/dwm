@@ -82,7 +82,7 @@ layout_mode = 1
 anchors_preset = 0
 offset_left = 320.0
 offset_right = 1280.0
-offset_bottom = 720.0
+offset_bottom = 656.0
 
 [node name="SettingHost" type="Control" parent="." unique_id=743269089]
 unique_name_in_owner = true
@@ -90,6 +90,6 @@ visible = false
 layout_mode = 1
 anchors_preset = 0
 offset_left = 320.0
-offset_top = 64.0
+offset_top = 0.0
 offset_right = 1280.0
-offset_bottom = 720.0
+offset_bottom = 656.0

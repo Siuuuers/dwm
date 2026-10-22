@@ -42,7 +42,7 @@ func test_every_entry_is_localized_plain_incoming_copy_without_identity_leakage(
 		assert_false(row.outgoing,message_id)
 		var locales: Array = row.texts.keys()
 		locales.sort()
-		assert_eq(locales,["en","zh-CN","zh-HK"],message_id)
+		assert_eq(locales,["en","ja","ko","zh-CN","zh-HK"],message_id)
 		for locale: String in locales:
 			var body: String = row.texts[locale]
 			assert_false(body.strip_edges().is_empty(),message_id+":"+locale)

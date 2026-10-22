@@ -112,9 +112,9 @@ func before_each() -> void:
 	_dc = DataCatalog.new()
 
 
-func test_eighteen_shop_items() -> void:
+func test_thirteen_shop_items() -> void:
 	var items := _dc.get_shop_items()
-	assert_eq(items.size(), 18, "exactly 18 shop item templates")
+	assert_eq(items.size(), 13, "exactly 13 shop item templates")
 
 
 func test_supportz_properties() -> void:
@@ -277,3 +277,10 @@ func test_shop_projection_equals_the_registry_records() -> void:
 			"%s effect_ids are projected, not stored" % item_id)
 		assert_eq(int(item.get("max_purchases", -1)), int(cap.get("per_branch", -2)),
 			"%s max_purchases is derived from cap.per_branch" % item_id)
+
+
+func test_retired_items_are_absent_and_mixed_items_keep_only_pressure() -> void:
+	for item_id: String in ["coffee", "pep_note", "bandage_pack", "healthy_meal", "protein_box"]:
+		assert_true(_dc.get_shop_item(item_id).is_empty(), item_id)
+	for item_id: String in ["wine", "premium_care"]:
+		assert_eq(_dc.get_shop_item(item_id).effect_ids, ["pressure:-4"])

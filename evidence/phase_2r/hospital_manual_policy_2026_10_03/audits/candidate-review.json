@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "source": "82dc881e77f21c34f152d940d55cf317ba5bd784",
+  "baseline": "2e0de5d54a872ba5af8fd9cb4b2419d0de6008e0",
+  "files": [
+    {
+      "path": ".beads/issues.jsonl",
+      "bytes": 2024081,
+      "sha256": "1c7c6c8a16aca46257fdd00e6808afc5cd8d02ee28c48d92343d553629cc2716"
+    },
+    {
+      "path": ".github/workflows/windows-tests.yml",
+      "bytes": 65937,
+      "sha256": "bc87c351ea8c77542cf882c87e19167ecda48f166151398d706ac4bf47d6fccd"
+    },
+    {
+      "path": "docs/agent/2026-09-23-next-session-handoff.md",
+      "bytes": 27179,
+      "sha256": "a2f6125f5899c0011b6f7c9a165f7e50389d0d6afd60d3fd07d181625d89009d"
+    },
+    {
+      "path": "docs/agent/execution-map.md",
+      "bytes": 24648,
+      "sha256": "57e8c9a717f87a914247a264142504e0f0f4892d37859e85ee0546fbf050fb2f"
+    },
+    {
+      "path": "docs/design/2026-08-13-narrative-scene-host-dating-hospital-challenge-ui-ux-amendment.md",
+      "bytes": 88083,
+      "sha256": "1d1001b6633091552a6faeb7ee28d4f0085455559a85c75985557dd23b27b2ed"
+    },
+    {
+      "path": "docs/design/2026-08-22-hospital-ordered-ending-current-v1-ui-disposition.md",
+      "bytes": 20679,
+      "sha256": "ca7de79b10dd56f9683a01d4ac1a1ba8fc79f79362cc15bf2428cefbe7b247ac"
+    },
+    {
+      "path": "docs/design/current-ui/witnessed-scene.md",
+      "bytes": 132148,
+      "sha256": "8705172a73d129bd1e60c29c93fa2fd014cfb1a5b0773b2de95487d0970bdac6"
+    },
+    {
+      "path": "evidence/phase_2r/runtime/game_state_surface.json",
+      "bytes": 569173,
+      "sha256": "b5f50e3a8172824ab4a2534b9a33cdd1a3cd065d79a17185b56b319c241216f9"
+    },
+    {
+      "path": "evidence/phase_2r/runtime/save_manager_surface.json",
+      "bytes": 152044,
+      "sha256": "560136d6f9d9b4caf6d2242828069f04bc21de1b242dc5b69828460c3fe979a4"
+    },
+    {
+      "path": "scripts/application/lifecycle/ProductionPauseController.gd",
+      "bytes": 38806,
+      "sha256": "851182d786dfe326fd5ef9e21e16254e74db535e7ba6e5e74cb9f3a268eafb4e"
+    },
+    {
+      "path": "tests/integration/test_narrative_pause_frontier.gd",
+      "bytes": 61003,
+      "sha256": "220746c9a241dd412f1e1d5257499be1e28dc3d31225efde78800f2ec0084e73"
+    },
+    {
+      "path": "tests/integration/verify_hospital_reading_journey.gd",
+      "bytes": 50679,
+      "sha256": "5728c1025abb68943f04328a7c6b015ad24bcd7adc6cfe66d7b0f9cd45c3b843"
+    },
+    {
+      "path": "tests/unit/test_reading_pause_save.gd",
+      "bytes": 28812,
+      "sha256": "8a56405d9d2eb9eab7727c81cb1f6892bc21420b81685ea4e57bb44503ac1f5b"
+    },
+    {
+      "path": "tools/testing/run_hospital_reading_journey.py",
+      "bytes": 43695,
+      "sha256": "0fbb6e385569b9afcff9ebebfa7a2d962a8e69f73868304cb6e948370baef39e"
+    }
+  ],
+  "changes": [
+    "Existing Pause owner refuses Hospital rail, Backup and Quick manual commands; History admission remains independent.",
+    "Two private Hospital manual-save capture helpers removed; saved-data fields and restore validators retained.",
+    "Quick negative test has an enabled shared owner and positive Dating control.",
+    "Rendered writer seeds existing Quick through test-only setup; real Hospital F5/F9 are exercised physically under Pause and Settings.",
+    "Seven generic Load fixtures now mount actual ending.alone content/context/scene; Hospital-only pause fixtures retained; mounted Hospital refusal added.",
+    "Canonical workflow changes only two Hospital display names.",
+    "Cloud-regenerated public inventories change reference lists/offsets only, not declarations."
+  ],
+  "independent_review": "No blockers after command-owner and test-body reviews; stale comment corrected before first candidate.",
+  "acceptance": "See receipt.json for actual cloud result; this file is a source review, not a test execution claim."
+}

@@ -3,7 +3,7 @@ extends "res://addons/gut/test.gd"
 ## Representative, mutation-verified coverage of the core contract -- not the brief's full
 ## exhaustive crash-injection matrix, matching this task's own established precedent (see the
 ## task-6 report handoff). Proves: the composed post-commit snapshot_input carries the decremented
-## round/charged motivation and the materialized/revealed board (brief Step 6.10's own words), that
+## round without a stat charge and the materialized/revealed board (brief Step 6.10's own words), that
 ## desktop.consequence survives untouched when its run_revision agrees, and that every structural
 ## mismatch this composer is documented to catch fails closed before composing anything.
 
@@ -47,12 +47,16 @@ func _board_candidate(transaction_id: String = "tx-composer") -> Dictionary:
 	var input: Dictionary = semantic.duplicate(true)
 	input["request_fingerprint"] = _fp(semantic)
 	var prepared: Dictionary = state.prepare_first_reveal(input, {"layout": layout, "board": board},
-		{"checkpoint_id": "run-composer:1"})
+		{"checkpoint_id": "run-composer:1", "transaction_id": transaction_id})
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
-	return (prepared["value"] as Dictionary)["candidate"]
+	var candidate: Dictionary = prepared.value.candidate
+	var payment: Dictionary = candidate.board_after.paid_start_receipt.duplicate(true)
+	candidate["result_override"] = {"ok": true, "code": &"first_reveal_committed", "receipt": {},
+		"value": {"receipt": payment, "publication": {"transaction_id": transaction_id, "receipt": payment.duplicate(true)}}}
+	return candidate
 
 func _game_state_candidate(transaction_id: String = "tx-composer") -> Dictionary:
-	return {"transaction_id": transaction_id, "motivation": 6, "rounds_left": 4, "starts_today": {"day-composer": 1}}
+	return {"transaction_id": transaction_id, "rounds_left": 4, "starts_today": {"day-composer": 1}}
 
 func _empty_board_snapshot() -> Dictionary:
 	return BOARD_STATE.new().capture()
@@ -72,8 +76,8 @@ func _consequence(run_revision: int = 0) -> Dictionary:
 func _base_snapshot_input(run_revision: int = 0) -> Dictionary:
 	return {
 		"lifecycle": {"run_id": "run-composer", "day": 1},
-		"gameplay": {"stats": {"motivation": 7, "pressure": 3, "health": 6}, "minesweeper_rounds_left": 5},
-		"contacts": {}, "committed_schedule": {}, "dating": {},
+		"gameplay": {"stats": {"pressure": 3}, "minesweeper_rounds_left": 5},
+		"contacts": {}, "scene": {},
 		"applied_effect_transaction_ids": [], "applied_variable_transaction_ids": [], "command_receipts": {},
 		"desktop": {"board": _empty_board_snapshot(), "consequence": _consequence(run_revision)},
 	}
@@ -82,13 +86,13 @@ func _consequence_candidate(run_revision: int = 0) -> Dictionary:
 	return {"expected_run_revision": run_revision}
 
 
-func test_compose_projects_decremented_round_charged_motivation_and_revealed_board() -> void:
+func test_compose_projects_decremented_round_without_stat_charge_and_revealed_board() -> void:
 	var composed: Dictionary = COMPOSER.compose(_base_snapshot_input(), _game_state_candidate(),
 		_board_candidate(), _consequence_candidate())
 	assert_true(composed.get("ok", false), JSON.stringify(composed))
 	var snapshot_input: Dictionary = (composed["value"] as Dictionary)["snapshot_input"]
 	assert_eq(int(snapshot_input["gameplay"]["minesweeper_rounds_left"]), 4, "the round is decremented")
-	assert_eq(int(snapshot_input["gameplay"]["stats"]["motivation"]), 6, "motivation is charged")
+	assert_eq(snapshot_input["gameplay"]["stats"], {"pressure": 3}, "first Reveal does not change or resurrect stats")
 	var board: Dictionary = snapshot_input["desktop"]["board"]
 	assert_eq(str(board["phase"]), "ACTIVE_VISIBLE", "the board is materialized/revealed")
 	assert_eq(int(board["revision"]), 1)
@@ -150,3 +154,109 @@ func test_compose_rejects_a_non_first_reveal_board_candidate() -> void:
 	var restore_candidate := {"kind": &"restore", "snapshot_after": _empty_board_snapshot()}
 	var composed: Dictionary = COMPOSER.compose(_base_snapshot_input(), _game_state_candidate(), restore_candidate, _consequence_candidate())
 	assert_false(composed.get("ok", true))
+
+
+
+func test_compose_refuses_retired_candidate_fields_without_mutating_input() -> void:
+	for stat_id: String in ["motivation", "health"]:
+		var base := _base_snapshot_input()
+		var before := base.duplicate(true)
+		var candidate := _game_state_candidate()
+		candidate[stat_id] = 1
+		var result: Dictionary = COMPOSER.compose(base, candidate, _board_candidate(), _consequence_candidate())
+		assert_false(result.get("ok", true))
+		assert_eq(result.code, &"invalid_game_state_candidate")
+		assert_eq(base, before)
+
+
+func test_scene_composer_refuses_legacy_outer_members_and_missing_scene() -> void:
+	for key: String in ["committed_schedule", "schedule_view", "dating"]:
+		var base := _base_snapshot_input()
+		base[key] = {}
+		var before := base.duplicate(true)
+		assert_false(COMPOSER.compose(base, _game_state_candidate(), _board_candidate(), _consequence_candidate()).ok)
+		assert_eq(base, before)
+	var missing := _base_snapshot_input()
+	missing.erase("scene")
+	assert_false(COMPOSER.compose(missing, _game_state_candidate(), _board_candidate(), _consequence_candidate()).ok)
+
+func test_scene_composer_refuses_retired_stats_and_coercible_candidates() -> void:
+	for stats: Dictionary in [{"pressure": 3, "health": 8}, {"pressure": 3, "motivation": 4}, {"pressure": 3.0}, {"pressure": 13}]:
+		var base := _base_snapshot_input()
+		base.gameplay.stats = stats
+		assert_false(COMPOSER.compose(base, _game_state_candidate(), _board_candidate(), _consequence_candidate()).ok)
+	for value: Variant in [4.0, "4", true]:
+		var candidate := _game_state_candidate()
+		candidate.rounds_left = value
+		assert_false(COMPOSER.compose(_base_snapshot_input(), candidate, _board_candidate(), _consequence_candidate()).ok)
+
+
+func test_scene_composer_refuses_wrong_debit_and_coerced_revisions() -> void:
+	var candidate := _game_state_candidate()
+	candidate.rounds_left = 5
+	assert_false(COMPOSER.compose(_base_snapshot_input(), candidate, _board_candidate(), _consequence_candidate()).ok)
+	var board := _board_candidate()
+	board.pre_revision = 0.0
+	assert_false(COMPOSER.compose(_base_snapshot_input(), _game_state_candidate(), board, _consequence_candidate()).ok)
+	var consequence := _consequence_candidate()
+	consequence.extra = true
+	assert_false(COMPOSER.compose(_base_snapshot_input(), _game_state_candidate(), _board_candidate(), consequence).ok)
+
+
+func test_projection_matches_actual_board_commit_and_its_retry_result() -> void:
+	var candidate := _board_candidate()
+	var before := candidate.duplicate(true)
+	var base := _base_snapshot_input()
+	var composed: Dictionary = COMPOSER.compose(base, _game_state_candidate(), candidate, _consequence_candidate())
+	assert_true(composed.ok, str(composed))
+	if not composed.ok: return
+	var owner: RefCounted = BOARD_STATE.new()
+	var committed: Dictionary = owner.commit(candidate)
+	assert_true(committed.ok, str(committed))
+	assert_eq(composed.value.snapshot_input.desktop.board, owner.capture())
+	assert_eq(owner.commit(candidate), candidate.result_override, "retry returns the same canonical payment result")
+	assert_eq(candidate, before, "composition and commit do not modify the caller candidate")
+	composed.value.snapshot_input.desktop.board.command_receipts[candidate.transaction_id].result.value.receipt.checkpoint_id = "changed"
+	assert_eq(candidate, before, "the persisted result is detached from the coordinator result")
+	assert_eq(owner.capture().command_receipts[candidate.transaction_id].result, before.result_override)
+
+
+func test_scene_composer_requires_canonical_result_before_projection() -> void:
+	var candidate := _board_candidate()
+	candidate.erase("result_override")
+	var result: Dictionary = COMPOSER.compose(_base_snapshot_input(), _game_state_candidate(), candidate, _consequence_candidate())
+	assert_false(result.ok)
+	assert_eq(result.code, &"invalid_board_candidate")
+
+
+func test_scene_composer_refuses_malformed_or_disagreeing_results_without_mutation() -> void:
+	var valid := _board_candidate()
+	var cases: Array = [null, {}, {"ok": false, "code": &"first_reveal_committed", "value": {}, "receipt": {}}]
+	for change: Dictionary in [{"ok": 1}, {"code": &"ok"}, {"receipt": {"unexpected": true}},
+			{"value": []}, {"extra": true}]:
+		var changed: Dictionary = valid.result_override.duplicate(true)
+		changed.merge(change, true)
+		cases.append(changed)
+	var wrong_transaction: Dictionary = valid.result_override.duplicate(true)
+	wrong_transaction.value.publication.transaction_id = "different"
+	cases.append(wrong_transaction)
+	var wrong_publication: Dictionary = valid.result_override.duplicate(true)
+	wrong_publication.value.publication.receipt.checkpoint_id = "different"
+	cases.append(wrong_publication)
+	var wrong_payment: Dictionary = valid.result_override.duplicate(true)
+	wrong_payment.value.receipt.transaction_id = "different"
+	wrong_payment.value.publication.receipt = wrong_payment.value.receipt.duplicate(true)
+	cases.append(wrong_payment)
+	var wrong_board_payment: Dictionary = valid.result_override.duplicate(true)
+	wrong_board_payment.value.receipt.checkpoint_id = "different"
+	wrong_board_payment.value.publication.receipt = wrong_board_payment.value.receipt.duplicate(true)
+	cases.append(wrong_board_payment)
+	for malformed: Variant in cases:
+		var candidate := valid.duplicate(true)
+		candidate.result_override = malformed
+		var base := _base_snapshot_input()
+		var before := base.duplicate(true)
+		var result: Dictionary = COMPOSER.compose(base, _game_state_candidate(), candidate, _consequence_candidate())
+		assert_false(result.ok, str(malformed))
+		assert_eq(result.code, &"invalid_board_result")
+		assert_eq(base, before)

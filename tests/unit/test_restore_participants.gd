@@ -14,6 +14,7 @@ class FakeOwner extends RefCounted:
 	var id: String
 	var fail_at: StringName = &""
 	var received_pair_witnessed_forms: Variant = null
+	var received_audio_profile: Dictionary = {}
 	func _init(owner_id: String, call_log: RefCounted) -> void:
 		id = owner_id
 		log = call_log
@@ -48,12 +49,13 @@ class FakeOwner extends RefCounted:
 		var g := _guard("prepare_legacy_profile_patch")
 		if not g.is_empty(): return g
 		return {"ok": true, "value": preload("res://scripts/profile/ProfileSchema.gd").make_defaults()}
-	func prepare_locale(locale_id: String) -> Dictionary:
+	func prepare_locale(locale_id: String, _font_style: String = "pixel", _text_size: int = 100) -> Dictionary:
 		_r("prepare_locale")
 		var g := _guard("prepare_locale")
 		if not g.is_empty(): return g
 		return {"ok": true, "value": {"canonical_locale_id": locale_id}}
 	func prepare_semantic_restore(context: Dictionary, _profile: Dictionary) -> Dictionary:
+		received_audio_profile = _profile.duplicate(true)
 		_r("prepare_semantic_restore")
 		var g := _guard("prepare_semantic_restore")
 		if not g.is_empty(): return g
@@ -133,6 +135,22 @@ func test_profile_participant_prepares_legacy_patch_and_derives_locale() -> void
 	assert_true(prepared["ok"], JSON.stringify(prepared))
 	assert_eq(prepared["value"]["locale_id"], "en", "locale derives from the prepared profile language")
 	assert_false(participant.prepare({}).get("ok", true))
+
+func test_audio_entry_mode_is_transient_and_load_keeps_default() -> void:
+	var owner := FakeOwner.new("audio", _log())
+	var participant: RefCounted = load(AUDIO_PATH).new(owner)
+	var context := {"TEST": "same admitted selection"}
+	var input := {"preferences": {"audio": {}}, "audio_context": context}
+	assert_true(participant.prepare(input).ok)
+	assert_false(owner.received_audio_profile.has("scene_audio_mode"), "ordinary Load keeps authored-anchor default")
+	input["scene_audio_mode"] = "entry"
+	assert_true(participant.prepare(input).ok)
+	assert_eq(owner.received_audio_profile.scene_audio_mode, "entry")
+	assert_eq(owner.received_audio_profile.preferences, input.preferences)
+	assert_eq(context, {"TEST": "same admitted selection"}, "mode never enters saved context")
+	input.scene_audio_mode = "invalid"
+	assert_false(participant.prepare(input).ok)
+	assert_eq(owner.received_audio_profile.scene_audio_mode, "entry", "invalid mode refuses before owner call")
 
 func test_localization_and_audio_participants() -> void:
 	if not _all_exist(): return

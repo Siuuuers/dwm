@@ -1,0 +1,240 @@
+{
+  "status": "published",
+  "repository": "Siuuuers/dwm",
+  "pr": 1,
+  "branch": "codex/windows-cloud-ux",
+  "commit": "a858fa787e911bed273abf0155304226d90fe9cb",
+  "tree": "22732eb1ac9e66db3c75e8916b784b817c2b8cf9",
+  "parent": "ad9c1801d89c1eee37655ce3684b5d6a18b69a46",
+  "local_cut": {
+    "base": "ad9c1801d89c1eee37655ce3684b5d6a18b69a46",
+    "source": "e99c984ccf97df7f183a99378ba30783d980a994",
+    "commit": "3aedd6d05ab6f892674d2a72a4bb7c013a649a54",
+    "tree": "22732eb1ac9e66db3c75e8916b784b817c2b8cf9",
+    "files": [
+      ".github/workflows/windows-tests.yml",
+      "autoload/SaveManager.gd",
+      "docs/agent/2026-09-21-session-handoff.md",
+      "evidence/beads_cloud_review/resumed-public-cloud-run50.json",
+      "tests/integration/test_dating_caption_style.gd",
+      "tests/integration/test_desktop_board_persistence.gd",
+      "tests/integration/test_desktop_bootstrap_wiring.gd",
+      "tests/integration/test_minesweeper_first_reveal_transaction.gd",
+      "tests/integration/test_new_run_pair_durability.gd",
+      "tests/integration/test_phase2r_schedule_desktop_handoff.gd",
+      "tests/integration/test_save_capability.gd",
+      "tests/integration/test_save_manager_journal.gd",
+      "tests/manual/benchmark_seven_day_history.gd",
+      "tests/save_load_capture/test_capture.gd",
+      "tests/tooling/Test-InvokeIsolatedGodot.ps1",
+      "tests/unit/test_desktop_cold_recovery_preparation.gd",
+      "tests/unit/test_production_pause_controller.gd",
+      "tests/unit/test_run_dark_configuration.gd",
+      "tests/unit/tooling/test_phase2r_schedule_gate.gd",
+      "tools/testing/Invoke-CloudTests.ps1",
+      "tools/testing/Invoke-IsolatedGodot.ps1",
+      "tools/testing/Invoke-SevenDayHistoryPerformance.ps1",
+      "tools/testing/derive_save_admission_baseline.py"
+    ],
+    "deferred": [
+      ".beads/issues.jsonl"
+    ],
+    "count": 23
+  },
+  "uploaded_blobs": [
+    {
+      "path": ".github/workflows/windows-tests.yml",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "fa26049207f69a639ef30f58f48fe4d1d41d9edc",
+      "size": 46999
+    },
+    {
+      "path": "tools/testing/derive_save_admission_baseline.py",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "230984910efdd73887cd3121abf30bae3f5b9b5b",
+      "size": 3417
+    },
+    {
+      "path": "autoload/SaveManager.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "782baabcbc056c3e6e4001967eb63b2b49c2241e",
+      "size": 142851
+    },
+    {
+      "path": "docs/agent/2026-09-21-session-handoff.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "9d056eecb38e1b3a451bdac8052eed252bb9528f",
+      "size": 13718
+    },
+    {
+      "path": "evidence/beads_cloud_review/resumed-public-cloud-run50.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "09f368c695997be0798f8b64c40e656b5bec2c88",
+      "size": 24182
+    },
+    {
+      "path": "tests/integration/test_dating_caption_style.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a7bc1909e7f8ec21713248792649ff497ee7e406",
+      "size": 52838
+    },
+    {
+      "path": "tests/integration/test_desktop_board_persistence.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f00bf9a2493b67f21df45252ed8091e7e3da2605",
+      "size": 16348
+    },
+    {
+      "path": "tests/integration/test_desktop_bootstrap_wiring.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "0c89f2193c0bd1738a86c70da4b302cfe706c0e9",
+      "size": 51128
+    },
+    {
+      "path": "tests/integration/test_minesweeper_first_reveal_transaction.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "33acd8cf9e2921a710b180d72504e7b559b9f191",
+      "size": 29744
+    },
+    {
+      "path": "tests/integration/test_new_run_pair_durability.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ceef2cc5a1c301a41eb73a6d050dacda25690d81",
+      "size": 16098
+    },
+    {
+      "path": "tests/integration/test_phase2r_schedule_desktop_handoff.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "9c87633c343533ccaf1d5175fcf6f4d9d265a14b",
+      "size": 89297
+    },
+    {
+      "path": "tests/integration/test_save_capability.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "185ea69599fca07057641e2197a8d5e6543e0f03",
+      "size": 7877
+    },
+    {
+      "path": "tests/integration/test_save_manager_journal.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e7feb00f3cc7d49ed18645fbced448611a240514",
+      "size": 10596
+    },
+    {
+      "path": "tests/manual/benchmark_seven_day_history.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "3d9d2457fe26aafa8a4b911fe40841d6e3bb3b57",
+      "size": 14676
+    },
+    {
+      "path": "tests/save_load_capture/test_capture.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "221a06dde13fd9d3f7a85fbe7fd32e3326f65e09",
+      "size": 8925
+    },
+    {
+      "path": "tests/tooling/Test-InvokeIsolatedGodot.ps1",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "654e589f663bf16cc53ef352007008292f9bd573",
+      "size": 13175
+    },
+    {
+      "path": "tests/unit/test_desktop_cold_recovery_preparation.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "796c7fa1939d0b77a01fef90d3690026ca1e5c7a",
+      "size": 15919
+    },
+    {
+      "path": "tests/unit/test_production_pause_controller.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "52da6ccc2be7162a4036c2d7ac716ad870cdd8e3",
+      "size": 52946
+    },
+    {
+      "path": "tests/unit/test_run_dark_configuration.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c15d738a8a23621023f8c00448588621b9e1a70c",
+      "size": 9602
+    },
+    {
+      "path": "tests/unit/tooling/test_phase2r_schedule_gate.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b4a9543e55294879ce4f7910c3a462331bcbbb1a",
+      "size": 124535
+    },
+    {
+      "path": "tools/testing/Invoke-CloudTests.ps1",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "479d61b5d2214b4889805ecf6a7a5ec23f1d59bd",
+      "size": 15936
+    },
+    {
+      "path": "tools/testing/Invoke-IsolatedGodot.ps1",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "d3e3d2e1a661f61bf8e53ebca6fb91a5c3067e40",
+      "size": 16728
+    },
+    {
+      "path": "tools/testing/Invoke-SevenDayHistoryPerformance.ps1",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2a536bd6792d85192bfe3aa8738b8675d38bf90b",
+      "size": 19415
+    }
+  ],
+  "final_verification": {
+    "head": "a858fa787e911bed273abf0155304226d90fe9cb",
+    "draft": true,
+    "base": "9e43b52c9884ccd59e82245d2168c3113ee4d037",
+    "merge": "4e1e63c8a0122feaa0c5af8902d8db13fc87aed1"
+  },
+  "workflow_response": {
+    "status": "fulfilled",
+    "value": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Action completed."
+        }
+      ],
+      "structuredContent": {
+        "workflow_runs": [
+          {
+            "id": 35704376317,
+            "name": "Windows automated tests",
+            "status": "in_progress",
+            "conclusion": null,
+            "run_number": 51,
+            "jobs_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/35704376317/jobs",
+            "logs_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/35704376317/logs",
+            "workflow_id": 362618109
+          }
+        ]
+      },
+      "isError": false
+    }
+  },
+  "receipt_scope": "Public repository, commit, tree, blob and workflow evidence only; authenticated account and permission-check metadata omitted."
+}

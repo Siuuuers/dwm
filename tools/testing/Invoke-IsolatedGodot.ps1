@@ -10,7 +10,23 @@ param(
 
     [string]$EvidenceLogPath,
 
-    [switch]$KeepRoot
+    # Optional second process uses the same proven isolation root, sequentially.
+    [string[]]$NextGodotArgs = @(),
+    [string]$NextLogName,
+
+    # Optional third process continues the same proven isolation root.
+    [string[]]$ThirdGodotArgs = @(),
+    [string]$ThirdLogName,
+
+    # Existing long-running evidence callers retain their own watchdogs unless
+    # they opt in. Cloud focused suites set a limit below their step timeout.
+    [ValidateRange(0, 86400)]
+    [int]$TimeoutSeconds = 0,
+
+    [switch]$KeepRoot,
+
+    # Opt-in real window/renderer; isolation and exit-code checks stay identical.
+    [switch]$Rendered
 )
 
 Set-StrictMode -Version Latest
@@ -93,7 +109,9 @@ function Invoke-GodotChild {
         [string[]]$Arguments,
         [string]$AppData,
         [string]$LocalAppData,
-        [string]$DwmTestRoot
+        [string]$DwmTestRoot,
+        [int]$TimeoutSeconds,
+        [string]$TimeoutLogPath
     )
     $start = New-Object Diagnostics.ProcessStartInfo
     $start.FileName = $Executable
@@ -107,13 +125,34 @@ function Invoke-GodotChild {
     $start.EnvironmentVariables['DWM_TEST_ROOT'] = $DwmTestRoot
     $process = New-Object Diagnostics.Process
     $process.StartInfo = $start
-    if (-not $process.Start()) { throw 'GODOT_START_FAILED' }
-    $stdoutTask = $process.StandardOutput.ReadToEndAsync()
-    $stderrTask = $process.StandardError.ReadToEndAsync()
-    $process.WaitForExit()
-    $stdout = $stdoutTask.GetAwaiter().GetResult()
-    $stderr = $stderrTask.GetAwaiter().GetResult()
-    return [pscustomobject]@{ ExitCode = $process.ExitCode; Stdout = $stdout; Stderr = $stderr }
+    try {
+        if (-not $process.Start()) { throw 'GODOT_START_FAILED' }
+        $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+        $stderrTask = $process.StandardError.ReadToEndAsync()
+        $waitMilliseconds = if ($TimeoutSeconds -eq 0) { -1 } else { $TimeoutSeconds * 1000 }
+        $timedOut = -not $process.WaitForExit($waitMilliseconds)
+        if ($timedOut) {
+            [Console]::Error.WriteLine("GODOT_CHILD_TIMEOUT: exceeded $TimeoutSeconds seconds; terminating child process tree $($process.Id).")
+            $process.Kill($true)
+            if (-not $process.WaitForExit(10000)) { throw 'GODOT_CHILD_TERMINATION_TIMEOUT' }
+        }
+        # Descendants can inherit pipe handles. Do not let draining their output
+        # replace the bounded child wait with another unbounded wait.
+        if (-not [Threading.Tasks.Task]::WaitAll([Threading.Tasks.Task[]]@($stdoutTask, $stderrTask), 10000)) {
+            throw 'GODOT_CHILD_OUTPUT_DRAIN_TIMEOUT'
+        }
+        $stdout = $stdoutTask.GetAwaiter().GetResult()
+        $stderr = $stderrTask.GetAwaiter().GetResult()
+        if ($timedOut) {
+            $diagnostic = "GODOT_CHILD_TIMEOUT: exceeded $TimeoutSeconds seconds.`n$stdout`n$stderr"
+            [IO.File]::WriteAllText($TimeoutLogPath, $diagnostic, (New-Object Text.UTF8Encoding($false)))
+            [Console]::Error.WriteLine("GODOT_TIMEOUT_OUTPUT: $TimeoutLogPath")
+        }
+        $exitCode = if ($timedOut) { 124 } else { $process.ExitCode }
+        return [pscustomobject]@{ ExitCode = $exitCode; Stdout = $stdout; Stderr = $stderr }
+    } finally {
+        $process.Dispose()
+    }
 }
 
 function Assert-TreeHasNoReparsePoints {
@@ -172,6 +211,9 @@ function Get-SuiteExecutionFailure {
     }
     foreach ($line in $lines) {
         if ($line.Contains('ERROR: Failed to load script')) { $failures += ('SCRIPT_LOAD_FAILED: ' + $line.Trim()) }
+        # GUT ends per-test error tracking before after_each; an invalid Tween
+        # can therefore be logged during teardown while the child still exits 0.
+        if ($line.Contains('ERROR: Tween invalid.')) { $failures += ('TWEEN_INVALID: ' + $line.Trim()) }
     }
     return @($failures | Sort-Object -Unique)
 }
@@ -188,7 +230,12 @@ try {
     if (-not (Test-Path -LiteralPath $projectPath -PathType Leaf)) { throw 'PROJECT_ROOT_INVALID' }
     if ([string]::IsNullOrWhiteSpace($SuiteId)) { throw 'SUITE_ID_EMPTY' }
     if ([string]::IsNullOrWhiteSpace($LogName) -or [IO.Path]::GetFileName($LogName) -cne $LogName) { throw 'LOG_NAME_INVALID' }
-    foreach ($argument in $GodotArgs) {
+    if (($NextGodotArgs.Count -gt 0) -ne (-not [string]::IsNullOrWhiteSpace($NextLogName))) { throw 'NEXT_CHILD_INCOMPLETE' }
+    if ($NextGodotArgs.Count -gt 0 -and ([IO.Path]::GetFileName($NextLogName) -cne $NextLogName -or $NextLogName -ieq $LogName)) { throw 'NEXT_LOG_NAME_INVALID' }
+    if (($ThirdGodotArgs.Count -gt 0) -ne (-not [string]::IsNullOrWhiteSpace($ThirdLogName))) { throw 'THIRD_CHILD_INCOMPLETE' }
+    if ($ThirdGodotArgs.Count -gt 0 -and $NextGodotArgs.Count -eq 0) { throw 'THIRD_CHILD_REQUIRES_SECOND' }
+    if ($ThirdGodotArgs.Count -gt 0 -and ([IO.Path]::GetFileName($ThirdLogName) -cne $ThirdLogName -or $ThirdLogName -ieq $LogName -or $ThirdLogName -ieq $NextLogName)) { throw 'THIRD_LOG_NAME_INVALID' }
+    foreach ($argument in (@($GodotArgs) + @($NextGodotArgs) + @($ThirdGodotArgs))) {
         if ([string]$argument -match '^(?i)--(?:path|headless|log-file)(?:=|$)') { throw "FORBIDDEN_GODOT_ARG: $argument" }
     }
     if ([string]::IsNullOrWhiteSpace($env:APPDATA)) { throw 'PARENT_APPDATA_MISSING' }
@@ -244,9 +291,12 @@ try {
         [void](Assert-ContainedNonReparseChain -Root $repositoryRoot -Candidate $parent -RequireStrictDescendant)
     }
 
+    $logPath = Get-CanonicalPath (Join-Path $logsRoot $LogName)
+    $timeoutLog = $logPath + '.timeout.log'
+    [void](Assert-ContainedNonReparseChain -Root $repositoryRoot -Candidate $timeoutLog -RequireStrictDescendant)
     $proofLog = Join-Path $guidRoot 'user-dir-proof.log'
     $proofArgs = @('--headless','--path',$repositoryRoot,'--log-file',$proofLog,'-s','res://tools/evidence/print_user_dir.gd')
-    $proof = Invoke-GodotChild -Executable $godotExecutable -Arguments $proofArgs -AppData $childAppData -LocalAppData $childLocalAppData -DwmTestRoot $childDwmRoot
+    $proof = Invoke-GodotChild -Executable $godotExecutable -Arguments $proofArgs -AppData $childAppData -LocalAppData $childLocalAppData -DwmTestRoot $childDwmRoot -TimeoutSeconds 60 -TimeoutLogPath $timeoutLog
     if ($proof.ExitCode -ne 0) { throw "USER_DIR_PROOF_EXIT: $($proof.ExitCode) $($proof.Stderr)" }
     $markers = @($proof.Stdout -split "`r?`n" | Where-Object { $_.StartsWith('PHASE2R_USER_DIR=', [StringComparison]::Ordinal) })
     if ($markers.Count -ne 1) { throw "USER_DIR_MARKER_COUNT: $($markers.Count)" }
@@ -256,30 +306,51 @@ try {
     [void](Assert-ContainedNonReparseChain -Root $repositoryRoot -Candidate $guidRoot -RequireStrictDescendant)
     [void](Assert-ContainedNonReparseChain -Root $guidRoot -Candidate $userDir -RequireStrictDescendant)
 
-    $logPath = Get-CanonicalPath (Join-Path $logsRoot $LogName)
-    $argv = @('--headless','--path',$repositoryRoot,'--log-file',$logPath) + @($GodotArgs)
-    $startedAt = [DateTime]::UtcNow.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
-    $requested = Invoke-GodotChild -Executable $godotExecutable -Arguments $argv -AppData $childAppData -LocalAppData $childLocalAppData -DwmTestRoot $childDwmRoot
-    $endedAt = [DateTime]::UtcNow.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
-    $resultCode = [int]$requested.ExitCode
-    # GUT exits 0 while silently downgrading an unloadable suite to a warning, so a requested
-    # suite that never ran, or any failed script load, must fail this runner instead.
-    $requestedSuites = @(Get-RequestedSuitePath -Arguments @($GodotArgs))
-    if ($requestedSuites.Count -ne 0) {
-        $suiteFailures = @(Get-SuiteExecutionFailure -LogPath $logPath -RequestedPaths $requestedSuites)
-        if ($suiteFailures.Count -ne 0) {
-            foreach ($suiteFailure in $suiteFailures) { [Console]::Error.WriteLine($suiteFailure) }
+    $childPlans = @([pscustomobject]@{Arguments=@($GodotArgs); Log=$LogName})
+    if ($NextGodotArgs.Count -gt 0) { $childPlans += [pscustomobject]@{Arguments=@($NextGodotArgs); Log=$NextLogName} }
+    if ($ThirdGodotArgs.Count -gt 0) { $childPlans += [pscustomobject]@{Arguments=@($ThirdGodotArgs); Log=$ThirdLogName} }
+    foreach ($childPlan in $childPlans) {
+        $phase = 'execution'
+        $logPath = Get-CanonicalPath (Join-Path $logsRoot $childPlan.Log)
+        $timeoutLog = $logPath + '.timeout.log'
+        [void](Assert-ContainedNonReparseChain -Root $repositoryRoot -Candidate $logPath -RequireStrictDescendant)
+        [void](Assert-ContainedNonReparseChain -Root $repositoryRoot -Candidate $timeoutLog -RequireStrictDescendant)
+        [void](Assert-ContainedNonReparseChain -Root $guidRoot -Candidate $childDwmRoot -RequireStrictDescendant)
+        # A prior child must not redirect the retained storage or user directory
+        # through a junction before the next process consumes those paths.
+        Assert-TreeHasNoReparsePoints -Root $guidRoot
+        $displayArgs = if ($Rendered) { @('--rendering-method','gl_compatibility','--audio-driver','Dummy') } else { @('--headless') }
+        $argv = @($displayArgs) + @('--path',$repositoryRoot,'--log-file',$logPath) + @($childPlan.Arguments)
+        $startedAt = [DateTime]::UtcNow.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
+        $requested = Invoke-GodotChild -Executable $godotExecutable -Arguments $argv -AppData $childAppData -LocalAppData $childLocalAppData -DwmTestRoot $childDwmRoot -TimeoutSeconds $TimeoutSeconds -TimeoutLogPath $timeoutLog
+        $endedAt = [DateTime]::UtcNow.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
+        $resultCode = [int]$requested.ExitCode
+        # GUT exits 0 while silently downgrading an unloadable suite to a warning, so a requested
+        # suite that never ran, a failed script load, or an invalid Tween must fail this runner instead.
+        $requestedSuites = @(Get-RequestedSuitePath -Arguments @($childPlan.Arguments))
+        if ($requestedSuites.Count -ne 0) {
+            $suiteFailures = @(Get-SuiteExecutionFailure -LogPath $logPath -RequestedPaths $requestedSuites)
+            if ($suiteFailures.Count -ne 0) {
+                foreach ($suiteFailure in $suiteFailures) { [Console]::Error.WriteLine($suiteFailure) }
+                if ($resultCode -eq 0) { $resultCode = 126 }
+            }
+        }
+        if ($NextGodotArgs.Count -gt 0 -and (Test-Path -LiteralPath $logPath) -and
+            (Select-String -LiteralPath $logPath -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet)) {
             if ($resultCode -eq 0) { $resultCode = 126 }
         }
+        $phase = 'evidence'
+        $record = [ordered]@{
+            suite_id = $SuiteId; argv = @($argv); exit_code = $resultCode; log_path = $logPath
+            test_root = (Get-CanonicalPath $guidRoot); user_dir = $userDir
+            started_at_utc = $startedAt; ended_at_utc = $endedAt
+        }
+        $recordJson = ConvertTo-Json -InputObject $record -Depth 4 -Compress
+        if ($null -ne $evidenceFull) { Add-JsonLineExclusive -Path $evidenceFull -JsonLine $recordJson }
+        [Console]::Out.WriteLine($recordJson)
+        $recordJson = $null
+        if ($resultCode -ne 0) { break }
     }
-    $phase = 'evidence'
-    $record = [ordered]@{
-        suite_id = $SuiteId; argv = @($argv); exit_code = $resultCode; log_path = $logPath
-        test_root = (Get-CanonicalPath $guidRoot); user_dir = $userDir
-        started_at_utc = $startedAt; ended_at_utc = $endedAt
-    }
-    $recordJson = ConvertTo-Json -InputObject $record -Depth 4 -Compress
-    if ($null -ne $evidenceFull) { Add-JsonLineExclusive -Path $evidenceFull -JsonLine $recordJson }
 } catch {
     if ($phase -eq 'evidence') { $resultCode = 125 } else { $resultCode = 124 }
     [Console]::Error.WriteLine($_.Exception.Message)

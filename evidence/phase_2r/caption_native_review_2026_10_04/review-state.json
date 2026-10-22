@@ -1,0 +1,169 @@
+{
+  "source_runtime_sha256": "041facc38b92b79d61f599a0406afc8bdc8c82bd5d1b8d4664d1e903488d3fd9",
+  "scope": "Normalized extraction; original byte-for-byte runtime.json is under raw/native.",
+  "review_return": {
+    "before": {
+      "ended": 0,
+      "event_index": 3,
+      "finished": 3,
+      "full_history": [
+        "[Text:-9223371596587071042]",
+        "[Text:-9223371596436076092]",
+        "[Text:-9223371596285081142]",
+        "[Text:-9223371596134086192]"
+      ],
+      "live_focused": true,
+      "live_visible": true,
+      "physical_contacts": 0,
+      "reveal_generation": 7,
+      "revealing": true,
+      "review_focused": false,
+      "review_offset": 0,
+      "review_visible": false,
+      "simple_history": [
+        {
+          "event_type": "Text",
+          "text": "Native caption activation fixture."
+        },
+        {
+          "event_type": "Text",
+          "text": "The successor keeps its own reveal."
+        },
+        {
+          "event_type": "Text",
+          "text": "Third witnessed caption."
+        },
+        {
+          "event_type": "Text",
+          "text": "The live fourth caption stays partial."
+        }
+      ],
+      "target_text": "The live fourth caption stays partial.",
+      "text": "The live fourth caption stays partial.",
+      "total_characters": 38,
+      "visible_characters": 0
+    },
+    "entry_scope": "Existing presentation owner called only to prepare review; exit uses native UIA.",
+    "invariants_unchanged": true,
+    "native_history_unchanged": true,
+    "returned": {
+      "ended": 0,
+      "event_index": 3,
+      "finished": 3,
+      "full_history": [
+        "[Text:-9223371596587071042]",
+        "[Text:-9223371596436076092]",
+        "[Text:-9223371596285081142]",
+        "[Text:-9223371596134086192]"
+      ],
+      "live_focused": true,
+      "live_visible": true,
+      "physical_contacts": 0,
+      "reveal_generation": 7,
+      "revealing": true,
+      "review_focused": false,
+      "review_offset": 0,
+      "review_visible": false,
+      "simple_history": [
+        {
+          "event_type": "Text",
+          "text": "Native caption activation fixture."
+        },
+        {
+          "event_type": "Text",
+          "text": "The successor keeps its own reveal."
+        },
+        {
+          "event_type": "Text",
+          "text": "Third witnessed caption."
+        },
+        {
+          "event_type": "Text",
+          "text": "The live fourth caption stays partial."
+        }
+      ],
+      "target_text": "The live fourth caption stays partial.",
+      "text": "The live fourth caption stays partial.",
+      "total_characters": 38,
+      "visible_characters": 0
+    },
+    "reviewing": {
+      "ended": 0,
+      "event_index": 3,
+      "finished": 3,
+      "full_history": [
+        "[Text:-9223371596587071042]",
+        "[Text:-9223371596436076092]",
+        "[Text:-9223371596285081142]",
+        "[Text:-9223371596134086192]"
+      ],
+      "live_focused": false,
+      "live_visible": false,
+      "physical_contacts": 0,
+      "reveal_generation": 7,
+      "revealing": true,
+      "review_focused": true,
+      "review_offset": 1,
+      "review_visible": true,
+      "simple_history": [
+        {
+          "event_type": "Text",
+          "text": "Native caption activation fixture."
+        },
+        {
+          "event_type": "Text",
+          "text": "The successor keeps its own reveal."
+        },
+        {
+          "event_type": "Text",
+          "text": "Third witnessed caption."
+        },
+        {
+          "event_type": "Text",
+          "text": "The live fourth caption stays partial."
+        }
+      ],
+      "target_text": "Third witnessed caption.",
+      "text": "The live fourth caption stays partial.",
+      "total_characters": 38,
+      "visible_characters": 0
+    }
+  },
+  "final": {
+    "event_index": 4,
+    "finished": 4,
+    "ended": 0,
+    "revealing": true,
+    "visible_characters": 0,
+    "reveal_generation": 9,
+    "simple_history": [
+      {
+        "event_type": "Text",
+        "text": "Native caption activation fixture."
+      },
+      {
+        "event_type": "Text",
+        "text": "The successor keeps its own reveal."
+      },
+      {
+        "event_type": "Text",
+        "text": "Third witnessed caption."
+      },
+      {
+        "event_type": "Text",
+        "text": "The live fourth caption stays partial."
+      },
+      {
+        "event_type": "Text",
+        "text": "Guard caption."
+      }
+    ],
+    "full_history": [
+      "[Text:-9223371596587071042]",
+      "[Text:-9223371596436076092]",
+      "[Text:-9223371596285081142]",
+      "[Text:-9223371596134086192]",
+      "[Text:-9223371595983091242]"
+    ]
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "parent": "2254d6956de778cc54aa42fe610bcdf94f5301a5",
+  "base_tree": "1d4ba40b022f7b8c00bd4364f9c232aa56e745f2",
+  "tree": "9dd8eb75ac2ae3ef686603a7a3643e366fc28269",
+  "files": [
+    {
+      "path": "autoload/SaveManager.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a41daf1391ffe6573d71b18837df53c88050456c",
+      "bytes": 145022
+    },
+    {
+      "path": "scripts/application/backup/BackupPresentationPort.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b0d3e3df5f27ff136b7ac991ab7be1ce486bc5c2",
+      "bytes": 9876
+    },
+    {
+      "path": "scripts/ui/BackupApp.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "be47b3fcbbb44dfa7c2abf9d1b2adb107787cecb",
+      "bytes": 39568
+    },
+    {
+      "path": "scripts/ui/SettingsContent.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "20ecb13c46684ad15e4e00c1277c6168e82c26e1",
+      "bytes": 32527
+    },
+    {
+      "path": "scripts/ui/SettingsPanelController.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "1c4f5001a6c210750bc67fffaab6b5e802b0d95e",
+      "bytes": 26167
+    },
+    {
+      "path": "scripts/ui/desktop/QuickStatusEdge.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "6b16ec8a57b661034f7a2131e858719f0da353cd",
+      "bytes": 5484
+    },
+    {
+      "path": "scripts/ui/pause/PauseQuickCommands.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "cce58fe8fc875c11c2ef7d75458c19a903d16cdb",
+      "bytes": 14208
+    },
+    {
+      "path": "scripts/ui/pause/PauseSurface.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "6bad8da61babf267f026cdd02b3514a04ab808b3",
+      "bytes": 20799
+    },
+    {
+      "path": "tests/integration/verify_reading_rail_journey.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "1b3b17380d0a8cb4d7d73da30e18a10c37b5ab18",
+      "bytes": 106063
+    },
+    {
+      "path": "tests/unit/test_backup_presentation.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "5da6ca236273eac55cb89ddec09501e2b8cd3216",
+      "bytes": 11941
+    },
+    {
+      "path": "tests/unit/test_backup_quick_actions.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "347f2b209121d15a4b3796765f6ad7e2d7be2d4d",
+      "bytes": 35638
+    },
+    {
+      "path": "tests/unit/test_production_pause_controller.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "98085f89d8c0a5bed65a407f70680a7f3c7cba66",
+      "bytes": 80348
+    },
+    {
+      "path": "tests/unit/test_quick_status_edge.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ffffc63baa7a9794ea2d4c6fad552cdb5646def6",
+      "bytes": 7935
+    },
+    {
+      "path": "tools/testing/Invoke-CloudTests.ps1",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f7738b850abefdc1a995b1802809da006aef1168",
+      "bytes": 20076
+    },
+    {
+      "path": "tools/testing/run_reading_rail_journey.py",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "79e9def87e0dd7d6444122acdc3c36a82eb20c5e",
+      "bytes": 59615
+    }
+  ]
+}

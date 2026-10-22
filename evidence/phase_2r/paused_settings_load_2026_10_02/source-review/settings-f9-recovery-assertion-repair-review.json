@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "review_kind": "source_only_recovery_assertion_repair",
+  "reviewer": "f9_contract_review",
+  "reviewed_at_utc": "2026-10-02T07:15:22.557559+00:00",
+  "base_source": "78cb263f8e0d82ad1f1274c0e84915397cd071b0",
+  "reviewed_files": [
+    {
+      "path": "tests/integration/verify_reading_rail_journey.gd",
+      "bytes": 113307,
+      "sha256": "60f3e520a25b887cb38d9c8022d61b10bc17d688beae68220d604a71e6bab966"
+    },
+    {
+      "path": "tools/testing/run_reading_rail_journey.py",
+      "bytes": 69867,
+      "sha256": "df0e318b8f01e7a66c576f93b0841b964379e4747e8ca94f54aa8cc423884c6b"
+    },
+    {
+      "path": "autoload/SaveManager.gd",
+      "bytes": 145022,
+      "sha256": "7572f6657d4e1cafbc04c19c44798ca69a872521b638f8075c51ff6c3c498a6b"
+    },
+    {
+      "path": "scripts/infrastructure/identity/DesktopIssuerRootStore.gd",
+      "bytes": 60692,
+      "sha256": "5f19265753d0deb4ac14096ef22eecf7a2b5af15e8412ab1cea32ce46e0dbd9c"
+    },
+    {
+      "path": "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd",
+      "bytes": 64315,
+      "sha256": "05781cd5a69b45dd7a4519879bae299296dbfbfb8705b45c6af9f2be040e02e1"
+    },
+    {
+      "path": "scripts/infrastructure/storage/JsonFileStorage.gd",
+      "bytes": 46885,
+      "sha256": "ad2691249d9c7a247147fdc76885044b6cd9f6ebaac1f7267b4c144586d2adab"
+    },
+    {
+      "path": "scripts/application/restore/DesktopIdentityAllocationRestoreParticipant.gd",
+      "bytes": 9405,
+      "sha256": "aab911a92df16803b8b959e606585788ee7e9e03a146e4d3b9f71d48455337b6"
+    },
+    {
+      "path": "tools/runtime/PublicSurfaceInventory.gd",
+      "bytes": 11182,
+      "sha256": "9dcf035d10009180e6c2d1dcbe0df1d5f680cae0a66e1c9714312d377e423dc1"
+    },
+    {
+      "path": "evidence/phase_2r/runtime/game_state_surface.json",
+      "bytes": 561543,
+      "sha256": "ba26f2341c39ff3d6b679f711e0936226386142c63791f9020e70b0301793cf2"
+    },
+    {
+      "path": "evidence/phase_2r/runtime/save_manager_surface.json",
+      "bytes": 149957,
+      "sha256": "1e41d762df99bcd3aa6a036445f21411b45b9b1e169258b8ba41848d85252440"
+    }
+  ],
+  "git_diff_paths": [
+    "evidence/phase_2r/runtime/game_state_surface.json",
+    "tests/integration/verify_reading_rail_journey.gd",
+    "tools/testing/run_reading_rail_journey.py"
+  ],
+  "decision": "Approve these frozen driver and runner bytes for cloud-focused validation; no source blocker found. Not a runtime pass.",
+  "historical_failure_preserved": {
+    "run": 36975542531,
+    "claim": "Focus2 completed real Cancel/Confirm semantic checks but correctly failed old confirmed.zero_mutations assertion because selected restore durably commits external recovery bookkeeping. That failure remains historical and is not relabeled success.",
+    "prior_review": "settings-f9-required-restore-bookkeeping-review.json"
+  },
+  "contract_findings": [
+    {
+      "source": "autoload/SaveManager.gd:364\u2013447,1055\u20131098,1138\u20131145",
+      "finding": "One selected restore first durably issues its transaction identity, commits journal intent, commits identity allocation, then journal allocated/applying, nine successful participant applies, applied and completed. This produces two issuer plus fourteen journal atomic commits in this fixture."
+    },
+    {
+      "source": "scripts/infrastructure/storage/JsonFileStorage.gd:397\u2013493",
+      "finding": "Each seeded existing-backup happy-path commit is fourteen ordered file attempts: write/flush transaction; write/flush next; write/flush transaction; remove backup; rename base to backup; write/flush transaction; rename next to base; write/flush transaction; remove transaction. Exact 224 attempts are 80 writes,80 flushes,32 renames,32 removes; not 224 writes."
+    },
+    {
+      "source": "autoload/SaveManager.gd:2124\u20132135",
+      "finding": "source_locator bundle_id hashes selected whole bundle; document_sha256 hashes that bundle snapshot. Python uses these exact hash domains, not whole Quick document."
+    },
+    {
+      "source": "scripts/infrastructure/identity/DesktopIssuerRootStore.gd:319\u2013340,1121\u20131172",
+      "finding": "Restore allocation preserves run_id, advances saved desktop timeline generation by one, appends branch/generation/causal-day and any remapped transaction receipts, retains the exact candidate in allocation_receipts and journals the same allocation."
+    }
+  ],
+  "repair_review": {
+    "changed_acceptance": "Confirmed zero_mutations replaced by exact successful recovery operation allowlist. All prepared/cancelled/reprepared zero-attempt checks and exact Quick/Autosave/Profile raw bytes remain.",
+    "receipt_scope": "Exactly 16 blocks of 14 attempts. Issuer/profile blocks only 0 and 2; all others continuation/saves. Exact sequence/owner/operation/path/rename destination/success and exact receipt key sets in Python. Positive write byte count and lowercase SHA256 required.",
+    "raw_endpoints": "Retains before/after issuer and continuation raw files with byte count and SHA256; after endpoints must match each owner final .next write receipt. Reads inspect_revision first and directly compares raw bytes/revision.",
+    "semantic_endpoint_scope": "Preserves all previous issuer receipts, allocations, day-advance allocations and journal operations; requires one completed nine-participant restore with matching selected Quick source locator and request fingerprint; exact root allocation, issued identity, existing run, next generation, candidate fingerprint and contiguous newly issued receipt counters.",
+    "retained_behavior": "Seven original stages, exact partial Cancel source and focus/category/scroll/suspension, fresh confirmation and new scene/session, saved checkpoint/history/physical/app, no restored speech and primary disk/Profile neutrality remain unchanged.",
+    "minimality": "No production runtime/storage/journal changes; evidence read/retention and narrow validator repair only."
+  },
+  "lexical_inventory_review": [
+    {
+      "owner": "game_state",
+      "all_symbols_checked": 236,
+      "added": [],
+      "removed": [],
+      "method": "Independent Python reproduction of PublicSurfaceInventory word-boundary and quoted-string classification, for only changed scanned file; engine gate remains authoritative."
+    },
+    {
+      "owner": "save_manager",
+      "all_symbols_checked": 74,
+      "added": [],
+      "removed": [],
+      "method": "Independent Python reproduction of PublicSurfaceInventory word-boundary and quoted-string classification, for only changed scanned file; engine gate remains authoritative."
+    }
+  ],
+  "original_function_lines": {
+    "existing_count": 45,
+    "current_count": 47,
+    "all_existing_starts_unchanged": true,
+    "new_helpers": [
+      "_settings_load_recovery_only",
+      "_settings_load_recovery_state"
+    ]
+  },
+  "cross_language_hash_domain_fixture": {
+    "path": "settings-f9-focus2/artifacts/reading-rail-36975542531-1/e9f80ac3-bb65-4267-b193-08c9128266ea/settings-load/input-quick.json",
+    "bytes": 117067,
+    "sha256": "275c91202f40a5ec8375ff498c06bcb82021286c9abbb1694e42444e9a009cba",
+    "independently_verified": "Python compact sorted UTF8 canonical serialization is exactly 117066 bytes and source is canonical plus one LF; new runner requires this property again on actual fixture."
+  },
+  "limits": [
+    "No Godot or PowerShell executed locally; next pinned cloud parse/runtime and public regeneration/check are required.",
+    "Intermediate journal write payloads are represented by operation sequence and size/hash observations, not individually decoded retained raw payloads. Raw before/after endpoints are retained.",
+    "This is happy-path fixture proof and existing compensation unit coverage; no new OS power-loss/crash durability proof.",
+    "Actual frozen source hashes above are scope; any later driver/source changes require updated evidence."
+  ],
+  "open_architecture_questions": []
+}

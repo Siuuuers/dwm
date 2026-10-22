@@ -94,7 +94,7 @@ func _open_title(menu: Node) -> Node:
 	_check(app.mode_buttons.is_empty() and app.active_mode == "load", "Title exposes Load/Delete with no mode group")
 	_check(menu._title_label.text == "Log in", "Opened title heading uses the ready English catalog text")
 	_check(menu._backup_app_host.get_global_rect().is_equal_approx(Rect2(320, 0, 960, 720)), "Actual title reserves 320 pixels for menu and 960 for the login host")
-	_check(app.get_global_rect().is_equal_approx(Rect2(400, 64, 800, 656)), "Title Backup keeps its 800x656 body below the 64px strip with 80px side inset")
+	_check(app.get_global_rect().is_equal_approx(Rect2(336, 64, 928, 656)) and menu._backup_app_host.get_global_rect().encloses(app.get_global_rect()), "Title Backup centers its measured 928x656 body below the 64px strip with 16px side insets inside the host")
 	return app
 
 func _back() -> void:
@@ -136,7 +136,7 @@ func _seed(menu: Node, bootstrap: Node) -> void:
 	if not _check(changed.get("ok", false) and state.money == 5, "Real effect owner changes money before saving"):
 		_facts["effect_result"] = changed
 		return
-	await _check_public_hud()
+	await _check_public_shell()
 	var desktop: Node = get_tree().current_scene._computer_desktop_instance
 	desktop.launcher_buttons[&"backup"].pressed.emit()
 	await _settle()
@@ -258,7 +258,7 @@ func _resume(menu: Node) -> void:
 	_check(run_configuration.get("ok", false) and typeof(run_configuration.get("value")) == TYPE_DICTIONARY
 		and bool((run_configuration["value"] as Dictionary).get("dark_mode")) == bool(expected.dark_mode),
 		"Cold Load restores the exact captured lifecycle Dark value")
-	await _check_public_hud()
+	await _check_public_shell()
 	var desktop: Node = get_tree().current_scene._computer_desktop_instance
 	if not _check(is_instance_valid(desktop) and desktop._active_id == &"backup", "Restored real desktop opens the saved Backup app"):
 		return
@@ -267,20 +267,17 @@ func _resume(menu: Node) -> void:
 	_check(desktop.return_home().get("ok", false), "Home works after cold resume")
 	_facts["restored"] = {"money": state.money, "day": state.day, "scene": get_tree().current_scene.scene_file_path}
 
-func _check_public_hud() -> void:
+func _check_public_shell() -> void:
 	await _settle()
 	var main: Control = get_tree().current_scene
-	var hud: Control = main.get_node("%StatHud")
-	var state: Node = get_node("/root/GameState")
-	_check(hud.get_node("%MoneyRow").text == "Money: %d" % state.money, "Actual mounted HUD follows the canonical money owner")
-	_check(hud.get_node("%PressureRow").text == "Pressure: %d / 9" % state.get_stat_display_value("pressure"), "Actual HUD shows only audience-safe pressure")
-	_check(hud.get_node_or_null("%MinesweeperRoundRow") == null, "Global HUD has no Minesweeper round counter")
+	_check(main.get_node_or_null("%StatHud") == null, "Mounted shell has no retired HUD")
 	var computer: Control = main.get_node("%ComputerPanel")
-	_check(computer.get_global_rect().end.x <= main.get_global_rect().end.x + 1.0, "HUD minimum size does not push the desktop beyond the viewport")
-	_check(hud.get_global_rect().end.x <= computer.get_global_rect().position.x + 1.0, "HUD stays inside the Angela side of the shell")
-	for row: Label in hud.get_node("%Rows").get_children():
-		if row.is_visible_in_tree():
-			_check(row.get_global_rect().end.y <= main.get_global_rect().end.y + 1.0, "Mounted HUD row remains vertically reachable: " + row.name)
+	_check(computer.get_global_rect().end.x <= main.get_global_rect().end.x + 1.0, "Desktop stays inside the viewport")
+	var panel: Control = main.get_node("%AngelaPanel")
+	var art: Control = main.get_node("%AngelaImage")
+	_check(art.get_global_rect() == panel.get_global_rect(), "Portrait fills the Angela panel after resume")
+	_check(panel.get_global_rect().end.x <= computer.get_global_rect().position.x + 1.0, "Portrait remains beside the desktop")
+	_check(main.get_node_or_null("RootHBox/SplitDragHandle") != null, "Desktop divider remains mounted")
 
 func _finish(passed: bool) -> void:
 	print("TITLE_RESUME_SUMMARY ", JSON.stringify({"checks": _checks, "failures": _failures, "facts": _facts}))

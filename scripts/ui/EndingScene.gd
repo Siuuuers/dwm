@@ -40,12 +40,19 @@ func _ready() -> void:
 
 
 func _show_ending() -> void:
+	var router := get_node_or_null("/root/SceneRouter")
+	if router != null and router.is_restore_publication_held():
+		if not router.restore_publication_released.is_connected(_show_ending):
+			router.restore_publication_released.connect(_show_ending, CONNECT_ONE_SHOT | CONNECT_DEFERRED)
+		return
 	if not _pending_ending_command.is_empty() or _finished: return
 	if _ending_state_port == null or _ending_playback_port == null:
 		_set_playback_status(true)
 		return
 	var resumed := resume_ending()
-	if not resumed.get("ok", false): _set_playback_status(true)
+	if not resumed.get("ok", false):
+		_last_playback_failure = resumed.duplicate(true)
+		_set_playback_status(true)
 
 
 func _on_return_pressed() -> void:
@@ -131,7 +138,8 @@ func _style_recovery() -> void:
 	var high_contrast: bool = _profile.get_preference("preferences.accessibility.high_contrast", false)
 	var colour: String = _profile.get_preference("preferences.accessibility.colour_differentiation", "standard")
 	# Technical recovery stays clean; it is not a fictional week-tinted surface.
-	var material := RECOVERY_THEME.build(_localization.get_locale(), percent, _recovery_palette, high_contrast, colour)
+	var material := RECOVERY_THEME.build(_localization.get_locale(), percent, _recovery_palette, high_contrast, colour, 1,
+		str(_profile.get_preference("preferences.accessibility.font_style", "pixel")))
 	if material == null: return
 	var face := material.get_color("face", "Settings")
 	var ink := material.get_color("ink", "Settings")
@@ -162,6 +170,7 @@ var _pending_completion: Dictionary = {}
 var _ending_navigation: Object = null
 var _retry_available := false
 var _finished := false
+var _last_playback_failure: Dictionary = {}
 
 func configure_ending_ports(state_port: Object, playback_port: Object) -> Dictionary:
 	if not _pending_ending_command.is_empty():
@@ -243,9 +252,12 @@ func on_ending_playback_completed(completion: Dictionary) -> void:
 		_pending_ending_command = {}
 		_pending_completion = {}
 		var resumed: Dictionary = resume_ending()
-		if not resumed.get("ok", false): _set_playback_status(true)
+		if not resumed.get("ok", false):
+			_last_playback_failure = resumed.duplicate(true)
+			_set_playback_status(true)
 	else:
 		# Keep the exact completion while the state owner rolls back its unsaved cursor.
+		_last_playback_failure = result.duplicate(true)
 		_set_playback_status(true)
 
 
@@ -255,9 +267,15 @@ func on_ending_playback_failed(failure: Dictionary) -> void:
 	if str(failure.get("playback_id", "")) != str(context.playback_id) \
 			or str(failure.get("transaction_id", "")) != str(context.transaction_id) \
 			or str(failure.get("ending_id", "")) != str(_pending_ending_command.ending_id): return
+	_last_playback_failure = failure.duplicate(true)
 	_pending_ending_command = {}
 	_pending_completion = {}
 	_set_playback_status(true)
+
+
+## Read-only source witness for Pause/Backup; the scene retains the exact command.
+func get_presentation_projection() -> Dictionary:
+	return _pending_ending_command.duplicate(true)
 
 
 func _completion_matches_pending(completion: Dictionary) -> bool:

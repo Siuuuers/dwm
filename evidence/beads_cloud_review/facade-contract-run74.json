@@ -1,0 +1,1016 @@
+{
+  "schema": "dwm_facade_contract_review.v1",
+  "bead": "dwm-sx8",
+  "status": "bounded_increment_accepted_parent_remains_in_progress",
+  "baseline_records_sha": "955e0bfb449eac0829388ee4ba0ff7e20938bcae",
+  "source_sha": "d6896d7d6c00390b05b4c0cf59e17a37b2fc2419",
+  "source_tree_sha": "fac82dbe728dff43a3b3d570ab60cee9e95346df",
+  "run_number": 74,
+  "run_id": 36519455086,
+  "run_url": "https://github.com/Siuuuers/dwm/actions/runs/36519455086",
+  "conclusion": "success",
+  "workflow_head_sha": "f7070d5998dadf8f6c1f5c531fc1f728f031fad4",
+  "tested_checkout_policy": "Every job explicitly checks out the source SHA, not the auxiliary workflow head or a PR merge.",
+  "auxiliary_source_diff": [
+    ".github/workflows/windows-tests.yml"
+  ],
+  "workflow_scope": "Existing public-surfaces and focused-tests jobs copied byte-for-byte except explicit checkout refs and the five-suite matrix. Read-only permissions; no main-branch workflow changes.",
+  "master_ref_verified": "2e8602d5f098eebbab18241f370b5f4d14adf99b",
+  "correctness_totals": {
+    "executions": 1107,
+    "passed": 1107,
+    "unique_cases": 1107,
+    "unique_scripts": 85,
+    "skipped": 0,
+    "unique_case_identity": "Executing script plus GUT test case; not a count of independently authored behaviors.",
+    "inherited_case_executions": 16,
+    "inheritance_note": "ShopCard and ShopPlate each execute eight inherited catalog tests; these are distinct qualified script/test executions."
+  },
+  "gut_jobs": [
+    {
+      "job_id": 109249569015,
+      "name": "Windows / dating",
+      "checkout_sha": "d6896d7d6c00390b05b4c0cf59e17a37b2fc2419",
+      "gut": {
+        "suite": "dating",
+        "test_cases": 162,
+        "passed": 162,
+        "skipped": 0,
+        "requested_scripts": 12,
+        "reported_scripts": 12,
+        "scripts": [
+          {
+            "script": "tests/unit/test_active_dating_backup_capture.gd",
+            "test_cases": 15,
+            "passed": 15,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_dating_quick_commands.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_frozen_presentation_context.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_narrative_playback.gd",
+            "test_cases": 18,
+            "passed": 18,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_canonical_dating_mastery.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_attempt_runtime.gd",
+            "test_cases": 45,
+            "passed": 45,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_evidence_v8.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_physical_owner.gd",
+            "test_cases": 15,
+            "passed": 15,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_capability_envelope.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_rehearsal_owner.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_presentation_port.gd",
+            "test_cases": 21,
+            "passed": 21,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          }
+        ]
+      },
+      "conclusion": "success",
+      "started_at": "2026-09-29T04:00:43Z",
+      "completed_at": "2026-09-29T04:03:18Z",
+      "job_url": "https://github.com/Siuuuers/dwm/actions/runs/36519455086/job/109249569015",
+      "log_sha256_lf_no_bom": "555273469492befe004ca44c5587268edd205288a5f2f6c2be3ec3774c4e242f",
+      "checkout_log_lines": [
+        "2026-09-29T04:00:55.5570317Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H",
+        "2026-09-29T04:00:55.5786628Z d6896d7d6c00390b05b4c0cf59e17a37b2fc2419"
+      ],
+      "gut_log_line": "2026-09-29T04:03:13.8260521Z CLOUD_GUT_RESULT {\"suite\":\"dating\",\"test_cases\":162,\"passed\":162,\"skipped\":0,\"requested_scripts\":12,\"reported_scripts\":12,\"scripts\":[{\"script\":\"tests/unit/test_active_dating_backup_capture.gd\",\"test_cases\":15,\"passed\":15,\"skipped\":0},{\"script\":\"tests/integration/test_dating_quick_commands.gd\",\"test_cases\":10,\"passed\":10,\"skipped\":0},{\"script\":\"tests/unit/test_frozen_presentation_context.gd\",\"test_cases\":6,\"passed\":6,\"skipped\":0},{\"script\":\"tests/unit/test_dating_narrative_playback.gd\",\"test_cases\":18,\"passed\":18,\"skipped\":0},{\"script\":\"tests/unit/test_canonical_dating_mastery.gd\",\"test_cases\":9,\"passed\":9,\"skipped\":0},{\"script\":\"tests/unit/test_dating_attempt_runtime.gd\",\"test_cases\":45,\"passed\":45,\"skipped\":0},{\"script\":\"tests/unit/test_profile_evidence_v8.gd\",\"test_cases\":6,\"passed\":6,\"skipped\":0},{\"script\":\"tests/unit/test_dating_physical_owner.gd\",\"test_cases\":15,\"passed\":15,\"skipped\":0},{\"script\":\"tests/unit/test_dating_capability_envelope.gd\",\"test_cases\":6,\"passed\":6,\"skipped\":0},{\"script\":\"tests/unit/test_dating_rehearsal_owner.gd\",\"test_cases\":5,\"passed\":5,\"skipped\":0},{\"script\":\"tests/unit/test_dating_presentation_port.gd\",\"test_cases\":21,\"passed\":21,\"skipped\":0},{\"script\":\"tests/integration/test_ordered_ending_real_runtime.gd\",\"test_cases\":6,\"passed\":6,\"skipped\":0}]}"
+    },
+    {
+      "job_id": 109249568983,
+      "name": "Windows / desktop",
+      "checkout_sha": "d6896d7d6c00390b05b4c0cf59e17a37b2fc2419",
+      "gut": {
+        "suite": "desktop",
+        "test_cases": 319,
+        "passed": 319,
+        "skipped": 0,
+        "requested_scripts": 20,
+        "reported_scripts": 20,
+        "scripts": [
+          {
+            "script": "tests/unit/test_application_runtime_lifetime.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_contacts_frozen_context.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_desktop_panel_split.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/desktop_shell/test_desktop_split_touch.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_desktop_touch_navigation.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_desktop_app_host_state.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_desktop_accessibility_contract.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_desktop_quick_commands.gd",
+            "test_cases": 17,
+            "passed": 17,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_desktop_bootstrap_wiring.gd",
+            "test_cases": 27,
+            "passed": 27,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_desktop_cold_recovery_preparation.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_schedule_desktop_host.gd",
+            "test_cases": 15,
+            "passed": 15,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_phase2r_schedule_desktop_handoff.gd",
+            "test_cases": 111,
+            "passed": 111,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_schedule_app.gd",
+            "test_cases": 40,
+            "passed": 40,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_contacts_run_presentation.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_controls_input_contact_release.gd",
+            "test_cases": 1,
+            "passed": 1,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_angela_stat_overlay.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_stat_hud_week_tint.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_ui_art_placements.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_desktop_logout_consent.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_session_exit_coordinator.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          }
+        ]
+      },
+      "conclusion": "success",
+      "started_at": "2026-09-29T04:00:43Z",
+      "completed_at": "2026-09-29T04:03:50Z",
+      "job_url": "https://github.com/Siuuuers/dwm/actions/runs/36519455086/job/109249568983",
+      "log_sha256_lf_no_bom": "fce62544f4f3b46e9e3a0d685b8dd7dac576972bab47f0be9d3f3eefaa88c6f7",
+      "checkout_log_lines": [
+        "2026-09-29T04:00:55.3200772Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H",
+        "2026-09-29T04:00:55.3413420Z d6896d7d6c00390b05b4c0cf59e17a37b2fc2419"
+      ],
+      "gut_log_line": "2026-09-29T04:03:44.6096958Z CLOUD_GUT_RESULT {\"suite\":\"desktop\",\"test_cases\":319,\"passed\":319,\"skipped\":0,\"requested_scripts\":20,\"reported_scripts\":20,\"scripts\":[{\"script\":\"tests/unit/test_application_runtime_lifetime.gd\",\"test_cases\":3,\"passed\":3,\"skipped\":0},{\"script\":\"tests/unit/test_contacts_frozen_context.gd\",\"test_cases\":8,\"passed\":8,\"skipped\":0},{\"script\":\"tests/unit/test_desktop_panel_split.gd\",\"test_cases\":12,\"passed\":12,\"skipped\":0},{\"script\":\"tests/desktop_shell/test_desktop_split_touch.gd\",\"test_cases\":13,\"passed\":13,\"skipped\":0},{\"script\":\"tests/unit/test_desktop_touch_navigation.gd\",\"test_cases\":10,\"passed\":10,\"skipped\":0},{\"script\":\"tests/unit/test_desktop_app_host_state.gd\",\"test_cases\":12,\"passed\":12,\"skipped\":0},{\"script\":\"tests/unit/test_desktop_accessibility_contract.gd\",\"test_cases\":6,\"passed\":6,\"skipped\":0},{\"script\":\"tests/integration/test_desktop_quick_commands.gd\",\"test_cases\":17,\"passed\":17,\"skipped\":0},{\"script\":\"tests/integration/test_desktop_bootstrap_wiring.gd\",\"test_cases\":27,\"passed\":27,\"skipped\":0},{\"script\":\"tests/unit/test_desktop_cold_recovery_preparation.gd\",\"test_cases\":7,\"passed\":7,\"skipped\":0},{\"script\":\"tests/integration/test_schedule_desktop_host.gd\",\"test_cases\":15,\"passed\":15,\"skipped\":0},{\"script\":\"tests/integration/test_phase2r_schedule_desktop_handoff.gd\",\"test_cases\":111,\"passed\":111,\"skipped\":0},{\"script\":\"tests/unit/test_schedule_app.gd\",\"test_cases\":40,\"passed\":40,\"skipped\":0},{\"script\":\"tests/integration/test_contacts_run_presentation.gd\",\"test_cases\":8,\"passed\":8,\"skipped\":0},{\"script\":\"tests/scene/test_controls_input_contact_release.gd\",\"test_cases\":1,\"passed\":1,\"skipped\":0},{\"script\":\"tests/unit/test_angela_stat_overlay.gd\",\"test_cases\":7,\"passed\":7,\"skipped\":0},{\"script\":\"tests/unit/test_stat_hud_week_tint.gd\",\"test_cases\":8,\"passed\":8,\"skipped\":0},{\"script\":\"tests/integration/test_ui_art_placements.gd\",\"test_cases\":5,\"passed\":5,\"skipped\":0},{\"script\":\"tests/integration/test_desktop_logout_consent.gd\",\"test_cases\":4,\"passed\":4,\"skipped\":0},{\"script\":\"tests/unit/test_session_exit_coordinator.gd\",\"test_cases\":5,\"passed\":5,\"skipped\":0}]}"
+    },
+    {
+      "job_id": 109249568971,
+      "name": "Windows / persistence",
+      "checkout_sha": "d6896d7d6c00390b05b4c0cf59e17a37b2fc2419",
+      "gut": {
+        "suite": "persistence",
+        "test_cases": 183,
+        "passed": 183,
+        "skipped": 0,
+        "requested_scripts": 19,
+        "reported_scripts": 19,
+        "scripts": [
+          {
+            "script": "tests/unit/test_frozen_run_context.gd",
+            "test_cases": 18,
+            "passed": 18,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_presentation_chronology.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_dating_attempts.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_dating_branches.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_pair_form_witness.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_contact_invitation_state.gd",
+            "test_cases": 42,
+            "passed": 42,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_seven_day_calendar.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_pair_deck_draw.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_pair_deck_draw_port.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_v4_upgrade.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_new_run_consumption.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_save_migrations.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_save_manager_journal.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_restore_transaction.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_unified_restore_contract.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_run_restore_isolation.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_live_run_rollback_isolation.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_save_manager_public_boundaries.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_save_capability.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          }
+        ]
+      },
+      "conclusion": "success",
+      "started_at": "2026-09-29T04:00:43Z",
+      "completed_at": "2026-09-29T04:02:34Z",
+      "job_url": "https://github.com/Siuuuers/dwm/actions/runs/36519455086/job/109249568971",
+      "log_sha256_lf_no_bom": "5113c3ea43cde0a1c7abb44c5f610708c79a1249943d4cb8ad831f01816f178a",
+      "checkout_log_lines": [
+        "2026-09-29T04:00:57.7979038Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H",
+        "2026-09-29T04:00:57.8202753Z d6896d7d6c00390b05b4c0cf59e17a37b2fc2419"
+      ],
+      "gut_log_line": "2026-09-29T04:02:14.4696108Z CLOUD_GUT_RESULT {\"suite\":\"persistence\",\"test_cases\":183,\"passed\":183,\"skipped\":0,\"requested_scripts\":19,\"reported_scripts\":19,\"scripts\":[{\"script\":\"tests/unit/test_frozen_run_context.gd\",\"test_cases\":18,\"passed\":18,\"skipped\":0},{\"script\":\"tests/unit/test_profile_presentation_chronology.gd\",\"test_cases\":9,\"passed\":9,\"skipped\":0},{\"script\":\"tests/unit/test_profile_dating_attempts.gd\",\"test_cases\":10,\"passed\":10,\"skipped\":0},{\"script\":\"tests/unit/test_profile_dating_branches.gd\",\"test_cases\":7,\"passed\":7,\"skipped\":0},{\"script\":\"tests/unit/test_profile_pair_form_witness.gd\",\"test_cases\":3,\"passed\":3,\"skipped\":0},{\"script\":\"tests/unit/test_contact_invitation_state.gd\",\"test_cases\":42,\"passed\":42,\"skipped\":0},{\"script\":\"tests/unit/test_seven_day_calendar.gd\",\"test_cases\":7,\"passed\":7,\"skipped\":0},{\"script\":\"tests/unit/test_pair_deck_draw.gd\",\"test_cases\":4,\"passed\":4,\"skipped\":0},{\"script\":\"tests/unit/test_pair_deck_draw_port.gd\",\"test_cases\":11,\"passed\":11,\"skipped\":0},{\"script\":\"tests/unit/test_profile_v4_upgrade.gd\",\"test_cases\":10,\"passed\":10,\"skipped\":0},{\"script\":\"tests/unit/test_profile_new_run_consumption.gd\",\"test_cases\":12,\"passed\":12,\"skipped\":0},{\"script\":\"tests/unit/test_save_migrations.gd\",\"test_cases\":11,\"passed\":11,\"skipped\":0},{\"script\":\"tests/integration/test_save_manager_journal.gd\",\"test_cases\":6,\"passed\":6,\"skipped\":0},{\"script\":\"tests/integration/test_restore_transaction.gd\",\"test_cases\":12,\"passed\":12,\"skipped\":0},{\"script\":\"tests/integration/test_unified_restore_contract.gd\",\"test_cases\":3,\"passed\":3,\"skipped\":0},{\"script\":\"tests/integration/test_run_restore_isolation.gd\",\"test_cases\":5,\"passed\":5,\"skipped\":0},{\"script\":\"tests/integration/test_live_run_rollback_isolation.gd\",\"test_cases\":3,\"passed\":3,\"skipped\":0},{\"script\":\"tests/integration/test_save_manager_public_boundaries.gd\",\"test_cases\":6,\"passed\":6,\"skipped\":0},{\"script\":\"tests/integration/test_save_capability.gd\",\"test_cases\":4,\"passed\":4,\"skipped\":0}]}"
+    },
+    {
+      "job_id": 109248898468,
+      "name": "Windows / public API surface contracts",
+      "checkout_sha": "d6896d7d6c00390b05b4c0cf59e17a37b2fc2419",
+      "gut": {
+        "suite": "public_surfaces",
+        "test_cases": 11,
+        "passed": 11,
+        "skipped": 0,
+        "requested_scripts": 1,
+        "reported_scripts": 1,
+        "scripts": [
+          {
+            "script": "tests/unit/tooling/test_public_surface_inventory.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          }
+        ]
+      },
+      "conclusion": "success",
+      "started_at": "2026-09-29T03:57:42Z",
+      "completed_at": "2026-09-29T04:00:40Z",
+      "job_url": "https://github.com/Siuuuers/dwm/actions/runs/36519455086/job/109248898468",
+      "log_sha256_lf_no_bom": "b6d4e4637d41e2e9cc08697e2e8e6ff28756e199a1b6acc4a2e7a022d1501f29",
+      "checkout_log_lines": [
+        "2026-09-29T03:57:59.3135916Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H",
+        "2026-09-29T03:57:59.3291828Z d6896d7d6c00390b05b4c0cf59e17a37b2fc2419"
+      ],
+      "gut_log_line": "2026-09-29T04:00:36.3204005Z CLOUD_GUT_RESULT {\"suite\":\"public_surfaces\",\"test_cases\":11,\"passed\":11,\"skipped\":0,\"requested_scripts\":1,\"reported_scripts\":1,\"scripts\":[{\"script\":\"tests/unit/tooling/test_public_surface_inventory.gd\",\"test_cases\":11,\"passed\":11,\"skipped\":0}]}"
+    },
+    {
+      "job_id": 109249568967,
+      "name": "Windows / settings",
+      "checkout_sha": "d6896d7d6c00390b05b4c0cf59e17a37b2fc2419",
+      "gut": {
+        "suite": "settings",
+        "test_cases": 288,
+        "passed": 288,
+        "skipped": 0,
+        "requested_scripts": 25,
+        "reported_scripts": 25,
+        "scripts": [
+          {
+            "script": "tests/unit/test_save_manager_parse_cache.gd",
+            "test_cases": 14,
+            "passed": 14,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_settings_panel_resize.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_settings_preference_registry.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_shared_week_tint.gd",
+            "test_cases": 2,
+            "passed": 2,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_settings_window_transactions.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_window_mode_manager.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_window_mode_port.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_bootstrap_window_output.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_settings_window_mode_live.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_settings_audio_live.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_settings_reset_confirmation.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_settings_folio.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_settings_host_geometry.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_settings_localization_scene.gd",
+            "test_cases": 34,
+            "passed": 34,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_settings_shared_hosts.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_manager.gd",
+            "test_cases": 23,
+            "passed": 23,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_restore_participants.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_restore_preserves_current_profile.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_restore_production_adapters.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_desktop_board_persistence.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_minesweeper_first_reveal_transaction.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_save_manager_checkpoint_port.gd",
+            "test_cases": 42,
+            "passed": 42,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_checkpoint_validation_reuse.gd",
+            "test_cases": 21,
+            "passed": 21,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_checkpoint_phase_diagnostics.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_checkpoint_journal.gd",
+            "test_cases": 20,
+            "passed": 20,
+            "skipped": 0
+          }
+        ]
+      },
+      "conclusion": "success",
+      "started_at": "2026-09-29T04:00:43Z",
+      "completed_at": "2026-09-29T04:04:14Z",
+      "job_url": "https://github.com/Siuuuers/dwm/actions/runs/36519455086/job/109249568967",
+      "log_sha256_lf_no_bom": "b6ae8c163fcd37189b6f3ca5a0a22c7550d5a912e884d4bb03630efa7ec06b02",
+      "checkout_log_lines": [
+        "2026-09-29T04:00:57.0142131Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H",
+        "2026-09-29T04:00:57.0310523Z d6896d7d6c00390b05b4c0cf59e17a37b2fc2419"
+      ],
+      "gut_log_line": "2026-09-29T04:03:40.7068526Z CLOUD_GUT_RESULT {\"suite\":\"settings\",\"test_cases\":288,\"passed\":288,\"skipped\":0,\"requested_scripts\":25,\"reported_scripts\":25,\"scripts\":[{\"script\":\"tests/unit/test_save_manager_parse_cache.gd\",\"test_cases\":14,\"passed\":14,\"skipped\":0},{\"script\":\"tests/unit/test_settings_panel_resize.gd\",\"test_cases\":3,\"passed\":3,\"skipped\":0},{\"script\":\"tests/unit/test_settings_preference_registry.gd\",\"test_cases\":5,\"passed\":5,\"skipped\":0},{\"script\":\"tests/unit/test_shared_week_tint.gd\",\"test_cases\":2,\"passed\":2,\"skipped\":0},{\"script\":\"tests/unit/test_settings_window_transactions.gd\",\"test_cases\":13,\"passed\":13,\"skipped\":0},{\"script\":\"tests/unit/test_window_mode_manager.gd\",\"test_cases\":13,\"passed\":13,\"skipped\":0},{\"script\":\"tests/unit/test_window_mode_port.gd\",\"test_cases\":12,\"passed\":12,\"skipped\":0},{\"script\":\"tests/unit/test_bootstrap_window_output.gd\",\"test_cases\":6,\"passed\":6,\"skipped\":0},{\"script\":\"tests/scene/test_settings_window_mode_live.gd\",\"test_cases\":6,\"passed\":6,\"skipped\":0},{\"script\":\"tests/scene/test_settings_audio_live.gd\",\"test_cases\":5,\"passed\":5,\"skipped\":0},{\"script\":\"tests/scene/test_settings_reset_confirmation.gd\",\"test_cases\":8,\"passed\":8,\"skipped\":0},{\"script\":\"tests/scene/test_settings_folio.gd\",\"test_cases\":8,\"passed\":8,\"skipped\":0},{\"script\":\"tests/scene/test_settings_host_geometry.gd\",\"test_cases\":5,\"passed\":5,\"skipped\":0},{\"script\":\"tests/scene/test_settings_localization_scene.gd\",\"test_cases\":34,\"passed\":34,\"skipped\":0},{\"script\":\"tests/integration/test_settings_shared_hosts.gd\",\"test_cases\":8,\"passed\":8,\"skipped\":0},{\"script\":\"tests/unit/test_profile_manager.gd\",\"test_cases\":23,\"passed\":23,\"skipped\":0},{\"script\":\"tests/unit/test_restore_participants.gd\",\"test_cases\":7,\"passed\":7,\"skipped\":0},{\"script\":\"tests/integration/test_restore_preserves_current_profile.gd\",\"test_cases\":4,\"passed\":4,\"skipped\":0},{\"script\":\"tests/integration/test_restore_production_adapters.gd\",\"test_cases\":13,\"passed\":13,\"skipped\":0},{\"script\":\"tests/integration/test_desktop_board_persistence.gd\",\"test_cases\":5,\"passed\":5,\"skipped\":0},{\"script\":\"tests/integration/test_minesweeper_first_reveal_transaction.gd\",\"test_cases\":7,\"passed\":7,\"skipped\":0},{\"script\":\"tests/unit/test_save_manager_checkpoint_port.gd\",\"test_cases\":42,\"passed\":42,\"skipped\":0},{\"script\":\"tests/unit/test_checkpoint_validation_reuse.gd\",\"test_cases\":21,\"passed\":21,\"skipped\":0},{\"script\":\"tests/unit/test_checkpoint_phase_diagnostics.gd\",\"test_cases\":4,\"passed\":4,\"skipped\":0},{\"script\":\"tests/unit/test_checkpoint_journal.gd\",\"test_cases\":20,\"passed\":20,\"skipped\":0}]}"
+    },
+    {
+      "job_id": 109249569011,
+      "name": "Windows / shop",
+      "checkout_sha": "d6896d7d6c00390b05b4c0cf59e17a37b2fc2419",
+      "gut": {
+        "suite": "shop",
+        "test_cases": 144,
+        "passed": 144,
+        "skipped": 0,
+        "requested_scripts": 8,
+        "reported_scripts": 8,
+        "scripts": [
+          {
+            "script": "tests/unit/test_shop_app_purchase_bridge.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_shop_catalog_projection.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_shop_presentation_port.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_shop_card.gd",
+            "test_cases": 16,
+            "passed": 16,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_shop_plate.gd",
+            "test_cases": 37,
+            "passed": 37,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_shop_desktop_host.gd",
+            "test_cases": 15,
+            "passed": 15,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_minesweeper_shop_transaction.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_shop_purchase_participant.gd",
+            "test_cases": 41,
+            "passed": 41,
+            "skipped": 0
+          }
+        ]
+      },
+      "conclusion": "success",
+      "started_at": "2026-09-29T04:00:43Z",
+      "completed_at": "2026-09-29T04:02:29Z",
+      "job_url": "https://github.com/Siuuuers/dwm/actions/runs/36519455086/job/109249569011",
+      "log_sha256_lf_no_bom": "3112c8c427969fa2fa55fe40551dc10f888ba2d31ecd50245a2f41e53c9bd9b3",
+      "checkout_log_lines": [
+        "2026-09-29T04:01:00.3575189Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H",
+        "2026-09-29T04:01:00.3786641Z d6896d7d6c00390b05b4c0cf59e17a37b2fc2419"
+      ],
+      "gut_log_line": "2026-09-29T04:02:23.7506072Z CLOUD_GUT_RESULT {\"suite\":\"shop\",\"test_cases\":144,\"passed\":144,\"skipped\":0,\"requested_scripts\":8,\"reported_scripts\":8,\"scripts\":[{\"script\":\"tests/unit/test_shop_app_purchase_bridge.gd\",\"test_cases\":13,\"passed\":13,\"skipped\":0},{\"script\":\"tests/unit/test_shop_catalog_projection.gd\",\"test_cases\":8,\"passed\":8,\"skipped\":0},{\"script\":\"tests/unit/test_shop_presentation_port.gd\",\"test_cases\":10,\"passed\":10,\"skipped\":0},{\"script\":\"tests/scene/test_shop_card.gd\",\"test_cases\":16,\"passed\":16,\"skipped\":0},{\"script\":\"tests/scene/test_shop_plate.gd\",\"test_cases\":37,\"passed\":37,\"skipped\":0},{\"script\":\"tests/integration/test_shop_desktop_host.gd\",\"test_cases\":15,\"passed\":15,\"skipped\":0},{\"script\":\"tests/integration/test_minesweeper_shop_transaction.gd\",\"test_cases\":4,\"passed\":4,\"skipped\":0},{\"script\":\"tests/unit/test_minesweeper_shop_purchase_participant.gd\",\"test_cases\":41,\"passed\":41,\"skipped\":0}]}"
+    }
+  ],
+  "public_surface": {
+    "retired_symbols": 10,
+    "scanned_source_files": 925,
+    "remaining_references": 0,
+    "roots": [
+      "autoload",
+      "scripts",
+      "scenes",
+      "tests"
+    ],
+    "executable_test_exemptions": [],
+    "regeneration": false,
+    "markers": [
+      "PUBLIC_SURFACE_RETIRED_APIS_VERIFIED: 10 symbols; 925 source files; zero remaining references.",
+      "DWM_PUBLIC_SURFACE_PAYLOAD_BEGIN {\"path\":\"evidence/phase_2r/runtime/game_state_surface.json\",\"encoding\":\"gzip+base64\",\"sha256\":\"23d43604951254a65baa9c5fdcd2cf34b1399cce6dce6c1e16eda00cf91003b8\",\"bytes\":554555,\"compressed_bytes\":62922,\"parts\":41}",
+      "DWM_PUBLIC_SURFACE_PAYLOAD_END {\"path\":\"evidence/phase_2r/runtime/game_state_surface.json\",\"encoding\":\"gzip+base64\",\"sha256\":\"23d43604951254a65baa9c5fdcd2cf34b1399cce6dce6c1e16eda00cf91003b8\",\"bytes\":554555,\"compressed_bytes\":62922,\"parts\":41}",
+      "DWM_PUBLIC_SURFACE_PAYLOAD_BEGIN {\"path\":\"evidence/phase_2r/runtime/save_manager_surface.json\",\"encoding\":\"gzip+base64\",\"sha256\":\"b3d04e0b66b29ee45b84151418db21cf280247759fdf3279ed1f476519f5ddef\",\"bytes\":143130,\"compressed_bytes\":16911,\"parts\":12}",
+      "DWM_PUBLIC_SURFACE_PAYLOAD_END {\"path\":\"evidence/phase_2r/runtime/save_manager_surface.json\",\"encoding\":\"gzip+base64\",\"sha256\":\"b3d04e0b66b29ee45b84151418db21cf280247759fdf3279ed1f476519f5ddef\",\"bytes\":143130,\"compressed_bytes\":16911,\"parts\":12}",
+      "PUBLIC_SURFACE_VALIDATION_VERIFIED: both complete-tree inventories reproduce canonical bytes."
+    ],
+    "inventory_payloads_identical_to_generation": true,
+    "inventories": [
+      {
+        "path": "evidence/phase_2r/runtime/game_state_surface.json",
+        "encoding": "gzip+base64",
+        "sha256": "23d43604951254a65baa9c5fdcd2cf34b1399cce6dce6c1e16eda00cf91003b8",
+        "bytes": 554555,
+        "compressed_bytes": 62922,
+        "parts": 41
+      },
+      {
+        "path": "evidence/phase_2r/runtime/save_manager_surface.json",
+        "encoding": "gzip+base64",
+        "sha256": "b3d04e0b66b29ee45b84151418db21cf280247759fdf3279ed1f476519f5ddef",
+        "bytes": 143130,
+        "compressed_bytes": 16911,
+        "parts": 12
+      }
+    ]
+  },
+  "mapping_delta": {
+    "changed": [
+      {
+        "kind": "function",
+        "symbol": "add_inventory",
+        "previous_test": "test_inventory_mutations_via_effect_transactions",
+        "contract_test": "test_lucky_charm_purchase_transacts_exactly_once_against_real_ports",
+        "disposition": "replace",
+        "replacement": "func commit_effect_transaction(transaction_id: String, effect_ids: Array[String], source_id: String) -> Dictionary",
+        "selected_test_script": "tests/integration/test_minesweeper_shop_transaction.gd"
+      },
+      {
+        "kind": "function",
+        "symbol": "apply_minesweeper_money_reward",
+        "previous_test": "test_minesweeper_round_commands",
+        "contract_test": "test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge",
+        "disposition": "replace",
+        "replacement": "func complete_minesweeper_round(round_id: String, result: Dictionary, transaction_id: String) -> Dictionary",
+        "selected_test_script": "tests/integration/test_desktop_bootstrap_wiring.gd"
+      },
+      {
+        "kind": "function",
+        "symbol": "change_minesweeper_round_floor",
+        "previous_test": "test_minesweeper_round_commands",
+        "contract_test": "test_supportz_purchase_decrements_the_real_round_floor_and_spends_real_money",
+        "disposition": "replace",
+        "replacement": "func commit_effect_transaction(transaction_id: String, effect_ids: Array[String], source_id: String) -> Dictionary",
+        "selected_test_script": "tests/integration/test_minesweeper_shop_transaction.gd"
+      },
+      {
+        "kind": "function",
+        "symbol": "change_money",
+        "previous_test": "test_economy_mutations_via_effect_transactions",
+        "contract_test": "test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge",
+        "disposition": "replace",
+        "replacement": "func commit_effect_transaction(transaction_id: String, effect_ids: Array[String], source_id: String) -> Dictionary",
+        "selected_test_script": "tests/integration/test_desktop_bootstrap_wiring.gd"
+      },
+      {
+        "kind": "function",
+        "symbol": "check_and_claim_minesweeper_task_rewards",
+        "previous_test": "test_minesweeper_round_commands",
+        "contract_test": "test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge",
+        "disposition": "replace",
+        "replacement": "func complete_minesweeper_round(round_id: String, result: Dictionary, transaction_id: String) -> Dictionary",
+        "selected_test_script": "tests/integration/test_desktop_bootstrap_wiring.gd"
+      },
+      {
+        "kind": "property",
+        "symbol": "daily_opened_contacts",
+        "previous_test": "test_game_state_facade_reads_committed_state",
+        "contract_test": "test_retiring_solo_interactions_preserves_tone_mastery_and_destination_gates",
+        "disposition": "retain",
+        "replacement": "",
+        "selected_test_script": "tests/unit/test_canonical_dating_mastery.gd"
+      },
+      {
+        "kind": "property",
+        "symbol": "dating_route_state",
+        "previous_test": "test_game_state_facade_reads_committed_state",
+        "contract_test": "test_terminal_profile_ahead_replays_frozen_effect_once_after_checkpoint_retry",
+        "disposition": "retain",
+        "replacement": "",
+        "selected_test_script": "tests/unit/test_dating_attempt_runtime.gd"
+      },
+      {
+        "kind": "function",
+        "symbol": "finish_minesweeper_app_round",
+        "previous_test": "test_minesweeper_round_commands",
+        "contract_test": "test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge",
+        "disposition": "replace",
+        "replacement": "func complete_minesweeper_round(round_id: String, result: Dictionary, transaction_id: String) -> Dictionary",
+        "selected_test_script": "tests/integration/test_desktop_bootstrap_wiring.gd"
+      },
+      {
+        "kind": "property",
+        "symbol": "friend_attitude",
+        "previous_test": "test_game_state_facade_reads_committed_state",
+        "contract_test": "test_offer_freezes_generation_facts_and_missing_history_is_not_recreated",
+        "disposition": "retain",
+        "replacement": "",
+        "selected_test_script": "tests/unit/test_contacts_frozen_context.gd"
+      },
+      {
+        "kind": "property",
+        "symbol": "missed_invitations",
+        "previous_test": "test_game_state_facade_reads_committed_state",
+        "contract_test": "test_prepared_restore_plan_and_installed_owner_remain_independent_until_finalize",
+        "disposition": "retain",
+        "replacement": "",
+        "selected_test_script": "tests/integration/test_run_restore_isolation.gd"
+      },
+      {
+        "kind": "function",
+        "symbol": "set_stat",
+        "previous_test": "test_stat_mutations_via_effect_transactions",
+        "contract_test": "test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge",
+        "disposition": "replace",
+        "replacement": "func commit_effect_transaction(transaction_id: String, effect_ids: Array[String], source_id: String) -> Dictionary",
+        "selected_test_script": "tests/integration/test_desktop_bootstrap_wiring.gd"
+      },
+      {
+        "kind": "property",
+        "symbol": "stats",
+        "previous_test": "test_game_state_facade_reads_committed_state",
+        "contract_test": "test_restore_after_a_crash_between_checkpoint_commit_and_live_adoption_recovers_the_paid_first_reveal",
+        "disposition": "retain",
+        "replacement": "",
+        "selected_test_script": "tests/integration/test_minesweeper_first_reveal_transaction.gd"
+      },
+      {
+        "kind": "function",
+        "symbol": "try_spend_coins",
+        "previous_test": "test_economy_mutations_via_effect_transactions",
+        "contract_test": "test_lucky_charm_purchase_transacts_exactly_once_against_real_ports",
+        "disposition": "replace",
+        "replacement": "func commit_effect_transaction(transaction_id: String, effect_ids: Array[String], source_id: String) -> Dictionary",
+        "selected_test_script": "tests/integration/test_minesweeper_shop_transaction.gd"
+      },
+      {
+        "kind": "function",
+        "symbol": "try_spend_money",
+        "previous_test": "test_economy_mutations_via_effect_transactions",
+        "contract_test": "test_supportz_purchase_decrements_the_real_round_floor_and_spends_real_money",
+        "disposition": "replace",
+        "replacement": "func commit_effect_transaction(transaction_id: String, effect_ids: Array[String], source_id: String) -> Dictionary",
+        "selected_test_script": "tests/integration/test_minesweeper_shop_transaction.gd"
+      },
+      {
+        "kind": "function",
+        "symbol": "unlock_contact_message_after_minesweeper_finished",
+        "previous_test": "test_minesweeper_round_commands",
+        "contract_test": "test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge",
+        "disposition": "replace",
+        "replacement": "func complete_minesweeper_round(round_id: String, result: Dictionary, transaction_id: String) -> Dictionary",
+        "selected_test_script": "tests/integration/test_desktop_bootstrap_wiring.gd"
+      }
+    ],
+    "removed": [
+      {
+        "symbol": "get_minesweeper_safety_level",
+        "kind": "function",
+        "availability": "current",
+        "disposition": "retain",
+        "replacement": "",
+        "contract_test": "test_minesweeper_query_contracts"
+      },
+      {
+        "symbol": "should_warn_minesweeper_before_schedule_done",
+        "kind": "function",
+        "availability": "current",
+        "disposition": "retain",
+        "replacement": "",
+        "contract_test": "test_schedule_query_contracts"
+      }
+    ]
+  },
+  "surface_counts": {
+    "before": {
+      "game_state_current": 238,
+      "missing_test_occurrences": 131,
+      "distinct_missing_test_labels": 28
+    },
+    "after": {
+      "game_state_current": 236,
+      "missing_test_occurrences": 114,
+      "distinct_missing_test_labels": 28
+    },
+    "save_manager_current": 74,
+    "missing_name_count_is_not_a_behavioral_completeness_score": true
+  },
+  "inventory_review": {
+    "required_manifest_matches_embedded_copy": true,
+    "retained_dispositions_and_replacements_unchanged": true,
+    "save_manager_change": "Only four GameState source-reference line shifts; reference text unchanged.",
+    "other_game_state_changes": "Expected source/test reference line shifts plus two non-executed reconstruction anchor strings detected lexically as call_sites.",
+    "independent_review": "No unexpected inventory drift or source/provenance blocker."
+  },
+  "retirement_authority": {
+    "path": "docs/design/2026-08-11-desktop-minesweeper-shop-schedule-amendment.md",
+    "sections": [
+      "7",
+      "10",
+      "13.1"
+    ],
+    "caller_review": "No executable consumer of either retired query; full executable scan verified zero references after retirement.",
+    "fragment_path": "tests/fixtures/source/game_state_retired_query_seams.json",
+    "fragment_sha256": "9c896f9f868f5d3b7d4fcbc59c4db013ba626284974d428a440e54cc174fe442",
+    "retired_method_bytes": 1378,
+    "historical_source": "226d3da868784baacc6fc33f58823f95b5815a51",
+    "historical_source_sha256": "95073205c6016935a3fb6339f004129e0ac93cf8728e64f812a940891a27da5c",
+    "historical_source_bytes": 193922,
+    "original_whole_file_and_four_method_hashes_unchanged": true,
+    "provenance_script": "tests/integration/test_run_restore_isolation.gd",
+    "restore_cases_passed": 5,
+    "active_rollback_cases_passed": 3
+  },
+  "generation": {
+    "run_number": 73,
+    "run_id": 36519025775,
+    "source_sha": "a0b16752a422238789a1b7fd405871163ce1e851",
+    "workflow_head_sha": "c31d3c2d50deb10404e5c69a35853834ea25b174",
+    "job_id": 109247628263,
+    "conclusion": "success",
+    "log_sha256_lf_no_bom": "ea5cba254ee49a6f087ba43d0dec675b4cb5e7a63157c9b4454cacfc28bb7fc4",
+    "purpose": "Generate canonical inventory bytes only; not acceptance.",
+    "payload_validation": "Unique begin/end metadata, sequential complete chunk indices, strict base64, compressed/raw byte lengths and SHA256; final read-only run payloads identical."
+  },
+  "superseded_subset": {
+    "run_number": 72,
+    "run_id": 36517901665,
+    "source_sha": "a9791bbd127b66da8441d1364c0b9504ec1fbdda",
+    "conclusion": "success",
+    "executions": 492,
+    "unique_scripts": 33,
+    "skipped": 0,
+    "scope": "First three mapping repairs only; not acceptance of the final expanded increment."
+  },
+  "replay": {
+    "workflow_commit": "f7070d5998dadf8f6c1f5c531fc1f728f031fad4",
+    "workflow_path": ".github/workflows/windows-tests.yml",
+    "source_sha": "d6896d7d6c00390b05b4c0cf59e17a37b2fc2419",
+    "godot": "4.6.3 standard GDScript",
+    "execution": "GitHub Windows cloud only",
+    "public_command": "./tools/testing/Invoke-PublicSurfaceValidation.ps1 -EmitPayloads",
+    "suite_command": "./tools/testing/Invoke-CloudTests.ps1 -Suite <suite>",
+    "suites": [
+      "dating",
+      "desktop",
+      "persistence",
+      "public_surfaces",
+      "settings",
+      "shop"
+    ],
+    "policy": "Use a cloud checkout at the pinned source and the retained auxiliary workflow definition. Import with its checksum-pinned Godot and preserve the existing isolated runner and no-silent-skip checks. Do not regenerate during acceptance."
+  },
+  "limits": [
+    "This is focused acceptance of the exact source, not a new full 18-job or PR-merge run.",
+    "No benchmark, rendered E2E journey, native Windows graphics or physical input-to-paint result is added.",
+    "Existing mapped tests prove only the narrow behaviors and substitutions documented in docs/agent/2026-09-29-facade-contract-proof.md.",
+    "No saved fields, schema versions, active owner policies or main-branch workflow changed.",
+    "All 17 still-missing broad signal contracts and the identified existence-only variable-transaction contract remain unresolved.",
+    "Beads status stays in_progress; only dwm-sx8 notes/timestamp are to change in the records descendant."
+  ],
+  "source_files": {
+    "autoload/GameState.gd": {
+      "sha256": "02ed11392633e9ded43609d93977adb0805870880add55b67c483d5d305694bc",
+      "bytes": 191856
+    },
+    "tests/integration/test_run_restore_isolation.gd": {
+      "sha256": "98657300052b174b4063723f03f308f90602f1993fc8788c0d83bb931fdff953",
+      "bytes": 16211
+    },
+    "tests/fixtures/source/game_state_retired_query_seams.json": {
+      "sha256": "9c896f9f868f5d3b7d4fcbc59c4db013ba626284974d428a440e54cc174fe442",
+      "bytes": 2178
+    },
+    "tools/testing/Invoke-PublicSurfaceValidation.ps1": {
+      "sha256": "de02f5eb28b087fe858622dbcae5e45aa38293de694c4df284ae487443e3f11a",
+      "bytes": 6595
+    },
+    "tools/testing/Invoke-CloudTests.ps1": {
+      "sha256": "1829dc390b1e418b030842e16bb518d2d8dcc5d49979224403de5320c9b21b91",
+      "bytes": 17699
+    },
+    ".github/workflows/windows-tests.yml": {
+      "sha256": "2cdc4650be1d0afc8811e0a60be674b2c2b8e5c9aeb967204dc0d491b4df194b",
+      "bytes": 48294
+    },
+    "evidence/phase_2r/runtime/game_state_required_surface.json": {
+      "sha256": "4305818e24ea07d59512211eb09308bbbedf6b57d53e7e1c4b5bb220625095c5",
+      "bytes": 65405
+    }
+  },
+  "beads_export_review": {
+    "changed_record": "dwm-sx8",
+    "changed_fields": [
+      "notes",
+      "updated_at"
+    ],
+    "unchanged_records_byte_for_byte": 190,
+    "records": 191,
+    "status": "in_progress",
+    "sha256": "fd204d53bc6d314029eea30bfe49bf6414a38e61e91bbd8bb36dac8642b7cd75"
+  }
+}

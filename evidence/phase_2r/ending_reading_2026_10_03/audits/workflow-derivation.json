@@ -1,0 +1,12 @@
+{
+  "source": "57e47bafc32c602a03d9e0a153e6eed09e1434a2",
+  "auxiliary_head": "445a968dd539ce382fd8d3016886d6d74d910c12",
+  "workflow_sha256": "5f445f064ee26867f3d7e3a928e3ce5681d7302916ea3c26e4e125fc320579d9",
+  "derivation": "Selected unchanged pinned-Godot jobs from canonical windows-tests.yml; checkout exact source; remove dependency edges; generate public inventories before their read-only check. Auxiliary workflow is excluded from PR ancestry.",
+  "jobs": [
+    "public-surfaces",
+    "focused-tests: reading_delivery, dating, persistence",
+    "rendered-ending-reading"
+  ],
+  "scope": "Focused candidate only; canonical broad PR gate separately required."
+}

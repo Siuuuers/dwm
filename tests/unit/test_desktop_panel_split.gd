@@ -8,6 +8,7 @@ var _angela: Control
 var _computer: Control
 var _focus_target: Button
 var _edge_button: Button
+var _commits: Array[float] = []
 
 
 func before_each() -> void:
@@ -15,7 +16,9 @@ func before_each() -> void:
 	_viewport.size = Vector2i(1280, 720)
 	_viewport.handle_input_locally = true
 	add_child_autofree(_viewport)
+	_commits.clear()
 	_split = SPLIT.new()
+	_split.width_committed.connect(func(width: float): _commits.append(width))
 	_split.size = Vector2(1280, 720)
 	_viewport.add_child(_split)
 	_angela = Control.new()
@@ -110,10 +113,13 @@ func test_default_and_programmatic_widths_lay_out_two_panes_without_a_stolen_gut
 	assert_eq(_split.get_angela_width(), 480.0)
 	assert_eq(_computer.get_rect(), Rect2(480, 0, 800, 720))
 	assert_eq(changes, [400.0, 320.0, 480.0], "only effective public width changes are published")
+	assert_true(_commits.is_empty(), "programmatic layout changes are not user preference commits")
 
 
 func test_central_pointer_drag_clamps_and_preserves_existing_focus_and_children() -> void:
 	_focus_target.grab_focus()
+	var changes: Array[float] = []
+	_split.split_changed.connect(func(width: float): changes.append(width))
 	var handle := _split.get_node("SplitDragHandle") as Control
 	assert_eq(handle.size, Vector2(64, 64), "drag affordance is a large target")
 	assert_eq(handle.position, Vector2(416, 328), "large target stays wholly on Angela's side")
@@ -121,17 +127,92 @@ func test_central_pointer_drag_clamps_and_preserves_existing_focus_and_children(
 	var computer_id := _computer.get_instance_id()
 	assert_true(_mouse_button(Vector2(472, 360), true))
 	assert_true(_mouse_motion(Vector2(372, 360), Vector2(-100, 0)))
-	assert_eq(_split.get_angela_width(), 380.0)
+	assert_eq(_split.get_angela_width(), 480.0, "pointer motion previews without resizing content")
+	assert_eq(_computer.get_rect(), Rect2(480, 0, 800, 720))
+	assert_true(changes.is_empty(), "no layout commit is published during a drag")
+	assert_true(_commits.is_empty(), "pointer preview cannot save a preference")
 	assert_true(_mouse_motion(Vector2(332, 360), Vector2(-40, 0)))
-	assert_eq(_split.get_angela_width(), 340.0, "successive motion uses stable split coordinates")
+	assert_eq(_split.get_angela_width(), 480.0)
 	assert_true(_mouse_motion(Vector2(252, 360), Vector2(-80, 0)))
 	assert_true(_mouse_button(Vector2(252, 360), false))
 	await _settle()
 	assert_eq(_split.get_angela_width(), 320.0)
+	assert_eq(changes, [320.0], "release publishes the final clamped width once")
+	assert_eq(_commits, [320.0], "one completed gesture emits one preference commit")
+	assert_eq(_computer.get_rect(), Rect2(320, 0, 960, 720))
 	assert_true(_focus_target.has_focus(), "resizing does not steal semantic app focus")
 	assert_eq(_angela.get_instance_id(), angela_id)
 	assert_eq(_computer.get_instance_id(), computer_id)
 	assert_eq(_split.get_child_count(), 3, "resizing does not remount either pane")
+
+
+func test_programmatic_widths_snap_to_two_pixels_and_publish_only_changed_steps() -> void:
+	var changes: Array[float] = []
+	_split.split_changed.connect(func(width: float): changes.append(width))
+	var requests := [401.0, 402.9, 403.0, 401.1, 400.9, 400.1, 319.8, 321.0, 479.1, 900.0]
+	var expected := [402.0, 402.0, 404.0, 402.0, 400.0, 400.0, 320.0, 322.0, 480.0, 480.0]
+	for index: int in range(requests.size()):
+		_split.set_angela_width(requests[index])
+		await _settle()
+		assert_eq(_split.get_angela_width(), expected[index], "nearest two-pixel width for %s" % requests[index])
+		assert_eq(_angela.get_rect(), Rect2(0, 0, expected[index], 720))
+		assert_eq(_computer.get_rect(), Rect2(expected[index], 0, 1280 - expected[index], 720))
+	assert_eq(changes, [402.0, 404.0, 402.0, 400.0, 320.0, 322.0, 480.0],
+		"fractional jitter inside one step cannot publish another layout commit")
+
+
+func test_pointer_preview_and_release_share_the_two_pixel_grid() -> void:
+	_focus_target.grab_focus()
+	var changes: Array[float] = []
+	_split.split_changed.connect(func(width: float): changes.append(width))
+	var handle := _split.get_node("SplitDragHandle") as Control
+	assert_true(_mouse_button(Vector2(472, 360), true))
+	assert_true(_mouse_motion(Vector2(393.4, 360), Vector2(-78.6, 0)))
+	assert_eq(handle.preview_offset, -78.0, "401.4px candidate previews the 402px step")
+	assert_true(_mouse_motion(Vector2(392.6, 360), Vector2(-0.8, 0)))
+	assert_eq(handle.preview_offset, -80.0, "400.6px candidate previews the 400px step")
+	assert_true(_mouse_motion(Vector2(393.1, 360), Vector2(0.5, 0)))
+	assert_eq(handle.preview_offset, -78.0)
+	assert_eq(_angela.get_rect(), Rect2(0, 0, 480, 720))
+	assert_true(changes.is_empty(), "preview never commits or reflows the artwork")
+	assert_true(_mouse_button(Vector2(393.1, 360), false))
+	await _settle()
+	assert_eq(_split.get_angela_width(), 402.0, "release commits exactly the previewed step")
+	assert_eq(changes, [402.0])
+	assert_false(handle.preview_visible)
+	assert_true(_focus_target.has_focus())
+	assert_true(_mouse_button(Vector2(394, 360), true))
+	assert_true(_mouse_motion(Vector2(394.8, 360), Vector2(0.8, 0)))
+	assert_eq(handle.preview_offset, 0.0)
+	assert_true(_mouse_button(Vector2(394.8, 360), false))
+	await _settle()
+	assert_eq(changes, [402.0], "a released drag within the same step emits nothing")
+	assert_eq(_computer.get_rect(), Rect2(402, 0, 878, 720))
+
+
+func test_touch_preview_and_release_share_the_same_steps_without_jitter_commits() -> void:
+	_split.set_angela_width(400)
+	await _settle()
+	var changes: Array[float] = []
+	_split.split_changed.connect(func(width: float): changes.append(width))
+	var handle := _split.get_node("SplitDragHandle") as Control
+	assert_true(_touch(Vector2(392, 360), true))
+	assert_true(_touch_drag(Vector2(391.4, 360), Vector2(-0.6, 0)))
+	assert_eq(handle.preview_offset, 0.0)
+	assert_true(_touch(Vector2(391.4, 360), false))
+	await _settle()
+	assert_true(changes.is_empty(), "touch jitter inside the current step is a no-op")
+	assert_true(_touch(Vector2(392, 360), true))
+	assert_true(_touch_drag(Vector2(390.9, 360), Vector2(-1.1, 0)))
+	assert_eq(handle.preview_offset, -2.0, "touch uses the same two-pixel visual preview")
+	assert_eq(_split.get_angela_width(), 400.0)
+	assert_true(changes.is_empty())
+	assert_true(_touch(Vector2(390.9, 360), false))
+	await _settle()
+	assert_eq(changes, [398.0])
+	assert_eq(_angela.get_rect(), Rect2(0, 0, 398, 720))
+	assert_eq(_computer.get_rect(), Rect2(398, 0, 882, 720))
+	assert_false(handle.preview_visible)
 
 
 func test_app_control_near_the_seam_remains_clickable() -> void:
@@ -147,7 +228,7 @@ func test_app_control_near_the_seam_remains_clickable() -> void:
 func test_focused_affordance_supports_bounded_keyboard_adjustment() -> void:
 	var handle := _split.get_node("SplitDragHandle") as Control
 	assert_eq(handle.focus_mode, Control.FOCUS_ALL)
-	assert_eq(handle.accessibility_name, "Resize Angela panel")
+	assert_eq(handle.accessibility_name, "Resize panels")
 	_split.set_handle_accessibility("调整安吉拉面板", "左右拖动或使用方向键")
 	assert_eq(handle.accessibility_name, "调整安吉拉面板")
 	assert_eq(handle.accessibility_description, "左右拖动或使用方向键")
@@ -166,28 +247,87 @@ func test_focused_affordance_supports_bounded_keyboard_adjustment() -> void:
 	await _settle()
 	assert_eq(_split.get_angela_width(), 480.0)
 	assert_true(handle.has_focus())
+	assert_true(_key(KEY_END))
+	assert_eq(_commits, [464.0, 320.0, 336.0, 480.0], "bounded no-op does not add a keyboard commit")
 
 
-func test_touch_drag_resizes_and_cancellation_ends_pointer_custody() -> void:
+func test_shared_accessibility_retranslates_on_locale_changes_without_resizing() -> void:
+	var localization := get_node_or_null("/root/LocalizationManager")
+	assert_not_null(localization)
+	if localization == null: return
+	var original_locale: String = localization.get_locale()
+	var handle := _split.get_node("SplitDragHandle") as Control
+	var copy := {
+		"en": ["Resize panels", "Drag horizontally. Left/Right adjust width; Home/End use the minimum/maximum."],
+		"zh-CN": ["调整面板大小", "横向拖动。左右键调整宽度，Home/End 键设为最小/最大。"],
+		"zh-HK": ["調整面板大小", "橫向拖動。左右鍵調整寬度，Home/End 鍵設為最小/最大。"],
+		"ja": ["パネルのサイズ変更", "左右にドラッグ。左右キーで幅を調整、Home/End で最小/最大にします。"],
+		"ko": ["패널 크기 조절", "가로로 드래그하세요. 좌우 키로 너비를 조절하고 Home/End로 최소/최대 크기를 설정하세요."],
+	}
+	_split.set_angela_width(400)
+	for locale: String in copy:
+		localization.locale_changed.emit(locale)
+		assert_eq(handle.accessibility_name, copy[locale][0], locale)
+		assert_eq(handle.accessibility_description, copy[locale][1], locale)
+		assert_eq(_split.get_angela_width(), 400.0, "translation cannot resize either panel")
+	assert_true(_commits.is_empty(), "translation cannot save a width preference")
+	localization.locale_changed.emit(original_locale)
+
+
+func test_explicit_owner_accessibility_is_not_replaced_by_shared_locale_copy() -> void:
+	var localization := get_node_or_null("/root/LocalizationManager")
+	assert_not_null(localization)
+	if localization == null: return
+	var handle := _split.get_node("SplitDragHandle") as Control
+	_split.set_handle_accessibility("調整安吉拉面板大小", "橫向拖動。")
+	localization.locale_changed.emit("ja")
+	assert_eq(handle.accessibility_name, "調整安吉拉面板大小")
+	assert_eq(handle.accessibility_description, "橫向拖動。")
+	localization.locale_changed.emit(str(localization.get_locale()))
+
+
+func test_touch_drag_commits_on_release_and_cancellation_discards_preview() -> void:
 	assert_true(_touch(Vector2(472, 360), true))
 	assert_true(_touch_drag(Vector2(422, 360), Vector2(-50, 0)))
-	assert_eq(_split.get_angela_width(), 430.0)
+	assert_eq(_split.get_angela_width(), 480.0)
 	assert_true(_touch_drag(Vector2(362, 360), Vector2(-60, 0)))
-	assert_eq(_split.get_angela_width(), 370.0, "successive touch motion uses stable split coordinates")
+	assert_eq(_split.get_angela_width(), 480.0)
 	assert_true(_touch(Vector2(362, 360), false, true))
 	_touch_drag(Vector2(350, 360), Vector2(-50, 0))
-	assert_eq(_split.get_angela_width(), 370.0)
+	assert_eq(_split.get_angela_width(), 480.0, "canceled touch leaves the committed layout unchanged")
+	assert_true(_commits.is_empty())
+	assert_true(_touch(Vector2(472, 360), true))
+	assert_true(_touch_drag(Vector2(362, 360), Vector2(-110, 0)))
+	assert_true(_touch(Vector2(362, 360), false))
+	await _settle()
+	assert_eq(_split.get_angela_width(), 370.0, "normal release applies the final touch position")
+	assert_eq(_commits, [370.0], "canceled touch saves nothing; successful touch saves once")
 
 
 func test_focus_loss_and_missing_release_retire_mouse_drag_ownership() -> void:
 	assert_true(_mouse_button(Vector2(472, 360), true))
 	assert_true(_mouse_motion(Vector2(422, 360), Vector2(-50, 0)))
-	assert_eq(_split.get_angela_width(), 430.0)
+	assert_eq(_split.get_angela_width(), 480.0)
 	_split.notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
 	_mouse_motion(Vector2(372, 360), Vector2(-50, 0))
-	assert_eq(_split.get_angela_width(), 430.0, "focus loss retires an unreleased drag")
-	assert_true(_mouse_button(Vector2(422, 360), true))
+	assert_eq(_split.get_angela_width(), 480.0, "focus loss discards an unreleased drag")
+	assert_true(_mouse_button(Vector2(472, 360), true))
 	_mouse_motion(Vector2(392, 360), Vector2(-30, 0), 0)
-	assert_eq(_split.get_angela_width(), 430.0, "motion without a held left button cannot resize")
+	assert_eq(_split.get_angela_width(), 480.0, "motion without a held left button cannot resize")
 	_mouse_motion(Vector2(362, 360), Vector2(-30, 0))
-	assert_eq(_split.get_angela_width(), 430.0, "missing-button motion retires stale ownership")
+	assert_eq(_split.get_angela_width(), 480.0, "missing-button motion retires stale ownership")
+	assert_true(_commits.is_empty(), "focus loss and lost releases do not freeze preferences")
+
+
+func test_escape_cancels_pointer_preview_without_a_commit() -> void:
+	_focus_target.grab_focus()
+	var changes: Array[float] = []
+	_split.split_changed.connect(func(width: float): changes.append(width))
+	assert_true(_mouse_button(Vector2(472, 360), true))
+	assert_true(_mouse_motion(Vector2(352, 360), Vector2(-120, 0)))
+	assert_true(_key(KEY_ESCAPE))
+	_mouse_button(Vector2(352, 360), false)
+	await _settle()
+	assert_eq(_split.get_angela_width(), 480.0)
+	assert_true(changes.is_empty())
+	assert_true(_commits.is_empty(), "Escape retires a preview without saving")

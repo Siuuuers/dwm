@@ -1,0 +1,11 @@
+{
+  "archive": "cloud-guidance-accepted-run118.tar.gz",
+  "archive_member_count": 23,
+  "bytes": 788934,
+  "evidence_kind": "bounded-successful-run-audit",
+  "excluded_file_count": 0,
+  "manifest_sha256": "95f9c389ddebe837e6eea7bf4094ec2511697847e5ae813cafc21a48f6339a13",
+  "payload_file_count": 21,
+  "round_trip_verified": true,
+  "sha256": "952d60f91e61352f15160b6870914e9470d43e33f76e75f07e4d995520c51ab6"
+}

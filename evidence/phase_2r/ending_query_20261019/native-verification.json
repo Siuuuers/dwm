@@ -1,0 +1,11 @@
+{
+  "manifest_payloads_verified": 349,
+  "retained_source_hash_and_git_blob_pins_verified": 120,
+  "binder_replay_equal": true,
+  "navigate_observations": 149,
+  "navigate_selected_node": 94,
+  "caption_selected": 0,
+  "consumer_snapshots": 17,
+  "harness_batches": 2,
+  "official_acceptance_established": false
+}

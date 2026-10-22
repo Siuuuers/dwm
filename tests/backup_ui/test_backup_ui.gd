@@ -3,6 +3,24 @@ extends SceneTree
 const LOCATORS := ["autosave", "quick", "slot:1", "slot:2", "slot:3", "slot:4", "slot:5", "slot:6", "slot:7"]
 const Fixtures := preload("res://tests/contacts_shell/test_contacts_shell.gd")
 
+# Pixel deliberately uses the production fallback; readable is an explicit choice.
+class TypographyProfile extends Fixtures.FakeProfile:
+	var font_style := "pixel"
+	func get_preference(path: StringName, default: Variant = null) -> Variant:
+		if path == &"preferences.accessibility.font_style" and font_style == "readable":
+			return font_style
+		return super.get_preference(path, default)
+
+var tested_font_style := "pixel"
+var title_tail_runs: Array[String] = []
+var drawer_measurements: Array[Dictionary] = []
+var captures: Array[Dictionary] = []
+
+func typography_profile() -> TypographyProfile:
+	var profile := TypographyProfile.new()
+	profile.font_style = tested_font_style
+	return profile
+
 class IsolatedDesktop extends ComputerDesktop:
 	# This scene fixture supplies every owner; it does not start a player account.
 	func _configure_from_bootstrap() -> void: pass
@@ -103,6 +121,29 @@ func settle() -> void:
 	for frame in range(6):
 		await process_frame
 
+func capture_layout(app: Control, name: String) -> void:
+	var directory := OS.get_environment("DWM_BACKUP_CAPTURE_DIR")
+	if directory.is_empty():
+		return
+	await RenderingServer.frame_post_draw
+	var picture := root.get_texture().get_image()
+	check(not picture.is_empty(), "Rendered viewport has pixels")
+	var path := directory.path_join(name + ".png")
+	check(picture.save_png(path) == OK, "Rendered viewport saved: " + name)
+	var geometry: Array[Dictionary] = []
+	for drawer in app.drawer_buttons.values():
+		geometry.append({"identity": drawer.identity_label.text, "state": drawer.state_label.text,
+			"drawer": str(drawer.get_global_rect()), "identity_rect": str(drawer.identity_label.get_global_rect()),
+			"state_rect": str(drawer.state_label.get_global_rect()), "focused": drawer.has_focus(), "unavailable": drawer.unavailable})
+	var actions: Array[Dictionary] = []
+	for key: Button in app.action_buttons.values():
+		actions.append({"caption": key.caption.text, "rect": str(key.get_global_rect()), "caption_rect": str(key.caption.get_global_rect()), "focused": key.has_focus(), "risk": key.risk})
+	captures.append({"name": name, "size": [picture.get_width(), picture.get_height()], "drawers": geometry,
+		"body": str(app.get_global_rect()), "host": str(app.get_parent().get_global_rect()),
+		"info": str(app.info_scroll.get_global_rect()), "status": str(app.status_label.get_global_rect()),
+		"dock": str(app.action_dock.get_global_rect()), "actions": actions, "recovering": app._recovering,
+		"confirmation": is_instance_valid(app.confirmation)})
+
 func press_key(code: Key, shifted: bool = false) -> void:
 	var event := InputEventKey.new()
 	event.keycode = code
@@ -121,17 +162,28 @@ func check_rect(control: Control, app: Control, expected: Rect2, description: St
 	check(actual.is_equal_approx(expected), description + ": " + str(actual))
 
 func check_geometry(app: Control) -> void:
-	check(app.size.is_equal_approx(Vector2(800, 656)), "Backup remains an800x656 content pane")
+	check(app.size.x >= 800 and app.size.y == 656, "Backup uses the available host width and original height")
+	check(Rect2(Vector2.ZERO, Vector2(1280, 720)).encloses(app.get_global_rect()), "Backup body stays inside the actual stage")
+	check(app.get_parent().get_global_rect().encloses(app.get_global_rect()), "Backup body stays inside its actual host")
 	check(app.drawer_buttons.keys() == LOCATORS, "Nine semantic locators retain exact row-major order")
+	var top: int = 16 if app._title_login else 96
 	for index in range(LOCATORS.size()):
 		var drawer: Button = app.drawer_buttons[LOCATORS[index]]
-		check_rect(drawer, app, Rect2(16 + (index % 3) * 152, 96 + (index / 3) * 184, 144, 176), "Stable cabinet drawer " + LOCATORS[index])
-		check(not drawer.disabled and drawer.focus_mode == Control.FOCUS_ALL, "Every drawer remains inspectable regardless of record availability")
-	check_rect(app.mode_buttons["save"], app, Rect2(16, 16, 96, 64), "Large Save mode target chosen for font fit")
-	check_rect(app.mode_buttons["load"], app, Rect2(128, 16, 96, 64), "Large Load mode target chosen for font fit")
-	check_rect(app.info_scroll, app, Rect2(480, 96, 304, 336), "Only information viewport may overflow")
-	check_rect(app.status_region, app, Rect2(480, 432, 304, 96), "Pinned status region")
-	check_rect(app.action_dock, app, Rect2(480, 528, 304, 112), "Pinned action dock")
+		check_rect(drawer, app, Rect2(14 + (index % 3) * 196, top + (index / 3) * 184, 188, 176), "Measured cabinet drawer " + LOCATORS[index])
+		check(not drawer.disabled, "Every drawer remains inspectable regardless of record availability")
+		check(app.get_global_rect().encloses(drawer.get_global_rect().grow(7)), "Drawer outer focus ring stays inside the body")
+	if not app._title_login:
+		check_rect(app.mode_buttons["save"], app, Rect2(16, 16, 96, 64), "Save mode target retained")
+		check_rect(app.mode_buttons["load"], app, Rect2(128, 16, 96, 64), "Load mode target retained")
+	for region in [app.info_scroll, app.status_region, app.action_dock]:
+		check(region.position.x == 610 and region.size.x == app.size.x - 624, "One cabinet split owns all inspector widths")
+		check(app.get_global_rect().encloses(region.get_global_rect()), "Inspector region stays inside host")
+	check(app.info_scroll.position.y == top and app.info_scroll.size.y >= 96, "Information viewport retains a usable visible area")
+	check(app.info_scroll.get_rect().end.y == app.status_region.position.y, "Information stops before pinned status")
+	check(app.status_region.get_rect().end.y == app.action_dock.position.y, "Status stops before pinned actions")
+	check(app.action_dock.get_rect().end.y == top + 544, "Actions remain pinned to cabinet bottom")
+	check(app.status_region.get_global_rect().encloses(app.status_label.get_global_rect()), "Full status fits its allocation")
+	check(app.status_label.max_lines_visible == -1, "Status is not line capped")
 	for scroll in app.find_children("*", "ScrollContainer", true, false):
 		check(scroll == app.info_scroll, "Cabinet, status and actions have no competing scroll owner")
 	check(not app.info_scroll.is_ancestor_of(app.status_region) and not app.info_scroll.is_ancestor_of(app.action_dock), "Status and actions cannot scroll away with information")
@@ -139,9 +191,22 @@ func check_geometry(app: Control) -> void:
 func check_drawer_text(app: Control, font_size: int) -> void:
 	for drawer in app.drawer_buttons.values():
 		var labels: Array = drawer.find_children("*", "Label", true, false)
+		if not drawer.get_global_rect().encloses(drawer.state_label.get_global_rect()):
+			var measured := {"style": tested_font_style, "identity": drawer.identity_label.text, "state": drawer.state_label.text, "labels": []}
+			for entry: Label in [drawer.identity_label, drawer.state_label]:
+				var face: Font = entry.get_theme_font("font")
+				var points: int = entry.get_theme_font_size("font_size")
+				var sizes: Array[Dictionary] = []
+				for width: int in [128, 136, 144]:
+					var minimum: Vector2 = face.get_multiline_string_size(entry.text, HORIZONTAL_ALIGNMENT_LEFT, width, points, -1, TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE)
+					sizes.append({"width": width, "minimum": [minimum.x, minimum.y]})
+				measured.labels.append({"text": entry.text, "font_size": points, "font": face.resource_path, "measures": sizes})
+			drawer_measurements.append(measured)
+		check(drawer.identity_label.get_rect().end.y + 4 <= drawer.state_label.position.y, "Drawer identity and state have explicit separation")
+		check(drawer.identity_label.position.y >= 4 and drawer.state_label.get_rect().end.y <= 160, "Drawer labels clear top border and lower decoration band")
 		check(not labels.is_empty(), "Drawer has semantic visible identity/state text")
 		for label in labels:
-			check(drawer.get_global_rect().encloses(label.get_global_rect()), "Drawer text fits fixed geometry at chosen scale: " + label.text)
+			check(drawer.get_global_rect().encloses(label.get_global_rect()), "Drawer text fits fixed geometry: %s style=%s path=%s rect=%s drawer=%s" % [label.text, tested_font_style, label.get_path(), label.get_rect(), drawer.size])
 			check(label.get_theme_font_size("font_size") == font_size, "Drawer text follows requested text preset")
 			check(label.max_lines_visible == -1, "Drawer text remains complete")
 			var font: Font = label.get_theme_font("font")
@@ -154,8 +219,18 @@ func check_key_caption(key: Button) -> void:
 	check(caption != null, "Action has a real visible Caption")
 	if caption == null:
 		return
-	check(caption.text == key.accessibility_name and not caption.text.is_empty(), "Visible caption and accessible action verb agree")
-	check(key.get_global_rect().encloses(caption.get_global_rect()), "Action caption fits its fixed target: %s size=%s caption=%s" % [caption.text, key.size, caption.size])
+	var expected: String = key.accessibility_name
+	if key.name in ["SaveMode", "LoadMode"]:
+		var app: Node = key.get_parent()
+		while not app is BackupApp:
+			app = app.get_parent()
+		var role := "save" if key.name == "SaveMode" else "load"
+		expected = app._fit_caption(key.accessibility_name, app._compact_text(role, key.accessibility_name), caption)
+	check(caption.text == expected and not caption.text.is_empty(), "Visible action preserves full copy or its existing authored mode contract")
+	check(key.size.x >= 48 and key.size.y >= 48, "Action preserves the minimum interactive target")
+	if key.get_parent().name == "PinnedActions":
+		check(Rect2(Vector2.ZERO, key.get_parent().size).encloses(key.get_rect()), "Host-owned action stays fully inside the fixed dock")
+	check(key.get_global_rect().encloses(caption.get_global_rect()), "Action caption fits its fixed target: %s style=%s path=%s position=%s size=%s caption=%s parent=%s" % [caption.text, tested_font_style, key.get_path(), key.position, key.size, caption.size, key.get_parent().size])
 	check(caption.max_lines_visible == -1, "Action caption is not line capped")
 	var font: Font = caption.get_theme_font("font")
 	for character in caption.text:
@@ -291,14 +366,20 @@ func verify_ui(desktop: Control, app: Control, port: FakeBackupPort, locale: Nod
 	port.records[0].load_day = null
 	port.records[0].load_saved_time = null
 	app.refresh_view()
-	for language in ["en", "zh-CN", "zh-HK"]:
+	port.records[7].state = "unavailable"
+	port.records[7].actions.delete = true
+	port.records[7].reason = "older_version"
+	app.refresh_view()
+	for language in ["en", "zh-CN", "zh-HK", "ja", "ko"]:
 		locale.change(language)
 		for index in range(3):
 			profile.change_scale([1.0, 1.25, 1.5][index])
 			app.mode_buttons["save"].pressed.emit()
 			await settle()
 			check_geometry(app)
-			check_drawer_text(app, [20, 25, 30][index])
+			check_drawer_text(app, ([24, 30, 36] if tested_font_style == "pixel" else [20, 25, 30])[index])
+			if tested_font_style == "pixel" and ((language == "en" and index in [0, 2]) or (language != "en" and index == 2)):
+				await capture_layout(app, "in-run-" + language + "-" + str(index))
 			for button in app.mode_buttons.values():
 				check(button.size.y == 64 and button.get_theme_font_size("font_size") == [24, 30, 36][index], "Mode uses readable full-size type in fixed64 target")
 				check_key_caption(button)
@@ -307,8 +388,13 @@ func verify_ui(desktop: Control, app: Control, port: FakeBackupPort, locale: Nod
 			app.mode_buttons["load"].pressed.emit()
 			await settle()
 			for button in app.action_buttons.values():
-				check(button.size == Vector2(144, 64), "Load/Delete retain fixed two-key dock targets")
+				check(button.size.x == (app.action_dock.size.x - 16) / 2 and button.size.y >= 64, "Load/Delete retain two full-size dock targets")
 				check_key_caption(button)
+	port.records[7].reason = ""
+	port.records[7].state = "empty"
+	port.records[7].actions.delete = false
+	app.refresh_view()
+	await verify_recovery_matrix(app, port, locale, profile)
 	locale.change("en")
 	profile.change_scale(1.5)
 	app.mode_buttons["save"].pressed.emit()
@@ -316,6 +402,7 @@ func verify_ui(desktop: Control, app: Control, port: FakeBackupPort, locale: Nod
 	await settle()
 	app.action_buttons["save"].pressed.emit()
 	await settle()
+	await capture_layout(app, "overwrite-confirmation-" + tested_font_style)
 	check(is_instance_valid(app.confirmation), "Occupied numbered Save requires overwrite confirmation")
 	if is_instance_valid(app.confirmation):
 		check_key_caption(app.confirmation.cancel_button)
@@ -323,8 +410,12 @@ func verify_ui(desktop: Control, app: Control, port: FakeBackupPort, locale: Nod
 		port.reject_commit = true
 		app.confirmation.confirm_button.pressed.emit()
 		await settle()
+		check(app._recovering and not is_instance_valid(app.confirmation), "Capture is actual failed-save recovery, not confirmation")
+		check(app.action_buttons.has("retry") and app.action_buttons.retry.caption.text == "Overwrite", "Recovery dock retains explicit Overwrite")
+		check_geometry(app)
 		for button in app.action_buttons.values():
 			check_key_caption(button)
+		await capture_layout(app, "overwrite-recovery-dock-" + tested_font_style)
 		if app.action_buttons.has("cancel"):
 			app.action_buttons["cancel"].pressed.emit()
 			await settle()
@@ -418,10 +509,39 @@ func verify_ui(desktop: Control, app: Control, port: FakeBackupPort, locale: Nod
 		check(app.info_scroll.get_focus_mode_with_override() == Control.FOCUS_NONE, "Deferred information measurement cannot reactivate a modal-covered viewport")
 		check(app.confirmation.is_ancestor_of(root.gui_get_focus_owner()), "Modal retains exclusive focus after deferred remeasurement")
 
+func verify_recovery_matrix(app: Control, port: FakeBackupPort, locale: Node, profile: RefCounted) -> void:
+	for language: String in ["en", "zh-CN", "zh-HK", "ja", "ko"]:
+		locale.change(language)
+		for percent: float in [1.0, 1.25, 1.5]:
+			profile.change_scale(percent)
+			app.mode_buttons.save.pressed.emit()
+			app.drawer_buttons["slot:2"].pressed.emit()
+			await settle()
+			app.action_buttons.save.pressed.emit()
+			await settle()
+			check(is_instance_valid(app.confirmation), "Recovery matrix starts with real overwrite consent")
+			if not is_instance_valid(app.confirmation):
+				continue
+			port.reject_commit = true
+			app.confirmation.confirm_button.pressed.emit()
+			await settle()
+			check(app._recovering and app.action_buttons.has("retry"), "Storage refusal enters real recovery")
+			check_geometry(app)
+			check(app.status_label.text == app._t("failed"), "Recovery status retains full localized failure")
+			check(app.action_buttons.cancel.has_focus(), "Recovery retains Cancel-first focus")
+			for key in app.action_buttons.values():
+				check_key_caption(key)
+			if percent == 1.5 and language in ["ja", "ko"]:
+				await capture_layout(app, "recovery-" + language + "-150-" + tested_font_style)
+			app.action_buttons.cancel.pressed.emit()
+			await settle()
+
 func check_title_login() -> void:
+	title_tail_runs.append(tested_font_style)
 	# Real body and fonts; title scene/owner/process boundaries have separate tests.
 	var host := Control.new()
-	host.size = Vector2(1280, 720)
+	host.position = Vector2(320, 0)
+	host.size = Vector2(960, 720)
 	root.add_child(host)
 	var return_button := Button.new()
 	return_button.position = Vector2(320, 0)
@@ -429,19 +549,23 @@ func check_title_login() -> void:
 	host.add_child(return_button)
 	var app: Control = load("res://scenes/apps/BackupApp.tscn").instantiate()
 	app.configure_title_login()
-	app.position = Vector2(400, 64)
+	app.position = Vector2(80, 64)
 	app.size = Vector2(800, 656)
 	host.add_child(app)
 	var locale := Fixtures.FakeLocale.new()
 	root.add_child(locale)
-	var profile := Fixtures.FakeProfile.new()
+	var profile := typography_profile()
 	var port := FakeBackupPort.new()
 	port.title_context = true
 	app.configure_desktop_home(return_button)
 	check(app.configure_backup(port, locale, profile).get("ok", false), "Title body configures with injected title operations")
 	app.show_window()
 	await settle()
-	for language in ["en", "zh-CN", "zh-HK"]:
+	port.records[7].state = "unavailable"
+	port.records[7].actions.delete = true
+	port.records[7].reason = "older_version"
+	app.refresh_view()
+	for language in ["en", "zh-CN", "zh-HK", "ja", "ko"]:
 		locale.change(language)
 		for index in range(3):
 			profile.change_scale([1.0, 1.25, 1.5][index])
@@ -450,13 +574,11 @@ func check_title_login() -> void:
 			check(app.action_buttons.keys() == ["load", "delete"], "Title exposes only Load and Delete")
 			check(app.action_buttons.load.risk == "neutral", "Title ordinary Load is neutral")
 			check(app.selected_locator == "autosave", "Loadable Autosave is the title first selection")
-			for drawer_index in range(LOCATORS.size()):
-				var drawer: Control = app.drawer_buttons[LOCATORS[drawer_index]]
-				check_rect(drawer, app, Rect2(16 + (drawer_index % 3) * 152, 16 + (drawer_index / 3) * 184, 144, 176), "Title cabinet fixed offset")
-			check_rect(app.info_scroll, app, Rect2(480, 16, 304, 336), "Title information starts without reserved mode space")
-			check_rect(app.status_region, app, Rect2(480, 352, 304, 96), "Title status stays pinned above quiet field")
-			check_rect(app.action_dock, app, Rect2(480, 448, 304, 112), "Title actions end at quiet lower field")
-			check_drawer_text(app, [20, 25, 30][index])
+			check_geometry(app)
+			check(app.size.x == 928 and app.position.x == 16, "Title uses available width before narrowing inspector")
+			check_drawer_text(app, ([24, 30, 36] if tested_font_style == "pixel" else [20, 25, 30])[index])
+			if tested_font_style == "pixel" and ((language == "en" and index in [0, 2]) or (language != "en" and index == 2)):
+				await capture_layout(app, "title-" + language + "-" + str(index))
 			for key in app.action_buttons.values():
 				check_key_caption(key)
 			app.drawer_buttons.autosave.grab_focus()
@@ -496,6 +618,20 @@ func _bind_isolated_desktop(child: Node) -> void:
 		check(child.configure_run_configuration(CapturedRun.new()).get("ok", false), "Desktop admits the isolated captured run before ready")
 
 func _run() -> void:
+	if OS.get_environment("DWM_BACKUP_MEASURE_LAYOUT") == "1":
+		await measure_layout_budget()
+		return
+	for font_style: String in ["pixel", "readable"]:
+		tested_font_style = font_style
+		await _run_typography()
+	check(title_tail_runs == ["pixel", "readable"], "Title-login tail executes for default pixel and readable")
+	print(JSON.stringify({"checks_run": checks_run, "suite": "BackupUI", "font_styles": ["pixel", "readable"], "title_tail_runs": title_tail_runs, "failures": failures, "drawer_measurements": drawer_measurements, "captures": captures}))
+	if failures.is_empty():
+		print("BACKUP_UI_PASS")
+	quit(0 if failures.is_empty() else 1)
+
+func _run_typography() -> void:
+	var failures_before := failures.size()
 	root.size = Vector2i(1280, 720)
 	var app: Control = load("res://scenes/apps/BackupApp.tscn").instantiate()
 	app.size = Vector2(800, 656)
@@ -510,7 +646,7 @@ func _run() -> void:
 		check(property in properties, "Backup exposes " + property + " (expected initial red)")
 	app.queue_free()
 	await settle()
-	if failures.is_empty():
+	if failures.size() == failures_before:
 		var main: Control = load("res://scenes/main/MainGameScene.tscn").instantiate()
 		main.get_node("RootHBox/ComputerPanel").child_entered_tree.connect(_bind_isolated_desktop)
 		root.add_child(main)
@@ -519,7 +655,7 @@ func _run() -> void:
 		var port := FakeBackupPort.new()
 		var locale := Fixtures.FakeLocale.new()
 		root.add_child(locale)
-		var profile := Fixtures.FakeProfile.new()
+		var profile := typography_profile()
 		var owner := Fixtures.FakeHost.new()
 		owner.reject_next = false
 		check(desktop.configure_backup_port(port).get("ok", false), "Desktop accepts injected Backup operation owner")
@@ -568,9 +704,52 @@ func _run() -> void:
 			check(not is_instance_valid(restored_app.confirmation) and restored_app.status_label.text.is_empty(), "Restore recreates no modal or transient status")
 		restored.queue_free()
 		await settle()
-	if failures.is_empty():
-		await check_title_login()
-	if failures.is_empty():
-		print(JSON.stringify({"checks_run": checks_run, "suite": "BackupUI"}))
-		print("BACKUP_UI_PASS")
-	quit(0 if failures.is_empty() else 1)
+	# This separate fixture owns its own tree and still reports failures honestly.
+	await check_title_login()
+
+# Measurement mode is explicitly separate from Backup acceptance. It uses the
+# production faces/copy and real Label shaping without altering runtime geometry.
+func measure_layout_budget() -> void:
+	root.size = Vector2i(1280, 720)
+	var typography := preload("res://scripts/ui/UiTypography.gd")
+	var rows: Array[Dictionary] = []
+	for style: String in ["pixel", "readable"]:
+		for language: String in ["en", "zh-CN", "zh-HK", "ja", "ko"]:
+			for percent: int in [100, 125, 150]:
+				var face: Font = typography.font(language, percent, style)
+				var points: int = typography.font_size(language, percent, 20, style)
+				var copy: Dictionary = BackupApp.COPY[language]
+				var texts: Array[String] = [copy.autosave, copy.quick, str(copy.slot).format({"n": 7}),
+					str(copy.day).format({"day": 7, "time": "09:07"}), copy.empty, copy.unavailable, copy.older]
+				for key: String in ["autosave", "quick", "slot"]:
+					if BackupApp.COMPACT_COPY.get(language, {}).has(key):
+						texts.append(str(BackupApp.COMPACT_COPY[language][key]).format({"n": 7}))
+				var row := {"texts": texts, "locale": language, "style": style, "percent": percent, "points": points, "natural": {}, "widths": []}
+				for text: String in texts:
+					row.natural[text] = face.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, points).x
+				var labels: Array[Label] = []
+				for width: int in range(144, 202, 2):
+					for text: String in texts:
+						var label := Label.new()
+						label.text = text
+						label.add_theme_font_override("font", face)
+						label.add_theme_font_size_override("font_size", points)
+						label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+						label.size.x = width - 8 # 4px clear paper edge on each side.
+						root.add_child(label)
+						labels.append(label)
+				await settle()
+				var cursor := 0
+				for width: int in range(144, 202, 2):
+					var heights: Array[float] = []
+					for text: String in texts:
+						heights.append(labels[cursor].size.y)
+						cursor += 1
+					row.widths.append({"drawer_width": width, "text_width": width - 8, "heights": heights})
+				rows.append(row)
+				for label: Label in labels:
+					label.queue_free()
+				await settle()
+	print(JSON.stringify({"suite": "BackupLayoutMeasurement", "measurements": rows, "acceptance": false}))
+	print("BACKUP_LAYOUT_MEASUREMENT_DONE")
+	quit(0)

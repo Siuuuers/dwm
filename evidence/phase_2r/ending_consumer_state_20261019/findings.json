@@ -1,0 +1,18 @@
+{
+  "run_id": 39208992744,
+  "job_id": 117917947849,
+  "original_native_result": "failure",
+  "offline_binding_ok": true,
+  "selected_count": 127,
+  "sequence": [
+    1297,
+    1423
+  ],
+  "capture_start_utc": "2026-10-19T06:52:44.547926+00:00",
+  "capture_end_utc": "2026-10-19T06:52:50.586786+00:00",
+  "all_targets_present_include": true,
+  "no_captured_hidden_or_excluded_subtree_ancestor": true,
+  "coverage": "Complete prefix only; no final or continuous coverage guarantee",
+  "official_acceptance_established": false,
+  "next_unresolved_boundary": "Actual Windows UIA query traversal and returned provider identity"
+}

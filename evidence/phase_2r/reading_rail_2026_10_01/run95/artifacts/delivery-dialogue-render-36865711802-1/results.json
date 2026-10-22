@@ -1,0 +1,308 @@
+{
+	"captures": 25,
+	"evidence": [
+		{
+			"desktop_width": 800,
+			"file": "delivering-800-100.png",
+			"kind": "delivery",
+			"notice_rect": "[P: (704.0, 316.0), S: (352.0, 88.0)]",
+			"text": "delivering...",
+			"text_percent": 100
+		},
+		{
+			"desktop_width": 800,
+			"file": "delivered-800-100.png",
+			"kind": "delivery",
+			"notice_rect": "[P: (704.0, 316.0), S: (352.0, 88.0)]",
+			"text": "delivered :)",
+			"text_percent": 100
+		},
+		{
+			"desktop_width": 960,
+			"file": "delivering-960-100.png",
+			"kind": "delivery",
+			"notice_rect": "[P: (588.8, 307.2), S: (422.4001, 105.6)]",
+			"text": "delivering...",
+			"text_percent": 100
+		},
+		{
+			"desktop_width": 960,
+			"file": "delivered-960-100.png",
+			"kind": "delivery",
+			"notice_rect": "[P: (588.8, 307.2), S: (422.4001, 105.6)]",
+			"text": "delivered :)",
+			"text_percent": 100
+		},
+		{
+			"desktop_width": 960,
+			"file": "delivering-960-150.png",
+			"kind": "delivery",
+			"notice_rect": "[P: (588.8, 307.2), S: (422.4001, 105.6)]",
+			"text": "delivering...",
+			"text_percent": 150
+		},
+		{
+			"desktop_width": 960,
+			"file": "delivered-960-150.png",
+			"kind": "delivery",
+			"notice_rect": "[P: (588.8, 307.2), S: (422.4001, 105.6)]",
+			"text": "delivered :)",
+			"text_percent": 150
+		},
+		{
+			"caption_window": [
+				"3. I remembered what you said.",
+				"4. There was no need to hurry.",
+				"5. We stayed a little longer."
+			],
+			"dating_overlay": false,
+			"file": "dialogue-live-en100.png",
+			"kind": "caption",
+			"locale": "en",
+			"review_offset": 0,
+			"text_percent": 100,
+			"visible_leaf_rects": "[[P: (16.0, 452.0), S: (1248.0, 68.0)], [P: (16.0, 520.0), S: (1248.0, 68.0)], [P: (16.0, 588.0), S: (1248.0, 68.0)]]"
+		},
+		{
+			"caption_window": [
+				"2. The afternoon light filled the room.",
+				"3. I remembered what you said.",
+				"4. There was no need to hurry."
+			],
+			"dating_overlay": false,
+			"file": "dialogue-older-en100.png",
+			"kind": "caption",
+			"locale": "en",
+			"review_offset": 1,
+			"text_percent": 100,
+			"visible_leaf_rects": "[[P: (16.0, 452.0), S: (1248.0, 68.0)], [P: (16.0, 520.0), S: (1248.0, 68.0)], [P: (16.0, 588.0), S: (1248.0, 68.0)]]"
+		},
+		{
+			"caption_window": [
+				"1. We found a quiet place.",
+				"2. The afternoon light filled the room.",
+				"3. I remembered what you said."
+			],
+			"dating_overlay": false,
+			"file": "dialogue-oldest-en100.png",
+			"kind": "caption",
+			"locale": "en",
+			"review_offset": 2,
+			"text_percent": 100,
+			"visible_leaf_rects": "[[P: (16.0, 452.0), S: (1248.0, 68.0)], [P: (16.0, 520.0), S: (1248.0, 68.0)], [P: (16.0, 588.0), S: (1248.0, 68.0)]]"
+		},
+		{
+			"caption_window": [
+				"2. The afternoon light filled the room.",
+				"3. I remembered what you said.",
+				"4. There was no need to hurry."
+			],
+			"dating_overlay": false,
+			"file": "dialogue-newer-en100.png",
+			"kind": "caption",
+			"locale": "en",
+			"review_offset": 1,
+			"text_percent": 100,
+			"visible_leaf_rects": "[[P: (16.0, 452.0), S: (1248.0, 68.0)], [P: (16.0, 520.0), S: (1248.0, 68.0)], [P: (16.0, 588.0), S: (1248.0, 68.0)]]"
+		},
+		{
+			"caption_window": [
+				"3. I remembered what you said.",
+				"4. There was no need to hurry.",
+				"5. We stayed a little longer."
+			],
+			"dating_overlay": false,
+			"file": "dialogue-return-live-en100.png",
+			"kind": "caption",
+			"locale": "en",
+			"review_offset": 0,
+			"text_percent": 100,
+			"visible_leaf_rects": "[[P: (16.0, 452.0), S: (1248.0, 68.0)], [P: (16.0, 520.0), S: (1248.0, 68.0)], [P: (16.0, 588.0), S: (1248.0, 68.0)]]"
+		},
+		{
+			"caption_window": [
+				"2. 午后的阳光照进房间。",
+				"3. 我记得你说过的话。",
+				"4. 我们不必着急。"
+			],
+			"dating_overlay": false,
+			"file": "dialogue-older-zh-CN150.png",
+			"kind": "caption",
+			"locale": "zh-CN",
+			"review_offset": 1,
+			"text_percent": 150,
+			"visible_leaf_rects": "[[P: (16.0, 416.0), S: (1248.0, 80.0)], [P: (16.0, 496.0), S: (1248.0, 80.0)], [P: (16.0, 576.0), S: (1248.0, 80.0)]]"
+		},
+		{
+			"caption_window": [
+				"2. 午後的陽光照進房間。",
+				"3. 我記得你說過的話。",
+				"4. 我們不必着急。"
+			],
+			"dating_overlay": false,
+			"file": "dialogue-older-zh-HK150.png",
+			"kind": "caption",
+			"locale": "zh-HK",
+			"review_offset": 1,
+			"text_percent": 150,
+			"visible_leaf_rects": "[[P: (16.0, 416.0), S: (1248.0, 80.0)], [P: (16.0, 496.0), S: (1248.0, 80.0)], [P: (16.0, 576.0), S: (1248.0, 80.0)]]"
+		},
+		{
+			"caption_window": [
+				"3. I remembered what you said.",
+				"4. There was no need to hurry.",
+				"5. We stayed a little longer."
+			],
+			"dating_overlay": true,
+			"file": "dating-overlay-live-en100.png",
+			"kind": "caption",
+			"locale": "en",
+			"review_offset": 0,
+			"text_percent": 100,
+			"visible_leaf_rects": "[[P: (16.0, 452.0), S: (1248.0, 68.0)], [P: (16.0, 520.0), S: (1248.0, 68.0)], [P: (16.0, 588.0), S: (1248.0, 68.0)]]"
+		},
+		{
+			"caption_window": [
+				"2. The afternoon light filled the room.",
+				"3. I remembered what you said.",
+				"4. There was no need to hurry."
+			],
+			"dating_overlay": true,
+			"file": "dating-overlay-review-en100.png",
+			"kind": "caption",
+			"locale": "en",
+			"review_offset": 1,
+			"text_percent": 100,
+			"visible_leaf_rects": "[[P: (16.0, 452.0), S: (1248.0, 68.0)], [P: (16.0, 520.0), S: (1248.0, 68.0)], [P: (16.0, 588.0), S: (1248.0, 68.0)]]"
+		},
+		{
+			"caption_window": [
+				"3. 我记得你说过的话。",
+				"4. 我们不必着急。",
+				"5. 我们又多待了一会儿。"
+			],
+			"dating_overlay": true,
+			"file": "dating-overlay-live-zh-CN150.png",
+			"kind": "caption",
+			"locale": "zh-CN",
+			"review_offset": 0,
+			"text_percent": 150,
+			"visible_leaf_rects": "[[P: (16.0, 416.0), S: (1248.0, 80.0)], [P: (16.0, 496.0), S: (1248.0, 80.0)], [P: (16.0, 576.0), S: (1248.0, 80.0)]]"
+		},
+		{
+			"caption_window": [
+				"2. 午后的阳光照进房间。",
+				"3. 我记得你说过的话。",
+				"4. 我们不必着急。"
+			],
+			"dating_overlay": true,
+			"file": "dating-overlay-review-zh-CN150.png",
+			"kind": "caption",
+			"locale": "zh-CN",
+			"review_offset": 1,
+			"text_percent": 150,
+			"visible_leaf_rects": "[[P: (16.0, 416.0), S: (1248.0, 80.0)], [P: (16.0, 496.0), S: (1248.0, 80.0)], [P: (16.0, 576.0), S: (1248.0, 80.0)]]"
+		},
+		{
+			"caption_window": [
+				"3. 我記得你說過的話。",
+				"4. 我們不必着急。",
+				"5. 我們又多待了一會兒。"
+			],
+			"dating_overlay": true,
+			"file": "dating-overlay-live-zh-HK150.png",
+			"kind": "caption",
+			"locale": "zh-HK",
+			"review_offset": 0,
+			"text_percent": 150,
+			"visible_leaf_rects": "[[P: (16.0, 416.0), S: (1248.0, 80.0)], [P: (16.0, 496.0), S: (1248.0, 80.0)], [P: (16.0, 576.0), S: (1248.0, 80.0)]]"
+		},
+		{
+			"caption_window": [
+				"2. 午後的陽光照進房間。",
+				"3. 我記得你說過的話。",
+				"4. 我們不必着急。"
+			],
+			"dating_overlay": true,
+			"file": "dating-overlay-review-zh-HK150.png",
+			"kind": "caption",
+			"locale": "zh-HK",
+			"review_offset": 1,
+			"text_percent": 150,
+			"visible_leaf_rects": "[[P: (16.0, 416.0), S: (1248.0, 80.0)], [P: (16.0, 496.0), S: (1248.0, 80.0)], [P: (16.0, 576.0), S: (1248.0, 80.0)]]"
+		},
+		{
+			"caption_window": [
+				"3. I remembered what you said.",
+				"4. There was no need to hurry.",
+				"5. We stayed a little longer."
+			],
+			"dating_overlay": true,
+			"file": "dating-pair-480.png",
+			"kind": "caption",
+			"locale": "en",
+			"review_offset": 0,
+			"text_percent": 100,
+			"visible_leaf_rects": "[[P: (16.0, 452.0), S: (1248.0, 68.0)], [P: (16.0, 520.0), S: (1248.0, 68.0)], [P: (16.0, 588.0), S: (1248.0, 68.0)]]"
+		},
+		{
+			"caption_window": [
+				"3. I remembered what you said.",
+				"4. There was no need to hurry.",
+				"5. We stayed a little longer."
+			],
+			"dating_overlay": true,
+			"file": "dating-pair-640.png",
+			"kind": "caption",
+			"locale": "en",
+			"review_offset": 0,
+			"text_percent": 100,
+			"visible_leaf_rects": "[[P: (16.0, 452.0), S: (1248.0, 68.0)], [P: (16.0, 520.0), S: (1248.0, 68.0)], [P: (16.0, 588.0), S: (1248.0, 68.0)]]"
+		},
+		{
+			"file": "challenge-solo-en100-480.png",
+			"kind": "dating_challenge",
+			"locale": "en",
+			"portrait_width": 480.0,
+			"right_rect": "[P: (480.0, 0.0), S: (800.0, 720.0)]",
+			"rules": false,
+			"text_percent": 100,
+			"worksheet_rect": "[P: (492.0, 58.0), S: (776.0, 482.0)]"
+		},
+		{
+			"file": "challenge-group-en100-640.png",
+			"kind": "dating_challenge",
+			"locale": "en",
+			"portrait_width": 640.0,
+			"right_rect": "[P: (640.0, 0.0), S: (640.0, 720.0)]",
+			"rules": false,
+			"text_percent": 100,
+			"worksheet_rect": "[P: (652.0, 58.0), S: (616.0, 482.0)]"
+		},
+		{
+			"file": "challenge-group-ja150-640-rules.png",
+			"kind": "dating_challenge",
+			"locale": "ja",
+			"portrait_width": 640.0,
+			"right_rect": "[P: (640.0, 0.0), S: (640.0, 720.0)]",
+			"rules": true,
+			"text_percent": 150,
+			"worksheet_rect": "[P: (652.0, 70.0), S: (616.0, 380.0)]"
+		},
+		{
+			"file": "challenge-group-ko150-640-rules.png",
+			"kind": "dating_challenge",
+			"locale": "ko",
+			"portrait_width": 640.0,
+			"right_rect": "[P: (640.0, 0.0), S: (640.0, 720.0)]",
+			"rules": true,
+			"text_percent": 150,
+			"worksheet_rect": "[P: (652.0, 70.0), S: (608.0, 422.0)]"
+		}
+	],
+	"failures": [],
+	"ok": true,
+	"renderer": "X11",
+	"samples": 25,
+	"scope": "synthetic public board and dialogue fixtures; production Desktop, split dating artwork and challenge host, installed Dialogic"
+}

@@ -1,0 +1,1493 @@
+{
+  "actual_checkout": "c9c013397f2e309b48fc1548490b401e54938c6c",
+  "all_source_bytes_unchanged": true,
+  "archive": {
+    "bytes": 5411554,
+    "file": "broad2-independent-audits.tar.gz",
+    "sha256": "d61f67f820d3ad789503bba4994283f6023be8f5e6c06d242b00e208f9a5a6f1"
+  },
+  "archive_member_count": 96,
+  "archive_member_identities": [
+    {
+      "archive_member": "BROAD2-INDEPENDENT-SUPPLEMENT-MANIFEST.json",
+      "bytes": 57085,
+      "sha256": "8201ebbeba61778a9a8dcfbb8c4d49df3d749a32264b8f394d28d4c111331678"
+    },
+    {
+      "archive_member": "BROAD2-INDEPENDENT-SUPPLEMENT.txt",
+      "bytes": 2026,
+      "sha256": "88f13ec072bd18e4921fa9e4ae7859293281abbdf3c4edf48e77ae0c9ea9f8e3"
+    },
+    {
+      "archive_member": "dwm/evidence/phase_2r/hospital_reading_2026_10_02/audit-records/broad2/packaging/build_independent_supplement.py",
+      "bytes": 15397,
+      "sha256": "c8ccaf1bc3ddcd0e64bba254859821f1c469d75d81c1b42e3f6b31972d3c60e9"
+    },
+    {
+      "archive_member": "hospital-broad2-expected-tree.json",
+      "bytes": 291,
+      "sha256": "c14b42c8c6e452bb58b8dc7dfe16ff0544ad88e3312a2e4f830c4df55133ada0"
+    },
+    {
+      "archive_member": "hospital-broad2-export-audit/README.md",
+      "bytes": 1309,
+      "sha256": "c46534951326febe59b0ecaaff81de7ac5b32ceea09ed82c1899952a7253f428"
+    },
+    {
+      "archive_member": "hospital-broad2-export-audit/audit_export.py",
+      "bytes": 8137,
+      "sha256": "3b35221ee5be974d4a370d4060d6773f36a2e2819461435b37a41c84a1ebe96d"
+    },
+    {
+      "archive_member": "hospital-broad2-export-audit/windows-export-audit.json",
+      "bytes": 13590,
+      "sha256": "49bc160d5f54fc756bbef51962a8907c2f2491d275701a9cd0eb834e25d6727a"
+    },
+    {
+      "archive_member": "hospital-broad2-normalization-audit/README.md",
+      "bytes": 3314,
+      "sha256": "9b8554f686b129b992b1feb6daa1030c6fdd9b3163b92c64ce0a8a799715b5d6"
+    },
+    {
+      "archive_member": "hospital-broad2-normalization-audit/audit.json",
+      "bytes": 8922,
+      "sha256": "f7023ceef019e7d0e980bcf013f2b8b6c631c0db376271aeed6fa5c5ee900d99"
+    },
+    {
+      "archive_member": "hospital-broad2-normalization-audit/audit_normalization.py",
+      "bytes": 19837,
+      "sha256": "1e2f5131572c82d24e08c355cadb5c972f0d9bab784c3702d039810cf95dc31a"
+    },
+    {
+      "archive_member": "hospital-broad2-original-reading-audit/README.md",
+      "bytes": 1288,
+      "sha256": "76700aa7b700699ae0aaa3ff4ddff6f44af268319eba5f1d7c67cce7692930eb"
+    },
+    {
+      "archive_member": "hospital-broad2-original-reading-audit/audit.json",
+      "bytes": 11552,
+      "sha256": "d95dbfdfc9a92c4ba9f3d016e6863654ac8f589bf84701ec2ac75768d75e9e3b"
+    },
+    {
+      "archive_member": "hospital-broad2-original-reading-audit/audit.md",
+      "bytes": 3805,
+      "sha256": "ba3bdfcba10120aba7aa8c6210f96086b9eb0316d0576e738b8f7c443728af26"
+    },
+    {
+      "archive_member": "hospital-broad2-original-reading-audit/audit_original_reading.py",
+      "bytes": 23600,
+      "sha256": "c6e403b9c6f031b254a587c058407ae2fec4e1e161a05a98d0237a45da56ecf5"
+    },
+    {
+      "archive_member": "hospital-broad2-package/SHA256SUMS.txt",
+      "bytes": 178,
+      "sha256": "8726afcc2fb5579541c2d5235b4758d9aa4a0a401d1f7c67d856fb18b3f2a976"
+    },
+    {
+      "archive_member": "hospital-broad2-package/bundle-receipt.json",
+      "bytes": 413,
+      "sha256": "2e8382bcd14d422b41a477289f5fdbaad4c6b0c48a51d86a06bf8fa41f222cca"
+    },
+    {
+      "archive_member": "hospital-broad2-package/manifest.json",
+      "bytes": 528716,
+      "sha256": "c85cebfc754a5bf1e058e7fc9670f7e5523518a3322832d4786c43dacc8cb154"
+    },
+    {
+      "archive_member": "hospital-broad2-performance-audit/audit.json",
+      "bytes": 21185,
+      "sha256": "1bdc5e63a04b1a09d4d7e86e0a9cafd7e5c31d90d0e388f1ff732bd56633871b"
+    },
+    {
+      "archive_member": "hospital-broad2-performance-audit/audit.md",
+      "bytes": 1843,
+      "sha256": "0aa63483f5b654dffcdfd4ab68b51262c1c7a18865c04c586dfb2302d6cde243"
+    },
+    {
+      "archive_member": "hospital-broad2-performance-audit/audit.py",
+      "bytes": 24289,
+      "sha256": "f3b0ef23289774aa319b64dafadd2b3c98012abc4f463efee5f8485e5fc64037"
+    },
+    {
+      "archive_member": "hospital-broad2-rendered-audit/README.md",
+      "bytes": 3032,
+      "sha256": "464c1d21ac8e4102a6b273df8afea449e43a9c5c4ae96788de0adc3dc3de887e"
+    },
+    {
+      "archive_member": "hospital-broad2-rendered-audit/audit.json",
+      "bytes": 13763,
+      "sha256": "ba6b2fa2c13ab2a29fa7c2c3e4841a3c9a3aa878010e92a0cf85ddf69a68d198"
+    },
+    {
+      "archive_member": "hospital-broad2-rendered-audit/audit_rendered.py",
+      "bytes": 22979,
+      "sha256": "514f5935780fa6d6732e68994c0684a6fe3f571283330c55e0a551c509d52f91"
+    },
+    {
+      "archive_member": "hospital-broad2-retained-history-audit/audit_retained_history.py",
+      "bytes": 31930,
+      "sha256": "c30bd7cccc7d9bb58688a1248bfcc42278c4cb4691110cf4816ec556a159514d"
+    },
+    {
+      "archive_member": "hospital-broad2-retained-history-audit/retained-history-audit.json",
+      "bytes": 181370,
+      "sha256": "12902afa2fae5d44a85032fd00d802b499d32329504f4e0367496d51f5459240"
+    },
+    {
+      "archive_member": "hospital-broad2-retained-history-audit/retained-history-audit.md",
+      "bytes": 3024,
+      "sha256": "29468ba709051e380b3f33cd45324a4fc833f30165cc751a41f196f2d82b490f"
+    },
+    {
+      "archive_member": "hospital-broad2-review/audit_warm_region.py",
+      "bytes": 36998,
+      "sha256": "0e4015df59186927e440a5bb539194fd08ad49460cfc122876cc50692cc9a7e4"
+    },
+    {
+      "archive_member": "hospital-broad2-review/audit_warm_region_joins.py",
+      "bytes": 9229,
+      "sha256": "c462a544bf29eb0a62d104df6aa42abef5050335682d33f3eb0fa3436f5c05d2"
+    },
+    {
+      "archive_member": "hospital-broad2-review/checklist-identities.json",
+      "bytes": 15547,
+      "sha256": "88866f298356cac92098f148e4115deef95e84e252b82ebe8d7697b4937970d4"
+    },
+    {
+      "archive_member": "hospital-broad2-review/checklist.md",
+      "bytes": 16453,
+      "sha256": "207efb5b3479938730f397bec342d04b4b7edd21a9d84279d601664364f8bbec"
+    },
+    {
+      "archive_member": "hospital-broad2-review/history-region-search-audit-initial.json",
+      "bytes": 16901,
+      "sha256": "e678a25bf0f3dd8da2b281bb999a908c841338f1b4b3a4c7df423b18d54131b1"
+    },
+    {
+      "archive_member": "hospital-broad2-review/performance-checklist.md",
+      "bytes": 7578,
+      "sha256": "86a5d64de1cf2de4834b52da4d9584a57eb7feb4a6055553c5f348cea4d34130"
+    },
+    {
+      "archive_member": "hospital-broad2-review/warm-outgoing-proof-audit-initial.json",
+      "bytes": 21871,
+      "sha256": "a9070177c7cbbf0fe7b31bf4d06debec9122e37c4f0dbb454c3964d2df093692"
+    },
+    {
+      "archive_member": "hospital-broad2-review/warm-region-auditor-usage.md",
+      "bytes": 3380,
+      "sha256": "c2d973af10e4b4f57c2c7948769a4a45cf09a2b3ce8787314fd5cb5dde7c1d1a"
+    },
+    {
+      "archive_member": "hospital-broad2-review/warm-region-combined-audit.json",
+      "bytes": 10278,
+      "sha256": "492087ee6bbd80982c05488fb6a3991a2ed08107525519a62c0e4f4128fe8fe2"
+    },
+    {
+      "archive_member": "hospital-broad2-review/warm-region-combined-audit.md",
+      "bytes": 2557,
+      "sha256": "5367fc14cddf9ae8bdb1054eecc1ee4a2681e2b248f35af627b277988cb7c980"
+    },
+    {
+      "archive_member": "hospital-broad2-review/warm-region-source-checks.json",
+      "bytes": 6338,
+      "sha256": "edd735ada50e15e090da6ccc03e6fe9b80d09d5ad7c05e12b4db4a77fb8d952e"
+    },
+    {
+      "archive_member": "hospital-broad2-review/warm-region-static-selftest.json",
+      "bytes": 833,
+      "sha256": "01b0aabd4f9399ae96807a558671461aae7fff1d12f2786a0a3ee8afba98a870"
+    },
+    {
+      "archive_member": "hospital-broad2-root-visual-review.json",
+      "bytes": 8407,
+      "sha256": "9856d859318c10e01a46685394ca6f62a5f5cb8e62784d426baf25dee988caf3"
+    },
+    {
+      "archive_member": "hospital-broad2-selector-audit/audit_selector.py",
+      "bytes": 18171,
+      "sha256": "2857e8e72cad6cf916a7fcc44d0f6a1f80b2b40e4c4f76434bd64bf2a02806c6"
+    },
+    {
+      "archive_member": "hospital-broad2-selector-audit/selector-audit.json",
+      "bytes": 25327,
+      "sha256": "7b59367013777a42eb879770af624e54d579f95f9470ceec09454782da45f684"
+    },
+    {
+      "archive_member": "hospital-broad2-selector-audit/selector-audit.md",
+      "bytes": 2846,
+      "sha256": "59964d56bb9c4e07faf7e0818dd37c49d47092593cb3c62581e91fa1b7f79103"
+    },
+    {
+      "archive_member": "hospital-broad2-semantic-audit/audit_hospital.py",
+      "bytes": 40720,
+      "sha256": "a0dd67c80a107a1f76cc1e8506ef2ebdcf8762ad9ab53b0cb153a1600bbf4c09"
+    },
+    {
+      "archive_member": "hospital-broad2-semantic-audit/hospital-broad2-semantic-audit.json",
+      "bytes": 97432,
+      "sha256": "1efccca6ba86a67ea855b3919d6609d86de49f2cd1a436827052b49c86ef42e1"
+    },
+    {
+      "archive_member": "hospital-broad2-semantic-audit/hospital-broad2-semantic-audit.md",
+      "bytes": 3440,
+      "sha256": "27ef096cf8a7c9830d35a3608b80f0e1ca090df710e939603732b039c372663c"
+    },
+    {
+      "archive_member": "hospital-broad2-suite-audit/audit_negative_controls.py",
+      "bytes": 21861,
+      "sha256": "744b587d3da48ec8ed1ccc53b041099b983fae2357b35acc8c762b4100f03c24"
+    },
+    {
+      "archive_member": "hospital-broad2-suite-audit/audit_suites.py",
+      "bytes": 25981,
+      "sha256": "41866927479a7fa04ddccb0ccafbc938cd2893bd0558cfe41a8e30f0212a417b"
+    },
+    {
+      "archive_member": "hospital-broad2-suite-audit/hospital-broad2-suite-audit.json",
+      "bytes": 169583,
+      "sha256": "94d01285164d5ac2ecd89222e261d5197f097c1a083a9896b7c3345668741a05"
+    },
+    {
+      "archive_member": "hospital-broad2-suite-audit/hospital-broad2-suite-audit.md",
+      "bytes": 2932,
+      "sha256": "0077d4dff4deaa8b9e5e813dd00096616654a42c3f47fcf397a5c142102c7c7c"
+    },
+    {
+      "archive_member": "hospital-broad2-suite-audit/negative-controls-subaudit.json",
+      "bytes": 53578,
+      "sha256": "9c239aa2db84eec50f421656eebbdd99de79f83442483b0dde9945d164716bb6"
+    },
+    {
+      "archive_member": "hospital-broad2-suite-audit/preparation.json",
+      "bytes": 38846,
+      "sha256": "b2c671b8107a0c2cf287b43b57d8ed7c33bb72e487cc2fda84bc3b9d190c8bb9"
+    },
+    {
+      "archive_member": "hospital-broad2-suite-audit/prepare_audit.py",
+      "bytes": 10369,
+      "sha256": "11abcdb5bbf585d76e953a1c3f36f1e01b2da402405d0a7521db4e7802b1d5d2"
+    },
+    {
+      "archive_member": "hospital-broad2-suite-audit/public-source-scan-identities.json",
+      "bytes": 178612,
+      "sha256": "28a31053ad26db1f85bb35108828d6d110e303f51c6d0890cc7f943796a461f6"
+    },
+    {
+      "archive_member": "hospital-broad2-suite-audit/resolved-census.json",
+      "bytes": 1432727,
+      "sha256": "f2c639fae1003710e91a3399ca769d5785d25fb72afe71a4cab00e551ae8ff21"
+    },
+    {
+      "archive_member": "hospital-broad2.yml",
+      "bytes": 62470,
+      "sha256": "8d88b91aab68f78d2f840c3976f3d6608e3312fb5d65311cf03d2f0f72246b4c"
+    },
+    {
+      "archive_member": "hospital-broad2.yml.manifest.json",
+      "bytes": 1486413,
+      "sha256": "ac48742e1cbf7e60aa1b952a49815a3fb7135324806437eba2eac9a1b9741f63"
+    },
+    {
+      "archive_member": "hospital-broad2/artifacts/hospital-reading-37048318182-1/0ea358ae-fd84-4865-8ee4-ad72f9f4772d/captures/hospital-partial-history.png",
+      "bytes": 8138,
+      "sha256": "a7d0339d1377eb9ee6e7310575844ef2faba72d08a9674af78266ed739d0c29b"
+    },
+    {
+      "archive_member": "hospital-broad2/artifacts/hospital-reading-37048318182-1/0ea358ae-fd84-4865-8ee4-ad72f9f4772d/captures/hospital-restored-history.png",
+      "bytes": 8138,
+      "sha256": "a7d0339d1377eb9ee6e7310575844ef2faba72d08a9674af78266ed739d0c29b"
+    },
+    {
+      "archive_member": "hospital-broad2/artifacts/hospital-reading-37048318182-1/0ea358ae-fd84-4865-8ee4-ad72f9f4772d/captures/hospital-restored.png",
+      "bytes": 1125632,
+      "sha256": "ff5ea3036add7b37fe0fe224f81360871ff57e815172d20035f4c6b428b629b6"
+    },
+    {
+      "archive_member": "hospital-broad2/artifacts/hospital-reading-37048318182-1/0ea358ae-fd84-4865-8ee4-ad72f9f4772d/captures/hospital-saved.png",
+      "bytes": 9150,
+      "sha256": "bc76ff6dd75cc79a0e0fde50c80f6474daa21bc53ac306efac4f1d6c146ee2ee"
+    },
+    {
+      "archive_member": "hospital-broad2/artifacts/hospital-reading-37048318182-1/0ea358ae-fd84-4865-8ee4-ad72f9f4772d/captures/next-solo-history.png",
+      "bytes": 7533,
+      "sha256": "9285b14bffc6bccbe99199444af945f584d49e36ae4ef03f5c1c9dd422993219"
+    },
+    {
+      "archive_member": "hospital-broad2/artifacts/public-surfaces-37048318182-1/ci/public-surfaces/game_state_surface.json",
+      "bytes": 568948,
+      "sha256": "804ca7f1bbe1b929b8c6ce59de390ab15c00f521ddc6290df1fed0a175157631"
+    },
+    {
+      "archive_member": "hospital-broad2/artifacts/public-surfaces-37048318182-1/ci/public-surfaces/save_manager_surface.json",
+      "bytes": 151143,
+      "sha256": "ccb1a6e576801c4f62cd4c159e89a9e4d9c814cbcf364140c61fc2338365c4d0"
+    },
+    {
+      "archive_member": "hospital-broad2/artifacts/reading-rail-37048318182-1/c48eff3f-95b0-4d5b-8930-3554d7fcd29e/captures/08-restored-history.png",
+      "bytes": 9019,
+      "sha256": "02aa35027dc32d55523f24fb3bdd5940904566e37926153c40c457ecde2a7bf6"
+    },
+    {
+      "archive_member": "hospital-broad2/artifacts/reading-rail-37048318182-1/c48eff3f-95b0-4d5b-8930-3554d7fcd29e/captures/09-restored-line.png",
+      "bytes": 1329047,
+      "sha256": "c205f90984cc75ab53dffe67ece9b1cddcd5f0313b0875eb2f5e317acc389613"
+    },
+    {
+      "archive_member": "hospital-broad2/artifacts/reading-rail-37048318182-1/c48eff3f-95b0-4d5b-8930-3554d7fcd29e/next/captures/03-next-restored-board.png",
+      "bytes": 673430,
+      "sha256": "aed01f2418e238d0695ca0b9997d5528122c8c1f8af22dd1956f9e67ed2ac1b7"
+    },
+    {
+      "archive_member": "hospital-broad2/artifacts/solo-authored-selector-37048318182-1/549601e1-24fc-4db5-a5ee-96d00f8fd497/captures/04-pre-history.png",
+      "bytes": 7318,
+      "sha256": "4d878362e53a01aad70fb13415154dfcf38c1f331455699c8909a191ea3fcb42"
+    },
+    {
+      "archive_member": "hospital-broad2/artifacts/solo-authored-selector-37048318182-1/549601e1-24fc-4db5-a5ee-96d00f8fd497/captures/08-restored-history.png",
+      "bytes": 9031,
+      "sha256": "d0fa56bcf7326b46a3e8bee910ecf1844b053da4765b7d03049e063a5923b81a"
+    },
+    {
+      "archive_member": "hospital-broad2/artifacts/solo-authored-selector-37048318182-1/549601e1-24fc-4db5-a5ee-96d00f8fd497/captures/09-restored-line.png",
+      "bytes": 1330459,
+      "sha256": "d5148fe105c1700944ea6ab51b832aa316c0a2182bb03042b5b4e33f75dd4447"
+    },
+    {
+      "archive_member": "hospital-broad2/audit",
+      "bytes": 578175,
+      "sha256": "0f279846842e65cbc229f705c0b8effd199d88defe181c4f8f5feefa8c4954d2"
+    },
+    {
+      "archive_member": "hospital-broad2/infrastructure-audit.json",
+      "bytes": 21200,
+      "sha256": "27bce88a918caf974ef2e008233a808872332900f43a1161cb8898350b418976"
+    },
+    {
+      "archive_member": "hospital-export2-publication.json",
+      "bytes": 431,
+      "sha256": "5c7f932526a72a60b95619d075d48d8667797eaec2e64146ed17cfefee08593c"
+    },
+    {
+      "archive_member": "hospital-export2-source-metadata.json",
+      "bytes": 302,
+      "sha256": "f36ab7dfb2c2ff4bbe599b1e2de4bbc795c034fb5287fd6f0c2b87c11b82536e"
+    },
+    {
+      "archive_member": "hospital-export2-transport-capture/artifact-manifest.json",
+      "bytes": 3146,
+      "sha256": "1ef0a21e3266363fc38c19960fa827d5d9d942e46be15c083236188c041336ac"
+    },
+    {
+      "archive_member": "hospital-export2-transport-capture/artifacts-api.json",
+      "bytes": 4561,
+      "sha256": "76a82aacb882b4f95a4d58549c6d12415d31ed0500506193f22d2b64ccad14e3"
+    },
+    {
+      "archive_member": "hospital-export2-transport-capture/artifacts/export-artifact-11245855941-transport-manifest-37058649284-1/transport-manifest.json",
+      "bytes": 2201,
+      "sha256": "ee3052d2deab2a3cdd2a0c2549488e1ed624f9ebf75aab4521dde4ff08801c6b"
+    },
+    {
+      "archive_member": "hospital-export2-transport-capture/jobs.json",
+      "bytes": 3630,
+      "sha256": "1abb13ad173340aa14e57946ec9b66b12a1e3e87c4d07ed805cf34006cd4846c"
+    },
+    {
+      "archive_member": "hospital-export2-transport-capture/logs/111009483235.log",
+      "bytes": 27977,
+      "sha256": "91a2687fd8817f0870609c2269bba1d22d1a5260b41510d81519ee075a676052"
+    },
+    {
+      "archive_member": "hospital-export2-transport-capture/omissions.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "archive_member": "hospital-export2-transport-capture/reassembly-receipt.json",
+      "bytes": 1095,
+      "sha256": "514241ea834f4e11d19a9e481e9f082de190cf9e26a99b8da57b58560a6b3947"
+    },
+    {
+      "archive_member": "hospital-export2-transport-capture/run.json",
+      "bytes": 12808,
+      "sha256": "c629c6c02dee37f96f837ae059471785a5ff267ea64177e3a9ea29138306bc0a"
+    },
+    {
+      "archive_member": "hospital-export2-transport.yml",
+      "bytes": 11294,
+      "sha256": "20ff164126e3f083ecace0e600f1272948b7329c84e89ccddb54504cc240ea5b"
+    },
+    {
+      "archive_member": "hospital-export2-transport.yml.static-review.json",
+      "bytes": 3133,
+      "sha256": "6e45a1f3a73db6a9dfdb1f654d238feb1b4ae753e473cb387a999ac3883b19d5"
+    },
+    {
+      "archive_member": "hospital-source9/commit-response.json",
+      "bytes": 1328,
+      "sha256": "8e34db065e28b30c07cbf5c6738def5640e103a1c90ddcbe8096ded4be17a477"
+    },
+    {
+      "archive_member": "hospital-source9/manifest.json",
+      "bytes": 1138,
+      "sha256": "e0a7c93bd0d680385b3e620f901b210396e379cf6b6afd9b0b2a85fd20994e3a"
+    },
+    {
+      "archive_member": "hospital-source9/publication.json",
+      "bytes": 659,
+      "sha256": "82f89444914f56b8b4324d55dda84f83213b4a2daf7a8967b29219771556e559"
+    },
+    {
+      "archive_member": "hospital-source9/published-blobs.json",
+      "bytes": 343,
+      "sha256": "1b08d8a98df7f149a8147a6ffcf338a64970bca57551dd4228b3b471d0488138"
+    },
+    {
+      "archive_member": "hospital-source9/tools/testing/Assert-WarmOutgoingProofBaseline.ps1",
+      "bytes": 10663,
+      "sha256": "32f9936715f6fcce5ef39364865c7ef854ba4f15605efcef1afe0e5119dc5adb"
+    },
+    {
+      "archive_member": "hospital-source9/tools/testing/Invoke-HistoryRegionSearchPerformance.ps1",
+      "bytes": 14576,
+      "sha256": "5c37e672aff64fde0d37e5fe836173092e600209c9021d5c463ca6fb0d51f326"
+    },
+    {
+      "archive_member": "hospital-source9/tools/testing/Invoke-WarmOutgoingProofPerformance.ps1",
+      "bytes": 13886,
+      "sha256": "835b92523bd3c9caf6a2c3195de47980dfd9bc2e481c1a4f9c6a6ebc9d3c7e21"
+    },
+    {
+      "archive_member": "hospital-source9/workflow-commit.json",
+      "bytes": 1609,
+      "sha256": "b287394e3f6d612e1ad3b84263b33d4345f2f9af69004dc2c58b7a468cd85e3d"
+    },
+    {
+      "archive_member": "hospital-tools/build_hospital_broad_workflow.py",
+      "bytes": 22609,
+      "sha256": "4bbc908b107cec3f26e33a3b6405fa177044890e21b1103c3a950381b3b68aae"
+    },
+    {
+      "archive_member": "hospital-tools/build_layout_workflow.py",
+      "bytes": 6666,
+      "sha256": "fbbe7088e7d09b4b55eadd6fd06fba277f10544d510252b33fa05def93815e86"
+    },
+    {
+      "archive_member": "hospital-tools/build_paused_settings_f9_workflow.py",
+      "bytes": 18498,
+      "sha256": "716d807f6855bdbc86a58db33efba0518407e5f00e8d9cfb246fd91abd813fe0"
+    },
+    {
+      "archive_member": "hospital-tools/build_reusable_export_evidence_transport.py",
+      "bytes": 24469,
+      "sha256": "45c4af0dfd3d22b5677c8ccd6dc9cedc42771fd1e536ef0a1ddc30151e7d47c3"
+    },
+    {
+      "archive_member": "hospital-tools/cloud_evidence.py",
+      "bytes": 38539,
+      "sha256": "7d0f4139bdb86ad760871713580277e9d8ea5440a6c269a7c6100362545aaa90"
+    }
+  ],
+  "attempt": 1,
+  "deterministic_metadata": {
+    "gid": 0,
+    "gname": "",
+    "gzip_filename": "",
+    "gzip_level": 9,
+    "gzip_mtime": 0,
+    "member_order": "sorted",
+    "mode_octal": "0644",
+    "mtime": 0,
+    "tar_format": "PAX",
+    "uid": 0,
+    "uname": ""
+  },
+  "excluded_source_files": [
+    {
+      "bytes": 12490,
+      "reason": "Byte-identical validator copy; original remains in generic archive.",
+      "retained_generic_member": "hospital-broad2/artifacts/solo-authored-selector-37048318182-1/549601e1-24fc-4db5-a5ee-96d00f8fd497/read-after-profile.json",
+      "sha256": "2b7d2032f9f4a3078ac6ac021f46199d3055a3198d8a33615163905fb824bef7",
+      "source_relative_path": "hospital-broad2-selector-audit/validator-copies/read-after-profile.json"
+    },
+    {
+      "bytes": 159835,
+      "reason": "Byte-identical validator copy; original remains in generic archive.",
+      "retained_generic_member": "hospital-broad2/artifacts/solo-authored-selector-37048318182-1/549601e1-24fc-4db5-a5ee-96d00f8fd497/read-after-quick.json",
+      "sha256": "d30a44d29fe5130b60f53d5f441220522a2c72331b232da8feaa547b0551b927",
+      "source_relative_path": "hospital-broad2-selector-audit/validator-copies/read-after-quick.json"
+    },
+    {
+      "bytes": 12490,
+      "reason": "Byte-identical validator copy; original remains in generic archive.",
+      "retained_generic_member": "hospital-broad2/artifacts/solo-authored-selector-37048318182-1/549601e1-24fc-4db5-a5ee-96d00f8fd497/read-before-profile.json",
+      "sha256": "2b7d2032f9f4a3078ac6ac021f46199d3055a3198d8a33615163905fb824bef7",
+      "source_relative_path": "hospital-broad2-selector-audit/validator-copies/read-before-profile.json"
+    },
+    {
+      "bytes": 159835,
+      "reason": "Byte-identical validator copy; original remains in generic archive.",
+      "retained_generic_member": "hospital-broad2/artifacts/solo-authored-selector-37048318182-1/549601e1-24fc-4db5-a5ee-96d00f8fd497/read-before-quick.json",
+      "sha256": "d30a44d29fe5130b60f53d5f441220522a2c72331b232da8feaa547b0551b927",
+      "source_relative_path": "hospital-broad2-selector-audit/validator-copies/read-before-quick.json"
+    },
+    {
+      "bytes": 150177,
+      "reason": "Byte-identical validator copy; original remains in generic archive.",
+      "retained_generic_member": "hospital-broad2/artifacts/solo-authored-selector-37048318182-1/549601e1-24fc-4db5-a5ee-96d00f8fd497/saved-next-destination.json",
+      "sha256": "2c725aa46961ae6881880962fd1d1c2218daf24d3be30b394887ffbe5bc61b35",
+      "source_relative_path": "hospital-broad2-selector-audit/validator-copies/saved-next-destination.json"
+    },
+    {
+      "bytes": 137916,
+      "reason": "Byte-identical validator copy; original remains in generic archive.",
+      "retained_generic_member": "hospital-broad2/artifacts/solo-authored-selector-37048318182-1/549601e1-24fc-4db5-a5ee-96d00f8fd497/saved-next-source.json",
+      "sha256": "41a632be894ad54ac9a9e2f4d4a05131c3ecfb6b8b018df96d1df03010497363",
+      "source_relative_path": "hospital-broad2-selector-audit/validator-copies/saved-next-source.json"
+    },
+    {
+      "bytes": 12490,
+      "reason": "Byte-identical validator copy; original remains in generic archive.",
+      "retained_generic_member": "hospital-broad2/artifacts/solo-authored-selector-37048318182-1/549601e1-24fc-4db5-a5ee-96d00f8fd497/saved-profile.json",
+      "sha256": "2b7d2032f9f4a3078ac6ac021f46199d3055a3198d8a33615163905fb824bef7",
+      "source_relative_path": "hospital-broad2-selector-audit/validator-copies/saved-profile.json"
+    },
+    {
+      "bytes": 159835,
+      "reason": "Byte-identical validator copy; original remains in generic archive.",
+      "retained_generic_member": "hospital-broad2/artifacts/solo-authored-selector-37048318182-1/549601e1-24fc-4db5-a5ee-96d00f8fd497/saved-quick.json",
+      "sha256": "d30a44d29fe5130b60f53d5f441220522a2c72331b232da8feaa547b0551b927",
+      "source_relative_path": "hospital-broad2-selector-audit/validator-copies/saved-quick.json"
+    },
+    {
+      "bytes": 7026,
+      "reason": "Superseded initial exporter auditor; final qualified auditor is included. Root separately retains diagnostic history and erratum.",
+      "sha256": "ccdcbe99563e53d52d58a19dce891c981132643a06300a0e4fcdebaf0f128cd7",
+      "source_relative_path": "hospital-broad2-export-audit/audit_export.strict-initial.py"
+    },
+    {
+      "bytes": 26214400,
+      "reason": "Original export binary transport chunk; excluded by packaging scope.",
+      "sha256": "f5db7b8f22fc12c611c0508418ea3e3ec154ecf5a069238e1a55fe8959d9bf62",
+      "source_relative_path": "hospital-export2-transport-capture/artifacts/export-artifact-11245855941-part001-37058649284-1/original.zip.part001"
+    },
+    {
+      "bytes": 26214400,
+      "reason": "Original export binary transport chunk; excluded by packaging scope.",
+      "sha256": "ee8d74bcc6178d126deed7a987f389eb337734d5697fdfdff323774ae41461b5",
+      "source_relative_path": "hospital-export2-transport-capture/artifacts/export-artifact-11245855941-part002-37058649284-1/original.zip.part002"
+    },
+    {
+      "bytes": 26214400,
+      "reason": "Original export binary transport chunk; excluded by packaging scope.",
+      "sha256": "b33ac0e414b3c03a8d4d8dab05bef64b7817916190841a0f6ecd770f5f3aa7fb",
+      "source_relative_path": "hospital-export2-transport-capture/artifacts/export-artifact-11245855941-part003-37058649284-1/original.zip.part003"
+    },
+    {
+      "bytes": 20207557,
+      "reason": "Original export binary transport chunk; excluded by packaging scope.",
+      "sha256": "5ea47537a9e048041aeb93f325b126cf111cb79d84613d1f2fc34c8818869a28",
+      "source_relative_path": "hospital-export2-transport-capture/artifacts/export-artifact-11245855941-part004-37058649284-1/original.zip.part004"
+    }
+  ],
+  "external_exporter_diagnostic_review_identity": {
+    "bytes": 6415,
+    "sha256": "4aaef9438f7b1ec83538dcbe520da9f568e00d407adff0cd7147183eff0f4cca"
+  },
+  "generic_archive": {
+    "bytes": 28877911,
+    "sha256": "221a811b8266832cea52f9ae3cceeac2db956258a599c6f40cbba05f639f848a",
+    "workspace_relative_path": "hospital-broad2-package/hospital-broad2-evidence.tar.gz"
+  },
+  "gzip_crc_verified": true,
+  "internal_manifest": {
+    "archive_member": "BROAD2-INDEPENDENT-SUPPLEMENT-MANIFEST.json",
+    "bytes": 57085,
+    "sha256": "8201ebbeba61778a9a8dcfbb8c4d49df3d749a32264b8f394d28d4c111331678"
+  },
+  "limits": [
+    "No original Windows binary, original export ZIP, nested archive, transport raw chunk or wrapper ZIP is included.",
+    "Generic archive exclusions remain documented by its own unchanged manifest; eleven selected PNGs and public inventory bytes are restored additively here.",
+    "Exporter diagnostic review and Broad1 erratum are root-owned external materials, deliberately not duplicated.",
+    "No final aggregate receipt, root README, focused evidence or Broad1 evidence was edited by this packager.",
+    "Static preparation/checklist records are retained as history; final actual audit reports do not inherit a whole-run acceptance claim."
+  ],
+  "members": [
+    {
+      "archive_member": "BROAD2-INDEPENDENT-SUPPLEMENT.txt",
+      "bytes": 2026,
+      "identical_member_already_in_generic_archive": false,
+      "role": "generated_package_instructions",
+      "sha256": "88f13ec072bd18e4921fa9e4ae7859293281abbdf3c4edf48e77ae0c9ea9f8e3",
+      "source_path": null,
+      "source_relative_path": null
+    },
+    {
+      "archive_member": "dwm/evidence/phase_2r/hospital_reading_2026_10_02/audit-records/broad2/packaging/build_independent_supplement.py",
+      "bytes": 15397,
+      "identical_member_already_in_generic_archive": false,
+      "role": "reproducible_supplement_packager",
+      "sha256": "c8ccaf1bc3ddcd0e64bba254859821f1c469d75d81c1b42e3f6b31972d3c60e9",
+      "source_path": "/workspace/scratch/e58f796fe7a3/dwm/evidence/phase_2r/hospital_reading_2026_10_02/audit-records/broad2/packaging/build_independent_supplement.py",
+      "source_relative_path": "dwm/evidence/phase_2r/hospital_reading_2026_10_02/audit-records/broad2/packaging/build_independent_supplement.py"
+    },
+    {
+      "archive_member": "hospital-broad2-expected-tree.json",
+      "bytes": 291,
+      "identical_member_already_in_generic_archive": false,
+      "role": "generic_audit_or_source_provenance",
+      "sha256": "c14b42c8c6e452bb58b8dc7dfe16ff0544ad88e3312a2e4f830c4df55133ada0",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-expected-tree.json",
+      "source_relative_path": "hospital-broad2-expected-tree.json"
+    },
+    {
+      "archive_member": "hospital-broad2-export-audit/README.md",
+      "bytes": 1309,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "c46534951326febe59b0ecaaff81de7ac5b32ceea09ed82c1899952a7253f428",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-export-audit/README.md",
+      "source_relative_path": "hospital-broad2-export-audit/README.md"
+    },
+    {
+      "archive_member": "hospital-broad2-export-audit/audit_export.py",
+      "bytes": 8137,
+      "identical_member_already_in_generic_archive": false,
+      "role": "independent_auditor",
+      "sha256": "3b35221ee5be974d4a370d4060d6773f36a2e2819461435b37a41c84a1ebe96d",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-export-audit/audit_export.py",
+      "source_relative_path": "hospital-broad2-export-audit/audit_export.py"
+    },
+    {
+      "archive_member": "hospital-broad2-export-audit/windows-export-audit.json",
+      "bytes": 13590,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "49bc160d5f54fc756bbef51962a8907c2f2491d275701a9cd0eb834e25d6727a",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-export-audit/windows-export-audit.json",
+      "source_relative_path": "hospital-broad2-export-audit/windows-export-audit.json"
+    },
+    {
+      "archive_member": "hospital-broad2-normalization-audit/README.md",
+      "bytes": 3314,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "9b8554f686b129b992b1feb6daa1030c6fdd9b3163b92c64ce0a8a799715b5d6",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-normalization-audit/README.md",
+      "source_relative_path": "hospital-broad2-normalization-audit/README.md"
+    },
+    {
+      "archive_member": "hospital-broad2-normalization-audit/audit.json",
+      "bytes": 8922,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "f7023ceef019e7d0e980bcf013f2b8b6c631c0db376271aeed6fa5c5ee900d99",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-normalization-audit/audit.json",
+      "source_relative_path": "hospital-broad2-normalization-audit/audit.json"
+    },
+    {
+      "archive_member": "hospital-broad2-normalization-audit/audit_normalization.py",
+      "bytes": 19837,
+      "identical_member_already_in_generic_archive": false,
+      "role": "independent_auditor",
+      "sha256": "1e2f5131572c82d24e08c355cadb5c972f0d9bab784c3702d039810cf95dc31a",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-normalization-audit/audit_normalization.py",
+      "source_relative_path": "hospital-broad2-normalization-audit/audit_normalization.py"
+    },
+    {
+      "archive_member": "hospital-broad2-original-reading-audit/README.md",
+      "bytes": 1288,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "76700aa7b700699ae0aaa3ff4ddff6f44af268319eba5f1d7c67cce7692930eb",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-original-reading-audit/README.md",
+      "source_relative_path": "hospital-broad2-original-reading-audit/README.md"
+    },
+    {
+      "archive_member": "hospital-broad2-original-reading-audit/audit.json",
+      "bytes": 11552,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "d95dbfdfc9a92c4ba9f3d016e6863654ac8f589bf84701ec2ac75768d75e9e3b",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-original-reading-audit/audit.json",
+      "source_relative_path": "hospital-broad2-original-reading-audit/audit.json"
+    },
+    {
+      "archive_member": "hospital-broad2-original-reading-audit/audit.md",
+      "bytes": 3805,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "ba3bdfcba10120aba7aa8c6210f96086b9eb0316d0576e738b8f7c443728af26",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-original-reading-audit/audit.md",
+      "source_relative_path": "hospital-broad2-original-reading-audit/audit.md"
+    },
+    {
+      "archive_member": "hospital-broad2-original-reading-audit/audit_original_reading.py",
+      "bytes": 23600,
+      "identical_member_already_in_generic_archive": false,
+      "role": "independent_auditor",
+      "sha256": "c6e403b9c6f031b254a587c058407ae2fec4e1e161a05a98d0237a45da56ecf5",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-original-reading-audit/audit_original_reading.py",
+      "source_relative_path": "hospital-broad2-original-reading-audit/audit_original_reading.py"
+    },
+    {
+      "archive_member": "hospital-broad2-package/SHA256SUMS.txt",
+      "bytes": 178,
+      "identical_member_already_in_generic_archive": false,
+      "role": "generic_audit_or_source_provenance",
+      "sha256": "8726afcc2fb5579541c2d5235b4758d9aa4a0a401d1f7c67d856fb18b3f2a976",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-package/SHA256SUMS.txt",
+      "source_relative_path": "hospital-broad2-package/SHA256SUMS.txt"
+    },
+    {
+      "archive_member": "hospital-broad2-package/bundle-receipt.json",
+      "bytes": 413,
+      "identical_member_already_in_generic_archive": false,
+      "role": "generic_audit_or_source_provenance",
+      "sha256": "2e8382bcd14d422b41a477289f5fdbaad4c6b0c48a51d86a06bf8fa41f222cca",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-package/bundle-receipt.json",
+      "source_relative_path": "hospital-broad2-package/bundle-receipt.json"
+    },
+    {
+      "archive_member": "hospital-broad2-package/manifest.json",
+      "bytes": 528716,
+      "identical_member_already_in_generic_archive": false,
+      "role": "generic_audit_or_source_provenance",
+      "sha256": "c85cebfc754a5bf1e058e7fc9670f7e5523518a3322832d4786c43dacc8cb154",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-package/manifest.json",
+      "source_relative_path": "hospital-broad2-package/manifest.json"
+    },
+    {
+      "archive_member": "hospital-broad2-performance-audit/audit.json",
+      "bytes": 21185,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "1bdc5e63a04b1a09d4d7e86e0a9cafd7e5c31d90d0e388f1ff732bd56633871b",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-performance-audit/audit.json",
+      "source_relative_path": "hospital-broad2-performance-audit/audit.json"
+    },
+    {
+      "archive_member": "hospital-broad2-performance-audit/audit.md",
+      "bytes": 1843,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "0aa63483f5b654dffcdfd4ab68b51262c1c7a18865c04c586dfb2302d6cde243",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-performance-audit/audit.md",
+      "source_relative_path": "hospital-broad2-performance-audit/audit.md"
+    },
+    {
+      "archive_member": "hospital-broad2-performance-audit/audit.py",
+      "bytes": 24289,
+      "identical_member_already_in_generic_archive": false,
+      "role": "independent_auditor",
+      "sha256": "f3b0ef23289774aa319b64dafadd2b3c98012abc4f463efee5f8485e5fc64037",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-performance-audit/audit.py",
+      "source_relative_path": "hospital-broad2-performance-audit/audit.py"
+    },
+    {
+      "archive_member": "hospital-broad2-rendered-audit/README.md",
+      "bytes": 3032,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "464c1d21ac8e4102a6b273df8afea449e43a9c5c4ae96788de0adc3dc3de887e",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-rendered-audit/README.md",
+      "source_relative_path": "hospital-broad2-rendered-audit/README.md"
+    },
+    {
+      "archive_member": "hospital-broad2-rendered-audit/audit.json",
+      "bytes": 13763,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "ba6b2fa2c13ab2a29fa7c2c3e4841a3c9a3aa878010e92a0cf85ddf69a68d198",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-rendered-audit/audit.json",
+      "source_relative_path": "hospital-broad2-rendered-audit/audit.json"
+    },
+    {
+      "archive_member": "hospital-broad2-rendered-audit/audit_rendered.py",
+      "bytes": 22979,
+      "identical_member_already_in_generic_archive": false,
+      "role": "independent_auditor",
+      "sha256": "514f5935780fa6d6732e68994c0684a6fe3f571283330c55e0a551c509d52f91",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-rendered-audit/audit_rendered.py",
+      "source_relative_path": "hospital-broad2-rendered-audit/audit_rendered.py"
+    },
+    {
+      "archive_member": "hospital-broad2-retained-history-audit/audit_retained_history.py",
+      "bytes": 31930,
+      "identical_member_already_in_generic_archive": false,
+      "role": "independent_auditor",
+      "sha256": "c30bd7cccc7d9bb58688a1248bfcc42278c4cb4691110cf4816ec556a159514d",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-retained-history-audit/audit_retained_history.py",
+      "source_relative_path": "hospital-broad2-retained-history-audit/audit_retained_history.py"
+    },
+    {
+      "archive_member": "hospital-broad2-retained-history-audit/retained-history-audit.json",
+      "bytes": 181370,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "12902afa2fae5d44a85032fd00d802b499d32329504f4e0367496d51f5459240",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-retained-history-audit/retained-history-audit.json",
+      "source_relative_path": "hospital-broad2-retained-history-audit/retained-history-audit.json"
+    },
+    {
+      "archive_member": "hospital-broad2-retained-history-audit/retained-history-audit.md",
+      "bytes": 3024,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "29468ba709051e380b3f33cd45324a4fc833f30165cc751a41f196f2d82b490f",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-retained-history-audit/retained-history-audit.md",
+      "source_relative_path": "hospital-broad2-retained-history-audit/retained-history-audit.md"
+    },
+    {
+      "archive_member": "hospital-broad2-review/audit_warm_region.py",
+      "bytes": 36998,
+      "identical_member_already_in_generic_archive": false,
+      "role": "independent_auditor",
+      "sha256": "0e4015df59186927e440a5bb539194fd08ad49460cfc122876cc50692cc9a7e4",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-review/audit_warm_region.py",
+      "source_relative_path": "hospital-broad2-review/audit_warm_region.py"
+    },
+    {
+      "archive_member": "hospital-broad2-review/audit_warm_region_joins.py",
+      "bytes": 9229,
+      "identical_member_already_in_generic_archive": false,
+      "role": "independent_auditor",
+      "sha256": "c462a544bf29eb0a62d104df6aa42abef5050335682d33f3eb0fa3436f5c05d2",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-review/audit_warm_region_joins.py",
+      "source_relative_path": "hospital-broad2-review/audit_warm_region_joins.py"
+    },
+    {
+      "archive_member": "hospital-broad2-review/checklist-identities.json",
+      "bytes": 15547,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "88866f298356cac92098f148e4115deef95e84e252b82ebe8d7697b4937970d4",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-review/checklist-identities.json",
+      "source_relative_path": "hospital-broad2-review/checklist-identities.json"
+    },
+    {
+      "archive_member": "hospital-broad2-review/checklist.md",
+      "bytes": 16453,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "207efb5b3479938730f397bec342d04b4b7edd21a9d84279d601664364f8bbec",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-review/checklist.md",
+      "source_relative_path": "hospital-broad2-review/checklist.md"
+    },
+    {
+      "archive_member": "hospital-broad2-review/history-region-search-audit-initial.json",
+      "bytes": 16901,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "e678a25bf0f3dd8da2b281bb999a908c841338f1b4b3a4c7df423b18d54131b1",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-review/history-region-search-audit-initial.json",
+      "source_relative_path": "hospital-broad2-review/history-region-search-audit-initial.json"
+    },
+    {
+      "archive_member": "hospital-broad2-review/performance-checklist.md",
+      "bytes": 7578,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "86a5d64de1cf2de4834b52da4d9584a57eb7feb4a6055553c5f348cea4d34130",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-review/performance-checklist.md",
+      "source_relative_path": "hospital-broad2-review/performance-checklist.md"
+    },
+    {
+      "archive_member": "hospital-broad2-review/warm-outgoing-proof-audit-initial.json",
+      "bytes": 21871,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "a9070177c7cbbf0fe7b31bf4d06debec9122e37c4f0dbb454c3964d2df093692",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-review/warm-outgoing-proof-audit-initial.json",
+      "source_relative_path": "hospital-broad2-review/warm-outgoing-proof-audit-initial.json"
+    },
+    {
+      "archive_member": "hospital-broad2-review/warm-region-auditor-usage.md",
+      "bytes": 3380,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "c2d973af10e4b4f57c2c7948769a4a45cf09a2b3ce8787314fd5cb5dde7c1d1a",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-review/warm-region-auditor-usage.md",
+      "source_relative_path": "hospital-broad2-review/warm-region-auditor-usage.md"
+    },
+    {
+      "archive_member": "hospital-broad2-review/warm-region-combined-audit.json",
+      "bytes": 10278,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "492087ee6bbd80982c05488fb6a3991a2ed08107525519a62c0e4f4128fe8fe2",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-review/warm-region-combined-audit.json",
+      "source_relative_path": "hospital-broad2-review/warm-region-combined-audit.json"
+    },
+    {
+      "archive_member": "hospital-broad2-review/warm-region-combined-audit.md",
+      "bytes": 2557,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "5367fc14cddf9ae8bdb1054eecc1ee4a2681e2b248f35af627b277988cb7c980",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-review/warm-region-combined-audit.md",
+      "source_relative_path": "hospital-broad2-review/warm-region-combined-audit.md"
+    },
+    {
+      "archive_member": "hospital-broad2-review/warm-region-source-checks.json",
+      "bytes": 6338,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "edd735ada50e15e090da6ccc03e6fe9b80d09d5ad7c05e12b4db4a77fb8d952e",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-review/warm-region-source-checks.json",
+      "source_relative_path": "hospital-broad2-review/warm-region-source-checks.json"
+    },
+    {
+      "archive_member": "hospital-broad2-review/warm-region-static-selftest.json",
+      "bytes": 833,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "01b0aabd4f9399ae96807a558671461aae7fff1d12f2786a0a3ee8afba98a870",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-review/warm-region-static-selftest.json",
+      "source_relative_path": "hospital-broad2-review/warm-region-static-selftest.json"
+    },
+    {
+      "archive_member": "hospital-broad2-root-visual-review.json",
+      "bytes": 8407,
+      "identical_member_already_in_generic_archive": false,
+      "role": "generic_audit_or_source_provenance",
+      "sha256": "9856d859318c10e01a46685394ca6f62a5f5cb8e62784d426baf25dee988caf3",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-root-visual-review.json",
+      "source_relative_path": "hospital-broad2-root-visual-review.json"
+    },
+    {
+      "archive_member": "hospital-broad2-selector-audit/audit_selector.py",
+      "bytes": 18171,
+      "identical_member_already_in_generic_archive": false,
+      "role": "independent_auditor",
+      "sha256": "2857e8e72cad6cf916a7fcc44d0f6a1f80b2b40e4c4f76434bd64bf2a02806c6",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-selector-audit/audit_selector.py",
+      "source_relative_path": "hospital-broad2-selector-audit/audit_selector.py"
+    },
+    {
+      "archive_member": "hospital-broad2-selector-audit/selector-audit.json",
+      "bytes": 25327,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "7b59367013777a42eb879770af624e54d579f95f9470ceec09454782da45f684",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-selector-audit/selector-audit.json",
+      "source_relative_path": "hospital-broad2-selector-audit/selector-audit.json"
+    },
+    {
+      "archive_member": "hospital-broad2-selector-audit/selector-audit.md",
+      "bytes": 2846,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "59964d56bb9c4e07faf7e0818dd37c49d47092593cb3c62581e91fa1b7f79103",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-selector-audit/selector-audit.md",
+      "source_relative_path": "hospital-broad2-selector-audit/selector-audit.md"
+    },
+    {
+      "archive_member": "hospital-broad2-semantic-audit/audit_hospital.py",
+      "bytes": 40720,
+      "identical_member_already_in_generic_archive": false,
+      "role": "independent_auditor",
+      "sha256": "a0dd67c80a107a1f76cc1e8506ef2ebdcf8762ad9ab53b0cb153a1600bbf4c09",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-semantic-audit/audit_hospital.py",
+      "source_relative_path": "hospital-broad2-semantic-audit/audit_hospital.py"
+    },
+    {
+      "archive_member": "hospital-broad2-semantic-audit/hospital-broad2-semantic-audit.json",
+      "bytes": 97432,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "1efccca6ba86a67ea855b3919d6609d86de49f2cd1a436827052b49c86ef42e1",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-semantic-audit/hospital-broad2-semantic-audit.json",
+      "source_relative_path": "hospital-broad2-semantic-audit/hospital-broad2-semantic-audit.json"
+    },
+    {
+      "archive_member": "hospital-broad2-semantic-audit/hospital-broad2-semantic-audit.md",
+      "bytes": 3440,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "27ef096cf8a7c9830d35a3608b80f0e1ca090df710e939603732b039c372663c",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-semantic-audit/hospital-broad2-semantic-audit.md",
+      "source_relative_path": "hospital-broad2-semantic-audit/hospital-broad2-semantic-audit.md"
+    },
+    {
+      "archive_member": "hospital-broad2-suite-audit/audit_negative_controls.py",
+      "bytes": 21861,
+      "identical_member_already_in_generic_archive": false,
+      "role": "independent_auditor",
+      "sha256": "744b587d3da48ec8ed1ccc53b041099b983fae2357b35acc8c762b4100f03c24",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-suite-audit/audit_negative_controls.py",
+      "source_relative_path": "hospital-broad2-suite-audit/audit_negative_controls.py"
+    },
+    {
+      "archive_member": "hospital-broad2-suite-audit/audit_suites.py",
+      "bytes": 25981,
+      "identical_member_already_in_generic_archive": false,
+      "role": "independent_auditor",
+      "sha256": "41866927479a7fa04ddccb0ccafbc938cd2893bd0558cfe41a8e30f0212a417b",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-suite-audit/audit_suites.py",
+      "source_relative_path": "hospital-broad2-suite-audit/audit_suites.py"
+    },
+    {
+      "archive_member": "hospital-broad2-suite-audit/hospital-broad2-suite-audit.json",
+      "bytes": 169583,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "94d01285164d5ac2ecd89222e261d5197f097c1a083a9896b7c3345668741a05",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-suite-audit/hospital-broad2-suite-audit.json",
+      "source_relative_path": "hospital-broad2-suite-audit/hospital-broad2-suite-audit.json"
+    },
+    {
+      "archive_member": "hospital-broad2-suite-audit/hospital-broad2-suite-audit.md",
+      "bytes": 2932,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "0077d4dff4deaa8b9e5e813dd00096616654a42c3f47fcf397a5c142102c7c7c",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-suite-audit/hospital-broad2-suite-audit.md",
+      "source_relative_path": "hospital-broad2-suite-audit/hospital-broad2-suite-audit.md"
+    },
+    {
+      "archive_member": "hospital-broad2-suite-audit/negative-controls-subaudit.json",
+      "bytes": 53578,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "9c239aa2db84eec50f421656eebbdd99de79f83442483b0dde9945d164716bb6",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-suite-audit/negative-controls-subaudit.json",
+      "source_relative_path": "hospital-broad2-suite-audit/negative-controls-subaudit.json"
+    },
+    {
+      "archive_member": "hospital-broad2-suite-audit/preparation.json",
+      "bytes": 38846,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "b2c671b8107a0c2cf287b43b57d8ed7c33bb72e487cc2fda84bc3b9d190c8bb9",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-suite-audit/preparation.json",
+      "source_relative_path": "hospital-broad2-suite-audit/preparation.json"
+    },
+    {
+      "archive_member": "hospital-broad2-suite-audit/prepare_audit.py",
+      "bytes": 10369,
+      "identical_member_already_in_generic_archive": false,
+      "role": "independent_auditor",
+      "sha256": "11abcdb5bbf585d76e953a1c3f36f1e01b2da402405d0a7521db4e7802b1d5d2",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-suite-audit/prepare_audit.py",
+      "source_relative_path": "hospital-broad2-suite-audit/prepare_audit.py"
+    },
+    {
+      "archive_member": "hospital-broad2-suite-audit/public-source-scan-identities.json",
+      "bytes": 178612,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "28a31053ad26db1f85bb35108828d6d110e303f51c6d0890cc7f943796a461f6",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-suite-audit/public-source-scan-identities.json",
+      "source_relative_path": "hospital-broad2-suite-audit/public-source-scan-identities.json"
+    },
+    {
+      "archive_member": "hospital-broad2-suite-audit/resolved-census.json",
+      "bytes": 1432727,
+      "identical_member_already_in_generic_archive": false,
+      "role": "audit_report_or_bound_input",
+      "sha256": "f2c639fae1003710e91a3399ca769d5785d25fb72afe71a4cab00e551ae8ff21",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2-suite-audit/resolved-census.json",
+      "source_relative_path": "hospital-broad2-suite-audit/resolved-census.json"
+    },
+    {
+      "archive_member": "hospital-broad2.yml",
+      "bytes": 62470,
+      "identical_member_already_in_generic_archive": false,
+      "role": "generic_audit_or_source_provenance",
+      "sha256": "8d88b91aab68f78d2f840c3976f3d6608e3312fb5d65311cf03d2f0f72246b4c",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2.yml",
+      "source_relative_path": "hospital-broad2.yml"
+    },
+    {
+      "archive_member": "hospital-broad2.yml.manifest.json",
+      "bytes": 1486413,
+      "identical_member_already_in_generic_archive": false,
+      "role": "generic_audit_or_source_provenance",
+      "sha256": "ac48742e1cbf7e60aa1b952a49815a3fb7135324806437eba2eac9a1b9741f63",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2.yml.manifest.json",
+      "source_relative_path": "hospital-broad2.yml.manifest.json"
+    },
+    {
+      "archive_member": "hospital-broad2/artifacts/hospital-reading-37048318182-1/0ea358ae-fd84-4865-8ee4-ad72f9f4772d/captures/hospital-partial-history.png",
+      "bytes": 8138,
+      "identical_member_already_in_generic_archive": false,
+      "role": "selected_original_visual_review_frame",
+      "sha256": "a7d0339d1377eb9ee6e7310575844ef2faba72d08a9674af78266ed739d0c29b",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2/artifacts/hospital-reading-37048318182-1/0ea358ae-fd84-4865-8ee4-ad72f9f4772d/captures/hospital-partial-history.png",
+      "source_relative_path": "hospital-broad2/artifacts/hospital-reading-37048318182-1/0ea358ae-fd84-4865-8ee4-ad72f9f4772d/captures/hospital-partial-history.png"
+    },
+    {
+      "archive_member": "hospital-broad2/artifacts/hospital-reading-37048318182-1/0ea358ae-fd84-4865-8ee4-ad72f9f4772d/captures/hospital-restored-history.png",
+      "bytes": 8138,
+      "identical_member_already_in_generic_archive": false,
+      "role": "selected_original_visual_review_frame",
+      "sha256": "a7d0339d1377eb9ee6e7310575844ef2faba72d08a9674af78266ed739d0c29b",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2/artifacts/hospital-reading-37048318182-1/0ea358ae-fd84-4865-8ee4-ad72f9f4772d/captures/hospital-restored-history.png",
+      "source_relative_path": "hospital-broad2/artifacts/hospital-reading-37048318182-1/0ea358ae-fd84-4865-8ee4-ad72f9f4772d/captures/hospital-restored-history.png"
+    },
+    {
+      "archive_member": "hospital-broad2/artifacts/hospital-reading-37048318182-1/0ea358ae-fd84-4865-8ee4-ad72f9f4772d/captures/hospital-restored.png",
+      "bytes": 1125632,
+      "identical_member_already_in_generic_archive": false,
+      "role": "selected_original_visual_review_frame",
+      "sha256": "ff5ea3036add7b37fe0fe224f81360871ff57e815172d20035f4c6b428b629b6",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2/artifacts/hospital-reading-37048318182-1/0ea358ae-fd84-4865-8ee4-ad72f9f4772d/captures/hospital-restored.png",
+      "source_relative_path": "hospital-broad2/artifacts/hospital-reading-37048318182-1/0ea358ae-fd84-4865-8ee4-ad72f9f4772d/captures/hospital-restored.png"
+    },
+    {
+      "archive_member": "hospital-broad2/artifacts/hospital-reading-37048318182-1/0ea358ae-fd84-4865-8ee4-ad72f9f4772d/captures/hospital-saved.png",
+      "bytes": 9150,
+      "identical_member_already_in_generic_archive": false,
+      "role": "selected_original_visual_review_frame",
+      "sha256": "bc76ff6dd75cc79a0e0fde50c80f6474daa21bc53ac306efac4f1d6c146ee2ee",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2/artifacts/hospital-reading-37048318182-1/0ea358ae-fd84-4865-8ee4-ad72f9f4772d/captures/hospital-saved.png",
+      "source_relative_path": "hospital-broad2/artifacts/hospital-reading-37048318182-1/0ea358ae-fd84-4865-8ee4-ad72f9f4772d/captures/hospital-saved.png"
+    },
+    {
+      "archive_member": "hospital-broad2/artifacts/hospital-reading-37048318182-1/0ea358ae-fd84-4865-8ee4-ad72f9f4772d/captures/next-solo-history.png",
+      "bytes": 7533,
+      "identical_member_already_in_generic_archive": false,
+      "role": "selected_original_visual_review_frame",
+      "sha256": "9285b14bffc6bccbe99199444af945f584d49e36ae4ef03f5c1c9dd422993219",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2/artifacts/hospital-reading-37048318182-1/0ea358ae-fd84-4865-8ee4-ad72f9f4772d/captures/next-solo-history.png",
+      "source_relative_path": "hospital-broad2/artifacts/hospital-reading-37048318182-1/0ea358ae-fd84-4865-8ee4-ad72f9f4772d/captures/next-solo-history.png"
+    },
+    {
+      "archive_member": "hospital-broad2/artifacts/public-surfaces-37048318182-1/ci/public-surfaces/game_state_surface.json",
+      "bytes": 568948,
+      "identical_member_already_in_generic_archive": false,
+      "role": "source_bound_public_inventory_omitted_by_generic_packager",
+      "sha256": "804ca7f1bbe1b929b8c6ce59de390ab15c00f521ddc6290df1fed0a175157631",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2/artifacts/public-surfaces-37048318182-1/ci/public-surfaces/game_state_surface.json",
+      "source_relative_path": "hospital-broad2/artifacts/public-surfaces-37048318182-1/ci/public-surfaces/game_state_surface.json"
+    },
+    {
+      "archive_member": "hospital-broad2/artifacts/public-surfaces-37048318182-1/ci/public-surfaces/save_manager_surface.json",
+      "bytes": 151143,
+      "identical_member_already_in_generic_archive": false,
+      "role": "source_bound_public_inventory_omitted_by_generic_packager",
+      "sha256": "ccb1a6e576801c4f62cd4c159e89a9e4d9c814cbcf364140c61fc2338365c4d0",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2/artifacts/public-surfaces-37048318182-1/ci/public-surfaces/save_manager_surface.json",
+      "source_relative_path": "hospital-broad2/artifacts/public-surfaces-37048318182-1/ci/public-surfaces/save_manager_surface.json"
+    },
+    {
+      "archive_member": "hospital-broad2/artifacts/reading-rail-37048318182-1/c48eff3f-95b0-4d5b-8930-3554d7fcd29e/captures/08-restored-history.png",
+      "bytes": 9019,
+      "identical_member_already_in_generic_archive": true,
+      "role": "selected_original_visual_review_frame",
+      "sha256": "02aa35027dc32d55523f24fb3bdd5940904566e37926153c40c457ecde2a7bf6",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2/artifacts/reading-rail-37048318182-1/c48eff3f-95b0-4d5b-8930-3554d7fcd29e/captures/08-restored-history.png",
+      "source_relative_path": "hospital-broad2/artifacts/reading-rail-37048318182-1/c48eff3f-95b0-4d5b-8930-3554d7fcd29e/captures/08-restored-history.png"
+    },
+    {
+      "archive_member": "hospital-broad2/artifacts/reading-rail-37048318182-1/c48eff3f-95b0-4d5b-8930-3554d7fcd29e/captures/09-restored-line.png",
+      "bytes": 1329047,
+      "identical_member_already_in_generic_archive": true,
+      "role": "selected_original_visual_review_frame",
+      "sha256": "c205f90984cc75ab53dffe67ece9b1cddcd5f0313b0875eb2f5e317acc389613",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2/artifacts/reading-rail-37048318182-1/c48eff3f-95b0-4d5b-8930-3554d7fcd29e/captures/09-restored-line.png",
+      "source_relative_path": "hospital-broad2/artifacts/reading-rail-37048318182-1/c48eff3f-95b0-4d5b-8930-3554d7fcd29e/captures/09-restored-line.png"
+    },
+    {
+      "archive_member": "hospital-broad2/artifacts/reading-rail-37048318182-1/c48eff3f-95b0-4d5b-8930-3554d7fcd29e/next/captures/03-next-restored-board.png",
+      "bytes": 673430,
+      "identical_member_already_in_generic_archive": true,
+      "role": "selected_original_visual_review_frame",
+      "sha256": "aed01f2418e238d0695ca0b9997d5528122c8c1f8af22dd1956f9e67ed2ac1b7",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2/artifacts/reading-rail-37048318182-1/c48eff3f-95b0-4d5b-8930-3554d7fcd29e/next/captures/03-next-restored-board.png",
+      "source_relative_path": "hospital-broad2/artifacts/reading-rail-37048318182-1/c48eff3f-95b0-4d5b-8930-3554d7fcd29e/next/captures/03-next-restored-board.png"
+    },
+    {
+      "archive_member": "hospital-broad2/artifacts/solo-authored-selector-37048318182-1/549601e1-24fc-4db5-a5ee-96d00f8fd497/captures/04-pre-history.png",
+      "bytes": 7318,
+      "identical_member_already_in_generic_archive": true,
+      "role": "selected_original_visual_review_frame",
+      "sha256": "4d878362e53a01aad70fb13415154dfcf38c1f331455699c8909a191ea3fcb42",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2/artifacts/solo-authored-selector-37048318182-1/549601e1-24fc-4db5-a5ee-96d00f8fd497/captures/04-pre-history.png",
+      "source_relative_path": "hospital-broad2/artifacts/solo-authored-selector-37048318182-1/549601e1-24fc-4db5-a5ee-96d00f8fd497/captures/04-pre-history.png"
+    },
+    {
+      "archive_member": "hospital-broad2/artifacts/solo-authored-selector-37048318182-1/549601e1-24fc-4db5-a5ee-96d00f8fd497/captures/08-restored-history.png",
+      "bytes": 9031,
+      "identical_member_already_in_generic_archive": true,
+      "role": "selected_original_visual_review_frame",
+      "sha256": "d0fa56bcf7326b46a3e8bee910ecf1844b053da4765b7d03049e063a5923b81a",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2/artifacts/solo-authored-selector-37048318182-1/549601e1-24fc-4db5-a5ee-96d00f8fd497/captures/08-restored-history.png",
+      "source_relative_path": "hospital-broad2/artifacts/solo-authored-selector-37048318182-1/549601e1-24fc-4db5-a5ee-96d00f8fd497/captures/08-restored-history.png"
+    },
+    {
+      "archive_member": "hospital-broad2/artifacts/solo-authored-selector-37048318182-1/549601e1-24fc-4db5-a5ee-96d00f8fd497/captures/09-restored-line.png",
+      "bytes": 1330459,
+      "identical_member_already_in_generic_archive": true,
+      "role": "selected_original_visual_review_frame",
+      "sha256": "d5148fe105c1700944ea6ab51b832aa316c0a2182bb03042b5b4e33f75dd4447",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2/artifacts/solo-authored-selector-37048318182-1/549601e1-24fc-4db5-a5ee-96d00f8fd497/captures/09-restored-line.png",
+      "source_relative_path": "hospital-broad2/artifacts/solo-authored-selector-37048318182-1/549601e1-24fc-4db5-a5ee-96d00f8fd497/captures/09-restored-line.png"
+    },
+    {
+      "archive_member": "hospital-broad2/audit",
+      "bytes": 578175,
+      "identical_member_already_in_generic_archive": true,
+      "role": "generic_audit_or_source_provenance",
+      "sha256": "0f279846842e65cbc229f705c0b8effd199d88defe181c4f8f5feefa8c4954d2",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2/audit",
+      "source_relative_path": "hospital-broad2/audit"
+    },
+    {
+      "archive_member": "hospital-broad2/infrastructure-audit.json",
+      "bytes": 21200,
+      "identical_member_already_in_generic_archive": false,
+      "role": "generic_audit_or_source_provenance",
+      "sha256": "27bce88a918caf974ef2e008233a808872332900f43a1161cb8898350b418976",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-broad2/infrastructure-audit.json",
+      "source_relative_path": "hospital-broad2/infrastructure-audit.json"
+    },
+    {
+      "archive_member": "hospital-export2-publication.json",
+      "bytes": 431,
+      "identical_member_already_in_generic_archive": false,
+      "role": "reproducible_helper_or_export2_provenance",
+      "sha256": "5c7f932526a72a60b95619d075d48d8667797eaec2e64146ed17cfefee08593c",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-export2-publication.json",
+      "source_relative_path": "hospital-export2-publication.json"
+    },
+    {
+      "archive_member": "hospital-export2-source-metadata.json",
+      "bytes": 302,
+      "identical_member_already_in_generic_archive": false,
+      "role": "reproducible_helper_or_export2_provenance",
+      "sha256": "f36ab7dfb2c2ff4bbe599b1e2de4bbc795c034fb5287fd6f0c2b87c11b82536e",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-export2-source-metadata.json",
+      "source_relative_path": "hospital-export2-source-metadata.json"
+    },
+    {
+      "archive_member": "hospital-export2-transport-capture/artifact-manifest.json",
+      "bytes": 3146,
+      "identical_member_already_in_generic_archive": false,
+      "role": "export2_capture_metadata_console_or_reassembly_receipt",
+      "sha256": "1ef0a21e3266363fc38c19960fa827d5d9d942e46be15c083236188c041336ac",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-export2-transport-capture/artifact-manifest.json",
+      "source_relative_path": "hospital-export2-transport-capture/artifact-manifest.json"
+    },
+    {
+      "archive_member": "hospital-export2-transport-capture/artifacts-api.json",
+      "bytes": 4561,
+      "identical_member_already_in_generic_archive": false,
+      "role": "export2_capture_metadata_console_or_reassembly_receipt",
+      "sha256": "76a82aacb882b4f95a4d58549c6d12415d31ed0500506193f22d2b64ccad14e3",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-export2-transport-capture/artifacts-api.json",
+      "source_relative_path": "hospital-export2-transport-capture/artifacts-api.json"
+    },
+    {
+      "archive_member": "hospital-export2-transport-capture/artifacts/export-artifact-11245855941-transport-manifest-37058649284-1/transport-manifest.json",
+      "bytes": 2201,
+      "identical_member_already_in_generic_archive": false,
+      "role": "export2_capture_metadata_console_or_reassembly_receipt",
+      "sha256": "ee3052d2deab2a3cdd2a0c2549488e1ed624f9ebf75aab4521dde4ff08801c6b",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-export2-transport-capture/artifacts/export-artifact-11245855941-transport-manifest-37058649284-1/transport-manifest.json",
+      "source_relative_path": "hospital-export2-transport-capture/artifacts/export-artifact-11245855941-transport-manifest-37058649284-1/transport-manifest.json"
+    },
+    {
+      "archive_member": "hospital-export2-transport-capture/jobs.json",
+      "bytes": 3630,
+      "identical_member_already_in_generic_archive": false,
+      "role": "export2_capture_metadata_console_or_reassembly_receipt",
+      "sha256": "1abb13ad173340aa14e57946ec9b66b12a1e3e87c4d07ed805cf34006cd4846c",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-export2-transport-capture/jobs.json",
+      "source_relative_path": "hospital-export2-transport-capture/jobs.json"
+    },
+    {
+      "archive_member": "hospital-export2-transport-capture/logs/111009483235.log",
+      "bytes": 27977,
+      "identical_member_already_in_generic_archive": false,
+      "role": "export2_capture_metadata_console_or_reassembly_receipt",
+      "sha256": "91a2687fd8817f0870609c2269bba1d22d1a5260b41510d81519ee075a676052",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-export2-transport-capture/logs/111009483235.log",
+      "source_relative_path": "hospital-export2-transport-capture/logs/111009483235.log"
+    },
+    {
+      "archive_member": "hospital-export2-transport-capture/omissions.json",
+      "bytes": 3,
+      "identical_member_already_in_generic_archive": false,
+      "role": "export2_capture_metadata_console_or_reassembly_receipt",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-export2-transport-capture/omissions.json",
+      "source_relative_path": "hospital-export2-transport-capture/omissions.json"
+    },
+    {
+      "archive_member": "hospital-export2-transport-capture/reassembly-receipt.json",
+      "bytes": 1095,
+      "identical_member_already_in_generic_archive": false,
+      "role": "export2_capture_metadata_console_or_reassembly_receipt",
+      "sha256": "514241ea834f4e11d19a9e481e9f082de190cf9e26a99b8da57b58560a6b3947",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-export2-transport-capture/reassembly-receipt.json",
+      "source_relative_path": "hospital-export2-transport-capture/reassembly-receipt.json"
+    },
+    {
+      "archive_member": "hospital-export2-transport-capture/run.json",
+      "bytes": 12808,
+      "identical_member_already_in_generic_archive": false,
+      "role": "export2_capture_metadata_console_or_reassembly_receipt",
+      "sha256": "c629c6c02dee37f96f837ae059471785a5ff267ea64177e3a9ea29138306bc0a",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-export2-transport-capture/run.json",
+      "source_relative_path": "hospital-export2-transport-capture/run.json"
+    },
+    {
+      "archive_member": "hospital-export2-transport.yml",
+      "bytes": 11294,
+      "identical_member_already_in_generic_archive": false,
+      "role": "reproducible_helper_or_export2_provenance",
+      "sha256": "20ff164126e3f083ecace0e600f1272948b7329c84e89ccddb54504cc240ea5b",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-export2-transport.yml",
+      "source_relative_path": "hospital-export2-transport.yml"
+    },
+    {
+      "archive_member": "hospital-export2-transport.yml.static-review.json",
+      "bytes": 3133,
+      "identical_member_already_in_generic_archive": false,
+      "role": "reproducible_helper_or_export2_provenance",
+      "sha256": "6e45a1f3a73db6a9dfdb1f654d238feb1b4ae753e473cb387a999ac3883b19d5",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-export2-transport.yml.static-review.json",
+      "source_relative_path": "hospital-export2-transport.yml.static-review.json"
+    },
+    {
+      "archive_member": "hospital-source9/commit-response.json",
+      "bytes": 1328,
+      "identical_member_already_in_generic_archive": false,
+      "role": "source9_frozen_identity_or_exact_powershell_source",
+      "sha256": "8e34db065e28b30c07cbf5c6738def5640e103a1c90ddcbe8096ded4be17a477",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-source9/commit-response.json",
+      "source_relative_path": "hospital-source9/commit-response.json"
+    },
+    {
+      "archive_member": "hospital-source9/manifest.json",
+      "bytes": 1138,
+      "identical_member_already_in_generic_archive": false,
+      "role": "source9_frozen_identity_or_exact_powershell_source",
+      "sha256": "e0a7c93bd0d680385b3e620f901b210396e379cf6b6afd9b0b2a85fd20994e3a",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-source9/manifest.json",
+      "source_relative_path": "hospital-source9/manifest.json"
+    },
+    {
+      "archive_member": "hospital-source9/publication.json",
+      "bytes": 659,
+      "identical_member_already_in_generic_archive": false,
+      "role": "source9_frozen_identity_or_exact_powershell_source",
+      "sha256": "82f89444914f56b8b4324d55dda84f83213b4a2daf7a8967b29219771556e559",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-source9/publication.json",
+      "source_relative_path": "hospital-source9/publication.json"
+    },
+    {
+      "archive_member": "hospital-source9/published-blobs.json",
+      "bytes": 343,
+      "identical_member_already_in_generic_archive": false,
+      "role": "source9_frozen_identity_or_exact_powershell_source",
+      "sha256": "1b08d8a98df7f149a8147a6ffcf338a64970bca57551dd4228b3b471d0488138",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-source9/published-blobs.json",
+      "source_relative_path": "hospital-source9/published-blobs.json"
+    },
+    {
+      "archive_member": "hospital-source9/tools/testing/Assert-WarmOutgoingProofBaseline.ps1",
+      "bytes": 10663,
+      "identical_member_already_in_generic_archive": false,
+      "role": "source9_frozen_identity_or_exact_powershell_source",
+      "sha256": "32f9936715f6fcce5ef39364865c7ef854ba4f15605efcef1afe0e5119dc5adb",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-source9/tools/testing/Assert-WarmOutgoingProofBaseline.ps1",
+      "source_relative_path": "hospital-source9/tools/testing/Assert-WarmOutgoingProofBaseline.ps1"
+    },
+    {
+      "archive_member": "hospital-source9/tools/testing/Invoke-HistoryRegionSearchPerformance.ps1",
+      "bytes": 14576,
+      "identical_member_already_in_generic_archive": false,
+      "role": "source9_frozen_identity_or_exact_powershell_source",
+      "sha256": "5c37e672aff64fde0d37e5fe836173092e600209c9021d5c463ca6fb0d51f326",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-source9/tools/testing/Invoke-HistoryRegionSearchPerformance.ps1",
+      "source_relative_path": "hospital-source9/tools/testing/Invoke-HistoryRegionSearchPerformance.ps1"
+    },
+    {
+      "archive_member": "hospital-source9/tools/testing/Invoke-WarmOutgoingProofPerformance.ps1",
+      "bytes": 13886,
+      "identical_member_already_in_generic_archive": false,
+      "role": "source9_frozen_identity_or_exact_powershell_source",
+      "sha256": "835b92523bd3c9caf6a2c3195de47980dfd9bc2e481c1a4f9c6a6ebc9d3c7e21",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-source9/tools/testing/Invoke-WarmOutgoingProofPerformance.ps1",
+      "source_relative_path": "hospital-source9/tools/testing/Invoke-WarmOutgoingProofPerformance.ps1"
+    },
+    {
+      "archive_member": "hospital-source9/workflow-commit.json",
+      "bytes": 1609,
+      "identical_member_already_in_generic_archive": false,
+      "role": "source9_frozen_identity_or_exact_powershell_source",
+      "sha256": "b287394e3f6d612e1ad3b84263b33d4345f2f9af69004dc2c58b7a468cd85e3d",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-source9/workflow-commit.json",
+      "source_relative_path": "hospital-source9/workflow-commit.json"
+    },
+    {
+      "archive_member": "hospital-tools/build_hospital_broad_workflow.py",
+      "bytes": 22609,
+      "identical_member_already_in_generic_archive": false,
+      "role": "reproducible_helper_or_export2_provenance",
+      "sha256": "4bbc908b107cec3f26e33a3b6405fa177044890e21b1103c3a950381b3b68aae",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-tools/build_hospital_broad_workflow.py",
+      "source_relative_path": "hospital-tools/build_hospital_broad_workflow.py"
+    },
+    {
+      "archive_member": "hospital-tools/build_layout_workflow.py",
+      "bytes": 6666,
+      "identical_member_already_in_generic_archive": false,
+      "role": "reproducible_helper_or_export2_provenance",
+      "sha256": "fbbe7088e7d09b4b55eadd6fd06fba277f10544d510252b33fa05def93815e86",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-tools/build_layout_workflow.py",
+      "source_relative_path": "hospital-tools/build_layout_workflow.py"
+    },
+    {
+      "archive_member": "hospital-tools/build_paused_settings_f9_workflow.py",
+      "bytes": 18498,
+      "identical_member_already_in_generic_archive": false,
+      "role": "reproducible_helper_or_export2_provenance",
+      "sha256": "716d807f6855bdbc86a58db33efba0518407e5f00e8d9cfb246fd91abd813fe0",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-tools/build_paused_settings_f9_workflow.py",
+      "source_relative_path": "hospital-tools/build_paused_settings_f9_workflow.py"
+    },
+    {
+      "archive_member": "hospital-tools/build_reusable_export_evidence_transport.py",
+      "bytes": 24469,
+      "identical_member_already_in_generic_archive": false,
+      "role": "reproducible_helper_or_export2_provenance",
+      "sha256": "45c4af0dfd3d22b5677c8ccd6dc9cedc42771fd1e536ef0a1ddc30151e7d47c3",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-tools/build_reusable_export_evidence_transport.py",
+      "source_relative_path": "hospital-tools/build_reusable_export_evidence_transport.py"
+    },
+    {
+      "archive_member": "hospital-tools/cloud_evidence.py",
+      "bytes": 38539,
+      "identical_member_already_in_generic_archive": false,
+      "role": "reproducible_helper_or_export2_provenance",
+      "sha256": "7d0f4139bdb86ad760871713580277e9d8ea5440a6c269a7c6100362545aaa90",
+      "source_path": "/workspace/scratch/e58f796fe7a3/hospital-tools/cloud_evidence.py",
+      "source_relative_path": "hospital-tools/cloud_evidence.py"
+    }
+  ],
+  "package_kind": "additive_broad2_independent_audit_supplement",
+  "payload_file_count": 95,
+  "payload_total_bytes": 10835393,
+  "repeated_build_byte_identical": true,
+  "role_counts": {
+    "audit_report_or_bound_input": 33,
+    "export2_capture_metadata_console_or_reassembly_receipt": 8,
+    "generated_package_instructions": 1,
+    "generic_audit_or_source_provenance": 9,
+    "independent_auditor": 13,
+    "reproducible_helper_or_export2_provenance": 9,
+    "reproducible_supplement_packager": 1,
+    "selected_original_visual_review_frame": 11,
+    "source9_frozen_identity_or_exact_powershell_source": 8,
+    "source_bound_public_inventory_omitted_by_generic_packager": 2
+  },
+  "round_trip_verified": true,
+  "run_id": 37048318182,
+  "runtime_source": "a24f71766a624b57601814dda487b53c66518c39",
+  "schema_version": 1
+}

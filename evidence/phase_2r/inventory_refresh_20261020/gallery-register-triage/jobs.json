@@ -1,0 +1,2736 @@
+{
+  "total_count": 23,
+  "jobs": [
+    {
+      "id": 118475370293,
+      "run_id": 39376387344,
+      "workflow_name": "Windows automated tests",
+      "head_branch": "codex/a-optional-challenge-20261015",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/39376387344",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAbla6vNQ",
+      "head_sha": "a01497d17eafd2ea512aa530fd12f33dbd622db8",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/118475370293",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/39376387344/job/118475370293",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-20T05:43:10Z",
+      "started_at": "2026-10-20T05:43:12Z",
+      "completed_at": "2026-10-20T05:49:38Z",
+      "name": "Windows / public API surface contracts",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-20T05:43:13Z",
+          "completed_at": "2026-10-20T05:43:13Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-20T05:43:13Z",
+          "completed_at": "2026-10-20T05:43:33Z"
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-20T05:43:33Z",
+          "completed_at": "2026-10-20T05:43:34Z"
+        },
+        {
+          "name": "Record fixture and schema version census",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-20T05:43:34Z",
+          "completed_at": "2026-10-20T05:43:37Z"
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-20T05:43:37Z",
+          "completed_at": "2026-10-20T05:43:39Z"
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-20T05:43:39Z",
+          "completed_at": "2026-10-20T05:44:31Z"
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-20T05:44:31Z",
+          "completed_at": "2026-10-20T05:44:32Z"
+        },
+        {
+          "name": "Verify native caption discovery and Normal Accept",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-20T05:44:32Z",
+          "completed_at": "2026-10-20T05:45:02Z"
+        },
+        {
+          "name": "Verify isolated runner contracts and timeout diagnostics",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-20T05:45:02Z",
+          "completed_at": "2026-10-20T05:47:37Z"
+        },
+        {
+          "name": "Verify committed public inventories without regeneration",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-10-20T05:47:37Z",
+          "completed_at": "2026-10-20T05:48:28Z"
+        },
+        {
+          "name": "Verify public inventory drift and read-only contracts",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-10-20T05:48:28Z",
+          "completed_at": "2026-10-20T05:49:34Z"
+        },
+        {
+          "name": "Upload canonical inventories and retirement evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-10-20T05:49:34Z",
+          "completed_at": "2026-10-20T05:49:35Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 24,
+          "started_at": "2026-10-20T05:49:35Z",
+          "completed_at": "2026-10-20T05:49:37Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 25,
+          "started_at": "2026-10-20T05:49:37Z",
+          "completed_at": "2026-10-20T05:49:37Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/118475370293",
+      "labels": [
+        "windows-2022"
+      ],
+      "runner_id": 1000004066,
+      "runner_name": "GitHub Actions 1000004066",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 118477179857,
+      "run_id": 39376387344,
+      "workflow_name": "Windows automated tests",
+      "head_branch": "codex/a-optional-challenge-20261015",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/39376387344",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAblcpL0Q",
+      "head_sha": "a01497d17eafd2ea512aa530fd12f33dbd622db8",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/118477179857",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/39376387344/job/118477179857",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-20T05:49:38Z",
+      "started_at": "2026-10-20T05:49:40Z",
+      "completed_at": "2026-10-20T05:51:10Z",
+      "name": "Rendered desktop and dialogue / Linux software OpenGL",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-20T05:49:41Z",
+          "completed_at": "2026-10-20T05:49:41Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-20T05:49:41Z",
+          "completed_at": "2026-10-20T05:49:55Z"
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-20T05:49:55Z",
+          "completed_at": "2026-10-20T05:49:55Z"
+        },
+        {
+          "name": "Install Godot and software display",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-20T05:49:55Z",
+          "completed_at": "2026-10-20T05:50:12Z"
+        },
+        {
+          "name": "Start and verify native Linux speech service",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-20T05:50:12Z",
+          "completed_at": "2026-10-20T05:50:13Z"
+        },
+        {
+          "name": "Upload native speech environment evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-20T05:50:13Z",
+          "completed_at": "2026-10-20T05:50:13Z"
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-20T05:50:13Z",
+          "completed_at": "2026-10-20T05:50:40Z"
+        },
+        {
+          "name": "Render and verify desktop scaling",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 8,
+          "started_at": "2026-10-20T05:50:40Z",
+          "completed_at": "2026-10-20T05:50:58Z"
+        },
+        {
+          "name": "Upload rendered evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-20T05:50:58Z",
+          "completed_at": "2026-10-20T05:51:00Z"
+        },
+        {
+          "name": "Render and verify delivery and dialogue",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 10,
+          "started_at": "2026-10-20T05:51:00Z",
+          "completed_at": "2026-10-20T05:51:00Z"
+        },
+        {
+          "name": "Upload delivery and dialogue evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-10-20T05:51:00Z",
+          "completed_at": "2026-10-20T05:51:00Z"
+        },
+        {
+          "name": "Render and verify HUD retirement and retained shell",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 12,
+          "started_at": "2026-10-20T05:51:00Z",
+          "completed_at": "2026-10-20T05:51:00Z"
+        },
+        {
+          "name": "Upload HUD retirement and retained shell evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-20T05:51:00Z",
+          "completed_at": "2026-10-20T05:51:00Z"
+        },
+        {
+          "name": "Validate Japanese and Korean catalogs",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 14,
+          "started_at": "2026-10-20T05:51:00Z",
+          "completed_at": "2026-10-20T05:51:00Z"
+        },
+        {
+          "name": "Render and verify Japanese and Korean UI",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 15,
+          "started_at": "2026-10-20T05:51:00Z",
+          "completed_at": "2026-10-20T05:51:00Z"
+        },
+        {
+          "name": "Upload Japanese and Korean UI evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16,
+          "started_at": "2026-10-20T05:51:00Z",
+          "completed_at": "2026-10-20T05:51:00Z"
+        },
+        {
+          "name": "Render and verify font choices",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 17,
+          "started_at": "2026-10-20T05:51:00Z",
+          "completed_at": "2026-10-20T05:51:00Z"
+        },
+        {
+          "name": "Upload font-choice evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-10-20T05:51:00Z",
+          "completed_at": "2026-10-20T05:51:00Z"
+        },
+        {
+          "name": "Verify rendered startup and Logout consent",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 19,
+          "started_at": "2026-10-20T05:51:00Z",
+          "completed_at": "2026-10-20T05:51:00Z"
+        },
+        {
+          "name": "Upload rendered startup and Logout evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 20,
+          "started_at": "2026-10-20T05:51:00Z",
+          "completed_at": "2026-10-20T05:51:00Z"
+        },
+        {
+          "name": "Audit all UI literal ownership",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 21,
+          "started_at": "2026-10-20T05:51:00Z",
+          "completed_at": "2026-10-20T05:51:07Z"
+        },
+        {
+          "name": "Upload UI literal audit evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 22,
+          "started_at": "2026-10-20T05:51:07Z",
+          "completed_at": "2026-10-20T05:51:08Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 44,
+          "started_at": "2026-10-20T05:51:08Z",
+          "completed_at": "2026-10-20T05:51:08Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 45,
+          "started_at": "2026-10-20T05:51:08Z",
+          "completed_at": "2026-10-20T05:51:08Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/118477179857",
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "runner_id": 1000004069,
+      "runner_name": "GitHub Actions 1000004069",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 118477179864,
+      "run_id": 39376387344,
+      "workflow_name": "Windows automated tests",
+      "head_branch": "codex/a-optional-challenge-20261015",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/39376387344",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAblcpL2A",
+      "head_sha": "a01497d17eafd2ea512aa530fd12f33dbd622db8",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/118477179864",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/39376387344/job/118477179864",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-20T05:49:38Z",
+      "started_at": "2026-10-20T05:49:41Z",
+      "completed_at": "2026-10-20T05:51:46Z",
+      "name": "Rendered captionless timed hold / Pause and fresh-input continuation",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-20T05:49:42Z",
+          "completed_at": "2026-10-20T05:49:42Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-20T05:49:42Z",
+          "completed_at": "2026-10-20T05:49:57Z"
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-20T05:49:57Z",
+          "completed_at": "2026-10-20T05:49:59Z"
+        },
+        {
+          "name": "Install Godot and software display",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-20T05:49:59Z",
+          "completed_at": "2026-10-20T05:50:20Z"
+        },
+        {
+          "name": "Start and verify native Linux speech service",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-20T05:50:20Z",
+          "completed_at": "2026-10-20T05:50:21Z"
+        },
+        {
+          "name": "Upload native speech environment evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-20T05:50:21Z",
+          "completed_at": "2026-10-20T05:50:23Z"
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-20T05:50:23Z",
+          "completed_at": "2026-10-20T05:50:59Z"
+        },
+        {
+          "name": "Exercise captionless native hold Pause and fresh-input continuation",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 8,
+          "started_at": "2026-10-20T05:50:59Z",
+          "completed_at": "2026-10-20T05:51:42Z"
+        },
+        {
+          "name": "Upload timed hold raw traces, process logs, reports and captures",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-20T05:51:42Z",
+          "completed_at": "2026-10-20T05:51:43Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-10-20T05:51:43Z",
+          "completed_at": "2026-10-20T05:51:44Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-10-20T05:51:44Z",
+          "completed_at": "2026-10-20T05:51:44Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/118477179864",
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "runner_id": 1000004068,
+      "runner_name": "GitHub Actions 1000004068",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 118477179867,
+      "run_id": 39376387344,
+      "workflow_name": "Windows automated tests",
+      "head_branch": "codex/a-optional-challenge-20261015",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/39376387344",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAblcpL2w",
+      "head_sha": "a01497d17eafd2ea512aa530fd12f33dbd622db8",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/118477179867",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/39376387344/job/118477179867",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-20T05:49:38Z",
+      "started_at": "2026-10-20T05:49:41Z",
+      "completed_at": "2026-10-20T05:52:09Z",
+      "name": "Windows / exported release startup",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-20T05:49:42Z",
+          "completed_at": "2026-10-20T05:49:43Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-20T05:49:43Z",
+          "completed_at": "2026-10-20T05:50:08Z"
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-20T05:50:08Z",
+          "completed_at": "2026-10-20T05:50:09Z"
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-20T05:50:09Z",
+          "completed_at": "2026-10-20T05:50:12Z"
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-20T05:50:12Z",
+          "completed_at": "2026-10-20T05:51:02Z"
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-20T05:51:02Z",
+          "completed_at": "2026-10-20T05:51:02Z"
+        },
+        {
+          "name": "Cache pinned export templates",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-20T05:51:02Z",
+          "completed_at": "2026-10-20T05:51:16Z"
+        },
+        {
+          "name": "Download verified Godot export templates",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-20T05:51:16Z",
+          "completed_at": "2026-10-20T05:51:18Z"
+        },
+        {
+          "name": "Retain verified export templates for subsequent runs",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 9,
+          "started_at": "2026-10-20T05:51:18Z",
+          "completed_at": "2026-10-20T05:51:18Z"
+        },
+        {
+          "name": "Export and launch isolated Windows executable",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-10-20T05:51:18Z",
+          "completed_at": "2026-10-20T05:52:01Z"
+        },
+        {
+          "name": "Upload Windows validation build and evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-10-20T05:52:01Z",
+          "completed_at": "2026-10-20T05:52:06Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 22,
+          "started_at": "2026-10-20T05:52:06Z",
+          "completed_at": "2026-10-20T05:52:08Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 23,
+          "started_at": "2026-10-20T05:52:08Z",
+          "completed_at": "2026-10-20T05:52:08Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/118477179867",
+      "labels": [
+        "windows-2022"
+      ],
+      "runner_id": 1000004072,
+      "runner_name": "GitHub Actions 1000004072",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 118477179878,
+      "run_id": 39376387344,
+      "workflow_name": "Windows automated tests",
+      "head_branch": "codex/a-optional-challenge-20261015",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/39376387344",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAblcpL5g",
+      "head_sha": "a01497d17eafd2ea512aa530fd12f33dbd622db8",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/118477179878",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/39376387344/job/118477179878",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-20T05:49:38Z",
+      "started_at": "2026-10-20T05:49:40Z",
+      "completed_at": "2026-10-20T05:52:44Z",
+      "name": "Rendered Hospital / manual command refusal and saved-fixture restore",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-20T05:49:41Z",
+          "completed_at": "2026-10-20T05:49:42Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-20T05:49:42Z",
+          "completed_at": "2026-10-20T05:49:57Z"
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-20T05:49:57Z",
+          "completed_at": "2026-10-20T05:50:00Z"
+        },
+        {
+          "name": "Install Godot and software display",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-20T05:50:00Z",
+          "completed_at": "2026-10-20T05:50:18Z"
+        },
+        {
+          "name": "Start and verify native Linux speech service",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-20T05:50:18Z",
+          "completed_at": "2026-10-20T05:50:19Z"
+        },
+        {
+          "name": "Upload native speech environment evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-20T05:50:19Z",
+          "completed_at": "2026-10-20T05:50:20Z"
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-20T05:50:20Z",
+          "completed_at": "2026-10-20T05:50:58Z"
+        },
+        {
+          "name": "Exercise Hospital manual refusal and test-only saved-fixture restore",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 8,
+          "started_at": "2026-10-20T05:50:58Z",
+          "completed_at": "2026-10-20T05:52:42Z"
+        },
+        {
+          "name": "Upload Hospital reading reports, exact save bytes and screenshots",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-20T05:52:42Z",
+          "completed_at": "2026-10-20T05:52:42Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-10-20T05:52:42Z",
+          "completed_at": "2026-10-20T05:52:43Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-10-20T05:52:43Z",
+          "completed_at": "2026-10-20T05:52:43Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/118477179878",
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "runner_id": 1000004071,
+      "runner_name": "GitHub Actions 1000004071",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 118477179879,
+      "run_id": 39376387344,
+      "workflow_name": "Windows automated tests",
+      "head_branch": "codex/a-optional-challenge-20261015",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/39376387344",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAblcpL5w",
+      "head_sha": "a01497d17eafd2ea512aa530fd12f33dbd622db8",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/118477179879",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/39376387344/job/118477179879",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-20T05:49:38Z",
+      "started_at": "2026-10-20T05:49:40Z",
+      "completed_at": "2026-10-20T05:51:12Z",
+      "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-20T05:49:41Z",
+          "completed_at": "2026-10-20T05:49:42Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-20T05:49:42Z",
+          "completed_at": "2026-10-20T05:49:57Z"
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-20T05:49:57Z",
+          "completed_at": "2026-10-20T05:49:57Z"
+        },
+        {
+          "name": "Install Godot and software display",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-20T05:49:57Z",
+          "completed_at": "2026-10-20T05:50:22Z"
+        },
+        {
+          "name": "Start and verify native Linux speech service",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-20T05:50:22Z",
+          "completed_at": "2026-10-20T05:50:22Z"
+        },
+        {
+          "name": "Upload native speech environment evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-20T05:50:22Z",
+          "completed_at": "2026-10-20T05:50:23Z"
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-20T05:50:23Z",
+          "completed_at": "2026-10-20T05:50:54Z"
+        },
+        {
+          "name": "Render witnessed-version register fixtures",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 8,
+          "started_at": "2026-10-20T05:50:54Z",
+          "completed_at": "2026-10-20T05:51:08Z"
+        },
+        {
+          "name": "Upload witnessed-version register evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-20T05:51:08Z",
+          "completed_at": "2026-10-20T05:51:09Z"
+        },
+        {
+          "name": "Render admitted Gallery caption collection",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 10,
+          "started_at": "2026-10-20T05:51:09Z",
+          "completed_at": "2026-10-20T05:51:09Z"
+        },
+        {
+          "name": "Upload Gallery caption collection evidence",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 11,
+          "started_at": "2026-10-20T05:51:09Z",
+          "completed_at": "2026-10-20T05:51:09Z"
+        },
+        {
+          "name": "Exercise complete rendered journeys in fresh isolated profiles",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 12,
+          "started_at": "2026-10-20T05:51:09Z",
+          "completed_at": "2026-10-20T05:51:09Z"
+        },
+        {
+          "name": "Upload journey reports, logs and screenshots",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-20T05:51:09Z",
+          "completed_at": "2026-10-20T05:51:10Z"
+        },
+        {
+          "name": "Exercise real Solo reading Save and fresh-process Load",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 14,
+          "started_at": "2026-10-20T05:51:10Z",
+          "completed_at": "2026-10-20T05:51:10Z"
+        },
+        {
+          "name": "Upload Solo reading reports, exact save bytes and screenshots",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-10-20T05:51:10Z",
+          "completed_at": "2026-10-20T05:51:10Z"
+        },
+        {
+          "name": "Exercise authored Solo selectors through physical Save and fresh-process Load",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 16,
+          "started_at": "2026-10-20T05:51:10Z",
+          "completed_at": "2026-10-20T05:51:10Z"
+        },
+        {
+          "name": "Upload authored Solo selector reports, exact save bytes and screenshots",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17,
+          "started_at": "2026-10-20T05:51:10Z",
+          "completed_at": "2026-10-20T05:51:11Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 34,
+          "started_at": "2026-10-20T05:51:11Z",
+          "completed_at": "2026-10-20T05:51:11Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 35,
+          "started_at": "2026-10-20T05:51:11Z",
+          "completed_at": "2026-10-20T05:51:11Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/118477179879",
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "runner_id": 1000004070,
+      "runner_name": "GitHub Actions 1000004070",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 118477179882,
+      "run_id": 39376387344,
+      "workflow_name": "Windows automated tests",
+      "head_branch": "codex/a-optional-challenge-20261015",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/39376387344",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAblcpL6g",
+      "head_sha": "a01497d17eafd2ea512aa530fd12f33dbd622db8",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/118477179882",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/39376387344/job/118477179882",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-20T05:49:38Z",
+      "started_at": "2026-10-20T05:49:40Z",
+      "completed_at": "2026-10-20T05:51:20Z",
+      "name": "Rendered ordered ending / physical boundary and exact fresh Load",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-20T05:49:41Z",
+          "completed_at": "2026-10-20T05:49:42Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-20T05:49:42Z",
+          "completed_at": "2026-10-20T05:49:57Z"
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-20T05:49:57Z",
+          "completed_at": "2026-10-20T05:49:57Z"
+        },
+        {
+          "name": "Install Godot and software display",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-20T05:49:57Z",
+          "completed_at": "2026-10-20T05:50:15Z"
+        },
+        {
+          "name": "Start and verify native Linux speech service",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-20T05:50:15Z",
+          "completed_at": "2026-10-20T05:50:16Z"
+        },
+        {
+          "name": "Upload native speech environment evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-20T05:50:16Z",
+          "completed_at": "2026-10-20T05:50:17Z"
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-20T05:50:17Z",
+          "completed_at": "2026-10-20T05:50:57Z"
+        },
+        {
+          "name": "Exercise two-step ending History, Save and fresh Load",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 8,
+          "started_at": "2026-10-20T05:50:57Z",
+          "completed_at": "2026-10-20T05:51:17Z"
+        },
+        {
+          "name": "Verify Auto continuity across the manual nonfinal ending seam",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 9,
+          "started_at": "2026-10-20T05:51:17Z",
+          "completed_at": "2026-10-20T05:51:17Z"
+        },
+        {
+          "name": "Upload ending reading reports, exact save bytes and screenshots",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-10-20T05:51:17Z",
+          "completed_at": "2026-10-20T05:51:18Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 20,
+          "started_at": "2026-10-20T05:51:18Z",
+          "completed_at": "2026-10-20T05:51:18Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21,
+          "started_at": "2026-10-20T05:51:18Z",
+          "completed_at": "2026-10-20T05:51:18Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/118477179882",
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "runner_id": 1000004067,
+      "runner_name": "GitHub Actions 1000004067",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 118477179925,
+      "run_id": 39376387344,
+      "workflow_name": "Windows automated tests",
+      "head_branch": "codex/a-optional-challenge-20261015",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/39376387344",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAblcpMFQ",
+      "head_sha": "a01497d17eafd2ea512aa530fd12f33dbd622db8",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/118477179925",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/39376387344/job/118477179925",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-20T05:49:38Z",
+      "started_at": "2026-10-20T05:49:41Z",
+      "completed_at": "2026-10-20T05:50:41Z",
+      "name": "Windows / seven-day retained history producer",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-20T05:49:41Z",
+          "completed_at": "2026-10-20T05:49:42Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-20T05:49:42Z",
+          "completed_at": "2026-10-20T05:49:57Z"
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-20T05:49:57Z",
+          "completed_at": "2026-10-20T05:49:59Z"
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-20T05:49:59Z",
+          "completed_at": "2026-10-20T05:50:02Z"
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-20T05:50:02Z",
+          "completed_at": "2026-10-20T05:50:35Z"
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-20T05:50:35Z",
+          "completed_at": "2026-10-20T05:50:35Z"
+        },
+        {
+          "name": "Measure seven days and saturated retained history",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 7,
+          "started_at": "2026-10-20T05:50:35Z",
+          "completed_at": "2026-10-20T05:50:37Z"
+        },
+        {
+          "name": "Record Day7 consumer input provenance",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 8,
+          "started_at": "2026-10-20T05:50:37Z",
+          "completed_at": "2026-10-20T05:50:37Z"
+        },
+        {
+          "name": "Share verified Day7 consumer inputs",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 9,
+          "started_at": "2026-10-20T05:50:37Z",
+          "completed_at": "2026-10-20T05:50:37Z"
+        },
+        {
+          "name": "Upload seven-day history evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-10-20T05:50:37Z",
+          "completed_at": "2026-10-20T05:50:37Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 20,
+          "started_at": "2026-10-20T05:50:37Z",
+          "completed_at": "2026-10-20T05:50:39Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21,
+          "started_at": "2026-10-20T05:50:39Z",
+          "completed_at": "2026-10-20T05:50:39Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/118477179925",
+      "labels": [
+        "windows-2022"
+      ],
+      "runner_id": 1000004086,
+      "runner_name": "GitHub Actions 1000004086",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 118477179951,
+      "run_id": 39376387344,
+      "workflow_name": "Windows automated tests",
+      "head_branch": "codex/a-optional-challenge-20261015",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/39376387344",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAblcpMLw",
+      "head_sha": "a01497d17eafd2ea512aa530fd12f33dbd622db8",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/118477179951",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/39376387344/job/118477179951",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-20T05:49:38Z",
+      "started_at": "2026-10-20T05:49:41Z",
+      "completed_at": "2026-10-20T05:51:46Z",
+      "name": "Windows / paired checkpoint performance",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-20T05:49:41Z",
+          "completed_at": "2026-10-20T05:49:42Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-20T05:49:42Z",
+          "completed_at": "2026-10-20T05:50:03Z"
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-20T05:50:03Z",
+          "completed_at": "2026-10-20T05:50:04Z"
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-20T05:50:04Z",
+          "completed_at": "2026-10-20T05:50:07Z"
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-20T05:50:07Z",
+          "completed_at": "2026-10-20T05:50:54Z"
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-20T05:50:54Z",
+          "completed_at": "2026-10-20T05:50:54Z"
+        },
+        {
+          "name": "Measure localized journeys and matched payloads",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 7,
+          "started_at": "2026-10-20T05:50:54Z",
+          "completed_at": "2026-10-20T05:51:42Z"
+        },
+        {
+          "name": "Share current localized payloads",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 8,
+          "started_at": "2026-10-20T05:51:42Z",
+          "completed_at": "2026-10-20T05:51:42Z"
+        },
+        {
+          "name": "Upload paired performance evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-20T05:51:42Z",
+          "completed_at": "2026-10-20T05:51:43Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-10-20T05:51:43Z",
+          "completed_at": "2026-10-20T05:51:45Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-10-20T05:51:45Z",
+          "completed_at": "2026-10-20T05:51:45Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/118477179951",
+      "labels": [
+        "windows-2022"
+      ],
+      "runner_id": 1000004077,
+      "runner_name": "GitHub Actions 1000004077",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 118477180002,
+      "run_id": 39376387344,
+      "workflow_name": "Windows automated tests",
+      "head_branch": "codex/a-optional-challenge-20261015",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/39376387344",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAblcpMYg",
+      "head_sha": "a01497d17eafd2ea512aa530fd12f33dbd622db8",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/118477180002",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/39376387344/job/118477180002",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-20T05:49:38Z",
+      "started_at": "2026-10-20T05:49:40Z",
+      "completed_at": "2026-10-20T05:51:40Z",
+      "name": "Windows / persistence",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-20T05:49:41Z",
+          "completed_at": "2026-10-20T05:49:42Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-20T05:49:42Z",
+          "completed_at": "2026-10-20T05:49:58Z"
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-20T05:49:58Z",
+          "completed_at": "2026-10-20T05:50:00Z"
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-20T05:50:00Z",
+          "completed_at": "2026-10-20T05:50:02Z"
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-20T05:50:02Z",
+          "completed_at": "2026-10-20T05:50:51Z"
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-20T05:50:51Z",
+          "completed_at": "2026-10-20T05:50:51Z"
+        },
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 7,
+          "started_at": "2026-10-20T05:50:51Z",
+          "completed_at": "2026-10-20T05:51:36Z"
+        },
+        {
+          "name": "Render Settings uncertain-write journey",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 8,
+          "started_at": "2026-10-20T05:51:36Z",
+          "completed_at": "2026-10-20T05:51:36Z"
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-20T05:51:36Z",
+          "completed_at": "2026-10-20T05:51:36Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-10-20T05:51:36Z",
+          "completed_at": "2026-10-20T05:51:39Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-10-20T05:51:39Z",
+          "completed_at": "2026-10-20T05:51:39Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/118477180002",
+      "labels": [
+        "windows-2022"
+      ],
+      "runner_id": 1000004078,
+      "runner_name": "GitHub Actions 1000004078",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 118477180017,
+      "run_id": 39376387344,
+      "workflow_name": "Windows automated tests",
+      "head_branch": "codex/a-optional-challenge-20261015",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/39376387344",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAblcpMcQ",
+      "head_sha": "a01497d17eafd2ea512aa530fd12f33dbd622db8",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/118477180017",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/39376387344/job/118477180017",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-20T05:49:38Z",
+      "started_at": "2026-10-20T05:49:41Z",
+      "completed_at": "2026-10-20T05:51:42Z",
+      "name": "Windows / endings",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-20T05:49:42Z",
+          "completed_at": "2026-10-20T05:49:43Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-20T05:49:43Z",
+          "completed_at": "2026-10-20T05:50:03Z"
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-20T05:50:03Z",
+          "completed_at": "2026-10-20T05:50:04Z"
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-20T05:50:04Z",
+          "completed_at": "2026-10-20T05:50:07Z"
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-20T05:50:07Z",
+          "completed_at": "2026-10-20T05:50:57Z"
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-20T05:50:57Z",
+          "completed_at": "2026-10-20T05:50:57Z"
+        },
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 7,
+          "started_at": "2026-10-20T05:50:57Z",
+          "completed_at": "2026-10-20T05:51:37Z"
+        },
+        {
+          "name": "Render Settings uncertain-write journey",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 8,
+          "started_at": "2026-10-20T05:51:37Z",
+          "completed_at": "2026-10-20T05:51:37Z"
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-20T05:51:37Z",
+          "completed_at": "2026-10-20T05:51:38Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-10-20T05:51:38Z",
+          "completed_at": "2026-10-20T05:51:40Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-10-20T05:51:40Z",
+          "completed_at": "2026-10-20T05:51:40Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/118477180017",
+      "labels": [
+        "windows-2022"
+      ],
+      "runner_id": 1000004074,
+      "runner_name": "GitHub Actions 1000004074",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 118477180025,
+      "run_id": 39376387344,
+      "workflow_name": "Windows automated tests",
+      "head_branch": "codex/a-optional-challenge-20261015",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/39376387344",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAblcpMeQ",
+      "head_sha": "a01497d17eafd2ea512aa530fd12f33dbd622db8",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/118477180025",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/39376387344/job/118477180025",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-20T05:49:38Z",
+      "started_at": "2026-10-20T05:49:41Z",
+      "completed_at": "2026-10-20T05:51:16Z",
+      "name": "Windows / audio",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-20T05:49:43Z",
+          "completed_at": "2026-10-20T05:49:44Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-20T05:49:44Z",
+          "completed_at": "2026-10-20T05:50:01Z"
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-20T05:50:01Z",
+          "completed_at": "2026-10-20T05:50:03Z"
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-20T05:50:03Z",
+          "completed_at": "2026-10-20T05:50:05Z"
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-20T05:50:05Z",
+          "completed_at": "2026-10-20T05:50:54Z"
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-20T05:50:54Z",
+          "completed_at": "2026-10-20T05:50:54Z"
+        },
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-20T05:50:54Z",
+          "completed_at": "2026-10-20T05:51:11Z"
+        },
+        {
+          "name": "Render Settings uncertain-write journey",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 8,
+          "started_at": "2026-10-20T05:51:11Z",
+          "completed_at": "2026-10-20T05:51:11Z"
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-20T05:51:11Z",
+          "completed_at": "2026-10-20T05:51:12Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-10-20T05:51:12Z",
+          "completed_at": "2026-10-20T05:51:14Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-10-20T05:51:14Z",
+          "completed_at": "2026-10-20T05:51:14Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/118477180025",
+      "labels": [
+        "windows-2022"
+      ],
+      "runner_id": 1000004073,
+      "runner_name": "GitHub Actions 1000004073",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 118477180042,
+      "run_id": 39376387344,
+      "workflow_name": "Windows automated tests",
+      "head_branch": "codex/a-optional-challenge-20261015",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/39376387344",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAblcpMig",
+      "head_sha": "a01497d17eafd2ea512aa530fd12f33dbd622db8",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/118477180042",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/39376387344/job/118477180042",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "created_at": "2026-10-20T05:49:38Z",
+      "started_at": "2026-10-20T05:49:41Z",
+      "completed_at": "2026-10-20T06:14:41Z",
+      "name": "Windows / settings",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-20T05:49:42Z",
+          "completed_at": "2026-10-20T05:49:43Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-20T05:49:43Z",
+          "completed_at": "2026-10-20T05:50:14Z"
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-20T05:50:14Z",
+          "completed_at": "2026-10-20T05:50:15Z"
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-20T05:50:15Z",
+          "completed_at": "2026-10-20T05:50:18Z"
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-20T05:50:18Z",
+          "completed_at": "2026-10-20T05:51:07Z"
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-20T05:51:07Z",
+          "completed_at": "2026-10-20T05:51:07Z"
+        },
+        {
+          "name": "Run focused regression suite",
+          "status": "in_progress",
+          "conclusion": null,
+          "number": 7,
+          "started_at": "2026-10-20T05:51:07Z",
+          "completed_at": null
+        },
+        {
+          "name": "Render Settings uncertain-write journey",
+          "status": "pending",
+          "conclusion": null,
+          "number": 8,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "pending",
+          "conclusion": null,
+          "number": 9,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "pending",
+          "conclusion": null,
+          "number": 18,
+          "started_at": null,
+          "completed_at": null
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/118477180042",
+      "labels": [
+        "windows-2022"
+      ],
+      "runner_id": 1000004076,
+      "runner_name": "GitHub Actions 1000004076",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 118477180047,
+      "run_id": 39376387344,
+      "workflow_name": "Windows automated tests",
+      "head_branch": "codex/a-optional-challenge-20261015",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/39376387344",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAblcpMjw",
+      "head_sha": "a01497d17eafd2ea512aa530fd12f33dbd622db8",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/118477180047",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/39376387344/job/118477180047",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-20T05:49:38Z",
+      "started_at": "2026-10-20T05:49:40Z",
+      "completed_at": "2026-10-20T05:51:35Z",
+      "name": "Windows / shop",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-20T05:49:41Z",
+          "completed_at": "2026-10-20T05:49:42Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-20T05:49:42Z",
+          "completed_at": "2026-10-20T05:50:04Z"
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-20T05:50:04Z",
+          "completed_at": "2026-10-20T05:50:05Z"
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-20T05:50:05Z",
+          "completed_at": "2026-10-20T05:50:08Z"
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-20T05:50:08Z",
+          "completed_at": "2026-10-20T05:50:57Z"
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-20T05:50:57Z",
+          "completed_at": "2026-10-20T05:50:58Z"
+        },
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 7,
+          "started_at": "2026-10-20T05:50:58Z",
+          "completed_at": "2026-10-20T05:51:31Z"
+        },
+        {
+          "name": "Render Settings uncertain-write journey",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 8,
+          "started_at": "2026-10-20T05:51:31Z",
+          "completed_at": "2026-10-20T05:51:31Z"
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-20T05:51:31Z",
+          "completed_at": "2026-10-20T05:51:32Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-10-20T05:51:32Z",
+          "completed_at": "2026-10-20T05:51:34Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-10-20T05:51:34Z",
+          "completed_at": "2026-10-20T05:51:34Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/118477180047",
+      "labels": [
+        "windows-2022"
+      ],
+      "runner_id": 1000004075,
+      "runner_name": "GitHub Actions 1000004075",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 118477180077,
+      "run_id": 39376387344,
+      "workflow_name": "Windows automated tests",
+      "head_branch": "codex/a-optional-challenge-20261015",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/39376387344",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAblcpMrQ",
+      "head_sha": "a01497d17eafd2ea512aa530fd12f33dbd622db8",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/118477180077",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/39376387344/job/118477180077",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-20T05:49:38Z",
+      "started_at": "2026-10-20T05:49:41Z",
+      "completed_at": "2026-10-20T05:50:59Z",
+      "name": "Windows / checkpoint_diagnostics",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-20T05:49:41Z",
+          "completed_at": "2026-10-20T05:49:42Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-20T05:49:42Z",
+          "completed_at": "2026-10-20T05:49:56Z"
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-20T05:49:56Z",
+          "completed_at": "2026-10-20T05:49:57Z"
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-20T05:49:57Z",
+          "completed_at": "2026-10-20T05:49:59Z"
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-20T05:49:59Z",
+          "completed_at": "2026-10-20T05:50:33Z"
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-20T05:50:33Z",
+          "completed_at": "2026-10-20T05:50:34Z"
+        },
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-20T05:50:34Z",
+          "completed_at": "2026-10-20T05:50:54Z"
+        },
+        {
+          "name": "Render Settings uncertain-write journey",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 8,
+          "started_at": "2026-10-20T05:50:54Z",
+          "completed_at": "2026-10-20T05:50:54Z"
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-20T05:50:54Z",
+          "completed_at": "2026-10-20T05:50:55Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-10-20T05:50:55Z",
+          "completed_at": "2026-10-20T05:50:57Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-10-20T05:50:57Z",
+          "completed_at": "2026-10-20T05:50:57Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/118477180077",
+      "labels": [
+        "windows-2022"
+      ],
+      "runner_id": 1000004081,
+      "runner_name": "GitHub Actions 1000004081",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 118477180088,
+      "run_id": 39376387344,
+      "workflow_name": "Windows automated tests",
+      "head_branch": "codex/a-optional-challenge-20261015",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/39376387344",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAblcpMuA",
+      "head_sha": "a01497d17eafd2ea512aa530fd12f33dbd622db8",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/118477180088",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/39376387344/job/118477180088",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-20T05:49:38Z",
+      "started_at": "2026-10-20T05:49:41Z",
+      "completed_at": "2026-10-20T05:51:59Z",
+      "name": "Windows / new_account",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-20T05:49:42Z",
+          "completed_at": "2026-10-20T05:49:43Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-20T05:49:43Z",
+          "completed_at": "2026-10-20T05:50:10Z"
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-20T05:50:10Z",
+          "completed_at": "2026-10-20T05:50:11Z"
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-20T05:50:11Z",
+          "completed_at": "2026-10-20T05:50:14Z"
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-20T05:50:14Z",
+          "completed_at": "2026-10-20T05:51:04Z"
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-20T05:51:04Z",
+          "completed_at": "2026-10-20T05:51:04Z"
+        },
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 7,
+          "started_at": "2026-10-20T05:51:04Z",
+          "completed_at": "2026-10-20T05:51:53Z"
+        },
+        {
+          "name": "Render Settings uncertain-write journey",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 8,
+          "started_at": "2026-10-20T05:51:53Z",
+          "completed_at": "2026-10-20T05:51:53Z"
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-20T05:51:53Z",
+          "completed_at": "2026-10-20T05:51:55Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-10-20T05:51:55Z",
+          "completed_at": "2026-10-20T05:51:57Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-10-20T05:51:57Z",
+          "completed_at": "2026-10-20T05:51:57Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/118477180088",
+      "labels": [
+        "windows-2022"
+      ],
+      "runner_id": 1000004082,
+      "runner_name": "GitHub Actions 1000004082",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 118477180094,
+      "run_id": 39376387344,
+      "workflow_name": "Windows automated tests",
+      "head_branch": "codex/a-optional-challenge-20261015",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/39376387344",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAblcpMvg",
+      "head_sha": "a01497d17eafd2ea512aa530fd12f33dbd622db8",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/118477180094",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/39376387344/job/118477180094",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-20T05:49:38Z",
+      "started_at": "2026-10-20T05:49:40Z",
+      "completed_at": "2026-10-20T05:51:31Z",
+      "name": "Windows / localization",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-20T05:49:41Z",
+          "completed_at": "2026-10-20T05:49:42Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-20T05:49:42Z",
+          "completed_at": "2026-10-20T05:49:58Z"
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-20T05:49:58Z",
+          "completed_at": "2026-10-20T05:49:58Z"
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-20T05:49:58Z",
+          "completed_at": "2026-10-20T05:50:00Z"
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-20T05:50:00Z",
+          "completed_at": "2026-10-20T05:50:31Z"
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-20T05:50:31Z",
+          "completed_at": "2026-10-20T05:50:32Z"
+        },
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 7,
+          "started_at": "2026-10-20T05:50:32Z",
+          "completed_at": "2026-10-20T05:51:27Z"
+        },
+        {
+          "name": "Render Settings uncertain-write journey",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 8,
+          "started_at": "2026-10-20T05:51:27Z",
+          "completed_at": "2026-10-20T05:51:27Z"
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-20T05:51:27Z",
+          "completed_at": "2026-10-20T05:51:28Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-10-20T05:51:28Z",
+          "completed_at": "2026-10-20T05:51:30Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-10-20T05:51:30Z",
+          "completed_at": "2026-10-20T05:51:30Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/118477180094",
+      "labels": [
+        "windows-2022"
+      ],
+      "runner_id": 1000004080,
+      "runner_name": "GitHub Actions 1000004080",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 118477180104,
+      "run_id": 39376387344,
+      "workflow_name": "Windows automated tests",
+      "head_branch": "codex/a-optional-challenge-20261015",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/39376387344",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAblcpMyA",
+      "head_sha": "a01497d17eafd2ea512aa530fd12f33dbd622db8",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/118477180104",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/39376387344/job/118477180104",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-20T05:49:38Z",
+      "started_at": "2026-10-20T05:49:41Z",
+      "completed_at": "2026-10-20T05:52:58Z",
+      "name": "Windows / desktop",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-20T05:49:42Z",
+          "completed_at": "2026-10-20T05:49:43Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-20T05:49:43Z",
+          "completed_at": "2026-10-20T05:50:03Z"
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-20T05:50:03Z",
+          "completed_at": "2026-10-20T05:50:05Z"
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-20T05:50:05Z",
+          "completed_at": "2026-10-20T05:50:07Z"
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-20T05:50:07Z",
+          "completed_at": "2026-10-20T05:50:58Z"
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-20T05:50:58Z",
+          "completed_at": "2026-10-20T05:50:58Z"
+        },
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 7,
+          "started_at": "2026-10-20T05:50:58Z",
+          "completed_at": "2026-10-20T05:52:53Z"
+        },
+        {
+          "name": "Render Settings uncertain-write journey",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 8,
+          "started_at": "2026-10-20T05:52:53Z",
+          "completed_at": "2026-10-20T05:52:53Z"
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-20T05:52:53Z",
+          "completed_at": "2026-10-20T05:52:54Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-10-20T05:52:54Z",
+          "completed_at": "2026-10-20T05:52:56Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-10-20T05:52:56Z",
+          "completed_at": "2026-10-20T05:52:56Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/118477180104",
+      "labels": [
+        "windows-2022"
+      ],
+      "runner_id": 1000004079,
+      "runner_name": "GitHub Actions 1000004079",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 118477180135,
+      "run_id": 39376387344,
+      "workflow_name": "Windows automated tests",
+      "head_branch": "codex/a-optional-challenge-20261015",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/39376387344",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAblcpM5w",
+      "head_sha": "a01497d17eafd2ea512aa530fd12f33dbd622db8",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/118477180135",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/39376387344/job/118477180135",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-20T05:49:38Z",
+      "started_at": "2026-10-20T05:49:41Z",
+      "completed_at": "2026-10-20T05:52:40Z",
+      "name": "Windows / minesweeper",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-20T05:49:42Z",
+          "completed_at": "2026-10-20T05:49:43Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-20T05:49:43Z",
+          "completed_at": "2026-10-20T05:50:01Z"
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-20T05:50:01Z",
+          "completed_at": "2026-10-20T05:50:02Z"
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-20T05:50:02Z",
+          "completed_at": "2026-10-20T05:50:04Z"
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-20T05:50:04Z",
+          "completed_at": "2026-10-20T05:50:58Z"
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-20T05:50:58Z",
+          "completed_at": "2026-10-20T05:50:58Z"
+        },
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-20T05:50:58Z",
+          "completed_at": "2026-10-20T05:52:34Z"
+        },
+        {
+          "name": "Render Settings uncertain-write journey",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 8,
+          "started_at": "2026-10-20T05:52:34Z",
+          "completed_at": "2026-10-20T05:52:34Z"
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-20T05:52:34Z",
+          "completed_at": "2026-10-20T05:52:36Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-10-20T05:52:36Z",
+          "completed_at": "2026-10-20T05:52:38Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-10-20T05:52:38Z",
+          "completed_at": "2026-10-20T05:52:38Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/118477180135",
+      "labels": [
+        "windows-2022"
+      ],
+      "runner_id": 1000004083,
+      "runner_name": "GitHub Actions 1000004083",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 118477180144,
+      "run_id": 39376387344,
+      "workflow_name": "Windows automated tests",
+      "head_branch": "codex/a-optional-challenge-20261015",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/39376387344",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAblcpM8A",
+      "head_sha": "a01497d17eafd2ea512aa530fd12f33dbd622db8",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/118477180144",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/39376387344/job/118477180144",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-20T05:49:38Z",
+      "started_at": "2026-10-20T05:49:41Z",
+      "completed_at": "2026-10-20T05:53:29Z",
+      "name": "Windows / reading_delivery",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-20T05:49:42Z",
+          "completed_at": "2026-10-20T05:49:43Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-20T05:49:43Z",
+          "completed_at": "2026-10-20T05:50:02Z"
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-20T05:50:02Z",
+          "completed_at": "2026-10-20T05:50:03Z"
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-20T05:50:03Z",
+          "completed_at": "2026-10-20T05:50:05Z"
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-20T05:50:05Z",
+          "completed_at": "2026-10-20T05:50:54Z"
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-20T05:50:54Z",
+          "completed_at": "2026-10-20T05:50:55Z"
+        },
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 7,
+          "started_at": "2026-10-20T05:50:55Z",
+          "completed_at": "2026-10-20T05:53:23Z"
+        },
+        {
+          "name": "Render Settings uncertain-write journey",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 8,
+          "started_at": "2026-10-20T05:53:23Z",
+          "completed_at": "2026-10-20T05:53:23Z"
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-20T05:53:23Z",
+          "completed_at": "2026-10-20T05:53:25Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-10-20T05:53:25Z",
+          "completed_at": "2026-10-20T05:53:27Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-10-20T05:53:27Z",
+          "completed_at": "2026-10-20T05:53:27Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/118477180144",
+      "labels": [
+        "windows-2022"
+      ],
+      "runner_id": 1000004084,
+      "runner_name": "GitHub Actions 1000004084",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 118477180211,
+      "run_id": 39376387344,
+      "workflow_name": "Windows automated tests",
+      "head_branch": "codex/a-optional-challenge-20261015",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/39376387344",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAblcpNMw",
+      "head_sha": "a01497d17eafd2ea512aa530fd12f33dbd622db8",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/118477180211",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/39376387344/job/118477180211",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-20T05:49:38Z",
+      "started_at": "2026-10-20T05:49:41Z",
+      "completed_at": "2026-10-20T05:52:34Z",
+      "name": "Windows / dating",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-20T05:49:41Z",
+          "completed_at": "2026-10-20T05:49:42Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-20T05:49:42Z",
+          "completed_at": "2026-10-20T05:50:02Z"
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-20T05:50:02Z",
+          "completed_at": "2026-10-20T05:50:03Z"
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-20T05:50:03Z",
+          "completed_at": "2026-10-20T05:50:06Z"
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-20T05:50:06Z",
+          "completed_at": "2026-10-20T05:51:05Z"
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-20T05:51:05Z",
+          "completed_at": "2026-10-20T05:51:05Z"
+        },
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 7,
+          "started_at": "2026-10-20T05:51:05Z",
+          "completed_at": "2026-10-20T05:52:29Z"
+        },
+        {
+          "name": "Render Settings uncertain-write journey",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 8,
+          "started_at": "2026-10-20T05:52:29Z",
+          "completed_at": "2026-10-20T05:52:29Z"
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-20T05:52:29Z",
+          "completed_at": "2026-10-20T05:52:30Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-10-20T05:52:30Z",
+          "completed_at": "2026-10-20T05:52:32Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-10-20T05:52:32Z",
+          "completed_at": "2026-10-20T05:52:32Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/118477180211",
+      "labels": [
+        "windows-2022"
+      ],
+      "runner_id": 1000004085,
+      "runner_name": "GitHub Actions 1000004085",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 118477765188,
+      "run_id": 39376387344,
+      "workflow_name": "Windows automated tests",
+      "head_branch": "codex/a-optional-challenge-20261015",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/39376387344",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAbldM6RA",
+      "head_sha": "a01497d17eafd2ea512aa530fd12f33dbd622db8",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/118477765188",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/39376387344/job/118477765188",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-20T05:51:46Z",
+      "started_at": "2026-10-20T05:51:48Z",
+      "completed_at": "2026-10-20T05:51:51Z",
+      "name": "Windows / seven-day retained history",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-20T05:51:48Z",
+          "completed_at": "2026-10-20T05:51:48Z"
+        },
+        {
+          "name": "Require the Day7 producer and all four comparison jobs",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 2,
+          "started_at": "2026-10-20T05:51:49Z",
+          "completed_at": "2026-10-20T05:51:49Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-20T05:51:49Z",
+          "completed_at": "2026-10-20T05:51:49Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/118477765188",
+      "labels": [
+        "windows-2022"
+      ],
+      "runner_id": 1000004087,
+      "runner_name": "GitHub Actions 1000004087",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 118477766268,
+      "run_id": 39376387344,
+      "workflow_name": "Windows automated tests",
+      "head_branch": "codex/a-optional-challenge-20261015",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/39376387344",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAbldM-fA",
+      "head_sha": "a01497d17eafd2ea512aa530fd12f33dbd622db8",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/118477766268",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/39376387344/job/118477766268",
+      "status": "completed",
+      "conclusion": "skipped",
+      "created_at": "2026-10-20T05:51:46Z",
+      "started_at": "2026-10-20T05:51:46Z",
+      "completed_at": "2026-10-20T05:51:46Z",
+      "name": "Windows / ${{ matrix.comparison }} comparison",
+      "steps": [],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/118477766268",
+      "labels": [
+        "windows-2022"
+      ],
+      "runner_id": null,
+      "runner_name": null,
+      "runner_group_id": null,
+      "runner_group_name": null
+    }
+  ]
+}

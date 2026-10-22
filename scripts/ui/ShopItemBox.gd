@@ -1,11 +1,14 @@
 extends Button
 class_name ShopItemBox
-## Ordinary public product card. Selection belongs to Shop; this target only activates.
+## Ordinary public product card. Shop owns inspection, selection, and purchases.
 ## The fixed 3-by-3 catalog measures adaptive text bands at every supported size.
 ## Host custody transitions use set_admitted(), not direct writes to disabled.
 
+signal inspection_requested
+
 const SHOP_THEME := preload("res://scripts/ui/shop/ShopTheme.gd")
 
+var _scene_presentation := false
 var selected := false:
 	set(value):
 		selected = value
@@ -24,8 +27,16 @@ var _hover := false
 var _roles := SHOP_THEME.resolve(&"after_hours")
 
 func apply_palette(palette: StringName, day: int = 1, high_contrast: bool = false, colour_preset: String = "standard") -> bool:
-	var candidate: Dictionary = SHOP_THEME.resolve(palette, day, high_contrast, colour_preset)
+	return _apply_palette_context(palette, day, high_contrast, colour_preset, false)
+
+func apply_palette_scene(palette: StringName, high_contrast: bool = false, colour_preset: String = "standard") -> bool:
+	return _apply_palette_context(palette, null, high_contrast, colour_preset, true)
+
+func _apply_palette_context(palette: StringName, day: Variant = 1, high_contrast: bool = false, colour_preset: String = "standard", scene: bool = false) -> bool:
+	if _scene_presentation and not scene: return false
+	var candidate: Dictionary = SHOP_THEME._resolve_context(palette, day, high_contrast, colour_preset, scene)
 	if candidate.is_empty(): return false
+	_scene_presentation = scene
 	_roles = candidate
 	if is_instance_valid(name_label):
 		for label: Label in [name_label, price_label, availability_label]:
@@ -71,8 +82,10 @@ func _ready() -> void:
 	_pointer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_pointer.mouse_filter = Control.MOUSE_FILTER_STOP
 	_pointer.gui_input.connect(_pointer_input)
+	_pointer.mouse_entered.connect(_pointer_entered)
 	_pointer.mouse_exited.connect(cancel_contact)
 	add_child(_pointer)
+	focus_entered.connect(func(): inspection_requested.emit())
 	for event: Signal in [focus_entered, focus_exited, button_down, button_up]:
 		event.connect(queue_redraw)
 	visibility_changed.connect(cancel_contact)
@@ -127,12 +140,20 @@ func set_admitted(admitted: bool) -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_WINDOW_FOCUS_OUT: cancel_contact()
 
+func _pointer_entered() -> void:
+	if disabled or not is_visible_in_tree() or Input.get_mouse_button_mask() != 0: return
+	inspection_requested.emit()
+	_hover = true
+	queue_redraw()
+
 func _pointer_input(event: InputEvent) -> void:
 	if disabled or not is_visible_in_tree():
 		cancel_contact()
 		return
 	if event is InputEventMouseMotion:
-		_hover = Rect2(Vector2.ZERO, size).has_point(event.position)
+		var inside := Rect2(Vector2.ZERO, size).has_point(event.position)
+		if inside and event.button_mask == 0: inspection_requested.emit()
+		_hover = inside
 	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		_pointer.accept_event()
 		_hover = Rect2(Vector2.ZERO, size).has_point(event.position)

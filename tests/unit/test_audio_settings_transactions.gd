@@ -76,6 +76,57 @@ func test_preview_changes_only_output_and_cancel_restores_committed_settings() -
 	_assert_music(f, 0.8)
 	assert_false(f.transactions.has_preview())
 
+
+func test_restore_capture_refuses_owned_preview_until_normal_cancellation() -> void:
+	var f := _fixture()
+	assert_true(f.owner.set_music_context("menu").ok)
+	var preview: Dictionary = f.owner.preview_settings_volume("settings", MUSIC, 0.25)
+	assert_true(preview.ok)
+	if not preview.ok: return
+	var runtime: Dictionary = f.port.capture_runtime().value
+	var persisted: Dictionary = f.files.snapshot_persisted()
+	var operations: int = f.port.operations.size()
+	var plan := {"snapshot": {
+		"music_context_id": "hospital", "music_context": {},
+		"ambience_context_id": "room", "ambience_context": {},
+	}}
+	assert_eq(f.owner.capture_restore_state().get("code"), &"settings_audio_preview_active")
+	assert_eq(f.owner.apply_restore_silent(plan).get("code"), &"settings_audio_preview_active")
+	assert_eq(f.port.operations.size(), operations, "Refusal does not touch playback or output")
+	assert_eq(f.port.capture_runtime().value, runtime)
+	assert_eq(f.files.snapshot_persisted(), persisted)
+	assert_true(f.transactions.has_preview())
+	assert_true(f.owner.cancel_settings_volume_preview(preview.value.preview_handle).ok,
+		"The refused restore leaves the original preview handle usable")
+	_assert_music(f, 0.8)
+	var committed: Dictionary = f.owner.capture_restore_state().value
+	assert_true(f.owner.apply_restore_silent(plan).ok)
+	assert_true(f.owner.rollback_restore_silent(committed).ok)
+	assert_eq(f.owner.capture_restore_state().value, committed)
+	assert_false(f.transactions.has_preview())
+	assert_eq(f.files.snapshot_persisted(), persisted)
+
+
+func test_restore_capture_refuses_inside_active_settings_transaction_without_mutation() -> void:
+	var f := _fixture()
+	var refusals: Array[Dictionary] = []
+	f.port.on_next_bus = func():
+		var before: Dictionary = f.port.capture_runtime().value
+		var count: int = f.port.operations.size()
+		var refused: Dictionary = f.owner.capture_restore_state()
+		refusals.append(refused)
+		assert_eq(refused.get("code"), &"settings_audio_busy")
+		assert_eq(f.port.operations.size(), count)
+		assert_eq(f.port.capture_runtime().value, before)
+	var preview: Dictionary = f.owner.preview_settings_volume("settings", MUSIC, 0.3)
+	assert_true(preview.ok)
+	assert_eq(refusals.size(), 1)
+	if not preview.ok: return
+	_assert_music(f, 0.3)
+	assert_true(f.owner.cancel_settings_volume_preview(preview.value.preview_handle).ok)
+	assert_true(f.owner.capture_restore_state().get("ok", false))
+	_assert_music(f, 0.8)
+
 func test_stale_holder_path_and_handle_refuse_without_discarding_current_preview() -> void:
 	var f := _fixture()
 	var preview: Dictionary = f.owner.preview_settings_volume("first", MUSIC, 0.25)

@@ -1,0 +1,44 @@
+{
+  "baseline": "5a581fc89121864aead5202e01d6a82423b1b52d",
+  "candidate_source": "Pending next source freeze; not an acceptance record",
+  "prepared_only": true,
+  "expected_new_tests": [
+    "test_paused_settings_binding_capture_never_saves_and_requires_fresh_release",
+    "test_paused_settings_option_popup_forwards_release_and_retires_same_frame_save",
+    "test_paused_settings_pending_preference_commit_retires_save_until_release",
+    "test_paused_settings_quick_load_remains_unavailable_and_cannot_wake_on_exit",
+    "test_paused_settings_quick_save_keeps_host_focus_and_exact_canonical_source",
+    "test_paused_settings_reset_window_forwards_contacts_without_saving_or_queued_replay"
+  ],
+  "expected_current_counts": {
+    "case_executions": 2286,
+    "unique_cases": 2282,
+    "unique_scripts": 194,
+    "script_executions": 195,
+    "xml_count": 13
+  },
+  "scope_changes": [
+    "Exact expected new case set grows from five to six with the PopupMenu regression; baseline historical counts remain unchanged.",
+    "All original source/XML/metadata/declaration checks preserved; final run/source/checkout remain mandatory CLI inputs."
+  ],
+  "files": [
+    {
+      "original": "/workspace/scratch/e169b180163f/settings_f5_review_adapters/audit_coverage_test_discovery.py",
+      "original_sha256": "6c1c45ff725500891d58f35cc41c21650524da16e18c4a5cd05ddec481246110",
+      "adapted": "audit_coverage_test_discovery.py",
+      "adapted_sha256": "fe8d3c2b60d669c85c76e69ae712650f0eb474b79e13681691830ed4dee84798"
+    },
+    {
+      "original": "/workspace/scratch/e169b180163f/settings_f5_review_adapters/audit_coverage_public_surfaces.py",
+      "original_sha256": "acbf7e6b2f3b44854d151e2e67e48bae69162f57a545fd5f843f4eefbbd360bf",
+      "adapted": "audit_coverage_public_surfaces.py",
+      "adapted_sha256": "acbf7e6b2f3b44854d151e2e67e48bae69162f57a545fd5f843f4eefbbd360bf"
+    },
+    {
+      "original": "/workspace/scratch/e169b180163f/settings_f5_review_adapters/cloud_evidence.py",
+      "original_sha256": "7d0f4139bdb86ad760871713580277e9d8ea5440a6c269a7c6100362545aaa90",
+      "adapted": "cloud_evidence.py",
+      "adapted_sha256": "7d0f4139bdb86ad760871713580277e9d8ea5440a6c269a7c6100362545aaa90"
+    }
+  ]
+}

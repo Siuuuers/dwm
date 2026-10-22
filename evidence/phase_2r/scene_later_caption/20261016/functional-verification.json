@@ -1,0 +1,92 @@
+{
+  "artifact": "caption-accepted.zip",
+  "run_id": 38842344183,
+  "sha256": "77be912345755d33b58c7a986051fe19a662c3c85c7f95d53f697000962d6d95",
+  "zip_crc_valid": true,
+  "candidate": {
+    "base": "5e4da996bdb896fb0db96641232595d78dd08cd9",
+    "candidate": "d9cb28c695fb02c623ea77833d2bb72b481cd372",
+    "controller": "62232389eb3b20cc7b89b65cc65b0089de630ccb",
+    "scope": "ordinary scene publication cursor and rendered Save/fresh-process Load"
+  },
+  "frozen": {
+    "source": "4615316cc014716f10950b855dd6200766d3150e",
+    "tree": "ffd53ccaf6e5af5aa6c4972cb9c8d528b5fa4402"
+  },
+  "reconstructed_tree": "ffd53ccaf6e5af5aa6c4972cb9c8d528b5fa4402",
+  "reconstruction": "Candidate d9cb28c plus precisely two captured canonical surface JSON files, LF normalized, separate index. Exact recorded tree reproduced.",
+  "tests": {
+    "native-activation": {
+      "tests": 3,
+      "assertions": 22,
+      "all_pass": true,
+      "source_derived_exact_census": true
+    },
+    "restore-protocol": {
+      "tests": 5,
+      "assertions": 140,
+      "all_pass": true,
+      "source_derived_exact_census": true
+    },
+    "reading-frontier": {
+      "tests": 13,
+      "assertions": 336,
+      "all_pass": true,
+      "source_derived_exact_census": true
+    },
+    "later-caption-load": {
+      "tests": 1,
+      "assertions": 59,
+      "all_pass": true,
+      "source_derived_exact_census": true
+    },
+    "later-caption-create": {
+      "tests": 1,
+      "assertions": 48,
+      "all_pass": true,
+      "source_derived_exact_census": true
+    },
+    "publication-cursor": {
+      "tests": 10,
+      "assertions": 86,
+      "all_pass": true,
+      "source_derived_exact_census": true
+    }
+  },
+  "total_tests": 33,
+  "total_assertions": 691,
+  "children": {
+    "six_test_exits": 0,
+    "four_surface_exits": 0,
+    "four_surface_PASS_logs": true,
+    "test_surface_error_scan_clean": true
+  },
+  "engine_metadata": {
+    "console_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+    "archive_sha256": "e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90",
+    "version": "4.6.3.stable.official.7d41c59c4"
+  },
+  "proof": {
+    "creator_process_id": 7232,
+    "loader_process_id": 6592,
+    "distinct_processes": true,
+    "shared_isolated_root": true,
+    "creator_fields_preserved_exactly_in_load_proof": true,
+    "source_partial": true,
+    "source_visible_ratio": 0.0,
+    "saved_and_ready_full_DONE": true,
+    "source_saved_ready_ledger_equal": true,
+    "saved_and_loaded_frontier": "line.scene.test.a.two / caption:2 / program_index1",
+    "continued_same_occurrence_index_one_new_publication": "caption:3",
+    "physical_hash_equality": "Verified by passing real-path child assertions and preserved proof fields; physical save files are not archived for separate rehash.",
+    "no_duplicate_consequences": "Passing assertions compare gameplay, scene, receipts, applied effects, applied variables, profile and unchanged physical hashes; duplicate callbacks do not append history."
+  },
+  "screenshots": 3,
+  "limitations": [
+    "Not final publication artifact: retained-hashes manifest, source capture and patch missing due shallow-base retention failure.",
+    "Restored-caption screenshot obscured by GUT overlay; replacement coherent run pending.",
+    "Engine binary hashes recorded, binary not archived for independent rehash.",
+    "Import log GUT optional version-check HTTP403; test and surface logs clean."
+  ],
+  "conclusion": "Automated behavioral acceptance verified; await replacement evidence with corrected screenshots and complete retention."
+}

@@ -698,3 +698,279 @@ func _layout_for(spec: Dictionary) -> Dictionary:
 		"schema_version": 1, "width": width, "height": height,
 		"mine_indices": mine_indices, "mine_count": mine_indices.size(),
 	}
+
+
+
+# Run9 payment admission uses the real issuer facade with a retained test root.
+# These are domain tests, not a production Run9/Save9 wiring or disk claim.
+func _scene_fixture() -> Dictionary:
+	var root := preload("res://tests/support/FakeDesktopIssuerRootStore.gd").new("33".repeat(32), 1)
+	var issuer := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd").new()
+	assert_true(issuer.configure(root).ok)
+	var transaction: Dictionary = issuer.issue(&"transaction_id").value
+	var child: Dictionary = issuer.derive_child({"child_kind": "board_start", "ordinal": 0,
+		"parent_receipt_id": transaction.issuer_receipt.receipt_id, "source_ids": [transaction.token]}).value
+	var spec := _spec_a()
+	spec.width = 8
+	spec.height = 8
+	spec.base_mine_count = 10
+	spec.requested_mine_count = 10
+	var layout := _layout_for(spec)
+	var board: Dictionary = REDUCER.first_reveal(layout, 0).value.board
+	var payment := {"receipt_id": child.child_id, "receipt_provenance": child.provenance,
+		"transaction_id": transaction.token, "transaction_issuer_receipt": transaction.issuer_receipt,
+		"identity": IDENTITY_A.duplicate(true), "difficulty_id": "beginner", "first_cell": 0,
+		"board_revision": board.revision, "rounds_before": 0, "rounds_after": -1,
+		"layout_sha256": STATE._payment_layout_hash(board), "proof_sha256": null, "checkpoint_id": "run-a:1"}
+	var state := STATE.new()
+	assert_true(state.configure_scene_payments(issuer).ok)
+	var input := {"transaction_id": transaction.token, "request_fingerprint": "f".repeat(64),
+		"identity": IDENTITY_A.duplicate(true), "expected_revision": 0, "cell_index": 0, "spec": spec}
+	return {"root": root, "issuer": issuer, "state": state, "payment": payment,
+		"input": input, "materialized": {"layout": layout, "board": board}}
+
+
+func _scene_start(fixture: Dictionary) -> Dictionary:
+	var prepared: Dictionary = fixture.state.prepare_first_reveal(fixture.input, fixture.materialized, fixture.payment)
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return {}
+	assert_true(fixture.state.commit(prepared.value.candidate).ok)
+	return fixture.state.capture()
+
+
+func test_scene_first_reveal_uses_issued_round_only_payment_and_refuses_legacy_live() -> void:
+	var fixture := _scene_fixture()
+	var before: Dictionary = fixture.state.capture()
+	for extra: Dictionary in [{"motivation_before": 3, "motivation_after": 2}, {"health": 8}, {"surprise": true}]:
+		var payment: Dictionary = fixture.payment.duplicate(true)
+		payment.merge(extra)
+		assert_false(fixture.state.prepare_first_reveal(fixture.input, fixture.materialized, payment).ok)
+		assert_eq(fixture.state.capture(), before)
+	assert_false(_scene_start(fixture).is_empty(), "signed round decrement is valid without a Motivation charge")
+
+
+func test_scene_payment_refuses_missing_changed_and_type_coerced_proof_before_mutation() -> void:
+	var fixture := _scene_fixture()
+	var before: Dictionary = fixture.state.capture()
+	var variants: Array[Dictionary] = []
+	for key: String in ["checkpoint_id", "receipt_provenance", "transaction_issuer_receipt"]:
+		var payment: Dictionary = fixture.payment.duplicate(true)
+		payment.erase(key)
+		variants.append(payment)
+	for key: String in ["first_cell", "board_revision", "rounds_before", "rounds_after"]:
+		var payment: Dictionary = fixture.payment.duplicate(true)
+		payment[key] = float(payment[key])
+		variants.append(payment)
+	var changed: Dictionary = fixture.payment.duplicate(true)
+	changed.receipt_provenance.ordinal = 1
+	variants.append(changed)
+	changed = fixture.payment.duplicate(true)
+	changed.transaction_issuer_receipt.token = "forged"
+	variants.append(changed)
+	changed = fixture.payment.duplicate(true)
+	changed.layout_sha256 = "0".repeat(64)
+	variants.append(changed)
+	for payment: Dictionary in variants:
+		assert_false(fixture.state.prepare_first_reveal(fixture.input, fixture.materialized, payment).ok, str(payment))
+		assert_eq(fixture.state.capture(), before)
+
+
+func test_scene_restore_checks_suspended_settling_and_retained_result_payments() -> void:
+	var fixture := _scene_fixture()
+	var snapshot := _scene_start(fixture)
+	if snapshot.is_empty(): return
+	for phase: String in ["ACTIVE_VISIBLE", "ACTIVE_SUSPENDED", "SETTLING"]:
+		var saved := snapshot.duplicate(true)
+		saved.phase = phase
+		saved.settlement = {"pending": true} if phase == "SETTLING" else null
+		var restored := STATE.new()
+		assert_true(restored.prepare_restore_scene(saved, fixture.issuer).ok)
+		saved.board.paid_start_receipt.rounds_after = -2
+		assert_false(restored.prepare_restore(saved).ok)
+		assert_eq(restored.capture().phase, "NONE")
+	var history_bad := snapshot.duplicate(true)
+	history_bad.command_receipts.values()[0].result.value.board.paid_start_receipt.checkpoint_id = ""
+	assert_false(STATE.new().prepare_restore_scene(history_bad, fixture.issuer).ok)
+	var no_anchor := snapshot.duplicate(true)
+	no_anchor.command_receipts = {}
+	assert_false(STATE.new().prepare_restore_scene(no_anchor, fixture.issuer).ok)
+
+
+func test_scene_replacement_and_remap_preserve_original_payment_without_layout_rebinding() -> void:
+	var fixture := _scene_fixture()
+	var original := _scene_start(fixture)
+	if original.is_empty(): return
+	var spec: Dictionary = fixture.input.spec.duplicate(true)
+	spec.difficulty_id = "intermediate"
+	spec.width = 16
+	spec.height = 16
+	spec.base_mine_count = 40
+	spec.requested_mine_count = 40
+	var request := {"transaction_id": "replace", "request_fingerprint": "replacement",
+		"expected_revision": 1, "identity": IDENTITY_A.duplicate(true)}
+	var replacement: Dictionary = fixture.state.prepare_paid_replacement(request, spec)
+	assert_true(replacement.ok, str(replacement))
+	if not replacement.ok: return
+	assert_true(fixture.state.commit(replacement.value.candidate).ok)
+	var saved: Dictionary = fixture.state.capture()
+	saved.identity.branch_id = "restored-branch"
+	saved.identity.desktop_timeline_generation = 2
+	saved.identity.causal_day_instance = "restored-day"
+	var original_key: String = fixture.payment.transaction_id
+	saved.command_receipts["remapped-command"] = saved.command_receipts[original_key]
+	saved.command_receipts.erase(original_key)
+	var restored := STATE.new()
+	var prepared: Dictionary = restored.prepare_restore_scene(saved, fixture.issuer)
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return
+	assert_true(restored.commit(prepared.value.candidate).ok)
+	assert_eq(restored.capture(), saved)
+	assert_eq(restored.capture().candidate.paid_start_receipt, fixture.payment)
+	var bad := saved.duplicate(true)
+	bad.candidate.paid_start_receipt.rounds_after = -2
+	assert_false(STATE.new().prepare_restore_scene(bad, fixture.issuer).ok)
+
+
+func test_scene_historical_legacy_payment_stays_exact_and_cannot_become_live() -> void:
+	var fixture := _scene_fixture()
+	var saved := _scene_start(fixture)
+	if saved.is_empty(): return
+	# Supported history role only: current board is absent, original result bytes survive.
+	for key: String in ["identity", "candidate", "board", "settlement"]: saved[key] = null
+	saved.phase = "NONE"
+	var old: Dictionary = saved.command_receipts.values()[0].result.value.board.paid_start_receipt
+	old.motivation_before = 3
+	old.motivation_after = 2
+	var restored := STATE.new()
+	var prepared: Dictionary = restored.prepare_restore_scene(saved, fixture.issuer)
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return
+	assert_true(restored.commit(prepared.value.candidate).ok)
+	assert_eq(restored.capture(), saved)
+	var promoted := saved.duplicate(true)
+	promoted.phase = "ACTIVE_VISIBLE"
+	promoted.identity = IDENTITY_A.duplicate(true)
+	promoted.board = saved.command_receipts.values()[0].result.value.board.duplicate(true)
+	assert_false(STATE.new().prepare_restore_scene(promoted, fixture.issuer).ok)
+	var corrupted := saved.duplicate(true)
+	corrupted.command_receipts.values()[0].result.value.board.paid_start_receipt.transaction_issuer_receipt.counter += 1
+	assert_false(STATE.new().prepare_restore_scene(corrupted, fixture.issuer).ok)
+
+
+func test_scene_compacted_acknowledgement_is_distinct_from_payment_result() -> void:
+	var fixture := _scene_fixture()
+	var saved := _scene_start(fixture)
+	if saved.is_empty(): return
+	saved.command_receipts["compact"] = {"request_fingerprint": "prior", "result": {
+		"ok": true, "code": "board_command_already_applied",
+		"value": {"already_applied": true, "revision": 1}, "receipt": {}}}
+	assert_true(STATE.new().prepare_restore_scene(saved, fixture.issuer).ok)
+	saved.command_receipts.compact.result.value.board = saved.board.duplicate(true)
+	assert_false(STATE.new().prepare_restore_scene(saved, fixture.issuer).ok)
+
+
+func test_scene_commit_rechecks_mutated_detached_restore_and_live_candidates() -> void:
+	var fixture := _scene_fixture()
+	var prepared: Dictionary = fixture.state.prepare_first_reveal(fixture.input, fixture.materialized, fixture.payment)
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return
+	prepared.value.candidate.board_after.paid_start_receipt.first_cell = 999
+	assert_false(fixture.state.commit(prepared.value.candidate).ok)
+	assert_eq(fixture.state.capture().revision, 0)
+	var snapshot := _scene_start(fixture)
+	if snapshot.is_empty(): return
+	var target := STATE.new()
+	var restore: Dictionary = target.prepare_restore_scene(snapshot, fixture.issuer)
+	assert_true(restore.ok)
+	restore.value.candidate.snapshot_after.board.paid_start_receipt.rounds_after = 7
+	assert_false(target.commit(restore.value.candidate).ok)
+	assert_eq(target.capture().revision, 0)
+
+
+func test_scene_coordinator_receipt_override_and_publication_are_both_checked() -> void:
+	var fixture := _scene_fixture()
+	var prepared: Dictionary = fixture.state.prepare_first_reveal(fixture.input, fixture.materialized, fixture.payment)
+	assert_true(prepared.ok)
+	if not prepared.ok: return
+	var candidate: Dictionary = prepared.value.candidate
+	candidate.result_override = {"ok": true, "code": &"first_reveal_committed",
+		"value": {"receipt": fixture.payment.duplicate(true), "publication": {
+			"transaction_id": fixture.payment.transaction_id, "receipt": fixture.payment.duplicate(true)}}, "receipt": {}}
+	var altered := candidate.duplicate(true)
+	altered.result_override.value.publication.receipt.checkpoint_id = "wrong-checkpoint"
+	assert_false(fixture.state.commit(altered).ok)
+	assert_eq(fixture.state.capture().revision, 0)
+	assert_true(fixture.state.commit(candidate).ok)
+	var snapshot: Dictionary = fixture.state.capture()
+	assert_true(STATE.new().prepare_restore_scene(snapshot, fixture.issuer).ok)
+	assert_eq(snapshot.command_receipts.values()[0].result, candidate.result_override)
+
+
+func test_scene_paid_debug_preparation_retains_anchor_and_original_proof() -> void:
+	var fixture := _scene_fixture()
+	if _scene_start(fixture).is_empty(): return
+	var spec: Dictionary = fixture.input.spec.duplicate(true)
+	var input := {"transaction_id": "replace", "request_fingerprint": "replace", "expected_revision": 1, "identity": IDENTITY_A}
+	var replacement: Dictionary = fixture.state.prepare_paid_replacement(input, spec)
+	assert_true(replacement.ok)
+	if not replacement.ok: return
+	assert_true(fixture.state.commit(replacement.value.candidate).ok)
+	input = {"transaction_id": "debug", "request_fingerprint": "debug", "expected_revision": 2, "identity": IDENTITY_A, "spec": spec}
+	var begun: Dictionary = fixture.state.prepare_debug_candidate(input, {"frontier": {"cursor": 0}})
+	assert_true(begun.ok, str(begun))
+	if not begun.ok: return
+	assert_true(fixture.state.commit(begun.value.candidate).ok)
+	assert_true(STATE.new().prepare_restore_scene(fixture.state.capture(), fixture.issuer).ok)
+	input = {"transaction_id": "slice", "request_fingerprint": "slice", "expected_revision": 3, "identity": IDENTITY_A}
+	var sliced: Dictionary = fixture.state.prepare_debug_slice(input, {"done": true,
+		"layout": fixture.materialized.layout, "forced_cell": 0, "proof_sha256": "a".repeat(64)})
+	assert_true(sliced.ok, str(sliced))
+	if not sliced.ok: return
+	assert_true(fixture.state.commit(sliced.value.candidate).ok)
+	var snapshot: Dictionary = fixture.state.capture()
+	assert_eq(snapshot.candidate.paid_start_receipt, fixture.payment)
+	assert_true(STATE.new().prepare_restore_scene(snapshot, fixture.issuer).ok)
+	input = {"transaction_id": "paid-reveal", "request_fingerprint": "paid-reveal", "expected_revision": 4,
+		"identity": IDENTITY_A, "spec": spec, "cell_index": 0}
+	var reveal: Dictionary = fixture.state.prepare_first_reveal(input, fixture.materialized, fixture.payment)
+	assert_true(reveal.ok, str(reveal))
+	if not reveal.ok: return
+	reveal.value.candidate.result_override = {"ok": true, "code": &"paid_reveal_committed", "value": {"revision": 5}}
+	assert_true(fixture.state.commit(reveal.value.candidate).ok)
+	assert_eq(fixture.state.capture().board.paid_start_receipt, fixture.payment)
+	assert_true(STATE.new().prepare_restore_scene(fixture.state.capture(), fixture.issuer).ok)
+
+
+func test_scene_configuration_cannot_relabel_already_installed_legacy_state() -> void:
+	var fixture := _scene_fixture()
+	var legacy := STATE.new()
+	var prepared: Dictionary = legacy.prepare_first_reveal(fixture.input, fixture.materialized, {"checkpoint_id": "old:1"})
+	assert_true(prepared.ok)
+	assert_true(legacy.commit(prepared.value.candidate).ok)
+	var before: Dictionary = legacy.capture()
+	assert_false(legacy.configure_scene_payments(fixture.issuer).ok)
+	assert_eq(legacy.capture(), before)
+
+
+func test_scene_unpaid_debug_history_does_not_acquire_a_retroactive_payment_requirement() -> void:
+	var fixture := _scene_fixture()
+	var input: Dictionary = fixture.input.duplicate(true)
+	input.transaction_id = "debug-before-payment"
+	var begun: Dictionary = fixture.state.prepare_debug_candidate(input, {"frontier": {"cursor": 0}})
+	assert_true(begun.ok)
+	if not begun.ok: return
+	assert_true(fixture.state.commit(begun.value.candidate).ok)
+	input.transaction_id = "certify-before-payment"
+	input.expected_revision = 1
+	var sliced: Dictionary = fixture.state.prepare_debug_slice(input, {"done": true,
+		"layout": fixture.materialized.layout, "forced_cell": 0, "proof_sha256": "b".repeat(64)})
+	assert_true(sliced.ok)
+	if not sliced.ok: return
+	assert_true(fixture.state.commit(sliced.value.candidate).ok)
+	fixture.input.expected_revision = 2
+	fixture.payment.proof_sha256 = "b".repeat(64)
+	var reveal: Dictionary = fixture.state.prepare_first_reveal(fixture.input, fixture.materialized, fixture.payment)
+	assert_true(reveal.ok, str(reveal))
+	if not reveal.ok: return
+	assert_true(fixture.state.commit(reveal.value.candidate).ok)
+	assert_true(STATE.new().prepare_restore_scene(fixture.state.capture(), fixture.issuer).ok)

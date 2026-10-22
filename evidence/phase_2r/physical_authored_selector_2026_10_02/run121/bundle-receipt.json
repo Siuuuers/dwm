@@ -1,0 +1,11 @@
+{
+  "archive": "dwm-run121-focused-physical-selector-evidence.tar.gz",
+  "archive_member_count": 100,
+  "bytes": 7509925,
+  "evidence_kind": "bounded-successful-run-audit",
+  "excluded_file_count": 4,
+  "manifest_sha256": "cca416ff9f00af4b0512fe22546275557b87d2540d875b20c2cdc0dda134bd0e",
+  "payload_file_count": 98,
+  "round_trip_verified": true,
+  "sha256": "1d1452f935aa5b0c3b61b3556db357ca27d24f3be2a7b9a22d43e480cff3aee5"
+}

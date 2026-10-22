@@ -16,7 +16,6 @@ const FAKE_DATING_OWNER := preload("res://tests/support/FakeDatingPresentationOw
 
 var _port: RefCounted
 
-
 func before_each() -> void:
 	GameState.reset_game()
 	_port = PORT.new()
@@ -133,16 +132,16 @@ func test_an_unconfigured_scene_reaching_the_tree_does_nothing_at_all() -> void:
 # ownership: input
 # -------------------------------------------------------------------------------------------------
 
-func test_ordinary_host_exposes_only_the_notice_acknowledgment() -> void:
+func test_ordinary_host_leaves_all_reading_input_to_the_shared_caption_owner() -> void:
 	var scene := _instantiate()
 	assert_true(scene.configure_presentation(_port, _command()).get("ok", false))
 	add_child_autofree(scene)
 	var before := _owner_snapshot()
 
-	assert_eq(scene.find_children("*", "Button", true, false).size(), 1,
-		"ordinary fainting offers one Continue acknowledgment")
-	assert_eq(scene.find_children("*", "Label", true, false).size(), 1)
-	assert_true(scene.get_node("%FaintNotice").visible)
+	assert_eq(scene.find_children("*", "Button", true, false).size(), 0,
+		"ordinary fainting has no separate Continue button")
+	assert_eq(scene.find_children("*", "Label", true, false).size(), 0)
+	assert_null(scene.find_child("FaintNotice", true, false))
 	assert_false(scene.has_method("start_timeline"), "the host cannot start authored playback")
 
 	assert_eq(_owner_snapshot(), before,

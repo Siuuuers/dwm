@@ -5,6 +5,23 @@ var _first_day_board_identity: Dictionary = {}
 var _ordinary_reply_receipt: Dictionary = {}
 
 
+func _continue_drawn_art_if_ready() -> void:
+	var view: Node = root.get_node("DialogicBridge").get_art_hold_view()
+	if view == null or not view.has_drawn_art() or view.next_button.disabled: return
+	# Ending artwork retains its own real Continue. Dating has no routine card.
+	view.next_button.pressed.emit()
+
+
+func _wait_for_dating_board(dating: Node) -> bool:
+	for frame: int in 180:
+		if not is_instance_valid(dating): return _check(false, "Dating scene vanished before its board")
+		if dating.get("_physical_view").get("phase") == "challenge":
+			return _check(not dating.get("_continue_button").visible and not dating.get("_special_mine_button").visible,
+				"automatic Dating board exposes no retired confirmation or special-mine choice")
+		await process_frame
+	return _check(false, "empty semantic pre-DTL did not automatically enter the challenge")
+
+
 # Test-only failure wrapper; all other prepare/commit work stays on the real checkpoint port.
 class FailOneHospitalCheckpoint extends RefCounted:
 	var target: Object
@@ -203,27 +220,48 @@ func _hospital_journey(bootstrap: Node, game: Node) -> void:
 	buy.pressed.emit()
 	if not _check(shop.get("_purchase_result").get("ok", false), "Shop purchase: " + JSON.stringify(shop.get("_purchase_result"))): return
 	await _frames()
-	if not _check(current_scene != null and current_scene.has_node("%FaintNotice"), "ordinary Hospital notice mounted"): return
+	if not _check(current_scene != null and current_scene.scene_file_path == "res://scenes/hospital/HospitalScene.tscn", "ordinary Hospital host mounted"): return
 	var hospital: Node = current_scene
-	var notice_port: Object = hospital.get("_presentation_port")
-	var notice_command: Dictionary = hospital.get_presentation_projection()
-	if not _check(hospital.get_node("%FaintNotice").visible, "ordinary Hospital uses the short notice"): return
-	if not _check(not root.get_node("DialogicBridge").has_active_playback(), "ordinary Hospital starts no DTL or art"): return
-	await _capture_screen("ordinary-hospital-notice")
+	var bridge: Node = root.get_node("DialogicBridge")
+	if not _check(not hospital.has_node("%FaintNotice") and not hospital.has_node("%ContinueButton"), "Hospital has no separate notice or Continue"): return
+	if not _check(bridge.has_active_playback() and not bridge.get_current_scene_art().show_portraits, "ordinary Hospital plays shared DTL without Sylvia"): return
+	await _capture_screen("ordinary-hospital-dialogue")
 	var coordinator: Object = bootstrap.get("_retained_condition_hospital_coordinator")
 	var original: Object = coordinator.get("_checkpoint")
 	var injected := FailOneHospitalCheckpoint.new(original)
-	var retry_probe := "--probe-hospital-notice-retry" in OS.get_cmdline_user_args()
+	var retry_probe := "--probe-hospital-completion-retry" in OS.get_cmdline_user_args()
 	var before: Dictionary = game.capture_run_snapshot_input().duplicate(true)
 	if retry_probe: coordinator.set("_checkpoint", injected)
-	hospital.get_node("%ContinueButton").pressed.emit()
-	await _frames()
+	var captions: Array[String] = []
+	for activation: int in 8:
+		if not bridge.has_active_playback(): break
+		var layout: Node = root.get_node("Dialogic").Styles.get_layout_node()
+		var layer: Node = layout.find_child("WitnessedCaptionLayer", true, false) if is_instance_valid(layout) else null
+		if not _check(layer != null, "ordinary faint uses the shared caption layer"): return
+		var text: String = layer.caption_text.get_parsed_text()
+		if text not in captions: captions.append(text)
+		if not await _hospital_accept(layer.caption_text): return
+		await _frames()
+	if not _check(captions == ["You wake in the treatment room.", "The treatment room is quiet."], "shared DTL ordinary branch captions: " + str(captions)): return
+	if not _check(not bridge.has_active_playback(), "normal caption input completes the actual DTL"): return
 	if retry_probe:
+		if injected.failures != 1:
+			print("HOSPITAL_COMPLETION_DIAGNOSTIC: " + JSON.stringify({
+				"condition_result": bootstrap.get("_last_condition_hospital_result"),
+				"condition_completions": bootstrap.get("_retained_condition_hospital_adapter").get("_completions"),
+				"hospital_settled": bootstrap.get("_retained_hospital_presentation_port").get("_settled"),
+				"schedule_result": bootstrap.get("_retained_schedule_done_dispatcher").get_last_dispatch_result(),
+				"gate_active": bootstrap.get("_application_gate").is_active(),
+				"gate_fatal": bootstrap.get("_application_gate").is_fatal_latched(),
+				"condition_plan": game._run_lifecycle.to_dict().get("active_condition_hospital_plan"),
+				"day": game.day}))
 		if not _check(injected.failures == 1, "actual Hospital completion encountered one injected save failure"): return
-		if not _check(current_scene == hospital and game.day == 2, "failed completion stays on the notice and source day"): return
+		if not _check(current_scene == hospital and game.day == 2, "failed completion retains source scene and day"): return
 		if not _check(game.capture_run_snapshot_input() == before, "failed completion applies no gameplay effects"): return
-		if not _check(not hospital.get_node("%ContinueButton").disabled, "the visible Continue button becomes retryable"): return
-		hospital.get_node("%ContinueButton").pressed.emit()
+		var recovery: Node = hospital.get("_completion_recovery")
+		if not _check(is_instance_valid(recovery) and recovery.is_presented(), "technical recovery exposes Retry after completion failure"): return
+		await _capture_screen("hospital-completion-retry")
+		if not await _hospital_accept(recovery.retry_button): return
 		await _frames()
 		coordinator.set("_checkpoint", original)
 	for frame: int in 100:
@@ -241,12 +279,34 @@ func _hospital_journey(bootstrap: Node, game: Node) -> void:
 	if not _check(current_scene.find_child("ComputerDesktop", true, false) != null, "Hospital returns to desktop"): return
 	if retry_probe:
 		var settled: Dictionary = game.capture_run_snapshot_input().duplicate(true)
-		if not _check(notice_port.acknowledge_notice(notice_command).get("ok", false), "exact repeated acknowledgment remains harmless"): return
+		# A stale native finish cannot replay a presentation or its durable effects.
+		bridge.timeline_finished.emit("hospital.faint", {})
 		await _frames()
-		if not _check(game.capture_run_snapshot_input() == settled, "repeated completion applies no second recovery, charge, or day advance"): return
-		print("PLAYABLE_HOSPITAL_NOTICE_RETRY_PASS: actual Continue -> failed durable completion -> same notice retry -> one recovery/day advance")
+		if not _check(game.capture_run_snapshot_input() == settled, "stale completion applies no second recovery, charge, or day advance"): return
+		print("PLAYABLE_HOSPITAL_RETRY_PASS: native dialogue completion -> failed durable completion -> technical Retry -> one recovery/day advance")
 	print("PLAYABLE_HOSPITAL_PASS: actual wine purchase -> Hospital presentation -> recovered Day 3 desktop")
 	quit(0)
+
+
+func _hospital_accept(control: Control) -> bool:
+	current_scene.get_window().grab_focus()
+	control.grab_focus()
+	var input_owner: Node = root.get_node("InputManager")
+	for frame: int in 120:
+		if control.has_focus() and input_owner.get_physical_contacts().is_empty(): break
+		await process_frame
+	# Neutral frames retire the prior semantic input contact before this activation.
+	await _frames()
+	if not _check(control.has_focus(), "Hospital input focus admitted"): return false
+	for pressed: bool in [true, false]:
+		var event := InputEventKey.new()
+		event.keycode = KEY_ENTER
+		event.physical_keycode = KEY_ENTER
+		event.pressed = pressed
+		Input.parse_input_event(event)
+		Input.flush_buffered_events()
+		await process_frame
+	return true
 
 
 func _seven_day_journey(game: Node) -> void:
@@ -282,15 +342,38 @@ func _seven_day_journey(game: Node) -> void:
 	quit(0)
 
 
+func _click_logout_control(button: Button) -> void:
+	var point := button.get_global_transform_with_canvas() * (button.size / 2)
+	for pressed: bool in [true, false]:
+		var event := InputEventMouseButton.new()
+		event.button_index = MOUSE_BUTTON_LEFT
+		event.position = point
+		event.global_position = point
+		event.pressed = pressed
+		root.push_input(event, true)
+		await process_frame
+	await _frames()
+
 func _logout_journey(game: Node) -> void:
 	var desktop: Node = current_scene.find_child("ComputerDesktop", true, false)
 	var session: Dictionary = game.capture_live_session().value
-	var opened: Dictionary = desktop.open_app(&"logout")
-	if not _check(opened.get("ok", false), "Logout opens: " + JSON.stringify(opened)): return
-	await _frames()
-	var logout: Node = desktop.get("_cached_app_windows")[&"logout"]
-	if not _check(not logout.yes_button.disabled, "Logout confirmation enabled"): return
-	logout.yes_button.pressed.emit()
+	var host: Object = desktop.get("_host_state")
+	var before: Dictionary = host.get_state()
+	var launcher: Button = desktop.launcher_buttons[&"logout"]
+	await _click_logout_control(launcher)
+	var logout: Control = desktop.get("_confirmation")
+	if not _check(logout != null and logout.is_visible_in_tree(), "real launcher opens Logout consent"): return
+	if not _check(desktop.icon_grid.visible and desktop.get("_active_id") == &"", "Logout retains the launcher"): return
+	if not _check(host.get_state() == before and host.capture_persistent_state().active_app_id == null, "consent preserves canonical host and saved launcher"): return
+	if not _check(not desktop.get("_cached_app_windows").has(&"logout"), "Logout never enters the content cache"): return
+	if not _check(root.gui_get_focus_owner() == logout.cancel_button, "No owns initial consent focus"): return
+	if not await _capture_screen("logout-01-consent"): return
+	await _click_logout_control(logout.cancel_button)
+	if not _check(desktop.get("_confirmation") == null and root.gui_get_focus_owner() == launcher, "No restores exact Logout launcher focus"): return
+	await _click_logout_control(launcher)
+	logout = desktop.get("_confirmation")
+	if not _check(logout != null, "Logout consent can reopen"): return
+	await _click_logout_control(logout.confirm_button)
 	await _frames()
 	if not _check(current_scene.has_node("%LogInButton"), "Logout returns to title"): return
 	if not _check(not game.capture_live_session().value.active, "Logout retires live session"): return
@@ -310,6 +393,9 @@ func _logout_journey(game: Node) -> void:
 		"Login restores the desktop: " + JSON.stringify(loaded)): return
 	var resumed: Dictionary = game.capture_live_session().value
 	if not _check(resumed.active and resumed != session, "Login activates a fresh session handle"): return
+	var restored_desktop: Node = current_scene.find_child("ComputerDesktop", true, false)
+	if not _check(restored_desktop.icon_grid.visible and restored_desktop.get("_active_id") == &"", "Logout Autosave restores launcher, never consent"): return
+	if not _check(restored_desktop.get("_host_state").capture_persistent_state().active_app_id == null, "restored canonical workspace remains launcher"): return
 	if not _check(game.day == 2 and game.minesweeper_rounds_left == 2, "Login preserves Day 2 resources"): return
 	print("PLAYABLE_LOGOUT_PASS: actual Logout confirmation -> saved title -> Login -> restored Day 2 desktop")
 	quit(0)
@@ -317,6 +403,7 @@ func _logout_journey(game: Node) -> void:
 
 func _dating_journey(game: Node, desktop: Node) -> void:
 	var date_day: int = game.day
+	var reached_before: Dictionary = root.get_node("ProfileManager").get_profile_snapshot().reached_presentations.duplicate(true)
 	var friend_id := "lavinia" if "--probe-observer-lavinia" in OS.get_cmdline_user_args() else "priscilla"
 	var invitation_id := "solo:%s:day%d" % [friend_id, date_day]
 	# Day-2 Observer scenes follow their real per-round invitation unlocks.
@@ -375,8 +462,7 @@ func _dating_journey(game: Node, desktop: Node) -> void:
 	if "--probe-dating-debug" in OS.get_cmdline_user_args() or "--probe-dating-marked" in OS.get_cmdline_user_args():
 		await preload("res://tests/integration/PlayableDatingCapabilityProbe.gd").new().run(self, game, dating, "--probe-dating-debug" in OS.get_cmdline_user_args())
 		return
-	dating.get("_continue_button").pressed.emit()
-	if not _check(dating.get("_physical_view").phase == "challenge", "Continue starts challenge"): return
+	if not await _wait_for_dating_board(dating): return
 	dating.worksheet.cell_action_requested.emit(&"reveal", 0, int(dating.get("_physical_view").board.revision))
 	var record: Dictionary = game.capture_dating_challenge_state().value
 	if not _check(record.board != null, "first reveal generated a canonical date board"): return
@@ -394,9 +480,10 @@ func _dating_journey(game: Node, desktop: Node) -> void:
 		if not _check(restored.get("ok", false), "mid-Dating Autosave commits: " + JSON.stringify(restored)): return
 		for frame: int in 40:
 			await process_frame
-			if current_scene.get("worksheet") != null: break
-		if not _check(current_scene.get("worksheet") != null, "Load remounts active Dating scene: " + JSON.stringify({
-			"route": root.get_node("SceneRouter").get_current_route_id(), "scene": current_scene.scene_file_path,
+			# change_scene_to_* retires the outgoing node before installing its replacement.
+			if current_scene != null and current_scene.get("worksheet") != null: break
+		if not _check(current_scene != null and current_scene.get("worksheet") != null, "Load remounts active Dating scene: " + JSON.stringify({
+			"route": root.get_node("SceneRouter").get_current_route_id(), "scene": current_scene.scene_file_path if current_scene != null else "none",
 			"record_phase": game.capture_dating_challenge_state().value.get("phase", ""),
 			"dispatch": root.get_node("ApplicationBootstrap").get("_retained_schedule_done_dispatcher").get_last_dispatch_result(),
 			"loaded": restored})): return
@@ -408,17 +495,20 @@ func _dating_journey(game: Node, desktop: Node) -> void:
 			"mid-Dating Load activates a new session"): return
 		if not _check(dating.get("_physical_view").phase == "challenge", "restored Dating input is playable"): return
 		print("PLAYABLE_DATING_RELOAD_PASS: actual mid-board Autosave Load preserves board and resumes current command")
+		if not await _active_dating_quick_journey(game, dating): return
+		dating = current_scene
+		record = game.capture_dating_challenge_state().value
 	# The fixture chooses a hidden mine; the real worksheet/owner determines and persists its result.
 	dating.worksheet.cell_action_requested.emit(&"reveal", int(record.board.mine_indices[0]),
 		int(dating.get("_physical_view").board.revision))
-	if not _check(dating.get("_physical_view").phase == "post_challenge",
-		"Dating outcome visible: " + str(dating.get("_status_label").text)): return
-	for frame: int in 24:
+	# Terminal cells paint before settlement; empty post-DTL may retire this scene.
+	# Observe the durable day/route rather than calling the removed Done control.
+	for frame: int in 240:
+		if game.day == date_day + 1 and current_scene != null \
+				and current_scene.find_child("ComputerDesktop", true, false) != null: break
 		await process_frame
-		if dating.get("_post_challenge_reached"): break
-	if not _check(bool(dating.get("_post_challenge_reached")), "actual post-result draw records its reached presentation"): return
-	dating.get("_continue_button").pressed.emit()
-	await _frames()
+	if not _check(root.get_node("ProfileManager").get_profile_snapshot().reached_presentations == reached_before,
+		"empty pre/post DTL adds no fabricated witnessed Gallery signature"): return
 	if not _check(game.day == date_day + 1, "Dating outcome advances exactly one day: " + JSON.stringify(
 		root.get_node("ApplicationBootstrap").get("_retained_schedule_done_dispatcher").get_last_dispatch_result())): return
 	if not _check(current_scene.find_child("ComputerDesktop", true, false) != null, "Dating returns to desktop"): return
@@ -431,35 +521,120 @@ func _dating_journey(game: Node, desktop: Node) -> void:
 	quit(0)
 
 
-func _observer_scene_journey(game: Node, dating: Node, friend_id: String) -> bool:
+## The rendered reload case also crosses the actual active Quick input, capture,
+## storage and restore boundary. No Backup or capture owner is replaced here.
+func _active_dating_quick_journey(game: Node, dating: Node) -> bool:
+	var saves: Node = root.get_node("SaveManager")
 	var profile: Node = root.get_node("ProfileManager")
-	if not _check(game.day == 2 and not dating.get("_observer_view").is_empty(), "Day 2 has the registered Observer scene moment"): return false
-	# A real rendered source and actual focused window are required by the production UI.
+	var prior_scene_id: int = dating.get_instance_id()
+	var quick: Node = dating.get("_quick_commands")
+	if not _check(is_instance_valid(quick), "active Dating has its composed Quick command owner"): return false
+	await _frames()
 	dating.get_window().grab_focus()
-	var deadline := Time.get_ticks_msec() + 5000
-	while not dating.get("_observer_rendered") and Time.get_ticks_msec() < deadline:
+	dating.worksheet.grid.grab_focus()
+	var focus: Control = root.gui_get_focus_owner()
+	var before: Dictionary = game.capture_dating_challenge_state().value.duplicate(true)
+	var prior_session: Dictionary = game.capture_live_session().value.duplicate(true)
+	var prior_profile: Dictionary = profile.get_profile_snapshot()
+	var command: Dictionary = dating.get_presentation_projection()
+	# The semantic Dating route retains the desktop owner's last active app.
+	# This journey entered Dating from Schedule; Quick must preserve that context.
+	var desktop_host: RefCounted = root.get_node("ApplicationBootstrap").get("_desktop_host_state")
+	if not _check(is_instance_valid(desktop_host), "Dating retains its desktop context owner"): return false
+	var prior_app: Variant = desktop_host.capture_persistent_state().active_app_id
+	if not _check(prior_app == &"schedule", "Dating retains this journey's Schedule app context"): return false
+	await _dating_quick_key(KEY_F5)
+	if not _check(quick.last_result.get("ok", false), "active F5 commits Quick through SaveManager: " + JSON.stringify(quick.last_result)): return false
+	if not _check(not paused and current_scene == dating and dating.get("_confirmation") == null
+			and root.gui_get_focus_owner() == focus and game.capture_live_session().value == prior_session
+			and desktop_host.capture_persistent_state().active_app_id == prior_app,
+			"active F5 retains live Dating source and focus without opening Pause"): return false
+	var disk: Dictionary = saves.get("_storage").read_text("quicksave.json")
+	if not _check(disk.get("ok", false), "active F5 writes the isolated physical Quick file"): return false
+	var schema := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
+	# Match the storage owner's exact-number parser; JSON.parse_string converts
+	# integer tokens to floats before this byte-for-byte record comparison.
+	var parsed: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(disk.value)
+	if not _check(parsed.get("ok", false), "active F5 writes exact strict JSON: " + str(parsed.get("code", "ok"))): return false
+	var admitted: Dictionary = schema.validate(parsed.value)
+	if not _check(admitted.get("ok", false), "active F5 writes a strictly admitted current document: " + JSON.stringify(admitted.get("code"))): return false
+	var document: Dictionary = admitted.value.candidate
+	var snapshot: Dictionary = document.current_snapshot.snapshot
+	var writer := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+	var expected: Dictionary = writer.stringify(before)
+	var stored: Dictionary = writer.stringify(snapshot.gameplay.route_context.active_dating_challenge)
+	if not _check(document.schema_version == schema.DOCUMENT_VERSION and snapshot.schema_version == schema.RUN_SNAPSHOT_SCHEMA.SCHEMA_VERSION
+			and snapshot.route_id == "dating" and snapshot.active_app_id == prior_app and snapshot.narrative_checkpoint == {},
+			"Quick file has current versions, Dating route, exact retained app and an idle narrative frontier: " + JSON.stringify({
+				"document_version": document.schema_version, "snapshot_version": snapshot.schema_version,
+				"route": snapshot.route_id, "app": snapshot.active_app_id, "expected_app": prior_app,
+				"narrative_keys": snapshot.narrative_checkpoint.keys()})): return false
+	if not _check(expected.get("ok", false) and stored.get("ok", false) and expected.value == stored.value,
+			"Quick file contains the exact current Dating record: " + JSON.stringify({
+				"expected_code": expected.get("code", "ok"), "stored_code": stored.get("code", "ok"),
+				"expected_sha256": str(expected.get("value", "")).sha256_text(),
+				"stored_sha256": str(stored.get("value", "")).sha256_text()})): return false
+	await _dating_quick_key(KEY_F9)
+	var sheet: Control = dating.get("_confirmation")
+	if not _check(is_instance_valid(sheet) and sheet.cancel_button.has_focus() and not paused,
+			"active F9 opens its Cancel-first confirmation without hidden Pause"): return false
+	if not await _capture_screen("06-dating-quick-consent"): return false
+	if not _check(game.capture_live_session().value == prior_session and game.capture_dating_challenge_state().value == before,
+			"Quick Load consent has not restored or advanced its source"): return false
+	if not await _ordinary_accept_focused(sheet.cancel_button, "active Quick Load Cancel"): return false
+	if not _check(dating.get("_confirmation") == null and root.gui_get_focus_owner() == focus
+			and game.capture_live_session().value == prior_session and game.capture_dating_challenge_state().value == before
+			and desktop_host.capture_persistent_state().active_app_id == prior_app
+			and saves.get("_storage").read_text("quicksave.json").value == disk.value,
+			"Cancel preserves source, exact focus and every Quick-file byte"): return false
+	# A real flag changes the live record after saving. Load must restore the file,
+	# rather than merely retaining the same board and reporting a new session.
+	dating.worksheet.cell_action_requested.emit(&"flag", int(before.board.mine_indices[0]), int(dating.get("_physical_view").board.revision))
+	if not _check(game.capture_dating_challenge_state().value.board != before.board, "real flag makes the live board differ from Quick"): return false
+	await _dating_quick_key(KEY_F9)
+	sheet = dating.get("_confirmation")
+	if not _check(is_instance_valid(sheet) and sheet.cancel_button.has_focus(), "a fresh F9 requires fresh consent"): return false
+	sheet.confirm_button.grab_focus()
+	if not await _ordinary_accept_focused(sheet.confirm_button, "active Quick Load confirm"): return false
+	for frame: int in 80:
+		if current_scene != null and current_scene.get_instance_id() != prior_scene_id and current_scene.get("worksheet") != null \
+				and game.capture_live_session().value != prior_session: break
 		await process_frame
-	if not _check(dating.get("_observer_rendered"), "Observer source rendered in the focused player window"): return false
-	if friend_id == "priscilla":
-		var line: Control = dating.find_child("PreviousSceneLine", true, false)
-		if not _check(line != null, "Capture source line is present"): return false
-		line.grab_focus()
-		await _frames()
-		var capture: Button = dating.get("_observer_action")
-		if not _check(capture.is_visible_in_tree() and not capture.disabled, "keyboard focus reveals actionable Capture"): return false
-		await _capture_screen("10-observer-capture")
-		capture.pressed.emit()
-		if not _check(dating.get("_observer_view").captured, "actual Capture button persists its source receipt"): return false
-		var evidence: Dictionary = profile.get_observer_evidence().value
-		if not _check(evidence.receipts.size() == 1 and not evidence.by_scope.priscilla, "a capture alone does not fabricate cross-run verification"): return false
-	else:
-		await _capture_screen("10-observer-cup")
-		deadline = Time.get_ticks_msec() + 25000
-		while not dating.get("_observer_view").closed and Time.get_ticks_msec() < deadline:
-			await process_frame
-		if not _check(dating.get("_observer_view").closed and not dating.get("_observer_view").intervened, "the real visible withholding window closes without intervention"): return false
-		if not _check(profile.get_observer_evidence().value.by_scope.lavinia, "the actual elapsed window persists restraint evidence"): return false
-	print("PLAYABLE_OBSERVER_PASS: actual Day 2 %s scene -> rendered source -> player gesture -> durable evidence" % friend_id)
+	if not _check(not paused and current_scene != null and current_scene.get_instance_id() != prior_scene_id and current_scene.get("worksheet") != null
+			and game.capture_live_session().value.active and game.capture_live_session().value != prior_session,
+			"confirmed F9 remounts Dating and activates a new live session"): return false
+	var restored: Dictionary = writer.stringify(game.capture_dating_challenge_state().value)
+	if not _check(restored.get("ok", false) and restored.value == expected.value
+			and current_scene.get_presentation_projection() == command and current_scene.get("_physical_view").phase == "challenge"
+			and desktop_host.capture_persistent_state().active_app_id == prior_app
+			and profile.get_profile_snapshot() == prior_profile,
+			"real Quick Load restores exact saved record/command, drops the later flag, and preserves Profile history"): return false
+	if not await _capture_screen("07-dating-quick-restored"): return false
+	print("PLAYABLE_DATING_QUICK_PASS: native F5 -> strict current Quick file -> native F9 Cancel -> changed board -> native F9 confirm -> exact active Dating restore")
+	return true
+
+
+func _dating_quick_key(code: Key) -> void:
+	for pressed: bool in [true, false]:
+		var event := InputEventKey.new()
+		event.keycode = code
+		event.physical_keycode = code
+		event.pressed = pressed
+		Input.parse_input_event(event)
+		Input.flush_buffered_events()
+		await process_frame
+	await _frames()
+
+
+func _observer_scene_journey(game: Node, dating: Node, friend_id: String) -> bool:
+	# These preserved CLI aliases now verify the current retirement decision.
+	if not _check(game.day == 2 and dating.get("_observer_view").is_empty(),
+		"Day 2 has no active Observer interaction"): return false
+	for name: String in ["PreviousSceneLine", "ObserverCapture", "ObserverAction"]:
+		if not _check(dating.find_child(name, true, false) == null, "retired Observer control absent: " + name): return false
+	var evidence: Dictionary = root.get_node("ProfileManager").get_observer_evidence().value
+	if not _check(evidence.receipts.is_empty(), "no retired interaction manufactured an evidence receipt"): return false
+	print("PLAYABLE_OBSERVER_RETIRED_PASS: actual Day 2 %s date has no provisional interaction or evidence" % friend_id)
 	return true
 
 
@@ -476,7 +651,8 @@ func _ending_journey(game: Node) -> void:
 		if warning == null: break
 		var dismissed: Dictionary = ports.warning_commands.resolve_warning(str(warning.activation_id), &"dismiss")
 		if not _check(dismissed.get("ok", false), "final warning: " + JSON.stringify(dismissed)): return
-	for frame: int in 100:
+	for frame: int in 240:
+		_continue_drawn_art_if_ready()
 		await process_frame
 		if current_scene != null and current_scene.has_node("%NewAccButton"): break
 	if not _check(str(game._run_lifecycle.get_state()) == "COMPLETED", "ending completed: " +
@@ -518,7 +694,8 @@ func _gallery_journey(game: Node) -> void:
 	var completions: Array = []
 	root.get_node("DialogicBridge").reached_replay_finished.connect(func(result: Dictionary): completions.append(result.duplicate(true)))
 	gallery.get("_replay_button").pressed.emit()
-	for frame: int in 40:
+	for frame: int in 240:
+		_continue_drawn_art_if_ready()
 		await process_frame
 		if not owner.is_playing() and not completions.is_empty(): break
 	if not _check(completions.size() == 1 and completions[0].get("outcome") == "completed" and not owner.is_playing(),
@@ -595,7 +772,8 @@ func _day_seven_condition_journey(game: Node) -> void:
 	buy.pressed.emit()
 	var purchase: Dictionary = shop.get("_purchase_result").duplicate(true)
 	if not _check(purchase.get("ok", false), "Day 7 actual wine purchase: " + JSON.stringify(purchase)): return
-	for frame: int in 160:
+	for frame: int in 240:
+		_continue_drawn_art_if_ready()
 		await process_frame
 		if current_scene != null and current_scene.has_node("%NewAccButton"): break
 	var lifecycle: Dictionary = game._run_lifecycle.to_dict()

@@ -1,0 +1,3039 @@
+{
+  "run_id": 35631315483,
+  "pr_head": "c832233de93de88a91c25ff3ae255d1c1859eb78",
+  "history": {
+    "job_id": 106437926222,
+    "conclusion": "success",
+    "proof": {
+      "checkout_ref": "12caceb161e802850ca77c57227ac32179f2185d",
+      "payload_bytes": 1670923,
+      "payload_sha256": "cf262216722c20217d33a19375823463ca40e480b78525624c3fbaf25393c45f",
+      "write": {
+        "autosave_sha256": "cf262216722c20217d33a19375823463ca40e480b78525624c3fbaf25393c45f",
+        "days": 7,
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "synthetic_checkpoints": 98
+      },
+      "cold_read": {
+        "autosave_sha256": "cf262216722c20217d33a19375823463ca40e480b78525624c3fbaf25393c45f",
+        "day": 7,
+        "login_us": 11848061,
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        }
+      },
+      "fixture": "7 synthetic line and 7 synthetic manual checkpoint records/day, plus one real Slot 1 save and App loss/day. Public Schedule Done advances to Day 7. This is not an authored-dialogue playthrough.",
+      "timing_policy": "Observations on one shared Windows runner; no speed threshold or physical input-to-paint guarantee.",
+      "timing_boundaries": {
+        "manual_slot_save_us": "Production prepare_backup_action(save, slot:1) plus commit_backup_action, including synchronous signal handlers.",
+        "login_us": "Automated Title Login, Backup picker opening and Autosave selection, load consent, restore and awaited process frames.",
+        "phase_scopes": "Each scope is inclusive. Parent and child scopes overlap and must not be summed; repeated phases inside one scope accumulate.",
+        "phase_collection": "Save/load profiles include only labeled manual-save and Title Login measurement windows; startup and opening each daily Backup app before its save timer are excluded."
+      }
+    },
+    "days": [
+      {
+        "day": 1,
+        "retained": {
+          "line": 7,
+          "manual_save": 8,
+          "semantic": 2
+        },
+        "files": {
+          "desktop-issuer-root.json": 7710,
+          "desktop-publications.json": 10779,
+          "profile.json": 2711,
+          "saves/autosave.json": 110488,
+          "saves/desktop-continuation-operations.json": 21775,
+          "saves/slot_1.json": 72724,
+          "schedule-foundation-publications.json": 34
+        },
+        "first_reveal_sync_us": 111453,
+        "terminal_reveal_sync_us": 10086,
+        "terminal_settlement_us": 160275,
+        "manual_slot_save_us": 207037,
+        "manual_slot_prepare_us": 41108,
+        "manual_slot_commit_us": 165900,
+        "autosave_sha256": "25cc8e389c5575178b16a791dc79dba668d69ea2c4face0c34048e1cf8919fc7"
+      },
+      {
+        "day": 2,
+        "retained": {
+          "line": 14,
+          "manual_save": 16,
+          "semantic": 2
+        },
+        "files": {
+          "desktop-issuer-root.json": 17156,
+          "desktop-publications.json": 31294,
+          "profile.json": 2711,
+          "saves/autosave.json": 424937,
+          "saves/desktop-continuation-operations.json": 21775,
+          "saves/slot_1.json": 377520,
+          "schedule-foundation-publications.json": 6048
+        },
+        "first_reveal_sync_us": 337914,
+        "terminal_reveal_sync_us": 10966,
+        "terminal_settlement_us": 277410,
+        "manual_slot_save_us": 918938,
+        "manual_slot_prepare_us": 262520,
+        "manual_slot_commit_us": 656381,
+        "autosave_sha256": "c87c44f6a195c31c92f95b39fbf2c04daa63bf1a38053d3342458c57ba07e6f7"
+      },
+      {
+        "day": 3,
+        "retained": {
+          "line": 21,
+          "manual_save": 24,
+          "semantic": 2
+        },
+        "files": {
+          "desktop-issuer-root.json": 26604,
+          "desktop-publications.json": 51908,
+          "profile.json": 3002,
+          "saves/autosave.json": 736555,
+          "saves/desktop-continuation-operations.json": 21775,
+          "saves/slot_1.json": 687310,
+          "schedule-foundation-publications.json": 12063
+        },
+        "first_reveal_sync_us": 542857,
+        "terminal_reveal_sync_us": 10979,
+        "terminal_settlement_us": 391681,
+        "manual_slot_save_us": 1847650,
+        "manual_slot_prepare_us": 658603,
+        "manual_slot_commit_us": 1189011,
+        "autosave_sha256": "044c2415d43befb3de563e91e69a4caa98de2558c62d7252ede0056ef7ec7093"
+      },
+      {
+        "day": 4,
+        "retained": {
+          "line": 28,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "files": {
+          "desktop-issuer-root.json": 36052,
+          "desktop-publications.json": 72464,
+          "profile.json": 3002,
+          "saves/autosave.json": 1072335,
+          "saves/desktop-continuation-operations.json": 21775,
+          "saves/slot_1.json": 1021544,
+          "schedule-foundation-publications.json": 18078
+        },
+        "first_reveal_sync_us": 750924,
+        "terminal_reveal_sync_us": 10662,
+        "terminal_settlement_us": 505128,
+        "manual_slot_save_us": 2864879,
+        "manual_slot_prepare_us": 1080528,
+        "manual_slot_commit_us": 1784310,
+        "autosave_sha256": "8895a4622dd273b2825a36b868897e6b4afaca9e7160e1f8f9ecda20f1839a88"
+      },
+      {
+        "day": 5,
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "files": {
+          "desktop-issuer-root.json": 45500,
+          "desktop-publications.json": 92981,
+          "profile.json": 3002,
+          "saves/autosave.json": 1384359,
+          "saves/desktop-continuation-operations.json": 21775,
+          "saves/slot_1.json": 1336354,
+          "schedule-foundation-publications.json": 24093
+        },
+        "first_reveal_sync_us": 916657,
+        "terminal_reveal_sync_us": 10065,
+        "terminal_settlement_us": 613589,
+        "manual_slot_save_us": 3920923,
+        "manual_slot_prepare_us": 1609312,
+        "manual_slot_commit_us": 2311568,
+        "autosave_sha256": "e34d3e112b0a6c7336e3c4bde070e5b744f8ef41dc7a7a3705dfd5fe9bcdc415"
+      },
+      {
+        "day": 6,
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "files": {
+          "desktop-issuer-root.json": 54948,
+          "desktop-publications.json": 113514,
+          "profile.json": 3002,
+          "saves/autosave.json": 1553267,
+          "saves/desktop-continuation-operations.json": 21775,
+          "saves/slot_1.json": 1517264,
+          "schedule-foundation-publications.json": 30108
+        },
+        "first_reveal_sync_us": 1057483,
+        "terminal_reveal_sync_us": 10160,
+        "terminal_settlement_us": 672372,
+        "manual_slot_save_us": 4563632,
+        "manual_slot_prepare_us": 1874950,
+        "manual_slot_commit_us": 2688640,
+        "autosave_sha256": "05110a7691d507e3f2a5ff95231c9e8f8e08eb254f159e400229670aeb3f5fc3"
+      },
+      {
+        "day": 7,
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "files": {
+          "desktop-issuer-root.json": 64810,
+          "desktop-publications.json": 133994,
+          "profile.json": 3002,
+          "saves/autosave.json": 1670923,
+          "saves/desktop-continuation-operations.json": 21775,
+          "saves/slot_1.json": 1635793,
+          "schedule-foundation-publications.json": 36123
+        },
+        "first_reveal_sync_us": 1121351,
+        "terminal_reveal_sync_us": 10324,
+        "terminal_settlement_us": 721705,
+        "manual_slot_save_us": 5063184,
+        "manual_slot_prepare_us": 2109672,
+        "manual_slot_commit_us": 2953471,
+        "autosave_sha256": "cf262216722c20217d33a19375823463ca40e480b78525624c3fbaf25393c45f"
+      }
+    ],
+    "checkpoint_phase_summaries": [
+      {
+        "family": "checkpoint",
+        "group": "save_checkpoint_prepare||day_resolution_stage",
+        "count": 66,
+        "phases": {
+          "backup_us": {
+            "sum": 68799,
+            "median": 13803,
+            "max": 19859
+          },
+          "document_build_us": {
+            "sum": 824418,
+            "median": 161094,
+            "max": 251731
+          },
+          "elapsed_us": {
+            "sum": 1568614,
+            "median": 11760,
+            "max": 288593
+          },
+          "journal_prepare_us": {
+            "sum": 443196,
+            "median": 7828,
+            "max": 13334
+          },
+          "run_snapshot_build_us": {
+            "sum": 217078,
+            "median": 3264,
+            "max": 6295
+          },
+          "view_capture_us": {
+            "sum": 14493,
+            "median": 238,
+            "max": 409
+          }
+        }
+      },
+      {
+        "family": "checkpoint",
+        "group": "save_checkpoint_prepare||day_start",
+        "count": 6,
+        "phases": {
+          "backup_us": {
+            "sum": 70806,
+            "median": 14389,
+            "max": 20116
+          },
+          "document_build_us": {
+            "sum": 774695,
+            "median": 156804,
+            "max": 230887
+          },
+          "elapsed_us": {
+            "sum": 902986,
+            "median": 182097,
+            "max": 267551
+          },
+          "journal_prepare_us": {
+            "sum": 41138,
+            "median": 8096,
+            "max": 13169
+          },
+          "run_snapshot_build_us": {
+            "sum": 15291,
+            "median": 2598,
+            "max": 3175
+          },
+          "view_capture_us": {
+            "sum": 961,
+            "median": 185,
+            "max": 191
+          }
+        }
+      },
+      {
+        "family": "checkpoint",
+        "group": "save_checkpoint_prepare||post_result",
+        "count": 7,
+        "phases": {
+          "backup_us": {
+            "sum": 89036,
+            "median": 13753,
+            "max": 20805
+          },
+          "document_build_us": {
+            "sum": 86440,
+            "median": 12648,
+            "max": 18951
+          },
+          "elapsed_us": {
+            "sum": 258344,
+            "median": 38905,
+            "max": 58112
+          },
+          "journal_prepare_us": {
+            "sum": 59481,
+            "median": 9092,
+            "max": 14359
+          },
+          "run_snapshot_build_us": {
+            "sum": 23025,
+            "median": 3364,
+            "max": 3948
+          },
+          "view_capture_us": {
+            "sum": 247,
+            "median": 35,
+            "max": 36
+          }
+        }
+      },
+      {
+        "family": "checkpoint",
+        "group": "save_checkpoint_prepare||pre_board",
+        "count": 7,
+        "phases": {
+          "backup_us": {
+            "sum": 71287,
+            "median": 8847,
+            "max": 19661
+          },
+          "document_build_us": {
+            "sum": 1017086,
+            "median": 153864,
+            "max": 251253
+          },
+          "elapsed_us": {
+            "sum": 1161573,
+            "median": 173944,
+            "max": 288692
+          },
+          "journal_prepare_us": {
+            "sum": 52124,
+            "median": 8069,
+            "max": 13867
+          },
+          "run_snapshot_build_us": {
+            "sum": 19236,
+            "median": 2876,
+            "max": 3508
+          },
+          "view_capture_us": {
+            "sum": 1755,
+            "median": 270,
+            "max": 387
+          }
+        }
+      },
+      {
+        "family": "checkpoint",
+        "group": "save_checkpoint_prepare||safe_marker",
+        "count": 8,
+        "phases": {
+          "backup_us": {
+            "sum": 106465,
+            "median": 17460,
+            "max": 20842
+          },
+          "document_build_us": {
+            "sum": 310823,
+            "median": 16208,
+            "max": 228412
+          },
+          "elapsed_us": {
+            "sum": 508406,
+            "median": 48039,
+            "max": 264158
+          },
+          "journal_prepare_us": {
+            "sum": 69248,
+            "median": 11346,
+            "max": 13771
+          },
+          "run_snapshot_build_us": {
+            "sum": 21157,
+            "median": 2962,
+            "max": 3405
+          },
+          "view_capture_us": {
+            "sum": 589,
+            "median": 37,
+            "max": 296
+          }
+        }
+      },
+      {
+        "family": "checkpoint",
+        "group": "save_checkpoint||",
+        "count": 94,
+        "phases": {
+          "elapsed_us": {
+            "sum": 10445958,
+            "median": 17215,
+            "max": 771598
+          },
+          "journal_proof_us": {
+            "sum": 1291513,
+            "median": 6,
+            "max": 201313
+          },
+          "journal_us": {
+            "sum": 1105258,
+            "median": 12309,
+            "max": 22150
+          },
+          "outgoing_schema_us": {
+            "sum": 3667609,
+            "median": 74088,
+            "max": 263650
+          },
+          "reread_us": {
+            "sum": 210024,
+            "median": 6835,
+            "max": 10861
+          },
+          "reread_validate_us": {
+            "sum": 45849,
+            "median": 1521,
+            "max": 2369
+          },
+          "splice_us": {
+            "sum": 2266613,
+            "median": 48348,
+            "max": 199619
+          },
+          "stringify_us": {
+            "sum": 196927,
+            "median": 4673,
+            "max": 11382
+          },
+          "write_atomic_us": {
+            "sum": 1146712,
+            "median": 38300,
+            "max": 58117
+          }
+        },
+        "spliced": 14,
+        "full_document": 20
+      }
+    ],
+    "consequence_phase_summaries": [
+      {
+        "family": "consequence",
+        "group": "accept|admission_checks|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 357,
+            "median": 52,
+            "max": 58
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "accept|prepare_and_forward_inclusive|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 1811604,
+            "median": 274251,
+            "max": 381151
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "accept|request_fingerprint|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 21561,
+            "median": 2929,
+            "max": 3934
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "admit|admission_commit|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 15167,
+            "median": 2133,
+            "max": 2503
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "admit|admission_prepare|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 1912,
+            "median": 269,
+            "max": 363
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "admit|checkpoint2_prepare|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 46317,
+            "median": 6371,
+            "max": 9270
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "admit|sequence_state_prepare|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 5267,
+            "median": 747,
+            "max": 846
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "completion_save|capture|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 6366,
+            "median": 923,
+            "max": 1051
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "completion_save|commit_inclusive|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 931282,
+            "median": 147173,
+            "max": 214887
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "completion_save|prepare|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 259431,
+            "median": 39051,
+            "max": 58268
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "desktop_publication_ledger||",
+        "count": 20,
+        "phases": {
+          "cache_seed_us": {
+            "sum": 3221,
+            "median": 157,
+            "max": 303
+          },
+          "candidate_build_us": {
+            "sum": 168,
+            "median": 8,
+            "max": 15
+          },
+          "compose_us": {
+            "sum": 25392,
+            "median": 1342,
+            "max": 2025
+          },
+          "confirmation_us": {
+            "sum": 8266,
+            "median": 432,
+            "max": 719
+          },
+          "disk_refresh_us": {
+            "sum": 30888,
+            "median": 1549,
+            "max": 2681
+          },
+          "elapsed_us": {
+            "sum": 152037,
+            "median": 8060,
+            "max": 11218
+          },
+          "entry_normalize_us": {
+            "sum": 5000,
+            "median": 186,
+            "max": 448
+          },
+          "request_check_us": {
+            "sum": 10416,
+            "median": 323,
+            "max": 1047
+          },
+          "request_digest_us": {
+            "sum": 9294,
+            "median": 274,
+            "max": 976
+          },
+          "shape_check_us": {
+            "sum": 2381,
+            "median": 111,
+            "max": 168
+          },
+          "write_atomic_us": {
+            "sum": 60875,
+            "median": 3015,
+            "max": 4133
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "first_reveal_durable||",
+        "count": 7,
+        "phases": {
+          "board_capture_us": {
+            "sum": 803,
+            "median": 115,
+            "max": 118
+          },
+          "board_commit_us": {
+            "sum": 956,
+            "median": 127,
+            "max": 170
+          },
+          "board_prepare_us": {
+            "sum": 3598,
+            "median": 529,
+            "max": 569
+          },
+          "capture_base_snapshot_us": {
+            "sum": 1878,
+            "median": 304,
+            "max": 315
+          },
+          "checkpoint_capture_us": {
+            "sum": 55539,
+            "median": 8704,
+            "max": 13973
+          },
+          "checkpoint_commit_us": {
+            "sum": 3429441,
+            "median": 540088,
+            "max": 782904
+          },
+          "checkpoint_prepare_us": {
+            "sum": 1163968,
+            "median": 174276,
+            "max": 289088
+          },
+          "compose_us": {
+            "sum": 1525,
+            "median": 219,
+            "max": 269
+          },
+          "elapsed_us": {
+            "sum": 4682977,
+            "median": 728043,
+            "max": 1091302
+          },
+          "materialize_us": {
+            "sum": 4117,
+            "median": 554,
+            "max": 690
+          },
+          "prepare_consequence_us": {
+            "sum": 2604,
+            "median": 410,
+            "max": 532
+          },
+          "prepare_spec_us": {
+            "sum": 3310,
+            "median": 466,
+            "max": 528
+          },
+          "preview_checkpoint_us": {
+            "sum": 184,
+            "median": 26,
+            "max": 28
+          },
+          "publish_us": {
+            "sum": 47,
+            "median": 7,
+            "max": 7
+          },
+          "reducer_us": {
+            "sum": 1897,
+            "median": 245,
+            "max": 354
+          },
+          "state_capture_us": {
+            "sum": 281,
+            "median": 40,
+            "max": 42
+          },
+          "state_commit_us": {
+            "sum": 12419,
+            "median": 1739,
+            "max": 1958
+          },
+          "validate_candidates_us": {
+            "sum": 132,
+            "median": 19,
+            "max": 20
+          },
+          "verify_transaction_us": {
+            "sum": 201,
+            "median": 29,
+            "max": 29
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "forward|capture_and_recovery_prepare|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 1354,
+            "median": 194,
+            "max": 232
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "forward|cleanup_inclusive|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 1275279,
+            "median": 198786,
+            "max": 290759
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "forward|departure_commits|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 23,
+            "median": 3,
+            "max": 4
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "forward|progress_action_source|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 63837,
+            "median": 9088,
+            "max": 10371
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "forward|progress_causal_sequence|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 60459,
+            "median": 8626,
+            "max": 9940
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "forward|publication_pending_inclusive|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 57809,
+            "median": 8114,
+            "max": 9437
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "forward|publish_action_source|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 84581,
+            "median": 11980,
+            "max": 15569
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "forward|publish_causal_sequence|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 52309,
+            "median": 7184,
+            "max": 10601
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "forward|release_and_receipt|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 4712,
+            "median": 684,
+            "max": 809
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "forward|source_commit_inclusive|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 16552,
+            "median": 2168,
+            "max": 3641
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "minesweeper_round_accept_finalize||",
+        "count": 7,
+        "phases": {
+          "accept_prepared_action_us": {
+            "sum": 1834940,
+            "median": 277424,
+            "max": 385121
+          },
+          "cache_or_release_us": {
+            "sum": 152,
+            "median": 21,
+            "max": 25
+          },
+          "elapsed_us": {
+            "sum": 1835112,
+            "median": 277447,
+            "max": 385145
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "minesweeper_round_complete||",
+        "count": 7,
+        "phases": {
+          "accept_finalize_us": {
+            "sum": 1835509,
+            "median": 277505,
+            "max": 385201
+          },
+          "accept_request_retain_us": {
+            "sum": 1030,
+            "median": 164,
+            "max": 184
+          },
+          "action_candidate_prepare_us": {
+            "sum": 16821,
+            "median": 2420,
+            "max": 2519
+          },
+          "admission_and_board_capture_us": {
+            "sum": 2213,
+            "median": 318,
+            "max": 376
+          },
+          "consequence_capture_us": {
+            "sum": 113,
+            "median": 16,
+            "max": 17
+          },
+          "consequence_checkpoint_commit_us": {
+            "sum": 321,
+            "median": 45,
+            "max": 50
+          },
+          "consequence_checkpoint_prepare_us": {
+            "sum": 8464,
+            "median": 1200,
+            "max": 1342
+          },
+          "elapsed_us": {
+            "sum": 3092137,
+            "median": 469185,
+            "max": 675385
+          },
+          "handoff_prepare_us": {
+            "sum": 11087,
+            "median": 1487,
+            "max": 2162
+          },
+          "pending_state_commit_us": {
+            "sum": 555,
+            "median": 76,
+            "max": 97
+          },
+          "receipt_assembly_us": {
+            "sum": 96472,
+            "median": 14261,
+            "max": 20537
+          },
+          "source_capture_us": {
+            "sum": 2781,
+            "median": 390,
+            "max": 484
+          },
+          "source_commit_us": {
+            "sum": 870412,
+            "median": 133273,
+            "max": 206588
+          },
+          "source_prepare_us": {
+            "sum": 246332,
+            "median": 37372,
+            "max": 56828
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "minesweeper_round_recovery_commit||",
+        "count": 7,
+        "phases": {
+          "base_completion_commit_us": {
+            "sum": 2823,
+            "median": 391,
+            "max": 620
+          },
+          "base_completion_prepare_us": {
+            "sum": 1497,
+            "median": 188,
+            "max": 317
+          },
+          "board_commit_us": {
+            "sum": 6961,
+            "median": 932,
+            "max": 1367
+          },
+          "board_prepare_us": {
+            "sum": 657,
+            "median": 89,
+            "max": 132
+          },
+          "elapsed_us": {
+            "sum": 15643,
+            "median": 2061,
+            "max": 3359
+          },
+          "receipt_and_cache_us": {
+            "sum": 1842,
+            "median": 241,
+            "max": 477
+          },
+          "reward_commit_us": {
+            "sum": 1448,
+            "median": 178,
+            "max": 375
+          },
+          "validation_us": {
+            "sum": 397,
+            "median": 54,
+            "max": 68
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "ordinal_10|commit|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 2313,
+            "median": 324,
+            "max": 368
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "ordinal_10|live_commit|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 3514,
+            "median": 532,
+            "max": 578
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "ordinal_10|live_restore|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 2015,
+            "median": 293,
+            "max": 321
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "ordinal_10|prepare|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 49385,
+            "median": 6990,
+            "max": 8094
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "ordinal_12|commit|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 560,
+            "median": 79,
+            "max": 91
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "ordinal_12|live_commit|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 1515,
+            "median": 231,
+            "max": 237
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "ordinal_12|live_restore|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 1867,
+            "median": 258,
+            "max": 296
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "ordinal_12|prepare|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 11342,
+            "median": 1650,
+            "max": 1722
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "ordinal_8|commit|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 2404,
+            "median": 351,
+            "max": 547
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "ordinal_8|live_commit|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 3295,
+            "median": 458,
+            "max": 542
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "ordinal_8|live_restore|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 1894,
+            "median": 284,
+            "max": 317
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "ordinal_8|prepare|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 44700,
+            "median": 6325,
+            "max": 7342
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "ordinal_9|commit|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 2250,
+            "median": 326,
+            "max": 415
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "ordinal_9|live_commit|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 3439,
+            "median": 515,
+            "max": 585
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "ordinal_9|live_restore|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 1986,
+            "median": 288,
+            "max": 321
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "ordinal_9|prepare|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 46415,
+            "median": 6630,
+            "max": 7697
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "prepare|checkpoint1_commit|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 2214,
+            "median": 314,
+            "max": 372
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "prepare|checkpoint1_prepare|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 43303,
+            "median": 6407,
+            "max": 7037
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "prepare|condition_policy|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 7688,
+            "median": 1047,
+            "max": 1443
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "prepare|departure_preparation|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 23,
+            "median": 3,
+            "max": 4
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "prepare|live_restore1|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 4680,
+            "median": 699,
+            "max": 773
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "prepare|recovery_payload|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 50864,
+            "median": 7295,
+            "max": 8557
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "prepare|reservation|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 1865,
+            "median": 265,
+            "max": 286
+          }
+        }
+      }
+    ],
+    "save_load_phase_summaries": [
+      {
+        "family": "save_load_write",
+        "group": "day1-manual-slot-save|backup_commit|save|slot_1.json",
+        "count": 1,
+        "phases": {
+          "elapsed_us": {
+            "sum": 165800,
+            "median": 165800,
+            "max": 165800
+          },
+          "journal_commit_us": {
+            "sum": 12617,
+            "median": 12617,
+            "max": 12617
+          },
+          "metadata_refresh_us": {
+            "sum": 8,
+            "median": 8,
+            "max": 8
+          },
+          "reread_us": {
+            "sum": 558,
+            "median": 558,
+            "max": 558
+          },
+          "revision_read_us": {
+            "sum": 165,
+            "median": 165,
+            "max": 165
+          },
+          "save_completed_signal_us": {
+            "sum": 9,
+            "median": 9,
+            "max": 9
+          },
+          "serialize_us": {
+            "sum": 10744,
+            "median": 10744,
+            "max": 10744
+          },
+          "source_recheck_us": {
+            "sum": 12304,
+            "median": 12304,
+            "max": 12304
+          },
+          "unphased_us": {
+            "sum": 821,
+            "median": 821,
+            "max": 821
+          },
+          "write_atomic_us": {
+            "sum": 128574,
+            "median": 128574,
+            "max": 128574
+          }
+        }
+      },
+      {
+        "family": "save_load_write",
+        "group": "day1-manual-slot-save|backup_inspection||slot:1",
+        "count": 1,
+        "phases": {
+          "elapsed_us": {
+            "sum": 161,
+            "median": 161,
+            "max": 161
+          },
+          "revision_read_us": {
+            "sum": 152,
+            "median": 152,
+            "max": 152
+          },
+          "unphased_us": {
+            "sum": 9,
+            "median": 9,
+            "max": 9
+          }
+        }
+      },
+      {
+        "family": "save_load_write",
+        "group": "day1-manual-slot-save|backup_prepare|save|slot:1",
+        "count": 1,
+        "phases": {
+          "candidate_copy_us": {
+            "sum": 1020,
+            "median": 1020,
+            "max": 1020
+          },
+          "capture_us": {
+            "sum": 24987,
+            "median": 24987,
+            "max": 24987
+          },
+          "document_build_us": {
+            "sum": 13768,
+            "median": 13768,
+            "max": 13768
+          },
+          "elapsed_us": {
+            "sum": 41019,
+            "median": 41019,
+            "max": 41019
+          },
+          "inspection_us": {
+            "sum": 244,
+            "median": 244,
+            "max": 244
+          },
+          "stable_hash_us": {
+            "sum": 714,
+            "median": 714,
+            "max": 714
+          },
+          "unphased_us": {
+            "sum": 286,
+            "median": 286,
+            "max": 286
+          }
+        }
+      },
+      {
+        "family": "save_load_write",
+        "group": "day2-manual-slot-save|backup_commit|save|slot_1.json",
+        "count": 1,
+        "phases": {
+          "elapsed_us": {
+            "sum": 656246,
+            "median": 656246,
+            "max": 656246
+          },
+          "journal_commit_us": {
+            "sum": 52463,
+            "median": 52463,
+            "max": 52463
+          },
+          "metadata_refresh_us": {
+            "sum": 8,
+            "median": 8,
+            "max": 8
+          },
+          "reread_us": {
+            "sum": 2633,
+            "median": 2633,
+            "max": 2633
+          },
+          "revision_read_us": {
+            "sum": 730,
+            "median": 730,
+            "max": 730
+          },
+          "save_completed_signal_us": {
+            "sum": 10,
+            "median": 10,
+            "max": 10
+          },
+          "serialize_us": {
+            "sum": 45016,
+            "median": 45016,
+            "max": 45016
+          },
+          "source_recheck_us": {
+            "sum": 51608,
+            "median": 51608,
+            "max": 51608
+          },
+          "unphased_us": {
+            "sum": 5123,
+            "median": 5123,
+            "max": 5123
+          },
+          "write_atomic_us": {
+            "sum": 498655,
+            "median": 498655,
+            "max": 498655
+          }
+        }
+      },
+      {
+        "family": "save_load_write",
+        "group": "day2-manual-slot-save|backup_inspection||slot:1",
+        "count": 1,
+        "phases": {
+          "elapsed_us": {
+            "sum": 93832,
+            "median": 93832,
+            "max": 93832
+          },
+          "migration_us": {
+            "sum": 9894,
+            "median": 9894,
+            "max": 9894
+          },
+          "parse_us": {
+            "sum": 51611,
+            "median": 51611,
+            "max": 51611
+          },
+          "restore_prepare_us": {
+            "sum": 20883,
+            "median": 20883,
+            "max": 20883
+          },
+          "revision_read_us": {
+            "sum": 678,
+            "median": 678,
+            "max": 678
+          },
+          "schema_us": {
+            "sum": 10141,
+            "median": 10141,
+            "max": 10141
+          },
+          "unphased_us": {
+            "sum": 625,
+            "median": 625,
+            "max": 625
+          }
+        }
+      },
+      {
+        "family": "save_load_write",
+        "group": "day2-manual-slot-save|backup_prepare|save|slot:1",
+        "count": 1,
+        "phases": {
+          "candidate_copy_us": {
+            "sum": 5170,
+            "median": 5170,
+            "max": 5170
+          },
+          "capture_us": {
+            "sum": 104584,
+            "median": 104584,
+            "max": 104584
+          },
+          "document_build_us": {
+            "sum": 55269,
+            "median": 55269,
+            "max": 55269
+          },
+          "elapsed_us": {
+            "sum": 262407,
+            "median": 262407,
+            "max": 262407
+          },
+          "inspection_us": {
+            "sum": 93910,
+            "median": 93910,
+            "max": 93910
+          },
+          "stable_hash_us": {
+            "sum": 2163,
+            "median": 2163,
+            "max": 2163
+          },
+          "unphased_us": {
+            "sum": 1311,
+            "median": 1311,
+            "max": 1311
+          }
+        }
+      },
+      {
+        "family": "save_load_write",
+        "group": "day2-manual-slot-save|restore_prepare||slot_1.json",
+        "count": 1,
+        "phases": {
+          "candidate_order_us": {
+            "sum": 602,
+            "median": 602,
+            "max": 602
+          },
+          "elapsed_us": {
+            "sum": 20787,
+            "median": 20787,
+            "max": 20787
+          },
+          "participant_prepare_us": {
+            "sum": 19940,
+            "median": 19940,
+            "max": 19940
+          },
+          "unphased_us": {
+            "sum": 245,
+            "median": 245,
+            "max": 245
+          }
+        }
+      },
+      {
+        "family": "save_load_write",
+        "group": "day3-manual-slot-save|backup_commit|save|slot_1.json",
+        "count": 1,
+        "phases": {
+          "elapsed_us": {
+            "sum": 1188881,
+            "median": 1188881,
+            "max": 1188881
+          },
+          "journal_commit_us": {
+            "sum": 95225,
+            "median": 95225,
+            "max": 95225
+          },
+          "metadata_refresh_us": {
+            "sum": 7,
+            "median": 7,
+            "max": 7
+          },
+          "reread_us": {
+            "sum": 4649,
+            "median": 4649,
+            "max": 4649
+          },
+          "revision_read_us": {
+            "sum": 2681,
+            "median": 2681,
+            "max": 2681
+          },
+          "save_completed_signal_us": {
+            "sum": 10,
+            "median": 10,
+            "max": 10
+          },
+          "serialize_us": {
+            "sum": 79769,
+            "median": 79769,
+            "max": 79769
+          },
+          "source_recheck_us": {
+            "sum": 90773,
+            "median": 90773,
+            "max": 90773
+          },
+          "unphased_us": {
+            "sum": 9516,
+            "median": 9516,
+            "max": 9516
+          },
+          "write_atomic_us": {
+            "sum": 906251,
+            "median": 906251,
+            "max": 906251
+          }
+        }
+      },
+      {
+        "family": "save_load_write",
+        "group": "day3-manual-slot-save|backup_inspection||slot:1",
+        "count": 1,
+        "phases": {
+          "elapsed_us": {
+            "sum": 346820,
+            "median": 346820,
+            "max": 346820
+          },
+          "migration_us": {
+            "sum": 40682,
+            "median": 40682,
+            "max": 40682
+          },
+          "parse_us": {
+            "sum": 203896,
+            "median": 203896,
+            "max": 203896
+          },
+          "restore_prepare_us": {
+            "sum": 55397,
+            "median": 55397,
+            "max": 55397
+          },
+          "revision_read_us": {
+            "sum": 2557,
+            "median": 2557,
+            "max": 2557
+          },
+          "schema_us": {
+            "sum": 40136,
+            "median": 40136,
+            "max": 40136
+          },
+          "unphased_us": {
+            "sum": 4152,
+            "median": 4152,
+            "max": 4152
+          }
+        }
+      },
+      {
+        "family": "save_load_write",
+        "group": "day3-manual-slot-save|backup_prepare|save|slot:1",
+        "count": 1,
+        "phases": {
+          "candidate_copy_us": {
+            "sum": 11894,
+            "median": 11894,
+            "max": 11894
+          },
+          "capture_us": {
+            "sum": 190558,
+            "median": 190558,
+            "max": 190558
+          },
+          "document_build_us": {
+            "sum": 103490,
+            "median": 103490,
+            "max": 103490
+          },
+          "elapsed_us": {
+            "sum": 658475,
+            "median": 658475,
+            "max": 658475
+          },
+          "inspection_us": {
+            "sum": 346907,
+            "median": 346907,
+            "max": 346907
+          },
+          "stable_hash_us": {
+            "sum": 2515,
+            "median": 2515,
+            "max": 2515
+          },
+          "unphased_us": {
+            "sum": 3111,
+            "median": 3111,
+            "max": 3111
+          }
+        }
+      },
+      {
+        "family": "save_load_write",
+        "group": "day3-manual-slot-save|restore_prepare||slot_1.json",
+        "count": 1,
+        "phases": {
+          "candidate_order_us": {
+            "sum": 2604,
+            "median": 2604,
+            "max": 2604
+          },
+          "elapsed_us": {
+            "sum": 55294,
+            "median": 55294,
+            "max": 55294
+          },
+          "participant_prepare_us": {
+            "sum": 51193,
+            "median": 51193,
+            "max": 51193
+          },
+          "unphased_us": {
+            "sum": 1497,
+            "median": 1497,
+            "max": 1497
+          }
+        }
+      },
+      {
+        "family": "save_load_write",
+        "group": "day4-manual-slot-save|backup_commit|save|slot_1.json",
+        "count": 1,
+        "phases": {
+          "elapsed_us": {
+            "sum": 1784132,
+            "median": 1784132,
+            "max": 1784132
+          },
+          "journal_commit_us": {
+            "sum": 147469,
+            "median": 147469,
+            "max": 147469
+          },
+          "metadata_refresh_us": {
+            "sum": 9,
+            "median": 9,
+            "max": 9
+          },
+          "reread_us": {
+            "sum": 6541,
+            "median": 6541,
+            "max": 6541
+          },
+          "revision_read_us": {
+            "sum": 4533,
+            "median": 4533,
+            "max": 4533
+          },
+          "save_completed_signal_us": {
+            "sum": 13,
+            "median": 13,
+            "max": 13
+          },
+          "serialize_us": {
+            "sum": 129592,
+            "median": 129592,
+            "max": 129592
+          },
+          "source_recheck_us": {
+            "sum": 140397,
+            "median": 140397,
+            "max": 140397
+          },
+          "unphased_us": {
+            "sum": 15313,
+            "median": 15313,
+            "max": 15313
+          },
+          "write_atomic_us": {
+            "sum": 1340265,
+            "median": 1340265,
+            "max": 1340265
+          }
+        }
+      },
+      {
+        "family": "save_load_write",
+        "group": "day4-manual-slot-save|backup_inspection||slot:1",
+        "count": 1,
+        "phases": {
+          "elapsed_us": {
+            "sum": 608106,
+            "median": 608106,
+            "max": 608106
+          },
+          "migration_us": {
+            "sum": 77128,
+            "median": 77128,
+            "max": 77128
+          },
+          "parse_us": {
+            "sum": 353410,
+            "median": 353410,
+            "max": 353410
+          },
+          "restore_prepare_us": {
+            "sum": 90961,
+            "median": 90961,
+            "max": 90961
+          },
+          "revision_read_us": {
+            "sum": 4323,
+            "median": 4323,
+            "max": 4323
+          },
+          "schema_us": {
+            "sum": 74686,
+            "median": 74686,
+            "max": 74686
+          },
+          "unphased_us": {
+            "sum": 7598,
+            "median": 7598,
+            "max": 7598
+          }
+        }
+      },
+      {
+        "family": "save_load_write",
+        "group": "day4-manual-slot-save|backup_prepare|save|slot:1",
+        "count": 1,
+        "phases": {
+          "candidate_copy_us": {
+            "sum": 20294,
+            "median": 20294,
+            "max": 20294
+          },
+          "capture_us": {
+            "sum": 289474,
+            "median": 289474,
+            "max": 289474
+          },
+          "document_build_us": {
+            "sum": 153544,
+            "median": 153544,
+            "max": 153544
+          },
+          "elapsed_us": {
+            "sum": 1080355,
+            "median": 1080355,
+            "max": 1080355
+          },
+          "inspection_us": {
+            "sum": 608208,
+            "median": 608208,
+            "max": 608208
+          },
+          "stable_hash_us": {
+            "sum": 2694,
+            "median": 2694,
+            "max": 2694
+          },
+          "unphased_us": {
+            "sum": 6141,
+            "median": 6141,
+            "max": 6141
+          }
+        }
+      },
+      {
+        "family": "save_load_write",
+        "group": "day4-manual-slot-save|restore_prepare||slot_1.json",
+        "count": 1,
+        "phases": {
+          "candidate_order_us": {
+            "sum": 6298,
+            "median": 6298,
+            "max": 6298
+          },
+          "elapsed_us": {
+            "sum": 90783,
+            "median": 90783,
+            "max": 90783
+          },
+          "participant_prepare_us": {
+            "sum": 81795,
+            "median": 81795,
+            "max": 81795
+          },
+          "unphased_us": {
+            "sum": 2690,
+            "median": 2690,
+            "max": 2690
+          }
+        }
+      },
+      {
+        "family": "save_load_write",
+        "group": "day5-manual-slot-save|backup_commit|save|slot_1.json",
+        "count": 1,
+        "phases": {
+          "elapsed_us": {
+            "sum": 2311369,
+            "median": 2311369,
+            "max": 2311369
+          },
+          "journal_commit_us": {
+            "sum": 192136,
+            "median": 192136,
+            "max": 192136
+          },
+          "metadata_refresh_us": {
+            "sum": 8,
+            "median": 8,
+            "max": 8
+          },
+          "reread_us": {
+            "sum": 9011,
+            "median": 9011,
+            "max": 9011
+          },
+          "revision_read_us": {
+            "sum": 6586,
+            "median": 6586,
+            "max": 6586
+          },
+          "save_completed_signal_us": {
+            "sum": 10,
+            "median": 10,
+            "max": 10
+          },
+          "serialize_us": {
+            "sum": 157094,
+            "median": 157094,
+            "max": 157094
+          },
+          "source_recheck_us": {
+            "sum": 185420,
+            "median": 185420,
+            "max": 185420
+          },
+          "unphased_us": {
+            "sum": 19104,
+            "median": 19104,
+            "max": 19104
+          },
+          "write_atomic_us": {
+            "sum": 1742000,
+            "median": 1742000,
+            "max": 1742000
+          }
+        }
+      },
+      {
+        "family": "save_load_write",
+        "group": "day5-manual-slot-save|backup_inspection||slot:1",
+        "count": 1,
+        "phases": {
+          "elapsed_us": {
+            "sum": 984650,
+            "median": 984650,
+            "max": 984650
+          },
+          "migration_us": {
+            "sum": 111877,
+            "median": 111877,
+            "max": 111877
+          },
+          "parse_us": {
+            "sum": 526491,
+            "median": 526491,
+            "max": 526491
+          },
+          "restore_prepare_us": {
+            "sum": 217582,
+            "median": 217582,
+            "max": 217582
+          },
+          "revision_read_us": {
+            "sum": 6437,
+            "median": 6437,
+            "max": 6437
+          },
+          "schema_us": {
+            "sum": 109642,
+            "median": 109642,
+            "max": 109642
+          },
+          "unphased_us": {
+            "sum": 12621,
+            "median": 12621,
+            "max": 12621
+          }
+        }
+      },
+      {
+        "family": "save_load_write",
+        "group": "day5-manual-slot-save|backup_prepare|save|slot:1",
+        "count": 1,
+        "phases": {
+          "candidate_copy_us": {
+            "sum": 26669,
+            "median": 26669,
+            "max": 26669
+          },
+          "capture_us": {
+            "sum": 386629,
+            "median": 386629,
+            "max": 386629
+          },
+          "document_build_us": {
+            "sum": 200566,
+            "median": 200566,
+            "max": 200566
+          },
+          "elapsed_us": {
+            "sum": 1609162,
+            "median": 1609162,
+            "max": 1609162
+          },
+          "inspection_us": {
+            "sum": 984769,
+            "median": 984769,
+            "max": 984769
+          },
+          "stable_hash_us": {
+            "sum": 2973,
+            "median": 2973,
+            "max": 2973
+          },
+          "unphased_us": {
+            "sum": 7556,
+            "median": 7556,
+            "max": 7556
+          }
+        }
+      },
+      {
+        "family": "save_load_write",
+        "group": "day5-manual-slot-save|restore_prepare||slot_1.json",
+        "count": 1,
+        "phases": {
+          "candidate_order_us": {
+            "sum": 8752,
+            "median": 8752,
+            "max": 8752
+          },
+          "elapsed_us": {
+            "sum": 217472,
+            "median": 217472,
+            "max": 217472
+          },
+          "participant_prepare_us": {
+            "sum": 203806,
+            "median": 203806,
+            "max": 203806
+          },
+          "unphased_us": {
+            "sum": 4914,
+            "median": 4914,
+            "max": 4914
+          }
+        }
+      },
+      {
+        "family": "save_load_write",
+        "group": "day6-manual-slot-save|backup_commit|save|slot_1.json",
+        "count": 1,
+        "phases": {
+          "elapsed_us": {
+            "sum": 2688440,
+            "median": 2688440,
+            "max": 2688440
+          },
+          "journal_commit_us": {
+            "sum": 227422,
+            "median": 227422,
+            "max": 227422
+          },
+          "metadata_refresh_us": {
+            "sum": 9,
+            "median": 9,
+            "max": 9
+          },
+          "reread_us": {
+            "sum": 10136,
+            "median": 10136,
+            "max": 10136
+          },
+          "revision_read_us": {
+            "sum": 8921,
+            "median": 8921,
+            "max": 8921
+          },
+          "save_completed_signal_us": {
+            "sum": 11,
+            "median": 11,
+            "max": 11
+          },
+          "serialize_us": {
+            "sum": 181710,
+            "median": 181710,
+            "max": 181710
+          },
+          "source_recheck_us": {
+            "sum": 214664,
+            "median": 214664,
+            "max": 214664
+          },
+          "unphased_us": {
+            "sum": 22291,
+            "median": 22291,
+            "max": 22291
+          },
+          "write_atomic_us": {
+            "sum": 2023276,
+            "median": 2023276,
+            "max": 2023276
+          }
+        }
+      },
+      {
+        "family": "save_load_write",
+        "group": "day6-manual-slot-save|backup_inspection||slot:1",
+        "count": 1,
+        "phases": {
+          "elapsed_us": {
+            "sum": 1157596,
+            "median": 1157596,
+            "max": 1157596
+          },
+          "migration_us": {
+            "sum": 148019,
+            "median": 148019,
+            "max": 148019
+          },
+          "parse_us": {
+            "sum": 672450,
+            "median": 672450,
+            "max": 672450
+          },
+          "restore_prepare_us": {
+            "sum": 162101,
+            "median": 162101,
+            "max": 162101
+          },
+          "revision_read_us": {
+            "sum": 8670,
+            "median": 8670,
+            "max": 8670
+          },
+          "schema_us": {
+            "sum": 150165,
+            "median": 150165,
+            "max": 150165
+          },
+          "unphased_us": {
+            "sum": 16191,
+            "median": 16191,
+            "max": 16191
+          }
+        }
+      },
+      {
+        "family": "save_load_write",
+        "group": "day6-manual-slot-save|backup_prepare|save|slot:1",
+        "count": 1,
+        "phases": {
+          "candidate_copy_us": {
+            "sum": 32070,
+            "median": 32070,
+            "max": 32070
+          },
+          "capture_us": {
+            "sum": 442331,
+            "median": 442331,
+            "max": 442331
+          },
+          "document_build_us": {
+            "sum": 229860,
+            "median": 229860,
+            "max": 229860
+          },
+          "elapsed_us": {
+            "sum": 1874804,
+            "median": 1874804,
+            "max": 1874804
+          },
+          "inspection_us": {
+            "sum": 1157731,
+            "median": 1157731,
+            "max": 1157731
+          },
+          "stable_hash_us": {
+            "sum": 3254,
+            "median": 3254,
+            "max": 3254
+          },
+          "unphased_us": {
+            "sum": 9558,
+            "median": 9558,
+            "max": 9558
+          }
+        }
+      },
+      {
+        "family": "save_load_write",
+        "group": "day6-manual-slot-save|restore_prepare||slot_1.json",
+        "count": 1,
+        "phases": {
+          "candidate_order_us": {
+            "sum": 12155,
+            "median": 12155,
+            "max": 12155
+          },
+          "elapsed_us": {
+            "sum": 161986,
+            "median": 161986,
+            "max": 161986
+          },
+          "participant_prepare_us": {
+            "sum": 143762,
+            "median": 143762,
+            "max": 143762
+          },
+          "unphased_us": {
+            "sum": 6069,
+            "median": 6069,
+            "max": 6069
+          }
+        }
+      },
+      {
+        "family": "save_load_write",
+        "group": "day7-manual-slot-save|backup_commit|save|slot_1.json",
+        "count": 1,
+        "phases": {
+          "elapsed_us": {
+            "sum": 2953267,
+            "median": 2953267,
+            "max": 2953267
+          },
+          "journal_commit_us": {
+            "sum": 251417,
+            "median": 251417,
+            "max": 251417
+          },
+          "metadata_refresh_us": {
+            "sum": 8,
+            "median": 8,
+            "max": 8
+          },
+          "reread_us": {
+            "sum": 11823,
+            "median": 11823,
+            "max": 11823
+          },
+          "revision_read_us": {
+            "sum": 10034,
+            "median": 10034,
+            "max": 10034
+          },
+          "save_completed_signal_us": {
+            "sum": 11,
+            "median": 11,
+            "max": 11
+          },
+          "serialize_us": {
+            "sum": 197222,
+            "median": 197222,
+            "max": 197222
+          },
+          "source_recheck_us": {
+            "sum": 234648,
+            "median": 234648,
+            "max": 234648
+          },
+          "unphased_us": {
+            "sum": 24589,
+            "median": 24589,
+            "max": 24589
+          },
+          "write_atomic_us": {
+            "sum": 2223515,
+            "median": 2223515,
+            "max": 2223515
+          }
+        }
+      },
+      {
+        "family": "save_load_write",
+        "group": "day7-manual-slot-save|backup_inspection||slot:1",
+        "count": 1,
+        "phases": {
+          "elapsed_us": {
+            "sum": 1322975,
+            "median": 1322975,
+            "max": 1322975
+          },
+          "migration_us": {
+            "sum": 167940,
+            "median": 167940,
+            "max": 167940
+          },
+          "parse_us": {
+            "sum": 771617,
+            "median": 771617,
+            "max": 771617
+          },
+          "restore_prepare_us": {
+            "sum": 185412,
+            "median": 185412,
+            "max": 185412
+          },
+          "revision_read_us": {
+            "sum": 9943,
+            "median": 9943,
+            "max": 9943
+          },
+          "schema_us": {
+            "sum": 170060,
+            "median": 170060,
+            "max": 170060
+          },
+          "unphased_us": {
+            "sum": 18003,
+            "median": 18003,
+            "max": 18003
+          }
+        }
+      },
+      {
+        "family": "save_load_write",
+        "group": "day7-manual-slot-save|backup_prepare|save|slot:1",
+        "count": 1,
+        "phases": {
+          "candidate_copy_us": {
+            "sum": 36794,
+            "median": 36794,
+            "max": 36794
+          },
+          "capture_us": {
+            "sum": 486576,
+            "median": 486576,
+            "max": 486576
+          },
+          "document_build_us": {
+            "sum": 248644,
+            "median": 248644,
+            "max": 248644
+          },
+          "elapsed_us": {
+            "sum": 2109520,
+            "median": 2109520,
+            "max": 2109520
+          },
+          "inspection_us": {
+            "sum": 1323097,
+            "median": 1323097,
+            "max": 1323097
+          },
+          "stable_hash_us": {
+            "sum": 3426,
+            "median": 3426,
+            "max": 3426
+          },
+          "unphased_us": {
+            "sum": 10983,
+            "median": 10983,
+            "max": 10983
+          }
+        }
+      },
+      {
+        "family": "save_load_write",
+        "group": "day7-manual-slot-save|restore_prepare||slot_1.json",
+        "count": 1,
+        "phases": {
+          "candidate_order_us": {
+            "sum": 13663,
+            "median": 13663,
+            "max": 13663
+          },
+          "elapsed_us": {
+            "sum": 185294,
+            "median": 185294,
+            "max": 185294
+          },
+          "participant_prepare_us": {
+            "sum": 164741,
+            "median": 164741,
+            "max": 164741
+          },
+          "unphased_us": {
+            "sum": 6890,
+            "median": 6890,
+            "max": 6890
+          }
+        }
+      },
+      {
+        "family": "save_load_read",
+        "group": "day7-title-login|backup_commit|load|autosave.json",
+        "count": 1,
+        "phases": {
+          "elapsed_us": {
+            "sum": 3935477,
+            "median": 3935477,
+            "max": 3935477
+          },
+          "reconcile_us": {
+            "sum": 2239991,
+            "median": 2239991,
+            "max": 2239991
+          },
+          "restore_commit_us": {
+            "sum": 1648456,
+            "median": 1648456,
+            "max": 1648456
+          },
+          "revision_read_us": {
+            "sum": 11256,
+            "median": 11256,
+            "max": 11256
+          },
+          "revision_recheck_us": {
+            "sum": 11424,
+            "median": 11424,
+            "max": 11424
+          },
+          "unphased_us": {
+            "sum": 24350,
+            "median": 24350,
+            "max": 24350
+          }
+        }
+      },
+      {
+        "family": "save_load_read",
+        "group": "day7-title-login|backup_inspection||autosave",
+        "count": 3,
+        "phases": {
+          "elapsed_us": {
+            "sum": 4605307,
+            "median": 1489110,
+            "max": 1634997
+          },
+          "migration_us": {
+            "sum": 573862,
+            "median": 190740,
+            "max": 193415
+          },
+          "parse_us": {
+            "sum": 2588812,
+            "median": 864629,
+            "max": 866250
+          },
+          "restore_prepare_us": {
+            "sum": 780036,
+            "median": 216469,
+            "max": 348217
+          },
+          "revision_read_us": {
+            "sum": 33672,
+            "median": 11195,
+            "max": 11505
+          },
+          "schema_us": {
+            "sum": 565818,
+            "median": 186202,
+            "max": 193848
+          },
+          "unphased_us": {
+            "sum": 63107,
+            "median": 21565,
+            "max": 22072
+          }
+        }
+      },
+      {
+        "family": "save_load_read",
+        "group": "day7-title-login|backup_inspection||quick",
+        "count": 2,
+        "phases": {
+          "elapsed_us": {
+            "sum": 500,
+            "median": 257,
+            "max": 257
+          },
+          "revision_read_us": {
+            "sum": 472,
+            "median": 243,
+            "max": 243
+          },
+          "unphased_us": {
+            "sum": 28,
+            "median": 14,
+            "max": 14
+          }
+        }
+      },
+      {
+        "family": "save_load_read",
+        "group": "day7-title-login|backup_inspection||slot:1",
+        "count": 2,
+        "phases": {
+          "elapsed_us": {
+            "sum": 2905265,
+            "median": 1457599,
+            "max": 1457599
+          },
+          "migration_us": {
+            "sum": 372478,
+            "median": 187000,
+            "max": 187000
+          },
+          "parse_us": {
+            "sum": 1684003,
+            "median": 843573,
+            "max": 843573
+          },
+          "restore_prepare_us": {
+            "sum": 417397,
+            "median": 209457,
+            "max": 209457
+          },
+          "revision_read_us": {
+            "sum": 21562,
+            "median": 10895,
+            "max": 10895
+          },
+          "schema_us": {
+            "sum": 371028,
+            "median": 186844,
+            "max": 186844
+          },
+          "unphased_us": {
+            "sum": 38797,
+            "median": 19830,
+            "max": 19830
+          }
+        }
+      },
+      {
+        "family": "save_load_read",
+        "group": "day7-title-login|backup_inspection||slot:2",
+        "count": 2,
+        "phases": {
+          "elapsed_us": {
+            "sum": 509,
+            "median": 260,
+            "max": 260
+          },
+          "revision_read_us": {
+            "sum": 481,
+            "median": 246,
+            "max": 246
+          },
+          "unphased_us": {
+            "sum": 28,
+            "median": 14,
+            "max": 14
+          }
+        }
+      },
+      {
+        "family": "save_load_read",
+        "group": "day7-title-login|backup_inspection||slot:3",
+        "count": 2,
+        "phases": {
+          "elapsed_us": {
+            "sum": 327,
+            "median": 165,
+            "max": 165
+          },
+          "revision_read_us": {
+            "sum": 308,
+            "median": 155,
+            "max": 155
+          },
+          "unphased_us": {
+            "sum": 19,
+            "median": 10,
+            "max": 10
+          }
+        }
+      },
+      {
+        "family": "save_load_read",
+        "group": "day7-title-login|backup_inspection||slot:4",
+        "count": 2,
+        "phases": {
+          "elapsed_us": {
+            "sum": 370,
+            "median": 207,
+            "max": 207
+          },
+          "revision_read_us": {
+            "sum": 351,
+            "median": 197,
+            "max": 197
+          },
+          "unphased_us": {
+            "sum": 19,
+            "median": 10,
+            "max": 10
+          }
+        }
+      },
+      {
+        "family": "save_load_read",
+        "group": "day7-title-login|backup_inspection||slot:5",
+        "count": 2,
+        "phases": {
+          "elapsed_us": {
+            "sum": 332,
+            "median": 178,
+            "max": 178
+          },
+          "revision_read_us": {
+            "sum": 315,
+            "median": 170,
+            "max": 170
+          },
+          "unphased_us": {
+            "sum": 17,
+            "median": 9,
+            "max": 9
+          }
+        }
+      },
+      {
+        "family": "save_load_read",
+        "group": "day7-title-login|backup_inspection||slot:6",
+        "count": 2,
+        "phases": {
+          "elapsed_us": {
+            "sum": 302,
+            "median": 152,
+            "max": 152
+          },
+          "revision_read_us": {
+            "sum": 286,
+            "median": 144,
+            "max": 144
+          },
+          "unphased_us": {
+            "sum": 16,
+            "median": 8,
+            "max": 8
+          }
+        }
+      },
+      {
+        "family": "save_load_read",
+        "group": "day7-title-login|backup_inspection||slot:7",
+        "count": 2,
+        "phases": {
+          "elapsed_us": {
+            "sum": 301,
+            "median": 151,
+            "max": 151
+          },
+          "revision_read_us": {
+            "sum": 286,
+            "median": 143,
+            "max": 143
+          },
+          "unphased_us": {
+            "sum": 15,
+            "median": 8,
+            "max": 8
+          }
+        }
+      },
+      {
+        "family": "save_load_read",
+        "group": "day7-title-login|backup_prepare|load|autosave",
+        "count": 1,
+        "phases": {
+          "candidate_copy_us": {
+            "sum": 15321,
+            "median": 15321,
+            "max": 15321
+          },
+          "elapsed_us": {
+            "sum": 1504010,
+            "median": 1504010,
+            "max": 1504010
+          },
+          "inspection_us": {
+            "sum": 1481323,
+            "median": 1481323,
+            "max": 1481323
+          },
+          "unphased_us": {
+            "sum": 7366,
+            "median": 7366,
+            "max": 7366
+          }
+        }
+      },
+      {
+        "family": "save_load_read",
+        "group": "day7-title-login|restore_commit||",
+        "count": 1,
+        "phases": {
+          "continuation_us": {
+            "sum": 1359014,
+            "median": 1359014,
+            "max": 1359014
+          },
+          "elapsed_us": {
+            "sum": 1648363,
+            "median": 1648363,
+            "max": 1648363
+          },
+          "input_copy_us": {
+            "sum": 1235,
+            "median": 1235,
+            "max": 1235
+          },
+          "lock_us": {
+            "sum": 40,
+            "median": 40,
+            "max": 40
+          },
+          "participant_transaction_us": {
+            "sum": 286431,
+            "median": 286431,
+            "max": 286431
+          },
+          "remapped_prepare_us": {
+            "sum": 1041,
+            "median": 1041,
+            "max": 1041
+          },
+          "unphased_us": {
+            "sum": 602,
+            "median": 602,
+            "max": 602
+          }
+        }
+      },
+      {
+        "family": "save_load_read",
+        "group": "day7-title-login|restore_prepare||autosave.json",
+        "count": 3,
+        "phases": {
+          "candidate_order_us": {
+            "sum": 53093,
+            "median": 17811,
+            "max": 18266
+          },
+          "elapsed_us": {
+            "sum": 779587,
+            "median": 216339,
+            "max": 348015
+          },
+          "participant_prepare_us": {
+            "sum": 702139,
+            "median": 190969,
+            "max": 321606
+          },
+          "unphased_us": {
+            "sum": 24355,
+            "median": 8143,
+            "max": 8354
+          }
+        }
+      },
+      {
+        "family": "save_load_read",
+        "group": "day7-title-login|restore_prepare||slot_1.json",
+        "count": 2,
+        "phases": {
+          "candidate_order_us": {
+            "sum": 33699,
+            "median": 16941,
+            "max": 16941
+          },
+          "elapsed_us": {
+            "sum": 417117,
+            "median": 209294,
+            "max": 209294
+          },
+          "participant_prepare_us": {
+            "sum": 368363,
+            "median": 184980,
+            "max": 184980
+          },
+          "unphased_us": {
+            "sum": 15055,
+            "median": 7556,
+            "max": 7556
+          }
+        }
+      },
+      {
+        "family": "save_load_read",
+        "group": "day7-title-login|restore_transaction||",
+        "count": 1,
+        "phases": {
+          "activation_prepare_us": {
+            "sum": 31,
+            "median": 31,
+            "max": 31
+          },
+          "completion_us": {
+            "sum": 25449,
+            "median": 25449,
+            "max": 25449
+          },
+          "continuation_advance_us": {
+            "sum": 221345,
+            "median": 221345,
+            "max": 221345
+          },
+          "elapsed_us": {
+            "sum": 286320,
+            "median": 286320,
+            "max": 286320
+          },
+          "journal_commit_us": {
+            "sum": 21226,
+            "median": 21226,
+            "max": 21226
+          },
+          "participant_apply_us": {
+            "sum": 11117,
+            "median": 11117,
+            "max": 11117
+          },
+          "participant_capture_us": {
+            "sum": 838,
+            "median": 838,
+            "max": 838
+          },
+          "participant_finalize_us": {
+            "sum": 4829,
+            "median": 4829,
+            "max": 4829
+          },
+          "restored_signals_us": {
+            "sum": 43,
+            "median": 43,
+            "max": 43
+          },
+          "run_remap_us": {
+            "sum": 1152,
+            "median": 1152,
+            "max": 1152
+          },
+          "unphased_us": {
+            "sum": 290,
+            "median": 290,
+            "max": 290
+          }
+        }
+      }
+    ]
+  },
+  "paired": {
+    "job_id": 106437926218,
+    "conclusion": "success",
+    "acceptance": "four localized journeys and four matched-payload probes"
+  },
+  "contracts": {
+    "settings": {
+      "job_id": 106437926656,
+      "core_tests": 262,
+      "core_exit_code": 0,
+      "job_conclusion": "failure",
+      "subsequent_failure": "Invoke-StorageRefusalChecks.ps1:109 observed83 cases/80 failures/3 passes; refusal harness expected-count mismatch"
+    },
+    "persistence": {
+      "job_id": 106437926684,
+      "tests": 150,
+      "conclusion": "success"
+    }
+  },
+  "limitations": [
+    "One shared Windows runner; observational timings without a causal cross-run comparison.",
+    "Seven-day history includes98 synthetic line/manual checkpoints, not an authored-dialogue playthrough.",
+    "Nested profiling scopes are inclusive; do not sum parent and child durations.",
+    "Cold login includes automated Title Backup selection, consent and awaited frames.",
+    "Manual slot save includes prepare and commit plus synchronous signal handlers."
+  ],
+  "checkout_merge": "12caceb161e802850ca77c57227ac32179f2185d",
+  "outgoing_normalization": {
+    "proof": {
+      "checkout_ref": "12caceb161e802850ca77c57227ac32179f2185d",
+      "baseline_ref": "4c4f9c987c96b65293554b1ce0f083f9263aa791",
+      "source_sha256": {
+        "baseline": "a28943d509641afea33ee851bfefa2e3d54bbcdcd1acaab4748207e8a83df72b",
+        "candidate": "11236f7375b94729d00bcb9952954a9d2fb6cb564103fb93912ba412347b3b38"
+      },
+      "ablation": "Only SaveManagerCheckpointPort.gd is replaced; five timed samples after two warmups reuse each identical document. No timing threshold."
+    },
+    "measurements": [
+      {
+        "variant": "baseline",
+        "label": "zh-CN",
+        "measurement": {
+          "bytes": 376091,
+          "input_sha256": "60915f103ffbbe72cbae500f7c0597185d787468e1fa03f4b09e7390d082c570",
+          "journal_bundles": 2,
+          "median_us": 44323,
+          "output_sha256": "60915f103ffbbe72cbae500f7c0597185d787468e1fa03f4b09e7390d082c570",
+          "proof_source": "full validation of fixed bytes; seam measurement, not evidence that gameplay had a complete splice proof set",
+          "samples_us": [
+            45161,
+            43765,
+            44323,
+            42397,
+            44561
+          ],
+          "variant": "baseline"
+        }
+      },
+      {
+        "variant": "baseline",
+        "label": "zh-HK",
+        "measurement": {
+          "bytes": 362808,
+          "input_sha256": "314ef70a4ba5c696e7587eb0499722e704dbe66407f324a5bed7473d677b0692",
+          "journal_bundles": 2,
+          "median_us": 41884,
+          "output_sha256": "314ef70a4ba5c696e7587eb0499722e704dbe66407f324a5bed7473d677b0692",
+          "proof_source": "full validation of fixed bytes; seam measurement, not evidence that gameplay had a complete splice proof set",
+          "samples_us": [
+            42911,
+            41884,
+            42194,
+            41323,
+            40641
+          ],
+          "variant": "baseline"
+        }
+      },
+      {
+        "variant": "baseline",
+        "label": "day7",
+        "measurement": {
+          "bytes": 1670923,
+          "input_sha256": "cf262216722c20217d33a19375823463ca40e480b78525624c3fbaf25393c45f",
+          "journal_bundles": 66,
+          "median_us": 156600,
+          "output_sha256": "cf262216722c20217d33a19375823463ca40e480b78525624c3fbaf25393c45f",
+          "proof_source": "full validation of fixed bytes; seam measurement, not evidence that gameplay had a complete splice proof set",
+          "samples_us": [
+            155856,
+            157391,
+            155826,
+            157906,
+            156600
+          ],
+          "variant": "baseline"
+        }
+      },
+      {
+        "variant": "candidate",
+        "label": "zh-CN",
+        "measurement": {
+          "bytes": 376091,
+          "input_sha256": "60915f103ffbbe72cbae500f7c0597185d787468e1fa03f4b09e7390d082c570",
+          "journal_bundles": 2,
+          "median_us": 30403,
+          "output_sha256": "60915f103ffbbe72cbae500f7c0597185d787468e1fa03f4b09e7390d082c570",
+          "proof_source": "full validation of fixed bytes; seam measurement, not evidence that gameplay had a complete splice proof set",
+          "samples_us": [
+            30665,
+            30306,
+            30843,
+            30403,
+            30248
+          ],
+          "variant": "candidate"
+        }
+      },
+      {
+        "variant": "candidate",
+        "label": "zh-HK",
+        "measurement": {
+          "bytes": 362808,
+          "input_sha256": "314ef70a4ba5c696e7587eb0499722e704dbe66407f324a5bed7473d677b0692",
+          "journal_bundles": 2,
+          "median_us": 28077,
+          "output_sha256": "314ef70a4ba5c696e7587eb0499722e704dbe66407f324a5bed7473d677b0692",
+          "proof_source": "full validation of fixed bytes; seam measurement, not evidence that gameplay had a complete splice proof set",
+          "samples_us": [
+            28660,
+            27053,
+            28218,
+            27855,
+            28077
+          ],
+          "variant": "candidate"
+        }
+      },
+      {
+        "variant": "candidate",
+        "label": "day7",
+        "measurement": {
+          "bytes": 1670923,
+          "input_sha256": "cf262216722c20217d33a19375823463ca40e480b78525624c3fbaf25393c45f",
+          "journal_bundles": 66,
+          "median_us": 81465,
+          "output_sha256": "cf262216722c20217d33a19375823463ca40e480b78525624c3fbaf25393c45f",
+          "proof_source": "full validation of fixed bytes; seam measurement, not evidence that gameplay had a complete splice proof set",
+          "samples_us": [
+            81052,
+            81465,
+            80510,
+            81984,
+            82129
+          ],
+          "variant": "candidate"
+        }
+      }
+    ]
+  },
+  "findings": [
+    "Day7 manual slot save: prepare2109672us, commit2953471us,total5063184us. Commit atomic write2223515us dominates its scope; metadata refresh signal8us is not a material cause in this measurement.",
+    "Day7 manual preparation inspection1323097us includes strict parse771617us,schema170060us,migration167940us,restore preparation185412us. These nested scopes must not be summed again into manualtotal.",
+    "Cold Login11848061us performs three Autosave inspections totalling4605307us and two Slot1 inspections totalling2905265us. Within these five inspection records, parse4272815us,schema936846us,migration946340us.",
+    "Cold load commit3935477us includes storage reconcile2239991us and restorecommit1648456us; restorecommit includes continuation1359014us and participanttransaction286431us. Restore apply itself11117us.",
+    "These measurements justify read-only investigation of repeated document parsing/validation and storage validator calls; they do not prove safe reuse or establish cross-run causal speedup."
+  ]
+}
+

@@ -51,7 +51,7 @@ func test_both_settings_hosts_share_languages_skip_modes_and_confirmed_resets() 
 		_configure_reset_test_sink(instance)
 		_surface.add_child(instance)
 		var language: OptionButton = instance.find_child("LanguageOption", true, false)
-		assert_eq(language.item_count, 3, path)
+		assert_eq(language.item_count, 5, path)
 		assert_true(language.get_item_text(1).ends_with("[draft]"), path)
 		var controls: Dictionary = instance.find_child("SettingsContent", true, false).get_controller().get("_controls")
 		var skip: OptionButton = controls.get(&"preferences.reading.skip_mode")
@@ -151,8 +151,8 @@ func _accepted_settings_paths() -> Array:
 		"reading.read_aloud_enabled", "reading.read_aloud_rate",
 		"audio.master_volume", "audio.master_muted", "audio.music_volume", "audio.music_muted",
 		"audio.ambience_volume", "audio.ambience_muted", "audio.sfx_volume", "audio.sfx_muted",
-		"audio.mute_when_inactive", "audio.output_mode", "display.window_mode",
-		"accessibility.text_size", "accessibility.large_targets", "accessibility.high_contrast",
+		"audio.mute_when_inactive", "audio.output_mode", "display.window_mode", "display.window_size",
+		"accessibility.font_style", "accessibility.text_size", "accessibility.large_targets", "accessibility.high_contrast",
 		"accessibility.reduced_motion", "accessibility.steady_interface", "accessibility.screen_shake", "accessibility.colour_differentiation",
 		"accessibility.sound_detail_text", "exceptional_replay.available", "exceptional_replay.replay_full", "dark_mode.next_run_enabled",
 	]
@@ -803,3 +803,25 @@ func _configure_reset_test_sink(host: Node) -> void:
 		"audio": null, "tts": null, "volume": sink, "input": null,
 		"profile_reset_admission": func() -> bool: return true,
 	})
+
+func test_font_style_picker_is_live_in_both_shared_hosts_and_restores_pixel() -> void:
+	var localization := get_node("/root/LocalizationManager")
+	var profile := get_node("/root/ProfileManager")
+	assert_true(localization.set_font_style("pixel").get("ok", false))
+	for scene_path: String in ["res://scenes/menu/Setting.tscn", "res://scenes/apps/SettingsApp.tscn"]:
+		var instance: Node = load(scene_path).instantiate()
+		_surface.add_child(instance)
+		var content: Control = instance.find_child("SettingsContent", true, false)
+		var picker: OptionButton = content.controls[&"preferences.accessibility.font_style"]
+		assert_eq(picker.item_count, 2)
+		assert_eq([picker.get_item_metadata(0), picker.get_item_metadata(1)], ["pixel", "readable"])
+		var pixel_face: Font = content.theme.default_font
+		var controller: RefCounted = content.get_controller()
+		var changed: Dictionary = await controller.commit_preference(&"preferences.accessibility.font_style", "readable")
+		assert_true(changed.get("ok", false), str(changed))
+		assert_eq(profile.get_preference(&"preferences.accessibility.font_style"), "readable")
+		assert_eq(picker.get_item_metadata(picker.selected), "readable")
+		assert_ne(content.theme.default_font, pixel_face, "Settings itself responds immediately")
+		assert_true((await controller.commit_preference(&"preferences.accessibility.font_style", "pixel")).get("ok", false))
+		assert_eq(picker.get_item_metadata(picker.selected), "pixel")
+		instance.free()

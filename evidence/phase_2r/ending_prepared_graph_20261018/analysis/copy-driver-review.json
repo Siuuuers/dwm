@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "scope": "Read-only changed-hunk review before the one offline analysis on a separate evidence copy",
+  "review_ok": true,
+  "source": {
+    "path": "publication-reanalysis/reanalyse_retained.py",
+    "bytes": 4742,
+    "sha256": "51853ef7c8cc5d52643076a488cf305c7cb6a51ce54c6877617f91e85e361b02"
+  },
+  "reviewed_against_sha256": "6f96e2caffe60cecd5388c85b859fbe707e255914fe6ac28470d3760afb4b083",
+  "checks": {
+    "fresh_output_outside_original": true,
+    "original_before_after_census_retained": true,
+    "original_failed_binder_hash_retained": true,
+    "analysis_sources_and_driver_hashed_before_execution": true,
+    "analysis_sources_and_driver_checked_unchanged_after_execution": true,
+    "timeout_records_exit124_and_preservation_receipt": true,
+    "timeout_output_bytes_are_handled": true,
+    "binder_stdout_stderr_hashes_recorded": true,
+    "derived_output_hashes_recorded": true,
+    "native_acceptance_remains_unevaluated": true
+  },
+  "blocking_findings": [],
+  "execution_performed_by_this_review": false,
+  "qualification": "This is source review only; root will execute the corrected binder once and actual output will be checked against the existing independent replay."
+}

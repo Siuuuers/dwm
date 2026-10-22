@@ -1,6 +1,6 @@
 ﻿extends GutTest
 ## Production Desktop and ShopApp over a strict public-catalog provider. Art uses generated
-## dimension fixtures only; these tests make no asset provenance claim and expose no purchase API.
+## dimension fixtures, except the appearance-refresh case uses production procedural item art.
 
 const DESKTOP := preload("res://scenes/desktop/ComputerDesktop.tscn")
 const HOST := preload("res://scripts/domain/desktop/DesktopAppHostState.gd")
@@ -314,6 +314,59 @@ func test_home_cache_retains_page_selection_quantity_and_focus_then_hidden_prefe
 	assert_true(app.cards.healthy_meal.has_focus())
 
 
+func test_desktop_enlargement_preserves_shop_state_and_maps_physical_card_input() -> void:
+	var desktop := await _desktop_on_tree()
+	desktop.size = Vector2(800, 720)
+	assert_true(_configure_shop(desktop).ok)
+	var app := _open_shop(desktop)
+	if app == null: return
+	await _settle()
+	app.quantity_buttons.maximum.pressed.emit()
+	var card: Button = app.cards.coffee
+	card.grab_focus()
+	var card_rect := card.get_global_rect()
+	var page_before: int = app.page_index
+	var calls_before: int = _provider.calls.size()
+	desktop.size.x = 960
+	await _settle()
+	assert_true(card.get_global_rect().size.is_equal_approx(card_rect.size * 1.2),
+		"card artwork, captions and input bounds magnify together")
+	assert_same(desktop._cached_app_windows[&"shop"], app)
+	assert_same(app.cards.coffee, card)
+	assert_same(_viewport.gui_get_focus_owner(), card)
+	assert_eq(app.selected_id, "coffee")
+	assert_eq(app.quantity, 4)
+	assert_eq(app.page_index, page_before)
+	assert_eq(_provider.calls.size(), calls_before, "presentation resize does not refresh the catalog")
+	var wine: Button = app.cards.wine
+	var point := wine.get_global_rect().get_center()
+	var motion := InputEventMouseMotion.new()
+	motion.position = point
+	motion.global_position = point
+	_viewport.push_input(motion, true)
+	for pressed: bool in [true, false]:
+		var event := InputEventMouseButton.new()
+		event.position = point
+		event.global_position = point
+		event.button_index = MOUSE_BUTTON_LEFT
+		event.pressed = pressed
+		_viewport.push_input(event, true)
+		await get_tree().process_frame
+	await _settle()
+	assert_eq(app.selected_id, "wine", "physical input reaches the enlarged card")
+	assert_true(_provider.purchase_calls.is_empty(), "inspection does not purchase")
+	desktop.app_scroll.ensure_control_visible(app.get("_buy_button"))
+	await _settle()
+	assert_true(desktop.app_scroll.get_global_rect().encloses(app.get("_buy_button").get_global_rect()),
+		"the enlarged bottom action remains reachable above the fixed footer")
+	desktop.size.x = 800
+	await _settle()
+	assert_true(card.get_global_rect().size.is_equal_approx(card_rect.size))
+	assert_same(app.cards.coffee, card)
+	assert_eq(app.selected_id, "wine")
+	assert_eq(_provider.calls.size(), calls_before)
+
+
 func test_changed_owner_snapshot_resets_quantity_to_one_and_uses_new_legal_max() -> void:
 	var desktop := await _desktop_on_tree()
 	assert_true(_configure_shop(desktop).ok)
@@ -448,6 +501,10 @@ func test_shared_confirmation_owns_higher_routing_and_native_input_custody() -> 
 
 func test_live_accessibility_colours_repaint_cached_shop_without_catalog_or_selection_mutation() -> void:
 	var desktop := await _desktop_on_tree()
+	var art_port := preload("res://scripts/application/shop/ShopPresentationPort.gd").new()
+	for row: Dictionary in _provider.rows:
+		row.card_art = art_port._texture(row.id,28)
+		row.inspector_art = art_port._texture(row.id,56)
 	var meal: Dictionary = _record("healthy_meal")
 	meal.description = "Public fixture description. ".repeat(80)
 	assert_true(_configure_shop(desktop).ok)
@@ -594,3 +651,25 @@ func test_supportz_confirmation_holds_old_colours_until_modal_finishes() -> void
 	current_modal.cancel_button.pressed.emit()
 	await _settle()
 	assert_true(_provider.purchase_calls.is_empty())
+
+func test_font_style_only_change_bypasses_colour_cache_and_preserves_purchase_selection() -> void:
+	var desktop := await _desktop_on_tree()
+	assert_true(_configure_shop(desktop).ok)
+	var app := _open_shop(desktop)
+	if app == null: return
+	await _settle()
+	app.cards.coffee.grab_focus()
+	app.quantity_buttons.maximum.pressed.emit()
+	app.cards.coffee.grab_focus()
+	var quantity: int = app.quantity
+	var page: int = app.page_index
+	var typography := preload("res://scripts/ui/UiTypography.gd")
+	for style: String in ["readable","pixel"]:
+		assert_true(_localization.set_font_style(style).ok)
+		await _settle()
+		assert_eq(app._font_style,style)
+		assert_same(app.theme.default_font.base_font,typography.font("en",100,style))
+		assert_eq(app.selected_id,"coffee")
+		assert_eq(app.quantity,quantity)
+		assert_eq(app.page_index,page)
+		assert_true(app.cards.coffee.has_focus())

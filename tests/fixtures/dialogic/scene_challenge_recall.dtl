@@ -1,0 +1,59 @@
+# TEST ONLY: qualified result pointers and later recall, no production story.
+return
+
+label scene.test.recall.start
+TEST challenge before Playable. #id:line.scene.test.recall.start.one
+label scene.test.recall.start.playable
+TEST challenge can be left unstarted. #id:line.scene.test.recall.start.two
+label scene.test.recall.start.end
+return
+
+label scene.test.recall.later
+TEST later memory before recall. #id:line.scene.test.recall.later.one
+label scene.test.recall.later.recall
+return
+
+label scene.test.echo_a_day1
+TEST echo_a selected. #id:line.scene.test.echo_a_day1.one
+label scene.test.echo_a_day1.next
+return
+
+label scene.test.recall_a_day1
+TEST recall_a selected. #id:line.scene.test.recall_a_day1.one
+return
+
+label scene.test.echo_b_day1
+TEST echo_b selected. #id:line.scene.test.echo_b_day1.one
+label scene.test.echo_b_day1.next
+return
+
+label scene.test.recall_b_day1
+TEST recall_b selected. #id:line.scene.test.recall_b_day1.one
+return
+
+label scene.test.echo_c_day1
+TEST echo_c selected. #id:line.scene.test.echo_c_day1.one
+label scene.test.echo_c_day1.next
+return
+
+label scene.test.recall_c_day1
+TEST recall_c selected. #id:line.scene.test.recall_c_day1.one
+return
+
+label scene.test.echo_d_day1
+TEST echo_d selected. #id:line.scene.test.echo_d_day1.one
+label scene.test.echo_d_day1.next
+return
+
+label scene.test.recall_d_day1
+TEST recall_d selected. #id:line.scene.test.recall_d_day1.one
+return
+
+label scene.test.echo_e_day1
+TEST echo_e selected. #id:line.scene.test.echo_e_day1.one
+label scene.test.echo_e_day1.next
+return
+
+label scene.test.recall_e_day1
+TEST recall_e selected. #id:line.scene.test.recall_e_day1.one
+return

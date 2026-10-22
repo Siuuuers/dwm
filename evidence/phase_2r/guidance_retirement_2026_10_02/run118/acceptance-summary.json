@@ -1,0 +1,663 @@
+{
+  "actual_checkout_merge": "e18f832deca10f7d000a45e470ce5c48c9b68b56",
+  "expected_job_count": 1,
+  "guidance_retirement": {
+    "all_source_declared_cases_discovered_and_passed": true,
+    "all_unlisted_paths_byte_identical": true,
+    "audit_complete": true,
+    "baseline": "96f95c67db6c7358b5f846651fef5c88babfbf92",
+    "beads": {
+      "all_bytes_preserved": true,
+      "bytes": 2006508,
+      "git_blob": "d1395ebef278f958a6a9224db4591bd1f53401cc",
+      "live_dolt_queried": false,
+      "records": 191,
+      "sha256": "27097bbef59b4abfd9b2c0ed20c7bc5efc700f7c00ebcded55c04c7e700c1b20",
+      "unfinished": 23
+    },
+    "cloud_processes": [
+      {
+        "actual_marker_verified": false,
+        "argv": [
+          "--headless",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-guidance-retirement.log",
+          "-s",
+          "res://addons/gut/gut_cmdln.gd",
+          "-gconfig=",
+          "-gtest=res://tests/unit/tooling/test_agent_workflow_validator.gd,res://tests/unit/tooling/test_agent_workflow_authority_resolver.gd,res://tests/unit/tooling/test_doc_frontmatter.gd,res://tests/unit/tooling/test_doc_validator.gd,res://tests/unit/tooling/test_design_authority_registry.gd,res://tests/unit/tooling/test_legacy_disposition.gd,res://tests/unit/tooling/test_phase2r_beads_manifest.gd,res://tests/unit/tooling/test_repository_tooling.gd",
+          "-gexit",
+          "-glog=2",
+          "-gjunit_xml_file=res://.godot/ci/guidance-retirement.xml"
+        ],
+        "exit_code": 0,
+        "expected_marker": null,
+        "log": "artifacts/guidance-retirement-36937492913-1/phase2r_logs/cloud-guidance-retirement.log",
+        "log_identity": {
+          "bytes": 406906,
+          "sha256": "e94c5d78c5228b0d74f8bd3d08ec9c71f4668ea47c0fb9c982a3b40704c40abf"
+        },
+        "receipt": "artifacts/guidance-retirement-36937492913-1/ci/guidance-retirement.jsonl",
+        "receipt_identity": {
+          "bytes": 1150,
+          "sha256": "2094a14a1b9cac4304cfb9cca1325ef2de43f7ef869d09cc327b3186aac34f2a"
+        },
+        "suite": "guidance-retirement",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\88645fa4-6cb0-4f0e-b6cb-8a9bb135854f",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\88645fa4-6cb0-4f0e-b6cb-8a9bb135854f\\appdata\\Godot\\app_userdata\\DWM"
+      },
+      {
+        "actual_marker_verified": true,
+        "argv": [
+          "--headless",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-validate_docs.log",
+          "-s",
+          "res://tools/docs/validate_docs.gd",
+          "--",
+          "--beads-snapshot=D:\\a\\dwm\\dwm\\.godot\\ci\\guidance-beads-snapshot.json"
+        ],
+        "exit_code": 0,
+        "expected_marker": "DOC_VALIDATION: PASS packets=16 design_authorities=4 agent_workflow=1",
+        "log": "artifacts/guidance-retirement-36937492913-1/phase2r_logs/cloud-validate_docs.log",
+        "log_identity": {
+          "bytes": 143,
+          "sha256": "24e595cafabaa2352436ebf57b0030b84be81c6e614adf0622aa011e86c594d5"
+        },
+        "receipt": "artifacts/guidance-retirement-36937492913-1/ci/validate_docs.jsonl",
+        "receipt_identity": {
+          "bytes": 679,
+          "sha256": "84c1280dbbe8371942f2be6cee91eaccc3626cf51433a6141c9a37bcca1cd811"
+        },
+        "suite": "validate_docs",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\462a2e53-959b-42d9-aca1-170f7e70b3a6",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\462a2e53-959b-42d9-aca1-170f7e70b3a6\\appdata\\Godot\\app_userdata\\DWM"
+      },
+      {
+        "actual_marker_verified": true,
+        "argv": [
+          "--headless",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-validate_agent_workflow.log",
+          "-s",
+          "res://tools/docs/validate_agent_workflow.gd"
+        ],
+        "exit_code": 0,
+        "expected_marker": "AGENT_WORKFLOW_VALIDATION: PASS",
+        "log": "artifacts/guidance-retirement-36937492913-1/phase2r_logs/cloud-validate_agent_workflow.log",
+        "log_identity": {
+          "bytes": 105,
+          "sha256": "e69fb76cfcbff48b95d12202ab5b63e815b91693df74d350369fb4c659a40958"
+        },
+        "receipt": "artifacts/guidance-retirement-36937492913-1/ci/validate_agent_workflow.jsonl",
+        "receipt_identity": {
+          "bytes": 637,
+          "sha256": "539536131620e25df82d0be448dcba69938f1b594f001142d24542167dbbe617"
+        },
+        "suite": "validate_agent_workflow",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\ff909f9c-0e67-4c0f-983a-de6376ee1369",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\ff909f9c-0e67-4c0f-983a-de6376ee1369\\appdata\\Godot\\app_userdata\\DWM"
+      }
+    ],
+    "cloud_receipt": {
+      "actual_checkout": "e18f832deca10f7d000a45e470ce5c48c9b68b56",
+      "beads_records": 191,
+      "beads_sha256_after": "27097bbef59b4abfd9b2c0ed20c7bc5efc700f7c00ebcded55c04c7e700c1b20",
+      "beads_sha256_before": "27097bbef59b4abfd9b2c0ed20c7bc5efc700f7c00ebcded55c04c7e700c1b20",
+      "gut_cases": 56,
+      "live_dolt_queried": false,
+      "requested_scripts": [
+        "res://tests/unit/tooling/test_agent_workflow_validator.gd",
+        "res://tests/unit/tooling/test_agent_workflow_authority_resolver.gd",
+        "res://tests/unit/tooling/test_doc_frontmatter.gd",
+        "res://tests/unit/tooling/test_doc_validator.gd",
+        "res://tests/unit/tooling/test_design_authority_registry.gd",
+        "res://tests/unit/tooling/test_legacy_disposition.gd",
+        "res://tests/unit/tooling/test_phase2r_beads_manifest.gd",
+        "res://tests/unit/tooling/test_repository_tooling.gd"
+      ],
+      "runtime_changed": false,
+      "source": "e18f832deca10f7d000a45e470ce5c48c9b68b56",
+      "unfinished": 23
+    },
+    "cloud_receipt_identity": {
+      "bytes": 976,
+      "sha256": "c54381f87bb6c9723177a4ffc531e0038609291c77363e4940d72a1bf98b5e2d"
+    },
+    "cloud_snapshot_matches_source_after_only_documented_normalization": true,
+    "codegraph_active_instruction_fixture_pass": true,
+    "exact_changed_paths": [
+      {
+        "baseline_blob": "daced9bd64f25908ebedeb4701fb406985dc8366",
+        "baseline_mode": "100644",
+        "path": "CLAUDE.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "source_mode": "000000",
+        "status": "D"
+      },
+      {
+        "baseline_blob": "8dd36608663c88d96e68fb517a0946ca80e211f0",
+        "baseline_mode": "100644",
+        "path": "Prompt.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "source_mode": "000000",
+        "status": "D"
+      },
+      {
+        "baseline_blob": "0000000000000000000000000000000000000000",
+        "baseline_mode": "000000",
+        "path": "README.md",
+        "source_blob": "a953dfb442eea0c83623f8f5d27183f0ab35164a",
+        "source_mode": "100644",
+        "status": "A"
+      },
+      {
+        "baseline_blob": "d1b8ddc5dd54a7807a60418b8b9e26c375f40c00",
+        "baseline_mode": "100644",
+        "path": "docs/agent/2026-09-23-next-session-handoff.md",
+        "source_blob": "6129cede8542b8c5aa27561fb2c1c2114395f486",
+        "source_mode": "100644",
+        "status": "M"
+      },
+      {
+        "baseline_blob": "205bc71381299a6595e85ef87aa6f407852e88dd",
+        "baseline_mode": "100644",
+        "path": "docs/agent/2026-09-29-continuation-audit.md",
+        "source_blob": "53604113f3f0040e0d5a1d93d622a5ec6b73f143",
+        "source_mode": "100644",
+        "status": "M"
+      },
+      {
+        "baseline_blob": "9ece781c8daa61f958864eff05b4ae52915f4b57",
+        "baseline_mode": "100644",
+        "path": "docs/agent/AGENT_WORKFLOW.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "source_mode": "000000",
+        "status": "D"
+      },
+      {
+        "baseline_blob": "3b213104c9980080eb5a2aa9a72f1757b0d096f5",
+        "baseline_mode": "100644",
+        "path": "prompt_docs/requirements/authority_context.md",
+        "source_blob": "5f78808d2beddf294a30b144eba2c75dcb313f39",
+        "source_mode": "100644",
+        "status": "M"
+      },
+      {
+        "baseline_blob": "525bf1b6f62fb57222495e9bb3abdc4fa76c938b",
+        "baseline_mode": "100644",
+        "path": "prompt_docs/requirements/documentation_tooling.md",
+        "source_blob": "20b61045c9cb3fe38ddeeb78081aa428e4ce17e1",
+        "source_mode": "100644",
+        "status": "M"
+      },
+      {
+        "baseline_blob": "9d720e1277a0ed81cc48cd6f779b20efb95bbe42",
+        "baseline_mode": "100644",
+        "path": "tests/tooling/Test-CodeGraphRemovalScripts.ps1",
+        "source_blob": "adc51021b0e9ed58b7a9514bf7e0b58d5e2b2b1a",
+        "source_mode": "100644",
+        "status": "M"
+      },
+      {
+        "baseline_blob": "50dbd4281a7f5c16c021fa1a333fa168f5d33f73",
+        "baseline_mode": "100644",
+        "path": "tests/unit/test_art_manifest.gd",
+        "source_blob": "5cca99a722f20e215018123ae65063159bf0a85f",
+        "source_mode": "100644",
+        "status": "M"
+      },
+      {
+        "baseline_blob": "55f24b5bbdf92fb80e98b9104cdd25ffdac3fcbc",
+        "baseline_mode": "100644",
+        "path": "tests/unit/tooling/test_agent_workflow_validator.gd",
+        "source_blob": "45d5827a81f98d6d915a9c495eacdf762b122436",
+        "source_mode": "100644",
+        "status": "M"
+      },
+      {
+        "baseline_blob": "ec374d9cb3b32f9967307d7586253ef503f6149a",
+        "baseline_mode": "100644",
+        "path": "tools/docs/AgentWorkflowValidator.gd",
+        "source_blob": "76a10739ce1bb5b32928b64f24eb14bd28ee2042",
+        "source_mode": "100644",
+        "status": "M"
+      },
+      {
+        "baseline_blob": "649596b695486a82f3baaf45801d4fe8f198b854",
+        "baseline_mode": "100644",
+        "path": "tools/docs/validate_agent_workflow.gd",
+        "source_blob": "4e31a73a16a54611d3ed5900498ee2ae3de31ada",
+        "source_mode": "100644",
+        "status": "M"
+      },
+      {
+        "baseline_blob": "88eff2fa735adffb2efa3f02025cf70550cb7067",
+        "baseline_mode": "100644",
+        "path": "tools/docs/validate_docs.gd",
+        "source_blob": "8c722e31fb74c2de11fe84bfb677664fd6cd3122",
+        "source_mode": "100644",
+        "status": "M"
+      },
+      {
+        "baseline_blob": "6fdf867cad92cf3022a050b0b6f74572c5fae6ab",
+        "baseline_mode": "100644",
+        "path": "tools/tooling/Verify-CodeGraphPrerequisites.ps1",
+        "source_blob": "4bd9ba2ad7daf2079699d71aa2b4df9fdd944d1f",
+        "source_mode": "100644",
+        "status": "M"
+      }
+    ],
+    "preserved_trees_and_files": [
+      {
+        "baseline_and_source_object": "b35c488cceed5561b26c68c842d6520ef2d47617",
+        "path": ".beads"
+      },
+      {
+        "baseline_and_source_object": "f8eb8c881a87b820652f6a59932db7a09ad970ae",
+        "path": ".github"
+      },
+      {
+        "baseline_and_source_object": "9ad31810c0922f72dfafd05a802d8b47cde7fe3d",
+        "path": "addons"
+      },
+      {
+        "baseline_and_source_object": "7ab2296fe5aca2c0e3125ed657030d7479a5107e",
+        "path": "art"
+      },
+      {
+        "baseline_and_source_object": "15a2d3b807cfbd447047423d102c80795dc15d96",
+        "path": "art_source"
+      },
+      {
+        "baseline_and_source_object": "d35a94912839c06232b56916b1407fc5411809ef",
+        "path": "assets"
+      },
+      {
+        "baseline_and_source_object": "9aafe5e000768c07fb2fe74265aef1311ab3b3d9",
+        "path": "autoload"
+      },
+      {
+        "baseline_and_source_object": "fc634e1b42113b367847d70b3e3a89f91bbe691f",
+        "path": "data"
+      },
+      {
+        "baseline_and_source_object": "e1ee14617568ee1dc0e1b29b68702912f5287fdb",
+        "path": "dialogic"
+      },
+      {
+        "baseline_and_source_object": "fc20aa10fc44360eb39f8a613856e76cf1d4c112",
+        "path": "evidence"
+      },
+      {
+        "baseline_and_source_object": "1d64a83f84823748551ba18e61608efc21929e39",
+        "path": "localization"
+      },
+      {
+        "baseline_and_source_object": "5557dff7ef31cf11471c9239aba51f77bc301884",
+        "path": "scenes"
+      },
+      {
+        "baseline_and_source_object": "4568c366af34b9f94768376c43d07ced7230cba4",
+        "path": "schemas"
+      },
+      {
+        "baseline_and_source_object": "b2acbcae8959b8ea2a34b2c5213c87c8d537457f",
+        "path": "scripts"
+      },
+      {
+        "baseline_and_source_object": "0593a2ab614158efcf4e51eef48aba2ce3ac439a",
+        "path": "story"
+      },
+      {
+        "baseline_and_source_object": "400f73e0559e082a6e89fabda8134e8e49f4337f",
+        "path": "project.godot"
+      },
+      {
+        "baseline_and_source_object": "140286738eef7a6993c8c46c2aa3101184abed93",
+        "path": "export_presets.cfg"
+      }
+    ],
+    "previous_runtime_acceptance": {
+      "rerun_by_this_job": false,
+      "run_id": 36928901183,
+      "run_number": 114,
+      "runtime_objects_unchanged": [
+        {
+          "accepted_runtime_and_current_object": "9ad31810c0922f72dfafd05a802d8b47cde7fe3d",
+          "path": "addons"
+        },
+        {
+          "accepted_runtime_and_current_object": "7ab2296fe5aca2c0e3125ed657030d7479a5107e",
+          "path": "art"
+        },
+        {
+          "accepted_runtime_and_current_object": "15a2d3b807cfbd447047423d102c80795dc15d96",
+          "path": "art_source"
+        },
+        {
+          "accepted_runtime_and_current_object": "d35a94912839c06232b56916b1407fc5411809ef",
+          "path": "assets"
+        },
+        {
+          "accepted_runtime_and_current_object": "9aafe5e000768c07fb2fe74265aef1311ab3b3d9",
+          "path": "autoload"
+        },
+        {
+          "accepted_runtime_and_current_object": "fc634e1b42113b367847d70b3e3a89f91bbe691f",
+          "path": "data"
+        },
+        {
+          "accepted_runtime_and_current_object": "e1ee14617568ee1dc0e1b29b68702912f5287fdb",
+          "path": "dialogic"
+        },
+        {
+          "accepted_runtime_and_current_object": "1d64a83f84823748551ba18e61608efc21929e39",
+          "path": "localization"
+        },
+        {
+          "accepted_runtime_and_current_object": "5557dff7ef31cf11471c9239aba51f77bc301884",
+          "path": "scenes"
+        },
+        {
+          "accepted_runtime_and_current_object": "4568c366af34b9f94768376c43d07ced7230cba4",
+          "path": "schemas"
+        },
+        {
+          "accepted_runtime_and_current_object": "b2acbcae8959b8ea2a34b2c5213c87c8d537457f",
+          "path": "scripts"
+        },
+        {
+          "accepted_runtime_and_current_object": "0593a2ab614158efcf4e51eef48aba2ce3ac439a",
+          "path": "story"
+        },
+        {
+          "accepted_runtime_and_current_object": "400f73e0559e082a6e89fabda8134e8e49f4337f",
+          "path": "project.godot"
+        },
+        {
+          "accepted_runtime_and_current_object": "140286738eef7a6993c8c46c2aa3101184abed93",
+          "path": "export_presets.cfg"
+        }
+      ],
+      "source": "900118a5dc16b89b82a4e5d946767c080083c750"
+    },
+    "requirement_frontmatter_unchanged": true,
+    "retained_snapshot_identity": {
+      "bytes": 2079247,
+      "sha256": "082bbc538474445dcab0d1bc6a693c8ccad90418a2d0707b718c8d8279ee9928"
+    },
+    "retired_files_absent": [
+      "Prompt.md",
+      "CLAUDE.md",
+      "docs/agent/AGENT_WORKFLOW.md"
+    ],
+    "retirement_inputs": {
+      "base": "96f95c67db6c7358b5f846651fef5c88babfbf92",
+      "files": [
+        {
+          "bytes": 6635,
+          "git_blob": "8dd36608663c88d96e68fb517a0946ca80e211f0",
+          "path": "Prompt.md",
+          "sha256": "4c81e4b2c4c027379882296c5902591e1008d7d8bc40ab04c7837f46c9c9b9e8"
+        },
+        {
+          "bytes": 2357,
+          "git_blob": "daced9bd64f25908ebedeb4701fb406985dc8366",
+          "path": "CLAUDE.md",
+          "sha256": "694a2d721e41c385f3db492838c23299826df5ba9809e3b0721aac70021e196a"
+        },
+        {
+          "bytes": 10932,
+          "git_blob": "9ece781c8daa61f958864eff05b4ae52915f4b57",
+          "path": "docs/agent/AGENT_WORKFLOW.md",
+          "sha256": "0c30d1e246dbe5201fbd796abaf07de816927c53c5222393c7a4a0f7ae6bae20"
+        },
+        {
+          "bytes": 2006508,
+          "git_blob": "d1395ebef278f958a6a9224db4591bd1f53401cc",
+          "path": ".beads/issues.jsonl",
+          "sha256": "27097bbef59b4abfd9b2c0ed20c7bc5efc700f7c00ebcded55c04c7e700c1b20"
+        }
+      ]
+    },
+    "retirement_inputs_identity": {
+      "bytes": 931,
+      "sha256": "a8c8207ef01fec3d49b2e0554ad289c394631a84239f2cbcc914607584ccff28"
+    },
+    "run_id": 36937492913,
+    "run_number": 118,
+    "schema_version": 1,
+    "source": "e18f832deca10f7d000a45e470ce5c48c9b68b56",
+    "source_test_discovery": [
+      {
+        "bytes": 8895,
+        "git_blob": "45d5827a81f98d6d915a9c495eacdf762b122436",
+        "path": "tests/unit/tooling/test_agent_workflow_validator.gd",
+        "sha256": "831c4131c973ecdf9c1fc29a2c47882fc7c77634d1ea81e910cea81c2a83b28c",
+        "test_count": 9,
+        "tests": [
+          "test_handoff_rejects_authority_schema_and_issue_source_drift",
+          "test_handoff_rejects_unsafe_or_alternate_map_pointers",
+          "test_map_rejects_authority_and_source_identity_drift",
+          "test_physical_navigation_rejects_invalid_utf8_in_either_document",
+          "test_physical_navigation_rejects_missing_or_directory_documents",
+          "test_physical_navigation_rejects_symlinked_document",
+          "test_physical_navigation_rejects_symlinked_parent_and_repository_root",
+          "test_repository_navigation_validates_without_legacy_files_or_issue_snapshot",
+          "test_valid_navigation_allows_updated_prose_and_inspected_source"
+        ]
+      },
+      {
+        "bytes": 40642,
+        "git_blob": "2811be323847e585b738fe142a6e9e88d0f0760e",
+        "path": "tests/unit/tooling/test_agent_workflow_authority_resolver.gd",
+        "sha256": "7f59935b8311bb6c3dd3a3faec3df44aebf319d48d7393e77640352dd203cdb3",
+        "test_count": 27,
+        "tests": [
+          "test_accepted_decision_with_missing_requirement_target_has_an_invalid_source",
+          "test_ambiguous_or_non_descendant_authority_roots_are_source_invalid",
+          "test_approved_requirement_with_missing_dependency_has_an_invalid_source",
+          "test_deferred_decision_null_or_scalar_blocking_ids_is_total_and_source_invalid",
+          "test_duplicate_requirement_ids_invalidate_every_owning_packet_but_remain_duplicate_targets",
+          "test_first_packet_with_a_duplicate_id_invalidates_its_unique_requirement",
+          "test_malformed_beads_binding_and_snapshot_invalidate_their_matching_requirement",
+          "test_malformed_decision_requirement_lists_are_invalid_without_runtime_errors",
+          "test_malformed_requirement_shapes_are_total_and_source_invalid",
+          "test_missing_decision_status_survives_index_render_as_an_identifiable_invalid_record",
+          "test_non_dictionary_beads_metadata_is_invalid_without_runtime_errors",
+          "test_packet_links_classify_unknown_unapproved_and_malformed_matches",
+          "test_packet_links_require_the_current_generated_index",
+          "test_plan_link_is_invalidated_when_approved_canonical_text_changes",
+          "test_plan_suite_resolves_roadmap_and_children_only_when_every_digest_binding_is_approved",
+          "test_prompt_docs_junction_is_rejected_even_when_external_index_matches",
+          "test_registered_design_amendment_resolves_without_an_approved_plan",
+          "test_repository_approved_suite_resolves_roadmap_and_all_four_children",
+          "test_requirement_and_decision_duplicates_win_over_unrelated_validation_errors",
+          "test_resolves_every_frozen_link_kind",
+          "test_scalar_packet_requirements_or_beads_is_identifiable_and_source_invalid",
+          "test_specification_projection_rejects_unquoted_paths_duplicate_keys_and_indented_keys",
+          "test_symlinked_markdown_directory_is_rejected_as_a_global_packet_source_error",
+          "test_symlinked_markdown_file_is_rejected_as_a_global_packet_source_error",
+          "test_unrelated_packet_path_prefix_diagnostic_does_not_invalidate_a_matching_requirement",
+          "test_unterminated_specification_preserves_a_matching_id_projection",
+          "test_unterminated_specification_preserves_a_matching_plan_projection"
+        ]
+      },
+      {
+        "bytes": 1419,
+        "git_blob": "5a5e713857e89e613c2231b410df3db024074aea",
+        "path": "tests/unit/tooling/test_doc_frontmatter.gd",
+        "sha256": "85ffe664120ad2e1abc0eafc361fe232b269cd18af920b67bcb9b289901454dc",
+        "test_count": 1,
+        "tests": [
+          "test_strict_frontmatter_contract"
+        ]
+      },
+      {
+        "bytes": 7673,
+        "git_blob": "269f508ffe10e92766de64d2308339e088a8baa9",
+        "path": "tests/unit/tooling/test_doc_validator.gd",
+        "sha256": "50f009daa9cc0872ea4db5449d31a4ea9d5a8de1ae1b8e689d7b6b450d816da8",
+        "test_count": 3,
+        "tests": [
+          "test_accepted_decision_contract_and_index",
+          "test_authority_index_validation_rejects_invalid_bytes_that_decode_like_expected_text",
+          "test_validator_error_matrix"
+        ]
+      },
+      {
+        "bytes": 12708,
+        "git_blob": "b65ff0d874c59c079781b4ab4bf7adf2d4bf2242",
+        "path": "tests/unit/tooling/test_design_authority_registry.gd",
+        "sha256": "61f579de31688dadb57403a32cc626b717a950b294ec4de48fbf66ecb1039143",
+        "test_count": 9,
+        "tests": [
+          "test_amendment_requires_accepted_status_and_exact_registered_lineage",
+          "test_approved_plan_suite_binding_drift_preserves_specification_authority",
+          "test_closed_registry_accepts_a_registered_base_and_amendment",
+          "test_optional_plan_binding_is_all_or_none_and_hash_checked",
+          "test_optional_plan_suite_binding_is_closed_and_projects_every_exact_plan",
+          "test_registry_enforces_the_manifest_id_and_exact_source_path_grammar",
+          "test_registry_rejects_duplicate_ids_paths_and_unsorted_records",
+          "test_repository_registry_resolves_the_accepted_amendment",
+          "test_runtime_authorization_requires_an_approved_verified_binding"
+        ]
+      },
+      {
+        "bytes": 5318,
+        "git_blob": "247507eb93a23373f9fda60257f9c6cc679810c5",
+        "path": "tests/unit/tooling/test_legacy_disposition.gd",
+        "sha256": "b1525a758cfec01d50adc48487aba611a1fda6290473e231a66aee703ed69789",
+        "test_count": 1,
+        "tests": [
+          "test_legacy_disposition_bijection_and_preservation"
+        ]
+      },
+      {
+        "bytes": 2996,
+        "git_blob": "d3edb353cafa8751854a11b014f9b61e89ba6d14",
+        "path": "tests/unit/tooling/test_phase2r_beads_manifest.gd",
+        "sha256": "3d746a10a582a8afbe9b591075b7da382aef690e381261d9e143e3faf58c390b",
+        "test_count": 4,
+        "tests": [
+          "test_closed_first_five_contracts_bind_the_surviving_plan_set_index",
+          "test_every_contract_plan_path_is_a_real_regular_repository_file",
+          "test_every_manifest_specification_id_resolves_through_the_closed_design_registry",
+          "test_real_phase2r_manifest_conforms_to_its_schema"
+        ]
+      },
+      {
+        "bytes": 2384,
+        "git_blob": "3130ef8940f9eb3ead32f47fd98ab69b4508e58c",
+        "path": "tests/unit/tooling/test_repository_tooling.gd",
+        "sha256": "7abdddc2a9290d72c9bbd9aa54a7f0b307c65d9bf43a44071df5df3cfbcc4771",
+        "test_count": 2,
+        "tests": [
+          "test_repository_codegraph_directory_is_absent",
+          "test_stop_helper_rejects_hash_drift_and_handles_absent_lock"
+        ]
+      }
+    ],
+    "temporary_snapshot_normalizations": [
+      {
+        "all_other_fields_equal": true,
+        "issue_id": "dwm-vky.14",
+        "kind": "lossless removal of fractional-second trailing zeros",
+        "path": "beads[157].updated_at",
+        "raw_artifact_modified": false,
+        "source_export_text": "2026-10-01T22:09:54.715100Z",
+        "temporary_snapshot_text": "2026-10-01T22:09:54.7151Z",
+        "utc_instant": "2026-10-01T22:09:54.715100+00:00"
+      }
+    ],
+    "test_art_manifest_comment_only": true,
+    "tested_checkout": "e18f832deca10f7d000a45e470ce5c48c9b68b56"
+  },
+  "gut": {
+    "case_executions": 56,
+    "errors": 0,
+    "failures": 0,
+    "negative_xml_exclusions": [],
+    "script_executions": 8,
+    "skipped": 0,
+    "suites": [
+      {
+        "bytes": 13666,
+        "cases": 56,
+        "path": "artifacts/guidance-retirement-36937492913-1/ci/guidance-retirement.xml",
+        "run_attempt": 1,
+        "scripts": 8,
+        "sha256": "1fbff2a121eec17fb957df3059eb9c3f4f462a7b638f35e1dfdb81b55193a616"
+      }
+    ],
+    "unique_cases": 56,
+    "unique_identity": "testsuite.name + testcase.name",
+    "unique_scripts": 8,
+    "xml_count": 1
+  },
+  "jobs": [
+    {
+      "checkout_exemption": null,
+      "checkout_shas": [
+        "e18f832deca10f7d000a45e470ce5c48c9b68b56"
+      ],
+      "completed_at": "2026-10-01T22:53:18Z",
+      "conclusion": "success",
+      "execution_attempt": 1,
+      "execution_job_id": 110621069755,
+      "id": 110621069755,
+      "log": "logs/110621069755.log",
+      "log_identity": {
+        "bytes": 460603,
+        "sha256": "154677057950f767d2ee01fd7a7771891b513b01582d6ecbf48346e6f4c2bcc3"
+      },
+      "name": "Windows / guidance retirement",
+      "run_attempt": 1,
+      "started_at": "2026-10-01T22:51:03Z",
+      "status": "completed"
+    }
+  ],
+  "limits": [
+    "This one-job acceptance covers guidance retirement, documentation/authority tooling and preserved task records only.",
+    "Runtime acceptance remains source 900118a5dc16b89b82a4e5d946767c080083c750 / Run114; no gameplay, render, export or broad runtime suite ran in this guidance job.",
+    "All 191 retained Beads records and 23 unfinished tasks are byte-preserved; the retained snapshot does not claim live Dolt query or synchronization.",
+    "The temporary CLI snapshot may contain only the specifically audited lossless trailing-zero timestamp normalization; its raw bytes are retained, and it is not claimed byte-identical to the physical Beads export.",
+    "Workflow head and actual tested source are distinct; every retained job log and cloud receipt binds the exact source checkout.",
+    "No engines or PowerShell run during this local evidence audit or packaging."
+  ],
+  "master_parent": null,
+  "observed_job_count": 1,
+  "overall_acceptance_pass": true,
+  "overall_accepted": true,
+  "run_id": 36937492913,
+  "run_number": 118,
+  "run_url": "https://github.com/Siuuuers/dwm/actions/runs/36937492913",
+  "schema_version": 1,
+  "scope": "Audit downloaded cloud guidance-retirement evidence; no engines or PowerShell.",
+  "source_boundary": {
+    "all_unlisted_paths_byte_identical": true,
+    "checkout_parents": [
+      "c8aacf5540ec85cc64eaebd9870b768165ec537a"
+    ],
+    "explicit_allowed_difference_patterns": [],
+    "master": null,
+    "source": "e18f832deca10f7d000a45e470ce5c48c9b68b56",
+    "source_checkout_differences": [],
+    "tested_checkout": "e18f832deca10f7d000a45e470ce5c48c9b68b56"
+  },
+  "source_commit": "e18f832deca10f7d000a45e470ce5c48c9b68b56",
+  "workflow_run": {
+    "conclusion": "success",
+    "event": "push",
+    "head_sha": "b510129b2721e40b74490336b0ff3963866cd4f6",
+    "run_attempt": 1,
+    "status": "completed"
+  }
+}

@@ -88,7 +88,7 @@ func _render() -> void:
 	report.store_string(JSON.stringify({"scope":"synthetic caption fixtures; actual authored Hospital timeline currently has no text",
 		"runtime":"installed DialogicGameHandler, deferred Styles mount and native Text reveal; original application runtime preserved",
 		"accessibility_scope":"explicit authored tuple extension; provisional family mappings, no perceptual or AT acceptance",
-		"contrast_measurement":"opaque rendered sRGB role pairs; glyph antialiasing and perception are not certified",
+		"contrast_measurement":"transparent caption margins preserve the backdrop; arbitrary artwork contrast and perception are not certified",
 		"captures":_records.size(),"unfocused_overflow_captures":_unfocused_captures,"tuples":TUPLE_COUNT,"samples":_records},"\t")+"\n")
 	report.close()
 	await _restore()
@@ -180,7 +180,7 @@ func _capture(locale: String, percent: int, palette: String, kind: String, high_
 	if kind != "empty":
 		if not _check(leaf.position.x == 16 and leaf.size.x == 1248-(bar.size.x if bar.visible else 0),"visible document leaf width changed"): return false
 		if not _check(fposmod(node.position.y,2.0) == 0 and fposmod(leaf.size.y,2.0) == 0,"document leaf origin/height escaped the two-logical-pixel lattice"): return false
-	if not _check(projection.font_size == int(percent/5) and node.get_theme_font_size(&"normal_font_size") == int(percent/5),"caption font was reduced"): return false
+	if not _check(projection.font_size == expected.default_font_size and node.get_theme_font_size(&"normal_font_size") == expected.default_font_size,"caption font was reduced"): return false
 	if not _check(_runtime.current_event_idx == 2 and _ended == 0,"caption changed timeline ownership"): return false
 	if not _check(not node.scroll_active and not node.get_v_scroll_bar().visible,"current leaf has an independent scrollbar"): return false
 	if kind == "empty":
@@ -194,21 +194,18 @@ func _capture(locale: String, percent: int, palette: String, kind: String, high_
 	var contrast_name := "high" if high_contrast else "standard"
 	var name := "%s%d-%s-%s-%s-%s.png" % [locale,percent,palette,contrast_name,colour_preset,kind]
 	if not _check(pixels != null and pixels.save_png(_folder.path_join(name)) == OK,"cannot save caption capture"): return false
-	if not _pixel(pixels,Vector2i(2,expected_top+8),expected,&"field"): return false
-	if not _pixel(pixels,Vector2i(2,expected_top),expected,&"rule"): return false
+	if not _pixel(pixels,Vector2i(2,expected_top+8),expected,&"backdrop"): return false
+	if not _pixel(pixels,Vector2i(2,expected_top),expected,&"backdrop"): return false
 	if not _pixel(pixels,Vector2i(2,680),expected,&"deep"): return false
-	for y in range(expected_top,expected_top+2):
-		for x in 1280:
-			if not _pixel(pixels,Vector2i(x,y),expected,&"rule"): return false
 	var rendered_contrast := {}
 	if kind != "empty":
 		if kind == "stack":
 			for retained_index in 2:
 				var retained_rect: Rect2 = projection.leaf_rects[retained_index]
-				if not _pixel(pixels,Vector2i(retained_rect.position)+Vector2i(12,12),expected,&"deep" if retained_index == 0 else &"field"): return false
+				if not _pixel(pixels,Vector2i(retained_rect.position)+Vector2i(12,12),expected,&"backdrop"): return false
 		var ink_pixels := 0
 		var ink_point := Vector2i(-1,-1)
-		var ink: Color = expected.get_color(&"text",&"WitnessedCaption")
+		var ink: Color = expected.get_color(&"default_color",&"RichTextLabel")
 		var interior := Rect2i(leaf.grow(-18)).intersection(_visible_aperture())
 		for y in range(interior.position.y,interior.end.y):
 			for x in range(interior.position.x,interior.end.x):
@@ -226,41 +223,8 @@ func _capture(locale: String, percent: int, palette: String, kind: String, high_
 	print("WITNESSED_CAPTION_CAPTURE ",name," field=",field," leaf=",leaf," font=",projection.font_size," scroll=",projection.scroll_offset)
 	return true
 
-func _rendered_contrast(pixels: Image, leaf: Rect2, ink_point: Vector2i, field_top: int) -> Dictionary:
-	# These are final framebuffer samples, not ratios calculated from Theme inputs.
-	# The exact-colour/protected-frame checks independently verify their intended roles.
-	var sample_y := maxi(int(leaf.position.y) + 18, field_top + 18)
-	var sample_x := int(leaf.position.x)
-	var points := {
-		"text":ink_point, "current":Vector2i(sample_x+12,sample_y),
-		"field":Vector2i(2,field_top+8), "deep":Vector2i(2,680),
-		"rule":Vector2i(2,field_top), "focus_outer":Vector2i(sample_x+2,sample_y),
-		"focus_inner":Vector2i(sample_x+6,sample_y),
-	}
-	var samples := {}
-	var colors := {}
-	for role: String in points:
-		var point: Vector2i = points[role]
-		var color := pixels.get_pixelv(point)
-		colors[role] = color
-		samples[role] = {"pixel":[point.x,point.y],"srgb":color.to_html(false)}
-	var ratios := {}
-	for pair: Array in [["text","current"],["text","field"],["text","deep"],
-			["rule","current"],["rule","field"],["rule","deep"],
-			["focus_outer","current"],["focus_inner","current"]]:
-		var first := _luminance(colors[pair[0]])
-		var second := _luminance(colors[pair[1]])
-		ratios["%s/%s" % pair] = (maxf(first,second)+0.05)/(minf(first,second)+0.05)
-	return {"samples":samples,"ratios":ratios,
-		"minimum_text":minf(ratios["text/current"],minf(ratios["text/field"],ratios["text/deep"])),
-		"minimum_structure_focus":minf(minf(ratios["rule/current"],ratios["rule/field"]),
-			minf(ratios["rule/deep"],minf(ratios["focus_outer/current"],ratios["focus_inner/current"]))) }
-
-func _luminance(color: Color) -> float:
-	return 0.2126 * _linear_channel(color.r) + 0.7152 * _linear_channel(color.g) + 0.0722 * _linear_channel(color.b)
-
-func _linear_channel(value: float) -> float:
-	return value / 12.92 if value <= 0.04045 else pow((value+0.055)/1.055,2.4)
+func _rendered_contrast(_pixels: Image, _leaf: Rect2, _ink_point: Vector2i, _field_top: int) -> Dictionary:
+	return {"scope":"transparent text over backdrop; no opaque-material contrast certification"}
 
 func _protected_text_proof(focused: Image, node: RichTextLabel, expected: Theme, name: String, save_unfocused: bool) -> bool:
 	var bar: VScrollBar = _caption.get_scroll_bar()
@@ -297,28 +261,16 @@ func _protected_text_proof(focused: Image, node: RichTextLabel, expected: Theme,
 	print("WITNESSED_CAPTION_PROTECTED_FRAME file=",name," frame_width=",frame_width," height=",frame_height," changed_interior_pixels=",changed," first_changed=",first_changed)
 	return _check(changed == 0,"focus altered rendered glyph aperture at "+str(first_changed))
 
-func _protected_frame(pixels: Image, origin: Vector2i, width: int, height: int, expected: Theme, focused: bool) -> bool:
-	var bone_outer := Rect2i(2,2,width-4,height-4)
-	var bone_inner := Rect2i(4,4,width-8,height-8)
-	var gold_outer := Rect2i(6,6,width-12,height-12)
-	var gold_inner := Rect2i(8,8,width-16,height-16)
-	var mismatches := 0
-	var first := Vector2i(-1,-1)
-	var first_role := &""
+func _protected_frame(pixels: Image, origin: Vector2i, width: int, height: int, _expected: Theme, _focused: bool) -> bool:
+	# The outer twelve pixels stay clear; the glyph outline may extend into
+	# the inner padding. No caption fill, seam or focus rectangle is allowed.
 	var visible := Rect2i(origin,Vector2i(width,height)).intersection(_visible_aperture())
 	for y in range(visible.position.y-origin.y,visible.end.y-origin.y):
 		for x in range(visible.position.x-origin.x,visible.end.x-origin.x):
-			if y >= 16 and y < height-16 and x >= 16 and x < width-16: continue
-			var local := Vector2i(x,y)
-			var role := &"rule" if y < 2 else &"current"
-			if focused and bone_outer.has_point(local) and not bone_inner.has_point(local): role = &"focus_outer"
-			if focused and gold_outer.has_point(local) and not gold_inner.has_point(local): role = &"focus_inner"
-			if not _same_color(pixels.get_pixelv(origin+local),expected.get_color(role,&"WitnessedCaption")):
-				mismatches += 1
-				if first.x < 0:
-					first = local
-					first_role = role
-	return _check(mismatches == 0,"protected caption band contains glyph/rail overpaint: focused=%s pixels=%d first_local=%s expected=%s" % [focused,mismatches,first,first_role])
+			if y >= 12 and y < height-12 and x >= 12 and x < width-12: continue
+			if not _same_color(pixels.get_pixelv(origin+Vector2i(x,y)),Color("30343d")):
+				return _check(false,"caption margin covered its backdrop")
+	return true
 
 func _visible_aperture() -> Rect2i:
 	var field: Rect2 = _caption.get_caption_projection().field_rect
@@ -331,7 +283,7 @@ func _invariants() -> Dictionary:
 		"simple_history":_runtime.History.simple_history_content.duplicate(true),"full_history":_runtime.History.full_event_history_content.duplicate(),"finished":_finished,"ended":_ended}
 
 func _pixel(pixels: Image, point: Vector2i, expected: Theme, role: StringName) -> bool:
-	return _check(_same_color(pixels.get_pixelv(point),expected.get_color(role,&"WitnessedCaption")),str(role)+" substrate/ink mismatch at "+str(point))
+	return _check(_same_color(pixels.get_pixelv(point),(Color("30343d") if role == &"backdrop" else expected.get_color(role,&"WitnessedCaption"))),str(role)+" substrate/ink mismatch at "+str(point))
 
 func _same_color(actual: Color, expected: Color) -> bool:
 	return absf(actual.r-expected.r) <= 1.1/255 and absf(actual.g-expected.g) <= 1.1/255 and absf(actual.b-expected.b) <= 1.1/255 and absf(actual.a-expected.a) <= 1.1/255

@@ -17,6 +17,12 @@ scope: ["in_run_desktop_divider", "touch_sequential_focus", "desktop_strip_place
 
 # Desktop divider and touch focus
 
+**Subsequent owner decisions:** the [September 21 UI update record](current-ui/owner-ui-updates-2026-09-21.md)
+supersedes the per-mount reset, unchanged text size, always-visible navigation,
+and separate wider Shop/Schedule reflow directions below. Current behavior saves
+the width and scales all computer content after release. The original account
+and historical worktree boundaries remain here as provenance.
+
 The owner requested a draggable boundary between Angela and the app panel,
 keeping Angela's current width as the maximum, and touch controls that move
 focus before a separate confirmation. The owner then questioned the extra

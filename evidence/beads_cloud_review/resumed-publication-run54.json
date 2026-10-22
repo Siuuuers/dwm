@@ -1,0 +1,65 @@
+{
+  "repository": "Siuuuers/dwm",
+  "branch": "codex/windows-cloud-ux",
+  "pr": 1,
+  "parent": "8adbc832cc5098f0ba3f8a0ae470d4cffca27a37",
+  "tree": "30518cc98c4255b737788b766465b40cbf8a4478",
+  "commit": "217cc23cfe2018518e0d6037b9ea32ffc5b94957",
+  "blobs": [
+    {
+      "path": "autoload/SaveManager.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "08f4cf0e928c02e7cd80dc23dbe3e9154a6476fd"
+    },
+    {
+      "path": "evidence/beads_cloud_review/resumed-publication-run53.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b68b217202e99a37d1a1b3f3aab3e7d95aa9c2b6"
+    },
+    {
+      "path": "tests/manual/benchmark_manual_save_write.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "40a540e711aa96bddf399638c56abe2ee32c026a"
+    },
+    {
+      "path": "tests/unit/test_save_manager_parse_cache.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "cada4d995e81595e00d83fabb75a8c5398763f72"
+    },
+    {
+      "path": "tools/testing/Invoke-SevenDayHistoryPerformance.ps1",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "9d12b2c9c2d67598f7a0eb6f16508f755a6b53a2"
+    },
+    {
+      "path": "tools/testing/derive_save_write_baseline.py",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "979467bae7f89791a1cdb392c53248ca03b31a7b"
+    },
+    {
+      "path": "docs/agent/2026-09-21-session-handoff.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "54aae66bddad9a0c6495fb64a07dfd53d50d9ccf"
+    },
+    {
+      "path": "evidence/beads_cloud_review/resumed-public-cloud-run53.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "adb5c941d00327f95f093461f0aa1009714f0d59"
+    },
+    {
+      "path": "tests/integration/verify_playable_startup.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "006ee0785f62c70c316d92719c69ae7075df93d6"
+    }
+  ],
+  "scope": "Public source/commit/tree evidence only; account and permission metadata excluded."
+}

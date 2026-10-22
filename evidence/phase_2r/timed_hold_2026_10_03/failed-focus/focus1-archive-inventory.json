@@ -1,0 +1,686 @@
+{
+  "schema_version": 1,
+  "run_id": 37092368181,
+  "scope": "Every archive payload except this inventory itself, whose identity is recorded by the external package manifest.",
+  "files": [
+    {
+      "archive_path": "README.md",
+      "source_path": "generated_scope_description",
+      "kind": "readme",
+      "bytes": 1337,
+      "sha256": "85dd241da7fe89af7b91bd072049ae5d7b83f1d289b6dc1e7f0180e8df87202c"
+    },
+    {
+      "archive_path": "build_failed_focus_evidence.py",
+      "source_path": "hold-failed-focus-stage/build_failed_focus_evidence.py",
+      "kind": "archive_builder",
+      "bytes": 23230,
+      "sha256": "e0dc8445a3baf7a884529881da13dc98132107ea68962dc0a64b9900178e6c2b"
+    },
+    {
+      "archive_path": "capture/artifact-manifest.json",
+      "source_path": "hold-focus1/artifact-manifest.json",
+      "kind": "complete_capture_record",
+      "bytes": 8660,
+      "sha256": "57877d621e5c0f35c86aad7507860484992e742043712cf9addd8afd49c91631"
+    },
+    {
+      "archive_path": "capture/artifacts-api.json",
+      "source_path": "hold-focus1/artifacts-api.json",
+      "kind": "complete_capture_record",
+      "bytes": 11464,
+      "sha256": "70a685f7c79d6778d4217ce7699a04d6df3cf870563b7af888e88a0c58dc899c"
+    },
+    {
+      "archive_path": "capture/jobs.json",
+      "source_path": "hold-focus1/jobs.json",
+      "kind": "complete_capture_record",
+      "bytes": 33008,
+      "sha256": "19c830be0877aa245f9c2f68e8bb8294504a6f148f73bb2eb1cc9a488d69ad7e"
+    },
+    {
+      "archive_path": "capture/logs/111115218160.log",
+      "source_path": "hold-focus1/logs/111115218160.log",
+      "kind": "complete_capture_record",
+      "bytes": 822073,
+      "sha256": "41f2f6a5a4d0b9b563b14af6cd81803f3c70bf256f69acee0e1f59d8cc1ecd19"
+    },
+    {
+      "archive_path": "capture/logs/111116111161.log",
+      "source_path": "hold-focus1/logs/111116111161.log",
+      "kind": "complete_capture_record",
+      "bytes": 498762,
+      "sha256": "6aa03a6b16437699f6f2008f234ee93fb10f3bb12740f9d6da91eb7090bffc2b"
+    },
+    {
+      "archive_path": "capture/logs/111116111162.log",
+      "source_path": "hold-focus1/logs/111116111162.log",
+      "kind": "complete_capture_record",
+      "bytes": 498484,
+      "sha256": "d4ce59cd8c577df4d4fce9ded50e90e11cb81be649b9525e4f773a49906f4217"
+    },
+    {
+      "archive_path": "capture/logs/111116111219.log",
+      "source_path": "hold-focus1/logs/111116111219.log",
+      "kind": "complete_capture_record",
+      "bytes": 459344,
+      "sha256": "1441b32ebc54fcb6cadf7524dadacdac76820ce388b9c26aef99920c4bab5818"
+    },
+    {
+      "archive_path": "capture/logs/111116111235.log",
+      "source_path": "hold-focus1/logs/111116111235.log",
+      "kind": "complete_capture_record",
+      "bytes": 4404392,
+      "sha256": "306753644fde9eb4b9803589b858d09eaaa0305846f312999fab12c4033071e5"
+    },
+    {
+      "archive_path": "capture/logs/111116111243.log",
+      "source_path": "hold-focus1/logs/111116111243.log",
+      "kind": "complete_capture_record",
+      "bytes": 457855,
+      "sha256": "eb50557497e7cb5525e4d10363e169347e97a2ec3afdb909f2e3e33c5b66ad9a"
+    },
+    {
+      "archive_path": "capture/logs/111116111247.log",
+      "source_path": "hold-focus1/logs/111116111247.log",
+      "kind": "complete_capture_record",
+      "bytes": 456192,
+      "sha256": "affede83b31f394b6570cf31d096ce89dd2a149155bfe74e747aa5ba84dcb9f8"
+    },
+    {
+      "archive_path": "capture/logs/111116111291.log",
+      "source_path": "hold-focus1/logs/111116111291.log",
+      "kind": "complete_capture_record",
+      "bytes": 507158,
+      "sha256": "744cb04c96caa475d91f2ea70fc405b92a101f96b5c8c40b6a7d806394abf936"
+    },
+    {
+      "archive_path": "capture/omissions.json",
+      "source_path": "hold-focus1/omissions.json",
+      "kind": "complete_capture_record",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "archive_path": "capture/run.json",
+      "source_path": "hold-focus1/run.json",
+      "kind": "complete_capture_record",
+      "bytes": 12791,
+      "sha256": "fac0aed3ee93eeedf7e01127c7e391501fbdaf5f51a225f51c3ead19541705da"
+    },
+    {
+      "archive_path": "diagnostic-summary.json",
+      "source_path": "generated_from_preserved_failed_capture",
+      "kind": "diagnostic_summary",
+      "bytes": 2685,
+      "sha256": "a37329d7585fc7072144afacc3448e0d34aa0abc759ab76e9e8f1247e6be0b24"
+    },
+    {
+      "archive_path": "extraction-inventory.json",
+      "source_path": "generated_from_every_original_zip_and_capture_file",
+      "kind": "lossless_extraction_reconstruction_inventory",
+      "bytes": 509070,
+      "sha256": "36e41c82a7f5a605c0aa7b3a12c500a1054022c3610ec17667a69f600c89d470"
+    },
+    {
+      "archive_path": "original-artifacts/11262637217-windows-localization-37092368181-1.zip",
+      "source_path": "attachments/7edd67cb-fea9-401b-8b77-4a4ebac3f2e0/windows-localization-37092368181-1.zip",
+      "kind": "original_artifact_zip_once",
+      "bytes": 341298,
+      "sha256": "438b04f87e92bd9f8218eeb51650827a70a5f7a0bad96d792bd72d73e6e05ca3"
+    },
+    {
+      "archive_path": "original-artifacts/11262662103-windows-reading_delivery-37092368181-1.zip",
+      "source_path": "attachments/79a78534-410c-4744-8fc9-6ad0eb8ebc0b/windows-reading_delivery-37092368181-1.zip",
+      "kind": "original_artifact_zip_once",
+      "bytes": 212490,
+      "sha256": "f377e2104243eee3c6e9ea7e37fd22dde800e2cf2d9bda7be3d7e2752126bc43"
+    },
+    {
+      "archive_path": "original-artifacts/11262776931-reading-rail-37092368181-1.zip",
+      "source_path": "attachments/1c887d1b-c49f-497e-a3c7-7b5828354248/reading-rail-37092368181-1.zip",
+      "kind": "original_artifact_zip_once",
+      "bytes": 11570987,
+      "sha256": "ef7c442349cd15fd1abcaa6fe4b3d764e7399bb3387ccdf0f42472354e6d41f3"
+    },
+    {
+      "archive_path": "original-artifacts/11262781573-cloud-speech-rendered-timed-hold-37092368181-1.zip",
+      "source_path": "attachments/de6c68e3-2ab1-48f7-a0dd-3a40af63523e/cloud-speech-rendered-timed-hold-37092368181-1.zip",
+      "kind": "original_artifact_zip_once",
+      "bytes": 382366,
+      "sha256": "3c827debd59ec27089348442b7ba8eb7096dcc9bc86acca7a06c3c40ea376ca7"
+    },
+    {
+      "archive_path": "original-artifacts/11262886835-solo-authored-selector-37092368181-1.zip",
+      "source_path": "attachments/78c40517-d449-4235-aa28-5e0e2d9887cf/solo-authored-selector-37092368181-1.zip",
+      "kind": "original_artifact_zip_once",
+      "bytes": 7037768,
+      "sha256": "7c7475f4914f6d2f357d3c27bdb09319c5a9ba5ff94860f6bae0ee6bbefbc4fb"
+    },
+    {
+      "archive_path": "original-artifacts/11263186189-windows-persistence-37092368181-1.zip",
+      "source_path": "attachments/9b6cecd9-2dfd-4b48-88cd-42183d48b867/windows-persistence-37092368181-1.zip",
+      "kind": "original_artifact_zip_once",
+      "bytes": 198412,
+      "sha256": "1b7c0f3c8df6673b6432af8b5dbdc8d0b194c35515f35a8de1b48356667ae685"
+    },
+    {
+      "archive_path": "original-artifacts/11263291815-cloud-speech-rendered-hospital-reading-37092368181-1.zip",
+      "source_path": "attachments/beef61ff-f6b8-4c75-9dcc-979d65eedc61/cloud-speech-rendered-hospital-reading-37092368181-1.zip",
+      "kind": "original_artifact_zip_once",
+      "bytes": 386189,
+      "sha256": "7ea4e006a7d0d7f3d984890a3e30b5cd26af70775fd46a47b95bad22d28334f8"
+    },
+    {
+      "archive_path": "original-artifacts/11263476649-timed-hold-37092368181-1.zip",
+      "source_path": "attachments/42ee35e5-1186-4a2a-bb7f-5226655325ba/timed-hold-37092368181-1.zip",
+      "kind": "original_artifact_zip_once",
+      "bytes": 2444507,
+      "sha256": "91d1e69a20706bcd220e1aa8e588e559e1ffaba1467e25b47c0b7d3642dc4de1"
+    },
+    {
+      "archive_path": "original-artifacts/11263506716-hospital-reading-37092368181-1.zip",
+      "source_path": "attachments/176d4036-f258-4382-94f6-d23e44f3c273/hospital-reading-37092368181-1.zip",
+      "kind": "original_artifact_zip_once",
+      "bytes": 4644017,
+      "sha256": "52280ff6bd3cbe10c2da73c9a4e668f8ef9a47d2681ab85db2f766e9462fbc49"
+    },
+    {
+      "archive_path": "original-artifacts/11263666196-public-surfaces-37092368181-1.zip",
+      "source_path": "attachments/081b4de1-195f-4d85-bffc-387ba747214c/public-surfaces-37092368181-1.zip",
+      "kind": "original_artifact_zip_once",
+      "bytes": 145183,
+      "sha256": "2d1fa13224b30f6c15f955efb82524c89f70bfa74b90106b88fd4ffae8e57868"
+    },
+    {
+      "archive_path": "original-artifacts/11263691193-cloud-speech-rendered-journeys-37092368181-1.zip",
+      "source_path": "attachments/7ba54480-cfbe-4bbb-8158-fee156804111/cloud-speech-rendered-journeys-37092368181-1.zip",
+      "kind": "original_artifact_zip_once",
+      "bytes": 386890,
+      "sha256": "c6c7c4ead364c6b247adf555799004f2c2ebf54f0033ab55db1a660b17f88fa5"
+    },
+    {
+      "archive_path": "original-artifacts/11263736471-windows-settings-37092368181-1.zip",
+      "source_path": "attachments/a20384e4-4e75-42e7-9bab-17840a673aa8/windows-settings-37092368181-1.zip",
+      "kind": "original_artifact_zip_once",
+      "bytes": 2728236,
+      "sha256": "e83a9dba1ad0df93e6d6209a8c40b0f861c0fd301eb7a1b33a50986240c35978"
+    },
+    {
+      "archive_path": "original-artifacts/11263791137-playable-journeys-37092368181-1.zip",
+      "source_path": "attachments/068ddc86-93d3-4707-b714-81643761e290/playable-journeys-37092368181-1.zip",
+      "kind": "original_artifact_zip_once",
+      "bytes": 7832195,
+      "sha256": "26d060155b931d7e5e73665265bcb5f52936b0aa997fe1b19c12127974d464b9"
+    },
+    {
+      "archive_path": "provenance/runtime-source.commit.txt",
+      "source_path": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965",
+      "kind": "exact_git_commit_object",
+      "bytes": 334,
+      "sha256": "f53ef5a96ec1b72b9710b5fe5ddee7df12b7e6d133944feb9a2f51eb27fa2b2d"
+    },
+    {
+      "archive_path": "provenance/runtime-source.tree.txt",
+      "source_path": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965",
+      "kind": "complete_git_tree_object_inventory",
+      "bytes": 1366282,
+      "sha256": "f1cd0e66ec3ed32a3ca16f756997594ad8a90606b253ed8a1465d2fb3b8a7a21"
+    },
+    {
+      "archive_path": "provenance/source-and-workflow.json",
+      "source_path": "generated_from_exact_git_objects",
+      "kind": "source_provenance",
+      "bytes": 6523,
+      "sha256": "0f83867961f356c8e61e147e9cc940a3d64dc8fda62b7efbd59e1d3dcc970c08"
+    },
+    {
+      "archive_path": "provenance/workflow-head.commit.txt",
+      "source_path": "e91e0b50bd5e8720a3c40d48d02dbd3439dd04ef",
+      "kind": "exact_git_commit_object",
+      "bytes": 364,
+      "sha256": "41e91df33587ed5c4035949d910fa66a5b685be79af536093bbddba0a4cb589c"
+    },
+    {
+      "archive_path": "provenance/workflow-head.tree.txt",
+      "source_path": "e91e0b50bd5e8720a3c40d48d02dbd3439dd04ef",
+      "kind": "complete_git_tree_object_inventory",
+      "bytes": 1366374,
+      "sha256": "94f77337ebaf780a6e652ec8d2eb93e8f980b1099f0030abd2db3f8e45750f69"
+    },
+    {
+      "archive_path": "source-context/.github/workflows/windows-tests.yml",
+      "source_path": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965:.github/workflows/windows-tests.yml",
+      "kind": "frozen_runtime_source",
+      "bytes": 65945,
+      "sha256": "c994415aab3dac81f146b979586363ce10cf53d5116f30c6809e43714b1b0bd0"
+    },
+    {
+      "archive_path": "source-context/addons/dialogic/Core/DialogicGameHandler.gd",
+      "source_path": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965:addons/dialogic/Core/DialogicGameHandler.gd",
+      "kind": "frozen_runtime_source",
+      "bytes": 18668,
+      "sha256": "c05cd2e152b66133f5d1dae647d37b448f92bd9352ad73e73433892c4451a7b7"
+    },
+    {
+      "archive_path": "source-context/addons/dialogic/Modules/Core/subsystem_animation.gd",
+      "source_path": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965:addons/dialogic/Modules/Core/subsystem_animation.gd",
+      "kind": "frozen_runtime_source",
+      "bytes": 1025,
+      "sha256": "4ad06599e38b713b9dead79e75cc09b70d2cecb18c4d760cb3f0a26cb2851a6a"
+    },
+    {
+      "archive_path": "source-context/addons/dialogic/Modules/Core/subsystem_input.gd",
+      "source_path": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965:addons/dialogic/Modules/Core/subsystem_input.gd",
+      "kind": "frozen_runtime_source",
+      "bytes": 9187,
+      "sha256": "73a1a67e5a9bc238ef690c5543535e4928a38db0ec790d5682d79fc1b638db64"
+    },
+    {
+      "archive_path": "source-context/addons/dialogic/Modules/Wait/event_wait.gd",
+      "source_path": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965:addons/dialogic/Modules/Wait/event_wait.gd",
+      "kind": "frozen_runtime_source",
+      "bytes": 7075,
+      "sha256": "795dfa0dd0280ba5d9e68515c0c1f67e83bb6ec53aee08daa9697d968486b731"
+    },
+    {
+      "archive_path": "source-context/addons/dialogic/Resources/event.gd",
+      "source_path": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965:addons/dialogic/Resources/event.gd",
+      "kind": "frozen_runtime_source",
+      "bytes": 19648,
+      "sha256": "3d6c655cd7ae6d338d75c2f1503aa6d8511ea81c315b813e54174fabbec8222d"
+    },
+    {
+      "archive_path": "source-context/autoload/DialogicBridge.gd",
+      "source_path": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965:autoload/DialogicBridge.gd",
+      "kind": "frozen_runtime_source",
+      "bytes": 154132,
+      "sha256": "31448820a4ec9b22979445dc99a419bbf7c7ce4f892ca53bf63d701fcb9905d2"
+    },
+    {
+      "archive_path": "source-context/scripts/narrative/DialogicRuntimeAdapter.gd",
+      "source_path": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965:scripts/narrative/DialogicRuntimeAdapter.gd",
+      "kind": "frozen_runtime_source",
+      "bytes": 50513,
+      "sha256": "139eb946288b23b94e33d135ee0be729e1164c36480316038290f57eb3333445"
+    },
+    {
+      "archive_path": "source-context/scripts/ui/witnessed/WitnessedCaptionLayer.gd",
+      "source_path": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965:scripts/ui/witnessed/WitnessedCaptionLayer.gd",
+      "kind": "frozen_runtime_source",
+      "bytes": 73748,
+      "sha256": "d9c5d13474b0d6a93225002559f92524e37845ff093c64a093f49d21af58d84f"
+    },
+    {
+      "archive_path": "source-context/tests/fixtures/dialogic/timed_hold_journey.dtl",
+      "source_path": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965:tests/fixtures/dialogic/timed_hold_journey.dtl",
+      "kind": "frozen_runtime_source",
+      "bytes": 399,
+      "sha256": "c512e181733d21cf08acf0b9a60d623f356115f2b70dc45ab497ed6b18e6d1a3"
+    },
+    {
+      "archive_path": "source-context/tests/fixtures/dialogic/timed_hold_legacy_controls.dtl",
+      "source_path": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965:tests/fixtures/dialogic/timed_hold_legacy_controls.dtl",
+      "kind": "frozen_runtime_source",
+      "bytes": 318,
+      "sha256": "824c31fde671cdb3234e399965a6e0757bb1b7c3f50769a109e64a9258c52d62"
+    },
+    {
+      "archive_path": "source-context/tests/fixtures/dialogic/timed_hold_runtime.dtl",
+      "source_path": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965:tests/fixtures/dialogic/timed_hold_runtime.dtl",
+      "kind": "frozen_runtime_source",
+      "bytes": 244,
+      "sha256": "6a4950a484c29c3a27b2c4f14fdab0d8b00abc68488b3a2060f30ac8ff68633f"
+    },
+    {
+      "archive_path": "source-context/tests/integration/test_dialogic_timed_hold_runtime.gd",
+      "source_path": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965:tests/integration/test_dialogic_timed_hold_runtime.gd",
+      "kind": "frozen_runtime_source",
+      "bytes": 32248,
+      "sha256": "4a0486d58e9a71027d4126cf6ddd8accd899d25209cedb1380ddc43bc2660fff"
+    },
+    {
+      "archive_path": "source-context/tests/integration/test_narrative_pause_frontier.gd",
+      "source_path": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965:tests/integration/test_narrative_pause_frontier.gd",
+      "kind": "frozen_runtime_source",
+      "bytes": 57849,
+      "sha256": "1125410d82fb90e7f892137ec9becde64a8f43119de8745220eedf64cb12e8ae"
+    },
+    {
+      "archive_path": "source-context/tests/integration/verify_timed_hold_journey.gd",
+      "source_path": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965:tests/integration/verify_timed_hold_journey.gd",
+      "kind": "frozen_runtime_source",
+      "bytes": 20055,
+      "sha256": "ec69c2abfa55779ae62ebd46420c771fc6bcf7dc5464393b6bd83a94db067a5b"
+    },
+    {
+      "archive_path": "source-context/tests/unit/test_witnessed_timed_hold.gd",
+      "source_path": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965:tests/unit/test_witnessed_timed_hold.gd",
+      "kind": "frozen_runtime_source",
+      "bytes": 8058,
+      "sha256": "8e66e68a9092e29f44bcecf2040b56250467ad5daa71c64c539432dcb5509a26"
+    },
+    {
+      "archive_path": "source-context/tools/testing/Invoke-CloudTests.ps1",
+      "source_path": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965:tools/testing/Invoke-CloudTests.ps1",
+      "kind": "frozen_runtime_source",
+      "bytes": 20756,
+      "sha256": "472db5593da4de1980ed9b699a2aac2f687fc159b1ddb834d29a62f6e1111c80"
+    },
+    {
+      "archive_path": "source-context/tools/testing/Invoke-IsolatedGodot.ps1",
+      "source_path": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965:tools/testing/Invoke-IsolatedGodot.ps1",
+      "kind": "frozen_runtime_source",
+      "bytes": 16728,
+      "sha256": "e37252b9313d5dbf809e9502578bb270118d12a997fc189bf088648eb97329f1"
+    },
+    {
+      "archive_path": "source-context/tools/testing/run_timed_hold_journey.py",
+      "source_path": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965:tools/testing/run_timed_hold_journey.py",
+      "kind": "frozen_runtime_source",
+      "bytes": 18159,
+      "sha256": "2b596d29c6da698e886f14875429ac121a00dc7329a6ba171a7c1339dc6170a8"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/audit_focus1_source.py",
+      "source_path": "hold-cloud-plan/audit_focus1_source.py",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 15996,
+      "sha256": "44277c552a16b1ac2705c7f12fb63069b76961b04a04397af74efab5ce003d4e"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/build_timed_hold_workflow.py",
+      "source_path": "hold-cloud-plan/build_timed_hold_workflow.py",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 22543,
+      "sha256": "091f042bcf389b848d9d9e7d4aac98df5c4ed5484fff21c49629c49866f98aa1"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/focus1-api-commit.json",
+      "source_path": "hold-cloud-plan/focus1-api-commit.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 1603,
+      "sha256": "a57aa5186a079a085cfe5bcf4d9f7c9efe68c934cd7a0fac9a1622c8f87f5118"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/focus1-frozen-source-audit.json",
+      "source_path": "hold-cloud-plan/focus1-frozen-source-audit.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 464953,
+      "sha256": "7ea67de66809ada03ff7e391950b63406e7ba750e4636a421320732e14f20035"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/focus1-inventory-preflight-origin-control.json",
+      "source_path": "hold-cloud-plan/focus1-inventory-preflight-origin-control.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 1201,
+      "sha256": "3cd1a7f34a7e87d89e5ee772dd8bb0f3b80d46e4b94e37181ea10ce1c33424f9"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/focus1-public-inventory-adoption-review.json",
+      "source_path": "hold-cloud-plan/focus1-public-inventory-adoption-review.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 13642,
+      "sha256": "b0d49717c310d770ccf2a506e2f96f9970403112b499ed507263d2821251bea9"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/focus1-public-inventory-adoption.json",
+      "source_path": "hold-cloud-plan/focus1-public-inventory-adoption.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 1805,
+      "sha256": "e0c15f48407723ba8883c36db8d88e8ed8f5204cabf86d4b885bc080aeec1768"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/focus1-publication.json",
+      "source_path": "hold-cloud-plan/focus1-publication.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 287,
+      "sha256": "75fdddc8ad54dbe3b906a58604d7e130f2b7779e68e933014f4d99861091f14e"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/focus1-tree-review.json",
+      "source_path": "hold-cloud-plan/focus1-tree-review.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 449,
+      "sha256": "0a728ef2ad02bd1ddc75fa9b04c7d8e6ce7d65ef7f779b55ae8d914694c3549e"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/import_auxiliary_tree.py",
+      "source_path": "hold-cloud-plan/import_auxiliary_tree.py",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 1922,
+      "sha256": "23cda6c681416c9f381d6da0febc6ceda761bebd29192dabba21f87916045a19"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/review_public_inventory_adoption.focus1.py",
+      "source_path": "hold-cloud-plan/review_public_inventory_adoption.focus1.py",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 16416,
+      "sha256": "448b4fd8db159bb6a1a1ef507b9b101941a76c2978200183d4af6c02b6157a8f"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/timed-hold-focus1.yml.manifest.json",
+      "source_path": "hold-cloud-plan/timed-hold-focus1.yml.manifest.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 772110,
+      "sha256": "d76c566ab3087a84bc343ac4f81678b9227d113d4705e42e93576d31f279b3ba"
+    },
+    {
+      "archive_path": "support/hold-contract-review/audit_focus.v1.py",
+      "source_path": "hold-contract-review/audit_focus.v1.py",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 14961,
+      "sha256": "4830cf2429d392766a91ee8dbdb01353908f81420820611ad4275161406ed38e"
+    },
+    {
+      "archive_path": "support/hold-contract-review/audit_focus.v2.py",
+      "source_path": "hold-contract-review/audit_focus.v2.py",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 17880,
+      "sha256": "ab22f45a67717e8796330f0ec9760dd49448d477c2c2bb1cfb1a1c7d223f911e"
+    },
+    {
+      "archive_path": "support/hold-contract-review/focus1-audit-expectations.json",
+      "source_path": "hold-contract-review/focus1-audit-expectations.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 6801,
+      "sha256": "2bd1782bea27a3681e449e1ba4d93cca1232f7757cf1fcccb8a90bf07e704905"
+    },
+    {
+      "archive_path": "support/hold-contract-review/focus1-diagnostic-summary.json",
+      "source_path": "hold-contract-review/focus1-diagnostic-summary.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 9737,
+      "sha256": "c52fac7a140d9929419a948f5c6c93020dc0577fa649839f9cbdca0efa9ee545"
+    },
+    {
+      "archive_path": "support/hold-contract-review/focus1-evidence-review-v2.json",
+      "source_path": "hold-contract-review/focus1-evidence-review-v2.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 40064,
+      "sha256": "06420da35117f66d586637aa94c6b8e006da60feee7f542f063dbc5984b2d881"
+    },
+    {
+      "archive_path": "support/hold-contract-review/focus1-evidence-review.json",
+      "source_path": "hold-contract-review/focus1-evidence-review.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 38923,
+      "sha256": "743ecc432450ea35f1f55eae592acae064e366acc771244c372dd7c2ec475e30"
+    },
+    {
+      "archive_path": "support/hold-contract-review/focused-source-review-initial.json",
+      "source_path": "hold-contract-review/focused-source-review-initial.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 2898,
+      "sha256": "e0dcdf4226ac1e19bc13c30d272a85d38e4283a7218ce452a101a66dc1df9ff7"
+    },
+    {
+      "archive_path": "support/hold-contract-review/focused-source-review.json",
+      "source_path": "hold-contract-review/focused-source-review.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 3515,
+      "sha256": "23e4c8da0a43f66c52e25308b67884376678703d0d0f85314d99f83a7066e4e4"
+    },
+    {
+      "archive_path": "support/hold-contract-review/native-static-review.json",
+      "source_path": "hold-contract-review/native-static-review.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 2096,
+      "sha256": "5f9387ad48f3f1cd8076106770cf5ca40c0baa2fa4036bb24a3275dbc26a367e"
+    },
+    {
+      "archive_path": "support/hold-contract-review/runner-invalid-tween-static-review.json",
+      "source_path": "hold-contract-review/runner-invalid-tween-static-review.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 3130,
+      "sha256": "b8cdc4d65b1ca0e105df817a651e8a627deee2ec5588b20e03e580c26b8bf119"
+    },
+    {
+      "archive_path": "support/hold-contract-review/visible-wait-refusal-review.json",
+      "source_path": "hold-contract-review/visible-wait-refusal-review.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 1431,
+      "sha256": "242156fff0318b4a4581066f1c8bc94758a5a9088e84d9ceff95edfa73e5473b"
+    },
+    {
+      "archive_path": "support/hold-focus1-render/root-visual-review.json",
+      "source_path": "hold-focus1-render/root-visual-review.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 1496,
+      "sha256": "1cf7a3b40caca9e4c6075d33e6124a2732fdd6e634a2d55b38933082dd9ecd2a"
+    },
+    {
+      "archive_path": "support/hold-focus1-runner-correction/audit.json",
+      "source_path": "hold-focus1-runner-correction/audit.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 2475,
+      "sha256": "bef7bf61205730d298caefc86b544f0ac6e3827da29b945949dac0fe0629d7f5"
+    },
+    {
+      "archive_path": "support/hold-green1-source/api-commit.json",
+      "source_path": "hold-green1-source/api-commit.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 1340,
+      "sha256": "959d989348682390a1d38e1a18dbb922c64f4d1aec72548ead761ec05f16de32"
+    },
+    {
+      "archive_path": "support/hold-green1-source/manifest.json",
+      "source_path": "hold-green1-source/manifest.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 3363,
+      "sha256": "352281dbefbd4115dc0c56959b83d44c327e2cbe2e7dbd8dcfa5924043a7676d"
+    },
+    {
+      "archive_path": "support/hold-green1-source/publication.json",
+      "source_path": "hold-green1-source/publication.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 201,
+      "sha256": "2341a27d9021081d9cac8b73375d4e10056a2cb2ae0a73341edb0c047667b1ee"
+    },
+    {
+      "archive_path": "support/hold-green1-source/published-blobs.json",
+      "source_path": "hold-green1-source/published-blobs.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 1050,
+      "sha256": "82ce3defe9cc89bd07273582cc8d8e30327af2aca2cbcf453404b2d320ed786a"
+    },
+    {
+      "archive_path": "support/hold-rendered-semantic-audit/audit_hold.early-diagnostic.py",
+      "source_path": "hold-rendered-semantic-audit/audit_hold.early-diagnostic.py",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 24844,
+      "sha256": "fbe02a71f9a9f64aa5b3c45d4a7924db250186f8a312fa0f0723114178931fe2"
+    },
+    {
+      "archive_path": "support/hold-rendered-semantic-audit/audit_hold.initial-positive-object-id.py",
+      "source_path": "hold-rendered-semantic-audit/audit_hold.initial-positive-object-id.py",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 23180,
+      "sha256": "59c0d3a05a5e3a9ac92103a3a875364e1b74c0668ac49433cedd5f2ecaf3a0f3"
+    },
+    {
+      "archive_path": "support/hold-rendered-semantic-audit/audit_hold.py",
+      "source_path": "hold-rendered-semantic-audit/audit_hold.py",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 26152,
+      "sha256": "a2f8d1091c147d00cfd8a10b41ac52c7ac83290c046780a51f3261ef8095dac4"
+    },
+    {
+      "archive_path": "support/hold-rendered-semantic-audit/focus1-auditor-corrections.json",
+      "source_path": "hold-rendered-semantic-audit/focus1-auditor-corrections.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 1639,
+      "sha256": "8e27cfec205853b494304c2a2b959ad967258d50ff489364d700baac29c4b2ba"
+    },
+    {
+      "archive_path": "support/hold-rendered-semantic-audit/focus1-complete-envelope.json",
+      "source_path": "hold-rendered-semantic-audit/focus1-complete-envelope.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 3533,
+      "sha256": "2d5273ba7ba30eb38491b93fda5a3aba94ec66b5a3035f8480da303c94799a35"
+    },
+    {
+      "archive_path": "support/hold-rendered-semantic-audit/focus1-diagnostic-semantic-audit.json",
+      "source_path": "hold-rendered-semantic-audit/focus1-diagnostic-semantic-audit.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 23947,
+      "sha256": "70992a407196478a72ab74e1e9b8b9145696798357c0a06c1140010476160472"
+    },
+    {
+      "archive_path": "support/hold-rendered-semantic-audit/focus1-full-semantic-audit.json",
+      "source_path": "hold-rendered-semantic-audit/focus1-full-semantic-audit.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 24332,
+      "sha256": "bcf6ec13127ee5ebe9f9bc2077f92ea742661f33fd50fa01bb64a60c2dd61ad9"
+    },
+    {
+      "archive_path": "support/hold-rendered-semantic-audit/focus1-visual-review.json",
+      "source_path": "hold-rendered-semantic-audit/focus1-visual-review.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 2664,
+      "sha256": "20a62fbb5b758e37b46a7c723c61f581a32924ccfb72fec03466f4661f9fa5bc"
+    },
+    {
+      "archive_path": "support/hospital-tools/build_hospital_broad_workflow.py",
+      "source_path": "hospital-tools/build_hospital_broad_workflow.py",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 22609,
+      "sha256": "4bbc908b107cec3f26e33a3b6405fa177044890e21b1103c3a950381b3b68aae"
+    },
+    {
+      "archive_path": "support/hospital-tools/build_layout_workflow.py",
+      "source_path": "hospital-tools/build_layout_workflow.py",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 6666,
+      "sha256": "fbbe7088e7d09b4b55eadd6fd06fba277f10544d510252b33fa05def93815e86"
+    },
+    {
+      "archive_path": "support/hospital-tools/build_paused_settings_f9_workflow.py",
+      "source_path": "hospital-tools/build_paused_settings_f9_workflow.py",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 18498,
+      "sha256": "716d807f6855bdbc86a58db33efba0518407e5f00e8d9cfb246fd91abd813fe0"
+    },
+    {
+      "archive_path": "support/hospital-tools/capture_cloud_evidence.js",
+      "source_path": "hospital-tools/capture_cloud_evidence.js",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 7743,
+      "sha256": "77c2a96ff1630e4d113e340542dc479db111938aa7022f0b7e7ca8f99526c640"
+    },
+    {
+      "archive_path": "support/hospital-tools/cloud_evidence.py",
+      "source_path": "hospital-tools/cloud_evidence.py",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 38539,
+      "sha256": "7d0f4139bdb86ad760871713580277e9d8ea5440a6c269a7c6100362545aaa90"
+    },
+    {
+      "archive_path": "workflow/published-timed-hold-cloud.yml",
+      "source_path": "e91e0b50bd5e8720a3c40d48d02dbd3439dd04ef:.github/workflows/timed-hold-cloud.yml",
+      "kind": "published_workflow_snapshot",
+      "bytes": 22744,
+      "sha256": "f16f1ba1964d6826a7742dabb8e821830e45764010c703d654e4c394cb4a2d1d"
+    }
+  ]
+}

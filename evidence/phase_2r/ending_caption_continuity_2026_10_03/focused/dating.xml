@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="174" >
+  <testsuite name="tests/unit/test_active_dating_backup_capture.gd" tests="18" failures="0" skipped="0" time="0.041507" >
+      <testcase name="test_live_capture_keeps_exact_producers_and_returns_a_detached_result" assertions="15" status="pass" classname="tests/unit/test_active_dating_backup_capture.gd" time="0.00788" >
+      </testcase>
+      <testcase name="test_admission_returns_detached_session_command_and_record_proof" assertions="9" status="pass" classname="tests/unit/test_active_dating_backup_capture.gd" time="0.005205" >
+      </testcase>
+      <testcase name="test_admission_requires_the_current_visible_processing_dating_scene" assertions="26" status="pass" classname="tests/unit/test_active_dating_backup_capture.gd" time="0.006359" >
+      </testcase>
+      <testcase name="test_live_narrative_or_retained_timeline_refuses_before_session_capture" assertions="8" status="pass" classname="tests/unit/test_active_dating_backup_capture.gd" time="0.002163" >
+      </testcase>
+      <testcase name="test_qualified_reading_capture_keeps_the_same_semantic_checkpoint_without_reveal" assertions="4" status="pass" classname="tests/unit/test_active_dating_backup_capture.gd" time="0.002389" >
+      </testcase>
+      <testcase name="test_unavailable_retained_session_cannot_downgrade_to_empty_board_checkpoint" assertions="2" status="pass" classname="tests/unit/test_active_dating_backup_capture.gd" time="0.000773" >
+      </testcase>
+      <testcase name="test_reading_frontier_change_during_capture_refuses_the_whole_candidate" assertions="2" status="pass" classname="tests/unit/test_active_dating_backup_capture.gd" time="0.000804" >
+      </testcase>
+      <testcase name="test_mutation_gate_refuses_admission_and_capture_before_snapshot_work" assertions="6" status="pass" classname="tests/unit/test_active_dating_backup_capture.gd" time="0.001679" >
+      </testcase>
+      <testcase name="test_session_proof_is_required_for_both_admission_and_capture" assertions="7" status="pass" classname="tests/unit/test_active_dating_backup_capture.gd" time="0.001676" >
+      </testcase>
+      <testcase name="test_command_record_identity_mismatch_refuses_before_snapshot_work" assertions="11" status="pass" classname="tests/unit/test_active_dating_backup_capture.gd" time="0.00249" >
+      </testcase>
+      <testcase name="test_physical_owner_rejection_and_unstable_phase_refuse_capture" assertions="7" status="pass" classname="tests/unit/test_active_dating_backup_capture.gd" time="0.001899" >
+      </testcase>
+      <testcase name="test_missing_command_identity_is_not_accepted_when_the_record_also_omits_it" assertions="3" status="pass" classname="tests/unit/test_active_dating_backup_capture.gd" time="0.001154" >
+      </testcase>
+      <testcase name="test_session_change_during_capture_refuses_the_old_run_proof" assertions="2" status="pass" classname="tests/unit/test_active_dating_backup_capture.gd" time="0.000968" >
+      </testcase>
+      <testcase name="test_scene_command_change_during_capture_refuses_even_when_its_record_is_unchanged" assertions="2" status="pass" classname="tests/unit/test_active_dating_backup_capture.gd" time="0.001036" >
+      </testcase>
+      <testcase name="test_physical_record_change_during_capture_refuses_even_when_command_matches" assertions="2" status="pass" classname="tests/unit/test_active_dating_backup_capture.gd" time="0.001852" >
+      </testcase>
+      <testcase name="test_new_narrative_during_capture_never_becomes_an_empty_checkpoint" assertions="2" status="pass" classname="tests/unit/test_active_dating_backup_capture.gd" time="0.001114" >
+      </testcase>
+      <testcase name="test_replaced_scene_during_capture_refuses_the_previous_scene" assertions="2" status="pass" classname="tests/unit/test_active_dating_backup_capture.gd" time="0.001002" >
+      </testcase>
+      <testcase name="test_snapshot_run_or_record_drift_is_not_repaired_from_the_live_source" assertions="3" status="pass" classname="tests/unit/test_active_dating_backup_capture.gd" time="0.001064" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_dating_quick_commands.gd" tests="12" failures="0" skipped="0" time="2.171208" >
+      <testcase name="test_save_uses_shared_owner_without_pause_or_focus_move_and_quarantines_repeat" assertions="21" status="pass" classname="tests/integration/test_dating_quick_commands.gd" time="0.241245" >
+      </testcase>
+      <testcase name="test_load_consent_freezes_real_terminal_settlement_and_cancel_keeps_source" assertions="26" status="pass" classname="tests/integration/test_dating_quick_commands.gd" time="0.244433" >
+      </testcase>
+      <testcase name="test_confirmation_held_close_contact_cannot_become_quick_or_story_input" assertions="18" status="pass" classname="tests/integration/test_dating_quick_commands.gd" time="0.166926" >
+      </testcase>
+      <testcase name="test_target_or_live_session_change_cancels_existing_load_consent" assertions="19" status="pass" classname="tests/integration/test_dating_quick_commands.gd" time="0.165922" >
+      </testcase>
+      <testcase name="test_focus_loss_cancels_consent_even_if_focus_returns_before_next_frame" assertions="17" status="pass" classname="tests/integration/test_dating_quick_commands.gd" time="0.165258" >
+      </testcase>
+      <testcase name="test_compensated_load_failure_keeps_source_focus_and_freezes_commit_callbacks" assertions="23" status="pass" classname="tests/integration/test_dating_quick_commands.gd" time="0.205459" >
+      </testcase>
+      <testcase name="test_successful_load_never_reclaims_destination_focus" assertions="18" status="pass" classname="tests/integration/test_dating_quick_commands.gd" time="0.166565" >
+      </testcase>
+      <testcase name="test_active_narrative_refuses_both_commands_without_empty_checkpoint_or_pause" assertions="19" status="pass" classname="tests/integration/test_dating_quick_commands.gd" time="0.162097" >
+      </testcase>
+      <testcase name="test_reading_quick_save_owns_callbacks_and_retires_transport_before_reveal" assertions="19" status="pass" classname="tests/integration/test_dating_quick_commands.gd" time="0.163679" >
+      </testcase>
+      <testcase name="test_reading_quick_load_delegates_exact_caption_without_local_token_or_consent" assertions="21" status="pass" classname="tests/integration/test_dating_quick_commands.gd" time="0.16154" >
+      </testcase>
+      <testcase name="test_rules_focus_and_reserved_status_band_do_not_overlap_the_gameplay_host" assertions="17" status="pass" classname="tests/integration/test_dating_quick_commands.gd" time="0.166802" >
+      </testcase>
+      <testcase name="test_missing_physical_board_has_no_revision_without_a_nil_method_call" assertions="15" status="pass" classname="tests/integration/test_dating_quick_commands.gd" time="0.161282" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_frozen_presentation_context.gd" tests="6" failures="0" skipped="0" time="0.353308" >
+      <testcase name="test_every_manifest_entry_has_an_exact_schema_and_rejects_every_missing_field" assertions="2061" status="pass" classname="tests/unit/test_frozen_presentation_context.gd" time="0.346314" >
+      </testcase>
+      <testcase name="test_solo_entry_binds_day_friend_role_and_no_retired_choice" assertions="9" status="pass" classname="tests/unit/test_frozen_presentation_context.gd" time="0.002052" >
+      </testcase>
+      <testcase name="test_pair_and_alone_omit_every_inapplicable_solo_field" assertions="12" status="pass" classname="tests/unit/test_frozen_presentation_context.gd" time="0.001883" >
+      </testcase>
+      <testcase name="test_pair_count_and_terminal_observation_discriminators_are_consistent" assertions="4" status="pass" classname="tests/unit/test_frozen_presentation_context.gd" time="0.001274" >
+      </testcase>
+      <testcase name="test_reply_and_witness_must_be_exact_registered_selection_pair" assertions="3" status="pass" classname="tests/unit/test_frozen_presentation_context.gd" time="0.000786" >
+      </testcase>
+      <testcase name="test_snapshot_and_recursive_projection_do_not_alias_mutable_sources" assertions="6" status="pass" classname="tests/unit/test_frozen_presentation_context.gd" time="0.000999" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_dating_narrative_playback.gd" tests="18" failures="0" skipped="0" time="0.02826" >
+      <testcase name="test_pre_and_post_use_matching_semantic_entries_and_exact_frozen_context" assertions="18" status="pass" classname="tests/unit/test_dating_narrative_playback.gd" time="0.003526" >
+      </testcase>
+      <testcase name="test_repeated_begin_waits_for_natural_completion_without_restarting" assertions="14" status="pass" classname="tests/unit/test_dating_narrative_playback.gd" time="0.001924" >
+      </testcase>
+      <testcase name="test_full_projection_is_checked_frozen_and_cannot_change_during_the_same_phase" assertions="8" status="pass" classname="tests/unit/test_dating_narrative_playback.gd" time="0.002331" >
+      </testcase>
+      <testcase name="test_invalid_full_projection_never_calls_bridge" assertions="3" status="pass" classname="tests/unit/test_dating_narrative_playback.gd" time="0.000606" >
+      </testcase>
+      <testcase name="test_invalid_replacement_projection_does_not_abort_the_current_entry" assertions="6" status="pass" classname="tests/unit/test_dating_narrative_playback.gd" time="0.001078" >
+      </testcase>
+      <testcase name="test_return_only_entry_can_complete_synchronously_inside_start" assertions="7" status="pass" classname="tests/unit/test_dating_narrative_playback.gd" time="0.00114" >
+      </testcase>
+      <testcase name="test_completion_rejects_each_forged_identity_without_poisoning_the_valid_phase" assertions="18" status="pass" classname="tests/unit/test_dating_narrative_playback.gd" time="0.002544" >
+      </testcase>
+      <testcase name="test_synchronous_completion_is_verified_against_returned_start_receipt" assertions="5" status="pass" classname="tests/unit/test_dating_narrative_playback.gd" time="0.000949" >
+      </testcase>
+      <testcase name="test_command_or_phase_drift_cannot_take_over_retained_playback" assertions="16" status="pass" classname="tests/unit/test_dating_narrative_playback.gd" time="0.002081" >
+      </testcase>
+      <testcase name="test_start_failure_is_latched_until_explicit_retry" assertions="13" status="pass" classname="tests/unit/test_dating_narrative_playback.gd" time="0.00177" >
+      </testcase>
+      <testcase name="test_runtime_failure_needs_retry_and_rejects_completion_from_failed_attempt" assertions="9" status="pass" classname="tests/unit/test_dating_narrative_playback.gd" time="0.001352" >
+      </testcase>
+      <testcase name="test_unrelated_failure_does_not_retire_current_playback" assertions="4" status="pass" classname="tests/unit/test_dating_narrative_playback.gd" time="0.000719" >
+      </testcase>
+      <testcase name="test_playback_retired_without_natural_completion_requires_explicit_retry" assertions="8" status="pass" classname="tests/unit/test_dating_narrative_playback.gd" time="0.001273" >
+      </testcase>
+      <testcase name="test_finished_pre_phase_cannot_complete_post_phase_with_stale_receipt" assertions="9" status="pass" classname="tests/unit/test_dating_narrative_playback.gd" time="0.001377" >
+      </testcase>
+      <testcase name="test_restored_different_date_cancels_only_retained_phase_and_rejects_old_completion" assertions="9" status="pass" classname="tests/unit/test_dating_narrative_playback.gd" time="0.00137" >
+      </testcase>
+      <testcase name="test_new_presentation_replays_same_completed_phase_instead_of_reusing_transient_completion" assertions="13" status="pass" classname="tests/unit/test_dating_narrative_playback.gd" time="0.001803" >
+      </testcase>
+      <testcase name="test_new_presentation_cancels_active_phase_and_rejects_its_late_completion" assertions="10" status="pass" classname="tests/unit/test_dating_narrative_playback.gd" time="0.001554" >
+      </testcase>
+      <testcase name="test_configuration_is_retained_and_invalid_phase_never_starts_bridge" assertions="6" status="pass" classname="tests/unit/test_dating_narrative_playback.gd" time="0.000863" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_canonical_dating_mastery.gd" tests="9" failures="0" skipped="0" time="5.866869" >
+      <testcase name="test_all_required_solo_boards_are_perfect_even_after_dark_and_inputs_stay_detached" assertions="21" status="pass" classname="tests/unit/test_canonical_dating_mastery.gd" time="0.561132" >
+      </testcase>
+      <testcase name="test_each_missing_head_or_completion_refuses_mastery_without_filling_from_history" assertions="33" status="pass" classname="tests/unit/test_canonical_dating_mastery.gd" time="0.548353" >
+      </testcase>
+      <testcase name="test_exact_saved_branch_heads_allow_inheritance_but_refuse_siblings_other_runs_and_attempts" assertions="9" status="pass" classname="tests/unit/test_canonical_dating_mastery.gd" time="0.129241" >
+      </testcase>
+      <testcase name="test_real_solved_and_exploded_boards_do_not_replace_perfect_evidence" assertions="9" status="pass" classname="tests/unit/test_canonical_dating_mastery.gd" time="0.154185" >
+      </testcase>
+      <testcase name="test_pair_mastery_requires_both_visible_group_or_deferred_physical_boards" assertions="7" status="pass" classname="tests/unit/test_canonical_dating_mastery.gd" time="0.062742" >
+      </testcase>
+      <testcase name="test_game_state_uses_explicit_profile_heads_and_never_manufactures_observer_behavior" assertions="22" status="pass" classname="tests/unit/test_canonical_dating_mastery.gd" time="1.147849" >
+      </testcase>
+      <testcase name="test_pair_observer_predicts_only_sole_missing_sweet_form_with_explicit_precondition" assertions="9" status="pass" classname="tests/unit/test_canonical_dating_mastery.gd" time="0.736902" >
+      </testcase>
+      <testcase name="test_solo_observers_qualify_without_retired_interactions_and_preserve_replay_receipts" assertions="22" status="pass" classname="tests/unit/test_canonical_dating_mastery.gd" time="1.575027" >
+      </testcase>
+      <testcase name="test_retiring_solo_interactions_preserves_tone_mastery_and_destination_gates" assertions="22" status="pass" classname="tests/unit/test_canonical_dating_mastery.gd" time="0.951438" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_dating_attempt_runtime.gd" tests="45" failures="0" skipped="0" time="33.985045" >
+      <testcase name="test_production_pre_context_is_frozen_before_checkpoint_and_survives_load" assertions="18" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.025687" >
+      </testcase>
+      <testcase name="test_production_post_context_names_the_committed_effect_and_terminal_result" assertions="24" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.405599" >
+      </testcase>
+      <testcase name="test_production_restore_refuses_missing_frozen_context_without_mutating_run_or_profile" assertions="13" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.029273" >
+      </testcase>
+      <testcase name="test_pair_projection_copies_real_draw_and_window_fact_without_solo_sentinels" assertions="25" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.022125" >
+      </testcase>
+      <testcase name="test_mid_board_restore_requires_the_original_pre_context_before_profile_reconciliation" assertions="15" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.168713" >
+      </testcase>
+      <testcase name="test_pair_before_invitation_rollover_freezes_pending_without_minting_a_receipt" assertions="27" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.315903" >
+      </testcase>
+      <testcase name="test_pair_without_a_committed_count_or_retained_rollover_plan_is_refused" assertions="11" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.020519" >
+      </testcase>
+      <testcase name="test_saved_context_cannot_claim_another_attempt_or_terminal_result" assertions="29" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.621423" >
+      </testcase>
+      <testcase name="test_restore_before_date_admission_keeps_pre_facts_when_locked_attempt_is_selected" assertions="29" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.586344" >
+      </testcase>
+      <testcase name="test_routine_board_actions_commit_no_profile_attempt_until_flush" assertions="26" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.313499" >
+      </testcase>
+      <testcase name="test_refused_admission_keeps_uncommitted_progress_flushable" assertions="18" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.300073" >
+      </testcase>
+      <testcase name="test_failed_load_rollback_keeps_uncommitted_progress_flushable" assertions="21" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.300481" >
+      </testcase>
+      <testcase name="test_flush_pending_attempt_uses_the_active_causal_lease_or_takes_its_own" assertions="25" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.301212" >
+      </testcase>
+      <testcase name="test_continue_freezes_existing_spec_and_first_reveal_freezes_exact_layout" assertions="21" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.131333" >
+      </testcase>
+      <testcase name="test_failed_profile_entry_restores_game_state_and_never_writes_autosave" assertions="15" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.054998" >
+      </testcase>
+      <testcase name="test_profile_ahead_after_board_autosave_failure_only_retries_same_committed_move" assertions="24" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.169987" >
+      </testcase>
+      <testcase name="test_terminal_profile_ahead_replays_frozen_effect_once_after_checkpoint_retry" assertions="25" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.428393" >
+      </testcase>
+      <testcase name="test_old_pre_entry_load_delays_committed_effect_until_continue_and_rebinds_command" assertions="31" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.582814" >
+      </testcase>
+      <testcase name="test_silent_restore_uses_final_route_and_current_day_before_overlaying_profile" assertions="26" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.290579" >
+      </testcase>
+      <testcase name="test_restored_mid_board_new_command_preserves_exact_materialized_instance" assertions="18" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.241669" >
+      </testcase>
+      <testcase name="test_group_to_deferred_rebind_keeps_one_pair_slot_and_atomic_completion_witness" assertions="29" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.609886" >
+      </testcase>
+      <testcase name="test_pair_witness_conflict_rejects_completion_without_partial_ledger_write" assertions="19" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.4973" >
+      </testcase>
+      <testcase name="test_pair_profile_write_failure_keeps_both_completion_and_witness_uncommitted" assertions="22" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.5797" >
+      </testcase>
+      <testcase name="test_dating_refuses_foreign_causal_lease_until_presentation_owner_releases_it" assertions="15" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.041034" >
+      </testcase>
+      <testcase name="test_post_ending_old_midboard_and_sibling_loads_keep_exact_progress" assertions="37" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.711776" >
+      </testcase>
+      <testcase name="test_post_ending_pre_entry_load_gets_fresh_attempt_only_at_continue" assertions="46" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="1.98473" >
+      </testcase>
+      <testcase name="test_post_ending_copied_action_profile_and_checkpoint_failures_preserve_retry_identity" assertions="35" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.960255" >
+      </testcase>
+      <testcase name="test_post_ending_entered_unmaterialized_save_keeps_spec_and_chooses_its_own_first_click" assertions="27" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.771144" >
+      </testcase>
+      <testcase name="test_post_ending_saved_terminal_board_keeps_automatic_loved_effect_and_exact_head" assertions="33" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="1.357325" >
+      </testcase>
+      <testcase name="test_completed_head_inheritance_keeps_prior_progress_branch" assertions="35" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="1.938904" >
+      </testcase>
+      <testcase name="test_post_ending_pair_continuation_normalizes_group_deferred_context" assertions="27" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.945646" >
+      </testcase>
+      <testcase name="test_failed_restore_rolls_back_local_continuation_selection_on_next_action" assertions="23" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.560803" >
+      </testcase>
+      <testcase name="test_failed_load_restores_exact_pending_retry_and_successful_load_discards_it" assertions="45" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.711282" >
+      </testcase>
+      <testcase name="test_exploded_pair_completion_does_not_grant_combination_witness" assertions="16" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.32326" >
+      </testcase>
+      <testcase name="test_retired_observer_actions_have_no_source_and_cannot_write_evidence" assertions="33" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.032955" >
+      </testcase>
+      <testcase name="test_retired_observer_checkpoint_cannot_strand_restored_board_entry" assertions="14" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.041584" >
+      </testcase>
+      <testcase name="test_pre_challenge_reached_signature_needs_actual_draw_and_uses_saved_base_fields" assertions="19" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.064835" >
+      </testcase>
+      <testcase name="test_pre_challenge_reached_profile_failure_retries_without_rebinding_or_rehearsal_write" assertions="14" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.034521" >
+      </testcase>
+      <testcase name="test_post_challenge_reach_freezes_terminal_fields_and_exact_draw_deduplicates" assertions="29" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.724911" >
+      </testcase>
+      <testcase name="test_post_challenge_profile_failure_restores_exact_fields_and_rehearsal_has_no_writer" assertions="24" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.541526" >
+      </testcase>
+      <testcase name="test_failed_terminal_checkpoint_cannot_record_post_until_exact_retry_is_saved" assertions="21" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.527044" >
+      </testcase>
+      <testcase name="test_post_dtl_completion_gates_progression_and_start_failure_stays_retryable" assertions="30" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="0.705796" >
+      </testcase>
+      <testcase name="test_post_ending_preparing_load_enters_exact_saved_spec_without_reroll" assertions="27" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="4.648334" >
+      </testcase>
+      <testcase name="test_post_ending_preparing_cold_recovery_reuses_profile_ahead_entry" assertions="25" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="4.655933" >
+      </testcase>
+      <testcase name="test_post_ending_preparing_older_load_uses_existing_attempt_continuation" assertions="26" status="pass" classname="tests/unit/test_dating_attempt_runtime.gd" time="4.703937" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_profile_evidence_v8.gd" tests="6" failures="0" skipped="0" time="0.203199" >
+      <testcase name="test_v7_upgrade_adds_empty_evidence_without_inventing_proofs" assertions="7" status="pass" classname="tests/unit/test_profile_evidence_v8.gd" time="0.009624" >
+      </testcase>
+      <testcase name="test_verification_requires_registered_capture_from_another_run" assertions="6" status="pass" classname="tests/unit/test_profile_evidence_v8.gd" time="0.001533" >
+      </testcase>
+      <testcase name="test_restraint_needs_exact_completed_window_without_intervention" assertions="4" status="pass" classname="tests/unit/test_profile_evidence_v8.gd" time="0.002404" >
+      </testcase>
+      <testcase name="test_profile_evidence_failed_write_retry_and_detached_reads" assertions="7" status="pass" classname="tests/unit/test_profile_evidence_v8.gd" time="0.036512" >
+      </testcase>
+      <testcase name="test_pair_draw_requires_custody_and_reuses_profile_ahead_record" assertions="11" status="pass" classname="tests/unit/test_profile_evidence_v8.gd" time="0.029666" >
+      </testcase>
+      <testcase name="test_clear_gallery_preserves_observer_and_draw_but_clears_reached_signatures" assertions="16" status="pass" classname="tests/unit/test_profile_evidence_v8.gd" time="0.12346" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_dating_physical_owner.gd" tests="15" failures="0" skipped="0" time="1.938306" >
+      <testcase name="test_solo_clear_settles_automatically_and_restores_without_paying_twice" assertions="29" status="pass" classname="tests/unit/test_dating_physical_owner.gd" time="0.098219" >
+      </testcase>
+      <testcase name="test_legacy_saved_clear_retires_special_actions_and_continues_as_loved_once" assertions="674" status="pass" classname="tests/unit/test_dating_physical_owner.gd" time="0.22826" >
+      </testcase>
+      <testcase name="test_explosion_uses_frozen_disposition_and_retry_keeps_same_fact" assertions="20" status="pass" classname="tests/unit/test_dating_physical_owner.gd" time="0.092008" >
+      </testcase>
+      <testcase name="test_ordinary_clear_failure_retries_the_same_automatic_loved_result" assertions="22" status="pass" classname="tests/unit/test_dating_physical_owner.gd" time="0.117382" >
+      </testcase>
+      <testcase name="test_group_and_deferred_pair_only_record_board_and_witness" assertions="26" status="pass" classname="tests/unit/test_dating_physical_owner.gd" time="0.125541" >
+      </testcase>
+      <testcase name="test_flag_unflag_chord_are_public_and_stale_revision_is_refused" assertions="18" status="pass" classname="tests/unit/test_dating_physical_owner.gd" time="0.147104" >
+      </testcase>
+      <testcase name="test_loaded_authoritative_record_replaces_cached_projection_and_rejects_tampering" assertions="12" status="pass" classname="tests/unit/test_dating_physical_owner.gd" time="0.039037" >
+      </testcase>
+      <testcase name="test_three_bv_counts_zero_openings_and_remaining_numbers" assertions="6" status="pass" classname="tests/unit/test_dating_physical_owner.gd" time="0.001699" >
+      </testcase>
+      <testcase name="test_checkpoint_failure_rolls_back_automatic_settlement_before_retry" assertions="29" status="pass" classname="tests/unit/test_dating_physical_owner.gd" time="0.111696" >
+      </testcase>
+      <testcase name="test_mounted_scene_mouse_input_reaches_real_board_and_completion_port" assertions="35" status="pass" classname="tests/unit/test_dating_physical_owner.gd" time="0.311673" >
+      </testcase>
+      <testcase name="test_mounted_scene_retries_a_refused_settlement_only_from_retry" assertions="22" status="pass" classname="tests/unit/test_dating_physical_owner.gd" time="0.275462" >
+      </testcase>
+      <testcase name="test_cached_admission_readopts_exact_restored_prior_date_without_new_board_identity" assertions="19" status="pass" classname="tests/unit/test_dating_physical_owner.gd" time="0.096424" >
+      </testcase>
+      <testcase name="test_routine_board_actions_defer_receipts_and_write_no_checkpoint" assertions="25" status="pass" classname="tests/unit/test_dating_physical_owner.gd" time="0.097147" >
+      </testcase>
+      <testcase name="test_losing_reveal_paints_before_its_settlement_runs_as_the_boundary" assertions="23" status="pass" classname="tests/unit/test_dating_physical_owner.gd" time="0.074189" >
+      </testcase>
+      <testcase name="test_solving_reveal_paints_before_automatic_loved_settlement" assertions="25" status="pass" classname="tests/unit/test_dating_physical_owner.gd" time="0.122465" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_dating_capability_envelope.gd" tests="6" failures="0" skipped="0" time="7.059742" >
+      <testcase name="test_shell_flags_survive_fresh_owner_and_materialize_with_exact_history" assertions="19" status="pass" classname="tests/unit/test_dating_capability_envelope.gd" time="0.040768" >
+      </testcase>
+      <testcase name="test_entry_freezes_real_lucky_debug_and_hidden_extra_inputs" assertions="10" status="pass" classname="tests/unit/test_dating_capability_envelope.gd" time="0.003582" >
+      </testcase>
+      <testcase name="test_perfect_settles_automatically_and_never_exposes_a_dark_choice" assertions="335" status="pass" classname="tests/unit/test_dating_capability_envelope.gd" time="0.139862" >
+      </testcase>
+      <testcase name="test_nonperfect_flagged_clear_applies_loved_without_any_marked_or_actionable_cell" assertions="668" status="pass" classname="tests/unit/test_dating_capability_envelope.gd" time="0.231601" >
+      </testcase>
+      <testcase name="test_post_scene_waits_for_all_contacts_to_release_without_any_choice_button" assertions="21" status="pass" classname="tests/unit/test_dating_capability_envelope.gd" time="0.162015" >
+      </testcase>
+      <testcase name="test_debug_preparation_and_shell_flags_resume_without_changing_the_certified_reveal" assertions="361" status="pass" classname="tests/unit/test_dating_capability_envelope.gd" time="6.481914" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_dating_rehearsal_owner.gd" tests="6" failures="0" skipped="0" time="10.765972" >
+      <testcase name="test_exact_reached_pre_challenge_and_first_ending_are_both_required" assertions="10" status="pass" classname="tests/unit/test_dating_rehearsal_owner.gd" time="0.052871" >
+      </testcase>
+      <testcase name="test_real_perfect_settles_automatically_in_private_state_and_no_progression_capability_escapes" assertions="106" status="pass" classname="tests/unit/test_dating_rehearsal_owner.gd" time="2.151048" >
+      </testcase>
+      <testcase name="test_both_pair_modes_finish_real_board_without_any_pair_witness_or_relationship_effect" assertions="184" status="pass" classname="tests/unit/test_dating_rehearsal_owner.gd" time="4.07193" >
+      </testcase>
+      <testcase name="test_solved_and_exploded_remain_real_distinct_outcomes_and_reject_debug_settlement" assertions="111" status="pass" classname="tests/unit/test_dating_rehearsal_owner.gd" time="2.493355" >
+      </testcase>
+      <testcase name="test_only_current_rendered_line_witness_can_persist_and_variables_remain_detached" assertions="97" status="pass" classname="tests/unit/test_dating_rehearsal_owner.gd" time="1.994424" >
+      </testcase>
+      <testcase name="test_empty_result_route_proof_rejects_source_prose_and_nonempty_selected_leaf" assertions="9" status="pass" classname="tests/unit/test_dating_rehearsal_owner.gd" time="0.002344" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_dating_presentation_port.gd" tests="21" failures="0" skipped="0" time="0.149897" >
+      <testcase name="test_an_unconfigured_dating_port_fails_closed_before_routing_or_physical_start" assertions="12" status="pass" classname="tests/unit/test_dating_presentation_port.gd" time="0.007116" >
+      </testcase>
+      <testcase name="test_the_dating_port_refuses_the_narrative_owner" assertions="9" status="pass" classname="tests/unit/test_dating_presentation_port.gd" time="0.006722" >
+      </testcase>
+      <testcase name="test_configure_is_idempotent_and_refuses_a_replacement_dependency" assertions="10" status="pass" classname="tests/unit/test_dating_presentation_port.gd" time="0.006156" >
+      </testcase>
+      <testcase name="test_a_valid_solo_intent_returns_the_canonical_command" assertions="12" status="pass" classname="tests/unit/test_dating_presentation_port.gd" time="0.00768" >
+      </testcase>
+      <testcase name="test_a_hospital_route_is_refused_by_the_dating_port" assertions="8" status="pass" classname="tests/unit/test_dating_presentation_port.gd" time="0.006992" >
+      </testcase>
+      <testcase name="test_an_unregistered_locator_is_refused" assertions="8" status="pass" classname="tests/unit/test_dating_presentation_port.gd" time="0.006091" >
+      </testcase>
+      <testcase name="test_the_three_dating_context_kinds_are_accepted_and_others_are_not" assertions="11" status="pass" classname="tests/unit/test_dating_presentation_port.gd" time="0.006478" >
+      </testcase>
+      <testcase name="test_the_dating_context_member_set_is_exact" assertions="10" status="pass" classname="tests/unit/test_dating_presentation_port.gd" time="0.006686" >
+      </testcase>
+      <testcase name="test_a_solo_names_exactly_one_participant" assertions="10" status="pass" classname="tests/unit/test_dating_presentation_port.gd" time="0.006614" >
+      </testcase>
+      <testcase name="test_the_pair_order_is_priscilla_then_lavinia_and_is_never_sorted" assertions="9" status="pass" classname="tests/unit/test_dating_presentation_port.gd" time="0.006159" >
+      </testcase>
+      <testcase name="test_a_deferred_pair_intent_is_accepted_in_the_canonical_order" assertions="9" status="pass" classname="tests/unit/test_dating_presentation_port.gd" time="0.006975" >
+      </testcase>
+      <testcase name="test_a_locally_derived_completion_id_is_refused" assertions="8" status="pass" classname="tests/unit/test_dating_presentation_port.gd" time="0.006121" >
+      </testcase>
+      <testcase name="test_every_projected_field_binds_the_completion_child" assertions="18" status="pass" classname="tests/unit/test_dating_presentation_port.gd" time="0.009193" >
+      </testcase>
+      <testcase name="test_a_changed_participant_list_breaks_the_completion_binding" assertions="9" status="pass" classname="tests/unit/test_dating_presentation_port.gd" time="0.006344" >
+      </testcase>
+      <testcase name="test_an_unverified_resolution_root_is_refused" assertions="9" status="pass" classname="tests/unit/test_dating_presentation_port.gd" time="0.006025" >
+      </testcase>
+      <testcase name="test_a_trusted_challenge_completion_produces_the_exact_frozen_receipt_once" assertions="14" status="pass" classname="tests/unit/test_dating_presentation_port.gd" time="0.008486" >
+      </testcase>
+      <testcase name="test_a_deferred_pair_completes_through_the_port_carrying_its_own_pair_bytes" assertions="20" status="pass" classname="tests/unit/test_dating_presentation_port.gd" time="0.010294" >
+      </testcase>
+      <testcase name="test_a_restored_owner_reemission_returns_the_same_receipt_without_a_second_publication" assertions="11" status="pass" classname="tests/unit/test_dating_presentation_port.gd" time="0.008451" >
+      </testcase>
+      <testcase name="test_a_scene_authored_challenge_result_never_reaches_a_stage" assertions="9" status="pass" classname="tests/unit/test_dating_presentation_port.gd" time="0.006661" >
+      </testcase>
+      <testcase name="test_owner_receipt_drift_is_refused" assertions="17" status="pass" classname="tests/unit/test_dating_presentation_port.gd" time="0.00792" >
+      </testcase>
+      <testcase name="test_an_owner_failure_publishes_exactly_one_failure_and_no_completion" assertions="10" status="pass" classname="tests/unit/test_dating_presentation_port.gd" time="0.006733" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_ordered_ending_real_runtime.gd" tests="12" failures="0" skipped="0" time="2.720325" >
+      <testcase name="test_real_four_step_playback_records_each_discovery_then_saves_completed_run" assertions="22" status="pass" classname="tests/integration/test_ordered_ending_real_runtime.gd" time="0.355184" >
+      </testcase>
+      <testcase name="test_failed_step_save_retries_exact_completion_without_replaying_timeline" assertions="20" status="pass" classname="tests/integration/test_ordered_ending_real_runtime.gd" time="0.252056" >
+      </testcase>
+      <testcase name="test_cursor_restore_resumes_next_exact_physical_branch" assertions="18" status="pass" classname="tests/integration/test_ordered_ending_real_runtime.gd" time="0.235412" >
+      </testcase>
+      <testcase name="test_enter_envelope_preserves_the_complete_already_resolved_ordered_plan" assertions="13" status="pass" classname="tests/integration/test_ordered_ending_real_runtime.gd" time="0.085075" >
+      </testcase>
+      <testcase name="test_completed_snapshot_returns_without_replaying_or_rewriting_rewards" assertions="19" status="pass" classname="tests/integration/test_ordered_ending_real_runtime.gd" time="0.253904" >
+      </testcase>
+      <testcase name="test_exact_canonical_labels_record_then_native_gallery_replay_preserves_run_and_profile" assertions="34" status="pass" classname="tests/integration/test_ordered_ending_real_runtime.gd" time="0.971177" >
+      </testcase>
+      <testcase name="test_ending_reading_restore_adopts_same_caption_in_both_route_orders" assertions="44" status="pass" classname="tests/integration/test_ordered_ending_real_runtime.gd" time="0.105735" >
+      </testcase>
+      <testcase name="test_ending_reading_abort_retires_port_without_completion" assertions="25" status="pass" classname="tests/integration/test_ordered_ending_real_runtime.gd" time="0.090841" >
+      </testcase>
+      <testcase name="test_ending_boundary_restore_rollback_retires_started_successor" assertions="30" status="pass" classname="tests/integration/test_ordered_ending_real_runtime.gd" time="0.093236" >
+      </testcase>
+      <testcase name="test_ending_start_refusal_retry_preserves_preceding_history" assertions="28" status="pass" classname="tests/integration/test_ordered_ending_real_runtime.gd" time="0.096592" >
+      </testcase>
+      <testcase name="test_reached_write_failure_retries_completed_ending_without_native_replay" assertions="33" status="pass" classname="tests/integration/test_ordered_ending_real_runtime.gd" time="0.097991" >
+      </testcase>
+      <testcase name="test_retired_textbox_listener_cannot_block_successor_caption_animation" assertions="15" status="pass" classname="tests/integration/test_ordered_ending_real_runtime.gd" time="0.083122" >
+      </testcase>
+  </testsuite>
+</testsuites>

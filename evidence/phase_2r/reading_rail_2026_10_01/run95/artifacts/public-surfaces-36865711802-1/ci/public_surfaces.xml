@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="11" >
+  <testsuite name="tests/unit/tooling/test_public_surface_inventory.gd" tests="11" failures="0" skipped="0" time="35.496281" >
+      <testcase name="test_public_surface_inventory_exists" assertions="1" status="pass" classname="tests/unit/tooling/test_public_surface_inventory.gd" time="0.016661" >
+      </testcase>
+      <testcase name="test_build_produces_complete_sorted_records" assertions="31" status="pass" classname="tests/unit/tooling/test_public_surface_inventory.gd" time="0.014806" >
+      </testcase>
+      <testcase name="test_validation_failure_matrix" assertions="60" status="pass" classname="tests/unit/tooling/test_public_surface_inventory.gd" time="0.037492" >
+      </testcase>
+      <testcase name="test_reserved_symbol_rules" assertions="17" status="pass" classname="tests/unit/tooling/test_public_surface_inventory.gd" time="0.007344" >
+      </testcase>
+      <testcase name="test_write_canonical_json_round_trip" assertions="14" status="pass" classname="tests/unit/tooling/test_public_surface_inventory.gd" time="0.008664" >
+      </testcase>
+      <testcase name="test_game_state_required_surface_reservations" assertions="13" status="pass" classname="tests/unit/tooling/test_public_surface_inventory.gd" time="0.051035" >
+      </testcase>
+      <testcase name="test_task3_required_surface_realizes_authenticated_contacts_and_retires_legacy_reply" assertions="18" status="pass" classname="tests/unit/tooling/test_public_surface_inventory.gd" time="10.524692" >
+      </testcase>
+      <testcase name="test_task4_committed_schedule_seams_carry_their_exact_frozen_signatures" assertions="33" status="pass" classname="tests/unit/tooling/test_public_surface_inventory.gd" time="10.493193" >
+      </testcase>
+      <testcase name="test_save_manager_required_surface_freezes_realized_facade" assertions="112" status="pass" classname="tests/unit/tooling/test_public_surface_inventory.gd" time="0.025695" >
+      </testcase>
+      <testcase name="test_both_live_inventories_reproduce_every_canonical_byte" assertions="7" status="pass" classname="tests/unit/tooling/test_public_surface_inventory.gd" time="14.291272" >
+      </testcase>
+      <testcase name="test_read_only_check_detects_call_site_dynamic_reference_and_signature_drift" assertions="38" status="pass" classname="tests/unit/tooling/test_public_surface_inventory.gd" time="0.025427" >
+      </testcase>
+  </testsuite>
+</testsuites>

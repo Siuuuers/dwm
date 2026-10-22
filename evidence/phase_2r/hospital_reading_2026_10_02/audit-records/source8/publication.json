@@ -1,0 +1,23 @@
+{
+  "source": "856520f09440d9b47cc272de3363009924ffedca",
+  "run_id": 37044894986,
+  "run_url": "https://github.com/Siuuuers/dwm/actions/runs/37044894986",
+  "source_tree": "be2b825fae934697d988bc3106bc18a100601cba",
+  "workflow_head": "1bc4f6afd759e969f82b9c2134eb178479c19d13",
+  "workflow_tree": "b7d292fe3960467b522a1d9b22223c4a4563a8fe",
+  "workflow_blob": "f2fd4a8a2029dd465dbcd10c73651caa2f36841d",
+  "parents": [
+    "e0317e13c226f3c7142ac31d1ae28050561c65b0",
+    "856520f09440d9b47cc272de3363009924ffedca"
+  ],
+  "branch": "codex/hospital-reading-cloud-20261002",
+  "pr_head_unchanged": "732e3fe266be69396bd0835c3e07c7beb06f9e5f",
+  "canonical_jobs_byte_identical": true,
+  "job_count": 24,
+  "expected_ordinary_xml_count": 13,
+  "predicted_cases": 2421,
+  "allowed_source_diff": [
+    ".github/workflows/hospital-reading-cloud.yml"
+  ],
+  "checkout": "actual workflow head"
+}

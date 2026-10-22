@@ -1,0 +1,141 @@
+{
+  "head_sha": "e1d3428fbfc9de27a0f350f3a858478cd06c0978",
+  "run_id": 35577704852,
+  "suites": [
+    {
+      "suite": "desktop",
+      "tests": 157,
+      "scripts": 15,
+      "exit_code": 0,
+      "report": "windows-desktop-35577704852-1/ci/desktop.xml"
+    },
+    {
+      "suite": "localization",
+      "tests": 152,
+      "scripts": 18,
+      "exit_code": 0,
+      "report": "windows-localization-35577704852-1/ci/localization.xml"
+    },
+    {
+      "suite": "minesweeper",
+      "tests": 197,
+      "scripts": 20,
+      "exit_code": 0,
+      "report": "windows-minesweeper-35577704852-1/ci/minesweeper.xml"
+    },
+    {
+      "suite": "new_account",
+      "tests": 136,
+      "scripts": 13,
+      "exit_code": 0,
+      "report": "windows-new_account-35577704852-1/ci/new_account.xml"
+    },
+    {
+      "suite": "reading_delivery",
+      "tests": 178,
+      "scripts": 14,
+      "exit_code": 0,
+      "report": "windows-reading_delivery-35577704852-1/ci/reading_delivery.xml"
+    },
+    {
+      "suite": "settings",
+      "tests": 254,
+      "scripts": 21,
+      "exit_code": 0,
+      "report": "windows-settings-35577704852-1/ci/settings.xml"
+    },
+    {
+      "suite": "shop",
+      "tests": 144,
+      "scripts": 8,
+      "exit_code": 0,
+      "report": "windows-shop-35577704852-1/ci/shop.xml"
+    }
+  ],
+  "tests": 1218,
+  "scripts": 109,
+  "storage_refusal_checks": [
+    {
+      "case": "empty",
+      "tests": 78,
+      "expected_root_refusals": 75,
+      "storage_free_passes": 3,
+      "exit_code": 1,
+      "repository_unchanged": true
+    },
+    {
+      "case": "whitespace",
+      "tests": 78,
+      "expected_root_refusals": 75,
+      "storage_free_passes": 3,
+      "exit_code": 1,
+      "repository_unchanged": true
+    }
+  ],
+  "latency": {
+    "ok": true,
+    "samples": [
+      {
+        "button_to_desktop_us": 746556,
+        "case": "fresh",
+        "max_frame_gap_us": 186850
+      },
+      {
+        "button_to_desktop_us": 693111,
+        "case": "replacement",
+        "max_frame_gap_us": 89378
+      }
+    ]
+  },
+  "artifacts": [
+    {
+      "name": "windows-desktop-35577704852-1",
+      "artifact_id": 10629350116,
+      "github_name": "windows-desktop-35577704852-1",
+      "sha256": "b92fe42f5c0568b140a15b35636e8ed4a70ccd572531ec63e45dad2ca0ced1b0"
+    },
+    {
+      "name": "windows-localization-35577704852-1",
+      "artifact_id": 10627799215,
+      "github_name": "windows-localization-35577704852-1",
+      "sha256": "74f84610fe4a219346e0e31ddaea208a31338d5f72b06735bfce63387b0a79c5"
+    },
+    {
+      "name": "windows-minesweeper-35577704852-1",
+      "artifact_id": 10629295193,
+      "github_name": "windows-minesweeper-35577704852-1",
+      "sha256": "a53b5b2c93579a1ba8a0fe88877d19ce94aba04bab943bbc548225de05864149"
+    },
+    {
+      "name": "windows-new_account-35577704852-1",
+      "artifact_id": 10627704371,
+      "github_name": "windows-new_account-35577704852-1",
+      "sha256": "c34fa02ad9df8504684392379e0b6a36d17e36b6f4870419f4d0c180b066369c"
+    },
+    {
+      "name": "windows-reading_delivery-35577704852-1",
+      "artifact_id": 10629210257,
+      "github_name": "windows-reading_delivery-35577704852-1",
+      "sha256": "3f04011c730040ed91eb3f23e5ba801ac4bdc521f52e343dcc0d5cc459f475a8"
+    },
+    {
+      "name": "windows-settings-35577704852-1",
+      "artifact_id": 10627874406,
+      "github_name": "windows-settings-35577704852-1",
+      "sha256": "37ab4baf03fe6711793e9c68983c92268a02d89567c6a2a560a17d5fce186c5f"
+    },
+    {
+      "name": "windows-shop-35577704852-1",
+      "artifact_id": 10628653124,
+      "github_name": "windows-shop-35577704852-1",
+      "sha256": "763e4f5fea19a6c5856cf3073db6bf71b38a877451bfef1b09dd62cd42f2d908"
+    }
+  ],
+  "expected_corrupt_save_diagnostic": {
+    "script": "res://tests/integration/test_prepared_new_run.gd",
+    "test": "test_prepare_counts_nonempty_unreadable_autosave_but_not_zero_bytes",
+    "leading_byte": "ff",
+    "count": 1
+  },
+  "ok": true
+}

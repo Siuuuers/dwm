@@ -1,0 +1,2 @@
+386098fdf5d97059bc03e386df2160dc4a3d77ba4fb39a7d36731ddbbc638116  hospital-focus3-diagnostic-corrected.tar.gz
+6b3230defe271fa0c6c0ad01a568b2adb93e273953d9e34006f0f8bfc3deb05e  manifest.json

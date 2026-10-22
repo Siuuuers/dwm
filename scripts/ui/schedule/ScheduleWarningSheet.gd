@@ -7,11 +7,7 @@ signal go_requested
 const KEY := preload("res://scripts/ui/schedule/SchedulePaperButton.gd")
 const WELL := preload("res://scripts/ui/schedule/ScheduleScrollWell.gd")
 const SCHEDULE_THEME := preload("res://scripts/ui/schedule/ScheduleTheme.gd")
-const FONTS := {
-	"en": preload("res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2"),
-	"zh-CN": preload("res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf"),
-	"zh-HK": preload("res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf"),
-}
+const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const BREAKS := TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE
 
 var close_button: Button
@@ -20,6 +16,7 @@ var body_scroll: ScrollContainer
 var activation_id := ""
 var _locale := "en"
 var _font_size := 20
+var _font_style := "pixel"
 var _large := false
 var _configured := false
 var _busy := false
@@ -44,17 +41,18 @@ func _ready() -> void:
 
 func configure(locale: String = "en", percent: int = 100, large: bool = false,
 		palette: StringName = &"after_hours", day: int = 1,
-		high_contrast: bool = false, colour_preset: String = "standard") -> bool:
+		high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> bool:
 	locale = locale.replace("_","-")
-	var key: Array = [locale,percent,large,palette,day,high_contrast,colour_preset]
+	var key: Array = [locale,percent,large,palette,day,high_contrast,colour_preset,font_style]
 	if _configured and key == _config_key: return true
 	var next_theme: Theme = SCHEDULE_THEME.build(palette,day,high_contrast,colour_preset)
-	if locale not in FONTS or percent not in [100,125,150] or next_theme == null: return false
+	if font_style not in ["pixel","readable"] or not TYPOGRAPHY.supports(locale) or percent not in [100,125,150] or next_theme == null: return false
 	_locale = locale
-	_font_size = 20*percent/100
+	_font_style = font_style
+	_font_size = TYPOGRAPHY.font_size(locale, percent, 20, font_style)
 	_large = large
 	theme = next_theme
-	theme.default_font = FONTS[locale]
+	theme.default_font = TYPOGRAPHY.font(locale, percent, font_style)
 	theme.default_font_size = _font_size
 	_config_key = key
 	_configured = true
@@ -127,8 +125,8 @@ func _build(copy: Dictionary, error_text: String) -> void:
 	_rect(_sheet,Rect2(16,16,2,384),get_theme_color(&"paper_ink",&"Schedule"))
 	var mark := _label(_sheet,"!",Rect2(32,40,32,32))
 	# The invariant warning mark is a fixed glyph, independent of text reflow.
-	mark.add_theme_font_override("font",FONTS.en)
-	mark.add_theme_font_size_override("font_size",20)
+	mark.add_theme_font_override("font",TYPOGRAPHY.font("en", 100, _font_style))
+	mark.add_theme_font_size_override("font_size",TYPOGRAPHY.font_size("en",100,20,_font_style))
 	mark.size = Vector2(32,32)
 	_label(_sheet,copy.title,Rect2(80,16,288,112))
 	close_button = _command(Rect2(384,24 if _large else 32,160,64 if _large else 48),copy.close)
@@ -209,7 +207,7 @@ func _height(text_value: String, width: float) -> float:
 	var paragraph: TextParagraph = TextParagraph.new()
 	paragraph.width = width
 	paragraph.break_flags = BREAKS
-	paragraph.add_string(text_value,FONTS[_locale],_font_size)
+	paragraph.add_string(text_value,theme.default_font,_font_size)
 	return ceilf(paragraph.get_size().y)
 
 func _label(parent: Node, text_value: String, rect: Rect2, color: Color = Color.TRANSPARENT) -> Label:

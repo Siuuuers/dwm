@@ -108,11 +108,17 @@ func test_terminal_admission_requires_source_then_rolls_back_failed_save_and_ret
 	state.inter_friend_route_state["priscilla_lavinia"] = {}
 	state.inter_friend_route_state["priscilla_lavinia"]["frozen_form"] = "love_sweet"
 	state.inter_friend_route_state["priscilla_lavinia"]["ending_eligible"] = true
-	state.route_context["observer_variant_by_scope"] = {"priscilla_lavinia": "residue"}
 	var evidence: Dictionary = MASTERY_FIXTURE.profile_for_scope(state, "priscilla_lavinia")
 	assert_true(evidence.ok, str(evidence))
 	if not evidence.ok: return
 	autofree(evidence.value.profile)
+	# The residue variant requires a previously witnessed full postscript. A
+	# route-context flag is not completion evidence, and interactions are retired.
+	for form: String in ["ambiguous_sweet", "ambiguous_dark", "love_sweet", "love_dark"]:
+		assert_true(evidence.value.profile.record_pair_form_witness(form, "physical:" + form).ok)
+	assert_true(evidence.value.profile.unlock_ending("ending.priscilla_lavinia.observer",
+		"ending:earlier:gallery:ending.priscilla_lavinia.observer").ok)
+	assert_eq(evidence.value.profile.get_profile_snapshot().observer_evidence, {})
 	var before: Dictionary = state.capture_restore_state().value.backup
 	source.allowed = true
 	writer.fail_next = true

@@ -55,7 +55,12 @@ func popup_scoped() -> void:
 	).y
 	var button_height := maxf(get_ok_button().get_combined_minimum_size().y, get_cancel_button().get_combined_minimum_size().y)
 	var content_height := ceili(body_height + button_height + 80)
-	popup_centered(Vector2i(CONTENT_WIDTH, content_height))
+	# Windows do not inherit the computer canvas transform like Controls do.
+	var source := get_parent() as Control
+	var source_scale := (source.get_global_transform_with_canvas() if is_embedded() else source.get_screen_transform()).get_scale()
+	content_scale_factor = minf(source_scale.x, source_scale.y)
+	min_size = Vector2i((Vector2(CONTENT_WIDTH, content_height) * content_scale_factor).round())
+	popup_centered(min_size)
 	get_cancel_button().grab_focus()
 	get_cancel_button().call_deferred("grab_focus")
 

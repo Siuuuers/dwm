@@ -23,7 +23,7 @@ var _warned_missing: Dictionary = {}
 var _roots: Dictionary = {}
 var _restore_backup: Dictionary = {}
 var _restore_applied: Array = []
-var _publishing_own_locale := false
+var _publishing_own_presentation := false
 
 
 func _ready() -> void:
@@ -96,9 +96,9 @@ func initialize(profile: Node, manifest_path: String = "res://localization/manif
 	if not profile.preference_changed.is_connected(_on_profile_preference_changed):
 		profile.preference_changed.connect(_on_profile_preference_changed)
 	if not publication_id.is_empty():
-		_publishing_own_locale = true
+		_publishing_own_presentation = true
 		profile.publish_deferred_profile_signals(publication_id)
-		_publishing_own_locale = false
+		_publishing_own_presentation = false
 	_finalize_roots(applied.get("applied", []))
 	return _success({"locale_id": canonical_locale})
 
@@ -144,19 +144,30 @@ func get_font_paths(profile_id: String) -> Dictionary:
 	return _success(paths)
 
 
-func prepare_locale(locale_input: String) -> Dictionary:
+func prepare_locale(locale_input: String, font_style: String = "", text_size: int = 0) -> Dictionary:
+	var explicit_typography := not font_style.is_empty() or text_size != 0
 	if _readiness not in [&"initializing", &"ready"]:
 		return _fail(&"localization_not_ready")
 	var canonical := _resolve_locale_in_bundle(_catalog_store, locale_input)
 	if canonical.is_empty():
 		return _fail(&"unknown_locale")
-	var presentation := _make_presentation_in_bundle(_catalog_store, canonical)
+	if font_style.is_empty():
+		font_style = str(_profile.get_preference(&"preferences.accessibility.font_style", "pixel"))
+	if font_style not in ["pixel", "readable"]:
+		return _fail(&"invalid_font_style")
+	if text_size == 0:
+		text_size = int(_profile.get_preference(&"preferences.accessibility.text_size", 100))
+	if text_size not in [100, 125, 150]: return _fail(&"invalid_text_size")
+	var presentation := _make_presentation_in_bundle(_catalog_store, canonical, font_style, text_size)
 	var root_plans := _prepare_root_plans(presentation)
 	if not root_plans.get("ok", false):
 		return root_plans
 	var profile_candidate: Dictionary = _profile.prepare_locale_preference(canonical)
 	if not profile_candidate.get("ok", false):
 		return profile_candidate
+	if explicit_typography:
+		profile_candidate["value"]["preferences"]["accessibility"]["font_style"] = font_style
+		profile_candidate["value"]["preferences"]["accessibility"]["text_size"] = text_size
 	return _success({
 		"canonical_locale_id": canonical,
 		"bundle": _bundle_for_locale(_catalog_store, canonical),
@@ -174,7 +185,23 @@ func set_locale(locale_input: String) -> Dictionary:
 	var prepared := prepare_locale(locale_input)
 	if not prepared.get("ok", false):
 		return prepared
-	var plan: Dictionary = prepared["value"]
+	return _commit_presentation(prepared["value"], true)
+
+
+func set_font_style(font_style: String) -> Dictionary:
+	if _mutation_gate != null:
+		var guarded: Dictionary = _mutation_gate.guard_external(&"localization_set_font_style")
+		if not guarded.get("ok", false): return guarded
+	if _readiness != &"ready": return _fail(&"localization_not_ready")
+	var candidate: Dictionary = _profile.prepare_font_style_preference(font_style)
+	if not candidate.get("ok", false): return candidate
+	var prepared := prepare_locale(_locale_id, font_style)
+	if not prepared.get("ok", false): return prepared
+	prepared["value"]["profile_candidate"] = candidate["value"]
+	return _commit_presentation(prepared["value"], false)
+
+
+func _commit_presentation(plan: Dictionary, publish_locale: bool) -> Dictionary:
 	var applied := _apply_root_plans(plan["root_plans"])
 	if not applied.get("ok", false):
 		return applied
@@ -186,12 +213,13 @@ func set_locale(locale_input: String) -> Dictionary:
 	_bundle = (plan["bundle"] as Dictionary).duplicate(true)
 	_locale_id = plan["canonical_locale_id"]
 	_presentation_profile = (plan["presentation_profile"] as Dictionary).duplicate(true)
-	_publishing_own_locale = true
+	_publishing_own_presentation = true
 	_profile.publish_deferred_profile_signals(committed["value"]["publication_id"])
-	_publishing_own_locale = false
-	locale_changed.emit(_locale_id)
+	_publishing_own_presentation = false
+	if publish_locale:
+		locale_changed.emit(_locale_id)
 	_finalize_roots(applied.get("applied", []))
-	return _success({"locale_id": _locale_id})
+	return _success({"locale_id": _locale_id, "font_style": _presentation_profile["font_style"]})
 
 
 func has_key(key: String) -> bool:
@@ -263,7 +291,9 @@ func capture_restore_state() -> Dictionary:
 func apply_restore_silent(plan: Dictionary) -> Dictionary:
 	if not _is_restore_plan_valid(plan):
 		return _fail(&"invalid_localization_restore_plan")
-	if str(_profile.get_preference(&"preferences.language.primary_locale_id", "")) != str(plan["canonical_locale_id"]):
+	if str(_profile.get_preference(&"preferences.language.primary_locale_id", "")) != str(plan["canonical_locale_id"]) \
+			or str(_profile.get_preference(&"preferences.accessibility.font_style", "pixel")) != str(plan["presentation_profile"].get("font_style", "pixel")) \
+			or int(_profile.get_preference(&"preferences.accessibility.text_size", 100)) != int(plan["presentation_profile"].get("text_size", 100)):
 		return _fail(&"localization_restore_profile_mismatch")
 	var backup := capture_restore_state()
 	if not backup.get("ok", false):
@@ -412,21 +442,21 @@ func _is_restore_plan_valid(plan: Dictionary) -> bool:
 	return plan.has_all(["canonical_locale_id", "bundle", "presentation_profile", "root_plans"])
 
 
-func _on_profile_preference_changed(path: StringName, value: Variant) -> void:
-	if path != &"preferences.language.primary_locale_id":
+func _on_profile_preference_changed(path: StringName, _value: Variant) -> void:
+	if path not in [&"preferences.language.primary_locale_id", &"preferences.accessibility.font_style", &"preferences.accessibility.text_size"]:
 		return
-	var requested := str(value)
-	if _publishing_own_locale:
-		if requested != _locale_id:
-			_readiness = &"failed"
-			push_error("Localization publication disagreed with the active bundle")
-		return
+	var requested := str(_profile.get_preference(&"preferences.language.primary_locale_id", "en"))
 	var canonical := _resolve_locale_in_bundle(_catalog_store, requested)
 	if canonical.is_empty():
 		_readiness = &"failed"
 		push_error("Committed profile contains an unregistered locale")
 		return
 	var presentation := _make_presentation_in_bundle(_catalog_store, canonical)
+	if _publishing_own_presentation:
+		if presentation != _presentation_profile:
+			_readiness = &"failed"
+			push_error("Localization publication disagreed with the active presentation")
+		return
 	if canonical == _locale_id and presentation == _presentation_profile:
 		return
 	var root_plans := _prepare_root_plans(presentation)
@@ -439,10 +469,12 @@ func _on_profile_preference_changed(path: StringName, value: Variant) -> void:
 		_readiness = &"failed"
 		push_error("Could not apply committed locale presentation")
 		return
+	var changed_locale := _locale_id != canonical
 	_bundle = _bundle_for_locale(_catalog_store, canonical)
 	_locale_id = canonical
 	_presentation_profile = presentation
-	locale_changed.emit(canonical)
+	if changed_locale:
+		locale_changed.emit(canonical)
 	_finalize_roots(applied.get("applied", []))
 
 
@@ -496,11 +528,17 @@ func _locale_record_in_bundle(bundle: Dictionary, locale_id: String) -> Dictiona
 	return {}
 
 
-func _make_presentation_in_bundle(bundle: Dictionary, locale_id: String) -> Dictionary:
+func _make_presentation_in_bundle(bundle: Dictionary, locale_id: String, font_style: String = "", text_size: int = 0) -> Dictionary:
+	if text_size == 0:
+		text_size = int(_profile.get_preference(&"preferences.accessibility.text_size", 100))
+	if font_style.is_empty():
+		font_style = str(_profile.get_preference(&"preferences.accessibility.font_style", "pixel"))
 	var record := _locale_record_in_bundle(bundle, locale_id)
 	return {
 		"locale_id": locale_id,
 		"font_profile": record["font_profile"],
+		"font_style": font_style,
+		"text_size": text_size,
 		"layout_direction": record["layout_direction"],
 	}
 

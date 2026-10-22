@@ -19,9 +19,6 @@ const RUNTIME_ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter
 const TIMELINE_ID := "hospital.faint"
 const OTHER_TIMELINE_ID := "contact.ordinary.lavinia.day1"
 
-class SylviaTimelineAdapter extends ADAPTER:
-	func _has_sylvia_hospital_witness(_context: Dictionary) -> bool: return true
-
 var _bridge: Node
 var _adapter: RefCounted
 var _runtime: DialogicGameHandler
@@ -40,6 +37,11 @@ var _native_ends := 0
 var _ready_receipts: Array = []
 var _failures: Array = []
 var _started_timelines: Array = []
+var _fixture_layouts: Array[Node] = []
+var _fixture_text_nodes: Array[Node] = []
+var _baseline_text_nodes: Array[Node] = []
+var _baseline_text_ids: Array[int] = []
+var _tearing_down := false
 
 
 func before_each() -> void:
@@ -48,6 +50,11 @@ func before_each() -> void:
 	# and for the queued layout cleanup before this fixture snapshots and detaches it.
 	await get_tree().process_frame
 	await get_tree().process_frame
+	_fixture_layouts.clear()
+	_fixture_text_nodes.clear()
+	_tearing_down = false
+	_baseline_text_nodes.assign(get_tree().get_nodes_in_group("dialogic_dialog_text"))
+	_baseline_text_ids = _node_identities(_baseline_text_nodes)
 	_ready_receipts = []
 	_failures = []
 	_started_timelines = []
@@ -76,6 +83,7 @@ func before_each() -> void:
 	_runtime = DialogicGameHandler.new()
 	_runtime.name = "Dialogic"
 	get_tree().root.add_child(_runtime)
+	_runtime.Styles.style_changed.connect(_record_fixture_style)
 	_runtime.History.simple_history_enabled = true
 	_runtime.History.save_visited_history_on_save = false
 	_runtime.History.save_visited_history_on_autosave = false
@@ -89,7 +97,7 @@ func before_each() -> void:
 	assert_true(_bridge.initialize(null, _runtime_adapter).get("ok", false))
 	_bridge.timeline_started.connect(func(timeline_id: String, _path: String) -> void:
 		_started_timelines.append(timeline_id))
-	_adapter = SylviaTimelineAdapter.new()
+	_adapter = ADAPTER.new()
 	assert_true(_adapter.configure(_bridge).get("ok", false))
 	_adapter.physical_completion_ready.connect(func(receipt: Dictionary) -> void:
 		_ready_receipts.append(receipt.duplicate(true)))
@@ -98,16 +106,35 @@ func before_each() -> void:
 
 
 func after_each() -> void:
+	var starts_before_cleanup := _native_starts
+	_tearing_down = true
 	if is_instance_valid(_bridge):
 		_bridge.free()
-	for text_node: Node in get_tree().get_nodes_in_group("dialogic_dialog_text"):
-		text_node.set_process(false)
+	# Several tests deliberately finish before layout.ready. clear() alone cannot
+	# cancel that admitted native start: it could start during teardown and create
+	# a replacement layout after Styles' current layout was selected for deletion.
+	if is_instance_valid(_runtime_adapter):
+		_runtime_adapter.halt_with_error({"ok": false, "code": &"fixture_teardown"})
+	for text_node: Node in _fixture_text_nodes:
+		if is_instance_valid(text_node): text_node.set_process(false)
 	if is_instance_valid(_runtime):
+		_runtime.paused = false
 		await _runtime.clear()
-		var remaining: Node = _runtime.Styles.get_layout_node()
-		if is_instance_valid(remaining):
-			remaining.queue_free()
+		# Keep the fixture runtime attached for native timeline.clean()'s one-frame
+		# continuation and for queued layout mounts/deletions before restoring it.
 		await get_tree().process_frame
+		await get_tree().process_frame
+	assert_eq(_native_starts, starts_before_cleanup,
+		"teardown cancels pending native starts before their layouts become ready")
+	for layout: Node in _fixture_layouts:
+		if is_instance_valid(layout): layout.free()
+	for text_node: Node in _fixture_text_nodes:
+		var survived := is_instance_valid(text_node)
+		assert_false(survived, "fixture caption survived its exact layout: " + _node_diagnostic(text_node))
+		if survived: text_node.free()
+	_fixture_layouts.clear()
+	_fixture_text_nodes.clear()
+	if is_instance_valid(_runtime):
 		_runtime.free()
 	_adapter = null
 	_runtime_adapter = null
@@ -119,6 +146,13 @@ func after_each() -> void:
 			_original_layout_parent.add_child(_original_layout)
 			_original_layout_parent.move_child(_original_layout, _original_layout_index)
 		get_tree().set_meta("dialogic_layout_node", _original_layout)
+	var restored_text_nodes: Array[Node] = []
+	restored_text_nodes.assign(get_tree().get_nodes_in_group("dialogic_dialog_text"))
+	assert_eq(_node_identities(restored_text_nodes), _baseline_text_ids,
+		"caption group must return to its exact pre-fixture owners; actual=" + _nodes_diagnostic(restored_text_nodes)
+		+ " baseline=" + _nodes_diagnostic(_baseline_text_nodes))
+	_baseline_text_nodes.clear()
+	_baseline_text_ids.clear()
 	for key: String in _settings:
 		ProjectSettings.set_setting(key,
 			_settings[key].value if _settings[key].exists else null)
@@ -128,6 +162,47 @@ func after_each() -> void:
 		Engine.remove_meta("dialogic_persistent_style_info")
 	DialogicStylesUtil.style_directory = _style_directory
 	_original_layout_parent = null
+
+
+func _record_fixture_style(_info: Dictionary) -> void:
+	# Styles publishes the exact new root before its deferred add_child. Retain
+	# every root, including a retry's replacement, instead of relying on metadata
+	# that can already have changed or disappeared when teardown begins.
+	var layout: Node = _runtime.Styles.get_layout_node()
+	if not is_instance_valid(layout): return
+	if not _fixture_layouts.has(layout): _fixture_layouts.append(layout)
+	_record_fixture_caption_nodes(layout)
+	if not layout.is_node_ready():
+		var record := _record_fixture_caption_nodes.bind(layout)
+		if not layout.ready.is_connected(record):
+			layout.ready.connect(record, CONNECT_ONE_SHOT)
+
+
+func _record_fixture_caption_nodes(layout: Node) -> void:
+	for node: Node in layout.find_children("*", "", true, false):
+		if node.is_in_group("dialogic_dialog_text"):
+			if not _fixture_text_nodes.has(node): _fixture_text_nodes.append(node)
+			if _tearing_down: node.set_process(false)
+
+
+func _node_diagnostic(node: Variant) -> String:
+	if not is_instance_valid(node): return "<freed>"
+	return JSON.stringify({"id": node.get_instance_id(), "name": str(node.name),
+		"path": str(node.get_path()) if node.is_inside_tree() else "<detached>"})
+
+
+func _nodes_diagnostic(nodes: Array[Node]) -> String:
+	var rows: Array[String] = []
+	for node: Node in nodes: rows.append(_node_diagnostic(node))
+	return "[" + ", ".join(rows) + "]"
+
+
+func _node_identities(nodes: Array[Node]) -> Array[int]:
+	var ids: Array[int] = []
+	for node: Node in nodes:
+		if is_instance_valid(node): ids.append(node.get_instance_id())
+	ids.sort()
+	return ids
 
 
 # -------------------------------------------------------------------------------------------------
@@ -477,29 +552,25 @@ func test_failure_observer_can_immediately_retry_without_reusing_the_retired_lay
 	assert_false(_bridge.has_active_playback())
 
 
-func test_ordinary_notice_ignores_stale_playback_and_replays_one_exact_receipt() -> void:
-	var owner: RefCounted = ADAPTER.new()
-	assert_true(owner.configure(_bridge).ok)
-	var receipts: Array[Dictionary] = []
-	owner.physical_completion_ready.connect(func(receipt: Dictionary): receipts.append(receipt))
+func test_ordinary_faint_uses_native_playback_and_one_exact_completion() -> void:
 	var command := _command()
-	var begun: Dictionary = owner.begin_physical(command)
+	var begun: Dictionary = _adapter.begin_physical(command)
 	assert_true(begun.ok, str(begun))
 	if not begun.ok: return
-	assert_true(_started_timelines.is_empty(), "ordinary fainting starts no DTL")
-	command.physical_token = begun.value.physical_token
-	owner._on_timeline_finished(TIMELINE_ID, {"ok": true})
-	owner._on_playback_failed(TIMELINE_ID, {"ok": false})
-	owner._on_playback_retired(TIMELINE_ID)
-	assert_true(receipts.is_empty(), "retired playback cannot acknowledge the notice")
-	var forged := command.duplicate(true)
+	assert_true(_bridge.has_active_playback(), "ordinary fainting owns shared DTL playback")
+	assert_true(_ready_receipts.is_empty(), "admission alone cannot complete Hospital")
+	await _end_runtime_timeline()
+	assert_eq(_ready_receipts.size(), 1)
+	if _ready_receipts.size() != 1: return
+	var receipt: Dictionary = _ready_receipts[0]
+	assert_false(receipt.result.has("notice_acknowledged"))
+	assert_true(_adapter.validate_physical_completion({"presentation_command": _canonical(command),
+		"physical_completion_receipt": receipt}).ok)
+	var forged := _canonical(command)
 	forged.physical_token += ".foreign"
-	assert_false(owner.complete_notice(forged).ok)
-	assert_true(owner.complete_notice(command).ok)
-	assert_eq(receipts.size(), 1)
-	assert_eq(receipts[0].result, {"notice_acknowledged": true})
-	assert_true(owner.complete_notice(command).ok, "durable completion may retry this receipt")
-	assert_eq(receipts.size(), 2)
-	assert_eq(receipts[0], receipts[1], "retry carries the identical physical result")
-	assert_false(owner.complete_notice(forged).ok, "settled notice still rejects changed identity")
-	assert_true(_started_timelines.is_empty())
+	assert_false(_adapter.validate_physical_completion({"presentation_command": forged,
+		"physical_completion_receipt": receipt}).ok)
+	assert_true(_adapter.begin_physical(command).ok, "settled admission reuses its exact command")
+	_runtime.timeline_ended.emit()
+	assert_eq(_native_starts, 1)
+	assert_eq(_ready_receipts.size(), 1, "duplicate native end cannot repeat completion")

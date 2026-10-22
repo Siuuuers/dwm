@@ -78,6 +78,16 @@ func projection(record_id: String, signature_id: String, locale: String) -> Dict
 		_apply(result, override, locale)
 	return result.duplicate(true)
 
+## Exact authored copy only; absence does not invent a label or decide Replay admission.
+func version_cue(record_id: String, signature_id: String, locale: String) -> String:
+	if not valid: return ""
+	var override: Variant = _presentations.get(signature_id)
+	if not override is Dictionary or override.record_id != SIGNATURE.semantic_ending_id(record_id) \
+			or not override.has("version_cue"):
+		return ""
+	var language := locale.replace("_", "-")
+	return override.version_cue[2 if language == "zh-HK" else (1 if language.begins_with("zh") else 0)]
+
 func _build(details: Dictionary, overrides: Array) -> void:
 	var ids: Array = details.keys()
 	for raw_id: Variant in ids:
@@ -92,14 +102,14 @@ func _build(details: Dictionary, overrides: Array) -> void:
 		_records[record_id] = details[raw_id].duplicate(true)
 	for value: Variant in overrides:
 		if not value is Dictionary or not value.has("signature") \
-				or not _exact_subset(value, ["signature", "sentence", "media_asset_id"]) \
+				or not _exact_subset(value, ["signature", "sentence", "media_asset_id", "version_cue"]) \
 				or not value.signature is Dictionary:
 			_invalidate(&"invalid_presentation_details")
 			return
 		var details_only: Dictionary = value.duplicate(true)
 		var signature: Dictionary = details_only.signature
 		details_only.erase("signature")
-		if not _valid_details(details_only):
+		if not _valid_details(details_only, true):
 			_invalidate(&"invalid_presentation_details")
 			return
 		var checked: Dictionary = SIGNATURE.validate(signature)
@@ -131,13 +141,19 @@ func _known_record(record_id: String) -> bool:
 		and entry.value.get("role") in ["solo_pre_challenge", "solo_post_challenge",
 			"pair_pre_challenge_scene", "pair_post_challenge_scene"]
 
-func _valid_details(value: Dictionary) -> bool:
-	if not _exact_subset(value, ["sentence", "media_asset_id"]): return false
+func _valid_details(value: Dictionary, exact: bool = false) -> bool:
+	var allowed := ["sentence", "media_asset_id"]
+	if exact: allowed.append("version_cue")
+	if not _exact_subset(value, allowed): return false
 	if value.has("media_asset_id") and not value.media_asset_id is String: return false
 	if value.has("sentence"):
 		if not value.sentence is Array or value.sentence.size() != 3: return false
 		for copy: Variant in value.sentence:
 			if not copy is String: return false
+	if value.has("version_cue"):
+		if not value.version_cue is Array or value.version_cue.size() != 3: return false
+		for copy: Variant in value.version_cue:
+			if not copy is String or copy.strip_edges().is_empty(): return false
 	return true
 
 func _exact_subset(value: Dictionary, allowed: Array) -> bool:

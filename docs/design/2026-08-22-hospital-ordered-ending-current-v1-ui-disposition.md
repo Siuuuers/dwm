@@ -20,6 +20,27 @@ related_authorities: ["spec.narrative_scene_host_dating_hospital_challenge_ui_ux
 
 # Hospital and Ordered-Ending Current-v1 UI Disposition
 
+## Owner correction — 3 October 2026: Hospital manual Save/Load
+
+The owner now requests that Hospital disable manual Save and Load, including
+Quick Save/Load shortcuts and the same actions reached through Pause or Settings.
+This narrowly supersedes the earlier Hospital manual-save/exact-caption feature
+requirement. The shared rail remains in place with Save and Load Disabled;
+History and ordinary caption progression remain available under their existing
+admission rules. Hospital Next remains disabled. Pause, Settings and Return to
+Title remain available; opening a surface or refusing a command must not complete
+partial reveal, queue a later save/load, or grant witnessed credit.
+
+Use the existing shared command owners. Do not add Hospital-specific save stores,
+new automatic checkpoints, or a new retry system. Existing committed-save integrity,
+physical completion and transaction ownership remain in place. This correction
+does not change global autosave timing, existing internal recovery, or admission of
+previously supported save data. A retained test-only Hospital save may still verify
+shared restore integrity; it is not evidence that players can save during Hospital.
+Production condition-triggered exact-caption manual saving is no longer a prerequisite
+for this Hospital restriction. Wider History, production catalogue and ending work
+remain separate.
+
 ## 1. Accepted correction and objective
 
 The project owner selected every recommended **A** in the current-v1 Hospital

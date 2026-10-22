@@ -30,19 +30,14 @@ const FRIEND_IDS := _CONTACT_STATE.FRIEND_IDS
 # shop order for free (dwm-p2r.16 DECISION 12.7). A row is recognized as delegated by carrying no
 # "currency" key.
 const _SHOP_ROWS := [
-	{"id": "coffee", "currency": "money", "price": 20, "effects": ["motivation:+1"], "max": 9},
-	{"id": "wine", "currency": "money", "price": 55, "effects": ["pressure:-4", "health:-1"], "max": 3},
+	{"id": "wine", "currency": "money", "price": 55, "effects": ["pressure:-4"], "max": 3},
 	{"id": "pineapple_bun", "currency": "money", "price": 10, "effects": ["inventory:add:pineapple_bun"], "max": 7, "gift": true},
-	{"id": "bandage_pack", "currency": "money", "price": 15, "effects": ["health:+1"], "max": 0},
 	{"id": "quiet_tea", "currency": "money", "price": 15, "effects": ["inventory:add:quiet_tea"], "max": 3, "gift": true},
 	{"id": "soft_blanket", "currency": "money", "price": 25, "effects": ["pressure:-2"], "max": 3},
 	{"id": "weighted_plush", "currency": "money", "price": 35, "effects": ["pressure:-3"], "max": 2},
 	{"id": "spa_coupon", "currency": "money", "price": 45, "effects": ["pressure:-4"], "max": 1},
 	{"id": "supportz", "secret": true},
-	{"id": "healthy_meal", "currency": "money", "price": 25, "effects": ["health:+2"], "max": 3},
-	{"id": "protein_box", "currency": "money", "price": 35, "effects": ["health:+3"], "max": 2},
-	{"id": "premium_care", "currency": "minesweeper_coin", "price": 1, "effects": ["pressure:-4", "health:+4"], "max": 2},
-	{"id": "pep_note", "currency": "money", "price": 10, "effects": ["motivation:+1"], "max": 5},
+	{"id": "premium_care", "currency": "minesweeper_coin", "price": 1, "effects": ["pressure:-4"], "max": 2},
 	{"id": "priscilla_gift", "currency": "minesweeper_coin", "price": 3, "effects": ["inventory:add:priscilla_gift"], "max": 1, "gift": true, "special": true},
 	{"id": "lavinia_gift", "currency": "minesweeper_coin", "price": 3, "effects": ["inventory:add:lavinia_gift"], "max": 1, "gift": true, "special": true},
 	{"id": "sylvia_gift", "currency": "minesweeper_coin", "price": 3, "effects": ["inventory:add:sylvia_gift"], "max": 1, "gift": true, "special": true},
@@ -118,10 +113,10 @@ func get_shop_item(item_id: String) -> Dictionary:
 	return {}
 
 
-## The four owned facts for one row: local for the fifteen catalog items, projected from
+## The four owned facts for one row: local for the ten catalog items, projected from
 ## MinesweeperShopRegistry for the three delegated ones. An unavailable registry answers with the
 ## empty dictionary and the item is OMITTED rather than emitted with blank facts, so a broken
-## registry surfaces as a short shop list that test_eighteen_shop_items rejects, never as a
+## registry surfaces as a short shop list that test_thirteen_shop_items rejects, never as a
 ## zero-price item (dwm-p2r.16 DECISION 12.3).
 func _shop_facts(row: Dictionary) -> Dictionary:
 	if row.has("currency"):
@@ -353,3 +348,4 @@ func get_group_invitation_days() -> Array[int]:
 
 func get_group_invitation_pairs() -> Array[Array]:
 	return [["priscilla", "lavinia"]]
+

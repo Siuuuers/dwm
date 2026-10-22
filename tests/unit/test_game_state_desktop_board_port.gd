@@ -113,3 +113,84 @@ func test_prepare_spec_falls_back_to_issue_when_the_issuer_has_no_deferred_seam(
 		"an issuer without the deferred seam keeps the durable path")
 	assert_eq(legacy_root.calls_to(&"issue_deferred").size(), 0,
 		"and nothing invents a seam the issuer never offered")
+
+
+
+func test_first_reveal_charges_round_only_and_rollback_preserves_pressure() -> void:
+	_game_state.stats = {"pressure": 3}
+	var before: Dictionary = _port.capture()
+	assert_true(before.ok)
+	assert_true(before.value.eligible, "no Motivation stat is required")
+	assert_false(before.value.has("motivation"))
+	assert_false(before.value.has("health"))
+	var root := _transaction_receipt(_root_store)
+	# This is the producer's detached board projection, not a rendered gameplay claim.
+	var projection := {
+		"identity": {"run_id": IDENTITY_CONTEXT.run_id, "branch_id": IDENTITY_CONTEXT.branch_id,
+			"desktop_timeline_generation": 0, "causal_day_instance": IDENTITY_CONTEXT.causal_day_instance,
+			"app_round_ordinal": 1},
+		"difficulty_id": "beginner", "cell_index": 0,
+		"board": {"width": 9, "height": 9, "mine_indices": [80], "mine_count": 1, "revision": 0},
+		"proof_sha256": null,
+	}
+	var prepared: Dictionary = _port.prepare_first_reveal(projection, str(root.token), root, "checkpoint-first")
+	assert_true(prepared.ok, JSON.stringify(prepared))
+	if not prepared.ok: return
+	assert_false(prepared.value.receipt.has("motivation_before"))
+	assert_false(prepared.value.receipt.has("motivation_after"))
+	assert_eq(prepared.value.receipt.rounds_after, prepared.value.receipt.rounds_before - 1)
+	assert_eq(_game_state.minesweeper_rounds_left, before.value.rounds_left, "preparation is silent")
+	assert_true(_port.commit(prepared.value.run_candidate).ok)
+	assert_eq(_game_state.minesweeper_rounds_left, before.value.rounds_left - 1)
+	assert_eq(_game_state.stats, {"pressure": 3})
+	assert_true(_port.rollback(before.value.backup).ok)
+	assert_eq(_game_state.minesweeper_rounds_left, before.value.rounds_left)
+	assert_eq(_game_state.stats, {"pressure": 3})
+
+
+func test_retired_candidate_refuses_before_any_board_owner_mutation() -> void:
+	_game_state.stats = {"pressure": 3}
+	for stat_id: String in ["motivation", "health"]:
+		var before: Dictionary = _port.capture()
+		var selected: String = _game_state.minesweeper_selected_difficulty
+		var candidate := {"selected_difficulty": "expert", "rounds_left": 0, "starts_today": {}}
+		candidate[stat_id] = 1
+		var result: Dictionary = _port.commit(candidate)
+		assert_false(result.ok)
+		assert_eq(_game_state.minesweeper_selected_difficulty, selected)
+		assert_eq(_port.capture(), before)
+		assert_false(_port.rollback(candidate).ok)
+		assert_eq(_port.capture(), before)
+		assert_eq(_game_state.stats, {"pressure": 3})
+
+
+func test_retirement_keeps_desktop_capacity_fences() -> void:
+	_game_state.stats = {"pressure": 3}
+	_game_state.minesweeper_rounds_left = _game_state.minesweeper_round_floor
+	var captured: Dictionary = _port.capture()
+	assert_true(captured.ok)
+	assert_false(captured.value.eligible)
+	var root := _transaction_receipt(_root_store)
+	var result: Dictionary = _port.prepare_first_reveal({}, str(root.token), root, "checkpoint-refused")
+	assert_false(result.ok)
+	assert_eq(result.code, &"insufficient_capacity")
+	assert_eq(_port.capture(), captured)
+
+
+func test_shop_owner_refuses_retired_items_before_detached_or_live_mutation() -> void:
+	var shop_port: RefCounted = preload("res://scripts/application/shop/GameStateMinesweeperShopPort.gd").new()
+	assert_true(shop_port.configure(_game_state, IDENTITY_CONTEXT).ok)
+	_game_state.stats = {"pressure": 3}
+	var original: Dictionary = _game_state.to_save_dict().duplicate(true)
+	var contacts: Dictionary = _game_state.contacts.duplicate(true)
+	for item_id: String in ["coffee", "pep_note", "bandage_pack", "healthy_meal", "protein_box"]:
+		# A forged retained ordinary candidate cannot bypass the presentation/catalogue guard.
+		var changed: Dictionary = original.duplicate(true)
+		changed.money = -30
+		var candidate := {"item_id": item_id, "ordinary_gameplay": changed,
+			"ordinary_contacts": {}, "currency": "money", "price": 1}
+		assert_eq(shop_port.commit(candidate).code, &"retired_shop_item")
+		assert_eq(shop_port._prepare_ordinary({"item_id": item_id}, {}, "retired-transaction").code,
+			&"retired_shop_item")
+		assert_eq(_game_state.to_save_dict(), original)
+		assert_eq(_game_state.contacts, contacts)

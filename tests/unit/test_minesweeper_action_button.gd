@@ -77,7 +77,7 @@ func test_disabled_retains_selection_copy_and_geometry_without_focus_or_activati
 
 func test_exact_allocations_and_native_face_insets() -> void:
 	var button := _button()
-	for width: int in [80,96,112,128,144,160]:
+	for width: int in [80,96,100,112,128,144,160,162,480]:
 		for large: bool in [false,true]:
 			assert_true(button.configure("Flag",button.theme,large,width))
 			var height: int = 64 if large else 48
@@ -113,7 +113,7 @@ func test_invalid_configuration_preserves_selected_disabled_state_and_measuremen
 	button.present_state(false,true)
 	var retained_theme: Theme = button.theme
 	var retained_paragraph: TextParagraph = button._paragraph
-	for width: int in [0,79,81,100,127,162]:
+	for width: int in [0,79,81,127,479,482]:
 		assert_false(button.configure("Changed",retained_theme,true,width))
 	assert_false(button.configure("",retained_theme,true,80))
 	assert_false(button.configure("Changed",null,true,80))

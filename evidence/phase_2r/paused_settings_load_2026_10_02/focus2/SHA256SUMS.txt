@@ -1,0 +1,2 @@
+8c46ab905ebac16f0585298ba5acad779f66417f0b0b82ca85f8d5e51761009a  settings-f9-focus2-diagnostic.tar.gz
+8344339d639673e3f10958ed0aa6de6504b283cbd8bf8d3335fe0541e11336b3  manifest.json

@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/home/runner/work/_temp/godot-4.6.3-linux/Godot_v4.6.3-stable_linux.x86_64",
+    "--headless",
+    "--path",
+    "/home/runner/work/dwm/dwm",
+    "--log-file",
+    "/home/runner/work/dwm/dwm/.godot/ci/reading-rail/8c2b3e58-b00e-4e57-a8f3-90c52343c969/user-dir-proof.log",
+    "--script",
+    "res://tools/evidence/print_user_dir.gd"
+  ],
+  "started_at_utc": "2026-10-01T13:10:17.351454+00:00",
+  "timeout_seconds": 600,
+  "stdout": "/home/runner/work/dwm/dwm/.godot/ci/reading-rail/8c2b3e58-b00e-4e57-a8f3-90c52343c969/user-dir-proof.stdout.txt",
+  "stderr": "/home/runner/work/dwm/dwm/.godot/ci/reading-rail/8c2b3e58-b00e-4e57-a8f3-90c52343c969/user-dir-proof.stderr.txt",
+  "timed_out": false,
+  "exit_code": 0,
+  "ended_at_utc": "2026-10-01T13:10:20.672310+00:00",
+  "elapsed_seconds": 3.321
+}

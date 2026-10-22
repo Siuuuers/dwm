@@ -1,0 +1,1604 @@
+{
+  "schema_version": 1,
+  "repository": "Siuuuers/dwm",
+  "pr": 1,
+  "run_number": 61,
+  "run_id": 36260578366,
+  "run_url": "https://github.com/Siuuuers/dwm/actions/runs/36260578366",
+  "status": "completed",
+  "conclusion": "cancelled",
+  "acceptance": "partial_only_settings_cancelled",
+  "source": {
+    "commit": "8ceca91cd5b084c04b5a1c34db82d3cdccd53396",
+    "tree": "4b6397734897ad4323d6faa1448f8bd1649f7382"
+  },
+  "tested_merge": {
+    "commit": "efbeec18006c5397ed2427a09849b65bb349c430",
+    "tree": "6c5547e22551d20009374c969fbb60a2aa45a452",
+    "parents": [
+      "538b61ba96457eb5448053c8b0897b4fcbaa464a",
+      "8ceca91cd5b084c04b5a1c34db82d3cdccd53396"
+    ],
+    "source_difference": [
+      {
+        "path": "docs/design/2026-09-02-relationship-progression-runtime-behavior-record.md",
+        "status": "modified",
+        "sha": "e9ae0a1deba976b2611a6407a765895af1204e34",
+        "additions": 84,
+        "deletions": 1
+      },
+      {
+        "path": "docs/story-auditions/2026-09-26-priscilla-lavinia-day-2-portrait-dark-love-read-through.md",
+        "status": "added",
+        "sha": "013ef7fc625652ff74d440035a231aa22ed24dfd",
+        "additions": 209,
+        "deletions": 0
+      },
+      {
+        "path": "docs/story-auditions/2026-09-26-priscilla-lavinia-portrait-and-intimacy-working-record.md",
+        "status": "added",
+        "sha": "2175108321c5a8aea02b86143ab1a7a15f4642b6",
+        "additions": 265,
+        "deletions": 0
+      },
+      {
+        "path": "docs/story-auditions/README.md",
+        "status": "modified",
+        "sha": "110550d1ed4524e5cea8a2e14cd1d3e39c664453",
+        "additions": 30,
+        "deletions": 2
+      },
+      {
+        "path": "story/01-core-story-bible.md",
+        "status": "modified",
+        "sha": "79d21a6a73d5a31554a1ed1f7f60d4eafad6612a",
+        "additions": 4,
+        "deletions": 0
+      }
+    ]
+  },
+  "actual_master": "538b61ba96457eb5448053c8b0897b4fcbaa464a",
+  "reported_pr_base_stale": "9e43b52c9884ccd59e82245d2168c3113ee4d037",
+  "source_binding_note": "The five source-to-merge differences are Markdown from the owner's story PR #2. Runtime, tests, workflow and public inventory blobs are unchanged. Full trees are not identical.",
+  "experiment": {
+    "change": "Only bulky diagnostic assertion formatting was bounded; six assertions retain the same native equality predicates and five messages use stage/code.",
+    "result": "Did not resolve recurring Settings stall; no diagnosis or full acceptance."
+  },
+  "jobs": [
+    {
+      "id": 108455470760,
+      "name": "Windows / public API surface contracts",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/36260578366/job/108455470760",
+      "started_at": "2026-09-26T17:52:44Z",
+      "completed_at": "2026-09-26T17:56:25Z"
+    },
+    {
+      "id": 108456054181,
+      "name": "Rendered desktop and dialogue / Linux software OpenGL",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/36260578366/job/108456054181",
+      "started_at": "2026-09-26T17:56:27Z",
+      "completed_at": "2026-09-26T17:59:28Z"
+    },
+    {
+      "id": 108456054217,
+      "name": "Windows / paired checkpoint performance",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/36260578366/job/108456054217",
+      "started_at": "2026-09-26T17:56:28Z",
+      "completed_at": "2026-09-26T18:00:33Z"
+    },
+    {
+      "id": 108456054223,
+      "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/36260578366/job/108456054223",
+      "started_at": "2026-09-26T17:56:28Z",
+      "completed_at": "2026-09-26T17:59:14Z"
+    },
+    {
+      "id": 108456054259,
+      "name": "Windows / exported release startup",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/36260578366/job/108456054259",
+      "started_at": "2026-09-26T17:56:27Z",
+      "completed_at": "2026-09-26T17:58:18Z"
+    },
+    {
+      "id": 108456054280,
+      "name": "Windows / settings",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/36260578366/job/108456054280",
+      "started_at": "2026-09-26T17:56:27Z",
+      "completed_at": "2026-09-26T18:21:27Z",
+      "observed_steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-09-26T17:56:28Z",
+          "completed_at": "2026-09-26T17:56:29Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-09-26T17:56:29Z",
+          "completed_at": "2026-09-26T17:56:38Z"
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-09-26T17:56:38Z",
+          "completed_at": "2026-09-26T17:56:40Z"
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-09-26T17:56:40Z",
+          "completed_at": "2026-09-26T17:56:42Z"
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-09-26T17:56:42Z",
+          "completed_at": "2026-09-26T17:57:25Z"
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-09-26T17:57:25Z",
+          "completed_at": "2026-09-26T17:57:26Z"
+        },
+        {
+          "name": "Run focused regression suite",
+          "status": "in_progress",
+          "conclusion": null,
+          "number": 7,
+          "started_at": "2026-09-26T17:57:26Z",
+          "completed_at": null
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "pending",
+          "conclusion": null,
+          "number": 8,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "pending",
+          "conclusion": null,
+          "number": 16,
+          "started_at": null,
+          "completed_at": null
+        }
+      ]
+    },
+    {
+      "id": 108456054281,
+      "name": "Windows / shop",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/36260578366/job/108456054281",
+      "started_at": "2026-09-26T17:56:27Z",
+      "completed_at": "2026-09-26T17:58:05Z"
+    },
+    {
+      "id": 108456054287,
+      "name": "Windows / minesweeper",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/36260578366/job/108456054287",
+      "started_at": "2026-09-26T17:56:27Z",
+      "completed_at": "2026-09-26T17:58:35Z"
+    },
+    {
+      "id": 108456054290,
+      "name": "Windows / reading_delivery",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/36260578366/job/108456054290",
+      "started_at": "2026-09-26T17:56:27Z",
+      "completed_at": "2026-09-26T17:59:11Z"
+    },
+    {
+      "id": 108456054302,
+      "name": "Windows / persistence",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/36260578366/job/108456054302",
+      "started_at": "2026-09-26T17:56:27Z",
+      "completed_at": "2026-09-26T17:57:39Z"
+    },
+    {
+      "id": 108456054304,
+      "name": "Windows / new_account",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/36260578366/job/108456054304",
+      "started_at": "2026-09-26T17:56:27Z",
+      "completed_at": "2026-09-26T17:58:22Z"
+    },
+    {
+      "id": 108456054319,
+      "name": "Windows / endings",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/36260578366/job/108456054319",
+      "started_at": "2026-09-26T17:56:28Z",
+      "completed_at": "2026-09-26T17:57:54Z"
+    },
+    {
+      "id": 108456054329,
+      "name": "Windows / localization",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/36260578366/job/108456054329",
+      "started_at": "2026-09-26T17:56:27Z",
+      "completed_at": "2026-09-26T17:58:36Z"
+    },
+    {
+      "id": 108456054333,
+      "name": "Windows / desktop",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/36260578366/job/108456054333",
+      "started_at": "2026-09-26T17:56:27Z",
+      "completed_at": "2026-09-26T17:59:32Z"
+    },
+    {
+      "id": 108456054371,
+      "name": "Windows / audio",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/36260578366/job/108456054371",
+      "started_at": "2026-09-26T17:56:27Z",
+      "completed_at": "2026-09-26T17:57:35Z"
+    },
+    {
+      "id": 108456054412,
+      "name": "Windows / dating",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/36260578366/job/108456054412",
+      "started_at": "2026-09-26T17:56:32Z",
+      "completed_at": "2026-09-26T17:58:38Z"
+    },
+    {
+      "id": 108456714567,
+      "name": "Windows / seven-day retained history",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/36260578366/job/108456714567",
+      "started_at": "2026-09-26T18:00:36Z",
+      "completed_at": "2026-09-26T18:13:29Z"
+    }
+  ],
+  "observed_gut": {
+    "executions": 1730,
+    "passed": 1730,
+    "skipped": 0,
+    "settings_accepted_count": null,
+    "results": [
+      {
+        "job_id": 108455470760,
+        "suite": "public_surfaces",
+        "test_cases": 11,
+        "passed": 11,
+        "skipped": 0,
+        "requested_scripts": 1,
+        "reported_scripts": 1,
+        "scripts": [
+          {
+            "script": "tests/unit/tooling/test_public_surface_inventory.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "job_id": 108456054281,
+        "suite": "shop",
+        "test_cases": 144,
+        "passed": 144,
+        "skipped": 0,
+        "requested_scripts": 8,
+        "reported_scripts": 8,
+        "scripts": [
+          {
+            "script": "tests/unit/test_shop_app_purchase_bridge.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_shop_catalog_projection.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_shop_presentation_port.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_shop_card.gd",
+            "test_cases": 16,
+            "passed": 16,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_shop_plate.gd",
+            "test_cases": 37,
+            "passed": 37,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_shop_desktop_host.gd",
+            "test_cases": 15,
+            "passed": 15,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_minesweeper_shop_transaction.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_shop_purchase_participant.gd",
+            "test_cases": 41,
+            "passed": 41,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "job_id": 108456054287,
+        "suite": "minesweeper",
+        "test_cases": 210,
+        "passed": 210,
+        "skipped": 0,
+        "requested_scripts": 22,
+        "reported_scripts": 22,
+        "scripts": [
+          {
+            "script": "tests/unit/test_minesweeper_theme.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_palette_components.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_app.gd",
+            "test_cases": 22,
+            "passed": 22,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_cell.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_gallery_rehearsal_host.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_dock.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_register.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_panel.gd",
+            "test_cases": 23,
+            "passed": 23,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_worksheet.gd",
+            "test_cases": 19,
+            "passed": 19,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_worksheet_layout.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_worksheet_view_layout.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_view_controls.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_view_preferences.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_zoom_input.gd",
+            "test_cases": 17,
+            "passed": 17,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_scroll_rail.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_sheet_controls.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_information_sheet.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_minesweeper_toggle_bindings.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_minesweeper_new_board_bindings.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_minesweeper_view_gestures.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_minesweeper_challenge_controls.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_minesweeper_desktop_host.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "job_id": 108456054290,
+        "suite": "reading_delivery",
+        "test_cases": 228,
+        "passed": 228,
+        "skipped": 0,
+        "requested_scripts": 18,
+        "reported_scripts": 18,
+        "scripts": [
+          {
+            "script": "tests/unit/test_hospital_frozen_context.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_frozen_replay_context.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_delivery_notice.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_narrative_caption_ledger.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_narrative_caption_ledger_runtime.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_witnessed_caption_runtime.gd",
+            "test_cases": 48,
+            "passed": 48,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_witnessed_pause_view.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_witnessed_auto_controller.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_witnessed_skip_controller.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_witnessed_transport_recovery.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_witnessed_speech_projection.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_dating_caption_style.gd",
+            "test_cases": 19,
+            "passed": 19,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_scene_art_bindings.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_scene_art_hold.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_production_pause_controller.gd",
+            "test_cases": 33,
+            "passed": 33,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_hospital_scene.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_day7_font_preferences.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_gallery_replay_owner.gd",
+            "test_cases": 15,
+            "passed": 15,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "job_id": 108456054302,
+        "suite": "persistence",
+        "test_cases": 175,
+        "passed": 175,
+        "skipped": 0,
+        "requested_scripts": 17,
+        "reported_scripts": 17,
+        "scripts": [
+          {
+            "script": "tests/unit/test_frozen_run_context.gd",
+            "test_cases": 18,
+            "passed": 18,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_presentation_chronology.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_dating_attempts.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_dating_branches.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_pair_form_witness.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_contact_invitation_state.gd",
+            "test_cases": 42,
+            "passed": 42,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_seven_day_calendar.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_pair_deck_draw.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_pair_deck_draw_port.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_v4_upgrade.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_new_run_consumption.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_save_migrations.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_save_manager_journal.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_restore_transaction.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_unified_restore_contract.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_save_manager_public_boundaries.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_save_capability.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "job_id": 108456054304,
+        "suite": "new_account",
+        "test_cases": 179,
+        "passed": 179,
+        "skipped": 0,
+        "requested_scripts": 15,
+        "reported_scripts": 15,
+        "scripts": [
+          {
+            "script": "tests/unit/test_canonical_writer_compatibility.gd",
+            "test_cases": 17,
+            "passed": 17,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_continuation_serialization_cache.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_new_acc_title_lifetime.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_run_dark_configuration.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_prepared_new_run.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_new_run_transaction.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_new_run_pair_durability.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_new_run_startup_publication.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_new_run_durability_journal.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_json_file_storage.gd",
+            "test_cases": 14,
+            "passed": 14,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_temporary_storage.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_save_document_schema.gd",
+            "test_cases": 21,
+            "passed": 21,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_run_snapshot_schema.gd",
+            "test_cases": 27,
+            "passed": 27,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/tooling/test_phase2r_closeout_sentinel.gd",
+            "test_cases": 1,
+            "passed": 1,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/tooling/test_phase2r_schedule_gate.gd",
+            "test_cases": 34,
+            "passed": 34,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "job_id": 108456054319,
+        "suite": "endings",
+        "test_cases": 106,
+        "passed": 106,
+        "skipped": 0,
+        "requested_scripts": 12,
+        "reported_scripts": 12,
+        "scripts": [
+          {
+            "script": "tests/unit/test_ending_frozen_context.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_day7_condition_ending.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_ending_completion_durability.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_ending_presentation_signature.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dialogic_ending_playback_port.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_run_lifecycle.gd",
+            "test_cases": 14,
+            "passed": 14,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_ending_rules.gd",
+            "test_cases": 18,
+            "passed": 18,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_ending_rules_migration.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_ordered_ending_playback.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_ending_dialogic_wiring.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scenario/test_day7_endings.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scenario/test_day7_schedule_provenance.gd",
+            "test_cases": 15,
+            "passed": 15,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "job_id": 108456054329,
+        "suite": "localization",
+        "test_cases": 152,
+        "passed": 152,
+        "skipped": 0,
+        "requested_scripts": 18,
+        "reported_scripts": 18,
+        "scripts": [
+          {
+            "script": "tests/unit/test_japanese_korean_ui.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_localization.gd",
+            "test_cases": 20,
+            "passed": 20,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_localization_extraction.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_locale_font_preparation.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_gallery_typography.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_font_styles.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_ordinary_reply_echo_state.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_provisional_correspondence_catalog.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_system_tts_coordinator.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_witnessed_transport_rail.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_witnessed_speech_status.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_gallery_registrar.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_controls_binding_rules.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_backup_panel_resize.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_backup_presentation.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_desktop_crash_recovery.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_ending_recovery_localization.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/tooling/test_ui_literal_audit.gd",
+            "test_cases": 20,
+            "passed": 20,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "job_id": 108456054333,
+        "suite": "desktop",
+        "test_cases": 319,
+        "passed": 319,
+        "skipped": 0,
+        "requested_scripts": 20,
+        "reported_scripts": 20,
+        "scripts": [
+          {
+            "script": "tests/unit/test_application_runtime_lifetime.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_contacts_frozen_context.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_desktop_panel_split.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/desktop_shell/test_desktop_split_touch.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_desktop_touch_navigation.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_desktop_app_host_state.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_desktop_accessibility_contract.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_desktop_quick_commands.gd",
+            "test_cases": 17,
+            "passed": 17,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_desktop_bootstrap_wiring.gd",
+            "test_cases": 27,
+            "passed": 27,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_desktop_cold_recovery_preparation.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_schedule_desktop_host.gd",
+            "test_cases": 15,
+            "passed": 15,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_phase2r_schedule_desktop_handoff.gd",
+            "test_cases": 111,
+            "passed": 111,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_schedule_app.gd",
+            "test_cases": 40,
+            "passed": 40,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_contacts_run_presentation.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_controls_input_contact_release.gd",
+            "test_cases": 1,
+            "passed": 1,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_angela_stat_overlay.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_stat_hud_week_tint.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_ui_art_placements.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_desktop_logout_consent.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_session_exit_coordinator.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "job_id": 108456054371,
+        "suite": "audio",
+        "test_cases": 44,
+        "passed": 44,
+        "skipped": 0,
+        "requested_scripts": 2,
+        "reported_scripts": 2,
+        "scripts": [
+          {
+            "script": "tests/unit/test_audio_manager.gd",
+            "test_cases": 23,
+            "passed": 23,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_audio_settings_transactions.gd",
+            "test_cases": 21,
+            "passed": 21,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "job_id": 108456054412,
+        "suite": "dating",
+        "test_cases": 162,
+        "passed": 162,
+        "skipped": 0,
+        "requested_scripts": 12,
+        "reported_scripts": 12,
+        "scripts": [
+          {
+            "script": "tests/unit/test_active_dating_backup_capture.gd",
+            "test_cases": 15,
+            "passed": 15,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_dating_quick_commands.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_frozen_presentation_context.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_narrative_playback.gd",
+            "test_cases": 18,
+            "passed": 18,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_canonical_dating_mastery.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_attempt_runtime.gd",
+            "test_cases": 45,
+            "passed": 45,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_evidence_v8.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_physical_owner.gd",
+            "test_cases": 15,
+            "passed": 15,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_capability_envelope.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_rehearsal_owner.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_presentation_port.gd",
+            "test_cases": 21,
+            "passed": 21,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          }
+        ]
+      }
+    ]
+  },
+  "settings_limit": {
+    "job_id": 108456054280,
+    "logs": "Fetch after cancellation returned BlobNotFound/404 on 2026-09-27; the terminal job still reported stale in_progress/pending steps.",
+    "cause": "unestablished",
+    "configured_seconds": {
+      "isolated_process": 480,
+      "step": 600,
+      "job": 1200
+    },
+    "note": "Elapsed status cannot distinguish a GUT failure, post-GUT storage refusal probe, process cleanup, or runner failure."
+  },
+  "checkpoints": {
+    "diagnostics_verification": [
+      {
+        "diagnostics_version": 2,
+        "prepare_records": 35,
+        "commit_records": 35
+      }
+    ],
+    "measurements": [
+      {
+        "day": 1,
+        "retained": {
+          "line": 7,
+          "manual_save": 8,
+          "semantic": 2
+        },
+        "files": {
+          "desktop-issuer-root.json": 7710,
+          "desktop-publications.json": 10779,
+          "profile.json": 2711,
+          "saves/autosave.json": 112116,
+          "saves/desktop-continuation-operations.json": 21775,
+          "saves/slot_1.json": 78266,
+          "schedule-foundation-publications.json": 34
+        },
+        "first_reveal_sync_us": 78433,
+        "terminal_reveal_sync_us": 7467,
+        "terminal_settlement_us": 125729,
+        "manual_slot_save_us": 116102,
+        "manual_slot_prepare_us": 32807,
+        "manual_slot_commit_us": 83275,
+        "autosave_sha256": "ccdec812c2e05476e0cc0959364cbff074e11dd0dae329651235113467620e51"
+      },
+      {
+        "day": 2,
+        "retained": {
+          "line": 14,
+          "manual_save": 16,
+          "semantic": 2
+        },
+        "files": {
+          "desktop-issuer-root.json": 17156,
+          "desktop-publications.json": 31321,
+          "profile.json": 2711,
+          "saves/autosave.json": 441759,
+          "saves/desktop-continuation-operations.json": 21775,
+          "saves/slot_1.json": 393155,
+          "schedule-foundation-publications.json": 6048
+        },
+        "first_reveal_sync_us": 273855,
+        "terminal_reveal_sync_us": 8338,
+        "terminal_settlement_us": 225560,
+        "manual_slot_save_us": 519491,
+        "manual_slot_prepare_us": 165684,
+        "manual_slot_commit_us": 353781,
+        "autosave_sha256": "d0aa9c112e78aa172c4a9f820bde090bd64bba4facf3fa1dcc7911dcf6c6fb75"
+      },
+      {
+        "day": 3,
+        "retained": {
+          "line": 21,
+          "manual_save": 24,
+          "semantic": 2
+        },
+        "files": {
+          "desktop-issuer-root.json": 26604,
+          "desktop-publications.json": 51928,
+          "profile.json": 3002,
+          "saves/autosave.json": 780885,
+          "saves/desktop-continuation-operations.json": 21775,
+          "saves/slot_1.json": 729539,
+          "schedule-foundation-publications.json": 12063
+        },
+        "first_reveal_sync_us": 435549,
+        "terminal_reveal_sync_us": 7859,
+        "terminal_settlement_us": 324311,
+        "manual_slot_save_us": 1009314,
+        "manual_slot_prepare_us": 355821,
+        "manual_slot_commit_us": 653461,
+        "autosave_sha256": "3b64c44267140b54272b459961bf4a53f93af1c87f6b39c760507fe045dff484"
+      },
+      {
+        "day": 4,
+        "retained": {
+          "line": 28,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "files": {
+          "desktop-issuer-root.json": 36052,
+          "desktop-publications.json": 72501,
+          "profile.json": 3002,
+          "saves/autosave.json": 1155677,
+          "saves/desktop-continuation-operations.json": 21775,
+          "saves/slot_1.json": 1102093,
+          "schedule-foundation-publications.json": 18078
+        },
+        "first_reveal_sync_us": 614525,
+        "terminal_reveal_sync_us": 7672,
+        "terminal_settlement_us": 425477,
+        "manual_slot_save_us": 1633032,
+        "manual_slot_prepare_us": 563457,
+        "manual_slot_commit_us": 1069537,
+        "autosave_sha256": "b62907a79236b71fd021c022687fcd1269ef14e53b625ab7aacdbc3fa59293e6"
+      },
+      {
+        "day": 5,
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "files": {
+          "desktop-issuer-root.json": 45500,
+          "desktop-publications.json": 93015,
+          "profile.json": 3002,
+          "saves/autosave.json": 1518369,
+          "saves/desktop-continuation-operations.json": 21775,
+          "saves/slot_1.json": 1466655,
+          "schedule-foundation-publications.json": 24093
+        },
+        "first_reveal_sync_us": 782252,
+        "terminal_reveal_sync_us": 8184,
+        "terminal_settlement_us": 578801,
+        "manual_slot_save_us": 2135799,
+        "manual_slot_prepare_us": 786362,
+        "manual_slot_commit_us": 1349394,
+        "autosave_sha256": "f72503202860fa5a995c3178553027b0069480accc92df247f659d9db551c0e9"
+      },
+      {
+        "day": 6,
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "files": {
+          "desktop-issuer-root.json": 54948,
+          "desktop-publications.json": 113582,
+          "profile.json": 3002,
+          "saves/autosave.json": 1740552,
+          "saves/desktop-continuation-operations.json": 21775,
+          "saves/slot_1.json": 1700718,
+          "schedule-foundation-publications.json": 30108
+        },
+        "first_reveal_sync_us": 997461,
+        "terminal_reveal_sync_us": 8542,
+        "terminal_settlement_us": 613632,
+        "manual_slot_save_us": 2559380,
+        "manual_slot_prepare_us": 968389,
+        "manual_slot_commit_us": 1590960,
+        "autosave_sha256": "55f704c9da288b624e91e9e734822c64a5084aeedb7b80cfb04a81b670852401"
+      },
+      {
+        "day": 7,
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "files": {
+          "desktop-issuer-root.json": 64810,
+          "desktop-publications.json": 134124,
+          "profile.json": 3002,
+          "saves/autosave.json": 1910643,
+          "saves/desktop-continuation-operations.json": 21775,
+          "saves/slot_1.json": 1872441,
+          "schedule-foundation-publications.json": 36123
+        },
+        "first_reveal_sync_us": 1008583,
+        "terminal_reveal_sync_us": 7936,
+        "terminal_settlement_us": 665926,
+        "manual_slot_save_us": 2879696,
+        "manual_slot_prepare_us": 1126751,
+        "manual_slot_commit_us": 1752910,
+        "autosave_sha256": "779acd61b3279746c0c3e77a927832d7b8321a0dee2f3253a73a820bf3b8beb8"
+      }
+    ],
+    "proof": [
+      {
+        "checkout_ref": "efbeec18006c5397ed2427a09849b65bb349c430",
+        "payload_bytes": 1910643,
+        "payload_sha256": "779acd61b3279746c0c3e77a927832d7b8321a0dee2f3253a73a820bf3b8beb8",
+        "write": {
+          "autosave_sha256": "779acd61b3279746c0c3e77a927832d7b8321a0dee2f3253a73a820bf3b8beb8",
+          "days": 7,
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "synthetic_checkpoints": 98
+        },
+        "cold_read": {
+          "autosave_sha256": "779acd61b3279746c0c3e77a927832d7b8321a0dee2f3253a73a820bf3b8beb8",
+          "day": 7,
+          "login_us": 6770356,
+          "parse_cache_enabled": true,
+          "restored_board_sha256": "b32c45a9413c0d56a3a8e207da98728d11066d2db4bf0ebef85960b8aa6ec501",
+          "restored_gameplay_sha256": "a9211d9b8273a741f594381c1a5cbe8a2f0d872cee77c86fccd7eea96c7b2ffa",
+          "restored_recovery_journal_sha256": "b086c7c92b2eae5ec9abd329cdb90b135864464692ea7ef2136cf77468ac61bd",
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a"
+        },
+        "fixture": "7 synthetic line and 7 synthetic manual checkpoint records/day, plus one real Slot 1 save and App loss/day. Public Schedule Done advances to Day 7. This is not an authored-dialogue playthrough.",
+        "timing_policy": "Observations on one shared Windows runner; no speed threshold or physical input-to-paint guarantee.",
+        "timing_boundaries": {
+          "manual_slot_save_us": "Production prepare_backup_action(save, slot:1) plus commit_backup_action, including synchronous signal handlers.",
+          "login_us": "Automated Title Login, Backup picker opening and Autosave selection, load consent, restore and awaited process frames.",
+          "phase_scopes": "Each scope is inclusive. Parent and child scopes overlap and must not be summed; repeated phases inside one scope accumulate.",
+          "phase_collection": "Save/load profiles include only labeled manual-save and Title Login measurement windows; startup and opening each daily Backup app before its save timer are excluded.",
+          "checkpoint_subphases": "Version 2 document/schema/proof timers are nested inclusive measurements. History proof timers accumulate across entries; document proof lookup stops at its first miss. Profile instrumentation adds overhead and is not a speedup comparison."
+        },
+        "parse_cache_comparison": {
+          "control": "Same checkout and retained user-data source, cloned into a new isolated process per variant. Only DWM_SAVE_PARSE_CACHE_DISABLED differs.",
+          "sampling": "One cold Login per variant, fixed disabled-then-enabled order on one shared Windows runner; observational, not a repeated-sample or frame-time guarantee.",
+          "source_json_sha256": {
+            "desktop-issuer-root.json": "0b0459c4e72d3dd80f52fa28a69d20958248f1623dc65d981cef6df6db203dc1",
+            "desktop-publications.json": "4495f8904b6a83aba81d76805f8c079dd427fa84c1055ec0e81f90cf0e3412ca",
+            "profile.json": "b7d4ee7e5d13a3bd774833faae72ecfe2f0409654d429a9f0e699d0d16375b23",
+            "saves/autosave.json": "779acd61b3279746c0c3e77a927832d7b8321a0dee2f3253a73a820bf3b8beb8",
+            "saves/desktop-continuation-operations.json": "28f05573feaec946516b7e6fb4f03191f54afcc0b4db898d3d83a2dfddbb888b",
+            "saves/slot_1.json": "0ec36cef9fc75c0b1ac30e951a1aaf1c55e642a3bf5fa19f3a74a720c56039e3",
+            "schedule-foundation-publications.json": "8935cf32980fdb5fd502715f1fd25134ec9f00a33260758334d1656f39780480",
+            "seven-day-history-proof.json": "d340524ce9c6ab4a514091a065eb92f13acc6e149863cbaf170cb96adeac5f9b"
+          },
+          "disabled": {
+            "autosave_sha256": "779acd61b3279746c0c3e77a927832d7b8321a0dee2f3253a73a820bf3b8beb8",
+            "day": 7,
+            "login_us": 9484149,
+            "parse_cache_enabled": false,
+            "restored_board_sha256": "b32c45a9413c0d56a3a8e207da98728d11066d2db4bf0ebef85960b8aa6ec501",
+            "restored_gameplay_sha256": "a9211d9b8273a741f594381c1a5cbe8a2f0d872cee77c86fccd7eea96c7b2ffa",
+            "restored_recovery_journal_sha256": "b086c7c92b2eae5ec9abd329cdb90b135864464692ea7ef2136cf77468ac61bd",
+            "retained": {
+              "line": 32,
+              "manual_save": 32,
+              "semantic": 2
+            },
+            "retained_checkpoint_count": 66,
+            "save_manager_sha256": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a"
+          },
+          "enabled": {
+            "autosave_sha256": "779acd61b3279746c0c3e77a927832d7b8321a0dee2f3253a73a820bf3b8beb8",
+            "day": 7,
+            "login_us": 6770356,
+            "parse_cache_enabled": true,
+            "restored_board_sha256": "b32c45a9413c0d56a3a8e207da98728d11066d2db4bf0ebef85960b8aa6ec501",
+            "restored_gameplay_sha256": "a9211d9b8273a741f594381c1a5cbe8a2f0d872cee77c86fccd7eea96c7b2ffa",
+            "restored_recovery_journal_sha256": "b086c7c92b2eae5ec9abd329cdb90b135864464692ea7ef2136cf77468ac61bd",
+            "retained": {
+              "line": 32,
+              "manual_save": 32,
+              "semantic": 2
+            },
+            "retained_checkpoint_count": 66,
+            "save_manager_sha256": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a"
+          }
+        }
+      }
+    ],
+    "manual_prepare_comparison": [
+      {
+        "control": "Public prepare_backup_action and commit_backup_action with real storage, the same seeded Day7 journal, immutable capture fixture and a test-subclass fixed clock. Only the discarded eager journal copy in configured capture differs; parse cache and write validation memo are enabled in both.",
+        "sampling": "Eight alternating pairs / sixteen fresh isolated processes; identical prepared candidate, physical source files, target revision and pre-commit parser cache. Preparation timing covers only the public prepare_backup_action call, including immutable fixture copying, and excludes source cloning, journal seeding, proof generation, commit, live UI callbacks, issuer-flush callbacks and rendering. OS filesystem caches are not flushed.",
+        "metric": "prepare_us",
+        "source_code_sha256": {
+          "candidate": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a",
+          "baseline": "045828f242d4292a513cdac101f66b43349f6b8891e05e30bee886aae0092c2c",
+          "storage": "ad2691249d9c7a247147fdc76885044b6cd9f6ebaac1f7267b4c144586d2adab",
+          "harness": "53bde54f81cc3a997903670da96514d045823b5c911b3aac31dd71637bdd0b75"
+        },
+        "summary": {
+          "pair_count": 8,
+          "median_paired_candidate_minus_baseline_us": -23550.5,
+          "baseline_median_prepare_us": 1628861.5,
+          "candidate_median_prepare_us": 1606560
+        }
+      }
+    ]
+  },
+  "last_fully_accepted_source": {
+    "run_number": 57,
+    "run_id": 35814988598,
+    "commit": "cc42b9e4c4f0c5c736fef625c0be6b1fa0855f00",
+    "receipt": "evidence/beads_cloud_review/resumed-public-cloud-run57.json"
+  },
+  "limitations": [
+    "No accepted Settings count; expected 2018 executions are not observed results.",
+    "Profiling adds overhead. Nested inclusive timers overlap. Cross-run duration differences do not prove speedup.",
+    "Internal ledger tests passed; durable History, witnessed Save and exact Next are not enabled.",
+    "No Beads closure or broad lag/native Windows graphics/accessibility acceptance."
+  ]
+}

@@ -35,12 +35,21 @@ class PreparationGeneration extends "res://tests/support/FakeMinesweeperGenerati
 
 class PostRenderPort extends RefCounted:
 	var physical: RefCounted
+	var narrative := preload("res://tests/support/FakeDatingNarrativePlayback.gd").new()
 	func begin(_command: Dictionary) -> Dictionary: return {"ok": true}
 	func complete(_command: Dictionary) -> Dictionary: return {"ok": false}
 	func pull_physical(value: Dictionary) -> Dictionary:
 		return physical.pull_physical(value.physical_token)
 	func dispatch_physical(value: Dictionary, action: String, index: int, revision: int) -> Dictionary:
-		return physical.dispatch_physical(value.physical_token, action, index, revision)
+		var phase: String = str(physical.pull_physical(value.physical_token).value.phase)
+		var result: Dictionary = physical.dispatch_physical(value.physical_token, action, index, revision)
+		if result.get("ok", false) and action == "continue" and phase in ["pre_challenge", "post_challenge"]:
+			narrative.finish_phase(value, phase)
+		return result
+	func begin_narrative_phase(value: Dictionary, retry: bool = false) -> Dictionary:
+		return narrative.begin_phase(value, str(physical.pull_physical(value.physical_token).value.phase), retry)
+	func pull_narrative_phase(value: Dictionary) -> Dictionary:
+		return narrative.pull_phase(value, str(physical.pull_physical(value.physical_token).value.phase))
 	func acknowledge_post_challenge_render(value: Dictionary) -> Dictionary:
 		return physical.acknowledge_post_challenge_render(value.physical_token)
 
@@ -123,18 +132,197 @@ func _restore(backup: Dictionary) -> void:
 	var restored: Dictionary = state.rollback_restore_silent(backup)
 	assert_true(restored.ok, str(restored))
 
-func _clear_nonperfect_fixture() -> void:
-	# These regressions exercise a saved unresolved Loved/Dark decision, not Perfect.
+func _paint_nonperfect_fixture() -> void:
+	# Retain the terminal-paint/settlement boundary while exercising ordinary Solved.
 	if _record().host == "canonical_solo":
 		assert_true(_dispatch("flag", 0).ok)
 		assert_true(_dispatch("unflag", 0).ok)
-	assert_true(_dispatch("reveal", 323).ok)
+	var record := _record()
+	var revision: int = int(record.board.revision) if record.board is Dictionary else record.envelope.shell.actions.size()
+	assert_true(physical_owner.dispatch_physical(command.physical_token, "reveal", 323, revision).ok)
+	assert_eq(_record().phase, "challenge", "the last cell paints before settlement")
+	assert_true(_record().board.terminal)
+
+func _clear_nonperfect_fixture() -> void:
+	_paint_nonperfect_fixture()
+	assert_true(_dispatch("settle").ok)
 
 func _finish_solo() -> void:
 	assert_true(_dispatch("continue").ok)
 	_clear_nonperfect_fixture()
-	assert_true(_dispatch("activate", int(_record().envelope.special_cell)).ok)
 	assert_eq(_record().phase, "post_challenge")
+
+func test_production_pre_context_is_frozen_before_checkpoint_and_survives_load() -> void:
+	assert_true(physical_owner.configure_frozen_narrative_contexts().ok)
+	assert_true(_begin("frozen-pre").ok)
+	var frozen: Dictionary = physical_owner.pull_frozen_narrative_context(command.physical_token, "pre_challenge")
+	assert_true(frozen.ok, str(frozen))
+	if not frozen.ok: return
+	var expected: Dictionary = frozen.value.duplicate(true)
+	assert_eq(expected.fields.tier, "friend")
+	assert_false(expected.fields.has("attempt_id"), "pre prose precedes canonical attempt admission")
+	assert_eq(expected.fields.branch_id, state.capture_run_snapshot_input().lifecycle.branch_id)
+	var saved := _backup()
+	state.dating_route_state.priscilla.relationship_state = "love"
+	state.dating_route_state.priscilla.dark_points = 3
+	state.friend_attitude.priscilla = "fixated"
+	assert_eq(physical_owner.pull_frozen_narrative_context(command.physical_token, "pre_challenge").value, expected)
+	_restore(saved)
+	assert_true(_begin("frozen-restored-envelope").ok)
+	assert_eq(physical_owner.pull_frozen_narrative_context(command.physical_token, "pre_challenge").value, expected)
+	assert_true(profile.get_profile_snapshot().observer_evidence.is_empty(), "freezing prose creates no Observer receipts")
+
+func test_production_post_context_names_the_committed_effect_and_terminal_result() -> void:
+	assert_true(physical_owner.configure_frozen_narrative_contexts().ok)
+	assert_true(_begin("frozen-post").ok)
+	_finish_solo()
+	var frozen: Dictionary = physical_owner.pull_frozen_narrative_context(command.physical_token, "post_challenge")
+	assert_true(frozen.ok, str(frozen))
+	if not frozen.ok: return
+	var effect: Dictionary = _record().applied_result.receipt
+	assert_eq(frozen.value.fields.board_result, _record().outcome)
+	assert_eq(frozen.value.fields.relationship_outcome, "loved")
+	assert_eq(frozen.value.fields.effect_receipt_id, effect.terminal_fact.transaction_id)
+	assert_false(frozen.value.fields.has("progression_window_result"), "Day1 has no progression valve")
+	assert_false(frozen.value.fields.has("special_mine_phase"))
+	state.dating_route_state.priscilla.relationship_state = "love"
+	assert_eq(physical_owner.pull_frozen_narrative_context(command.physical_token, "post_challenge").value, frozen.value)
+
+func test_production_restore_refuses_missing_frozen_context_without_mutating_run_or_profile() -> void:
+	assert_true(physical_owner.configure_frozen_narrative_contexts().ok)
+	assert_true(_begin("frozen-required").ok)
+	state.route_context.erase("dating_frozen_contexts_v1")
+	var run_before := _backup()
+	var profile_before: Dictionary = profile.get_profile_snapshot()
+	var result := _begin("frozen-absent-restore")
+	assert_false(result.ok)
+	assert_eq(result.get("code"), &"frozen_context_snapshot_required")
+	assert_eq(_backup(), run_before)
+	assert_eq(profile.get_profile_snapshot(), profile_before)
+
+func test_pair_projection_copies_real_draw_and_window_fact_without_solo_sentinels() -> void:
+	assert_true(physical_owner.configure_frozen_narrative_contexts().ok)
+	var draw: Dictionary = preload("res://scripts/domain/relationship/PairDeckDraw.gd").build_draw([], 0).value
+	state.inter_friend_route_state.priscilla_lavinia = {"frozen_form": draw.form, "pair_deck_draw": draw}
+	state.contacts.transaction_receipts["fixture:pair-window"] = {"kind": "resolve_day_end", "day": 2,
+		"transaction_id": "fixture:pair-window", "pl_window": {"outcome": "group", "counts": true, "visible": true},
+		"group_date_variation": null}
+	assert_true(_begin("frozen-pair", "group", 2).ok)
+	var frozen: Dictionary = physical_owner.pull_frozen_narrative_context(command.physical_token, "pre_challenge")
+	assert_true(frozen.ok, str(frozen))
+	if not frozen.ok: return
+	assert_eq(frozen.value.fields.stable_deck_state, draw)
+	assert_eq(frozen.value.fields.pair_count_receipt.transaction_id, "fixture:pair-window")
+	assert_eq(frozen.value.fields.encounter_presentation, "group")
+	for key: String in ["friend_id", "tier", "attitude"]: assert_false(frozen.value.fields.has(key))
+	var original: Dictionary = frozen.value.duplicate(true)
+	state.contacts.transaction_receipts.clear()
+	state.inter_friend_route_state.priscilla_lavinia.pair_deck_draw = {}
+	assert_true(_begin("frozen-pair-remapped", "twofriends_if_deferred", 2).ok)
+	var remapped: Dictionary = physical_owner.pull_frozen_narrative_context(command.physical_token, "pre_challenge")
+	assert_true(remapped.ok, str(remapped))
+	if not remapped.ok: return
+	assert_eq(remapped.value.fields.encounter_presentation, "twofriends_if_deferred")
+	assert_false(remapped.value.fields.has("attempt_id"))
+	assert_eq(remapped.value.fields.stable_deck_state, original.fields.stable_deck_state)
+	assert_eq(remapped.value.fields.pair_count_receipt, original.fields.pair_count_receipt,
+		"a remap never reads the later live count or deck")
+	assert_eq(state.route_context.dating_frozen_contexts_v1.entries[original.fields.entry_id], original,
+		"the distinct remapped presentation cannot rewrite the first entry's snapshot")
+	assert_true(_begin("frozen-pair-remapped-restored", "twofriends_if_deferred", 2).ok)
+	assert_eq(physical_owner.pull_frozen_narrative_context(command.physical_token, "pre_challenge").value, remapped.value)
+
+func test_mid_board_restore_requires_the_original_pre_context_before_profile_reconciliation() -> void:
+	assert_true(physical_owner.configure_frozen_narrative_contexts().ok)
+	assert_true(_begin("frozen-mid-board").ok)
+	assert_true(_dispatch("continue").ok)
+	assert_true(_dispatch("reveal", 36).ok)
+	state.route_context.erase("dating_frozen_contexts_v1")
+	var run_before := _backup()
+	var profile_before: Dictionary = profile.get_profile_snapshot()
+	var result: Dictionary = physical_owner.reconcile_restore_silent({"route_id": "dating"})
+	assert_false(result.ok)
+	assert_eq(result.get("code"), &"frozen_context_snapshot_required")
+	assert_eq(_backup(), run_before)
+	assert_eq(profile.get_profile_snapshot(), profile_before)
+
+func test_pair_before_invitation_rollover_freezes_pending_without_minting_a_receipt() -> void:
+	assert_true(physical_owner.configure_frozen_narrative_contexts().ok)
+	state._lifecycle_set_playing_day(2)
+	var draw: Dictionary = preload("res://scripts/domain/relationship/PairDeckDraw.gd").build_draw([], 0).value
+	state.inter_friend_route_state.priscilla_lavinia = {"frozen_form": draw.form, "pair_deck_draw": draw}
+	assert_true(state._run_lifecycle.begin_day_resolution("fixture:resolution", {"entries": []}).ok)
+	assert_true(_begin("frozen-pair-pending", "group", 2).ok)
+	var frozen: Dictionary = physical_owner.pull_frozen_narrative_context(command.physical_token, "pre_challenge")
+	assert_true(frozen.ok, str(frozen))
+	if not frozen.ok: return
+	assert_eq(frozen.value.fields.pair_count_status, "pending_rollover")
+	assert_null(frozen.value.fields.pair_count_receipt)
+	assert_true(state.contacts.transaction_receipts.is_empty())
+	assert_true(_dispatch("continue").ok)
+	_clear_nonperfect_fixture()
+	var post: Dictionary = physical_owner.pull_frozen_narrative_context(command.physical_token, "post_challenge")
+	assert_true(post.ok, str(post))
+	if not post.ok: return
+	assert_eq(post.value.fields.pair_count_status, "pending_rollover")
+	assert_null(post.value.fields.pair_count_receipt)
+	state.contacts.transaction_receipts["fixture:later-window"] = {"kind": "resolve_day_end", "day": 2,
+		"transaction_id": "fixture:later-window", "pl_window": {"outcome": "group", "counts": true, "visible": true}}
+	state.inter_friend_route_state.priscilla_lavinia.pair_deck_draw = {}
+	assert_true(_begin("frozen-pair-pending-remap", "twofriends_if_deferred", 2).ok)
+	var remapped: Dictionary = physical_owner.pull_frozen_narrative_context(command.physical_token, "post_challenge")
+	assert_true(remapped.ok, str(remapped))
+	if not remapped.ok: return
+	assert_eq(remapped.value.fields.pair_count_status, "pending_rollover")
+	assert_null(remapped.value.fields.pair_count_receipt, "later rollover cannot rewrite a remapped snapshot")
+	assert_true(_begin("frozen-pair-pending-restored", "twofriends_if_deferred", 2).ok)
+
+func test_pair_without_a_committed_count_or_retained_rollover_plan_is_refused() -> void:
+	assert_true(physical_owner.configure_frozen_narrative_contexts().ok)
+	var draw: Dictionary = preload("res://scripts/domain/relationship/PairDeckDraw.gd").build_draw([], 0).value
+	state.inter_friend_route_state.priscilla_lavinia = {"frozen_form": draw.form, "pair_deck_draw": draw}
+	var before := _backup()
+	var refused := _begin("frozen-pair-no-count", "group", 2)
+	assert_false(refused.ok)
+	assert_eq(refused.get("code"), &"frozen_context_pair_receipt_required")
+	assert_eq(_backup(), before)
+
+func test_saved_context_cannot_claim_another_attempt_or_terminal_result() -> void:
+	assert_true(physical_owner.configure_frozen_narrative_contexts().ok)
+	assert_true(_begin("frozen-bindings").ok)
+	_finish_solo()
+	var original := _backup()
+	var entry_id := "dating.solo.priscilla.day1.post_challenge"
+	for change: Dictionary in [{"attempt_id": "another-board"}, {"board_result": "exploded", "relationship_outcome": "hatred"},
+			{"effect_receipt_id": "another-effect"}]:
+		_restore(original)
+		state.route_context.dating_frozen_contexts_v1.entries[entry_id].fields.merge(change, true)
+		var run_before := _backup()
+		var profile_before: Dictionary = profile.get_profile_snapshot()
+		assert_false(_begin("frozen-binding-restore").ok, str(change))
+		assert_eq(_backup(), run_before)
+		assert_eq(profile.get_profile_snapshot(), profile_before)
+
+func test_restore_before_date_admission_keeps_pre_facts_when_locked_attempt_is_selected() -> void:
+	assert_true(physical_owner.configure_frozen_narrative_contexts().ok)
+	var before_admission := _backup()
+	assert_true(_begin("frozen-first-attempt").ok)
+	_finish_solo()
+	var locked := _attempt()
+	_restore(before_admission)
+	assert_true(_begin("frozen-before-admission-load").ok)
+	var pre: Dictionary = physical_owner.pull_frozen_narrative_context(command.physical_token, "pre_challenge").value
+	assert_false(pre.fields.has("attempt_id"))
+	assert_eq(state.dating_route_state.priscilla.get("date_count", 0), 0)
+	assert_true(_dispatch("continue").ok)
+	assert_eq(_record().spec.board_token, locked.attempt_id)
+	assert_eq(_record().phase, "post_challenge")
+	assert_eq(state.route_context.dating_frozen_contexts_v1.entries[pre.fields.entry_id], pre)
+	assert_true(physical_owner.reconcile_restore_silent({"route_id": "dating"}).ok)
+	assert_true(_begin("frozen-locked-attempt-restored").ok)
+	var post: Dictionary = physical_owner.pull_frozen_narrative_context(command.physical_token, "post_challenge")
+	assert_true(post.ok, str(post))
+	if post.ok: assert_eq(post.value.fields.attempt_id, locked.attempt_id)
 
 ## Rows 0-1 hold 33 mines and three more wall off the bottom-left corner (306), so the flood
 ## from 323 leaves exactly one safe cell covered and the board stays in play.
@@ -285,10 +473,10 @@ func test_profile_ahead_after_board_autosave_failure_only_retries_same_committed
 func test_terminal_profile_ahead_replays_frozen_effect_once_after_checkpoint_retry() -> void:
 	assert_true(_begin().ok)
 	assert_true(_dispatch("continue").ok)
-	_clear_nonperfect_fixture()
+	_paint_nonperfect_fixture()
 	var before: Dictionary = state.to_save_dict()
 	reject_checkpoint = true
-	assert_eq(_dispatch("activate", int(_record().envelope.special_cell)).code, &"fixture_checkpoint_failure")
+	assert_eq(_dispatch("settle").code, &"fixture_checkpoint_failure")
 	assert_eq(state.to_save_dict(), before)
 	var durable := _attempt()
 	var effect_id: String = durable.effect_receipt.receipt_id
@@ -495,8 +683,10 @@ func test_post_ending_old_midboard_and_sibling_loads_keep_exact_progress() -> vo
 	assert_eq(generation.call_log.size(), 1)
 
 func test_post_ending_pre_entry_load_gets_fresh_attempt_only_at_continue() -> void:
+	assert_true(physical_owner.configure_frozen_narrative_contexts().ok)
 	assert_true(_begin().ok)
 	var pre_entry := _backup()
+	var frozen_pre: Dictionary = physical_owner.pull_frozen_narrative_context(command.physical_token, "pre_challenge").value
 	var preliminary: Dictionary = _record().spec.duplicate(true)
 	_finish_solo()
 	assert_true(_dispatch("continue").ok)
@@ -512,12 +702,13 @@ func test_post_ending_pre_entry_load_gets_fresh_attempt_only_at_continue() -> vo
 	assert_eq(entered.generation, 2)
 	assert_ne(entered.attempt_id, first.attempt_id)
 	assert_ne(_record().spec.placement_nonce, preliminary.placement_nonce)
+	assert_eq(state.route_context.dating_frozen_contexts_v1.entries[frozen_pre.fields.entry_id], frozen_pre)
+	assert_true(physical_owner.reconcile_restore_silent({"route_id": "dating"}).ok)
 	assert_null(entered.materialization_receipt)
 	assert_eq(entered.branch_id, "fresh-loaded-branch")
 	assert_eq(_attempt(), first)
 	assert_eq(generation.call_log.size(), 1, "Continue allocates a fresh spec but waits for first-click generation")
 	_clear_nonperfect_fixture()
-	assert_true(_dispatch("activate", int(_record().envelope.special_cell)).ok)
 	assert_true(_dispatch("continue").ok)
 	var slot := LEDGER.semantic_slot(command.context)
 	assert_eq(state.route_context.dating_canonical_heads[slot],
@@ -589,25 +780,25 @@ func test_post_ending_entered_unmaterialized_save_keeps_spec_and_chooses_its_own
 	assert_eq(_attempt().materialization_receipt.first_cell_index, 36)
 	assert_eq(generation.call_log.size(), 2)
 
-func test_post_ending_saved_clear_can_choose_independent_frozen_effect_and_head() -> void:
+func test_post_ending_saved_terminal_board_keeps_automatic_loved_effect_and_exact_head() -> void:
 	assert_true(_begin().ok)
 	assert_true(_dispatch("continue").ok)
-	_clear_nonperfect_fixture()
+	_paint_nonperfect_fixture()
 	var cleared := _backup()
-	assert_true(_dispatch("activate", int(_record().envelope.special_cell)).ok)
+	assert_true(_dispatch("settle").ok)
 	assert_true(_dispatch("continue").ok)
 	var parent := _attempt()
 	_milestone()
 	_load_branch(cleared, "independent-terminal")
 	assert_true(_begin("independent-terminal").ok)
-	assert_eq(_record().phase, "cleared_awaiting_terminal_choice")
+	assert_eq(_record().phase, "challenge")
 	assert_eq(state.dating_route_state.priscilla.get("date_count", 0), 0)
-	assert_true(_dispatch("continue").ok)
+	assert_true(_dispatch("settle").ok)
 	var branch := _selected_attempt()
 	assert_eq(branch.record.relationship_outcome, "loved")
-	assert_eq(parent.record.relationship_outcome, "dark")
+	assert_eq(parent.record.relationship_outcome, "loved")
 	assert_eq(branch.effect_receipt.receipt_id, parent.effect_receipt.receipt_id)
-	assert_ne(branch.effect_receipt.value, parent.effect_receipt.value)
+	assert_eq(branch.effect_receipt.value, parent.effect_receipt.value)
 	assert_eq(state.dating_route_state.priscilla.date_count, 1)
 	assert_true(_dispatch("continue").ok)
 	assert_eq(state.route_context.dating_canonical_heads[LEDGER.semantic_slot(command.context)],
@@ -743,86 +934,36 @@ func _begin_observer(friend_id: String = "priscilla", label: String = "observer"
 	command["physical_token"] = physical_owner._token(command.completion_transaction_id, command.command_sha256)
 	return physical_owner.begin_physical(command)
 
-func _observer_action(action: String, elapsed_ms: int = 0) -> Dictionary:
-	var view: Dictionary = physical_owner.pull_observer(command.physical_token).value
-	return physical_owner.dispatch_observer(command.physical_token, view.presentation_atom_id, action, elapsed_ms)
+func test_retired_observer_actions_have_no_source_and_cannot_write_evidence() -> void:
+	for friend_id: String in ["priscilla", "lavinia"]:
+		assert_true(_begin_observer(friend_id).ok)
+		var before: Dictionary = profile.get_profile_snapshot().duplicate(true)
+		var route_before: Dictionary = state.route_context.duplicate(true)
+		assert_eq(physical_owner.pull_observer(command.physical_token).value, {})
+		assert_eq(physical_owner.pull_observer("stale-token").code, &"stale_dating_physical_token")
+		for action: String in ["render", "capture", "compare", "compare_rendered", "tick", "intervene", "close", "retry"]:
+			var denied: Dictionary = physical_owner.dispatch_observer(
+				command.physical_token, "retired.atom", action, 1000)
+			assert_eq(denied.code, &"observer_source_not_admitted", action)
+		assert_eq(profile.get_profile_snapshot(), before, "Retirement grants no fictitious evidence.")
+		assert_eq(state.route_context, route_before, "Refused interactions mutate no run state.")
+		state.route_context.erase("active_dating_challenge")
 
-func test_observer_capture_requires_rendered_exact_source_and_fresh_run_compare() -> void:
-	assert_true(_begin_observer().ok)
-	assert_false(_observer_action("capture").ok)
-	assert_false(physical_owner.dispatch_observer(command.physical_token, "atom.unregistered", "render").ok)
-	physical_owner._admitted_command["execution_mode"] = "rehearsal"
+func test_retired_observer_checkpoint_cannot_strand_restored_board_entry() -> void:
+	assert_true(_begin_observer("lavinia").ok)
+	var run_id: String = str(state.capture_run_snapshot_input().lifecycle.run_id)
+	var stale := {"run_id": run_id, "entry_id": "dating.solo.lavinia.day2.pre_challenge",
+		"checkpoint_pending": true, "rendered": true, "playback_token": "retired-token",
+		"comparison_shown": false, "elapsed_ms": 5000, "closed": false,
+		"capture_receipt_id": "", "intervened": false}
+	state.route_context["dating_observer_source"] = stale.duplicate(true)
+	var profile_before: Dictionary = profile.get_profile_snapshot().duplicate(true)
+	assert_true(physical_owner.begin_physical(command).ok, "An older pending interaction may be loaded.")
+	assert_eq(state.route_context.dating_observer_source, stale, "Admission does not rewrite historical evidence.")
 	assert_eq(physical_owner.pull_observer(command.physical_token).value, {})
-	physical_owner._admitted_command.erase("execution_mode")
-	assert_true(_observer_action("render").ok)
-	assert_true(_observer_action("capture").ok)
-	assert_false(_observer_action("compare").ok, "same run cannot manufacture a counterpart")
-	var before := _backup()
-	var source: Dictionary = state.capture_run_snapshot_input()
-	source.lifecycle.run_id = "fresh-observer-run"
-	source.lifecycle.branch_id = "fresh-observer-branch"
-	source.gameplay.route_context.erase("dating_observer_source")
-	assert_true(state.apply_restore_silent({"snapshot": source}).ok)
-	assert_true(_begin_observer("priscilla", "fresh-observer").ok)
-	assert_true(physical_owner.pull_observer(command.physical_token).value.counterpart)
-	assert_true(_observer_action("render").ok)
-	assert_true(_observer_action("compare").ok)
-	assert_false(profile.get_observer_evidence().value.by_scope.priscilla, "opening an overlay is not its visible acknowledgement")
-	assert_true(_observer_action("compare_rendered").ok)
-	assert_true(profile.get_observer_evidence().value.by_scope.priscilla)
-	_restore(before)
-	assert_true(profile.get_observer_evidence().value.by_scope.priscilla, "Run rollback preserves durable Observer evidence")
-
-func test_observer_withholding_is_explicit_timed_and_intervention_disqualifies() -> void:
-	assert_true(_begin_observer("lavinia").ok)
-	assert_false(_observer_action("tick", 1000).ok)
-	assert_true(_observer_action("render").ok)
-	assert_false(_observer_action("close").ok)
-	assert_false(_observer_action("tick", 15000).ok, "one fabricated full-window tick is refused")
-	assert_true(_observer_action("intervene").ok)
-	for tick in 15: assert_true(_observer_action("tick", 1000).ok)
-	assert_true(_observer_action("close").ok)
-	assert_false(profile.get_observer_evidence().value.by_scope.lavinia)
-
-func test_observer_window_load_rebind_preserves_elapsed_but_requires_new_render_proof() -> void:
-	assert_true(_begin_observer("lavinia").ok)
-	assert_true(_observer_action("render").ok)
-	for tick in 5: assert_true(_observer_action("tick", 1000).ok)
-	var before := _backup()
-	assert_true(_begin_observer("lavinia").ok, "same cached command may be re-admitted")
-	assert_false(_observer_action("tick", 1000).ok, "same-token re-entry still requires actual rendering")
-	assert_true(_observer_action("render").ok)
-	assert_true(_begin_observer("lavinia", "rebound-observer").ok)
-	assert_eq(physical_owner.pull_observer(command.physical_token).value.elapsed_ms, 5000)
-	assert_false(_observer_action("tick", 1000).ok)
-	assert_true(_observer_action("render").ok)
-	for tick in 10: assert_true(_observer_action("tick", 1000).ok)
-	assert_true(_observer_action("close").ok)
-	assert_true(profile.get_observer_evidence().value.by_scope.lavinia)
-	_restore(before)
-	assert_eq(state.route_context.dating_observer_source.elapsed_ms, 5000)
-
-func test_observer_profile_failure_and_profile_ahead_checkpoint_retry_are_exact() -> void:
-	assert_true(_begin_observer().ok)
-	assert_true(_observer_action("render").ok)
-	storage.reject_write = true
-	assert_false(_observer_action("capture").ok)
-	assert_eq(profile.get_observer_evidence().value.receipts, {})
-	storage.reject_write = false
-	reject_checkpoint = true
-	assert_false(_observer_action("capture").ok)
-	assert_eq(profile.get_observer_evidence().value.receipts.size(), 1)
-	var calls_before_block: int = checkpoint_calls
-	assert_eq(_dispatch("continue").code, &"observer_checkpoint_retry_required")
-	assert_eq(_record().phase, "pre_challenge", "blocked board entry must not hide the Observer retry view")
-	assert_eq(checkpoint_calls, calls_before_block, "rejected Continue does not try an unrelated board checkpoint")
-	assert_false(physical_owner.pull_observer(command.physical_token).value.is_empty())
-	var revision: int = profile.get_profile_revision()
-	assert_false(_observer_action("capture").ok)
-	reject_checkpoint = false
-	assert_true(_observer_action("retry").ok)
-	assert_eq(profile.get_profile_revision(), revision)
-	assert_true(_dispatch("continue").ok)
+	assert_true(_dispatch("continue").ok, "The retired checkpoint cannot own current input.")
+	assert_eq(_record().phase, "challenge")
+	assert_eq(profile.get_profile_snapshot().observer_evidence, profile_before.observer_evidence)
 
 func test_pre_challenge_reached_signature_needs_actual_draw_and_uses_saved_base_fields() -> void:
 	assert_true(_begin().ok)
@@ -868,8 +1009,8 @@ func test_post_challenge_reach_freezes_terminal_fields_and_exact_draw_deduplicat
 	var reached: Array = profile.get_reached_presentations("dating.solo.priscilla.day1.post_challenge").value.records
 	assert_eq(reached.size(), 1)
 	assert_eq(reached[0].signature.fields.attitude, frozen.fields.attitude)
-	assert_eq(reached[0].signature.fields.relationship_outcome, "dark")
-	assert_eq(reached[0].signature.fields.special_mine_phase, "detonated")
+	assert_eq(reached[0].signature.fields.relationship_outcome, "loved")
+	assert_eq(reached[0].signature.fields.special_mine_phase, "declined")
 	assert_eq(reached[0].signature.fields.perfect_reasons, _record().perfect_reasons)
 	assert_eq(state.to_save_dict(), before, "render recording does not replay terminal effects")
 	var revision: int = profile.get_profile_revision()
@@ -899,9 +1040,9 @@ func test_post_challenge_profile_failure_restores_exact_fields_and_rehearsal_has
 func test_failed_terminal_checkpoint_cannot_record_post_until_exact_retry_is_saved() -> void:
 	assert_true(_begin().ok)
 	assert_true(_dispatch("continue").ok)
-	_clear_nonperfect_fixture()
+	_paint_nonperfect_fixture()
 	reject_checkpoint = true
-	assert_false(_dispatch("activate", int(_record().envelope.special_cell)).ok)
+	assert_false(_dispatch("settle").ok)
 	assert_false(physical_owner.acknowledge_post_challenge_render(command.physical_token).ok)
 	assert_eq(profile.get_reached_presentations().value.records, [])
 	reject_checkpoint = false
@@ -910,30 +1051,37 @@ func test_failed_terminal_checkpoint_cannot_record_post_until_exact_retry_is_sav
 	assert_true(physical_owner.acknowledge_post_challenge_render(command.physical_token).ok)
 	assert_eq(profile.get_reached_presentations().value.records.size(), 1)
 
-func test_actual_post_status_draw_gates_continue_and_failed_record_stays_retryable() -> void:
+func test_post_dtl_completion_gates_progression_and_start_failure_stays_retryable() -> void:
 	assert_true(_begin().ok)
 	_finish_solo()
 	var port := PostRenderPort.new()
 	port.physical = physical_owner
+	port.narrative.auto_complete = false
+	port.narrative.fail_begin = true
 	var scene: Control = load("res://scenes/dating/DatingScene.tscn").instantiate()
 	assert_true(scene.configure_presentation(port, command).ok)
 	add_child_autofree(scene)
-	scene._continue_button.pressed.emit()
-	assert_eq(_record().phase, "post_challenge", "Continue cannot finish an undrawn post scene")
-	assert_eq(profile.get_reached_presentations().value.records, [])
-	storage.reject_write = true
-	scene._status_label.draw.emit()
+	scene.set_process(false)
 	scene._process(0.0)
-	assert_false(scene._post_challenge_reached)
-	assert_eq(scene._continue_button.text, "Retry")
-	scene._continue_button.pressed.emit()
 	assert_eq(_record().phase, "post_challenge")
-	assert_eq(profile.get_reached_presentations().value.records, [])
-	storage.reject_write = false
+	assert_true(scene._narrative_failed)
+	assert_true(scene._continue_button.visible)
+	assert_eq(scene._continue_button.text, "Retry")
+	assert_eq(port.narrative.started.size(), 1)
+	scene._process(0.0)
+	assert_eq(port.narrative.started.size(), 1, "a failed start is not retried every frame")
+	scene._status_label.draw.emit()
+	assert_eq(profile.get_reached_presentations().value.records, [], "a title draw is not witnessed dialogue")
+	port.narrative.fail_begin = false
 	scene._continue_button.pressed.emit()
-	assert_eq(_record().phase, "completed")
-	assert_eq(profile.get_reached_presentations().value.records.size(), 1)
-
+	assert_false(scene._narrative_failed)
+	assert_eq(_record().phase, "post_challenge", "a playing DTL cannot be bypassed")
+	assert_false(scene._continue_button.visible)
+	assert_eq(port.narrative.started.size(), 2)
+	port.narrative.finish()
+	scene._process(0.0)
+	assert_eq(_record().phase, "completed", "natural DTL completion advances automatically")
+	assert_eq(profile.get_reached_presentations().value.records, [], "an empty fixture grants no prose receipt")
 
 func _begin_post_ending_preparation(label: String) -> Dictionary:
 	_milestone()

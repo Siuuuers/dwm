@@ -1,0 +1,329 @@
+{
+  "artifacts": [
+    {
+      "created_at": "2026-10-02T03:21:24Z",
+      "digest": "sha256:5b90c70fe6770f3b0b539ab6bf08bef94d63361e5f16cf54b9ae7be315422949",
+      "extracted_file_count": 19,
+      "id": 11206803161,
+      "local_zip_basename": "public-surfaces-36959466975-1.zip",
+      "name": "public-surfaces-36959466975-1",
+      "size_in_bytes": 142983,
+      "workflow_run_head_sha": "df01257dd3e7c9e5c90d3dcee576ece8d27784c5",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "5b90c70fe6770f3b0b539ab6bf08bef94d63361e5f16cf54b9ae7be315422949"
+    }
+  ],
+  "bundle": "cloud-run126-36959466975-public-inventory.tar.gz",
+  "counts": {
+    ".json": 7,
+    ".jsonl": 6,
+    ".log": 9,
+    ".xml": 1
+  },
+  "evidence_kind": "bounded-successful-run-audit",
+  "excluded_extracted_files": [
+    {
+      "bytes": 560994,
+      "path": "run126/artifacts/public-surfaces-36959466975-1/ci/public-surfaces/game_state_surface.json",
+      "provenance": {
+        "artifact_id": 11206803161,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/game_state_surface.json",
+        "zip_sha256": "5b90c70fe6770f3b0b539ab6bf08bef94d63361e5f16cf54b9ae7be315422949"
+      },
+      "reason": "Duplicate public inventory; retain canonical source-bound copies separately.",
+      "sha256": "885ee737ccee60198daa4ca1212f9750112ad35afc6dc997cc3d86d6aa62626a"
+    },
+    {
+      "bytes": 149295,
+      "path": "run126/artifacts/public-surfaces-36959466975-1/ci/public-surfaces/save_manager_surface.json",
+      "provenance": {
+        "artifact_id": 11206803161,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/save_manager_surface.json",
+        "zip_sha256": "5b90c70fe6770f3b0b539ab6bf08bef94d63361e5f16cf54b9ae7be315422949"
+      },
+      "reason": "Duplicate public inventory; retain canonical source-bound copies separately.",
+      "sha256": "e9c1ead377edea92f280a5f62974f12a585f33a15769a103ce05c59f590c85ef"
+    }
+  ],
+  "excluded_metadata": "Transient download responses and artifact-manifest.json are omitted because they can contain signed URLs.",
+  "generic_audit_pass": true,
+  "limits": [
+    "This is the focused public-inventory gate, not the rendered journey or broad game gate.",
+    "The workflow head is distinct from the exact source checkout.",
+    "No Godot or PowerShell executed locally during audit and adoption.",
+    "Most PNGs and binary payloads are omitted, with explicit hashes/limits; reading PNGs and savebytes are retained.",
+    "This archive preserves evidence; packaging creates no additional engine or visual acceptance."
+  ],
+  "normalization": "lexicographic POSIX PAX members; mode0644 uid/gid0 empty owner names, mtime0; gzip mtime0, empty filename, level9",
+  "not_downloaded_artifacts": [],
+  "payload_bytes": 1525540,
+  "payload_file_count": 23,
+  "payload_files": [
+    {
+      "bytes": 920,
+      "path": "run126/artifacts-api.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "29f27000aaf6f9b0a194e3c63d3c234a0abd5cc79d6f2c01ad8475754856fe14"
+    },
+    {
+      "bytes": 203583,
+      "path": "run126/artifacts/public-surfaces-36959466975-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11206803161,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "5b90c70fe6770f3b0b539ab6bf08bef94d63361e5f16cf54b9ae7be315422949"
+      },
+      "sha256": "089a3a05efaf70735b943ecd418454f63ac94e72ea90c523c393cf8a6c491883"
+    },
+    {
+      "bytes": 658,
+      "path": "run126/artifacts/public-surfaces-36959466975-1/ci/isolation-timeout.jsonl",
+      "provenance": {
+        "artifact_id": 11206803161,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/isolation-timeout.jsonl",
+        "zip_sha256": "5b90c70fe6770f3b0b539ab6bf08bef94d63361e5f16cf54b9ae7be315422949"
+      },
+      "sha256": "65c551cf4a669f40c38fedf0cb85865d50ba5220e40849c055a781b366f13283"
+    },
+    {
+      "bytes": 229259,
+      "path": "run126/artifacts/public-surfaces-36959466975-1/ci/public-surfaces/fixture-version-census.json",
+      "provenance": {
+        "artifact_id": 11206803161,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/fixture-version-census.json",
+        "zip_sha256": "5b90c70fe6770f3b0b539ab6bf08bef94d63361e5f16cf54b9ae7be315422949"
+      },
+      "sha256": "50b1544e06ef0992a99fde8343eb4ab95d3c54b633f7ce987b83cffe813b2d21"
+    },
+    {
+      "bytes": 997,
+      "path": "run126/artifacts/public-surfaces-36959466975-1/ci/public-surfaces/game_state-check.jsonl",
+      "provenance": {
+        "artifact_id": 11206803161,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/game_state-check.jsonl",
+        "zip_sha256": "5b90c70fe6770f3b0b539ab6bf08bef94d63361e5f16cf54b9ae7be315422949"
+      },
+      "sha256": "9cfa31be67d48337b46db7ef99de360d38cb1b13a7d55e767db44656aa7d8b7e"
+    },
+    {
+      "bytes": 996,
+      "path": "run126/artifacts/public-surfaces-36959466975-1/ci/public-surfaces/game_state-generate.jsonl",
+      "provenance": {
+        "artifact_id": 11206803161,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/game_state-generate.jsonl",
+        "zip_sha256": "5b90c70fe6770f3b0b539ab6bf08bef94d63361e5f16cf54b9ae7be315422949"
+      },
+      "sha256": "117a8dcdd9bd865dca32d61d5d73b9c7fc8bf287b4b72d079cb9a9307644ee98"
+    },
+    {
+      "bytes": 563,
+      "path": "run126/artifacts/public-surfaces-36959466975-1/ci/public-surfaces/retirement-audit.json",
+      "provenance": {
+        "artifact_id": 11206803161,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/retirement-audit.json",
+        "zip_sha256": "5b90c70fe6770f3b0b539ab6bf08bef94d63361e5f16cf54b9ae7be315422949"
+      },
+      "sha256": "78d60895d80302cc735fba5b2d6ef9382c77f4506679d4948f0460e4b0df1810"
+    },
+    {
+      "bytes": 1009,
+      "path": "run126/artifacts/public-surfaces-36959466975-1/ci/public-surfaces/save_manager-check.jsonl",
+      "provenance": {
+        "artifact_id": 11206803161,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/save_manager-check.jsonl",
+        "zip_sha256": "5b90c70fe6770f3b0b539ab6bf08bef94d63361e5f16cf54b9ae7be315422949"
+      },
+      "sha256": "6157ac5c3fc9d7fa12474a096a18ca1ae4f3d51e60215dc8132b6a0d45d5090a"
+    },
+    {
+      "bytes": 1008,
+      "path": "run126/artifacts/public-surfaces-36959466975-1/ci/public-surfaces/save_manager-generate.jsonl",
+      "provenance": {
+        "artifact_id": 11206803161,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/save_manager-generate.jsonl",
+        "zip_sha256": "5b90c70fe6770f3b0b539ab6bf08bef94d63361e5f16cf54b9ae7be315422949"
+      },
+      "sha256": "a341c3918fc14fe8a4d81d34035e44bf9d04902f300c8eac0070c4834395fedf"
+    },
+    {
+      "bytes": 758,
+      "path": "run126/artifacts/public-surfaces-36959466975-1/ci/public_surfaces.jsonl",
+      "provenance": {
+        "artifact_id": 11206803161,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public_surfaces.jsonl",
+        "zip_sha256": "5b90c70fe6770f3b0b539ab6bf08bef94d63361e5f16cf54b9ae7be315422949"
+      },
+      "sha256": "76faaf7b5ff9ba2a3d5a0cfbcd1d2ab4023f917a7d34e545c39d86cbe7d1dca1"
+    },
+    {
+      "bytes": 2505,
+      "path": "run126/artifacts/public-surfaces-36959466975-1/ci/public_surfaces.xml",
+      "provenance": {
+        "artifact_id": 11206803161,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public_surfaces.xml",
+        "zip_sha256": "5b90c70fe6770f3b0b539ab6bf08bef94d63361e5f16cf54b9ae7be315422949"
+      },
+      "sha256": "0efb366ce238de0606b0b523ab4c475f9060cb50e06798b4cdc86ca502bb1490"
+    },
+    {
+      "bytes": 105,
+      "path": "run126/artifacts/public-surfaces-36959466975-1/phase2r_logs/cloud-isolation-timeout.log",
+      "provenance": {
+        "artifact_id": 11206803161,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-isolation-timeout.log",
+        "zip_sha256": "5b90c70fe6770f3b0b539ab6bf08bef94d63361e5f16cf54b9ae7be315422949"
+      },
+      "sha256": "024608dce65ad25e4cf6cf14cda110234e45b506858606453dbab71388889192"
+    },
+    {
+      "bytes": 151,
+      "path": "run126/artifacts/public-surfaces-36959466975-1/phase2r_logs/cloud-isolation-timeout.log.timeout.log",
+      "provenance": {
+        "artifact_id": 11206803161,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-isolation-timeout.log.timeout.log",
+        "zip_sha256": "5b90c70fe6770f3b0b539ab6bf08bef94d63361e5f16cf54b9ae7be315422949"
+      },
+      "sha256": "bbfe0f114cd95fdd646d6bed89814dc35f6124e3bf360f0552964a251831cc41"
+    },
+    {
+      "bytes": 97,
+      "path": "run126/artifacts/public-surfaces-36959466975-1/phase2r_logs/cloud-public-surface-game_state-check.log",
+      "provenance": {
+        "artifact_id": 11206803161,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public-surface-game_state-check.log",
+        "zip_sha256": "5b90c70fe6770f3b0b539ab6bf08bef94d63361e5f16cf54b9ae7be315422949"
+      },
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "bytes": 97,
+      "path": "run126/artifacts/public-surfaces-36959466975-1/phase2r_logs/cloud-public-surface-game_state-generate.log",
+      "provenance": {
+        "artifact_id": 11206803161,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public-surface-game_state-generate.log",
+        "zip_sha256": "5b90c70fe6770f3b0b539ab6bf08bef94d63361e5f16cf54b9ae7be315422949"
+      },
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "bytes": 97,
+      "path": "run126/artifacts/public-surfaces-36959466975-1/phase2r_logs/cloud-public-surface-save_manager-check.log",
+      "provenance": {
+        "artifact_id": 11206803161,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public-surface-save_manager-check.log",
+        "zip_sha256": "5b90c70fe6770f3b0b539ab6bf08bef94d63361e5f16cf54b9ae7be315422949"
+      },
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "bytes": 97,
+      "path": "run126/artifacts/public-surfaces-36959466975-1/phase2r_logs/cloud-public-surface-save_manager-generate.log",
+      "provenance": {
+        "artifact_id": 11206803161,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public-surface-save_manager-generate.log",
+        "zip_sha256": "5b90c70fe6770f3b0b539ab6bf08bef94d63361e5f16cf54b9ae7be315422949"
+      },
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "bytes": 201940,
+      "path": "run126/artifacts/public-surfaces-36959466975-1/phase2r_logs/cloud-public_surfaces.log",
+      "provenance": {
+        "artifact_id": 11206803161,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public_surfaces.log",
+        "zip_sha256": "5b90c70fe6770f3b0b539ab6bf08bef94d63361e5f16cf54b9ae7be315422949"
+      },
+      "sha256": "6c03a1591701a942608fe8dfe86cd3039afa49412ce7b6d5c9492337dd8c56bc"
+    },
+    {
+      "bytes": 14075,
+      "path": "run126/audit/generic-evidence-audit.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "b9eac38582f1c9a6a62bd3cf2da3d1864cb3543d1dc3f66a76b856e1c81c2c9d"
+    },
+    {
+      "bytes": 39050,
+      "path": "run126/audit/public-inventory-audit.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "303670e2623684721f6e75d234a4b96103e8ffbbdf7466038beb0eaa09493177"
+    },
+    {
+      "bytes": 4677,
+      "path": "run126/jobs.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "461c1be268a7a422e3430487e6498bfd468d0ebd15e06988f2a17d78fddf92ae"
+    },
+    {
+      "bytes": 810087,
+      "path": "run126/logs/110689703996.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "f9f533b18574c6cec09f027c8ef932d7e18f5537b5b9748c8bdac4c3700f03b2"
+    },
+    {
+      "bytes": 12811,
+      "path": "run126/run.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "c1d3d1e11251987a057778a3432f361430c76845a5e658fa884a0657f8a4879f"
+    }
+  ],
+  "run": {
+    "conclusion": "success",
+    "event": "push",
+    "head_branch": "codex/title-geometry-cloud-20261002",
+    "head_sha": "df01257dd3e7c9e5c90d3dcee576ece8d27784c5",
+    "html_url": "https://github.com/Siuuuers/dwm/actions/runs/36959466975",
+    "id": 36959466975,
+    "run_attempt": 1,
+    "run_number": 126,
+    "status": "completed"
+  },
+  "schema_version": 1,
+  "secret_scan_patterns": [
+    "github_token",
+    "signed_query",
+    "authorization_secret",
+    "private_key"
+  ],
+  "source_boundary": {
+    "all_unlisted_paths_byte_identical": true,
+    "checkout_parents": [
+      "965e262a2c74a25e1fea756635788ba23a755eca"
+    ],
+    "explicit_allowed_difference_patterns": [],
+    "master": null,
+    "source": "6cac4882ab68c2b16d658e7b95da5e93b328eee4",
+    "source_checkout_differences": [],
+    "tested_checkout": "6cac4882ab68c2b16d658e7b95da5e93b328eee4"
+  }
+}

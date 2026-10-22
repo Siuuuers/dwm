@@ -1,0 +1,1721 @@
+{
+  "run_id": 36863547145,
+  "run_url": "https://github.com/Siuuuers/dwm/actions/runs/36863547145",
+  "source_commit": "358780400611164da67e1a2012a87dd3b620f3b2",
+  "actual_checkout_merge": "706885ec2452656cd027104c005555229551cbf2",
+  "master_parent": "2e8602d5f098eebbab18241f370b5f4d14adf99b",
+  "superseded_by_run_id": 36865711802,
+  "expected_job_count": 23,
+  "observed_job_count": 23,
+  "all_jobs_completed": true,
+  "all_checkout_provenance_verified": true,
+  "overall_accepted": false,
+  "overall_acceptance_pass": false,
+  "jobs": [
+    {
+      "id": 110373368929,
+      "name": "Windows / public API surface contracts",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-01T12:42:22Z",
+      "completed_at": "2026-10-01T12:46:14Z",
+      "checkout": "706885ec2452656cd027104c005555229551cbf2",
+      "checkout_ref": "refs/pull/1/merge",
+      "log_path": "/workspace/scratch/b7208ca99889/run93/logs/110373368929.log"
+    },
+    {
+      "id": 110374843911,
+      "name": "Windows / paired checkpoint performance",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-01T12:46:17Z",
+      "completed_at": "2026-10-01T12:50:19Z",
+      "checkout": "706885ec2452656cd027104c005555229551cbf2",
+      "checkout_ref": "refs/pull/1/merge",
+      "log_path": "/workspace/scratch/b7208ca99889/run93/logs/110374843911.log"
+    },
+    {
+      "id": 110374843979,
+      "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-01T12:46:17Z",
+      "completed_at": "2026-10-01T12:49:54Z",
+      "checkout": "706885ec2452656cd027104c005555229551cbf2",
+      "checkout_ref": "refs/pull/1/merge",
+      "log_path": "/workspace/scratch/b7208ca99889/run93/logs/110374843979.log"
+    },
+    {
+      "id": 110374844055,
+      "name": "Rendered desktop and dialogue / Linux software OpenGL",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-10-01T12:46:18Z",
+      "completed_at": "2026-10-01T12:49:28Z",
+      "checkout": "706885ec2452656cd027104c005555229551cbf2",
+      "checkout_ref": "refs/pull/1/merge",
+      "log_path": "/workspace/scratch/b7208ca99889/run93/logs/110374844055.log"
+    },
+    {
+      "id": 110374844061,
+      "name": "Windows / exported release startup",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-01T12:46:18Z",
+      "completed_at": "2026-10-01T12:48:17Z",
+      "checkout": "706885ec2452656cd027104c005555229551cbf2",
+      "checkout_ref": "refs/pull/1/merge",
+      "log_path": "/workspace/scratch/b7208ca99889/run93/logs/110374844061.log"
+    },
+    {
+      "id": 110374844072,
+      "name": "Windows / seven-day retained history producer",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-01T12:46:17Z",
+      "completed_at": "2026-10-01T12:57:08Z",
+      "checkout": "706885ec2452656cd027104c005555229551cbf2",
+      "checkout_ref": "refs/pull/1/merge",
+      "log_path": "/workspace/scratch/b7208ca99889/run93/logs/110374844072.log"
+    },
+    {
+      "id": 110374844206,
+      "name": "Windows / dating",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-01T12:46:17Z",
+      "completed_at": "2026-10-01T12:49:13Z",
+      "checkout": "706885ec2452656cd027104c005555229551cbf2",
+      "checkout_ref": "refs/pull/1/merge",
+      "log_path": "/workspace/scratch/b7208ca99889/run93/logs/110374844206.log"
+    },
+    {
+      "id": 110374844228,
+      "name": "Windows / settings",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-01T12:46:17Z",
+      "completed_at": "2026-10-01T12:51:43Z",
+      "checkout": "706885ec2452656cd027104c005555229551cbf2",
+      "checkout_ref": "refs/pull/1/merge",
+      "log_path": "/workspace/scratch/b7208ca99889/run93/logs/110374844228.log"
+    },
+    {
+      "id": 110374844243,
+      "name": "Windows / desktop",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-01T12:46:18Z",
+      "completed_at": "2026-10-01T12:49:20Z",
+      "checkout": "706885ec2452656cd027104c005555229551cbf2",
+      "checkout_ref": "refs/pull/1/merge",
+      "log_path": "/workspace/scratch/b7208ca99889/run93/logs/110374844243.log"
+    },
+    {
+      "id": 110374844307,
+      "name": "Windows / checkpoint_diagnostics",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-01T12:46:17Z",
+      "completed_at": "2026-10-01T12:47:59Z",
+      "checkout": "706885ec2452656cd027104c005555229551cbf2",
+      "checkout_ref": "refs/pull/1/merge",
+      "log_path": "/workspace/scratch/b7208ca99889/run93/logs/110374844307.log"
+    },
+    {
+      "id": 110374844308,
+      "name": "Windows / minesweeper",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-01T12:46:18Z",
+      "completed_at": "2026-10-01T12:49:04Z",
+      "checkout": "706885ec2452656cd027104c005555229551cbf2",
+      "checkout_ref": "refs/pull/1/merge",
+      "log_path": "/workspace/scratch/b7208ca99889/run93/logs/110374844308.log"
+    },
+    {
+      "id": 110374844374,
+      "name": "Windows / new_account",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-01T12:46:17Z",
+      "completed_at": "2026-10-01T12:48:23Z",
+      "checkout": "706885ec2452656cd027104c005555229551cbf2",
+      "checkout_ref": "refs/pull/1/merge",
+      "log_path": "/workspace/scratch/b7208ca99889/run93/logs/110374844374.log"
+    },
+    {
+      "id": 110374844399,
+      "name": "Windows / persistence",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-01T12:46:17Z",
+      "completed_at": "2026-10-01T12:48:23Z",
+      "checkout": "706885ec2452656cd027104c005555229551cbf2",
+      "checkout_ref": "refs/pull/1/merge",
+      "log_path": "/workspace/scratch/b7208ca99889/run93/logs/110374844399.log"
+    },
+    {
+      "id": 110374844435,
+      "name": "Windows / localization",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-01T12:46:17Z",
+      "completed_at": "2026-10-01T12:48:29Z",
+      "checkout": "706885ec2452656cd027104c005555229551cbf2",
+      "checkout_ref": "refs/pull/1/merge",
+      "log_path": "/workspace/scratch/b7208ca99889/run93/logs/110374844435.log"
+    },
+    {
+      "id": 110374844436,
+      "name": "Windows / audio",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-01T12:46:17Z",
+      "completed_at": "2026-10-01T12:47:22Z",
+      "checkout": "706885ec2452656cd027104c005555229551cbf2",
+      "checkout_ref": "refs/pull/1/merge",
+      "log_path": "/workspace/scratch/b7208ca99889/run93/logs/110374844436.log"
+    },
+    {
+      "id": 110374844470,
+      "name": "Windows / shop",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-01T12:46:19Z",
+      "completed_at": "2026-10-01T12:47:52Z",
+      "checkout": "706885ec2452656cd027104c005555229551cbf2",
+      "checkout_ref": "refs/pull/1/merge",
+      "log_path": "/workspace/scratch/b7208ca99889/run93/logs/110374844470.log"
+    },
+    {
+      "id": 110374844514,
+      "name": "Windows / reading_delivery",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-01T12:46:17Z",
+      "completed_at": "2026-10-01T12:49:01Z",
+      "checkout": "706885ec2452656cd027104c005555229551cbf2",
+      "checkout_ref": "refs/pull/1/merge",
+      "log_path": "/workspace/scratch/b7208ca99889/run93/logs/110374844514.log"
+    },
+    {
+      "id": 110374844537,
+      "name": "Windows / endings",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-01T12:46:18Z",
+      "completed_at": "2026-10-01T12:47:45Z",
+      "checkout": "706885ec2452656cd027104c005555229551cbf2",
+      "checkout_ref": "refs/pull/1/merge",
+      "log_path": "/workspace/scratch/b7208ca99889/run93/logs/110374844537.log"
+    },
+    {
+      "id": 110379037975,
+      "name": "Windows / warm-outgoing-proof comparison",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-01T12:57:10Z",
+      "completed_at": "2026-10-01T13:02:16Z",
+      "checkout": "706885ec2452656cd027104c005555229551cbf2",
+      "checkout_ref": "refs/pull/1/merge",
+      "log_path": "/workspace/scratch/b7208ca99889/run93/logs/110379037975.log"
+    },
+    {
+      "id": 110379038051,
+      "name": "Windows / history-region-search comparison",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-01T12:57:11Z",
+      "completed_at": "2026-10-01T13:02:27Z",
+      "checkout": "706885ec2452656cd027104c005555229551cbf2",
+      "checkout_ref": "refs/pull/1/merge",
+      "log_path": "/workspace/scratch/b7208ca99889/run93/logs/110379038051.log"
+    },
+    {
+      "id": 110379038195,
+      "name": "Windows / outgoing-normalization comparison",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-01T12:57:18Z",
+      "completed_at": "2026-10-01T12:59:58Z",
+      "checkout": "706885ec2452656cd027104c005555229551cbf2",
+      "checkout_ref": "refs/pull/1/merge",
+      "log_path": "/workspace/scratch/b7208ca99889/run93/logs/110379038195.log"
+    },
+    {
+      "id": 110379038207,
+      "name": "Windows / lazy-normalization comparison",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-01T12:57:11Z",
+      "completed_at": "2026-10-01T13:02:26Z",
+      "checkout": "706885ec2452656cd027104c005555229551cbf2",
+      "checkout_ref": "refs/pull/1/merge",
+      "log_path": "/workspace/scratch/b7208ca99889/run93/logs/110379038207.log"
+    },
+    {
+      "id": 110381110999,
+      "name": "Windows / seven-day retained history",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-10-01T13:02:30Z",
+      "completed_at": "2026-10-01T13:02:33Z",
+      "checkout": "aggregate-none",
+      "checkout_ref": null,
+      "log_path": "/workspace/scratch/b7208ca99889/run93/logs/110381110999.log"
+    }
+  ],
+  "gut": {
+    "suite_xml_count": 13,
+    "case_executions": 2131,
+    "unique_cases": 2127,
+    "script_executions": 183,
+    "unique_scripts": 182,
+    "unique_identity": "testsuite.name + testcase.name",
+    "skipped": 0,
+    "failures": 0,
+    "errors": 0,
+    "negative_storage_refusal_fixtures_excluded": true,
+    "suites": [
+      {
+        "path": "artifacts/public-surfaces-36863547145-1/ci/public_surfaces.xml",
+        "cases": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "scripts": 1
+      },
+      {
+        "path": "artifacts/windows-audio-36863547145-1/ci/audio.xml",
+        "cases": 44,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "scripts": 2
+      },
+      {
+        "path": "artifacts/windows-checkpoint_diagnostics-36863547145-1/ci/checkpoint_diagnostics.xml",
+        "cases": 22,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "scripts": 4
+      },
+      {
+        "path": "artifacts/windows-dating-36863547145-1/ci/dating.xml",
+        "cases": 167,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "scripts": 12
+      },
+      {
+        "path": "artifacts/windows-desktop-36863547145-1/ci/desktop.xml",
+        "cases": 319,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "scripts": 20
+      },
+      {
+        "path": "artifacts/windows-endings-36863547145-1/ci/endings.xml",
+        "cases": 106,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "scripts": 12
+      },
+      {
+        "path": "artifacts/windows-localization-36863547145-1/ci/localization.xml",
+        "cases": 152,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "scripts": 18
+      },
+      {
+        "path": "artifacts/windows-minesweeper-36863547145-1/ci/minesweeper.xml",
+        "cases": 210,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "scripts": 22
+      },
+      {
+        "path": "artifacts/windows-new_account-36863547145-1/ci/new_account.xml",
+        "cases": 179,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "scripts": 15
+      },
+      {
+        "path": "artifacts/windows-persistence-36863547145-1/ci/persistence.xml",
+        "cases": 193,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "scripts": 20
+      },
+      {
+        "path": "artifacts/windows-reading_delivery-36863547145-1/ci/reading_delivery.xml",
+        "cases": 272,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "scripts": 23
+      },
+      {
+        "path": "artifacts/windows-settings-36863547145-1/ci/settings.xml",
+        "cases": 312,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "scripts": 26
+      },
+      {
+        "path": "artifacts/windows-shop-36863547145-1/ci/shop.xml",
+        "cases": 144,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "scripts": 8
+      }
+    ]
+  },
+  "artifacts": [
+    {
+      "id": 11164610514,
+      "name": "lazy-normalization-36863547145-1",
+      "size_in_bytes": 41278,
+      "digest": "sha256:fc099b42fa5ea23515662c7e161bd32c2dbd8ee6bef427f5231eadf0faf75e3b",
+      "sha256": "fc099b42fa5ea23515662c7e161bd32c2dbd8ee6bef427f5231eadf0faf75e3b",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/ff62e60d-3e45-4719-80bd-d42b1400896c/lazy-normalization-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/lazy-normalization-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11164430513,
+      "name": "history-region-search-36863547145-1",
+      "size_in_bytes": 41547,
+      "digest": "sha256:f3183481fd8dccae0f624f743a6adf0c5bab8249c8c99e900b07514e1f8cf10e",
+      "sha256": "f3183481fd8dccae0f624f743a6adf0c5bab8249c8c99e900b07514e1f8cf10e",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/1c630f8c-bfc7-4c73-985f-a19d90e10d3b/history-region-search-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/history-region-search-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11164425237,
+      "name": "outgoing-normalization-36863547145-1",
+      "size_in_bytes": 24364,
+      "digest": "sha256:33bd397c847dd535a11568dd974b7d9bfdcfe88d46d388639052d4ed25671830",
+      "sha256": "33bd397c847dd535a11568dd974b7d9bfdcfe88d46d388639052d4ed25671830",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/4362a585-6ef8-4b0b-bcd4-3b3e801503b5/outgoing-normalization-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/outgoing-normalization-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11163595293,
+      "name": "seven-day-history-36863547145-1",
+      "size_in_bytes": 311461,
+      "digest": "sha256:3e3742b654111db7d6d6fd96104f5b841fcf9c2f37406680f2c2c11ca7ae698e",
+      "sha256": "3e3742b654111db7d6d6fd96104f5b841fcf9c2f37406680f2c2c11ca7ae698e",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/a48d713d-b584-473a-b60a-dde204409f33/seven-day-history-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/seven-day-history-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11163411689,
+      "name": "warm-outgoing-proof-36863547145-1",
+      "size_in_bytes": 82810,
+      "digest": "sha256:640b6e7345dfa337b8cd0ac917f931170ed7bebbcffc4da48ca480d86c337a4e",
+      "sha256": "640b6e7345dfa337b8cd0ac917f931170ed7bebbcffc4da48ca480d86c337a4e",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/5b0a4f50-52b5-43b2-852e-9236822562d5/warm-outgoing-proof-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/warm-outgoing-proof-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11163336520,
+      "name": "japanese-korean-ui-render-36863547145-1",
+      "size_in_bytes": 7058136,
+      "digest": "sha256:bea1f90ebcdef683442a1b5656faad4ed2d4d076fc1c715f65f68d267a197a68",
+      "sha256": "bea1f90ebcdef683442a1b5656faad4ed2d4d076fc1c715f65f68d267a197a68",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/2fe1a927-efbe-409e-b7b9-b95f9c84a6fa/japanese-korean-ui-render-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/japanese-korean-ui-render-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11163323135,
+      "name": "reading-rail-36863547145-1",
+      "size_in_bytes": 4104328,
+      "digest": "sha256:f937aa01051aafdf5037754700c6dca24d6b9a55914d9b5f5ae2207a7d9c1324",
+      "sha256": "f937aa01051aafdf5037754700c6dca24d6b9a55914d9b5f5ae2207a7d9c1324",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/364c4906-2bc8-4e53-a354-c0f463a25953/reading-rail-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/reading-rail-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11163312055,
+      "name": "windows-dating-36863547145-1",
+      "size_in_bytes": 652587,
+      "digest": "sha256:888275ef1d716cf1d89e02d9e898bb4baa1d80b2bc94ff3f9159f6ae8a64d97e",
+      "sha256": "888275ef1d716cf1d89e02d9e898bb4baa1d80b2bc94ff3f9159f6ae8a64d97e",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/fa297c83-9248-4d8f-a2fd-24b46ccace8e/windows-dating-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/windows-dating-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11163178375,
+      "name": "checkpoint-performance-36863547145-1",
+      "size_in_bytes": 156835,
+      "digest": "sha256:04db352274544eb54fd3a86fc5c67cbdb5bf65b071d70e9bdf2e0902f388b4b1",
+      "sha256": "04db352274544eb54fd3a86fc5c67cbdb5bf65b071d70e9bdf2e0902f388b4b1",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/08137323-e57e-4e28-82ae-e97080b2269d/checkpoint-performance-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/checkpoint-performance-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11163168013,
+      "name": "windows-new_account-36863547145-1",
+      "size_in_bytes": 237839,
+      "digest": "sha256:ee53119f0e050bb1b31e4d2df9d42575b5624bc36bf026cde9b0dfaa1a786a7d",
+      "sha256": "ee53119f0e050bb1b31e4d2df9d42575b5624bc36bf026cde9b0dfaa1a786a7d",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/50eb8fac-5069-4ee9-9ff0-5ca869b1ca19/windows-new_account-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/windows-new_account-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11163107930,
+      "name": "cloud-speech-rendered-desktop-36863547145-1",
+      "size_in_bytes": 385078,
+      "digest": "sha256:138e8643ad274fca63e5e088a5d697920b314ad9f066b7653da70d687f15d9f8",
+      "sha256": "138e8643ad274fca63e5e088a5d697920b314ad9f066b7653da70d687f15d9f8",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/951093b4-eec1-4c1e-8cb4-db73012257fc/cloud-speech-rendered-desktop-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/cloud-speech-rendered-desktop-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11163067951,
+      "name": "windows-endings-36863547145-1",
+      "size_in_bytes": 74689,
+      "digest": "sha256:a72a24f8083dc57f0d2bd7873390c745b03d0b654dae5a2f3be76d9d9c77308a",
+      "sha256": "a72a24f8083dc57f0d2bd7873390c745b03d0b654dae5a2f3be76d9d9c77308a",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/9f47cd83-7eb1-4b50-b46f-5aea49112faf/windows-endings-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/windows-endings-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11163062889,
+      "name": "public-surfaces-36863547145-1",
+      "size_in_bytes": 138738,
+      "digest": "sha256:12704343d510a65daf9a3018dc8ba65b8c322f48e8e33f2a223860ff2b7ac859",
+      "sha256": "12704343d510a65daf9a3018dc8ba65b8c322f48e8e33f2a223860ff2b7ac859",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/b6c16daf-f92e-4ed3-8583-3756aedf0841/public-surfaces-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/public-surfaces-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11163048725,
+      "name": "windows-minesweeper-36863547145-1",
+      "size_in_bytes": 166148,
+      "digest": "sha256:ac899dccb26198b545e3413205ae32574447464749b05b2f8d18241a9023030b",
+      "sha256": "ac899dccb26198b545e3413205ae32574447464749b05b2f8d18241a9023030b",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/e4c2a4f8-57fd-441b-9449-a440ff7314fb/windows-minesweeper-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/windows-minesweeper-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11163043144,
+      "name": "windows-persistence-36863547145-1",
+      "size_in_bytes": 132074,
+      "digest": "sha256:e0305cec5efbd33b500063203ce4724d5ce5b8fd139cc7e83d839ea1db5fb66d",
+      "sha256": "e0305cec5efbd33b500063203ce4724d5ce5b8fd139cc7e83d839ea1db5fb66d",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/53c89986-7da1-4765-b9a9-02ad6ab4792d/windows-persistence-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/windows-persistence-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11162933181,
+      "name": "angela-overlay-render-36863547145-1",
+      "size_in_bytes": 2836450,
+      "digest": "sha256:2cb09bdd4c85f4b10d146ed20a068fb99a45d2db0dbf79c9f2ec54f301d3f678",
+      "sha256": "2cb09bdd4c85f4b10d146ed20a068fb99a45d2db0dbf79c9f2ec54f301d3f678",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/86bc41c2-965e-447c-89d2-76f0416c06ee/angela-overlay-render-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/angela-overlay-render-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11162853513,
+      "name": "playable-startup-render-36863547145-1",
+      "size_in_bytes": 1050615,
+      "digest": "sha256:cfe47de907d1d55b387bcf2edec25beffe456ee3184704e7553246ce7c1e7c47",
+      "sha256": "cfe47de907d1d55b387bcf2edec25beffe456ee3184704e7553246ce7c1e7c47",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/2c722eaa-1fd9-43e0-8c0d-c9942b825b5b/playable-startup-render-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/playable-startup-render-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11162813732,
+      "name": "checkpoint-payloads-36863547145",
+      "size_in_bytes": 53511,
+      "digest": "sha256:e53839f645faf5c0896c39cebb2b856e4b54ada2be4bc71902f1d0f84f217fbc",
+      "sha256": "e53839f645faf5c0896c39cebb2b856e4b54ada2be4bc71902f1d0f84f217fbc",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/b882f418-8680-4b5c-a017-111ce104ad85/checkpoint-payloads-36863547145.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/checkpoint-payloads-36863547145",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11162714870,
+      "name": "seven-day-inputs-36863547145",
+      "size_in_bytes": 80177,
+      "digest": "sha256:c0a83a0130ea3c0450ab540401cd20d87ecd4f00b09b78766cf4f9237a1c90f2",
+      "sha256": "c0a83a0130ea3c0450ab540401cd20d87ecd4f00b09b78766cf4f9237a1c90f2",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/4320c703-52cc-444e-ab8c-bccda838031a/seven-day-inputs-36863547145.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/seven-day-inputs-36863547145",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11162579024,
+      "name": "windows-desktop-36863547145-1",
+      "size_in_bytes": 283468,
+      "digest": "sha256:f58f47c35cda72f81cf385afa95cc09a6f3596a943e247ca54556a425e3b3915",
+      "sha256": "f58f47c35cda72f81cf385afa95cc09a6f3596a943e247ca54556a425e3b3915",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/acd215b4-3a9c-448c-ac92-c6fe2ac3dce6/windows-desktop-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/windows-desktop-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11162533514,
+      "name": "windows-export-36863547145-1",
+      "size_in_bytes": 98779950,
+      "digest": "sha256:f8d00befa456c0a2f5640d6eb325afe78d1dd0b7e37d1571f8167df17528f271",
+      "sha256": "f8d00befa456c0a2f5640d6eb325afe78d1dd0b7e37d1571f8167df17528f271",
+      "download_path": null,
+      "extracted_path": null,
+      "local_sha256_verified": false,
+      "limitation": "Exported build archive (98,779,950 bytes) not downloaded locally; standard download cap and supplied URL HTTP403. Authenticated artifact SHA256 plus completed cloud export receipt/log only. No local binary inspection."
+    },
+    {
+      "id": 11162509267,
+      "name": "ui-literal-audit-36863547145-1",
+      "size_in_bytes": 29546,
+      "digest": "sha256:b11d2bec58c6c0baff578f9ffc4668b40ff7dd960dcebcd44c74f6f739de2c75",
+      "sha256": "b11d2bec58c6c0baff578f9ffc4668b40ff7dd960dcebcd44c74f6f739de2c75",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/812088e1-e8e3-4c17-ac48-4f52bdf96443/ui-literal-audit-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/ui-literal-audit-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11162503818,
+      "name": "windows-shop-36863547145-1",
+      "size_in_bytes": 65084,
+      "digest": "sha256:18be2bfd01d18dc8ca181e7920d36f428e27baeaadf8c4c10ccca7d2b39d0e92",
+      "sha256": "18be2bfd01d18dc8ca181e7920d36f428e27baeaadf8c4c10ccca7d2b39d0e92",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/c86510db-6005-4ef4-8a6c-d187f6e7d5a1/windows-shop-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/windows-shop-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11162463831,
+      "name": "font-choices-render-36863547145-1",
+      "size_in_bytes": 6315222,
+      "digest": "sha256:4d73617507cde0a3b40d0238e8f881709187f9b16437ce446f8adfe05dd88958",
+      "sha256": "4d73617507cde0a3b40d0238e8f881709187f9b16437ce446f8adfe05dd88958",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/2c50598a-2e58-4377-98c3-ff1221119864/font-choices-render-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/font-choices-render-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11162428051,
+      "name": "cloud-speech-rendered-journeys-36863547145-1",
+      "size_in_bytes": 382269,
+      "digest": "sha256:ed37196107dbfe1d950118be07cc6ecd505ad742f060c3beae37b4b6348999d3",
+      "sha256": "ed37196107dbfe1d950118be07cc6ecd505ad742f060c3beae37b4b6348999d3",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/318aeee3-9e69-491d-8295-171a0bd12916/cloud-speech-rendered-journeys-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/cloud-speech-rendered-journeys-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11162418232,
+      "name": "windows-localization-36863547145-1",
+      "size_in_bytes": 338087,
+      "digest": "sha256:5bb4ff8945dd61b7bbf4d2402e2f3bf143a63ffaaf6bc1c5c022ea8fde814b06",
+      "sha256": "5bb4ff8945dd61b7bbf4d2402e2f3bf143a63ffaaf6bc1c5c022ea8fde814b06",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/ba6ea1c9-13bd-4398-a9c4-261fc0e944f1/windows-localization-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/windows-localization-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11162378348,
+      "name": "desktop-scaling-render-36863547145-1",
+      "size_in_bytes": 11241360,
+      "digest": "sha256:cd8db866eb49be8c3fa77a0c5689bb2980c2409d18f1eb4e5cf76823ce246bca",
+      "sha256": "cd8db866eb49be8c3fa77a0c5689bb2980c2409d18f1eb4e5cf76823ce246bca",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/492a06cf-d5f0-48c8-8da4-b9fd64339464/desktop-scaling-render-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/desktop-scaling-render-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11162308317,
+      "name": "windows-checkpoint_diagnostics-36863547145-1",
+      "size_in_bytes": 602477,
+      "digest": "sha256:78f40a907f8c51029bc620114b8c53b6cf849149861645c5906b82b68cf65130",
+      "sha256": "78f40a907f8c51029bc620114b8c53b6cf849149861645c5906b82b68cf65130",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/eabd07e5-bc73-47af-83d0-8d6007f3528e/windows-checkpoint_diagnostics-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/windows-checkpoint_diagnostics-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11162278394,
+      "name": "windows-reading_delivery-36863547145-1",
+      "size_in_bytes": 108885,
+      "digest": "sha256:5749fa68ecadd1bbab1103681c26a7c2b48819c2c7c9d38a29ce3c9d34fc331e",
+      "sha256": "5749fa68ecadd1bbab1103681c26a7c2b48819c2c7c9d38a29ce3c9d34fc331e",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/d3acdce6-ae3a-4efa-992e-d6266babb3ec/windows-reading_delivery-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/windows-reading_delivery-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11162228438,
+      "name": "delivery-dialogue-render-36863547145-1",
+      "size_in_bytes": 15180660,
+      "digest": "sha256:521ff8652ff2eec944a4a8ccc53097a79ff5145d303f0491d3f7da7edc06c026",
+      "sha256": "521ff8652ff2eec944a4a8ccc53097a79ff5145d303f0491d3f7da7edc06c026",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/15140336-f9e6-4a68-a298-1c6112c3a6db/delivery-dialogue-render-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/delivery-dialogue-render-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11162078474,
+      "name": "windows-audio-36863547145-1",
+      "size_in_bytes": 21872,
+      "digest": "sha256:579b85889299d2159b8aca147d9a8244b38010b420121b9ad5bbea5f2965591c",
+      "sha256": "579b85889299d2159b8aca147d9a8244b38010b420121b9ad5bbea5f2965591c",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/b2cdf71d-cded-446e-84a7-b4f6fbaa9146/windows-audio-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/windows-audio-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11162048761,
+      "name": "playable-journeys-36863547145-1",
+      "size_in_bytes": 7851389,
+      "digest": "sha256:7b205a06b2b0d51414ea78747e123b9b23b07292a62a0f97d1ef68d65d83c96d",
+      "sha256": "7b205a06b2b0d51414ea78747e123b9b23b07292a62a0f97d1ef68d65d83c96d",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/3f07cc30-34aa-440e-92f2-7033ffa6dca3/playable-journeys-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/playable-journeys-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    },
+    {
+      "id": 11161989185,
+      "name": "windows-settings-36863547145-1",
+      "size_in_bytes": 2541334,
+      "digest": "sha256:c3ecfd659eedb85779299712c7885de08abbf626693111d98bb14f1e1c2a11b4",
+      "sha256": "c3ecfd659eedb85779299712c7885de08abbf626693111d98bb14f1e1c2a11b4",
+      "download_path": "/workspace/scratch/b7208ca99889/attachments/8320ca68-27e9-466e-a7a3-6753dd7d735b/windows-settings-36863547145-1.zip",
+      "extracted_path": "/workspace/scratch/b7208ca99889/run93/artifacts/windows-settings-36863547145-1",
+      "local_sha256_verified": true,
+      "limitation": null
+    }
+  ],
+  "non_gut_proofs": {
+    "run_id": 36863547145,
+    "audit_scope": "Non-GUT artifact JSON and logs; no local Godot or PowerShell execution; no image appearance audit",
+    "state": "final_run93_superseded_by_run95",
+    "artifact_count": 32,
+    "blocking_failures": [
+      {
+        "code": "unclassified_script_literal",
+        "line": 130,
+        "ok": false,
+        "path": "res://scripts/ui/witnessed/WitnessedHistory.gd",
+        "sink": "text"
+      },
+      {
+        "code": "unclassified_script_literal",
+        "line": 131,
+        "ok": false,
+        "path": "res://scripts/ui/witnessed/WitnessedHistory.gd",
+        "sink": "text"
+      }
+    ],
+    "renders": [
+      {
+        "artifact": "angela-overlay-render-36863547145-1",
+        "result_file": "/workspace/scratch/b7208ca99889/run93/artifacts/angela-overlay-render-36863547145-1/results.json",
+        "ok": true,
+        "failures": [],
+        "samples": 10,
+        "captures": 10,
+        "png_files": 10,
+        "renderer": "X11",
+        "scope": "production Main/StatHud and authored artwork; synthetic public stat values",
+        "markers": [
+          {
+            "name": "ANGELA_OVERLAY_RENDER_VERIFIED",
+            "json_matches_result": true
+          }
+        ]
+      },
+      {
+        "artifact": "delivery-dialogue-render-36863547145-1",
+        "result_file": "/workspace/scratch/b7208ca99889/run93/artifacts/delivery-dialogue-render-36863547145-1/results.json",
+        "ok": true,
+        "failures": [],
+        "samples": 25,
+        "captures": 25,
+        "png_files": 25,
+        "renderer": "X11",
+        "scope": "synthetic public board and dialogue fixtures; production Desktop, split dating artwork and challenge host, installed Dialogic",
+        "markers": [
+          {
+            "name": "DELIVERY_DIALOGUE_RENDER_VERIFIED",
+            "json_matches_result": true
+          }
+        ]
+      },
+      {
+        "artifact": "desktop-scaling-render-36863547145-1",
+        "result_file": "/workspace/scratch/b7208ca99889/run93/artifacts/desktop-scaling-render-36863547145-1/results.json",
+        "ok": true,
+        "failures": [],
+        "samples": 38,
+        "captures": 38,
+        "png_files": 38,
+        "renderer": "X11",
+        "scope": null,
+        "markers": [
+          {
+            "name": "DESKTOP_SCALING_RENDER_VERIFIED",
+            "json_matches_result": true
+          }
+        ]
+      },
+      {
+        "artifact": "font-choices-render-36863547145-1",
+        "result_file": "/workspace/scratch/b7208ca99889/run93/artifacts/font-choices-render-36863547145-1/results.json",
+        "ok": true,
+        "failures": [],
+        "samples": 30,
+        "captures": 30,
+        "png_files": 30,
+        "renderer": "X11",
+        "scope": "Real Settings selector, Profile/Localization and production desktop, Gallery and witnessed captions. Synthetic public board and English dialogue; no player commands.",
+        "markers": [
+          {
+            "name": "FONT_CHOICES_RENDER_VERIFIED",
+            "json_matches_result": true
+          }
+        ]
+      },
+      {
+        "artifact": "japanese-korean-ui-render-36863547145-1",
+        "result_file": "/workspace/scratch/b7208ca99889/run93/artifacts/japanese-korean-ui-render-36863547145-1/results.json",
+        "ok": true,
+        "failures": [],
+        "samples": 30,
+        "captures": 30,
+        "png_files": 30,
+        "renderer": "X11",
+        "scope": "Real production UI, active locale/profile providers and Fusion fonts; synthetic shop/contact/board records, empty Gallery, English dialogue fixture. No player commands.",
+        "markers": [
+          {
+            "name": "JAPANESE_KOREAN_UI_RENDER_VERIFIED",
+            "json_matches_result": true
+          }
+        ]
+      },
+      {
+        "artifact": "playable-startup-render-36863547145-1",
+        "result_file": "/workspace/scratch/b7208ca99889/run93/artifacts/playable-startup-render-36863547145-1/results.json",
+        "ok": true,
+        "failures": [],
+        "samples": null,
+        "captures": 4,
+        "png_files": 4,
+        "renderer": null,
+        "scope": null,
+        "markers": [
+          {
+            "name": "PLAYABLE_STARTUP_PASS"
+          },
+          {
+            "name": "PLAYABLE_DAY_PASS"
+          },
+          {
+            "name": "PLAYABLE_LOGOUT_PASS"
+          }
+        ]
+      }
+    ],
+    "limitations": [
+      "Synthetic fixture scopes retained verbatim per render and journey case.",
+      "PNG capture existence/count/hash audited where declared; visual appearance not independently inspected.",
+      "GUT XML and checkout/source provenance assigned to parent auditor.",
+      "Run 93 is intentionally superseded by Run 95. UI literal audit and prerequisite aggregate failed; three comparisons cancelled. Evidence applies only to source 3587804 / checkout 706885e; no claim is made for the later source."
+    ],
+    "playable_journeys": {
+      "artifact": "playable-journeys-36863547145-1",
+      "ok": true,
+      "case_count": 5,
+      "capture_count": 27,
+      "distinct_isolation_roots": 5,
+      "cases": [
+        {
+          "case_id": "seven-days-ending-gallery",
+          "ok": true,
+          "failures": [],
+          "fixture_scope": "No prior ending or reached-presentation fixture.",
+          "user_dir_strictly_contained": true,
+          "markers": {
+            "PLAYABLE_STARTUP_PASS": 1,
+            "PLAYABLE_DAY_PASS": 1,
+            "PLAYABLE_SEVEN_DAY_PASS": 1,
+            "PLAYABLE_ENDING_PASS": 1,
+            "PLAYABLE_GALLERY_PASS": 1
+          },
+          "exit_code": 0,
+          "timed_out": false,
+          "captures": 4
+        },
+        {
+          "case_id": "seven-days-condition-ending",
+          "ok": true,
+          "failures": [],
+          "fixture_scope": "No prior ending or reached-presentation fixture.",
+          "user_dir_strictly_contained": true,
+          "markers": {
+            "PLAYABLE_STARTUP_PASS": 1,
+            "PLAYABLE_DAY_PASS": 1,
+            "PLAYABLE_SEVEN_DAY_PASS": 1,
+            "PLAYABLE_DAY7_CONDITION_PASS": 1
+          },
+          "exit_code": 0,
+          "timed_out": false,
+          "captures": 3
+        },
+        {
+          "case_id": "dating-reload",
+          "ok": true,
+          "failures": [],
+          "fixture_scope": "No prior ending or reached-presentation fixture; empty DTL earns no signature.",
+          "user_dir_strictly_contained": true,
+          "markers": {
+            "PLAYABLE_STARTUP_PASS": 1,
+            "PLAYABLE_DATING_RELOAD_PASS": 1,
+            "PLAYABLE_DATING_QUICK_PASS": 1,
+            "PLAYABLE_DATING_PASS": 1
+          },
+          "exit_code": 0,
+          "timed_out": false,
+          "captures": 7
+        },
+        {
+          "case_id": "practice-empty-dtl",
+          "ok": true,
+          "failures": [],
+          "fixture_scope": "Prior-ending milestone only. Canonical empty DTL must leave Practice empty.",
+          "user_dir_strictly_contained": true,
+          "markers": {
+            "PRACTICE_FIXTURE": 1,
+            "PLAYABLE_EMPTY_DTL_PRACTICE_PASS": 1
+          },
+          "exit_code": 0,
+          "timed_out": false,
+          "captures": 5
+        },
+        {
+          "case_id": "practice-legacy-compatibility",
+          "ok": true,
+          "failures": [],
+          "fixture_scope": "Explicit prior-ending and historical reached-signature fixtures. Private-board compatibility evidence only; never evidence that empty canonical DTL was witnessed.",
+          "user_dir_strictly_contained": true,
+          "markers": {
+            "PRACTICE_FIXTURE": 1,
+            "PRACTICE_LEGACY_FIXTURE": 1,
+            "PLAYABLE_REHEARSAL_LEGACY_PASS": 1
+          },
+          "exit_code": 0,
+          "timed_out": false,
+          "captures": 8
+        }
+      ],
+      "independent_consistency_failures": []
+    },
+    "ui_literal_audit": {
+      "artifact": "ui-literal-audit-36863547145-1",
+      "ok": false,
+      "failures": [
+        {
+          "code": "unclassified_script_literal",
+          "line": 130,
+          "ok": false,
+          "path": "res://scripts/ui/witnessed/WitnessedHistory.gd",
+          "sink": "text"
+        },
+        {
+          "code": "unclassified_script_literal",
+          "line": 131,
+          "ok": false,
+          "path": "res://scripts/ui/witnessed/WitnessedHistory.gd",
+          "sink": "text"
+        }
+      ],
+      "script_records": 327,
+      "scene_records": 53,
+      "log_marker": "ERROR: UiLiteralAudit",
+      "log_code": "unclassified_literals"
+    },
+    "new_account_latency": {
+      "ok": true,
+      "samples": [
+        {
+          "button_to_desktop_us": 733216,
+          "case": "fresh",
+          "max_frame_gap_us": 212662
+        },
+        {
+          "button_to_desktop_us": 710614,
+          "case": "replacement",
+          "max_frame_gap_us": 108136
+        }
+      ]
+    },
+    "windows_timeout_fixture": {
+      "suite_id": "fixture-timeout",
+      "exit_code": 124,
+      "expected_timeout": true,
+      "markers": [
+        "GODOT_CHILD_TIMEOUT: exceeded 20 seconds.",
+        "ISOLATION_TIMEOUT_PROBE_STARTED"
+      ],
+      "limitation": "This is the timeout fixture, not the dedicated process-isolation artifact."
+    },
+    "windows_export": {
+      "job_id": 110374844061,
+      "job_name": "Windows / exported release startup",
+      "receipt": {
+        "ok": true,
+        "commit": "706885ec2452656cd027104c005555229551cbf2",
+        "engine": "4.6.3.stable",
+        "runtime_data_files_verified": 111,
+        "templates_sha256": "3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8",
+        "executable_sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+        "pck_sha256": "af32b7ce25855f1c399cc4fa1bc70de81dff733640b7a0e32a4a48ebdf24849c",
+        "archive": {
+          "sha256": "7360df6fbb8a763affede55fc31989180e104db7471a5be46bcd78a5fe5e3aaf",
+          "bytes": 98828709,
+          "file": "DWM-windows-x86_64-validation.zip"
+        }
+      },
+      "validation_marker": "WINDOWS_EXPORT_VALIDATED",
+      "local_archive_available": false,
+      "independent_archive_inspection": false,
+      "limitation": "Downloaded job log contains validation receipt, not individual exported smoke process output; 98,828,709-byte validation archive could not be downloaded (parent reports tool size cap and signed URL 403)."
+    },
+    "speech_setup": {
+      "artifacts": [
+        "cloud-speech-rendered-desktop-36863547145-1",
+        "cloud-speech-rendered-journeys-36863547145-1"
+      ],
+      "available_modules": [
+        "espeak-ng",
+        "openjtalk"
+      ],
+      "null_sink": "dwm_ci",
+      "optional_module_errors": [
+        "espeak-ng-mbrola: has no voice",
+        "dummy: server audio is not supported"
+      ],
+      "limitation": "Setup/voice enumeration only; no native saved-reading control proof in these artifacts."
+    },
+    "pending_artifact_areas": [
+      {
+        "area": "native speech pause/resume/cancel and player-control rendered proof",
+        "state": "not verified by available artifacts",
+        "reason": "Speech setup and saved-reading journey are available; no separate native transport-control artifact exists in the 26-artifact snapshot. Execution beyond those proofs is not inferred."
+      }
+    ],
+    "reading_rail": {
+      "artifact": "reading-rail-36863547145-1",
+      "ok": true,
+      "failures": [],
+      "fixture_scope": "Noncanonical English Solo Priscilla Day 1 prose only; real production owners and physical save files.",
+      "processes": {
+        "user-dir-proof": {
+          "exit_code": 0,
+          "timed_out": false,
+          "elapsed_seconds": 4.673
+        },
+        "write": {
+          "exit_code": 0,
+          "timed_out": false,
+          "elapsed_seconds": 23.352
+        },
+        "read": {
+          "exit_code": 0,
+          "timed_out": false,
+          "elapsed_seconds": 10.386
+        }
+      },
+      "process_ids": {
+        "write": 4443,
+        "read": 4517
+      },
+      "markers": [
+        "READING_RAIL_WRITE_PASS",
+        "READING_RAIL_READ_PASS"
+      ],
+      "captures": 9,
+      "capture_hashes_and_sizes_verified": true,
+      "retained_quick": {
+        "bytes": 132966,
+        "sha256": "d814c74e113e0dd1e529b8a8f6e22d92615bde434038124c6944340519895f2e"
+      },
+      "retained_quick_hash_and_size_verified": true,
+      "restored_line": "fixture.solo.post.a",
+      "writer_diverged_line": "fixture.solo.post.b",
+      "canonical_transcript_line_ids": [
+        "fixture.solo.pre.a",
+        "fixture.solo.pre.b",
+        "fixture.solo.post.a"
+      ],
+      "exact_checkpoint_transcript_and_physical_record_preserved": true,
+      "speech_admissions": {
+        "write": 4,
+        "read": 0
+      },
+      "transaction_records": 12,
+      "limitation": "Silent saved-line restoration proof, not native backend pause/resume/cancel proof.",
+      "fixture_coverage": "Test-only English catalogue (fixture-v1, fixture.solo.* line IDs) exercised through the real canonical_solo host and solo_challenge board, with physical save files; not broad authored-content or native-speech-control coverage.",
+      "physical_host": "canonical_solo",
+      "physical_board_kind": "solo_challenge"
+    },
+    "checkpoint_performance": {
+      "artifact": "checkpoint-performance-36863547145-1",
+      "ablation": "Current SaveDocumentSchema with only its outgoing proven-journal normalization shortcut reversed; all current validation remains in both variants.",
+      "timing_policy": "Observations on one shared Windows runner; no speed threshold or frame-time guarantee.",
+      "journey_comparison": "Fresh journeys may generate different boards; fixed_payloads reuse identical saved bytes.",
+      "journeys": [
+        {
+          "variant": "baseline",
+          "locale": "zh-CN",
+          "dating_ending": "win",
+          "click_latency_samples": 322,
+          "pass_marker": "CLICK_LATENCY_PASS",
+          "settlements": [
+            {
+              "end_to_end_us": 763970,
+              "ending": "win",
+              "settled": true,
+              "settled_after_us": 3,
+              "surface": "app"
+            },
+            {
+              "end_to_end_us": 630415,
+              "ending": "loss",
+              "settled": true,
+              "settled_after_us": 3,
+              "surface": "app"
+            },
+            {
+              "boundary": "durable_result_before_or_after_empty_dtl",
+              "end_to_end_us": 461026,
+              "ending": "win",
+              "phase": "post_challenge",
+              "settled_after_us": 151,
+              "surface": "dating"
+            }
+          ]
+        },
+        {
+          "variant": "baseline",
+          "locale": "zh-HK",
+          "dating_ending": "loss",
+          "click_latency_samples": 231,
+          "pass_marker": "CLICK_LATENCY_PASS",
+          "settlements": [
+            {
+              "end_to_end_us": 764960,
+              "ending": "win",
+              "settled": true,
+              "settled_after_us": 3,
+              "surface": "app"
+            },
+            {
+              "end_to_end_us": 605877,
+              "ending": "loss",
+              "settled": true,
+              "settled_after_us": 3,
+              "surface": "app"
+            },
+            {
+              "boundary": "durable_result_before_or_after_empty_dtl",
+              "end_to_end_us": 412082,
+              "ending": "loss",
+              "phase": "post_challenge",
+              "settled_after_us": 109,
+              "surface": "dating"
+            }
+          ]
+        },
+        {
+          "variant": "candidate",
+          "locale": "zh-CN",
+          "dating_ending": "win",
+          "click_latency_samples": 289,
+          "pass_marker": "CLICK_LATENCY_PASS",
+          "settlements": [
+            {
+              "end_to_end_us": 697819,
+              "ending": "win",
+              "settled": true,
+              "settled_after_us": 3,
+              "surface": "app"
+            },
+            {
+              "end_to_end_us": 565866,
+              "ending": "loss",
+              "settled": true,
+              "settled_after_us": 4,
+              "surface": "app"
+            },
+            {
+              "boundary": "durable_result_before_or_after_empty_dtl",
+              "end_to_end_us": 451938,
+              "ending": "win",
+              "phase": "post_challenge",
+              "settled_after_us": 168,
+              "surface": "dating"
+            }
+          ]
+        },
+        {
+          "variant": "candidate",
+          "locale": "zh-HK",
+          "dating_ending": "loss",
+          "click_latency_samples": 238,
+          "pass_marker": "CLICK_LATENCY_PASS",
+          "settlements": [
+            {
+              "end_to_end_us": 683897,
+              "ending": "win",
+              "settled": true,
+              "settled_after_us": 2,
+              "surface": "app"
+            },
+            {
+              "end_to_end_us": 541748,
+              "ending": "loss",
+              "settled": true,
+              "settled_after_us": 3,
+              "surface": "app"
+            },
+            {
+              "boundary": "durable_result_before_or_after_empty_dtl",
+              "end_to_end_us": 410541,
+              "ending": "loss",
+              "phase": "post_challenge",
+              "settled_after_us": 87,
+              "surface": "dating"
+            }
+          ]
+        }
+      ],
+      "fixed_payloads": [
+        {
+          "variant": "baseline",
+          "locale": "zh-CN",
+          "measurement": {
+            "bytes": 148476,
+            "input_sha256": "8aaaecd49146c31fcd7314a35d0556be45407cfa2c5eef9dc0710784733cd61a",
+            "journal_bundles": 2,
+            "outgoing_validation_us_median": 16773,
+            "output_sha256": "8aaaecd49146c31fcd7314a35d0556be45407cfa2c5eef9dc0710784733cd61a",
+            "parse_us_median": 100103,
+            "schema_us_median": 20118,
+            "schema_version": 7,
+            "snapshot_schema_version": 7,
+            "stringify_us_median": 16585,
+            "validated_journal_bundles": 2,
+            "value_validation_us_median": 27245
+          }
+        },
+        {
+          "variant": "baseline",
+          "locale": "zh-HK",
+          "measurement": {
+            "bytes": 119880,
+            "input_sha256": "849b3d656baf4a0546439fbcd76219a213b8222a8645fabdf2f611c38f929e1a",
+            "journal_bundles": 2,
+            "outgoing_validation_us_median": 13163,
+            "output_sha256": "849b3d656baf4a0546439fbcd76219a213b8222a8645fabdf2f611c38f929e1a",
+            "parse_us_median": 75378,
+            "schema_us_median": 15962,
+            "schema_version": 7,
+            "snapshot_schema_version": 7,
+            "stringify_us_median": 12467,
+            "validated_journal_bundles": 2,
+            "value_validation_us_median": 21442
+          }
+        },
+        {
+          "variant": "candidate",
+          "locale": "zh-CN",
+          "measurement": {
+            "bytes": 148476,
+            "input_sha256": "8aaaecd49146c31fcd7314a35d0556be45407cfa2c5eef9dc0710784733cd61a",
+            "journal_bundles": 2,
+            "outgoing_validation_us_median": 12941,
+            "output_sha256": "8aaaecd49146c31fcd7314a35d0556be45407cfa2c5eef9dc0710784733cd61a",
+            "parse_us_median": 99565,
+            "schema_us_median": 20405,
+            "schema_version": 7,
+            "snapshot_schema_version": 7,
+            "stringify_us_median": 15940,
+            "validated_journal_bundles": 2,
+            "value_validation_us_median": 26803
+          }
+        },
+        {
+          "variant": "candidate",
+          "locale": "zh-HK",
+          "measurement": {
+            "bytes": 119880,
+            "input_sha256": "849b3d656baf4a0546439fbcd76219a213b8222a8645fabdf2f611c38f929e1a",
+            "journal_bundles": 2,
+            "outgoing_validation_us_median": 10874,
+            "output_sha256": "849b3d656baf4a0546439fbcd76219a213b8222a8645fabdf2f611c38f929e1a",
+            "parse_us_median": 77966,
+            "schema_us_median": 16589,
+            "schema_version": 7,
+            "snapshot_schema_version": 7,
+            "stringify_us_median": 12695,
+            "validated_journal_bundles": 2,
+            "value_validation_us_median": 22489
+          }
+        }
+      ],
+      "fixed_samples_each_metric": 5,
+      "benchmark_records": 4,
+      "fixed_input_output_hashes_equal": true,
+      "payload_manifest_hashes_and_duplicate_bytes_verified": true,
+      "all_log_summaries_and_benchmarks_match_json": true,
+      "all_fixed_medians_recomputed": true,
+      "independent_consistency_failures": []
+    },
+    "acceptance": "not accepted: UI literal audit and prerequisite aggregate failed; three downstream comparisons cancelled",
+    "json_parse_audit": {
+      "files": 166,
+      "malformed": [],
+      "note": "Syntactic parsing of partial cancelled artifacts is not acceptance of their unfinished comparisons."
+    },
+    "windows_process_isolation": {
+      "records": 68,
+      "ordinary_exit_zero": 67,
+      "expected_fixture_timeout_124": 1,
+      "all_user_dirs_strictly_contained": true,
+      "unexpected_exits": [],
+      "basis": "Downloaded wrapper JSONL test_root and user_dir paths; Windows path comparison performed independently.",
+      "cancelled_job_partial_records_excluded": 24
+    },
+    "windows_storage_refusal": {
+      "cases": [
+        {
+          "case": "empty",
+          "exit_code": 1,
+          "tests": 83,
+          "expected_root_refusals": 80,
+          "storage_free_passes": 3,
+          "user_dir": "D:\\a\\dwm\\dwm\\.godot\\ci\\storage-refusal\\empty\\appdata\\Godot\\app_userdata\\DWM\\"
+        },
+        {
+          "case": "whitespace",
+          "exit_code": 1,
+          "tests": 83,
+          "expected_root_refusals": 80,
+          "storage_free_passes": 3,
+          "user_dir": "D:\\a\\dwm\\dwm\\.godot\\ci\\storage-refusal\\whitespace\\appdata\\Godot\\app_userdata\\DWM\\"
+        }
+      ],
+      "expected_negative_exit_codes": true,
+      "repository_before_after_equal": {
+        "empty": true,
+        "whitespace": true
+      },
+      "scope": "Deliberately empty and whitespace DWM_TEST_ROOT; expected test_root_missing refusals, not ordinary suite failures."
+    },
+    "windows_manual_witness_revision_storage": {
+      "marker": "MANUAL_WITNESS_REVISION_STORAGE_PASS",
+      "counts": {
+        "assertions": 61180,
+        "distinct_snapshots": 94,
+        "failures": [],
+        "refusal_pairs": 30,
+        "restart_fault_pairs": 1604,
+        "restart_pairs": 2218,
+        "write_fault_pairs": 154,
+        "write_pairs": 14
+      },
+      "log_file": "/workspace/scratch/b7208ca99889/run93/artifacts/windows-settings-36863547145-1/phase2r_logs/cloud-manual-witness-revision-storage.log"
+    },
+    "key_evidence_files": {
+      "ui_literal_failure": "/workspace/scratch/b7208ca99889/run93/artifacts/ui-literal-audit-36863547145-1/audit.log",
+      "ui_literal_script_disposition": "/workspace/scratch/b7208ca99889/run93/artifacts/ui-literal-audit-36863547145-1/script_ui_disposition.json",
+      "journey_aggregate": "/workspace/scratch/b7208ca99889/run93/artifacts/playable-journeys-36863547145-1/results.json",
+      "reading_aggregate": "/workspace/scratch/b7208ca99889/run93/artifacts/reading-rail-36863547145-1/result.json",
+      "reading_write_log": "/workspace/scratch/b7208ca99889/run93/artifacts/reading-rail-36863547145-1/6aa60719-1f20-49e9-b714-3b6a75fa1910/write.log",
+      "reading_read_log": "/workspace/scratch/b7208ca99889/run93/artifacts/reading-rail-36863547145-1/6aa60719-1f20-49e9-b714-3b6a75fa1910/read.log",
+      "reading_write_report": "/workspace/scratch/b7208ca99889/run93/artifacts/reading-rail-36863547145-1/6aa60719-1f20-49e9-b714-3b6a75fa1910/write.json",
+      "reading_read_report": "/workspace/scratch/b7208ca99889/run93/artifacts/reading-rail-36863547145-1/6aa60719-1f20-49e9-b714-3b6a75fa1910/read.json",
+      "reading_retained_save": "/workspace/scratch/b7208ca99889/run93/artifacts/reading-rail-36863547145-1/6aa60719-1f20-49e9-b714-3b6a75fa1910/saved-quick.json",
+      "performance_aggregate": "/workspace/scratch/b7208ca99889/run93/artifacts/checkpoint-performance-36863547145-1/ci/performance/results.json",
+      "payload_manifest": "/workspace/scratch/b7208ca99889/run93/artifacts/checkpoint-payloads-36863547145/payload-manifest.json",
+      "windows_storage_refusal": "/workspace/scratch/b7208ca99889/run93/artifacts/windows-settings-36863547145-1/ci/storage-refusal/results.json",
+      "windows_manual_witness_revision_storage": "/workspace/scratch/b7208ca99889/run93/artifacts/windows-settings-36863547145-1/phase2r_logs/cloud-manual-witness-revision-storage.log",
+      "windows_export_job_log": "/workspace/scratch/b7208ca99889/run93/logs/110374844061.log",
+      "seven_day_results": "/workspace/scratch/b7208ca99889/run93/artifacts/seven-day-history-36863547145-1/ci/seven-day-history/results.json",
+      "seven_day_write_log": "/workspace/scratch/b7208ca99889/run93/artifacts/seven-day-history-36863547145-1/phase2r_logs/cloud-seven-day-history-write.log",
+      "seven_day_cold_login_enabled_log": "/workspace/scratch/b7208ca99889/run93/artifacts/seven-day-history-36863547145-1/phase2r_logs/cloud-seven-day-history-read-cache-enabled.log",
+      "seven_day_cold_login_disabled_log": "/workspace/scratch/b7208ca99889/run93/artifacts/seven-day-history-36863547145-1/phase2r_logs/cloud-seven-day-history-read-cache-disabled.log",
+      "seven_day_admission_pairs": "/workspace/scratch/b7208ca99889/run93/artifacts/seven-day-history-36863547145-1/ci/seven-day-history/admission-pairs.json",
+      "seven_day_manual_prepare_pairs": "/workspace/scratch/b7208ca99889/run93/artifacts/seven-day-history-36863547145-1/ci/seven-day-history/manual-prepare-pairs.json",
+      "seven_day_consumer_input_manifest": "/workspace/scratch/b7208ca99889/run93/artifacts/seven-day-inputs-36863547145/consumer-input-manifest.json",
+      "seven_day_retained_payload": "/workspace/scratch/b7208ca99889/run93/artifacts/seven-day-inputs-36863547145/day7-autosave.json",
+      "outgoing_normalization_results": "/workspace/scratch/b7208ca99889/run93/artifacts/outgoing-normalization-36863547145-1/ci/outgoing-normalization/results.json",
+      "outgoing_normalization_log_directory": "/workspace/scratch/b7208ca99889/run93/artifacts/outgoing-normalization-36863547145-1/phase2r_logs"
+    },
+    "available_artifact_count_remote_reported": 33,
+    "excluded_remote_artifact": "windows-export-36863547145-1 (local archive unavailable)",
+    "seven_day_history_producer": {
+      "artifact": "seven-day-history-36863547145-1",
+      "input_artifact": "seven-day-inputs-36863547145",
+      "job_id": 110374844072,
+      "completed_proof": true,
+      "independent_consistency_failures": [],
+      "fixture": "7 synthetic line and 7 synthetic manual checkpoint records/day, plus one real Slot 1 save and App loss/day. Public Schedule Done advances to Day 7. This is not an authored-dialogue playthrough.",
+      "timing_policy": "Observations on one shared Windows runner; no speed threshold or physical input-to-paint guarantee.",
+      "timing_boundaries": {
+        "manual_slot_save_us": "Production prepare_backup_action(save, slot:1) plus commit_backup_action, including synchronous signal handlers.",
+        "login_us": "Automated Title Login, Backup picker opening and Autosave selection, load consent, restore and awaited process frames.",
+        "phase_scopes": "Each scope is inclusive. Parent and child scopes overlap and must not be summed; repeated phases inside one scope accumulate.",
+        "phase_collection": "Save/load profiles include only labeled manual-save and Title Login measurement windows; startup and opening each daily Backup app before its save timer are excluded.",
+        "checkpoint_subphases": "Version 2 document/schema/proof timers are nested inclusive measurements. History proof timers accumulate across entries; document proof lookup stops at its first miss. Profile instrumentation adds overhead and is not a speedup comparison."
+      },
+      "markers": {
+        "SEVEN_DAY_HISTORY_DAY": 7,
+        "SEVEN_DAY_HISTORY_WRITE_PASS": 1,
+        "SEVEN_DAY_HISTORY_READ_PASS": 18,
+        "MANUAL_SAVE_WRITE_PASS": 16
+      },
+      "write": {
+        "autosave_sha256": "e1512119987b5cb3dffba0e10646bc4dde31ff6279befe2ee45e6388abbe21a6",
+        "days": 7,
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "synthetic_checkpoints": 98
+      },
+      "days": [
+        {
+          "day": 1,
+          "retained": {
+            "line": 7,
+            "manual_save": 8,
+            "semantic": 2
+          },
+          "autosave_bytes": 112031,
+          "manual_slot_save_us": 95338
+        },
+        {
+          "day": 2,
+          "retained": {
+            "line": 14,
+            "manual_save": 16,
+            "semantic": 2
+          },
+          "autosave_bytes": 441294,
+          "manual_slot_save_us": 404985
+        },
+        {
+          "day": 3,
+          "retained": {
+            "line": 21,
+            "manual_save": 24,
+            "semantic": 2
+          },
+          "autosave_bytes": 780749,
+          "manual_slot_save_us": 801122
+        },
+        {
+          "day": 4,
+          "retained": {
+            "line": 28,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "autosave_bytes": 1155956,
+          "manual_slot_save_us": 1214151
+        },
+        {
+          "day": 5,
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "autosave_bytes": 1518513,
+          "manual_slot_save_us": 1766370
+        },
+        {
+          "day": 6,
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "autosave_bytes": 1741065,
+          "manual_slot_save_us": 2150044
+        },
+        {
+          "day": 7,
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "autosave_bytes": 1911129,
+          "manual_slot_save_us": 2365216
+        }
+      ],
+      "retained_payload": {
+        "bytes": 1911129,
+        "sha256": "e1512119987b5cb3dffba0e10646bc4dde31ff6279befe2ee45e6388abbe21a6",
+        "day": 7,
+        "journal_records": 66,
+        "journal_kinds": {
+          "line": 32,
+          "manual_save": 32,
+          "pre_board": 1,
+          "safe_marker": 1
+        },
+        "manifest_and_duplicate_bytes_verified": true
+      },
+      "cold_login": {
+        "cache_disabled_us": 8546835,
+        "cache_enabled_us": 6018603,
+        "control": "Same checkout and retained user-data source, cloned into a new isolated process per variant. Only DWM_SAVE_PARSE_CACHE_DISABLED differs.",
+        "sampling": "One cold Login per variant, fixed disabled-then-enabled order on one shared Windows runner; observational, not a repeated-sample or frame-time guarantee.",
+        "same_restored_gameplay_board_and_journal_hashes": true
+      },
+      "internal_save_admission_comparison": {
+        "control": "Current SaveManager versus the same source with only the four redundant schema validations restored. Same current schemas, parse cache enabled, identical retained source bytes, one new isolated process per sample.",
+        "sampling": "Eight matched pairs / sixteen processes; odd pairs baseline then candidate, even pairs candidate then baseline. Shared Windows runner; process-cold Login, not flushed OS filesystem caches or physical input-to-paint.",
+        "summary": {
+          "pair_count": 8,
+          "baseline_median_login_us": 7096426.0,
+          "candidate_median_login_us": 6164409.0,
+          "median_paired_candidate_minus_baseline_us": -915401.5
+        }
+      },
+      "internal_manual_prepare_comparison": {
+        "control": "Public prepare_backup_action and commit_backup_action with real storage, the same seeded Day7 journal, immutable capture fixture and a test-subclass fixed clock. Only the discarded eager journal copy in configured capture differs; parse cache and write validation memo are enabled in both.",
+        "sampling": "Eight alternating pairs / sixteen fresh isolated processes; identical prepared candidate, physical source files, target revision and pre-commit parser cache. Preparation timing covers only the public prepare_backup_action call, including immutable fixture copying, and excludes source cloning, journal seeding, proof generation, commit, live UI callbacks, issuer-flush callbacks and rendering. OS filesystem caches are not flushed.",
+        "metric": "prepare_us",
+        "summary": {
+          "pair_count": 8,
+          "median_paired_candidate_minus_baseline_us": -27963.5,
+          "baseline_median_prepare_us": 1494155.0,
+          "candidate_median_prepare_us": 1474592.5
+        }
+      },
+      "internal_comparison_checks": {
+        "raw_pass_json_equals_aggregate": true,
+        "paired_input_output_and_state_hashes_equal": true,
+        "alternating_pair_order_verified": true,
+        "pair_deltas_and_medians_recomputed": true
+      },
+      "checkpoint_diagnostics": {
+        "diagnostics_version": 2,
+        "prepare_records": 35,
+        "commit_records": 35
+      },
+      "isolated_processes": 35,
+      "all_processes_exit_zero": true,
+      "distinct_isolation_roots": 35,
+      "all_user_dirs_strictly_contained": true,
+      "consumer_input_manifest": {
+        "schema_version": 1,
+        "checkout_ref": "706885ec2452656cd027104c005555229551cbf2",
+        "producer_run_id": "36863547145",
+        "producer_run_attempt": 1,
+        "files": {
+          "results.json": "9645004abc361fb6da1e9bbaac7b073a365ea9664605fd8b29396292dc9cdb28",
+          "day7-autosave.json": "e1512119987b5cb3dffba0e10646bc4dde31ff6279befe2ee45e6388abbe21a6"
+        }
+      },
+      "limitation": "Producer internal admission/manual-prepare comparisons are complete. Separate outgoing-normalization comparison succeeded; three other downstream comparisons were cancelled. Synthetic retained checkpoints and real public Schedule/Slot1/App actions do not establish an authored-dialogue playthrough."
+    },
+    "source_commit": "358780400611164da67e1a2012a87dd3b620f3b2",
+    "checkout_commit": "706885ec2452656cd027104c005555229551cbf2",
+    "final_job_outcomes": {
+      "jobs": 23,
+      "success": 18,
+      "failure": 2,
+      "cancelled": 3,
+      "failures": [
+        {
+          "job_id": 110374844055,
+          "name": "Rendered desktop and dialogue / Linux software OpenGL",
+          "reason": "UI literal audit failed at WitnessedHistory.gd lines 130 and 131"
+        },
+        {
+          "job_id": 110381110999,
+          "name": "Windows / seven-day retained history",
+          "reason": "Prerequisite aggregate failure; producer itself succeeded"
+        }
+      ],
+      "superseded_by_run_number": 95
+    },
+    "outgoing_normalization": {
+      "artifact": "outgoing-normalization-36863547145-1",
+      "job_id": 110379038195,
+      "job_conclusion": "success",
+      "marker": "OUTGOING_NORMALIZATION_BENCHMARK",
+      "marker_count": 6,
+      "ablation": "Current port and strict schema for both variants; only complete-document versus proven-journal normalization differs. Five timed samples after two warmups reuse each identical document. No timing threshold.",
+      "proof_source": "strict current validation of every fixed-payload bundle; seam measurement, not evidence that gameplay had a complete splice proof set",
+      "measurements": [
+        {
+          "variant": "baseline",
+          "label": "zh-CN",
+          "bytes": 148476,
+          "journal_bundles": 2,
+          "median_us": 22741,
+          "samples": 5,
+          "input_output_sha256": "8aaaecd49146c31fcd7314a35d0556be45407cfa2c5eef9dc0710784733cd61a"
+        },
+        {
+          "variant": "baseline",
+          "label": "zh-HK",
+          "bytes": 119880,
+          "journal_bundles": 2,
+          "median_us": 17246,
+          "samples": 5,
+          "input_output_sha256": "849b3d656baf4a0546439fbcd76219a213b8222a8645fabdf2f611c38f929e1a"
+        },
+        {
+          "variant": "baseline",
+          "label": "day7",
+          "bytes": 1911129,
+          "journal_bundles": 66,
+          "median_us": 175153,
+          "samples": 5,
+          "input_output_sha256": "e1512119987b5cb3dffba0e10646bc4dde31ff6279befe2ee45e6388abbe21a6"
+        },
+        {
+          "variant": "candidate",
+          "label": "zh-CN",
+          "bytes": 148476,
+          "journal_bundles": 2,
+          "median_us": 16368,
+          "samples": 5,
+          "input_output_sha256": "8aaaecd49146c31fcd7314a35d0556be45407cfa2c5eef9dc0710784733cd61a"
+        },
+        {
+          "variant": "candidate",
+          "label": "zh-HK",
+          "bytes": 119880,
+          "journal_bundles": 2,
+          "median_us": 13162,
+          "samples": 5,
+          "input_output_sha256": "849b3d656baf4a0546439fbcd76219a213b8222a8645fabdf2f611c38f929e1a"
+        },
+        {
+          "variant": "candidate",
+          "label": "day7",
+          "bytes": 1911129,
+          "journal_bundles": 66,
+          "median_us": 92392,
+          "samples": 5,
+          "input_output_sha256": "e1512119987b5cb3dffba0e10646bc4dde31ff6279befe2ee45e6388abbe21a6"
+        }
+      ],
+      "raw_marker_json_equals_aggregate": true,
+      "all_medians_recomputed": true,
+      "all_input_output_hashes_equal_and_match_producer_payloads": true,
+      "localized_and_day7_manifests_match_producers": true,
+      "isolated_processes": 6,
+      "distinct_isolation_roots": 6,
+      "all_exit_zero": true,
+      "all_user_dirs_strictly_contained": true,
+      "independent_consistency_failures": []
+    },
+    "cancelled_comparisons": [
+      {
+        "artifact": "lazy-normalization-36863547145-1",
+        "job_conclusion": "cancelled",
+        "partial_logs_available": true,
+        "accepted": false,
+        "reason": "Incomplete cancelled run; partial logs and completed child-process records do not establish a completed comparison."
+      },
+      {
+        "artifact": "history-region-search-36863547145-1",
+        "job_conclusion": "cancelled",
+        "partial_logs_available": true,
+        "accepted": false,
+        "reason": "Incomplete cancelled run; partial logs and completed child-process records do not establish a completed comparison."
+      },
+      {
+        "artifact": "warm-outgoing-proof-36863547145-1",
+        "job_conclusion": "cancelled",
+        "partial_logs_available": true,
+        "accepted": false,
+        "reason": "Incomplete cancelled run; partial logs and completed child-process records do not establish a completed comparison."
+      }
+    ],
+    "unverified_areas": [
+      "Native speech pause/resume/cancel and player-control rendered proof not established by this run's available artifacts.",
+      "Lazy-normalization, history-region-search and warm-outgoing-proof comparisons cancelled; no acceptance claimed."
+    ]
+  },
+  "limitations": [
+    "Evidence applies to the recorded source and actual checkout merge; it is not evidence for subsequent source changes.",
+    "A failed, skipped, cancelled or incomplete job prevents full-run acceptance; successful components remain component evidence only.",
+    "Export archive was not inspected locally when download_path is null; cloud receipts state headless exported-startup scope only.",
+    "Rendered fixtures and performance samples establish their recorded scenarios, not exhaustive content, accessibility-device or end-user hardware coverage."
+  ]
+}

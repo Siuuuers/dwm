@@ -1,0 +1,189 @@
+{
+  "repository": "Siuuuers/dwm",
+  "run_id": 35649361163,
+  "run_number": 49,
+  "head_sha": "e80023ab2bb63563392d695346aa62a876a59166",
+  "tested_merge_sha": "3947205de6b6c36895258be26266ad5a7f0cdcec",
+  "status": "completed",
+  "success_jobs": 17,
+  "failed_jobs": 0,
+  "jobs": [
+    {
+      "id": 106497632397,
+      "name": "Windows / public API surface contracts",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106498451637,
+      "name": "Windows / seven-day retained history",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106498451666,
+      "name": "Rendered desktop and dialogue / Linux software OpenGL",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106498451684,
+      "name": "Windows / paired checkpoint performance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106498451715,
+      "name": "Windows / exported release startup",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106498451718,
+      "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106498451796,
+      "name": "Windows / settings",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106498451824,
+      "name": "Windows / new_account",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106498451842,
+      "name": "Windows / endings",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106498451845,
+      "name": "Windows / desktop",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106498451877,
+      "name": "Windows / shop",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106498451897,
+      "name": "Windows / localization",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106498451908,
+      "name": "Windows / audio",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106498451929,
+      "name": "Windows / persistence",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106498451942,
+      "name": "Windows / reading_delivery",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106498451955,
+      "name": "Windows / minesweeper",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106498451988,
+      "name": "Windows / dating",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "focused_suites": [
+    {
+      "suite": "new_account",
+      "tests": 136,
+      "scripts": 13,
+      "job_id": 106498451824
+    },
+    {
+      "suite": "desktop",
+      "tests": 174,
+      "scripts": 17,
+      "job_id": 106498451845
+    },
+    {
+      "suite": "shop",
+      "tests": 144,
+      "scripts": 8,
+      "job_id": 106498451877
+    },
+    {
+      "suite": "localization",
+      "tests": 152,
+      "scripts": 18,
+      "job_id": 106498451897
+    },
+    {
+      "suite": "audio",
+      "tests": 44,
+      "scripts": 2,
+      "job_id": 106498451908
+    },
+    {
+      "suite": "persistence",
+      "tests": 165,
+      "scripts": 16,
+      "job_id": 106498451929
+    },
+    {
+      "suite": "minesweeper",
+      "tests": 210,
+      "scripts": 22,
+      "job_id": 106498451955
+    },
+    {
+      "suite": "dating",
+      "tests": 137,
+      "scripts": 10,
+      "job_id": 106498451988
+    },
+    {
+      "suite": "settings",
+      "tests": 269,
+      "scripts": 22,
+      "job_id": 106498451796
+    },
+    {
+      "suite": "reading_delivery",
+      "tests": 210,
+      "scripts": 16,
+      "job_id": 106498451942
+    },
+    {
+      "suite": "endings",
+      "tests": 106,
+      "scripts": 12,
+      "job_id": 106498451842
+    }
+  ],
+  "focused_tests": 1747,
+  "focused_scripts": 156,
+  "reading_ending_journey_evidence": "run49-reading-journey-ending.json",
+  "native_export_evidence": "run49-native-export.json",
+  "performance_evidence": "performance/retained-history-run49.json",
+  "scope": "Coherent v6 producer/adapter/cloud-gate baseline, before coordinated strict v7 source cutover. Five rendered journeys and actual isolated native headless startup pass. Graphical Windows, accessibility and broader content acceptance remain separate.",
+  "public_inventory_mode": "Regenerate/EmitPayloads; final committed read-only verification remains pending."
+}

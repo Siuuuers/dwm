@@ -1,0 +1,18 @@
+{
+  "run": 39825608353,
+  "artifact": 12445803960,
+  "artifact_sha256": "a6bf581cefe0da259918bd8fd6065796daabeed29d46811fcbe79618b9167fd9",
+  "scope": "Windows package audit and isolated headless startup; source connected rendered journey is separately qualified",
+  "ok": true,
+  "commit": "82d42d3524ac0cdcc90e7c7ae7f69298d5046bcc",
+  "engine": "4.6.3.stable",
+  "runtime_data_files_verified": 123,
+  "templates_sha256": "3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8",
+  "executable_sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+  "pck_sha256": "6e33144ce59585ed1d50320bf695bc7c7411ae388f1fc53e4b501390a864cdb5",
+  "archive": {
+    "bytes": 105649772,
+    "file": "DWM-windows-x86_64-validation.zip",
+    "sha256": "8420129c411b82051432ba01aebbb4ab62a0d2c2519ce0fd8934885945796f28"
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "repository": "Siuuuers/dwm",
+  "run_id": 35649361163,
+  "run_number": 49,
+  "head_sha": "e80023ab2bb63563392d695346aa62a876a59166",
+  "tested_merge_sha": "3947205de6b6c36895258be26266ad5a7f0cdcec",
+  "endings": {
+    "job_id": 106498451842,
+    "conclusion": "success",
+    "tests": 106,
+    "scripts": 12,
+    "process_exit_code": 0,
+    "artifact": {
+      "id": 10662035371,
+      "bytes": 74688,
+      "sha256": "69cd0781a281b15c20412e0cc335a9eca0ae7aeac57d9f03f9cbb69e44aa3ffd",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35649361163/artifacts/10662035371"
+    },
+    "verified_repair": "Real first-counted-encounter Profile draw precedes the regression's Day2 closure, then all seven domain closures admit/checkpoint the ending while retaining only Day2/Day6 counted receipts and preserving all source receipts.",
+    "saved_job_log": {
+      "path": "/tmp/dwm-run49-job-106498451842.log",
+      "bytes": 432029,
+      "sha256": "229e8dae10ca17cf9efbc91bd4d1f7953290bb7894dd9bdea80246cd07069773",
+      "format": "UTF-8 decoded tool log, CRLF normalized to LF"
+    }
+  },
+  "reading_delivery": {
+    "job_id": 106498451942,
+    "conclusion": "success",
+    "tests": 210,
+    "scripts": 16,
+    "process_exit_code": 0,
+    "artifact": {
+      "id": 10660948440,
+      "bytes": 90168,
+      "sha256": "c51c6d3b2c88b41347397121afeee3415cf9b4885566b4bc8b49541f0e422f93",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35649361163/artifacts/10660948440"
+    },
+    "verified_repair": "Both replacement fixtures restore exact DTL bytes; Ending/Gallery prose waits for one fresh native text publication and exact text before manual input; original completion and cleanup assertions pass.",
+    "claim_limit": "Detailed DWM_DTL_TEXT_PUBLICATION values remain in the artifact test log and were not inspected; no specific fade timing claim.",
+    "saved_job_log": {
+      "path": "/tmp/dwm-run49-job-106498451942.log",
+      "bytes": 431931,
+      "sha256": "0680df744417cdf10714e25d90f6d237dae790f9de219ccdb18c4b829d8a0156",
+      "format": "UTF-8 decoded tool log, CRLF normalized to LF"
+    }
+  },
+  "rendered_journeys": {
+    "job_id": 106498451718,
+    "conclusion": "success",
+    "cases": [
+      "seven-days-ending-gallery",
+      "seven-days-condition-ending",
+      "dating-reload",
+      "practice-empty-dtl",
+      "practice-legacy-compatibility"
+    ],
+    "verified_marker": "PLAYABLE_JOURNEYS_VERIFIED: 5 isolated rendered cases",
+    "artifact": {
+      "id": 10661154086,
+      "bytes": 6353476,
+      "sha256": "f4765b93725023f4f9d38548f15722dccc792babe9ae153ba0d313d25fdc9aea",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35649361163/artifacts/10661154086"
+    },
+    "verification": "All five cases passed the driver's isolated user-directory proof, process/timeout checks, script/error scans, resource-leak scans, required/forbidden marker counts and PNG capture checks.",
+    "claim_limit": "Detailed per-case result JSON and screenshots/hashes are retained in the uploaded artifact but were not individually inspected.",
+    "saved_job_log": {
+      "path": "/tmp/dwm-run49-job-106498451718.log",
+      "bytes": 478473,
+      "sha256": "6441290a7d1673b52bad6c7f975e6128c836b02cdd28494cee7fd895a9be01a6",
+      "format": "UTF-8 decoded tool log, CRLF normalized to LF"
+    }
+  },
+  "scope_limit": "This evidence covers the three listed jobs. It does not certify other run49 jobs or later source changes."
+}

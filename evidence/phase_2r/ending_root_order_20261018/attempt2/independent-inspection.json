@@ -1,0 +1,1461 @@
+{
+  "scope": "Independent read of original raw mode results/process receipts, capture bytes, native event records, and one canonical Load stdout; no runtime rerun or source modification.",
+  "archive_receipt": {
+    "bytes": 2566525,
+    "sha256": "d3fe288fe60167a2dda044c7a2d8962b0c88c789a5044f4347cb9b78993544cc",
+    "run_id": 39155624496,
+    "job_id": 117758138682,
+    "source": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+    "tree": "4581a9f12d63684836c722f72cffd533491f3c06",
+    "controller": "cf1ffe0ec204cc51ecc532e4a95136f9177577d1"
+  },
+  "archive_observed_bytes": 2566525,
+  "archive_observed_sha256": "d3fe288fe60167a2dda044c7a2d8962b0c88c789a5044f4347cb9b78993544cc",
+  "archive_member_count": 241,
+  "verifier": {
+    "sha256": "052ee52a800693653a8a05d5de9889e6b2cce04f52976580c2cb3bc0747b8da6",
+    "report_sha256": "6734176d484cec03e7e3975011ea4b6c5f00026caeab2a1d9510221ae2b4dab8",
+    "retained_report_reproduces_byte_for_byte": true,
+    "reproduction_exit_code": 0,
+    "exit_scope": "Exit status qualifies archive/source custody, retained harness checks and the focused suite. Original native journey failure, unexecuted native modes and diagnostic observations remain separate; exit 0 does not mean native acceptance."
+  },
+  "verified_outcome_summary": {
+    "archive_verified": true,
+    "harness_qualified": true,
+    "focused_suite_passed": true,
+    "original_journey_passed": false,
+    "original_acceptance_passed": false,
+    "verified_outer_members": 240,
+    "verified_mode_members": 149,
+    "mode_member_counts": {
+      "capability": 22,
+      "create": 57,
+      "load": 70
+    }
+  },
+  "raw_outcomes": {
+    "capability": {
+      "result": {
+        "schema_version": 1,
+        "mode": "Capability",
+        "ok": true,
+        "visual_review_required": true,
+        "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+        "archive_sha256": "7c3053d2073fc3caee98dc5c038e720d5e860952375039d0db054dcd14812eb8",
+        "accessibility_request": "Always",
+        "audio_request": "Dummy",
+        "save_load_profile": false,
+        "checkpoint_profile": false,
+        "renderer_request": "ProjectDefault",
+        "user_root": "D:\\a\\_temp\\dwm-capability-user",
+        "output_path": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability",
+        "scope": "Ordinary release UI; normal packaged seven-day TEST story; no Challenge registration",
+        "forced_cleanup": false,
+        "clean_player_exit": true,
+        "executable_sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+        "pck_sha256": "1bbe3794a2febb54960929984556421e04df621f0e21a095f71ea25603147d26",
+        "process": {
+          "arguments": [
+            "--windowed",
+            "--resolution",
+            "1280x720",
+            "--log-file",
+            "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\game.log",
+            "--accessibility",
+            "always",
+            "--audio-driver",
+            "Dummy"
+          ],
+          "executable": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\package\\DWM.exe",
+          "started_utc": "2026-10-18T18:48:30.4910507Z",
+          "observed_command_line": "\"D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\package\\DWM.exe\" --windowed --resolution 1280x720 --log-file D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\game.log --accessibility always --audio-driver Dummy",
+          "pid": 1352
+        },
+        "exit_code": 0,
+        "renderer_log": [
+          "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver",
+          "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver"
+        ],
+        "child_exited_before_cleanup": true,
+        "elapsed_seconds": 29.4804151
+      },
+      "driver_process": {
+        "mode": "Capability",
+        "unchanged_result": ".godot/ci/exported-capability/result.json",
+        "elapsed_seconds": 33.8745275,
+        "expected_source": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+        "exit_code": 0
+      }
+    },
+    "create": {
+      "result": {
+        "schema_version": 1,
+        "mode": "Create",
+        "ok": true,
+        "visual_review_required": true,
+        "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+        "archive_sha256": "7c3053d2073fc3caee98dc5c038e720d5e860952375039d0db054dcd14812eb8",
+        "accessibility_request": "Always",
+        "audio_request": "Dummy",
+        "save_load_profile": false,
+        "checkpoint_profile": false,
+        "renderer_request": "ProjectDefault",
+        "user_root": "D:\\a\\_temp\\dwm-journey-user",
+        "output_path": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create",
+        "scope": "Ordinary release UI; normal packaged seven-day TEST story; no Challenge registration",
+        "forced_cleanup": false,
+        "clean_player_exit": true,
+        "capability": {
+          "schema_version": 1,
+          "mode": "Capability",
+          "ok": true,
+          "visual_review_required": true,
+          "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+          "archive_sha256": "7c3053d2073fc3caee98dc5c038e720d5e860952375039d0db054dcd14812eb8",
+          "accessibility_request": "Always",
+          "audio_request": "Dummy",
+          "save_load_profile": false,
+          "checkpoint_profile": false,
+          "renderer_request": "ProjectDefault",
+          "user_root": "D:\\a\\_temp\\dwm-capability-user",
+          "output_path": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability",
+          "scope": "Ordinary release UI; normal packaged seven-day TEST story; no Challenge registration",
+          "forced_cleanup": false,
+          "clean_player_exit": true,
+          "executable_sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+          "pck_sha256": "1bbe3794a2febb54960929984556421e04df621f0e21a095f71ea25603147d26",
+          "process": {
+            "arguments": [
+              "--windowed",
+              "--resolution",
+              "1280x720",
+              "--log-file",
+              "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\game.log",
+              "--accessibility",
+              "always",
+              "--audio-driver",
+              "Dummy"
+            ],
+            "executable": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\package\\DWM.exe",
+            "started_utc": "2026-10-18T18:48:30.4910507Z",
+            "observed_command_line": "\"D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\package\\DWM.exe\" --windowed --resolution 1280x720 --log-file D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\game.log --accessibility always --audio-driver Dummy",
+            "pid": 1352
+          },
+          "exit_code": 0,
+          "renderer_log": [
+            "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver",
+            "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver"
+          ],
+          "child_exited_before_cleanup": true,
+          "elapsed_seconds": 29.4804151
+        },
+        "executable_sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+        "pck_sha256": "1bbe3794a2febb54960929984556421e04df621f0e21a095f71ea25603147d26",
+        "process": {
+          "arguments": [
+            "--windowed",
+            "--resolution",
+            "1280x720",
+            "--log-file",
+            "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create\\game.log",
+            "--accessibility",
+            "always",
+            "--audio-driver",
+            "Dummy"
+          ],
+          "executable": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create\\package\\DWM.exe",
+          "started_utc": "2026-10-18T18:49:01.3191727Z",
+          "pid": 4044,
+          "observed_command_line": "\"D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create\\package\\DWM.exe\" --windowed --resolution 1280x720 --log-file D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create\\game.log --accessibility always --audio-driver Dummy"
+        },
+        "source_slot_sha256": "aa9d4fbadcb53b147dd5a9af4e51401def66477ca04f494a91a04d283f89b059",
+        "exit_code": 0,
+        "renderer_log": [
+          "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver",
+          "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver"
+        ],
+        "source_profile_sha256": "8cefea5e261508382403b033ecb4d581278a2c2d30a5e8b4863da3f195decf2d",
+        "child_exited_before_cleanup": true,
+        "elapsed_seconds": 100.1226918
+      },
+      "driver_process": {
+        "exit_code": 0,
+        "expected_source": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+        "unchanged_result": ".godot/ci/exported-create/result.json",
+        "elapsed_seconds": 101.0375633,
+        "mode": "Create"
+      }
+    },
+    "load": {
+      "result": {
+        "schema_version": 1,
+        "mode": "Load",
+        "ok": false,
+        "visual_review_required": true,
+        "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+        "archive_sha256": "7c3053d2073fc3caee98dc5c038e720d5e860952375039d0db054dcd14812eb8",
+        "accessibility_request": "Always",
+        "audio_request": "Dummy",
+        "save_load_profile": true,
+        "checkpoint_profile": true,
+        "renderer_request": "ProjectDefault",
+        "user_root": "D:\\a\\_temp\\dwm-journey-user",
+        "output_path": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load",
+        "scope": "Ordinary release UI; normal packaged seven-day TEST story; no Challenge registration",
+        "forced_cleanup": true,
+        "clean_player_exit": false,
+        "executable_sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+        "pck_sha256": "1bbe3794a2febb54960929984556421e04df621f0e21a095f71ea25603147d26",
+        "process": {
+          "arguments": [
+            "--windowed",
+            "--resolution",
+            "1280x720",
+            "--log-file",
+            "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\game.log",
+            "--accessibility",
+            "always",
+            "--audio-driver",
+            "Dummy"
+          ],
+          "observed_command_line": "\"D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\package\\DWM.exe\" --windowed --resolution 1280x720 --log-file D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\game.log --accessibility always --audio-driver Dummy",
+          "started_utc": "2026-10-18T18:50:42.6677506Z",
+          "pid": 7264,
+          "executable": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\package\\DWM.exe"
+        },
+        "diagnostic_only": false,
+        "native_baseline_handle": 524500,
+        "quiet_observation_completed": true,
+        "quiet_saved_count": 1,
+        "continued_after_quiet": true,
+        "failure": "UIA_UNAVAILABLE_OR_TIMEOUT: TEST Seven-day ending.",
+        "native_probe_started_utc": "2026-10-18T18:54:28.8128115Z",
+        "native_probe_timeout_seconds": 15,
+        "native_probe_completed": true,
+        "native_probe_timed_out": false,
+        "native_probe_finished_utc": "2026-10-18T18:54:32.5019237Z",
+        "child_exited_before_cleanup": false,
+        "exit_code": -1,
+        "elapsed_seconds": 231.5087116
+      },
+      "driver_process": {
+        "unchanged_result": ".godot/ci/exported-load/result.json",
+        "mode": "Load",
+        "elapsed_seconds": 232.5206807,
+        "exit_code": 1,
+        "expected_source": "81847d8b1560340a3a7769223cee0b46c6bdc0f9"
+      }
+    }
+  },
+  "original_acceptance": {
+    "scope": "Original bounded driver gates; passive traces are diagnostic evidence",
+    "ok": false,
+    "failures": [
+      "load failed its original gate",
+      "Load driver process or step failed"
+    ],
+    "original_outcomes": [
+      {
+        "ok": true,
+        "forced_cleanup": false,
+        "clean_player_exit": true,
+        "exit_code": 0,
+        "result": ".godot/ci/exported-capability/result.json",
+        "mode": "capability"
+      },
+      {
+        "ok": true,
+        "forced_cleanup": false,
+        "clean_player_exit": true,
+        "exit_code": 0,
+        "result": ".godot/ci/exported-create/result.json",
+        "mode": "create"
+      },
+      {
+        "ok": false,
+        "forced_cleanup": true,
+        "clean_player_exit": false,
+        "exit_code": -1,
+        "result": ".godot/ci/exported-load/result.json",
+        "mode": "load"
+      }
+    ]
+  },
+  "focused_xml_counts": {
+    "tests": 11,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "assertions": 142
+  },
+  "primary_stream": {
+    "path": "ci/exported-load/game.stdout.log",
+    "bytes": 109105,
+    "sha256": "4784bd05e387fe9c6e84790c99c86449a38c159153147955f0e2ef293be5af51"
+  },
+  "publication_record_count": 6,
+  "publication_records": [
+    {
+      "primary_line": 116,
+      "event": "text_started_enter",
+      "process_frame": 1827,
+      "ticks_us": 222452435,
+      "unix_seconds": 1792349665.144,
+      "approx_seconds_from_native_wait_start": 26.4107888,
+      "elapsed_from_text_start_us": 142,
+      "elapsed_from_text_finished_anchor_us": null,
+      "layout": {
+        "class": "CanvasLayer",
+        "id": 589742244629161,
+        "index_including_internal": 16,
+        "inside_tree": true,
+        "name": "DialogicLayout_WitnessedCaption",
+        "parent_id": 30618420560,
+        "path": "/root/DialogicLayout_WitnessedCaption",
+        "queued_for_deletion": false
+      },
+      "ending_scene": {
+        "class": "Control",
+        "id": 589649349185635,
+        "index_including_internal": 17,
+        "inside_tree": true,
+        "name": "EndingScene",
+        "parent_id": 30618420560,
+        "path": "/root/EndingScene",
+        "queued_for_deletion": false,
+        "rect": [
+          0.0,
+          0.0,
+          1280.0,
+          720.0
+        ],
+        "visible": true,
+        "visible_in_tree": true
+      },
+      "layer_id": 589742731168416,
+      "canvas_id": 589743184153216,
+      "caption_id": 589743486143091,
+      "caption_text": "TEST Seven-day ending.",
+      "canvas_visible": true,
+      "event_counts": {
+        "text_started_enter": 1
+      },
+      "last_accessibility_updates": {},
+      "state": {
+        "bridge_id": 146330879560,
+        "bridge_next_active": false,
+        "canvas_focus_behavior": 0,
+        "canvas_mouse_behavior": 0,
+        "canvas_withdrawn": false,
+        "ending_caption_handoff": false,
+        "history_open": false,
+        "history_pending": false,
+        "layout_pending": true,
+        "line_waiting_for_text": true,
+        "load_pending": false,
+        "next_canvas_state_empty": true,
+        "next_pending": false,
+        "pause_covered": false,
+        "presented_line_ok": false,
+        "publication_pending": false,
+        "reading_recovery_empty": true,
+        "timed_hold_empty": true
+      }
+    },
+    {
+      "primary_line": 117,
+      "event": "canvas_accessibility",
+      "process_frame": 1827,
+      "ticks_us": 222500807,
+      "unix_seconds": 1792349665.192,
+      "approx_seconds_from_native_wait_start": 26.4587888,
+      "elapsed_from_text_start_us": 48514,
+      "elapsed_from_text_finished_anchor_us": null,
+      "layout": {
+        "class": "CanvasLayer",
+        "id": 589742244629161,
+        "index_including_internal": 15,
+        "inside_tree": true,
+        "name": "DialogicLayout_WitnessedCaption",
+        "parent_id": 30618420560,
+        "path": "/root/DialogicLayout_WitnessedCaption",
+        "queued_for_deletion": false
+      },
+      "ending_scene": {
+        "class": "Control",
+        "id": 589649349185635,
+        "index_including_internal": 16,
+        "inside_tree": true,
+        "name": "EndingScene",
+        "parent_id": 30618420560,
+        "path": "/root/EndingScene",
+        "queued_for_deletion": false,
+        "rect": [
+          0.0,
+          0.0,
+          1280.0,
+          720.0
+        ],
+        "visible": true,
+        "visible_in_tree": true
+      },
+      "layer_id": 589742731168416,
+      "canvas_id": 589743184153216,
+      "caption_id": 589743486143091,
+      "caption_text": "TEST Seven-day ending.",
+      "canvas_visible": true,
+      "event_counts": {
+        "canvas_accessibility": 1,
+        "text_started_enter": 1
+      },
+      "last_accessibility_updates": {
+        "canvas_accessibility": {
+          "fields": {
+            "element_id": 108821586378978,
+            "element_read": true,
+            "element_valid": true,
+            "hidden_written": false,
+            "node_id": 589743184153216
+          },
+          "ticks_us": 222500700
+        }
+      },
+      "state": {
+        "bridge_id": 146330879560,
+        "bridge_next_active": false,
+        "canvas_focus_behavior": 0,
+        "canvas_mouse_behavior": 0,
+        "canvas_withdrawn": false,
+        "ending_caption_handoff": false,
+        "history_open": false,
+        "history_pending": false,
+        "layout_pending": false,
+        "line_waiting_for_text": false,
+        "load_pending": false,
+        "next_canvas_state_empty": true,
+        "next_pending": false,
+        "pause_covered": false,
+        "presented_line_ok": true,
+        "publication_pending": false,
+        "reading_recovery_empty": true,
+        "timed_hold_empty": true
+      }
+    },
+    {
+      "primary_line": 118,
+      "event": "caption_accessibility",
+      "process_frame": 1827,
+      "ticks_us": 222501690,
+      "unix_seconds": 1792349665.193,
+      "approx_seconds_from_native_wait_start": 26.4597888,
+      "elapsed_from_text_start_us": 49397,
+      "elapsed_from_text_finished_anchor_us": null,
+      "layout": {
+        "class": "CanvasLayer",
+        "id": 589742244629161,
+        "index_including_internal": 15,
+        "inside_tree": true,
+        "name": "DialogicLayout_WitnessedCaption",
+        "parent_id": 30618420560,
+        "path": "/root/DialogicLayout_WitnessedCaption",
+        "queued_for_deletion": false
+      },
+      "ending_scene": {
+        "class": "Control",
+        "id": 589649349185635,
+        "index_including_internal": 16,
+        "inside_tree": true,
+        "name": "EndingScene",
+        "parent_id": 30618420560,
+        "path": "/root/EndingScene",
+        "queued_for_deletion": false,
+        "rect": [
+          0.0,
+          0.0,
+          1280.0,
+          720.0
+        ],
+        "visible": true,
+        "visible_in_tree": true
+      },
+      "layer_id": 589742731168416,
+      "canvas_id": 589743184153216,
+      "caption_id": 589743486143091,
+      "caption_text": "TEST Seven-day ending.",
+      "canvas_visible": true,
+      "event_counts": {
+        "canvas_accessibility": 1,
+        "caption_accessibility": 1,
+        "text_started_enter": 1
+      },
+      "last_accessibility_updates": {
+        "canvas_accessibility": {
+          "fields": {
+            "element_id": 108821586378978,
+            "element_read": true,
+            "element_valid": true,
+            "hidden_written": false,
+            "node_id": 589743184153216
+          },
+          "ticks_us": 222500700
+        },
+        "caption_accessibility": {
+          "fields": {
+            "element_id": 108916075659415,
+            "element_read": true,
+            "element_valid": true,
+            "name_written": "TEST Seven-day ending.",
+            "node_id": 589743486143091,
+            "provider_valid": true,
+            "role_written": "button"
+          },
+          "ticks_us": 222501549
+        }
+      },
+      "state": {
+        "bridge_id": 146330879560,
+        "bridge_next_active": false,
+        "canvas_focus_behavior": 0,
+        "canvas_mouse_behavior": 0,
+        "canvas_withdrawn": false,
+        "ending_caption_handoff": false,
+        "history_open": false,
+        "history_pending": false,
+        "layout_pending": false,
+        "line_waiting_for_text": false,
+        "load_pending": false,
+        "next_canvas_state_empty": true,
+        "next_pending": false,
+        "pause_covered": false,
+        "presented_line_ok": true,
+        "publication_pending": false,
+        "reading_recovery_empty": true,
+        "timed_hold_empty": true
+      }
+    },
+    {
+      "primary_line": 119,
+      "event": "caption_accessibility",
+      "process_frame": 1829,
+      "ticks_us": 222542584,
+      "unix_seconds": 1792349665.234,
+      "approx_seconds_from_native_wait_start": 26.5007888,
+      "elapsed_from_text_start_us": 90291,
+      "elapsed_from_text_finished_anchor_us": null,
+      "layout": {
+        "class": "CanvasLayer",
+        "id": 589742244629161,
+        "index_including_internal": 15,
+        "inside_tree": true,
+        "name": "DialogicLayout_WitnessedCaption",
+        "parent_id": 30618420560,
+        "path": "/root/DialogicLayout_WitnessedCaption",
+        "queued_for_deletion": false
+      },
+      "ending_scene": {
+        "class": "Control",
+        "id": 589649349185635,
+        "index_including_internal": 16,
+        "inside_tree": true,
+        "name": "EndingScene",
+        "parent_id": 30618420560,
+        "path": "/root/EndingScene",
+        "queued_for_deletion": false,
+        "rect": [
+          0.0,
+          0.0,
+          1280.0,
+          720.0
+        ],
+        "visible": true,
+        "visible_in_tree": true
+      },
+      "layer_id": 589742731168416,
+      "canvas_id": 589743184153216,
+      "caption_id": 589743486143091,
+      "caption_text": "TEST Seven-day ending.",
+      "canvas_visible": true,
+      "event_counts": {
+        "canvas_accessibility": 1,
+        "caption_accessibility": 2,
+        "text_started_enter": 1
+      },
+      "last_accessibility_updates": {
+        "canvas_accessibility": {
+          "fields": {
+            "element_id": 108821586378978,
+            "element_read": true,
+            "element_valid": true,
+            "hidden_written": false,
+            "node_id": 589743184153216
+          },
+          "ticks_us": 222500700
+        },
+        "caption_accessibility": {
+          "fields": {
+            "element_id": 108916075659415,
+            "element_read": true,
+            "element_valid": true,
+            "name_written": "TEST Seven-day ending.",
+            "node_id": 589743486143091,
+            "provider_valid": true,
+            "role_written": "button"
+          },
+          "ticks_us": 222542445
+        }
+      },
+      "state": {
+        "bridge_id": 146330879560,
+        "bridge_next_active": false,
+        "canvas_focus_behavior": 0,
+        "canvas_mouse_behavior": 0,
+        "canvas_withdrawn": false,
+        "ending_caption_handoff": false,
+        "history_open": false,
+        "history_pending": false,
+        "layout_pending": false,
+        "line_waiting_for_text": false,
+        "load_pending": false,
+        "next_canvas_state_empty": true,
+        "next_pending": false,
+        "pause_covered": false,
+        "presented_line_ok": true,
+        "publication_pending": false,
+        "reading_recovery_empty": true,
+        "timed_hold_empty": true
+      }
+    },
+    {
+      "primary_line": 120,
+      "event": "text_finished",
+      "process_frame": 1831,
+      "ticks_us": 222588354,
+      "unix_seconds": 1792349665.28,
+      "approx_seconds_from_native_wait_start": 26.5467888,
+      "elapsed_from_text_start_us": 136061,
+      "elapsed_from_text_finished_anchor_us": 222,
+      "layout": {
+        "class": "CanvasLayer",
+        "id": 589742244629161,
+        "index_including_internal": 15,
+        "inside_tree": true,
+        "name": "DialogicLayout_WitnessedCaption",
+        "parent_id": 30618420560,
+        "path": "/root/DialogicLayout_WitnessedCaption",
+        "queued_for_deletion": false
+      },
+      "ending_scene": {
+        "class": "Control",
+        "id": 589649349185635,
+        "index_including_internal": 16,
+        "inside_tree": true,
+        "name": "EndingScene",
+        "parent_id": 30618420560,
+        "path": "/root/EndingScene",
+        "queued_for_deletion": false,
+        "rect": [
+          0.0,
+          0.0,
+          1280.0,
+          720.0
+        ],
+        "visible": true,
+        "visible_in_tree": true
+      },
+      "layer_id": 589742731168416,
+      "canvas_id": 589743184153216,
+      "caption_id": 589743486143091,
+      "caption_text": "TEST Seven-day ending.",
+      "canvas_visible": true,
+      "event_counts": {
+        "canvas_accessibility": 1,
+        "caption_accessibility": 3,
+        "text_finished": 1,
+        "text_started_enter": 1
+      },
+      "last_accessibility_updates": {
+        "canvas_accessibility": {
+          "fields": {
+            "element_id": 108821586378978,
+            "element_read": true,
+            "element_valid": true,
+            "hidden_written": false,
+            "node_id": 589743184153216
+          },
+          "ticks_us": 222500700
+        },
+        "caption_accessibility": {
+          "fields": {
+            "element_id": 108916075659415,
+            "element_read": true,
+            "element_valid": true,
+            "name_written": "TEST Seven-day ending.",
+            "node_id": 589743486143091,
+            "provider_valid": true,
+            "role_written": "button"
+          },
+          "ticks_us": 222559131
+        }
+      },
+      "state": {
+        "bridge_id": 146330879560,
+        "bridge_next_active": false,
+        "canvas_focus_behavior": 0,
+        "canvas_mouse_behavior": 0,
+        "canvas_withdrawn": false,
+        "ending_caption_handoff": false,
+        "history_open": false,
+        "history_pending": false,
+        "layout_pending": false,
+        "line_waiting_for_text": false,
+        "load_pending": false,
+        "next_canvas_state_empty": true,
+        "next_pending": false,
+        "pause_covered": false,
+        "presented_line_ok": true,
+        "publication_pending": false,
+        "reading_recovery_empty": true,
+        "timed_hold_empty": true
+      }
+    },
+    {
+      "primary_line": 121,
+      "event": "text_finished_followup",
+      "process_frame": 1915,
+      "ticks_us": 224600291,
+      "unix_seconds": 1792349667.292,
+      "approx_seconds_from_native_wait_start": 28.5587888,
+      "elapsed_from_text_start_us": 2147998,
+      "elapsed_from_text_finished_anchor_us": 2012159,
+      "layout": {
+        "class": "CanvasLayer",
+        "id": 589742244629161,
+        "index_including_internal": 15,
+        "inside_tree": true,
+        "name": "DialogicLayout_WitnessedCaption",
+        "parent_id": 30618420560,
+        "path": "/root/DialogicLayout_WitnessedCaption",
+        "queued_for_deletion": false
+      },
+      "ending_scene": {
+        "class": "Control",
+        "id": 589649349185635,
+        "index_including_internal": 16,
+        "inside_tree": true,
+        "name": "EndingScene",
+        "parent_id": 30618420560,
+        "path": "/root/EndingScene",
+        "queued_for_deletion": false,
+        "rect": [
+          0.0,
+          0.0,
+          1280.0,
+          720.0
+        ],
+        "visible": true,
+        "visible_in_tree": true
+      },
+      "layer_id": 589742731168416,
+      "canvas_id": 589743184153216,
+      "caption_id": 589743486143091,
+      "caption_text": "TEST Seven-day ending.",
+      "canvas_visible": true,
+      "event_counts": {
+        "canvas_accessibility": 1,
+        "caption_accessibility": 46,
+        "text_finished": 1,
+        "text_started_enter": 1
+      },
+      "last_accessibility_updates": {
+        "canvas_accessibility": {
+          "fields": {
+            "element_id": 108821586378978,
+            "element_read": true,
+            "element_valid": true,
+            "hidden_written": false,
+            "node_id": 589743184153216
+          },
+          "ticks_us": 222500700
+        },
+        "caption_accessibility": {
+          "fields": {
+            "element_id": 108916075659415,
+            "element_read": true,
+            "element_valid": true,
+            "name_written": "TEST Seven-day ending.",
+            "node_id": 589743486143091,
+            "provider_valid": true,
+            "role_written": "button"
+          },
+          "ticks_us": 224588596
+        }
+      },
+      "state": {
+        "bridge_id": 146330879560,
+        "bridge_next_active": false,
+        "canvas_focus_behavior": 0,
+        "canvas_mouse_behavior": 0,
+        "canvas_withdrawn": false,
+        "ending_caption_handoff": false,
+        "history_open": false,
+        "history_pending": false,
+        "layout_pending": false,
+        "line_waiting_for_text": false,
+        "load_pending": false,
+        "next_canvas_state_empty": true,
+        "next_pending": false,
+        "pause_covered": false,
+        "presented_line_ok": true,
+        "publication_pending": false,
+        "reading_recovery_empty": true,
+        "timed_hold_empty": true
+      }
+    }
+  ],
+  "malformed_trace_records": [],
+  "censoring": {
+    "maximum_records_per_layer": 7,
+    "natural_callback_output_limit_per_kind": 2,
+    "caption_callbacks_observed_by_followup": 46,
+    "caption_callback_records_emitted": 2,
+    "caption_callbacks_without_individual_record_by_followup": 44,
+    "limit": "Missing/capped records do not prove no later callback, continuous root order, successful native provider-tree publication, or an internal-ID-to-UIA mapping."
+  },
+  "ending_wait": {
+    "start": {
+      "utc": "2026-10-18T18:53:58.7332112Z",
+      "kind": "native-caption-wait-start",
+      "data": {
+        "name": "TEST Seven-day ending.",
+        "cpu_total_seconds": 268.671875,
+        "deadline_seconds": 30
+      }
+    },
+    "end": {
+      "utc": "2026-10-18T18:54:28.7559960Z",
+      "kind": "native-caption-wait-end",
+      "data": {
+        "elapsed_seconds": 30.0222674,
+        "cpu_delta_seconds": 33.734375,
+        "name": "TEST Seven-day ending."
+      }
+    },
+    "query_count": 14,
+    "query_matches": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "queries": [
+      {
+        "utc": "2026-10-18T18:54:25.5061967Z",
+        "kind": "caption-action-enumeration",
+        "data": {
+          "started_seconds": 26.7161978,
+          "finished_seconds": 26.772564,
+          "name": "TEST Seven-day ending.",
+          "matches": 0
+        }
+      },
+      {
+        "utc": "2026-10-18T18:54:25.7477104Z",
+        "kind": "caption-action-enumeration",
+        "data": {
+          "started_seconds": 26.9565182,
+          "finished_seconds": 27.0140759,
+          "name": "TEST Seven-day ending.",
+          "matches": 0
+        }
+      },
+      {
+        "utc": "2026-10-18T18:54:25.9884088Z",
+        "kind": "caption-action-enumeration",
+        "data": {
+          "started_seconds": 27.1969279,
+          "finished_seconds": 27.2547723,
+          "name": "TEST Seven-day ending.",
+          "matches": 0
+        }
+      },
+      {
+        "utc": "2026-10-18T18:54:26.2284235Z",
+        "kind": "caption-action-enumeration",
+        "data": {
+          "started_seconds": 27.4396985,
+          "finished_seconds": 27.4947821,
+          "name": "TEST Seven-day ending.",
+          "matches": 0
+        }
+      },
+      {
+        "utc": "2026-10-18T18:54:26.4528074Z",
+        "kind": "caption-action-enumeration",
+        "data": {
+          "started_seconds": 27.6631737,
+          "finished_seconds": 27.7191625,
+          "name": "TEST Seven-day ending.",
+          "matches": 0
+        }
+      },
+      {
+        "utc": "2026-10-18T18:54:26.6905027Z",
+        "kind": "caption-action-enumeration",
+        "data": {
+          "started_seconds": 27.9028973,
+          "finished_seconds": 27.9568573,
+          "name": "TEST Seven-day ending.",
+          "matches": 0
+        }
+      },
+      {
+        "utc": "2026-10-18T18:54:26.9808447Z",
+        "kind": "caption-action-enumeration",
+        "data": {
+          "started_seconds": 28.1892071,
+          "finished_seconds": 28.2471949,
+          "name": "TEST Seven-day ending.",
+          "matches": 0
+        }
+      },
+      {
+        "utc": "2026-10-18T18:54:27.2203877Z",
+        "kind": "caption-action-enumeration",
+        "data": {
+          "started_seconds": 28.4292869,
+          "finished_seconds": 28.4867363,
+          "name": "TEST Seven-day ending.",
+          "matches": 0
+        }
+      },
+      {
+        "utc": "2026-10-18T18:54:27.4602788Z",
+        "kind": "caption-action-enumeration",
+        "data": {
+          "started_seconds": 28.6730346,
+          "finished_seconds": 28.7266246,
+          "name": "TEST Seven-day ending.",
+          "matches": 0
+        }
+      },
+      {
+        "utc": "2026-10-18T18:54:27.7004418Z",
+        "kind": "caption-action-enumeration",
+        "data": {
+          "started_seconds": 28.9111464,
+          "finished_seconds": 28.9667846,
+          "name": "TEST Seven-day ending.",
+          "matches": 0
+        }
+      },
+      {
+        "utc": "2026-10-18T18:54:27.9412216Z",
+        "kind": "caption-action-enumeration",
+        "data": {
+          "started_seconds": 29.1499519,
+          "finished_seconds": 29.207562,
+          "name": "TEST Seven-day ending.",
+          "matches": 0
+        }
+      },
+      {
+        "utc": "2026-10-18T18:54:28.1803451Z",
+        "kind": "caption-action-enumeration",
+        "data": {
+          "started_seconds": 29.3933712,
+          "finished_seconds": 29.4466837,
+          "name": "TEST Seven-day ending.",
+          "matches": 0
+        }
+      },
+      {
+        "utc": "2026-10-18T18:54:28.4224299Z",
+        "kind": "caption-action-enumeration",
+        "data": {
+          "started_seconds": 29.6309255,
+          "finished_seconds": 29.6887657,
+          "name": "TEST Seven-day ending.",
+          "matches": 0
+        }
+      },
+      {
+        "utc": "2026-10-18T18:54:28.7098892Z",
+        "kind": "caption-action-enumeration",
+        "data": {
+          "started_seconds": 29.9208932,
+          "finished_seconds": 29.9762196,
+          "name": "TEST Seven-day ending.",
+          "matches": 0
+        }
+      }
+    ],
+    "window_acquisitions": [
+      {
+        "utc": "2026-10-18T18:54:25.4331872Z",
+        "kind": "caption-window-acquisition",
+        "data": {
+          "started_seconds": 26.6716288,
+          "finished_seconds": 26.6995454,
+          "cpu_delta_seconds": 27.078125,
+          "name": "TEST Seven-day ending."
+        }
+      },
+      {
+        "utc": "2026-10-18T18:54:25.6730559Z",
+        "kind": "caption-window-acquisition",
+        "data": {
+          "started_seconds": 26.9084305,
+          "finished_seconds": 26.9394177,
+          "cpu_delta_seconds": 27.703125,
+          "name": "TEST Seven-day ending."
+        }
+      },
+      {
+        "utc": "2026-10-18T18:54:25.9134797Z",
+        "kind": "caption-window-acquisition",
+        "data": {
+          "started_seconds": 27.1523547,
+          "finished_seconds": 27.1798354,
+          "cpu_delta_seconds": 28.03125,
+          "name": "TEST Seven-day ending."
+        }
+      },
+      {
+        "utc": "2026-10-18T18:54:26.1532735Z",
+        "kind": "caption-window-acquisition",
+        "data": {
+          "started_seconds": 27.3889348,
+          "finished_seconds": 27.4196263,
+          "cpu_delta_seconds": 28.609375,
+          "name": "TEST Seven-day ending."
+        }
+      },
+      {
+        "utc": "2026-10-18T18:54:26.3777163Z",
+        "kind": "caption-window-acquisition",
+        "data": {
+          "started_seconds": 27.6242088,
+          "finished_seconds": 27.6440676,
+          "cpu_delta_seconds": 28.984375,
+          "name": "TEST Seven-day ending."
+        }
+      },
+      {
+        "utc": "2026-10-18T18:54:26.6178745Z",
+        "kind": "caption-window-acquisition",
+        "data": {
+          "started_seconds": 27.854808,
+          "finished_seconds": 27.8842224,
+          "cpu_delta_seconds": 29.3125,
+          "name": "TEST Seven-day ending."
+        }
+      },
+      {
+        "utc": "2026-10-18T18:54:26.9061924Z",
+        "kind": "caption-window-acquisition",
+        "data": {
+          "started_seconds": 28.142643,
+          "finished_seconds": 28.1724955,
+          "cpu_delta_seconds": 30.0625,
+          "name": "TEST Seven-day ending."
+        }
+      },
+      {
+        "utc": "2026-10-18T18:54:27.1459646Z",
+        "kind": "caption-window-acquisition",
+        "data": {
+          "started_seconds": 28.3806903,
+          "finished_seconds": 28.4122801,
+          "cpu_delta_seconds": 30.390625,
+          "name": "TEST Seven-day ending."
+        }
+      },
+      {
+        "utc": "2026-10-18T18:54:27.3879369Z",
+        "kind": "caption-window-acquisition",
+        "data": {
+          "started_seconds": 28.6225913,
+          "finished_seconds": 28.6542817,
+          "cpu_delta_seconds": 30.90625,
+          "name": "TEST Seven-day ending."
+        }
+      },
+      {
+        "utc": "2026-10-18T18:54:27.6259193Z",
+        "kind": "caption-window-acquisition",
+        "data": {
+          "started_seconds": 28.8632106,
+          "finished_seconds": 28.8922008,
+          "cpu_delta_seconds": 31.484375,
+          "name": "TEST Seven-day ending."
+        }
+      },
+      {
+        "utc": "2026-10-18T18:54:27.8668546Z",
+        "kind": "caption-window-acquisition",
+        "data": {
+          "started_seconds": 29.1058047,
+          "finished_seconds": 29.1331817,
+          "cpu_delta_seconds": 31.859375,
+          "name": "TEST Seven-day ending."
+        }
+      },
+      {
+        "utc": "2026-10-18T18:54:28.1074952Z",
+        "kind": "caption-window-acquisition",
+        "data": {
+          "started_seconds": 29.3428916,
+          "finished_seconds": 29.3738246,
+          "cpu_delta_seconds": 32.546875,
+          "name": "TEST Seven-day ending."
+        }
+      },
+      {
+        "utc": "2026-10-18T18:54:28.3473979Z",
+        "kind": "caption-window-acquisition",
+        "data": {
+          "started_seconds": 29.5869108,
+          "finished_seconds": 29.6137286,
+          "cpu_delta_seconds": 32.84375,
+          "name": "TEST Seven-day ending."
+        }
+      },
+      {
+        "utc": "2026-10-18T18:54:28.6355494Z",
+        "kind": "caption-window-acquisition",
+        "data": {
+          "started_seconds": 29.8702451,
+          "finished_seconds": 29.9018317,
+          "cpu_delta_seconds": 33.40625,
+          "name": "TEST Seven-day ending."
+        }
+      }
+    ],
+    "boundary_sample_count": 243,
+    "boundary_response_counts": {
+      "true": 14,
+      "false": 229
+    },
+    "first_responsive_boundary": {
+      "utc": "2026-10-18T18:54:25.3747275Z",
+      "kind": "native-boundary",
+      "data": {
+        "foreground_is_game": true,
+        "foreground_handle": 524500,
+        "foreground_pid": 7264,
+        "hung": false,
+        "responds": true,
+        "pid": 7264,
+        "class": "Engine",
+        "foreground_class": "Engine",
+        "cpu_total_seconds": 295.5625,
+        "elapsed_seconds": 26.6031141,
+        "handle": 524500,
+        "stage": "caption-before-query: TEST Seven-day ending."
+      }
+    },
+    "clock_limit": "Approximate trace-to-native alignment uses game unix_seconds (millisecond reporting) and native UTC on one runner. Game ticks_us and the driver Stopwatch are independent clocks; native deadline/query values are retained from their own source."
+  },
+  "captures": {
+    "counts": {
+      "capability": 8,
+      "create": 25,
+      "load": 21
+    },
+    "all_capture_receipt_sha256_match": true,
+    "load": [
+      {
+        "utc": "2026-10-18T18:50:50.6173259Z",
+        "kind": "capture",
+        "data": {
+          "file": "title.png",
+          "sha256": "82e97d0d6d98af6c67a7b056457a0dfa5148e115b95407f8cfb4485cf1e9ee23",
+          "stage": "title"
+        },
+        "observed_bytes": 12217,
+        "observed_sha256": "82e97d0d6d98af6c67a7b056457a0dfa5148e115b95407f8cfb4485cf1e9ee23"
+      },
+      {
+        "utc": "2026-10-18T18:51:10.6663034Z",
+        "kind": "capture",
+        "data": {
+          "file": "load-slot-selected.png",
+          "sha256": "7fd9558c11985f09bef5c820393457b272c29bd71dcfad645527e82b97118499",
+          "stage": "load-slot-selected"
+        },
+        "observed_bytes": 31470,
+        "observed_sha256": "7fd9558c11985f09bef5c820393457b272c29bd71dcfad645527e82b97118499"
+      },
+      {
+        "utc": "2026-10-18T18:51:27.5321954Z",
+        "kind": "capture",
+        "data": {
+          "file": "restored-day4-first-observed.png",
+          "sha256": "315dc9cec6b116d5499527ba4504871d383b6ab7d954910c2f12a0a82ba8d543",
+          "stage": "restored-day4-first-observed"
+        },
+        "observed_bytes": 16923,
+        "observed_sha256": "315dc9cec6b116d5499527ba4504871d383b6ab7d954910c2f12a0a82ba8d543"
+      },
+      {
+        "utc": "2026-10-18T18:51:29.7849326Z",
+        "kind": "capture",
+        "data": {
+          "file": "restored-day4.png",
+          "sha256": "315dc9cec6b116d5499527ba4504871d383b6ab7d954910c2f12a0a82ba8d543",
+          "stage": "restored-day4"
+        },
+        "observed_bytes": 16923,
+        "observed_sha256": "315dc9cec6b116d5499527ba4504871d383b6ab7d954910c2f12a0a82ba8d543"
+      },
+      {
+        "utc": "2026-10-18T18:51:51.3045346Z",
+        "kind": "capture",
+        "data": {
+          "file": "save-2-selected.png",
+          "sha256": "b6d94a83882fa1e964be3719b8f322989051525cd9914740a6eb42d608df18bd",
+          "stage": "save-2-selected"
+        },
+        "observed_bytes": 34027,
+        "observed_sha256": "b6d94a83882fa1e964be3719b8f322989051525cd9914740a6eb42d608df18bd"
+      },
+      {
+        "utc": "2026-10-18T18:52:31.5594858Z",
+        "kind": "capture",
+        "data": {
+          "file": "save-2-complete.png",
+          "sha256": "9152525b3189d2b7edea7306832c86e7a3972e95229db71f3666fe082a083170",
+          "stage": "save-2-complete"
+        },
+        "observed_bytes": 33481,
+        "observed_sha256": "9152525b3189d2b7edea7306832c86e7a3972e95229db71f3666fe082a083170"
+      },
+      {
+        "utc": "2026-10-18T18:52:32.8826958Z",
+        "kind": "capture",
+        "data": {
+          "file": "restored-after-witness-save-first-observed.png",
+          "sha256": "8faf442ddf1b969aa1197a2a0c337a746cc3f5792751b132e3a07adbaa5a26b3",
+          "stage": "restored-after-witness-save-first-observed"
+        },
+        "observed_bytes": 16849,
+        "observed_sha256": "8faf442ddf1b969aa1197a2a0c337a746cc3f5792751b132e3a07adbaa5a26b3"
+      },
+      {
+        "utc": "2026-10-18T18:52:35.1907666Z",
+        "kind": "capture",
+        "data": {
+          "file": "restored-after-witness-save.png",
+          "sha256": "8faf442ddf1b969aa1197a2a0c337a746cc3f5792751b132e3a07adbaa5a26b3",
+          "stage": "restored-after-witness-save"
+        },
+        "observed_bytes": 16849,
+        "observed_sha256": "8faf442ddf1b969aa1197a2a0c337a746cc3f5792751b132e3a07adbaa5a26b3"
+      },
+      {
+        "utc": "2026-10-18T18:52:57.6102632Z",
+        "kind": "capture",
+        "data": {
+          "file": "day-5-opening-first-observed.png",
+          "sha256": "a5f8b619c60f0828f7e957280682ad16fc1c6cd0fd49f9176ffe92e79f5d0360",
+          "stage": "day-5-opening-first-observed"
+        },
+        "observed_bytes": 15072,
+        "observed_sha256": "a5f8b619c60f0828f7e957280682ad16fc1c6cd0fd49f9176ffe92e79f5d0360"
+      },
+      {
+        "utc": "2026-10-18T18:52:59.9943480Z",
+        "kind": "capture",
+        "data": {
+          "file": "day-5-opening.png",
+          "sha256": "a5f8b619c60f0828f7e957280682ad16fc1c6cd0fd49f9176ffe92e79f5d0360",
+          "stage": "day-5-opening"
+        },
+        "observed_bytes": 15072,
+        "observed_sha256": "a5f8b619c60f0828f7e957280682ad16fc1c6cd0fd49f9176ffe92e79f5d0360"
+      },
+      {
+        "utc": "2026-10-18T18:53:01.2409483Z",
+        "kind": "capture",
+        "data": {
+          "file": "day-5-closing-first-observed.png",
+          "sha256": "95146923a4771f15e871cbd402e8defe026dc4b7eefa651e55bd0732e2895c8a",
+          "stage": "day-5-closing-first-observed"
+        },
+        "observed_bytes": 16930,
+        "observed_sha256": "95146923a4771f15e871cbd402e8defe026dc4b7eefa651e55bd0732e2895c8a"
+      },
+      {
+        "utc": "2026-10-18T18:53:03.6565087Z",
+        "kind": "capture",
+        "data": {
+          "file": "day-5-closing.png",
+          "sha256": "95146923a4771f15e871cbd402e8defe026dc4b7eefa651e55bd0732e2895c8a",
+          "stage": "day-5-closing"
+        },
+        "observed_bytes": 16930,
+        "observed_sha256": "95146923a4771f15e871cbd402e8defe026dc4b7eefa651e55bd0732e2895c8a"
+      },
+      {
+        "utc": "2026-10-18T18:53:23.7231434Z",
+        "kind": "capture",
+        "data": {
+          "file": "day-6-opening-first-observed.png",
+          "sha256": "666384d041a3a01c9d1de7d93aded48a3f21ca3c45aacbbc4fce5d68b606c26b",
+          "stage": "day-6-opening-first-observed"
+        },
+        "observed_bytes": 15086,
+        "observed_sha256": "666384d041a3a01c9d1de7d93aded48a3f21ca3c45aacbbc4fce5d68b606c26b"
+      },
+      {
+        "utc": "2026-10-18T18:53:26.1479982Z",
+        "kind": "capture",
+        "data": {
+          "file": "day-6-opening.png",
+          "sha256": "666384d041a3a01c9d1de7d93aded48a3f21ca3c45aacbbc4fce5d68b606c26b",
+          "stage": "day-6-opening"
+        },
+        "observed_bytes": 15086,
+        "observed_sha256": "666384d041a3a01c9d1de7d93aded48a3f21ca3c45aacbbc4fce5d68b606c26b"
+      },
+      {
+        "utc": "2026-10-18T18:53:27.4248556Z",
+        "kind": "capture",
+        "data": {
+          "file": "day-6-closing-first-observed.png",
+          "sha256": "e1ef4665fbec3433c2cded2352080930873392b04a61e15420079ce6ecb3a2e4",
+          "stage": "day-6-closing-first-observed"
+        },
+        "observed_bytes": 16945,
+        "observed_sha256": "e1ef4665fbec3433c2cded2352080930873392b04a61e15420079ce6ecb3a2e4"
+      },
+      {
+        "utc": "2026-10-18T18:53:29.8278733Z",
+        "kind": "capture",
+        "data": {
+          "file": "day-6-closing.png",
+          "sha256": "e1ef4665fbec3433c2cded2352080930873392b04a61e15420079ce6ecb3a2e4",
+          "stage": "day-6-closing"
+        },
+        "observed_bytes": 16945,
+        "observed_sha256": "e1ef4665fbec3433c2cded2352080930873392b04a61e15420079ce6ecb3a2e4"
+      },
+      {
+        "utc": "2026-10-18T18:53:52.2724606Z",
+        "kind": "capture",
+        "data": {
+          "file": "day-7-opening-first-observed.png",
+          "sha256": "72c883db09974b0f3f1c0d3b75c3bf495932d91bb57545d6dfe6b900be5d328b",
+          "stage": "day-7-opening-first-observed"
+        },
+        "observed_bytes": 15070,
+        "observed_sha256": "72c883db09974b0f3f1c0d3b75c3bf495932d91bb57545d6dfe6b900be5d328b"
+      },
+      {
+        "utc": "2026-10-18T18:53:54.6876677Z",
+        "kind": "capture",
+        "data": {
+          "file": "day-7-opening.png",
+          "sha256": "72c883db09974b0f3f1c0d3b75c3bf495932d91bb57545d6dfe6b900be5d328b",
+          "stage": "day-7-opening"
+        },
+        "observed_bytes": 15070,
+        "observed_sha256": "72c883db09974b0f3f1c0d3b75c3bf495932d91bb57545d6dfe6b900be5d328b"
+      },
+      {
+        "utc": "2026-10-18T18:53:55.9205730Z",
+        "kind": "capture",
+        "data": {
+          "file": "day-7-closing-first-observed.png",
+          "sha256": "334ca870206ec361acea014ed70bfaa301254b29c2c8260817c04b404a8d99b4",
+          "stage": "day-7-closing-first-observed"
+        },
+        "observed_bytes": 16903,
+        "observed_sha256": "334ca870206ec361acea014ed70bfaa301254b29c2c8260817c04b404a8d99b4"
+      },
+      {
+        "utc": "2026-10-18T18:53:58.3207528Z",
+        "kind": "capture",
+        "data": {
+          "file": "day-7-closing.png",
+          "sha256": "334ca870206ec361acea014ed70bfaa301254b29c2c8260817c04b404a8d99b4",
+          "stage": "day-7-closing"
+        },
+        "observed_bytes": 16903,
+        "observed_sha256": "334ca870206ec361acea014ed70bfaa301254b29c2c8260817c04b404a8d99b4"
+      },
+      {
+        "utc": "2026-10-18T18:54:33.0320740Z",
+        "kind": "capture",
+        "data": {
+          "file": "failure.png",
+          "sha256": "7af080509603709da6aa2866ca2ef34357173d2d3cad40f5a8024d8b9c457bef",
+          "stage": "failure"
+        },
+        "observed_bytes": 804480,
+        "observed_sha256": "7af080509603709da6aa2866ca2ef34357173d2d3cad40f5a8024d8b9c457bef"
+      }
+    ],
+    "failure": {
+      "utc": "2026-10-18T18:54:33.0320740Z",
+      "kind": "capture",
+      "data": {
+        "file": "failure.png",
+        "sha256": "7af080509603709da6aa2866ca2ef34357173d2d3cad40f5a8024d8b9c457bef",
+        "stage": "failure"
+      },
+      "observed_bytes": 804480,
+      "observed_sha256": "7af080509603709da6aa2866ca2ef34357173d2d3cad40f5a8024d8b9c457bef"
+    },
+    "failure_seconds_after_wait_end": 4.276078,
+    "visual_inspection": "The later original failure.png visibly contains TEST Seven-day ending. and History, Save, Load, Skip · Off, Auto · Off, Next. This later image does not prove the caption pixels were present throughout the original deadline."
+  },
+  "failure_uia": {
+    "path": "ci/exported-load/failure.uia.json",
+    "sha256": "de1f3a97b17f9aed57d2fac51da4c7f4ef25a0f567278a41fbd28432ded7fce0",
+    "bytes": 9336,
+    "descendant_count": 23,
+    "names": [
+      "Continue ",
+      "Backup ",
+      "Settings ",
+      "Return to Title ",
+      "@AudioStreamPlayer@6 ",
+      "MusicA ",
+      "MusicB ",
+      "AmbienceA ",
+      "AmbienceB ",
+      "SFX0 ",
+      "SFX1 ",
+      "SFX2 ",
+      "SFX3 ",
+      "SFX4 ",
+      "SFX5 ",
+      "SFX6 ",
+      "SFX7 ",
+      "UI0 ",
+      "UI1 ",
+      "UI2 ",
+      "UI3 ",
+      "Voice0 ",
+      "Voice1 "
+    ],
+    "ending_caption_present": false,
+    "scope": "Original later failure capture only; this observation does not establish cause or a new provider hierarchy discriminator."
+  },
+  "completed_autosave_present": false,
+  "negative_result": "The intended EndingScene-after-caption-layout order is sampled before original enumeration and through follow-up, but all14 original ending enumerations return0. Reordering alone is insufficient under this pinned diagnostic configuration. Runtime promotion and a composed acceptance run are not justified by this result.",
+  "unqualified_tail": "Ending activation, completed lifecycle/GALLERY_RECORDED, the single durable Gallery award and prior receipt preservation at completion, Title return and normal Load shutdown remain unqualified. The driver does not open Gallery UI.",
+  "performance_limit": "No new cross-host or broad performance claim is made; raw Load elapsed includes failure diagnosis and cleanup.",
+  "source_slot_guard_limit": "Retained Slot1 capture bytes match the original Create source receipt, and the restored-slot fields plus before/after-witness Profile comparisons pass. Original Load fails before its final post-exit source-slot hash guard; that guard is not executed and does not qualify. Retained observations do not certify continuous immutability."
+}

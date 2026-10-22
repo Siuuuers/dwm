@@ -1,0 +1,29 @@
+{
+  "cause": "The accepted F5 auditor uses job_id for its unique current-attempt executed reading job. The new join incorrectly assumed the physical/public execution_job_id schema for every component.",
+  "delta": "Select explicit execution_job_id when present; otherwise use accepted F5 job_id. The selected ID must still exist in the same generic execution map, with identical name/log/hash/checkout and successful matching API run/head.",
+  "failure": {
+    "key": "execution_job_id",
+    "type": "KeyError"
+  },
+  "initial_join_accepted": false,
+  "observed_accepted_f5_job_record": {
+    "checkout_shas": [
+      "705ea660b4d6ee9f3376ae4660a3d50e65fe5502"
+    ],
+    "github_job": "rendered-journeys",
+    "job_id": 110755020157,
+    "log": "logs/110755020157.log",
+    "log_identity": {
+      "bytes": 498886,
+      "sha256": "65524ee61e471b2ebb9a24132cd74b960f675df0f95af945df610e41b8ad7155"
+    },
+    "name": "Rendered seven-day, ending, Gallery and Dating journeys"
+  },
+  "old_helper": {
+    "bytes": 14633,
+    "file": "audit/helper-revisions/join_settings_f9_acceptance.py",
+    "sha256": "93a3272f8ce1ba9960bd682008b50298b5c8fb2a16338a355145691d7d6e72e7"
+  },
+  "schema_version": 1,
+  "successor": "join_settings_f9_acceptance_v2.py"
+}

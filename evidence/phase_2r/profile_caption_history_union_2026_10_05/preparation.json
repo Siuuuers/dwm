@@ -1,0 +1,30 @@
+{
+  "run_id": 37236288074,
+  "run_number": 167,
+  "source_commit": "9adbd07f14aeae96b3dfd5c660a0faff9b38b29a",
+  "purpose": "Cloud-only inventory generation before strict acceptance",
+  "public_job_id": 111535935114,
+  "public_job_conclusion": "success",
+  "workflow_conclusion": "cancelled",
+  "reason": "Superseded after verified inventories were adopted and the strict workflow restored; other unfinished jobs are not acceptance evidence",
+  "artifact": {
+    "id": 11315349644,
+    "name": "public-surfaces-37236288074-1",
+    "size_in_bytes": 192127,
+    "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11315349644",
+    "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11315349644/zip",
+    "expired": false,
+    "created_at": "2026-10-04T21:34:39Z",
+    "expires_at": "2026-10-11T21:34:38Z",
+    "updated_at": "2026-10-04T21:34:39Z",
+    "digest": "sha256:31550746bae12f8495eaa51ca8196e15f366f41c1e654681f94aced1475e602f",
+    "workflow_run": {
+      "id": 37236288074,
+      "repository_id": 1302529453,
+      "head_repository_id": 1302529453,
+      "head_branch": "codex/windows-cloud-ux",
+      "head_sha": "9adbd07f14aeae96b3dfd5c660a0faff9b38b29a"
+    }
+  },
+  "inventory_scope": "Eight existing Profile caller locations shifted by33 lines; one new configure_mutation_gate test caller at406 appears in each inventory. No facade declaration/disposition change."
+}

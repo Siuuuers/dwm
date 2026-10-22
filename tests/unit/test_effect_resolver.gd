@@ -9,10 +9,7 @@ func before_each() -> void:
 func test_known_stat_effects_mutate() -> void:
 	assert_true(EffectResolver.apply_effect_ids(["pressure:+2"]))
 	assert_eq(GameState.get_stat("pressure"), 5, "pressure 3 -> +2 = 5")
-	assert_true(EffectResolver.apply_effect_ids(["health:-4"]))
-	assert_eq(GameState.get_stat("health"), 2, "health 6 -> -4 = 2")
-	assert_true(EffectResolver.apply_effect_ids(["motivation:-1"]))
-	assert_eq(GameState.get_stat("motivation"), 6, "motivation 7 -> -1 = 6")
+
 
 
 func test_known_money_and_coin_effects() -> void:
@@ -30,7 +27,7 @@ func test_unknown_effect_blocks_all() -> void:
 	assert_false(EffectResolver.is_effect_known("bogus:+1"))
 	assert_true(EffectResolver.is_effect_known("pressure:+2"))
 	assert_false(EffectResolver.are_effect_ids_known(["pressure:+1", "nope"]))
-	assert_true(EffectResolver.are_effect_ids_known(["pressure:+1", "health:-1"]))
+	assert_true(EffectResolver.are_effect_ids_known(["pressure:+1", "money:+5"]))
 
 
 func test_inventory_and_gift_effects() -> void:
@@ -107,3 +104,20 @@ func test_apply_resolved_descriptors_rejects_malformed_descriptors() -> void:
 	var before := GameState.to_save_dict()
 	assert_false(EffectResolver.apply_resolved_descriptors(GameState, [{"wrong_key": "x"}]).get("ok", false))
 	assert_eq(GameState.to_save_dict(), before, "a malformed descriptor applies nothing")
+
+
+func test_retired_effects_reject_entire_batch_on_every_entrypoint() -> void:
+	for retired: String in ["health:+1", "health:-4", "motivation:+1", "motivation:-1", " HEALTH:+2 "]:
+		var before: Dictionary = GameState.to_save_dict()
+		assert_false(EffectResolver.is_effect_known(retired))
+		assert_false(EffectResolver.resolve_effects(["money:+5", retired]).ok)
+		assert_false(EffectResolver.apply_effect_ids(["money:+5", retired]))
+		assert_false(EffectResolver.apply_resolved_descriptors(GameState,
+			[{"effect_id": "money:+5"}, {"effect_id": retired}]).ok)
+		assert_eq(GameState.to_save_dict(), before, "retired batch cannot partially credit money")
+
+func test_malformed_descriptor_after_valid_prefix_is_atomic() -> void:
+	var before: Dictionary = GameState.to_save_dict()
+	assert_false(EffectResolver.apply_resolved_descriptors(GameState,
+		[{"effect_id": "money:+5"}, {"wrong_key": "x"}]).ok)
+	assert_eq(GameState.to_save_dict(), before)

@@ -1,0 +1,11 @@
+{
+  "archive": "cloud-layout-control-run125.tar.gz",
+  "archive_member_count": 80,
+  "bytes": 1664768,
+  "evidence_kind": "bounded-successful-run-audit",
+  "excluded_file_count": 21,
+  "manifest_sha256": "ffbc6354815b94971f98c481e46478a33f7ae03694306f7c152bc51605592894",
+  "payload_file_count": 78,
+  "round_trip_verified": true,
+  "sha256": "c95bb415f5ef1034ed7f5fa5d3c51978bef3c6b43a06d93df70ca55eb7acae9c"
+}

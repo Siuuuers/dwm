@@ -1,0 +1,21 @@
+{
+  "passed": 6,
+  "failed": 0,
+  "checks": [
+    "no legacy source directory",
+    "no replacement raw source directory",
+    "root story routing retained",
+    "four-exchange cadence retained",
+    "selection rather than transcript rule",
+    "working Markdown links"
+  ],
+  "errors": [],
+  "relative_links_checked": 1321,
+  "snapshot_checked": false,
+  "selected_passages": 13,
+  "limits": [
+    "No literary/performance/medical/runtime test",
+    "External URL anchors not checked",
+    "Missing earlier history not reconstructed"
+  ]
+}

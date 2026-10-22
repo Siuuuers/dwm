@@ -12,4 +12,19 @@ label dating.solo.priscilla.day4.post_challenge
 # CAUSAL INPUT: validated frozen context
 # VARIATION: registered layer order
 # ALLOWED SIGNALS: history.line.witness
+if {Frozen.board_result} == "exploded":
+	jump dating.solo.priscilla.day4.post_challenge.exploded
+elif {Frozen.board_result} == "perfect":
+	jump dating.solo.priscilla.day4.post_challenge.perfect
+elif {Frozen.board_result} == "cleared":
+	jump dating.solo.priscilla.day4.post_challenge.cleared
+return
+
+label dating.solo.priscilla.day4.post_challenge.exploded
+return
+
+label dating.solo.priscilla.day4.post_challenge.perfect
+return
+
+label dating.solo.priscilla.day4.post_challenge.cleared
 return

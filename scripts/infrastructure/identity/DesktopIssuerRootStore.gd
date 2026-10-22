@@ -34,6 +34,7 @@ extends RefCounted
 const ROOT_DOCUMENT_PATH := "desktop-issuer-root.json"
 const SCHEMA_PATH := "res://data/schemas/desktop-issuer-root.schema.json"
 const SCHEMA_VERSION := 1
+const SCENE_DAY_RECEIPT_VERSION := 2
 
 const _STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 const _CANONICAL_WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
@@ -130,7 +131,7 @@ const DAY_ADVANCE_RECEIPT_KEYS := [
 	"target_day",
 ]
 
-const DAY_ADVANCE_RESOLUTION_KINDS := ["schedule_done", "condition_hospital"]
+const DAY_ADVANCE_RESOLUTION_KINDS := ["schedule_done", "condition_hospital", "scene_day_complete"]
 const DAY_ADVANCE_DISPOSITION := "causal_day_advance_identity_allocated"
 
 const NAMESPACE_HEX_LENGTH := 64
@@ -363,7 +364,7 @@ func commit_causal_day_advance(candidate: Dictionary) -> Dictionary:
 	var ready := _require_loaded("commit_causal_day_advance")
 	if not ready.get("ok", false):
 		return ready
-	var shaped := _exact_keys(candidate, DAY_ADVANCE_RECEIPT_KEYS)
+	var shaped := _exact_keys(candidate, _day_advance_receipt_keys(candidate))
 	if not shaped.get("ok", false):
 		return _failed(&"allocation_candidate_malformed",
 			str(shaped.get("message", "day-advance receipt member set")))
@@ -828,11 +829,13 @@ func _verify_receipt_in_document(receipt: Dictionary, expected_purpose: StringNa
 
 func _validate_day_advance_receipt(receipt: Dictionary, document: Dictionary,
 		persisted: bool) -> Dictionary:
-	var keys := _exact_keys(receipt, DAY_ADVANCE_RECEIPT_KEYS)
+	var keys := _exact_keys(receipt, _day_advance_receipt_keys(receipt))
 	if not keys.get("ok", false):
 		return _failed(&"root_day_advance_record_malformed",
 			str(keys.get("message", "day-advance receipt member set")))
-	if typeof(receipt["schema_version"]) != TYPE_INT or int(receipt["schema_version"]) != SCHEMA_VERSION:
+	var scene: bool = receipt.get("resolution_kind", "") == "scene_day_complete"
+	var expected_version := SCENE_DAY_RECEIPT_VERSION if scene else SCHEMA_VERSION
+	if typeof(receipt["schema_version"]) != TYPE_INT or int(receipt["schema_version"]) != expected_version:
 		return _failed(&"root_day_advance_record_malformed", "unexpected schema_version")
 	var resolution_kind := str(receipt["resolution_kind"])
 	if not DAY_ADVANCE_RESOLUTION_KINDS.has(resolution_kind):
@@ -851,12 +854,13 @@ func _validate_day_advance_receipt(receipt: Dictionary, document: Dictionary,
 	if typeof(receipt["desktop_timeline_generation"]) != TYPE_INT \
 			or int(receipt["desktop_timeline_generation"]) < 0:
 		return _failed(&"root_day_advance_record_malformed", "desktop_timeline_generation")
-	if typeof(receipt["source_day"]) != TYPE_INT or int(receipt["source_day"]) < 1 \
-			or int(receipt["source_day"]) > 6:
-		return _failed(&"root_day_advance_record_malformed", "source_day")
-	if typeof(receipt["target_day"]) != TYPE_INT \
-			or int(receipt["target_day"]) != int(receipt["source_day"]) + 1:
-		return _failed(&"root_day_advance_record_malformed", "target_day")
+	if not scene:
+		if typeof(receipt["source_day"]) != TYPE_INT or int(receipt["source_day"]) < 1 \
+				or int(receipt["source_day"]) > 6:
+			return _failed(&"root_day_advance_record_malformed", "source_day")
+		if typeof(receipt["target_day"]) != TYPE_INT \
+				or int(receipt["target_day"]) != int(receipt["source_day"]) + 1:
+			return _failed(&"root_day_advance_record_malformed", "target_day")
 	if typeof(receipt["counter_start"]) != TYPE_INT or typeof(receipt["counter_end"]) != TYPE_INT \
 			or int(receipt["counter_start"]) < 1 \
 			or int(receipt["counter_end"]) != int(receipt["counter_start"]) + 1:
@@ -1312,3 +1316,11 @@ func _require_loaded(method: String) -> Dictionary:
 ## token at all.
 func _failed(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": "DesktopIssuerRootStore: " + message}
+
+
+func _day_advance_receipt_keys(receipt: Dictionary) -> Array:
+	var keys: Array = DAY_ADVANCE_RECEIPT_KEYS.duplicate()
+	if receipt.get("resolution_kind", "") == "scene_day_complete":
+		keys.erase("source_day")
+		keys.erase("target_day")
+	return keys

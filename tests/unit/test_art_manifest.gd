@@ -33,8 +33,8 @@ extends "res://addons/gut/test.gd"
 ##
 ## TASK 6 JOINS, IT DOES NOT REPLACE. The six legacy statics are kept byte-identical:
 ## docs/superpowers/plans/2026-07-17-phase-2r-foundation-repair.md carries a standing prohibition
-## naming this exact path, and CLAUDE.md forbids removing pre-existing dead code that is not in
-## scope. test_the_six_legacy_statics_are_untouched_and_still_return_empty is what fails first if
+## naming this exact path; current handoff guidance also requires real dependency review
+## before retirement. test_the_six_legacy_statics_are_untouched_and_still_return_empty fails if
 ## anyone deletes them.
 
 const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")

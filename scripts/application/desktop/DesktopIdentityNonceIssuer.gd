@@ -79,6 +79,7 @@ const CHILD_KINDS: Array[String] = [
 	"navigation",
 	"terminal_intent",
 	"action_consequence",
+	"scene_day_completion",
 ]
 
 ## Exact `derive_child()` request member set, plan line 537.

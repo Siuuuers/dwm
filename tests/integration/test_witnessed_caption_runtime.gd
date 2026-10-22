@@ -246,7 +246,16 @@ class MemoryProfile extends Node:
 
 class CaptionFixtureLocale extends Node:
 	signal locale_changed(locale: String)
-	func get_locale() -> String: return "en"
+	var locale := "en"
+	func get_locale() -> String: return locale
+	func has_key(_key: String) -> bool: return true
+	func t(key: String) -> String: return key.get_slice(".", 2).capitalize()
+
+func _bind_caption_fixture_locale(locale: String) -> void:
+	var source := CaptionFixtureLocale.new()
+	source.locale = locale
+	viewport.add_child(source)
+	assert_true(caption.transport_rail.bind_localization(source))
 
 class MissingStylesRuntime extends Node:
 	var clear_calls := 0
@@ -380,7 +389,7 @@ func _assert_single_text() -> void:
 	if nodes.size() != 1: return
 	assert_eq(nodes[0],caption.caption_text)
 	assert_true(caption.caption_text is DialogicNode_DialogText)
-	assert_eq(caption.caption_text.get_script().resource_path,"res://addons/dialogic/Modules/Text/node_dialog_text.gd","installed DialogText owns reveal")
+	assert_eq(caption.caption_text.get_script().get_base_script().resource_path,"res://addons/dialogic/Modules/Text/node_dialog_text.gd","installed DialogText still owns reveal beneath the accessibility adapter")
 	assert_true(get_tree().get_nodes_in_group("dialogic_name_label").is_empty(),"no separate speaker plate")
 	assert_true(layout.find_children("*NameLabel*","",true,false).is_empty())
 
@@ -411,12 +420,13 @@ func test_deferred_first_mount_reapplies_bound_bridge_preferences_before_first_t
 	assert_false(runtime.Inputs.auto_advance.enabled_until_user_input)
 	var source_locale: String = str(get_node("/root/LocalizationManager").get_locale()).replace("_","-")
 	var source_scale: Variant = get_node("/root/ProfileManager").get_preference(&"preferences.accessibility.text_size",100)
+	var source_style: String = str(get_node("/root/ProfileManager").get_preference(&"preferences.accessibility.font_style", "pixel"))
 	var source_high: Variant = get_node("/root/ProfileManager").get_preference(&"preferences.accessibility.high_contrast",false)
 	var source_mode: Variant = get_node("/root/ProfileManager").get_preference(&"preferences.accessibility.colour_differentiation","standard")
 	var preset_map := {"standard":"standard","protan":"protan","deutan":"deutan","tritan":"tritan"}
 	var valid_source: bool = source_locale in ["en","zh-CN","zh-HK"] and typeof(source_scale) == TYPE_INT and source_scale in [100,125,150] and typeof(source_high) == TYPE_BOOL and preset_map.has(source_mode)
 	assert_eq(caption.get_caption_projection().locale,source_locale if valid_source else "zh-HK","valid live sources apply; uninitialized source tuple retains explicit valid configuration")
-	assert_eq(caption.get_caption_projection().font_size,int(20*float(source_scale)/100) if valid_source else 30)
+	assert_eq(caption.get_caption_projection().font_size,int((24 if source_style == "pixel" else 20)*float(source_scale)/100) if valid_source else 36)
 	assert_eq(caption.get_caption_projection().palette,"Midnight")
 	assert_eq(caption.get_caption_projection().high_contrast,source_high if valid_source else true)
 	assert_eq(caption.get_caption_projection().colour_preset,preset_map[source_mode] if valid_source else "protan")
@@ -479,6 +489,7 @@ func test_presentation_matrix_preserves_live_reveal_history_and_event_position()
 	var finished_before := _finished
 	var tuple_count := 0
 	for locale: String in ["en","zh-CN","zh-HK"]:
+		_bind_caption_fixture_locale(locale)
 		for percent: int in [100,125,150]:
 			for palette: String in ["AfterHours","Midnight"]:
 				for high_contrast: bool in [false,true]:
@@ -488,8 +499,8 @@ func test_presentation_matrix_preserves_live_reveal_history_and_event_position()
 						await _settle()
 						var projection: Dictionary = caption.get_caption_projection()
 						var height: int = {100:208,125:264,150:328}[percent]
-						assert_eq(projection.field_rect,Rect2(0,656-height,1280,height))
-						assert_eq(projection.font_size,int(percent/5))
+						assert_eq(projection.field_rect,Rect2(0,592-height,1280,height))
+						assert_eq(projection.font_size,int(24*percent/100.0))
 						assert_true(projection.field_rect.encloses(projection.caption_visible_rect))
 						assert_true(projection.caption_visible_rect.has_area(),"current caption intersects the common viewport")
 						assert_eq(fposmod(projection.caption_rect.size.y,2.0),0.0)
@@ -521,6 +532,7 @@ func test_overflow_scroll_is_local_and_reconfigure_does_not_complete_text() -> v
 	if not _mount(): return
 	runtime.start(_timeline("这是一段用于验证滚动的字幕。".repeat(200)))
 	await _settle()
+	_bind_caption_fixture_locale("zh-CN")
 	assert_true(caption.configure_presentation("zh-CN",150,"AfterHours"))
 	runtime.Text.skip_text_reveal()
 	await _settle()
@@ -547,7 +559,10 @@ func test_overflow_scroll_is_local_and_reconfigure_does_not_complete_text() -> v
 		bar.value = 0
 		viewport.push_input(event,true)
 		await _settle()
-		assert_gt(float(caption.get_caption_projection().scroll_offset),0.0,"actual "+event.get_class()+" scrolls the caption")
+		if event == wheel:
+			assert_eq(float(caption.get_caption_projection().scroll_offset),0.0,"wheel stops at the oldest available caption window")
+		else:
+			assert_gt(float(caption.get_caption_projection().scroll_offset),0.0,"actual "+event.get_class()+" scrolls the caption")
 		assert_eq(runtime.current_event_idx,0)
 		assert_eq(_history(),history_before)
 		assert_eq(_finished,finished_before)
@@ -762,6 +777,7 @@ func test_silent_retained_reprojection_and_remeasurement_preserve_reveal_history
 	bar.value = 100
 	await _settle()
 	for locale: String in ["en","zh-CN","zh-HK"]:
+		_bind_caption_fixture_locale(locale)
 		for percent: int in [100,125,150]:
 			assert_true(caption.configure_presentation(locale,percent,"AfterHours"))
 			await _settle()
@@ -895,8 +911,9 @@ func test_clear_holds_empty_without_finishing_a_hidden_incomplete_reveal() -> vo
 	assert_eq(runtime.current_event_idx,0,"the actual timeline remains valid during the clear hold")
 	assert_eq(_ended,0)
 	assert_true(caption.transport_rail.is_visible_in_tree(), "a silent hold keeps the stationary rail")
-	assert_eq(caption.transport_rail.position, Vector2(0,656))
-	for button: Button in caption.transport_rail.get_children():
+	assert_eq(caption.transport_rail.position, Vector2(0,592))
+	for id: StringName in caption.transport_rail.CONTROL_IDS:
+		var button: Button = caption.transport_rail.get_node(String(id).capitalize())
 		assert_true(button.disabled, "no narrative command is admitted without current prose")
 		assert_eq(button.focus_mode, Control.FOCUS_NONE)
 		assert_false(button.has_focus())
@@ -1072,19 +1089,13 @@ func _parse_caption_touch(point: Vector2, pressed: bool, canceled: bool = false,
 	event.double_tap = double_tap
 	Input.parse_input_event(event)
 
-func test_actual_pointer_accept_belongs_only_to_current_caption_and_one_press() -> void:
+func test_actual_background_and_caption_accept_share_one_release_gesture() -> void:
 	if not await _mount_root_accept_fixture("Current.\nFollowing."): return
 	assert_true(caption.reproject_retained_captions(["Older.","Previous."]))
 	await _settle()
 	var projection: Dictionary = caption.get_caption_projection()
 	assert_eq(projection.visible_leaf_rects.size(),3)
-	var before := _stack_invariants()
-	for point: Vector2 in [Vector2(640,200),projection.leaf_rects[0].get_center(),projection.leaf_rects[1].get_center()]:
-		_parse_accept_mouse(_root_caption_point(point),true)
-		_parse_accept_mouse(_root_caption_point(point),false)
-		await _settle()
-		assert_eq(_stack_invariants(),before,"aperture and retained captions cannot issue narrative Accept")
-	var current := _root_caption_point(projection.caption_visible_rect.get_center())
+	var current := _root_caption_point(Vector2(640,200))
 	_parse_accept_mouse(current,true)
 	Input.flush_buffered_events()
 	assert_eq(_finished,0,"pointer-down waits for release inside the current caption")
@@ -1103,9 +1114,9 @@ func test_actual_pointer_accept_belongs_only_to_current_caption_and_one_press() 
 	await _settle()
 	assert_eq(runtime.current_event_idx,0,"the double-click second contact cannot advance")
 	_parse_accept_mouse(current,true)
-	_parse_accept_mouse(_root_caption_point(Vector2(640,200)),false)
+	_parse_accept_mouse(_root_caption_point(Vector2(640,700)),false)
 	await _settle()
-	assert_eq(runtime.current_event_idx,0,"release outside the current caption cancels the contact")
+	assert_eq(runtime.current_event_idx,0,"release on the transport region cancels the background contact")
 	_parse_accept_mouse(current,true)
 	_parse_accept_mouse(current,false)
 	await _settle()
@@ -1465,7 +1476,10 @@ func test_actual_scroll_gestures_cancel_armed_pointer_accept_before_inside_relea
 				_parse_caption_shoulder(JOY_BUTTON_RIGHT_SHOULDER,true)
 				_parse_caption_shoulder(JOY_BUTTON_RIGHT_SHOULDER,false)
 		await _settle()
-		assert_gt(bar.value,0.0,mode + " performs actual shared scrolling while the pointer is held")
+		if mode == "wheel":
+			assert_eq(bar.value,0.0,"wheel at the only available window still cancels pointer Accept")
+		else:
+			assert_gt(bar.value,0.0,mode + " performs actual shared scrolling while the pointer is held")
 		assert_true(caption.get_caption_projection().caption_visible_rect.has_point(logical),"release remains inside the same current leaf after " + mode)
 		_parse_accept_mouse(point,false)
 		await _settle()
@@ -1483,6 +1497,45 @@ func _replace_caption_display_source(source_name: String, replacement: Node) -> 
 	get_tree().root.remove_child(original)
 	replacement.name = source_name
 	get_tree().root.add_child(replacement)
+
+func test_real_profile_font_style_preserves_live_caption_and_retires_old_pointer_contact() -> void:
+	var profile: Node = preload("res://autoload/ProfileManager.gd").new()
+	var storage: RefCounted = preload("res://scripts/infrastructure/storage/JsonFileStorage.gd").new(
+		"caption-font-style-fixture", preload("res://tests/support/FakeFileOps.gd").new())
+	assert_true(profile.initialize(storage).get("ok", false))
+	var localization: Node = preload("res://autoload/LocalizationManager.gd").new()
+	assert_true(localization.initialize(profile).get("ok", false))
+	_replace_caption_display_source("ProfileManager", profile)
+	_replace_caption_display_source("LocalizationManager", localization)
+	if not await _mount_root_accept_fixture("This live caption keeps its native reveal position while its font changes."): return
+	assert_true(caption.reproject_retained_captions(["Older caption.", "Previous caption."]))
+	await _settle()
+	var native: Node = caption.caption_text
+	var before := _stack_invariants()
+	var point := _root_caption_point(caption.get_caption_projection().caption_visible_rect.get_center())
+	_parse_accept_mouse(point, true)
+	Input.flush_buffered_events()
+	for style: String in ["readable", "pixel"]:
+		assert_true(localization.set_font_style(style).get("ok", false))
+		await _settle()
+		var projection: Dictionary = caption.get_caption_projection()
+		assert_eq(projection.font_style, style)
+		assert_eq(projection.font_size, 20 if style == "readable" else 24)
+		assert_same(native.get_theme_font("normal_font"), preload("res://scripts/ui/UiTypography.gd").font("en", 100, style))
+		assert_same(caption.caption_text, native)
+		assert_true(native.has_focus())
+		assert_eq(projection.retained_captions, ["Older caption.", "Previous caption."])
+		assert_eq(_stack_invariants(), before, "font changes cannot reveal, advance or rewrite history")
+	_parse_accept_mouse(point, false)
+	await _settle()
+	assert_eq(_stack_invariants(), before, "reflow retires the old click rather than accepting its release")
+	point = _root_caption_point(caption.get_caption_projection().caption_visible_rect.get_center())
+	_parse_accept_mouse(point, true)
+	_parse_accept_mouse(point, false)
+	await _settle()
+	assert_eq(_finished, int(before.finished)+1, "a fresh contact still completes the current reveal once")
+	assert_eq(runtime.current_event_idx, before.event)
+	assert_eq(_history(), before.history)
 
 func test_real_profile_large_targets_resize_current_caption_without_accepting_held_click() -> void:
 	var profile: Node = preload("res://autoload/ProfileManager.gd").new()
@@ -1545,6 +1598,7 @@ func test_large_target_overflow_scrollbar_keeps_reading_position_and_minimum_hit
 	for enabled: bool in [true,false,true]:
 		assert_true(profile.set_preferences({&"preferences.accessibility.large_targets":enabled}).get("ok",false))
 		for locale: String in ["en","zh-CN","zh-HK"]:
+			_bind_caption_fixture_locale(locale)
 			for percent: int in [100,125,150]:
 				assert_true(caption.configure_presentation(locale,percent,"AfterHours",false,"standard",enabled))
 				await _settle()
@@ -1629,7 +1683,7 @@ func test_real_profile_material_preferences_preserve_native_reading_and_pending_
 		for role: StringName in high_roles:
 			assert_eq(caption.canvas.theme.get_color(role,&"WitnessedCaption"),high_roles[role],str(role))
 		assert_eq(caption.canvas.theme.get_color(&"focus_inner",&"WitnessedCaption"),Color(tuple[2]))
-		assert_eq(native.get_theme_color(&"default_color"),Color("f6efdc"),"the actual native text receives the published ink")
+		assert_eq(native.get_theme_color(&"default_color"),Color.WHITE,"movie-caption ink remains white across palette presets")
 		assert_eq(_stack_invariants(),before)
 		assert_eq(bar.value,100.0)
 		assert_true(native.has_focus())
@@ -1705,3 +1759,367 @@ func test_real_profile_target_resize_cancels_held_native_thumb_drag_until_fresh_
 	await _settle()
 	assert_gt(bar.value,0.0,"a released and fresh native thumb drag works with the new target size")
 	assert_eq(_stack_invariants(),before)
+
+
+func _parse_review_wheel(button: MouseButton, factor: float = 1.0) -> void:
+	var point := _root_caption_point(Vector2(640, 200))
+	for pressed: bool in [true, false]:
+		var event := InputEventMouseButton.new()
+		event.position = point
+		event.global_position = point
+		event.button_index = button
+		event.factor = factor
+		event.pressed = pressed
+		Input.parse_input_event(event)
+
+func test_review_wheel_moves_exactly_one_three_caption_window_and_clamps_without_story_changes() -> void:
+	if not await _mount_root_accept_fixture("One.\nTwo.\nThree.\nFour.\nFive still revealing."): return
+	for step: int in 4: await _next_caption()
+	var native: Node = caption.caption_text
+	var before := _stack_invariants()
+	var generation: int = native.get_reveal_generation()
+	assert_eq(caption.get_caption_projection().caption_window, ["Three.", "Four.", "Five still revealing."])
+	for expected: Array in [["Two.", "Three.", "Four."], ["One.", "Two.", "Three."], ["One.", "Two.", "Three."]]:
+		_parse_review_wheel(MOUSE_BUTTON_WHEEL_DOWN, 4.0)
+		await _settle()
+		assert_eq(caption.get_caption_projection().caption_window, expected)
+		assert_eq(caption.get_caption_projection().leaf_rects.size(), 3)
+		assert_eq(_stack_invariants(), before)
+		assert_eq(native.get_reveal_generation(), generation)
+		assert_false(native.visible, "native partially revealed current is absent from old windows")
+		assert_false(caption.call("_automatic_line_admitted"))
+		assert_false(caption.call("_transport_admitted"))
+	for expected: Array in [["Two.", "Three.", "Four."], ["Three.", "Four.", "Five still revealing."], ["Three.", "Four.", "Five still revealing."]]:
+		_parse_review_wheel(MOUSE_BUTTON_WHEEL_UP)
+		await _settle()
+		caption.caption_text.set_process(false)
+		assert_eq(caption.get_caption_projection().caption_window, expected)
+		assert_eq(runtime.current_event_idx, before.event)
+		assert_eq(_history(), before.history)
+	assert_eq(caption.get_caption_projection().review_offset, 0)
+	assert_true(native.visible)
+	assert_eq(caption.caption_text, native)
+	assert_eq(_finished, before.finished)
+
+func test_review_background_click_returns_live_before_a_fresh_click_reveals() -> void:
+	if not await _mount_root_accept_fixture("One.\nTwo.\nThree.\nFour."): return
+	for step: int in 3: await _next_caption()
+	_parse_review_wheel(MOUSE_BUTTON_WHEEL_DOWN)
+	await _settle()
+	assert_eq(caption.get_caption_projection().caption_window, ["One.", "Two.", "Three."])
+	var before := _stack_invariants()
+	var point := _root_caption_point(Vector2(640, 200))
+	_parse_accept_mouse(point, true)
+	_parse_accept_mouse(point, false)
+	Input.flush_buffered_events()
+	caption.caption_text.set_process(false)
+	assert_eq(caption.get_caption_projection().review_offset, 0)
+	assert_eq(_stack_invariants(), before, "returning to live is not narrative Accept")
+	await _settle()
+	runtime.Inputs.input_block_timer.stop()
+	_parse_accept_mouse(point, true)
+	_parse_accept_mouse(point, false)
+	await _settle()
+	assert_false(caption.caption_text.revealing)
+	assert_eq(runtime.current_event_idx, before.event)
+	assert_eq(_finished, before.finished + 1)
+
+func test_review_reset_and_reprojection_restore_the_live_caption() -> void:
+	if not await _mount_root_accept_fixture("One.\nTwo.\nThree.\nFour."): return
+	for step: int in 3: await _next_caption()
+	_parse_review_wheel(MOUSE_BUTTON_WHEEL_DOWN)
+	await _settle()
+	assert_eq(caption.get_caption_projection().review_offset, 1)
+	var before := _stack_invariants()
+	assert_true(caption.reproject_retained_captions(["Older supplied copy.", "Previous supplied copy."]))
+	caption.caption_text.set_process(false)
+	await _settle()
+	assert_eq(caption.get_caption_projection().review_offset, 0)
+	assert_true(caption.caption_text.visible)
+	assert_eq(_stack_invariants(), before)
+	_parse_review_wheel(MOUSE_BUTTON_WHEEL_DOWN)
+	await _settle()
+	assert_eq(caption.get_caption_projection().review_offset, 0, "reprojection replaces transient history")
+
+func test_background_tap_cancellation_and_other_buttons_never_advance() -> void:
+	if not await _mount_root_accept_fixture("Current.\nFollowing."): return
+	var point := _root_caption_point(Vector2(640, 200))
+	var button := Button.new()
+	button.position = Vector2(620, 180)
+	button.size = Vector2(120, 60)
+	button.text = "Fixture control"
+	caption.canvas.add_child(button)
+	var activations: Array[int] = []
+	button.pressed.connect(func(): activations.append(1))
+	var before := _stack_invariants()
+	_parse_accept_mouse(point, true)
+	_parse_accept_mouse(point, false)
+	await _settle()
+	assert_eq(activations.size(), 1)
+	assert_eq(_stack_invariants(), before)
+	button.hide()
+	_parse_caption_touch(point, true)
+	_parse_caption_touch(point, false, true)
+	await _settle()
+	assert_eq(_stack_invariants(), before, "cancelled background touch cannot accept")
+	_parse_caption_touch(point, true)
+	var drag := InputEventScreenDrag.new()
+	drag.index = 0
+	drag.position = point + Vector2(0, 30)
+	drag.relative = Vector2(0, 30)
+	Input.parse_input_event(drag)
+	_parse_caption_touch(drag.position, false)
+	await _settle()
+	assert_eq(_stack_invariants(), before, "background drag cannot become a tap")
+	_parse_caption_touch(point, true)
+	_parse_caption_touch(point, false)
+	await _settle()
+	assert_eq(_finished, before.finished + 1)
+	assert_eq(runtime.current_event_idx, before.event)
+
+
+func test_review_pauses_real_pending_text_effect_and_never_replays_speech() -> void:
+	var fixture := await _mount_speech_fixture()
+	if fixture.is_empty(): return
+	var effects: Array[String] = []
+	runtime.text_signal.connect(func(argument: String): effects.append(argument))
+	runtime.start(_timeline("One.\nTwo.\nThree.\n[signal=entered][pause=0.3!][signal=resumed]Live text."))
+	await _settle()
+	for step: int in 3: await _next_caption()
+	for frame: int in 40:
+		if effects == ["entered"]: break
+		await get_tree().create_timer(0.01).timeout
+	assert_eq(effects, ["entered"])
+	assert_false(caption.caption_text.revealing, "the native pause coroutine is pending")
+	var speech_count: int = fixture.speech.requests.size()
+	assert_false(fixture.speech.active_source.is_empty())
+	caption.call("_set_review_offset", 1)
+	await _settle()
+	var before := _stack_invariants()
+	assert_eq(caption.get_caption_projection().caption_window, ["One.", "Two.", "Three."])
+	await get_tree().create_timer(0.5).timeout
+	assert_eq(_stack_invariants(), before, "review freezes a running effect, not only a test-disabled typewriter")
+	assert_eq(effects, ["entered"])
+	assert_true(fixture.speech.active_source.is_empty())
+	caption.call("_set_review_offset", 0)
+	await _settle()
+	assert_eq(fixture.speech.requests.size(), speech_count, "return does not speak the current publication again")
+	for frame: int in 80:
+		if effects == ["entered", "resumed"]: break
+		await get_tree().create_timer(0.01).timeout
+	assert_eq(effects, ["entered", "resumed"], "only the original pending effect resumes")
+	assert_eq(runtime.current_event_idx, before.event)
+	assert_eq(_history(), before.history)
+
+func test_background_mixed_control_edges_and_review_pause_do_not_accept() -> void:
+	if not await _mount_root_accept_fixture("One.\nTwo.\nThree.\nFour."): return
+	var button := Button.new()
+	button.position = Vector2(645, 180)
+	button.size = Vector2(100, 60)
+	button.text = "Control"
+	caption.canvas.add_child(button)
+	var outside := _root_caption_point(Vector2(642, 200))
+	var inside := _root_caption_point(Vector2(647, 200))
+	var before := _stack_invariants()
+	for touch: bool in [false, true]:
+		if touch:
+			_parse_caption_touch(outside, true)
+			_parse_caption_touch(inside, false)
+			_parse_caption_touch(inside, true)
+			_parse_caption_touch(outside, false)
+		else:
+			_parse_accept_mouse(outside, true)
+			_parse_accept_mouse(inside, false)
+			_parse_accept_mouse(inside, true)
+			_parse_accept_mouse(outside, false)
+		await _settle()
+		assert_eq(_stack_invariants(), before, "crossing a five-pixel control edge never activates prose")
+	button.hide()
+	for step: int in 3: await _next_caption()
+	_parse_review_wheel(MOUSE_BUTTON_WHEEL_DOWN)
+	await _settle()
+	before = _stack_invariants()
+	runtime.paused = true
+	_parse_review_wheel(MOUSE_BUTTON_WHEEL_UP)
+	_parse_accept_mouse(outside, true)
+	_parse_accept_mouse(outside, false)
+	await _settle()
+	assert_eq(caption.get_caption_projection().review_offset, 1)
+	assert_eq(_stack_invariants(), before, "runtime pause denies underlying review and background gestures")
+	runtime.paused = false
+
+
+func _caption_accessibility_action(target: Control = null) -> Callable:
+	if target != null:
+		assert_eq(target, caption.accept_input._focus_caption(), "Continue binds the real live/review target")
+	assert_eq(caption.background_input._accept_input, caption.accept_input)
+	return caption.background_input.capture_continue_action()
+
+func test_assistive_caption_accept_completes_then_advances_without_reusing_callback() -> void:
+	if not await _mount_root_accept_fixture("Current.\nFollowing."): return
+	var action := _caption_accessibility_action()
+	action.call(null)
+	action.call(null)
+	await _settle()
+	assert_eq(_finished, 1, "assistive activation finishes exactly the current reveal")
+	assert_eq(runtime.current_event_idx, 0, "the same activation cannot also advance")
+	runtime.Inputs.input_block_timer.stop()
+	action.call(null)
+	await _settle()
+	assert_eq(runtime.current_event_idx, 0, "the consumed callback stays retired in later frames")
+	_caption_accessibility_action().call(null)
+	await _settle()
+	assert_eq(runtime.current_event_idx, 1, "a fresh assistive action advances one native beat")
+	assert_true(caption.caption_text.revealing, "the successor retains its own reveal")
+
+func test_assistive_caption_callbacks_retire_on_hide_pause_and_same_text_replacement() -> void:
+	if not await _mount_root_accept_fixture("Current.\nFollowing."): return
+	var hidden_action := _caption_accessibility_action()
+	caption.caption_text.hide()
+	caption.caption_text.show()
+	await _settle()
+	hidden_action.call(null)
+	assert_eq(_finished, 0, "hide/show cannot resurrect a retained action")
+	var paused_action := _caption_accessibility_action()
+	runtime.paused = true
+	paused_action.call(null)
+	runtime.paused = false
+	await _settle()
+	paused_action.call(null)
+	assert_eq(_finished, 0, "Pause/resume cannot resurrect the source action")
+	var replaced_action := _caption_accessibility_action()
+	runtime.start_timeline(_timeline("Current.\nFollowing."))
+	await _settle()
+	runtime.Inputs.input_block_timer.stop()
+	replaced_action.call(null)
+	assert_true(caption.caption_text.revealing, "identical replacement text does not reuse reveal identity")
+	_caption_accessibility_action().call(null)
+	await _settle()
+	assert_false(caption.caption_text.revealing, "the replacement gets a fresh admitted action")
+	assert_eq(runtime.current_event_idx, 0)
+
+func test_assistive_caption_accept_rejects_held_contacts_and_passive_leaves() -> void:
+	if not await _mount_root_accept_fixture("Current.\nFollowing."): return
+	assert_true(caption.reproject_retained_captions(["Older.", "Previous."]))
+	await _settle()
+	caption.accept_input.capture_accessibility_accept(caption.previous).call(null)
+	assert_eq(_finished, 0, "a prior inspect-only leaf is not a Normal Accept target")
+	# A held non-Accept contact is tracked by the shared input owner too.
+	_parse_accept_key(true, false, KEY_A)
+	await _settle()
+	_caption_accessibility_action().call(null)
+	assert_eq(_finished, 0, "assistive input cannot overlap a physical contact")
+	_parse_accept_key(false, false, KEY_A)
+	await _settle()
+	_caption_accessibility_action().call(null)
+	await _settle()
+	assert_eq(_finished, 1, "neutral physical input permits a fresh assistive action")
+	assert_eq(runtime.current_event_idx, 0)
+
+func test_assistive_review_current_returns_to_live_caption_without_advancing() -> void:
+	if not await _mount_root_accept_fixture("One.\nTwo.\nThree.\nCurrent."): return
+	for step: int in 3: await _next_caption()
+	var finished_before := _finished
+	var event_before: int = runtime.current_event_idx
+	caption.call("_set_review_offset", 1)
+	await _settle()
+	assert_true(caption.review_current.visible)
+	var action := _caption_accessibility_action(caption.review_current)
+	action.call(null)
+	await _settle()
+	assert_false(caption.review_current.visible, "Normal Accept exits transient review first")
+	assert_true(caption.caption_text.visible)
+	assert_eq(_finished, finished_before, "returning to the live caption leaves its reveal unchanged")
+	assert_eq(runtime.current_event_idx, event_before)
+	action.call(null)
+	await _settle()
+	assert_eq(_finished, finished_before, "the former review target cannot accept the live caption")
+
+
+func test_assistive_caption_action_retired_by_real_input_custody_roundtrip() -> void:
+	if not await _mount_root_accept_fixture("Current.\nFollowing."): return
+	var input_owner := get_node("/root/InputManager")
+	var handle := {"generation": 1, "handle_id": "caption-assistive-custody",
+		"holder": &"canonical-pause", "reason": &"universal_pause"}
+	var before_suspend := _caption_accessibility_action()
+	assert_true(input_owner.begin_suspend(handle).ok)
+	var during_suspend := _caption_accessibility_action()
+	before_suspend.call(null)
+	during_suspend.call(null)
+	assert_eq(_finished, 0, "foreign custody refuses both retained and current source callbacks")
+	assert_true(input_owner.resume(handle).ok)
+	await _settle()
+	before_suspend.call(null)
+	during_suspend.call(null)
+	assert_eq(_finished, 0, "resuming custody does not resurrect either callback")
+	_caption_accessibility_action().call(null)
+	await _settle()
+	assert_eq(_finished, 1)
+	assert_eq(runtime.current_event_idx, 0)
+
+func test_full_scrollback_reprojection_keeps_native_state_and_three_caption_window() -> void:
+	if not _mount(): return
+	runtime.start(_timeline("Current."))
+	await _settle()
+	caption.caption_text.finish_text()
+	await _settle()
+	var before := _stack_invariants()
+	var speech_generation: int = caption._speech_generation
+	var older: Array = ["One.", "Two.", "Three.", "Four."]
+	assert_true(caption.reproject_retained_captions(older, true))
+	await _settle()
+	_assert_passive_stack(["Three.", "Four."])
+	assert_eq(caption._speech_generation, speech_generation, "older-copy refresh does not cancel current speech")
+	assert_eq(caption._scrollback, older)
+	assert_eq(caption.get_caption_projection().caption_window, ["Three.", "Four.", "Current."])
+	caption._set_review_offset(2)
+	assert_eq(caption.get_caption_projection().caption_window, ["One.", "Two.", "Three."])
+	assert_true(caption.reproject_retained_captions(older, true))
+	await _settle()
+	assert_eq(caption._review_offset, 0)
+	assert_eq(caption._scrollback, older)
+	assert_eq(_stack_invariants(), before)
+	assert_true(caption.reproject_retained_captions([], true))
+	assert_eq(caption._scrollback, [])
+	assert_eq(caption.get_caption_projection().retained_captions, [])
+	assert_eq(_stack_invariants(), before)
+
+func test_continue_projection_uses_existing_surface_and_follows_source_admission() -> void:
+	# Isolated tests skip startup; initialize real display owners with in-memory storage.
+	var profile: Node = preload("res://autoload/ProfileManager.gd").new()
+	var storage: RefCounted = preload("res://scripts/infrastructure/storage/JsonFileStorage.gd").new(
+		"continue-projection-fixture", preload("res://tests/support/FakeFileOps.gd").new())
+	_replace_caption_display_source("ProfileManager", profile)
+	var profile_result: Dictionary = profile.initialize(storage)
+	assert_true(profile_result.get("ok", false), "isolated Continue profile initializes")
+	if not profile_result.get("ok", false): return
+	var localization: Node = preload("res://autoload/LocalizationManager.gd").new()
+	_replace_caption_display_source("LocalizationManager", localization)
+	var localization_result: Dictionary = localization.initialize(profile)
+	assert_true(localization_result.get("ok", false), "isolated Continue localization initializes")
+	if not localization_result.get("ok", false): return
+	assert_eq(localization.get_readiness(), &"ready")
+	assert_true(localization.has_key("button.continue"))
+	if not await _mount_root_accept_fixture("Current.\nFollowing."): return
+	var surface: Control = caption.background_input
+	assert_eq(surface.get_script().resource_path, "res://scripts/ui/witnessed/WitnessedAccessibleContinue.gd")
+	assert_eq(surface._label, get_node("/root/LocalizationManager").t("button.continue"))
+	assert_true(surface._available)
+	assert_eq(caption.caption_text.focus_mode, Control.FOCUS_ALL, "text retains keyboard focus")
+	caption._history_open = true
+	surface._refresh_projection()
+	assert_false(surface._available, "History blocks the same ordinary source")
+	assert_false(surface._source_visible, "covered story surface withdraws Continue")
+	var blocked: Callable = surface.capture_continue_action()
+	blocked.call(null)
+	assert_eq(_finished, 0)
+	caption._history_open = false
+	caption.accept_input.retire_input()
+	await _settle()
+	blocked.call(null)
+	assert_eq(_finished, 0, "closing History does not resurrect its callback")
+	assert_true(surface._available)
+	surface.capture_continue_action().call(null)
+	await _settle()
+	assert_eq(_finished, 1)
+	assert_eq(runtime.current_event_idx, 0)

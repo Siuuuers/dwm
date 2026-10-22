@@ -1,0 +1,30 @@
+{
+  "run_id": 39243496974,
+  "archives": [
+    {
+      "file": "baseline-evidence.zip",
+      "artifact_id": 12184890611,
+      "bytes": 2832222,
+      "sha256": "43714a64c9a7ddbd24eeb7f68f072050318e2a60cf9901354985d554f56a4720"
+    },
+    {
+      "file": "corrected-evidence.zip",
+      "artifact_id": 12184345783,
+      "bytes": 3642930,
+      "sha256": "434e94bb800e99d702d3322cf067d4deb76a50cd04b4b7b425956c96b923fd72"
+    },
+    {
+      "file": "baseline-sdk.zip",
+      "artifact_id": 12182009456,
+      "bytes": 2645791,
+      "sha256": "868fae3484de78a97f9b7999ea3d4b6e9851798441a4bde7fbadb614fd982897"
+    },
+    {
+      "file": "corrected-sdk.zip",
+      "artifact_id": 12181979288,
+      "bytes": 2645698,
+      "sha256": "d559e7ca7859aa5fe8721e77177b9940d4919b3f8a5bd837b3fc8f4a48b2acad"
+    }
+  ],
+  "manifest_audit": "Reuse independent C6266878101: Baseline366/366 and Corrected370/370. A checked original ZIP hashes/CRC/safe names; EXE/PCK are receipt-bound."
+}

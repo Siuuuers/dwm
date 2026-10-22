@@ -15,7 +15,7 @@ const RECEIPT_KINDS := ["ordinary_reply", "ordinary_echo_presented"]
 const REPLY_KEYS := ["command_issuer_receipt", "content_version", "day", "echo_id", "entry_id", "friend_id", "kind", "locale", "message_ids", "message_sequences", "plain_text_snapshot", "presentation_atom_id", "rendered_line", "reply_id", "transaction_id", "witnessed_line_id"]
 const ECHO_KEYS := ["command_issuer_receipt", "echo_id", "kind", "presentation_atom_id", "presentation_receipt", "reply_transaction_id", "transaction_id"]
 const PROOF_KEYS := ["counter", "namespace", "numeric_value", "purpose", "receipt_id", "token"]
-const LOCALES := ["en", "zh-CN", "zh-HK"]
+const LOCALES := ["en", "zh-CN", "zh-HK", "ja", "ko"]
 # Provisional functional copy. Keep versioned historical literals when later prose replaces v1.
 const COPY := {
 	"en": {
@@ -69,9 +69,11 @@ static func reply_definition(reply_id: String, locale: String = "en") -> Diction
 	var ordinal: int = result.choice_ordinal
 	result.erase("choice_ordinal")
 	result["locale"] = locale
-	result["text"] = str(COPY[locale].choices[ordinal])
-	result["incoming_text"] = str(COPY[locale].incoming)
-	result["response_text"] = str(COPY[locale].responses[ordinal])
+	# UI-only draft locales retain the authored English correspondence.
+	var copy: Dictionary = COPY.get(locale, COPY.en)
+	result["text"] = str(copy.choices[ordinal])
+	result["incoming_text"] = str(copy.incoming)
+	result["response_text"] = str(copy.responses[ordinal])
 	return _ok(result)
 
 ## The fixed six-entry namespace needs no narrative file loading at midnight.
@@ -380,3 +382,15 @@ static func _ok(value: Dictionary) -> Dictionary:
 
 static func _fail(code: String) -> Dictionary:
 	return {"ok": false, "code": StringName(code), "message": ""}
+
+## Scene replies retain the existing prepare -> actual transcript draw -> commit
+## boundary, but have no day/expiry/echo producer. Registration lookup and receipt
+## ownership stay in ContactInvitationState and the selected full-B owner.
+static func validate_scene_rendered_line(command_id: String, line_id: String, text: String,
+		rendered_line: Dictionary) -> Dictionary:
+	if command_id.strip_edges().is_empty() or line_id.strip_edges().is_empty() or text.strip_edges().is_empty() \
+			or not _exact(rendered_line, ["view_token", "line_id", "text"]): return _fail("scene_reply_line_invalid")
+	for key: Variant in rendered_line:
+		if typeof(key) != TYPE_STRING or typeof(rendered_line[key]) != TYPE_STRING: return _fail("scene_reply_line_invalid")
+	return _ok({}) if rendered_line == {"view_token": command_id, "line_id": line_id, "text": text} \
+		else _fail("scene_reply_line_not_witnessed")
