@@ -83,9 +83,23 @@ func load_same_day_supportz() -> void:
 	var restored: Dictionary = BOARD_STATE._inspection_normalize(game.capture_run_snapshot_input())
 	assert_eq(restored.gameplay, proof.run.gameplay, "Load preserves rewards and daily completion count")
 	assert_eq(restored.command_receipts, proof.run.command_receipts)
-	assert_eq(restored.desktop.consequence.shop_ledger, proof.run.desktop.consequence.shop_ledger)
+	var expected_ledger: Dictionary = proof.run.desktop.consequence.shop_ledger.duplicate(true)
+	for completion: Dictionary in expected_ledger.base_completion_receipts:
+		if completion.causal_day_instance == proof.run.lifecycle.causal_day_instance:
+			completion.causal_day_instance = restored.lifecycle.causal_day_instance
+	assert_eq(restored.desktop.consequence.shop_ledger, expected_ledger, "same authored day retains eligibility under new Load identity")
 	assert_eq(restored.desktop.board.board, proof.run.desktop.board.board, "settled layout and history survive")
-	assert_eq(restored.desktop.board.terminal_receipts, proof.run.desktop.board.terminal_receipts)
+	var issuer_root: Dictionary = game._identity_issuer.capture_root()
+	if not _ok(issuer_root): return
+	var allocation: Dictionary = issuer_root.value.allocation_receipts[restored.lifecycle.restore_provenance.restore_transaction_id]
+	var expected_terminal := {}
+	for old_key: String in proof.run.desktop.board.terminal_receipts:
+		assert_true(allocation.transaction_remap.has(old_key))
+		if not allocation.transaction_remap.has(old_key): return
+		var new_key: String = allocation.transaction_remap[old_key].new_transaction_id
+		expected_terminal[new_key] = proof.run.desktop.board.terminal_receipts[old_key].duplicate(true)
+	assert_eq(restored.desktop.board.terminal_receipts, expected_terminal,
+		"every terminal receipt follows the actual committed allocation and retains its original value")
 	assert_ne(restored.desktop.board.identity.branch_id, proof.run.desktop.board.identity.branch_id)
 	assert_true(bootstrap._desktop_board_state.has_settled_inspection())
 	assert_eq(bridge.capture_reading_checkpoint(false).value, proof.reading)

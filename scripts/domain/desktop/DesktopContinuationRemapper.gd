@@ -9,6 +9,8 @@ extends RefCounted
 ## per-branch Supportz purchase count, a per-causal-day purchase flag, and base-completion receipts
 ## that MinesweeperCapabilityRules.supportz_eligible() consumes -- and Task 7 has since landed them
 ## on DesktopConsequenceState as the single `shop_ledger` member (see that file's own class doc).
+## Legacy calendar ledger tokens stay historical. Scene selected Load additionally rebases only
+## current-day eligibility tokens in prepare(); authored day renewal remains a separate owner.
 ## _REMAP_TABLE's `shop_ledger` row is `handled: true`: none of its three members is a transaction id
 ## or an anchored child provenance (a purchase count and opaque historical causal_day_instance
 ## tokens), so _remap_consequence()'s existing duplicate(true) already carries it forward correctly.
@@ -666,6 +668,17 @@ static func prepare(snapshot: Dictionary, restore_transaction_id: String,
 		transaction_remap, owners)
 	if not consequence_result.get("ok", false):
 		return consequence_result
+	if scene_check.value:
+		# Selected Load forks identity, not the authored day. Carry the current
+		# day's eligibility projection forward; signed command receipts stay historical.
+		var old_day: String = str(desktop.consequence.causal_day_instance)
+		var new_day: String = str(identity_allocation_bundle.causal_day_instance)
+		var ledger: Dictionary = consequence_result.value.shop_ledger
+		for completion: Dictionary in ledger.base_completion_receipts:
+			if completion.causal_day_instance == old_day:
+				completion.causal_day_instance = new_day
+		if ledger.supportz_last_purchase_causal_day_instance == old_day:
+			ledger.supportz_last_purchase_causal_day_instance = new_day
 	if not scene_check.value:
 		var day7: Dictionary = _pending_day7_terminal(desktop["consequence"])
 		if not day7.get("ok", false): return day7
