@@ -1,0 +1,10 @@
+# Clean nine-case regression qualification packet
+Product340239dda3069897d032d02ae12c46fcdbc738ff differs from exported product3801d05934aadbe78741e7db3f3bebd36436d7cf in exactly two excluded test files. Production runtime/resources are unchanged.
+Integration test blob52ec145e1ec3df7f135314d64197ae9427ceb458 replaces stale caption action tests with clean Continue tests and initializes real in-memory Profile/Localization for projection/source admission. Manual blobb7daa2459f1a982326e7e6ebf862d90e3785ab5c retains organic/manual completion behavior with real display-owner setup and no diagnostic hooks. Original5000ms waits unchanged.
+
+External assets7a3ac5b2a70354e66b3c00313a8314dd45f7378a: seven sibling harness files, exact hash manifest and preparation helper. Runner retains original eight-case selection and adds ninth projection/source-admission test without native consumer. Two publication cases retain real managed-then-native readers; no runtime diagnostic metadata required. Harness resides outside checkout, source/root explicit, hashes verified before execution. JUnit selection, deadlines, engine/window/reader identity, exit/lifecycle and clock gates retained.
+Manifest SHA25662a766b2b341d2a6a02712e3ffe8f66c598280fe6ec5779ad500e1c71e3c62b1.
+Preparation SHA256e5ec8ae3f48fd9375775a949af4005f61c00e448ebc66c3f8baa3fdd70083cba13836bytes: only source pin and clean runtime UID owner changed from qualified focused helper.
+Controller SHA256bb6a5ac5daa92254f5dc08c28e2d59c3bff48e223eb33624b856b9a09ed93d24,13841bytes, blob3bbc7d9305a4655798fd82df13d5e3287d67b457.
+
+Independent review cleared actual test setup, corrected void returns, helper/root staging and final published bytes/pins. This packet is cleared for one focused cloud attempt after active export39718772420 completes and is classified. No local Godot/PowerShell, no acceptance before run. The historical153assertion diagnostic result does not qualify these clean fixtures. No export repeat solely for excluded test changes; preserve exact production/export evidence scope. Held product/master/integration unchanged; no merge/release.
