@@ -1,0 +1,193 @@
+# INERT REVIEW CANDIDATE. Install only after external C source review.
+# Focused candidate only: C exact packet review and Director scope reconciliation precede installation.
+name: Loaded witness-save ending qualification
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/scene-first-reveal-profile-diagnostic.yml'
+permissions:
+  contents: read
+concurrency:
+  group: caption-qualification-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+jobs:
+  delivery:
+    if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
+    runs-on: windows-2022
+    timeout-minutes: 50
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      PRODUCT_SHA: 3e28641569c90c06a225368a8889dc9d97db97f2
+      SOURCE_SHA: 936150b8a6effa4febe51419f2b0502c48e5675e
+      PREPARATION_SHA256: dc1dcf714b5f736f2878ae796037a77180d9f1c3ff443989ac29aa80f31da0d9
+      CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+      HARNESS_MANIFEST_SHA256: 309791a254d91b88008bfa413c4393003dc8c5cb9044f5bcfb1e42d495f19e67
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Defer credential removal until the post-job cleanup, after the
+          # malformed gitlinks are removed from this disposable runner's index.
+          persist-credentials: true
+          ref: 3e28641569c90c06a225368a8889dc9d97db97f2
+      - name: Pin external preparation helpers
+        id: preparation_helpers
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $output = Join-Path $env:RUNNER_TEMP 'preparation-evidence'
+          New-Item -ItemType Directory -Force $output | Out-Null
+          if ($env:SOURCE_SHA -cnotmatch '^[a-f0-9]{40}$' -or $env:PREPARATION_SHA256 -cnotmatch '^[a-f0-9]{64}$' -or $env:CAPTURE_SHA256 -cnotmatch '^[a-f0-9]{64}$') { throw 'PREPARATION_REVIEW_PINS_REQUIRED' }
+          $helpers = Join-Path $env:RUNNER_TEMP 'reviewed-preparation'
+          New-Item -ItemType Directory -Force $helpers | Out-Null
+          $prepare = Join-Path $helpers 'prepare_caption.py'
+          $capture = Join-Path $helpers 'capture_import.py'
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_load_20261022/prepare_caption.py" -OutFile $prepare
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/import_integrity_20261020/capture_import.py" -OutFile $capture
+          if ((Get-FileHash $prepare -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:PREPARATION_SHA256) { throw 'PREPARATION_HASH_MISMATCH' }
+          if ((Get-FileHash $capture -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:CAPTURE_SHA256) { throw 'CAPTURE_HASH_MISMATCH' }
+          Copy-Item $prepare, $capture $output
+          "PREPARATION_HELPER=$prepare" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          @{product=$env:PRODUCT_SHA; source=$env:SOURCE_SHA; preparation_sha256=$env:PREPARATION_SHA256; capture_sha256=$env:CAPTURE_SHA256; controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'; powershell=$PSVersionTable.PSVersion.ToString(); os=[Environment]::OSVersion.ToString(); architecture=[Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString(); runner_image=$env:ImageOS; runner_image_version=$env:ImageVersion; python=(& python --version); git=(& git --version)} | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $output 'preparation-origin.json') -Encoding utf8
+      - name: Capture clean source before index cleanup
+        id: preparation_before
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $false
+          $output = Join-Path $env:RUNNER_TEMP 'preparation-evidence'
+          & python $env:PREPARATION_HELPER --phase before --root $env:GITHUB_WORKSPACE --output $output *> (Join-Path $output 'preparation-before.log')
+          $code = $LASTEXITCODE
+          if ($code -ne 0) { throw "PREPARATION_BEFORE_EXIT: $code" }
+      - name: Prepare disposable checkout for credential cleanup
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
+          # submodule foreach reads the index even with sparse checkout.
+          # The source commit and working files remain unchanged.
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git submodule foreach --recursive 'true'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Stage exact external focused harness
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ((git rev-parse HEAD).Trim() -cne $env:PRODUCT_SHA) { throw 'PRODUCT_PIN_MISMATCH' }
+          $harness = Join-Path $env:RUNNER_TEMP 'clean-focused-harness'
+          New-Item -ItemType Directory -Force $harness | Out-Null
+          $manifest = Join-Path $harness 'manifest.json'
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_load_20261022/manifest.json" -OutFile $manifest
+          if ((Get-FileHash $manifest -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:HARNESS_MANIFEST_SHA256) { throw 'HARNESS_MANIFEST_HASH_MISMATCH' }
+          foreach ($entry in (Get-Content $manifest -Raw | ConvertFrom-Json)) {
+            $name = [IO.Path]::GetFileName($entry.path)
+            if ($entry.path -notlike 'tools/testing/*' -or $name -notmatch '^[A-Za-z0-9.-]+$') { continue }
+            $path = Join-Path $harness $name
+            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_load_20261022/$name" -OutFile $path
+            if ((Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $entry.sha256) { throw "HARNESS_HASH_MISMATCH: $name" }
+            if ($name.EndsWith('.ps1')) {
+              $tokens=$null; $parseErrors=$null
+              $null=[Management.Automation.Language.Parser]::ParseFile($path,[ref]$tokens,[ref]$parseErrors)
+              if ($parseErrors.Count -ne 0) { throw ($parseErrors | Out-String) }
+            }
+          }
+          Copy-Item $harness (Join-Path $env:RUNNER_TEMP 'preparation-evidence/harness') -Recurse
+          "FOCUSED_HARNESS=$harness" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Install Godot 4.6.3 standard
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
+          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
+          # SHA256 published with the official 4.6.3-stable release asset.
+          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
+            throw 'Godot archive checksum mismatch.'
+          }
+          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
+          Expand-Archive -LiteralPath $archive -DestinationPath $editor
+          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
+          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
+          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          $output = Join-Path $env:RUNNER_TEMP 'preparation-evidence'
+          & $console --version *> (Join-Path $output 'godot-version.txt')
+          $code = $LASTEXITCODE
+          @{archive_sha256=$expected; executable=$console; executable_sha256=(Get-FileHash $console -Algorithm SHA256).Hash.ToLowerInvariant(); version_exit=$code} | ConvertTo-Json | Set-Content (Join-Path $output 'editor.json') -Encoding utf8
+          if ($code -ne 0) { throw "GODOT_VERSION_EXIT: $code" }
+      - name: Import once with isolated user configuration
+        id: import
+        timeout-minutes: 8
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $false
+          $output = Join-Path $env:RUNNER_TEMP 'preparation-evidence'
+          $userRoot = Join-Path $env:RUNNER_TEMP 'import-user'
+          $env:APPDATA = Join-Path $userRoot 'appdata'
+          $env:LOCALAPPDATA = Join-Path $userRoot 'localappdata'
+          $env:DWM_TEST_ROOT = Join-Path $userRoot 'test-root'
+          New-Item -ItemType Directory -Force -Path $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
+          $arguments = @('--headless','--path',$env:GITHUB_WORKSPACE,'--import','--log-file',(Join-Path $output 'import.log'))
+          $config = @{}
+          foreach ($key in @('APPDATA','LOCALAPPDATA','DWM_TEST_ROOT','USERPROFILE','TEMP','TMP','LANG','LC_ALL','GODOT_EDITOR_SETTINGS','GODOT_USER_HOME','XDG_CONFIG_HOME','XDG_DATA_HOME')) { $config[$key] = [Environment]::GetEnvironmentVariable($key) }
+          @{executable=$env:GODOT_CONSOLE_PATH; arguments=$arguments; cwd=(Get-Location).Path; environment=$config; project_settings='original and post-import project.godot bytes and hashes retained by capture helper'; editor_settings='fresh isolated APPDATA and LOCALAPPDATA; no settings injected'; timeout_minutes=8; started_utc=[DateTime]::UtcNow.ToString('o')} | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $output 'import-command.json') -Encoding utf8
+          & $env:GODOT_CONSOLE_PATH @arguments *> (Join-Path $output 'import-console.log')
+          $code = $LASTEXITCODE
+          @{exit_code=$code; finished_utc=[DateTime]::UtcNow.ToString('o')} | ConvertTo-Json | Set-Content (Join-Path $output 'import-process.json') -Encoding utf8
+          if ($code -ne 0) { throw "IMPORT_PROCESS_EXIT: $code" }
+          if (-not (Test-Path (Join-Path $output 'import.log'))) { throw 'IMPORT_LOG_MISSING' }
+          $pattern = 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character'
+          $matches = @(Select-String -Path (Join-Path $output 'import.log') -Pattern $pattern)
+          @{pattern=$pattern; matches=@($matches | ForEach-Object { $_.ToString() }); passed=($matches.Count -eq 0)} | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $output 'import-filter.json') -Encoding utf8
+          if ($matches.Count -ne 0) { throw 'Project import reported script errors; inspect import.log.' }
+      - name: Always retain imported bytes before any restore
+        id: preparation_after
+        if: always() && steps.preparation_helpers.outcome == 'success'
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $false
+          $output = Join-Path $env:RUNNER_TEMP 'preparation-evidence'
+          & python $env:PREPARATION_HELPER --phase after --root $env:GITHUB_WORKSPACE --output $output *> (Join-Path $output 'preparation-after.log')
+          $code = $LASTEXITCODE
+          if ($code -ne 0) { throw "PREPARATION_AFTER_EXIT: $code" }
+      - name: Restore only verified pinned project settings and check source
+        id: preparation_restore
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $false
+          $output = Join-Path $env:RUNNER_TEMP 'preparation-evidence'
+          & python $env:PREPARATION_HELPER --phase restore --root $env:GITHUB_WORKSPACE --output $output *> (Join-Path $output 'preparation-restore.log')
+          $code = $LASTEXITCODE
+          if ($code -ne 0) { throw "PREPARATION_RESTORE_EXIT: $code" }
+      - name: Rendered fresh-load witness Save and ending boundary
+        id: focused
+        timeout-minutes: 10
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $false
+          & pwsh -NoLogo -NoProfile -NonInteractive -File (Join-Path $env:FOCUSED_HARNESS 'Invoke-EndingLoadBoundary.ps1') -RepositoryRoot $env:GITHUB_WORKSPACE -ExpectedSource $env:PRODUCT_SHA
+          if ($LASTEXITCODE -ne 0) { throw "FOCUSED_RUNNER_EXIT: $LASTEXITCODE" }
+      - name: Always retain and check source after focused tests
+        if: always() && steps.preparation_restore.outcome == 'success'
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $false
+          $output = Join-Path $env:RUNNER_TEMP 'preparation-evidence'
+          & python $env:PREPARATION_HELPER --phase post-tests --root $env:GITHUB_WORKSPACE --output $output *> (Join-Path $output 'preparation-post-tests.log')
+          if ($LASTEXITCODE -ne 0) { throw "POST_TESTS_POLICY_EXIT: $LASTEXITCODE" }
+      - name: Preserve focused evidence even after failure
+        if: always() && (steps.focused.outcome == 'success' || steps.focused.outcome == 'failure' || steps.focused.outcome == 'cancelled')
+        uses: actions/upload-artifact@v4
+        with:
+          name: caption-qualification-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ github.workspace }}/.godot/ci
+            ${{ github.workspace }}/.godot/phase2r_logs
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+      - name: Preserve raw preparation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: caption-preparation-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/preparation-evidence
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7

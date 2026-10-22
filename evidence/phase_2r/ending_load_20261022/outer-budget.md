@@ -1,0 +1,5 @@
+# One bounded full-journey allowance correction
+
+Independent exact review cleared source3e28641569c90c06a225368a8889dc9d97db97f2 unchanged, assets936150b8a6effa4febe51419f2b0502c48e5675e. External runner changes only two120-to240 tokens (receipt and helper argument); SHA256 fda82969441d0726db599e98b21cc2d30b8b4eae784190676cb2b3a4c7627502. Manifest309791a254d91b88008bfa413c4393003dc8c5cb9044f5bcfb1e42d495f19e67. Preparation helper unchanged dc1dcf714b5f736f2878ae796037a77180d9f1c3ff443989ac29aa80f31da0d9. Controller13800bytes SHA2560ebdee041549526a2e30714a056ef188a2d2ba6e8da6dd6a0f4f93e3d56dbf2e blob1a2875617a41a9497e8ecd5e5f32d0f5d1c05e3c,10min step.
+
+Justification and original timeout retained at97ec889469e5b50eea5af17c6ec5f41c180ee1a7. Local15/20/5s bounds, source/capture/JUnit gates and production remain unchanged. One attempt; further outer timeout requires phase evidence, not another speculative extension. No performance/native/export qualification implied.
