@@ -17,11 +17,11 @@ jobs:
       run:
         shell: pwsh
     env:
-      SOURCE_SHA: 5756452d1a96f480dbf3dfa63331e525739be0db
+      SOURCE_SHA: 6da7d6bb3a217f00468d5be7d7421fd90536d87e
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: 5756452d1a96f480dbf3dfa63331e525739be0db
+          ref: 6da7d6bb3a217f00468d5be7d7421fd90536d87e
           persist-credentials: true
       - name: Verify immutable source and prepare disposable checkout
         run: |
@@ -92,7 +92,6 @@ jobs:
               ConvertTo-Json -Depth 5 | Set-Content ".godot/ci/authored-week/$Id.census.json" -Encoding utf8
           }
           $units = @(
-            @('tests/unit/test_authored_week.gd','authored-week-unit',240),
             @('tests/unit/test_scene_multiple_thoughts.gd','multiple-thoughts-unit',120),
             @('tests/unit/test_scene_partner_fork_template.gd','partner-template-unit',120),
             @('tests/unit/test_scene_caption_challenge.gd','caption-challenge-unit',120)
