@@ -1,0 +1,27 @@
+{
+  "byte_hashes": 5205,
+  "source_pins": 14,
+  "assertions": [
+    102,
+    234
+  ],
+  "child_wall_seconds": [
+    62.048954,
+    222.397271
+  ],
+  "timings": {
+    "loader_to_witness": 16.884691,
+    "witness_save_back": 43.060725,
+    "remaining_walk": 61.328515,
+    "ending_entry_readiness": 24.4869,
+    "ending_evidence": 0.317123,
+    "ending_accept": 59.34727,
+    "title_after_accept": 0.00292,
+    "completion_checks": 0.200303,
+    "fresh_day1": 6.712066,
+    "writer_1": 17.118577,
+    "writer_2": 20.044663,
+    "writer_3": 21.980125
+  },
+  "phase_marks": 133
+}
