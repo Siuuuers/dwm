@@ -211,7 +211,9 @@ jobs:
         if: always()
         run: |
           @'
-          import base64,hashlib,io,json,pathlib,subprocess,zipfile
+          import base64,hashlib,io,json,pathlib,subprocess,sys,zipfile
+          sys.stdout.reconfigure(encoding="utf-8", errors="backslashreplace")
+          sys.stderr.reconfigure(encoding="utf-8", errors="backslashreplace")
           out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
           missing=[]
           omitted_assets=[]
@@ -234,10 +236,6 @@ jobs:
                   omitted_assets.append({'path':source,'bytes':original.stat().st_size,'sha256':hashlib.sha256(original.read_bytes()).hexdigest()});continue
               p=out/'source'/source;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(original.read_bytes())
           (out/'omitted-assets.json').write_text(json.dumps(omitted_assets,indent=2))
-          for log in pathlib.Path('.godot/phase2r_logs').glob('*.log'):
-              print('DWM_LOG_TAIL_BEGIN '+str(log))
-              print('\n'.join(log.read_text(encoding='utf-8-sig',errors='replace').splitlines()[-250:]))
-              print('DWM_LOG_TAIL_END '+str(log))
           (out/'missing-retained-sources.json').write_text(json.dumps(missing,indent=2))
           (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
           files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))
@@ -248,6 +246,10 @@ jobs:
               for p in files:z.write(p,p.relative_to('.godot').as_posix())
           data=payload.getvalue()
           (out/'original-evidence.zip').write_bytes(data)
+          for log in pathlib.Path('.godot/phase2r_logs').glob('*.log'):
+              print('DWM_LOG_TAIL_BEGIN '+str(log))
+              print('\n'.join(log.read_text(encoding='utf-8-sig',errors='replace').splitlines()[-250:]))
+              print('DWM_LOG_TAIL_END '+str(log))
           if len(data)>8*1024*1024:
               print('DWM_EVIDENCE_ARTIFACT_ONLY '+json.dumps({'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}));raise SystemExit(0)
           print('DWM_EVIDENCE_BEGIN '+json.dumps({'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}))
