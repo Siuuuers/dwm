@@ -199,11 +199,16 @@ func test_enlarged_japanese_coin_metadata_fits_the_pinned_band() -> void:
 			var state: Label = f.shop._meta_state
 			assert_eq(price.text, "3 コイン")
 			assert_eq(state.text, "在庫あり" if available else "売り切れ")
-			var band := Rect2(480, 336 if large else 400, 304, 48)
+			# Enlarged text uses the expanded dock even without Large Targets.
+			# Pinned line metrics may consume information space, never dock space.
+			var band := Rect2(480, 16, 304, 368)
+			var information_bottom: float = f.shop.info_scroll.position.y + f.shop.info_scroll.size.y
 			for label: Label in [price, state]:
 				assert_true(label.is_visible_in_tree())
 				assert_eq(label.get_theme_font_size("font_size"), 36)
 				assert_true(band.encloses(label.get_rect()))
+				assert_lte(information_bottom, label.position.y)
+				assert_eq(label.position.y + label.size.y, 384.0)
 				var measured := label.get_theme_font("font").get_string_size(label.text,
 					HORIZONTAL_ALIGNMENT_LEFT, -1, label.get_theme_font_size("font_size"))
 				assert_lte(measured.x, label.size.x)

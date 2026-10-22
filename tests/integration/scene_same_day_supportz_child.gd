@@ -36,8 +36,25 @@ func create_same_day_supportz() -> void:
 	await _screenshot("same-day-supportz-eligible-before-save")
 	await _click(_controls(host, "CheckComputer"))
 	assert_false(host.is_computer_open())
+	var before_save: Dictionary = game.capture_run_snapshot_input().duplicate(true)
+	assert_eq(typeof(before_save.desktop.board.board.board.outcome), TYPE_STRING_NAME,
+		"real reducer retains its native enum before serialization")
+	var before_encoded: Dictionary = WRITER.stringify(before_save)
+	if not _ok(before_encoded): return
 	if not await _save_slot(1): return
-	var run: Dictionary = BOARD_STATE._inspection_normalize(game.capture_run_snapshot_input())
+	var after_save: Dictionary = game.capture_run_snapshot_input()
+	assert_eq(after_save, before_save, "manual Save never mutates board, receipts or gameplay")
+	assert_eq(typeof(after_save.desktop.board.board.board.outcome), TYPE_STRING_NAME)
+	var run: Dictionary = BOARD_STATE._inspection_normalize(after_save)
+	var after_encoded: Dictionary = WRITER.stringify(run)
+	if not _ok(after_encoded): return
+	assert_eq(after_encoded.value.sha256_text(), before_encoded.value.sha256_text(),
+		"producer normalization preserves canonical hashes")
+	var slot: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/slot_1.json"))
+	if not _ok(slot): return
+	var saved_board: Dictionary = slot.value.current_snapshot.snapshot.desktop.board
+	assert_eq(typeof(saved_board.board.board.outcome), TYPE_STRING)
+	assert_eq(saved_board, run.desktop.board, "strict JSON slot preserves the complete settled board")
 	assert_eq(run.desktop.consequence.shop_ledger.base_completion_receipts.size(), 2)
 	assert_eq(run.desktop.consequence.shop_ledger.supportz_branch_purchase_count, 0)
 	var proof := {"process_id": OS.get_process_id(), "run": run,

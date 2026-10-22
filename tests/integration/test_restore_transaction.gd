@@ -289,3 +289,39 @@ func test_failed_restore_finalization_restores_prior_journal_and_releases_save_l
 	assert_false(wired.gate.is_fatal_latched())
 	assert_true(restored.is_empty(),"No successful restore is published")
 	assert_false(log.entries.has("route.finalize"),"Narrative failure cannot dispatch the scene")
+
+
+class SparseRollbackFailure extends RefCounted:
+	func rollback_silent(_backup: Dictionary) -> Dictionary:
+		return {"ok": false, "code": &"TEST.rollback_refused", "message": "owner could not restore"}
+
+func test_failed_rollback_preserves_sparse_owner_and_original_refusals() -> void:
+	var log: RefCounted = load(CALL_LOG).new()
+	var wired := _manager(log)
+	if wired.is_empty(): return
+	var manager: Node = wired.manager
+	manager._restore_participants["run"] = SparseRollbackFailure.new()
+	var acquired: Dictionary = wired.gate.acquire(&"restore")
+	assert_true(acquired.ok, str(acquired))
+	if not acquired.ok: return
+	assert_true(manager.acquire_save_lock(&"restore").ok)
+	var original := {"ok": false, "code": &"TEST.original_refusal", "message": "initial owner refusal"}
+	var before := original.duplicate(true)
+	var applied: Array[String] = ["run"]
+	var result: Dictionary = manager._rollback_transaction(&"restore", applied, {"run": {}},
+		acquired.value.token, true, original)
+	assert_eq(result.get("code"), &"APPLICATION_FATAL")
+	assert_true(wired.gate.is_fatal_latched())
+	assert_true(manager.is_save_locked(), "uncertain compensation retains save custody")
+	assert_eq(original, before, "diagnostic projection cannot change owner evidence")
+	var diagnostics: Array = result.details.failure.details.diagnostics
+	assert_eq(diagnostics.size(), 2)
+	assert_eq(diagnostics[0].owner_id, "run")
+	assert_eq(diagnostics[0].operation, "rollback_silent")
+	assert_eq(diagnostics[0].code, "TEST.rollback_refused")
+	assert_eq(diagnostics[0].message, "owner could not restore")
+	assert_eq(diagnostics[0].details, {})
+	assert_eq(diagnostics[1].operation, "original_failure")
+	assert_eq(diagnostics[1].code, "TEST.original_refusal")
+	assert_eq(diagnostics[1].message, "initial owner refusal")
+	assert_eq(diagnostics[1].details, {})

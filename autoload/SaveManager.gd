@@ -1470,18 +1470,29 @@ func _rollback_transaction(owner: StringName, applied: Array[String], backups: D
 	if all_recovered:
 		_release_transaction(owner, gate_token, holds_save_lock)
 		return original_failure
+	# Compensation failure must not erase the refusal that started recovery.
+	attempts.append({"owner_id": String(owner), "operation": "original_failure", "result": original_failure})
 	return _fatal_transaction_recovery(String(owner), attempts)
 
 func _fatal_transaction_recovery(source: String, raw_diagnostics: Array) -> Dictionary:
 	if _mutation_gate == null:
 		return {"ok": false, "code": &"restore_rollback_failed", "message": "rollback failed with no gate"}
+	# Owner failures may omit optional message/details. Complete only those
+	# absent fields at this boundary; malformed supplied values stay visible to
+	# the strict projector. Never mutate the owner's retained result.
+	var diagnostics: Array = raw_diagnostics.duplicate(true)
+	for diagnostic: Dictionary in diagnostics:
+		var result: Variant = diagnostic.get("result")
+		if result is Dictionary and typeof(result.get("ok")) == TYPE_BOOL and not result.ok:
+			if not result.has("message"): result["message"] = ""
+			if not result.has("details"): result["details"] = {}
 	var already_retained := false
-	for diagnostic: Dictionary in raw_diagnostics:
+	for diagnostic: Dictionary in diagnostics:
 		if str((diagnostic.get("result", {}) as Dictionary).get("code", "")) == "APPLICATION_FATAL":
 			already_retained = true
 	if not already_retained and not _mutation_gate.is_fatal_latched():
 		var projected: Dictionary = PROJECTOR.project_failure(
-			source, "rollback", "fatal_rollback_failed", {"phase": source + "_recovery"}, raw_diagnostics)
+			source, "rollback", "fatal_rollback_failed", {"phase": source + "_recovery"}, diagnostics)
 		var candidate: Dictionary = PROJECTOR.get_invariant_fallback()
 		if projected.get("ok", false) and PROJECTOR.validate_failure(projected["value"]["failure"]).get("ok", false):
 			candidate = projected["value"]["failure"]
@@ -1946,7 +1957,11 @@ func _capture_backup_inputs() -> Dictionary:
 	return {"ok": true, "value": inputs}
 
 func _compose_live_checkpoint_input(snapshot_input: Dictionary) -> Dictionary:
-	if snapshot_input.has("scene"): return snapshot_input
+	if snapshot_input.has("scene"):
+		# Manual Save is a producer boundary, just like checkpoint-port Autosave.
+		# Reducer enums remain StringName in live state; normalize only this outgoing
+		# projection with the existing shared conversion, never stored Load input.
+		return preload("res://scripts/application/run/SaveManagerCheckpointPort.gd")._normalize_json_string_types(snapshot_input)
 	var view: Object = _restore_participants.get("schedule_view")
 	if is_instance_valid(view) and view.has_method("compose_live_checkpoint_input"):
 		return view.compose_live_checkpoint_input(snapshot_input)
