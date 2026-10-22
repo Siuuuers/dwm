@@ -1,4 +1,4 @@
-# Inert until exact native-generated source is published and d5eb03ef2d72c5b7cad4265bc83d0d4a969c3e29 replaced.
+# Inert until exact native-generated source is published and fa8cf991fcf57d5657c789de522a95e3bb1450bd replaced.
 name: Seven DTL Windows package and startup qualification
 on:
   pull_request:
@@ -19,7 +19,7 @@ jobs:
       run:
         shell: pwsh
     env:
-      PRODUCT_SHA: d5eb03ef2d72c5b7cad4265bc83d0d4a969c3e29
+      PRODUCT_SHA: fa8cf991fcf57d5657c789de522a95e3bb1450bd
       PACKET_SHA: a4f3788f03712a9fe58a74ed56b27adb032809e8
       CAPTURE_SHA256: efdac580f665a3028ee669eb40daf803013025f92f8dcf41a86ba25f21c362da
     steps:
@@ -28,11 +28,11 @@ jobs:
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
-          ref: d5eb03ef2d72c5b7cad4265bc83d0d4a969c3e29
+          ref: fa8cf991fcf57d5657c789de522a95e3bb1450bd
       - name: Retain pinned source and provenance
         run: |
           $ErrorActionPreference = 'Stop'
-          if ($env:PRODUCT_SHA -cnotmatch '^[a-f0-9]{40}$') { throw 'PUBLISHED_GENERATED_d5eb03ef2d72c5b7cad4265bc83d0d4a969c3e29_REQUIRED' }
+          if ($env:PRODUCT_SHA -cnotmatch '^[a-f0-9]{40}$') { throw 'PUBLISHED_GENERATED_fa8cf991fcf57d5657c789de522a95e3bb1450bd_REQUIRED' }
           $output = Join-Path $env:RUNNER_TEMP 'seven-export-source'
           New-Item -ItemType Directory -Force $output | Out-Null
           $capture = Join-Path $output 'capture_seven.py'
