@@ -87,3 +87,19 @@ The default reuses package and receipt from run 39867537354, validates all hashe
 and skips Godot export. Select rebuild only if that artifact has expired or a
 fresh export of the same pinned source is needed. Failed exports still block upload.
 The artifact expires 2026-10-30 at approximately 06:50 Hong Kong time.
+
+## Confirmed Steam upload — 2026-10-23 06:56 Hong Kong time
+
+Run https://github.com/Siuuuers/dwm/actions/runs/39868383769 succeeded.
+Steam job 120136280417 verified the existing package hashes, passed SteamPipe
+preview and reported Uploaded BuildID: 26146382. No Steam branch was set live.
+AppID 5199120; DepotID 5199121; runtime source
+cc40aee5722afaa24e8a8daa556e8c27bc956810.
+This reused the verified export from run 39867537354; no new game export was needed.
+
+The prior bootstrap/authentication/upload pending status above is historical.
+Authentication and upload are now confirmed. Still pending: select this BuildID
+on a protected Steam test branch, verify the Windows launch option DWM.exe and
+testing-package depot access, then install through Steam and check language,
+art/music and Save/Load with fresh saves. No Steam installation, graphical
+whole-game acceptance, public release or Valve review approval is claimed.
