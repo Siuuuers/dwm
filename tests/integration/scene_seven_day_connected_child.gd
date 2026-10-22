@@ -75,9 +75,11 @@ func _walk(first_day: int, first_half: int, last_day: int, last_half: int) -> bo
 		for half: int in range(1, 3):
 			if day == first_day and half < first_half: continue
 			if day == last_day and half > last_half: continue
+			_ending_phase("walk.Day%d.%d.begin" % [day, half])
 			await _accept()
 			var line_id := "line.Day%d.%s" % [day, "one" if half == 1 else "two"]
 			if not await _wait_line(line_id): return false
+			_ending_phase("walk.Day%d.%d.ready" % [day, half])
 			var expected_text := "TEST Day%d %s." % [day, "opening" if half == 1 else "closing"]
 			assert_eq(_native_observation().text.strip_edges(), expected_text)
 	return true
@@ -126,6 +128,8 @@ func create_week() -> void:
 	_write_json("res://.godot/ci/scene-seven-day-create-proof.json", proof)
 
 func load_and_complete_week(stop_after_load: bool = false, witness_save: bool = false) -> void:
+	_ending_phase_timing = witness_save
+	_ending_phase("loader.begin")
 	var parsed: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string(WEEK_PROOF))
 	if not _ok(parsed): return
 	var proof: Dictionary = parsed.value
@@ -182,17 +186,26 @@ func load_and_complete_week(stop_after_load: bool = false, witness_save: bool = 
 	assert_eq(profile.get_profile_snapshot(), proof.profile)
 	await _screenshot("seven-day-day4-restored-full")
 	if stop_after_load: return
+	_ending_phase("witness_save.begin")
 	if witness_save and not await _save_restored_witness(proof): return
+	_ending_phase("witness_save.return")
+	_ending_phase("remaining_walk.begin")
 	if not await _walk(5, 1, 7, 2): return
+	_ending_phase("remaining_walk.return")
 	assert_eq(observed_lines.size(), 6, "remaining six captions observed in order")
 	assert_true(game.capture_dating_challenge_state().value.is_empty(), "seven-day reading does not require Minesweeper")
 	var prior_layout: Node = bridge._runtime_adapter._dialogic.Styles.get_layout_node()
 	var prior_layout_ref: WeakRef = weakref(prior_layout)
 	var prior_layout_id: int = prior_layout.get_instance_id()
+	_ending_phase("ending_entry.begin")
 	await _accept()
+	_ending_phase("ending_entry.accept_return")
 	var ending_ready: bool = await _wait_line("line.ending.alone.normal.one")
+	_ending_phase("ending_readiness.return")
 	if witness_save:
+		_ending_phase("ending_evidence.begin")
 		await _record_witness_ending(prior_layout_ref, prior_layout_id, ending_ready)
+		_ending_phase("ending_evidence.return")
 	if not ending_ready: return
 	var terminal_scene: Node = get_tree().current_scene
 	assert_true(terminal_scene is EndingScene, "terminal registration mounts real EndingScene")
@@ -207,8 +220,11 @@ func load_and_complete_week(stop_after_load: bool = false, witness_save: bool = 
 	# This opt-in journey keeps slot 2 as the restored Day4 witness, like export.
 	# The original ending-save/terminal-load journey remains unchanged by default.
 	if not witness_save and not await _save_ending_caption(): return
+	_ending_phase("ending_completion.begin")
 	await _accept()
+	_ending_phase("ending_completion.accept_return")
 	if not await _wait_route(MENU): return
+	_ending_phase("title.ready")
 	var finished: Dictionary = game._run_lifecycle.to_dict()
 	assert_eq(finished.state, "COMPLETED")
 	assert_eq(finished.ending_plan.next_step_index, 1, "physical ending completed once")
@@ -240,7 +256,9 @@ func load_and_complete_week(stop_after_load: bool = false, witness_save: bool = 
 			assert_eq(FileAccess.get_sha256(destination), FileAccess.get_sha256(source))
 			terminal_files[name] = {"file": destination, "sha256": FileAccess.get_sha256(destination)}
 		if not _write_json("res://.godot/ci/scene-seven-day-completed-files.json", terminal_files): return
+	_ending_phase("completion_checks.return")
 	if not await _new_from_title(2): return
+	_ending_phase("fresh_day1.ready")
 	var fresh: Dictionary = game.capture_run_snapshot_input()
 	assert_ne(fresh.lifecycle.run_id, proof.source_run)
 	assert_ne(fresh.lifecycle.branch_id, current.lifecycle.branch_id)
@@ -320,7 +338,9 @@ func _save_restored_witness(proof: Dictionary) -> bool:
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.slot_sha256)
 	var witness_hash := FileAccess.get_sha256(PATH)
 	# Exercise the actual Back owner; no direct leave_host/request_continue shortcut.
+	_ending_phase("witness_back.begin")
 	if not await _press_witness(sheet.surface._sheet_back, "witness Backup Back"): return false
+	_ending_phase("witness_back.return")
 	assert_false(sheet.surface.visible)
 	assert_false(get_tree().paused)
 	if sheet.surface.visible or get_tree().paused: return false
@@ -397,4 +417,5 @@ func _save_ending_caption() -> bool:
 	await _screenshot("seven-day-ending-saved")
 	if not _write_json("user://scene-seven-day-ending-proof.json", proof): return false
 	return _write_json("res://.godot/ci/scene-seven-day-ending-save-proof.json", proof)
+
 

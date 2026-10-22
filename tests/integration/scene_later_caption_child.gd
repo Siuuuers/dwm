@@ -4,6 +4,13 @@ extends "res://tests/integration/scene_computer_child.gd"
 const PROOF_PATH := "user://scene-later-caption-proof.json"
 const LOOP_LINE := "line.scene.test.a.two"
 var _ready_observation: Dictionary = {}
+# Opt-in test observations only; monotonic ticks share the engine process origin.
+var _ending_phase_timing: bool = false
+
+func _ending_phase(label: String) -> void:
+	if _ending_phase_timing:
+		print("ENDING_LOAD_PHASE pid=", OS.get_process_id(), " ticks_usec=", Time.get_ticks_usec(), " phase=", label)
+
 
 func _screenshot(label: String) -> void:
 	var overlay := get_tree().root.find_child("GutLayer", true, false)
@@ -32,6 +39,7 @@ func _native_observation(retained_native: Node = null) -> Dictionary:
 		"ledger": bridge._reading_session.ledger.snapshot().duplicate(true)}
 
 func _accept(wait_for_input: bool = true) -> void:
+	_ending_phase("accept.begin")
 	# Native reveal completion and manual-input readiness are distinct. Organic
 	# reveal starts Dialogic's advance-delay guard after publishing text_finished.
 	# Observe that owner; never stop its timer or use Save as a timing workaround.
@@ -42,6 +50,7 @@ func _accept(wait_for_input: bool = true) -> void:
 			await get_tree().process_frame
 		assert_false(inputs.is_input_blocked(), "native manual input is ready")
 		if inputs.is_input_blocked(): return
+	_ending_phase("accept.input_ready")
 	var overlay := get_tree().root.find_child("GutLayer", true, false)
 	if overlay is CanvasLayer: overlay.hide()
 	var caption: Node = _caption()
@@ -50,14 +59,19 @@ func _accept(wait_for_input: bool = true) -> void:
 	caption.caption_text.grab_focus()
 	await get_tree().process_frame
 	assert_true(caption.caption_text.has_focus(), "caption owns Accept focus")
+	_ending_phase("accept.focus_checked")
 	for pressed: bool in [true, false]:
 		var event := InputEventKey.new()
 		event.keycode = KEY_ENTER
 		event.physical_keycode = KEY_ENTER
 		event.pressed = pressed
+		_ending_phase("accept.press.before" if pressed else "accept.release.before")
 		get_viewport().push_input(event, true)
+		_ending_phase("accept.press.return" if pressed else "accept.release.return")
 		await get_tree().process_frame
+		_ending_phase("accept.press.frame" if pressed else "accept.release.frame")
 	for frame: int in 4: await get_tree().process_frame
+	_ending_phase("accept.return")
 
 func _assert_source_files(proof: Dictionary) -> void:
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.slot_sha256)
@@ -198,3 +212,4 @@ func load_later_caption() -> void:
 	proof["ready_native"] = _ready_observation
 	proof["continued_checkpoint"] = continued.value
 	_write_json("res://.godot/ci/scene-later-caption-load-proof.json", proof)
+
