@@ -18,14 +18,14 @@ jobs:
       run:
         shell: pwsh
     env:
-      PRODUCT_SHA: 532e0e1ab8f0048fc3bf1f84a87de5731eba8c14
+      PRODUCT_SHA: 96999b674dea4cdaabeb8f44e57caa7aad3cfdc9
       PACKET_SHA: 33b488edea4283e6163d0c3faf2c2d2e6e2b1ce1
       MANIFEST_SHA256: 2827c5c2ea4dd30285f213c35bb51717e1a73a528395b8b708136b19881844ec
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: true
-          ref: 532e0e1ab8f0048fc3bf1f84a87de5731eba8c14
+          ref: 96999b674dea4cdaabeb8f44e57caa7aad3cfdc9
       - name: Pin external qualification packet and clean source
         run: |
           $ErrorActionPreference = 'Stop'
@@ -96,7 +96,7 @@ jobs:
           $child.Refresh()
           @{exit_code=$child.ExitCode; pid=$child.Id; timeout_seconds=480} | ConvertTo-Json | Set-Content (Join-Path $env:RUNNER_TEMP 'seven-evidence/import-process.json')
           if ($child.ExitCode -ne 0) { throw "IMPORT_EXIT: $($child.ExitCode)" }
-          if (Select-String -Path (Join-Path $logRoot 'seven-import.log') -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character') { throw 'IMPORT_DIAGNOSTIC' }
+          if (Select-String -Path (Join-Path $logRoot 'seven-import.log'),(Join-Path $logRoot 'seven-import.stderr.log') -Pattern 'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character') { throw 'IMPORT_DIAGNOSTIC' }
       - name: Retain imported files then restore exact project settings
         if: always() && steps.import.outcome != 'skipped'
         run: |
