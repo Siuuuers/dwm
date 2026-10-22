@@ -102,17 +102,18 @@ static func build(
 			"checkpoint_kind": str(current_bundle["checkpoint_kind"]),
 			"snapshot": bundle_error["value"]["candidate"],
 		},
-		"recovery_journal": (_proven_entries(proven_journal) if proven
-			else RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(journal)),
+		"recovery_journal": (_profile_compose_build_journal(journal, proven_journal, proven, profile)),
 	}
 	tick = _profile_phase(profile, "document_schema_compose_us", tick)
 	var family_error := _journal_family_error(document.schema_version, document.recovery_journal)
 	if not family_error.is_empty(): return _fail(&"invalid_recovery_journal", family_error)
 	if document.schema_version == SCENE_DOCUMENT_VERSION:
 		if proven:
+			var proof_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
 			var proof_error := _scene_proof_error(journal, proven_journal)
+			_profile_phase(profile, "document_schema_proof_equality_us", proof_tick)
 			if not proof_error.is_empty(): return _fail(&"invalid_recovery_journal", proof_error)
-		var scene_error := _scene_journal_error(document.current_snapshot, document.recovery_journal)
+		var scene_error := _profile_scene_journal_error(document.current_snapshot, document.recovery_journal, profile, "document_schema")
 		if not scene_error.is_empty(): return _fail(&"invalid_recovery_journal", scene_error)
 	if not saved_time.is_empty():
 		document["saved_time"] = RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(
@@ -260,11 +261,14 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 	tick = _profile_phase(profile, "outgoing_schema_compose_current_us", tick)
 	if use_proven_journal:
 		if candidate.schema_version == SCENE_DOCUMENT_VERSION:
+			var proof_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
 			var proof_error := _scene_proof_error(candidate.recovery_journal, proven_journal)
+			_profile_phase(profile, "outgoing_schema_proof_equality_us", proof_tick)
 			if not proof_error.is_empty(): return _fail(&"invalid_recovery_journal", proof_error)
 		# The document's own entries are not validated here because they are not what is being
 		# written: the caller's proven bundles are, one per entry, in this order. See
 		# `validate_outgoing()` for the obligation that carries and the equivalence it rests on.
+		var composition_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
 		var composed: Array = []
 		if normalized_proofs:
 			composed = _proven_entries(proven_journal)
@@ -272,10 +276,11 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 			for bundle: Variant in proven_journal:
 				composed.append(_normalize_engine_text(bundle))
 		candidate["recovery_journal"] = composed
+		_profile_phase(profile, "outgoing_schema_journal_composition_us", composition_tick)
 		var composed_family_error := _journal_family_error(candidate.schema_version, composed)
 		if not composed_family_error.is_empty(): return _fail(&"invalid_recovery_journal", composed_family_error)
 		if candidate.schema_version == SCENE_DOCUMENT_VERSION:
-			var scene_error := _scene_journal_error(candidate.current_snapshot, composed)
+			var scene_error := _profile_scene_journal_error(candidate.current_snapshot, composed, profile, "outgoing_schema")
 			if not scene_error.is_empty(): return _fail(&"invalid_recovery_journal", scene_error)
 		_profile_phase(profile, "outgoing_schema_compose_proven_journal_us", tick)
 		return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
@@ -315,12 +320,13 @@ static func _journal_family_error(version: int, journal: Array) -> String:
 			return "Run9 recovery cannot belong to Save8"
 	return ""
 
-static func _scene_journal_error(current: Dictionary, journal: Array) -> String:
+static func _scene_journal_error(current: Dictionary, journal: Array,
+		profile: Dictionary = {}, phase: String = "") -> String:
 	var source: Dictionary = current.snapshot
 	var seen := {source.checkpoint_id: true}
 	for raw: Variant in journal:
 		if not raw is Dictionary: return "scene journal bundle must be an object"
-		var checked := _validate_bundle(raw)
+		var checked := _profile_validate_scene_journal_bundle(raw, profile, phase)
 		if not checked.ok: return str(checked.get("code", "invalid scene journal bundle"))
 		var saved: Dictionary = checked.value.candidate
 		if saved.schema_version != SCENE_DOCUMENT_VERSION or saved.run_id != source.run_id \
@@ -342,6 +348,67 @@ static func _scene_proof_error(journal: Array, proofs: Array) -> String:
 		if not entry is Dictionary or not proof is Dictionary or entry != proof:
 			return "scene journal proof does not match its bundle"
 	return ""
+
+## Opt-in nested observations only: none of these values enter a save candidate.
+## A missing return produces no completed timing. Parent and child durations are not additive.
+static func _profile_compose_build_journal(journal: Array, proofs: Array, proven: bool,
+		profile: Dictionary) -> Array:
+	var started := Time.get_ticks_usec() if not profile.is_empty() else 0
+	var composed: Array = (_proven_entries(proofs) if proven
+		else RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(journal))
+	_profile_phase(profile, "document_schema_journal_composition_us", started)
+	return composed
+
+static func _profile_scene_journal_error(current: Dictionary, journal: Array,
+		profile: Dictionary, phase: String) -> String:
+	if profile.is_empty(): return _scene_journal_error(current, journal)
+	profile[phase + "_journal_inclusive_nested"] = true
+	profile[phase + "_journal_entries"] = []
+	profile[phase + "_journal_bundle_us"] = 0
+	profile[phase + "_journal_input_count"] = journal.size()
+	profile[phase + "_journal_current"] = _profile_bundle_labels(current)
+	var started := Time.get_ticks_usec()
+	var error := _scene_journal_error(current, journal, profile, phase)
+	var elapsed := Time.get_ticks_usec() - started
+	profile[phase + "_scene_journal_us"] = elapsed
+	# Residual includes cross-entry checks, labels and diagnostic bookkeeping, not only checks.
+	profile[phase + "_journal_checks_and_observation_us"] = elapsed - int(profile[phase + "_journal_bundle_us"])
+	profile[phase + "_scene_journal_ok"] = error.is_empty()
+	return error
+
+static func _profile_validate_scene_journal_bundle(raw: Dictionary,
+		profile: Dictionary, phase: String) -> Dictionary:
+	if profile.is_empty(): return _validate_bundle(raw)
+	var started := Time.get_ticks_usec()
+	var checked := _validate_bundle(raw)
+	var elapsed := Time.get_ticks_usec() - started
+	var records: Array = profile[phase + "_journal_entries"]
+	var record := _profile_bundle_labels(raw)
+	record["ordinal"] = records.size()
+	record["elapsed_us"] = elapsed
+	record["ok"] = bool(checked.get("ok", false))
+	records.append(record)
+	profile[phase + "_journal_bundle_us"] = int(profile[phase + "_journal_bundle_us"]) + elapsed
+	return checked
+
+static func _profile_bundle_labels(raw: Dictionary) -> Dictionary:
+	var record := {}
+	# Read only existing scalars, defensively; no normalization, copy, hash or owner call.
+	var snapshot: Variant = raw.get("snapshot")
+	if snapshot is Dictionary:
+		if typeof(snapshot.get("checkpoint_sequence")) == TYPE_INT:
+			record["checkpoint_sequence"] = snapshot.checkpoint_sequence
+		var lifecycle: Variant = snapshot.get("lifecycle")
+		if lifecycle is Dictionary:
+			var state: Variant = lifecycle.get("state")
+			if typeof(state) in [TYPE_STRING, TYPE_STRING_NAME] and String(state) in RUN_SNAPSHOT_SCHEMA.LIFECYCLE_STATES:
+				record["lifecycle_state"] = String(state)
+			var ending_plan: Variant = lifecycle.get("ending_plan")
+			if ending_plan is Dictionary:
+				var stage: Variant = ending_plan.get("playback_stage")
+				if typeof(stage) in [TYPE_STRING, TYPE_STRING_NAME] and String(stage) in RUN_SNAPSHOT_SCHEMA.PLAYBACK_SEQUENCE:
+					record["playback_stage"] = String(stage)
+	return record
 
 ## These subphases are nested inside the checkpoint port's inclusive schema timers.
 static func _profile_phase(profile: Dictionary, phase: String, started_us: int) -> int:
