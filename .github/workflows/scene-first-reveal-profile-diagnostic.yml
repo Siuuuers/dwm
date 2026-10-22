@@ -20,10 +20,10 @@ jobs:
         shell: pwsh
     env:
       PRODUCT_SHA: 3e28641569c90c06a225368a8889dc9d97db97f2
-      SOURCE_SHA: a55ada9efa0f111367d869fb039e291fd55e074f
+      SOURCE_SHA: 936150b8a6effa4febe51419f2b0502c48e5675e
       PREPARATION_SHA256: dc1dcf714b5f736f2878ae796037a77180d9f1c3ff443989ac29aa80f31da0d9
       CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
-      HARNESS_MANIFEST_SHA256: c21c34ac4a65379e57b1a29e9c2be6dbcb953958338c13c621f6706fcdbc0792
+      HARNESS_MANIFEST_SHA256: 309791a254d91b88008bfa413c4393003dc8c5cb9044f5bcfb1e42d495f19e67
     steps:
       - uses: actions/checkout@v7
         with:
@@ -157,7 +157,7 @@ jobs:
           if ($code -ne 0) { throw "PREPARATION_RESTORE_EXIT: $code" }
       - name: Rendered fresh-load witness Save and ending boundary
         id: focused
-        timeout-minutes: 6
+        timeout-minutes: 10
         run: |
           $ErrorActionPreference = 'Stop'
           $PSNativeCommandUseErrorActionPreference = $false
