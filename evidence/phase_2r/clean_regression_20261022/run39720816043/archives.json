@@ -1,0 +1,132 @@
+{
+  "run": 39720816043,
+  "attempt": 1,
+  "archives": [
+    {
+      "name": "caption-qualification-39720816043-1.zip",
+      "artifact_id": 12401106094,
+      "bytes": 10865,
+      "sha256": "5dff5ebfba72983aaeb0b3c1f5ec251847054c2ae90d59231e5450188704a49b",
+      "parts": [
+        {
+          "name": "caption-qualification-39720816043-1.zip",
+          "sha": "ddd8c72067c1e3cd45a306cedc68d6ad1c5fd7d8",
+          "size": 10865
+        }
+      ]
+    },
+    {
+      "name": "caption-preparation-39720816043-1.zip",
+      "artifact_id": 12401071301,
+      "bytes": 10825433,
+      "sha256": "e537f8ed06cdb361c56c7ebade4628b188af7c82d893223a582580cb2634b36b",
+      "parts": [
+        {
+          "name": "caption-preparation-39720816043-1.zip.part000",
+          "sha": "f73bcea02c8402342e903440b37e90b0f576f8d4",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720816043-1.zip.part001",
+          "sha": "3e50eebc27cc381d50377a2f11bdacf9f1ec8fb6",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720816043-1.zip.part002",
+          "sha": "ca769129e79eee41093b90b6fb4945955b55295f",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720816043-1.zip.part003",
+          "sha": "498bd2625a1cddac5b78770f8c91826126150db9",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720816043-1.zip.part004",
+          "sha": "513254348998798d3f4ed76adfbbf77fa7ca2129",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720816043-1.zip.part005",
+          "sha": "0458b659defa660c430f746374910a7248b7b957",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720816043-1.zip.part006",
+          "sha": "b328a5ced6283e5f70eb7d4434d1a74ae5c5e9e0",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720816043-1.zip.part007",
+          "sha": "afabbb8bdbaae1573f2fbb50e971cc04607b3136",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720816043-1.zip.part008",
+          "sha": "afb84323db904aad6d8484cfcf59746b4274d958",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720816043-1.zip.part009",
+          "sha": "c2d6aa7ce78dce52f11b501f46578347d73aad7a",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720816043-1.zip.part010",
+          "sha": "6bfb477cffa03b8435493a788c519b3e02b60efd",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720816043-1.zip.part011",
+          "sha": "5f0db2b53ec45330643ccadc70b437b6ef383dfe",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720816043-1.zip.part012",
+          "sha": "201971f639896d30d7fe3ca02f03f79e07fbe60d",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720816043-1.zip.part013",
+          "sha": "4512ce6b7966596448c3ecc70839f23c7d8d5340",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720816043-1.zip.part014",
+          "sha": "feb15014ca03532c9432a791fb53ec3bb075520f",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720816043-1.zip.part015",
+          "sha": "a247c42c3d87aebfd16abf8b590a93c3566760e8",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720816043-1.zip.part016",
+          "sha": "82a3b8619aa5a483ac54d6c03f3e7681df90df56",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720816043-1.zip.part017",
+          "sha": "9d8910097e89647fe9fbc597e343400b75213322",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720816043-1.zip.part018",
+          "sha": "dc7bee3af8bc8eec3056e4f4dec2f2051209631f",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720816043-1.zip.part019",
+          "sha": "d7e3918e65610088846d0b590669c601ce350fa6",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720816043-1.zip.part020",
+          "sha": "cf8d3dd988b336fd0499beea044c15e5d89d0454",
+          "size": 339673
+        }
+      ]
+    }
+  ]
+}
