@@ -123,6 +123,7 @@ $providerRecord = [ordered]@{ status = 'not_started'; diagnostic_only = $true;
 $wheelObservation = $null
 $partialPrefix = 'The live fourth'
 $observations = New-Object Collections.Generic.List[object]
+$proseGeometryObservations = New-Object Collections.Generic.List[object]
 $captions = @('Native caption activation fixture.', 'The successor keeps its own reveal.',
     'Third witnessed caption.', 'The live fourth caption stays partial.', 'Guard caption.')
 # Independent expectations for each pre-invocation runtime state.
@@ -387,7 +388,7 @@ function Resolve-Caption([object]$Ready, [object]$Expected) {
                     throw 'CAPTION_PROSE_ROLE_OR_ACTION_INVALID'
                 }
                 Assert-InWindow $prose $window $targetPid
-                Assert-FixtureRectangle $prose $Ready.target_rect $native.MainWindowHandle
+                $proseOwner = Resolve-ProseOwner $prose $window $targetPid $Ready.target_rect $native.MainWindowHandle $Ready.stage 'resolve'
                 $continueMatches = @($elements | Where-Object {
                     $_.Current.Name.TrimEnd() -ceq $Ready.continue_label -and -not $_.Current.IsOffscreen
                 })
@@ -441,6 +442,8 @@ function Resolve-Caption([object]$Ready, [object]$Expected) {
         continue_rectangle = $continueTarget.Current.BoundingRectangle;
         window_handle = $native.MainWindowHandle.ToInt64(); pid = $targetPid;
         runtime_id = $runtimeId; rectangle = $rectangle; ready = $Ready; process_identity = $processIdentity;
+        prose_owner = $proseOwner.owner; prose_owner_runtime_id = $proseOwner.runtime_id;
+        prose_ancestry_ids = $proseOwner.ancestry_ids;
         physical_rectangle = @($rectangle.X, $rectangle.Y, $rectangle.Width, $rectangle.Height) }
     return $binding
     } finally { $native.Dispose() }
@@ -480,6 +483,61 @@ function Assert-FixtureRectangle($Element, $Logical, [IntPtr]$Handle) {
 
 function Write-CaptionJson([string]$Name, [object]$Value) {
     [IO.File]::WriteAllText((Join-Path $output $Name), (ConvertTo-Json -InputObject $Value -Depth 40), $utf8)
+}
+
+function Resolve-ProseOwner($Prose, $Window, [int]$ElementProcessId, $Logical,
+        [IntPtr]$Handle, [string]$Stage, [string]$Phase) {
+    # RichTextLabel publishes focused glyph text below its full-control Text node.
+    # A flat geometry match is insufficient: retain the actual raw-parent chain.
+    $chain = New-Object Collections.Generic.List[object]
+    $owners = New-Object Collections.Generic.List[object]
+    $receipt = [ordered]@{ stage = $Stage; phase = $Phase; pid = $ElementProcessId;
+        hwnd = $Handle.ToInt64(); reached_window = $false; owner_count = 0;
+        chain = @(); owner_runtime_id = @(); ok = $false }
+    $proseGeometryObservations.Add($receipt)
+    try {
+        $rectangle = $Prose.Current.BoundingRectangle
+        foreach ($value in @($rectangle.X, $rectangle.Y, $rectangle.Width, $rectangle.Height)) {
+            if ([double]::IsNaN($value) -or [double]::IsInfinity($value)) { throw 'CAPTION_PROSE_NONFINITE_GEOMETRY' }
+        }
+        if ($rectangle.IsEmpty -or $rectangle.Width -le 2 -or $rectangle.Height -le 2) { throw 'CAPTION_PROSE_EMPTY_GEOMETRY' }
+        $node = $Prose
+        for ($depth = 0; $null -ne $node -and $depth -lt 64; $depth++) {
+            if ($node.Current.ProcessId -ne $ElementProcessId) { throw 'CAPTION_PROSE_ANCESTOR_FOREIGN_PROCESS' }
+            $bounds = $node.Current.BoundingRectangle
+            $chain.Add([ordered]@{ depth = $depth; runtime_id = @($node.GetRuntimeId());
+                name = $node.Current.Name; type = $node.Current.ControlType.ProgrammaticName;
+                pid = $node.Current.ProcessId; rectangle = @($bounds.X, $bounds.Y, $bounds.Width, $bounds.Height) })
+            if ([Windows.Automation.Automation]::Compare($node, $Window)) {
+                $receipt.reached_window = $true
+                break
+            }
+            if ($depth -gt 0 -and $node.Current.ControlType -eq [Windows.Automation.ControlType]::Text) {
+                $matches = $true
+                try { Assert-FixtureRectangle $node $Logical $Handle }
+                catch {
+                    if ($_.Exception.Message -cne 'CAPTION_FIXTURE_GEOMETRY_MISMATCH') { throw }
+                    $matches = $false
+                }
+                if ($matches) { $owners.Add($node) }
+            }
+            $node = [Windows.Automation.TreeWalker]::RawViewWalker.GetParent($node)
+        }
+        $receipt.owner_count = $owners.Count
+        if (-not $receipt.reached_window) { throw 'CAPTION_PROSE_ANCESTRY_OUTSIDE_BOUND_WINDOW' }
+        if ($owners.Count -ne 1) { throw "CAPTION_PROSE_OWNER_NOT_UNIQUE: $($owners.Count)" }
+        $owner = $owners[0]
+        if (-not $owner.Current.IsEnabled -or $owner.Current.IsOffscreen -or
+            -not $owner.Current.BoundingRectangle.Contains($rectangle)) { throw 'CAPTION_PROSE_OUTSIDE_FIXTURE_OWNER' }
+        $receipt.owner_runtime_id = @($owner.GetRuntimeId())
+        $receipt.ok = $true
+        return [pscustomobject]@{ owner = $owner; runtime_id = $receipt.owner_runtime_id;
+            ancestry_ids = @($chain | ForEach-Object { $_.runtime_id -join ',' }) }
+    } finally {
+        $receipt.chain = @($chain.ToArray())
+        $receipt.owner_count = $owners.Count
+        Write-CaptionJson 'prose-geometry.json' @($proseGeometryObservations.ToArray())
+    }
 }
 
 function Assert-SameLiveState([object]$Before, [object]$After) {
@@ -530,7 +588,12 @@ function Assert-NativeBoundary([object]$Binding) {
         -not $Binding.continue_target.TryGetCurrentPattern([Windows.Automation.InvokePattern]::Pattern, [ref]$continuePattern)) {
         throw 'CAPTION_TEXT_CONTINUE_BINDING_CHANGED'
     }
-    Assert-FixtureRectangle $Binding.target $Binding.ready.target_rect $handle
+    $proseOwner = Resolve-ProseOwner $Binding.target $Binding.window $Binding.pid $Binding.ready.target_rect $handle $Binding.ready.stage 'boundary'
+    if (-not [Windows.Automation.Automation]::Compare($proseOwner.owner, $Binding.prose_owner) -or
+        ($proseOwner.runtime_id -join ',') -cne ($Binding.prose_owner_runtime_id -join ',') -or
+        ($proseOwner.ancestry_ids -join ';') -cne ($Binding.prose_ancestry_ids -join ';')) {
+        throw 'CAPTION_PROSE_OWNER_OR_ANCESTRY_CHANGED'
+    }
     Assert-FixtureRectangle $Binding.continue_target $Binding.ready.continue_rect $handle
 }
 
