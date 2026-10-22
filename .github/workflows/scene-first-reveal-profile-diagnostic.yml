@@ -1,144 +1,75 @@
-# Inert until exact native-generated source is published and 82d42d3524ac0cdcc90e7c7ae7f69298d5046bcc replaced.
-name: Five-picture Gallery and music Windows export
+name: Publish validated Windows build folder
 on:
   pull_request:
     paths:
       - '.github/workflows/scene-first-reveal-profile-diagnostic.yml'
 permissions:
-  contents: read
+  contents: write
+  actions: read
 concurrency:
-  group: caption-qualification-${{ github.event.pull_request.number }}
+  group: publish-validated-windows-folder
   cancel-in-progress: false
 jobs:
-  windows-export:
+  publish:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
-    name: Windows / exported release startup
-    runs-on: windows-2022
-    timeout-minutes: 35
-    defaults:
-      run:
-        shell: pwsh
-    env:
-      PRODUCT_SHA: 82d42d3524ac0cdcc90e7c7ae7f69298d5046bcc
-      PACKET_SHA: a4f3788f03712a9fe58a74ed56b27adb032809e8
-      CAPTURE_SHA256: efdac580f665a3028ee669eb40daf803013025f92f8dcf41a86ba25f21c362da
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
         with:
-          # Defer credential removal until the post-job cleanup, after the
-          # malformed gitlinks are removed from this disposable runner's index.
+          ref: 5eee8406f4c2c466ac05d03c489c7cdd1cbc1164
           persist-credentials: true
-          ref: 82d42d3524ac0cdcc90e7c7ae7f69298d5046bcc
-      - name: Retain pinned source and provenance
-        run: |
-          $ErrorActionPreference = 'Stop'
-          if ($env:PRODUCT_SHA -cnotmatch '^[a-f0-9]{40}$') { throw 'PUBLISHED_GENERATED_82d42d3524ac0cdcc90e7c7ae7f69298d5046bcc_REQUIRED' }
-          $output = Join-Path $env:RUNNER_TEMP 'seven-export-source'
-          New-Item -ItemType Directory -Force $output | Out-Null
-          $capture = Join-Path $output 'capture_seven.py'
-          Invoke-WebRequest "https://raw.githubusercontent.com/Siuuuers/dwm/$env:PACKET_SHA/evidence/phase_2r/seven_files_20261023/packet/capture_seven.py" -OutFile $capture
-          if ((Get-FileHash $capture -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:CAPTURE_SHA256) { throw 'CAPTURE_HASH_MISMATCH' }
-          "SEVEN_EXPORT_CAPTURE=$capture" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
-          @{product=$env:PRODUCT_SHA; packet=$env:PACKET_SHA; event='${{ github.sha }}'; controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; run='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'; powershell=$PSVersionTable.PSVersion.ToString(); scope='packaging and isolated headless startup only'} | ConvertTo-Json | Set-Content (Join-Path $output 'origin.json') -Encoding utf8
-          python $capture --root $env:GITHUB_WORKSPACE --output $output --source $env:PRODUCT_SHA --phase before
-          if ($LASTEXITCODE -ne 0) { throw 'EXPORT_SOURCE_BEFORE_FAILED' }
-      - name: Prepare disposable checkout for credential cleanup
-        run: |
-          $ErrorActionPreference = 'Stop'
-          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
-          # submodule foreach reads the index even with sparse checkout.
-          # The source commit and working files remain unchanged.
-          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git submodule foreach --recursive 'true'
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Install Godot 4.6.3 standard
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
-          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
-          # SHA256 published with the official 4.6.3-stable release asset.
-          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
-          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
-            throw 'Godot archive checksum mismatch.'
-          }
-          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
-          Expand-Archive -LiteralPath $archive -DestinationPath $editor
-          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
-          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
-          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          & $console --version
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Import project
-        id: import
-        timeout-minutes: 8
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
-          $env:APPDATA = Join-Path $output 'import-user/appdata'
-          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
-          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
-          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
-          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character' -Quiet) {
-            throw 'Project import reported script errors; inspect import.log.'
-          }
-      - name: Retain imported files and restore committed settings
-        if: always() && steps.import.outcome != 'skipped'
-        run: |
-          python $env:SEVEN_EXPORT_CAPTURE --root $env:GITHUB_WORKSPACE --output (Join-Path $env:RUNNER_TEMP 'seven-export-source') --source $env:PRODUCT_SHA --phase import
-          if ($LASTEXITCODE -ne 0) { throw 'EXPORT_SOURCE_IMPORT_FAILED' }
-      - name: Freeze imported source before packaging
-        id: freeze
-        run: |
-          python $env:SEVEN_EXPORT_CAPTURE --root $env:GITHUB_WORKSPACE --output (Join-Path $env:RUNNER_TEMP 'seven-export-source') --source $env:PRODUCT_SHA --phase generated
-          if ($LASTEXITCODE -ne 0) { throw 'EXPORT_SOURCE_FREEZE_FAILED' }
-      - name: Cache pinned export templates
-        id: export-templates-cache
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+      - name: Clean malformed legacy gitlinks from disposable index
+        run: git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+      - uses: actions/download-artifact@v4
         with:
-          path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
-          key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
-      - name: Download verified Godot export templates
-        timeout-minutes: 10
+          artifact-ids: 12445803960
+          run-id: 39825608353
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/validated-artifact
+          merge-multiple: true
+      - name: Verify and stage existing validated bytes
+        env:
+          ARTIFACT_ROOT: ${{ runner.temp }}/validated-artifact
         run: |
-          $ErrorActionPreference = 'Stop'
-          $folder = Join-Path $env:RUNNER_TEMP 'dwm-godot-templates'
-          New-Item -ItemType Directory -Force -Path $folder | Out-Null
-          $archive = Join-Path $folder 'Godot_v4.6.3-stable_export_templates.tpz'
-          if (-not (Test-Path -LiteralPath $archive)) {
-            Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_export_templates.tpz' -OutFile $archive
-          }
-          $expected = '3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8'
-          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
-            throw 'Godot export templates checksum mismatch.'
-          }
-          "GODOT_EXPORT_TEMPLATES_ARCHIVE=$archive" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-      - name: Retain verified export templates for subsequent runs
-        if: steps.export-templates-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-        with:
-          path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
-          key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
-      - name: Export and launch isolated Windows executable
-        timeout-minutes: 12
-        run: ./tools/testing/Invoke-WindowsExportValidation.ps1
-      - name: Verify source after packaging
-        if: always() && steps.freeze.outcome == 'success'
+          set -euo pipefail
+          archive="$ARTIFACT_ROOT/dwm/dwm/.godot/ci/windows-export/DWM-windows-x86_64-validation.zip"
+          echo "8420129c411b82051432ba01aebbb4ab62a0d2c2519ce0fd8934885945796f28  $archive" | sha256sum -c -
+          python tools/packaging/prepare_steam_build.py "$archive" "$RUNNER_TEMP/steam-staged"
+          cp -R "$RUNNER_TEMP/steam-staged/game-build" game-build
+          cp "$RUNNER_TEMP/steam-staged/package-receipt.json" package-receipt.json
+          python - <<'PY'
+          from pathlib import Path
+          for p in Path("game-build").rglob("*"):
+              if p.is_file() and p.stat().st_size >= 104857600:
+                  raise SystemExit("File exceeds GitHub regular Git limit: " + str(p))
+          Path("BUILD_README.md").write_text("""# Windows playable template build
+          
+          Launch game-build/DWM.exe with DWM.pck beside it. Keep licenses/.
+          This branch contains only the validated Windows x64 build and its receipt.
+          Runtime source: 82d42d3524ac0cdcc90e7c7ae7f69298d5046bcc.
+          Export evidence: https://github.com/Siuuuers/dwm/actions/runs/39825608353
+          
+          This is a playable template, not a Steam-approved final-content build.
+          Replace art, music, and Day1-Day7 scripts in source branch codex/art-media-20261023,
+          then re-export. Loose source assets beside the EXE do not override its PCK.
+          Upload the contents of game-build as the Steam Windows depot content.
+          Configure DWM.exe as the launch executable. Steam AppID and DepotID are account-specific.
+          Steam API integration is optional; no SDK directory belongs in this build.
+          Do not merge this binary delivery branch into the source branches.
+          """)
+          PY
+      - name: Push new build-only branch
         run: |
-          python $env:SEVEN_EXPORT_CAPTURE --root $env:GITHUB_WORKSPACE --output (Join-Path $env:RUNNER_TEMP 'seven-export-source') --source $env:PRODUCT_SHA --phase after
-          if ($LASTEXITCODE -ne 0) { throw 'EXPORT_SOURCE_AFTER_FAILED' }
-      - name: Upload Windows validation build and evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-export-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            .godot/ci/import.log
-            .godot/ci/windows-export/
-            ${{ runner.temp }}/seven-export-source
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
-
+          set -euo pipefail
+          branch=builds/windows-playable-20261023
+          if git ls-remote --exit-code origin "refs/heads/$branch"; then
+            echo "Build branch already exists; refusing to overwrite it."
+            exit 1
+          fi
+          git read-tree --empty
+          git add -f game-build BUILD_README.md package-receipt.json
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m "build: preserve validated Windows playable template folder"
+          git push origin "HEAD:refs/heads/$branch"
