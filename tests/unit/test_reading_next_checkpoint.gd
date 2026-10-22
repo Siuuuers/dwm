@@ -14,6 +14,22 @@ const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 const BOOTSTRAP := preload("res://autoload/ApplicationBootstrap.gd")
 const DESKTOP_HOST := preload("res://scripts/domain/desktop/DesktopAppHostState.gd")
 
+const RETAINED_CONTEXTS := preload("res://tests/support/RetainedFrozenContextFixture.gd")
+var _retained_contexts: RefCounted
+
+func before_each() -> void:
+	# Retained tests explicitly select their historical context dependencies.
+	_retained_contexts = RETAINED_CONTEXTS.new()
+	var installed: Dictionary = _retained_contexts.install([
+		"dating.solo.priscilla.day1.pre_challenge",
+	])
+	assert_true(installed.get("ok", false), str(installed))
+
+func after_each() -> void:
+	if _retained_contexts != null:
+		_retained_contexts.restore()
+		_retained_contexts = null
+
 class InvalidDesktopHost extends RefCounted:
 	var active: Variant
 	func capture_persistent_state() -> Dictionary:

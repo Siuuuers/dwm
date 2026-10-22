@@ -1,5 +1,14 @@
 extends "res://addons/gut/test.gd"
 
+const RETAINED_CONTEXTS := preload("res://tests/support/RetainedFrozenContextFixture.gd")
+var _retained_contexts: RefCounted
+
+func before_each() -> void:
+	_retained_contexts = RETAINED_CONTEXTS.new()
+
+func after_each() -> void:
+	_retained_contexts.restore()
+
 const FROZEN := preload("res://scripts/narrative/EndingFrozenContext.gd")
 const STATE := preload("res://autoload/GameState.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
@@ -41,6 +50,9 @@ func test_ending_seed_detaches_facts_and_has_no_future_step_identity() -> void:
 	assert_false(built.value.has("prerequisite_receipt_ids"))
 
 func test_later_step_requires_actual_preceding_completion_and_keeps_frozen_variant() -> void:
+	var installed: Dictionary = _retained_contexts.install(["ending.priscilla.sweet", "ending.priscilla.observer.residue"])
+	assert_true(installed.ok, str(installed))
+	if not installed.ok: return
 	var plan := _plan([{"ending_id": "ending.priscilla.sweet", "role": "core"},
 		{"ending_id": "ending.priscilla.observation", "role": "observer_coda", "presentation_variant": "residue"}])
 	var seed := _seed()
@@ -57,6 +69,9 @@ func test_later_step_requires_actual_preceding_completion_and_keeps_frozen_varia
 	assert_eq(later.value.presentation.fields.ending_form, "observer_residue")
 
 func test_special_forced_dark_retains_stored_tone_and_alone_pair_omit_solo_fields() -> void:
+	var installed: Dictionary = _retained_contexts.install(["ending.sylvia.dark", "ending.alone.normal", "ending.priscilla_lavinia.sweet"])
+	assert_true(installed.ok, str(installed))
+	if not installed.ok: return
 	var plan := _plan([{"ending_id": "ending.sylvia.special", "role": "special_prefix"}, {"ending_id": "ending.sylvia.dark", "role": "core"}])
 	plan.playback_receipts["step:0"] = {"value": {"outcome": "completed", "timeline_completion_receipt_id": "actual:special:complete"}}
 	var dark := FROZEN.build(plan, 1, _seed("hospital_faint"), "run:ending:1")
@@ -70,6 +85,9 @@ func test_special_forced_dark_retains_stored_tone_and_alone_pair_omit_solo_field
 		if step.ending_id == "ending.alone": assert_eq(built.value.presentation.fields.alone_cause, "hospital_faint")
 
 func test_cache_rejects_missing_reached_step_and_changed_seed_or_context() -> void:
+	var installed: Dictionary = _retained_contexts.install(["ending.priscilla.sweet", "ending.priscilla_lavinia.sweet"])
+	assert_true(installed.ok, str(installed))
+	if not installed.ok: return
 	var plan := _plan([{"ending_id": "ending.priscilla.sweet", "role": "core"}, {"ending_id": "ending.priscilla_lavinia.sweet", "role": "pair_coda"}])
 	var cache := {"schema_version": 1, "seed": _seed(), "presentations": {}}
 	var lifecycle := {"run_id": "run", "ending_plan": plan}

@@ -1,5 +1,7 @@
 extends GutTest
 
+const FIXTURE_ENTRY_CATALOG := preload("res://tests/support/GalleryEndingFixtureCatalog.gd")
+
 const ART := preload("res://scripts/data/ArtManifest.gd")
 const PROFILE := preload("res://autoload/ProfileManager.gd")
 const LOCALIZATION := preload("res://autoload/LocalizationManager.gd")
@@ -55,6 +57,7 @@ func _mount(localization: Node = null) -> Dictionary:
 	var gallery: Control = GALLERY.instantiate()
 	assert_true(gallery.configure_title_host(home, localization, _profile).get("ok", false))
 	assert_true(gallery.configure_replay(bridge).get("ok", false))
+	gallery._replay_owner.set("_entry_catalog", FIXTURE_ENTRY_CATALOG)
 	add_child_autofree(gallery)
 	gallery.open_in_title_host()
 	return {"gallery": gallery, "bridge": bridge}
