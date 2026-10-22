@@ -1582,6 +1582,10 @@ func _configure_desktop_production_graph() -> Dictionary:
 	if _scene_shop_catalog == null: _scene_shop_catalog = GAMEPLAY_DATA_CATALOG.new()
 	var shop_bound: Dictionary = game_state.configure_scene_shop_runtime(_scene_shop_catalog, _desktop_consequence_state)
 	if not shop_bound.get("ok", false): return shop_bound
+	var day_bound: Dictionary = game_state.configure_scene_day_runtime(_retained_causal_day_advance_identity_port, _desktop_board_state, _desktop_consequence_state)
+	if not day_bound.get("ok", false): return day_bound
+	var scene_round_bound: Dictionary = game_state.configure_scene_round_runtime(_desktop_board_state, _retained_minesweeper_state_port)
+	if not scene_round_bound.get("ok", false): return scene_round_bound
 
 	# One distinct root-scoped desktop publication ledger, loaded before any recovery/publish call.
 	if _retained_desktop_publication_ledger == null:
@@ -1744,6 +1748,8 @@ func _configure_desktop_production_graph() -> Dictionary:
 
 	var round_rewards: Dictionary = _retained_minesweeper_round_coordinator_app.configure_reward_port(_retained_minesweeper_state_port)
 	if not round_rewards.get("ok", false): return round_rewards
+	var scene_completion_bound: Dictionary = _retained_minesweeper_round_coordinator_app.configure_scene_completion(game_state)
+	if not scene_completion_bound.get("ok", false): return scene_completion_bound
 
 	# The Plan-03 condition-policy/ScheduleView pair, configured TOGETHER on the one shared
 	# consequence coordinator (dwm-oyo.3 slice, 2026-08-24, authorized on dwm-p2r.21 / dwm-oyo.3).

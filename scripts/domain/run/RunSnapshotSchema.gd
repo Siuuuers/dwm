@@ -331,7 +331,7 @@ static func _validate_receipt_partition(receipts: Dictionary, applied_effects: V
 	var seen := {"effect_transaction": {}, "variable_transaction": {}}
 	for key: Variant in receipts:
 		var kind := str((receipts[key] as Dictionary)["kind"])
-		if kind in ["scene_event", "scene_admission", "scene_shop_purchase"]:
+		if kind in ["scene_event", "scene_admission", "scene_shop_purchase", "scene_round_completion"]:
 			continue # Already validated separately; never counted as an effect or variable ID.
 		if not (expected[kind] as Dictionary).has(str(key)):
 			return "command receipt is not present in its applied %s id set: %s" % [kind, str(key)]
@@ -1017,8 +1017,8 @@ static func _validate_scene_history_run(receipts: Variant, run_id: Variant) -> S
 		var receipt: Variant = receipts[id]
 		if not receipt is Dictionary: continue # Exact shapes are checked below.
 		var source: Variant = null
-		if receipt.get("kind") == "scene_shop_purchase":
-			var purchase: Variant = receipt.get("scene_shop_purchase")
+		if receipt.get("kind") in ["scene_shop_purchase", "scene_round_completion"]:
+			var purchase: Variant = receipt.get(receipt.kind)
 			if purchase is Dictionary: source = purchase.get("source_identity")
 		elif receipt.get("kind") == "scene_admission":
 			var admission: Variant = receipt.get("scene_admission")
@@ -1038,7 +1038,10 @@ static func _validate_scene_receipt_shapes(snapshot: Dictionary) -> String:
 		if not _scene_id(id) or not receipt is Dictionary or receipt.get("transaction_id") != id \
 				or not _scene_digest(receipt.get("request_fingerprint")) or not _scene_id(receipt.get("source_id")):
 			return "invalid command receipt identity"
-		if receipt.get("kind") == "scene_shop_purchase":
+		if receipt.get("kind") == "scene_round_completion":
+			if not SCENE_EVENT_CONTRACT.scene_round_completion_shape_valid(receipt):
+				return "invalid scene round completion receipt members"
+		elif receipt.get("kind") == "scene_shop_purchase":
 			if not SCENE_EVENT_CONTRACT.scene_shop_purchase_shape_valid(receipt):
 				return "invalid scene shop purchase receipt members"
 		elif receipt.get("kind") == "scene_admission":

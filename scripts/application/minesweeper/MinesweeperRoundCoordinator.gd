@@ -127,6 +127,16 @@ var _round_recovery_committed: Dictionary = {}
 ## DWM_CONSEQUENCE_PROFILE gate, read from the environment once per instance in _init(). Every
 ## profile marker below costs exactly one boolean check while the variable is unset.
 var _profile_enabled: bool = false
+var _scene_completion_owner: Object
+
+func configure_scene_completion(owner: Object) -> Dictionary:
+	if not is_instance_valid(owner) or not owner.has_method("commit_scene_round_completion"):
+		return _fail(&"invalid_scene_completion_owner", "", {})
+	if _scene_completion_owner != null and _scene_completion_owner != owner:
+		return _fail(&"scene_completion_owner_conflict", "", {})
+	_scene_completion_owner = owner
+	return {"ok": true}
+
 
 
 func configure_source_checkpoint_capture(capture_inputs: Callable) -> Dictionary:
@@ -277,6 +287,8 @@ func configure_consequence_checkpoint(consequence_state_port: Object, checkpoint
 ## `condition_after` mirror the Shop participant's own health/pressure/carried_sequela pattern via
 ## `GameStateDesktopBoardPort`'s matching Task-8 extension.
 func complete_round(request: Dictionary) -> Dictionary:
+	if is_instance_valid(_scene_completion_owner) and _scene_completion_owner.scene_round_completion_active():
+		return _scene_completion_owner.commit_scene_round_completion(request.duplicate(true))
 	var profile := _consequence_profile_start("minesweeper_round_complete")
 	var profile_tick := int(profile.get("_started_us", 0))
 	var retry_id := str(request.get("transaction_id", ""))

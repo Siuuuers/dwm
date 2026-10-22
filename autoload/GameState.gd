@@ -5137,6 +5137,9 @@ func validate_scene_entry_staging_source(binding: Dictionary) -> Dictionary:
 			or not _mutation_gate.is_lease_active(&"causal_transaction", _scene_entry_operation.lease) \
 			or not _SCENE_EVENT._equal(_command_receipts, _scene_entry_operation.candidate.command_receipts if _scene_entry_operation.get("durably_committed", false) else _scene_entry_operation.prior_receipts):
 		return _transaction_failure(&"scene_staging_source_invalid", "")
+	if _scene_entry_operation.has("prior_input") and not _scene_entry_operation.get("durably_committed", false) \
+			and not _SCENE_EVENT._equal(capture_run_snapshot_input(), _scene_entry_operation.prior_input):
+		return _transaction_failure(&"scene_day_source_changed", "")
 	if not _live_session_active or _scene_entry_operation.live_session != _live_session_fact():
 		return _session_failure(&"stale_live_session")
 	return {"ok": true}
@@ -5208,6 +5211,89 @@ func _on_scene_terminal_retired(admission_id: String, session: Dictionary) -> vo
 		return
 	router.goto_ending()
 
+var _scene_day_allocator: Object
+var _scene_day_board: Object
+var _scene_day_consequence: Object
+
+func configure_scene_day_runtime(allocator: Object, board: Object, consequence: Object) -> Dictionary:
+	if not is_instance_valid(allocator) or not allocator.has_method("prepare_advance") \
+			or not allocator.has_method("commit_advance") or not is_instance_valid(board) \
+			or not board.has_method("prepare_restore_scene") or not is_instance_valid(consequence) \
+			or not consequence.has_method("prepare_restore"):
+		return _transaction_failure(&"scene_day_dependencies_required", "")
+	if _scene_day_allocator != null and (_scene_day_allocator != allocator \
+			or _scene_day_board != board or _scene_day_consequence != consequence):
+		return _transaction_failure(&"scene_day_dependencies_conflict", "")
+	_scene_day_allocator = allocator
+	_scene_day_board = board
+	_scene_day_consequence = consequence
+	return {"ok": true}
+
+static func renewed_scene_day_gameplay(gameplay: Dictionary) -> Dictionary:
+	var renewed := gameplay.duplicate(true)
+	renewed.minesweeper_rounds_left = MINESWEEPER_BASE_ROUNDS
+	renewed.minesweeper_app_rounds_finished_today = 0
+	renewed.minesweeper_money_earned_today = 0
+	renewed.penalty_points_today = 0
+	return renewed
+
+func _prepare_scene_day_renewal(trigger: Dictionary, target_id: String, registration: Dictionary,
+		identity: Dictionary) -> Dictionary:
+	var tables := _SCENE_EVENT.validate_bundle_structure(registration)
+	if not tables.ok: return tables
+	var target: Dictionary = tables.value.targets[target_id].target
+	var boundary := _SCENE_EVENT.scene_day_boundary(registration, trigger.scene_event.semantic.source.entry_id, target.entry_id)
+	if not boundary.ok: return boundary
+	if not boundary.value: return {"ok": true, "value": {}}
+	if trigger.scene_event.result.kind != "scene_transition_accepted" or target.kind != "scene":
+		return _transaction_failure(&"scene_day_transition_required", "")
+	if not is_instance_valid(_scene_day_allocator) or not is_instance_valid(_scene_day_board) \
+			or not is_instance_valid(_scene_day_consequence):
+		return _transaction_failure(&"scene_day_dependencies_required", "")
+	var before := capture_run_snapshot_input().duplicate(true)
+	if before.desktop.consequence.get("pending") != null or before.desktop.board.get("phase") == "SETTLING":
+		return _transaction_failure(&"scene_day_pending_settlement", "")
+	var board_wrapper: Variant = before.desktop.board.get("board")
+	if board_wrapper is Dictionary and board_wrapper.get("board") is Dictionary \
+			and board_wrapper.board.get("terminal", false) and not _scene_day_board.has_settled_inspection():
+		return _transaction_failure(&"scene_day_pending_settlement", "")
+	var derived: Dictionary = _identity_issuer.derive_child(_SCENE_EVENT.scene_day_renewal_request(trigger, identity))
+	if not derived.get("ok", false): return derived
+	var request := {"resolution_kind": "scene_day_complete", "run_id": identity.run_id,
+		"branch_id": identity.branch_id, "desktop_timeline_generation": identity.desktop_timeline_generation,
+		"source_causal_day_instance": identity.causal_day_instance,
+		"source_causal_day_instance_issuer_receipt": identity.causal_day_instance_issuer_receipt.duplicate(true),
+		"source_resolution_receipt": {"receipt_id": derived.value.child_id, "provenance": derived.value.provenance}}
+	var prepared: Dictionary = _scene_day_allocator.prepare_advance(request)
+	if not prepared.get("ok", false): return prepared
+	# Issuer allocation is durable provenance only. No live allowance, board or
+	# lifecycle changes until the complete target checkpoint is committed.
+	var allocated: Dictionary = _scene_day_allocator.commit_advance(prepared.value.day_advance_identity_candidate)
+	if not allocated.get("ok", false): return allocated
+	var receipt: Dictionary = allocated.value.day_advance_identity_receipt
+	var next_identity := identity.duplicate(true)
+	next_identity.causal_day_instance = receipt.target_causal_day_instance
+	next_identity.causal_day_instance_issuer_receipt = receipt.target_causal_day_instance_issuer_receipt.duplicate(true)
+	var lifecycle: Dictionary = before.lifecycle.duplicate(true)
+	lifecycle.causal_day_instance = next_identity.causal_day_instance
+	lifecycle.causal_day_instance_issuer_receipt = next_identity.causal_day_instance_issuer_receipt.duplicate(true)
+	var desktop: Dictionary = before.desktop.duplicate(true)
+	# Discard the ordinary board without calling completion or granting rewards.
+	# Keep historical terminal receipts and revision monotonicity for stale commands.
+	desktop.board.phase = "NONE"
+	desktop.board.revision += 1
+	for key: String in ["identity", "candidate", "board", "settlement"]: desktop.board[key] = null
+	desktop.consequence.causal_day_instance = next_identity.causal_day_instance
+	desktop.consequence.causal_day_instance_issuer_receipt = next_identity.causal_day_instance_issuer_receipt.duplicate(true)
+	desktop.consequence.run_revision += 1
+	var board_candidate: Dictionary = _scene_day_board.prepare_restore_scene(desktop.board, _identity_issuer)
+	if not board_candidate.get("ok", false): return board_candidate
+	var consequence_candidate: Dictionary = _scene_day_consequence.prepare_restore(desktop.consequence)
+	if not consequence_candidate.get("ok", false): return consequence_candidate
+	return {"ok": true, "value": {"identity": next_identity, "lifecycle": lifecycle,
+		"gameplay": renewed_scene_day_gameplay(before.gameplay), "desktop": desktop,
+		"board_candidate": board_candidate.value.candidate, "consequence_candidate": consequence_candidate.value.candidate}}
+
 func _admit_scene_target_owned(target_id: String, trigger_command_id: String, lease: String) -> Dictionary:
 	var session := capture_live_session()
 	if not session.ok: return session
@@ -5234,6 +5320,10 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 	var admitted: Dictionary
 	if trigger.scene_event.result.get("target", {}).get("kind") == "ending":
 		return _admit_scene_ending_owned(target_id, trigger, source, source_ref)
+	var full_identity: Dictionary = _run_lifecycle.get_desktop_identity_context()
+	var day_plan := _prepare_scene_day_renewal(trigger, target_id, registration.value, full_identity)
+	if not day_plan.ok: return day_plan
+	var admission_identity: Dictionary = day_plan.value.get("identity", full_identity)
 	var returning: bool = trigger.scene_event.result.kind == "contact_returned"
 	if returning:
 		var parent_id: String = trigger.scene_event.result.parent_occurrence_id
@@ -5252,7 +5342,7 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 				"entry_id": parent.entry_id, "target_id": contact.return_target_id, "source_checkpoint": source_ref.duplicate(true)}
 		var issued: Dictionary = _identity_issuer.issue(&"transaction_id")
 		if not issued.get("ok", false): return issued
-		admission = _SCENE_EVENT.make_scene_admission(_run_lifecycle.get_desktop_identity_context(), issued.value.issuer_receipt, target_id,
+		admission = _SCENE_EVENT.make_scene_admission(admission_identity, issued.value.issuer_receipt, target_id,
 			source_ref, trigger_command_id, back, registration.value, _identity_issuer)
 		if not admission.ok: return admission
 		admitted = admission.value.scene_admission.result.duplicate(true)
@@ -5288,11 +5378,18 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 	if registration.value.get("schema_version") == 3:
 		_scene_entry_operation["audio_context"] = audio_context
 		_scene_entry_operation["audio_plan"] = audio_plan
+	if not day_plan.value.is_empty():
+		_scene_entry_operation["day_plan"] = day_plan.value.duplicate(true)
+		_scene_entry_operation["prior_input"] = capture_run_snapshot_input().duplicate(true)
 	var held: Dictionary = _scene_event_bridge.hold_scene_entry_source()
 	if not held.get("ok", false): return held
 	var staged: Dictionary = _scene_event_bridge.prepare_day_entry(admitted.entry_id, frame)
 	if not staged.get("ok", false): return staged
 	var candidate := capture_run_snapshot_input()
+	if not day_plan.value.is_empty():
+		candidate.lifecycle = day_plan.value.lifecycle.duplicate(true)
+		candidate.gameplay = day_plan.value.gameplay.duplicate(true)
+		candidate.desktop = day_plan.value.desktop.duplicate(true)
 	candidate.command_receipts[admission.value.transaction_id] = admission.value.duplicate(true)
 	candidate.scene = {"registration_sha256": binding.registration_sha256,
 		"active_occurrence_id": admitted.occurrence_id, "active_admission_receipt_id": admission.value.transaction_id}
@@ -5312,6 +5409,17 @@ func _commit_scene_target_owned() -> Dictionary:
 		if committed.get("committed", false): return _scene_event_fatal(&"scene_entry_commit_uncertain")
 		return committed
 	_scene_entry_operation["durably_committed"] = true
+	if _scene_entry_operation.has("day_plan"):
+		var day_plan: Dictionary = _scene_entry_operation.day_plan
+		var adopted_board: Dictionary = _scene_day_board.commit(day_plan.board_candidate)
+		if not adopted_board.get("ok", false): return _scene_event_fatal(&"scene_day_board_adoption_failed")
+		var adopted_consequence: Dictionary = _scene_day_consequence.commit(day_plan.consequence_candidate)
+		if not adopted_consequence.get("ok", false): return _scene_event_fatal(&"scene_day_consequence_adoption_failed")
+		var adopted_lifecycle: Dictionary = _run_lifecycle.commit_restore(candidate.lifecycle)
+		if not adopted_lifecycle.get("ok", false): return _scene_event_fatal(&"scene_day_lifecycle_adoption_failed")
+		_apply_gameplay_silent(candidate.gameplay)
+		_desktop_snapshot = candidate.desktop.duplicate(true)
+		unfinished_minesweeper_result = {}
 	_command_receipts = candidate.command_receipts.duplicate(true)
 	_scene_snapshot_references = candidate.scene.duplicate(true)
 	if _scene_entry_operation.has("audio_plan"):
@@ -5322,7 +5430,12 @@ func _commit_scene_target_owned() -> Dictionary:
 		if not adopted.get("ok", false): return _scene_event_fatal(&"scene_audio_activation_failed")
 	var activated: Dictionary = _scene_event_bridge.commit_day_entry(staged)
 	if not activated.get("ok", false): return _scene_event_fatal(&"scene_entry_activation_failed")
+	var renewed: bool = _scene_entry_operation.has("day_plan")
 	_scene_entry_operation.clear()
+	if renewed:
+		daily_state_reset.emit()
+		minesweeper_rounds_changed.emit(get_minesweeper_display_rounds_left(), get_minesweeper_display_rounds_max())
+		save_relevant_state_changed.emit()
 	return {"ok": true, "value": admitted.duplicate(true)}
 
 func _validate_scene_profile_references(snapshot: Dictionary, profile: Object) -> Dictionary:
@@ -5654,6 +5767,154 @@ func _scene_shop_result(receipt: Dictionary) -> Dictionary:
 func _validate_scene_shop_checkpoint(candidate: Dictionary, checkpoint: Dictionary, _phase: String) -> bool:
 	if _scene_shop_operation.is_empty(): return false
 	var op := _scene_shop_operation.duplicate(true)
+	var session := capture_live_session()
+	var boundary: Dictionary = _scene_event_bridge.capture_scene_event_boundary()
+	return session.get("ok", false) and boundary.get("ok", false) \
+		and _mutation_gate.is_lease_active(&"causal_transaction", op.lease) \
+		and _SCENE_EVENT._equal(session.value, op.session) \
+		and _SCENE_EVENT._equal(capture_run_snapshot_input(), op.before) \
+		and _SCENE_EVENT._equal(candidate, op.candidate) \
+		and _SCENE_EVENT._equal(checkpoint, op.checkpoint) \
+		and _SCENE_EVENT._equal(boundary.value.checkpoint, op.checkpoint)
+
+
+# The existing board coordinator delegates only scene runs here. One Run9
+# checkpoint settles the visible terminal board, rewards and Supportz facts.
+var _scene_round_board: Object
+var _scene_round_reward: Object
+var _scene_round_operation: Dictionary = {}
+
+func configure_scene_round_runtime(board: Object, reward: Object) -> Dictionary:
+	if not is_instance_valid(board) or not is_instance_valid(reward) \
+			or not reward.has_method("prepare_scene_complete"):
+		return _transaction_failure(&"scene_round_owner_invalid", "")
+	if _scene_round_board != null and (_scene_round_board != board or _scene_round_reward != reward):
+		return _transaction_failure(&"scene_round_owner_conflict", "")
+	_scene_round_board = board
+	_scene_round_reward = reward
+	return {"ok": true}
+
+func scene_round_completion_active() -> bool:
+	return _run_lifecycle.to_dict().has("scene_assignment")
+
+func commit_scene_round_completion(request: Dictionary) -> Dictionary:
+	if not _scene_round_operation.is_empty() or not is_instance_valid(_mutation_gate) \
+			or not is_instance_valid(_scene_round_board) or not is_instance_valid(_scene_round_reward) \
+			or not is_instance_valid(_scene_shop_consequence) or not is_instance_valid(_narrative_checkpoint_port) \
+			or not is_instance_valid(_scene_event_bridge):
+		return _transaction_failure(&"scene_round_unavailable", "")
+	var guarded: Dictionary = _mutation_gate.guard_external(&"scene_round")
+	if not guarded.get("ok", false): return guarded
+	var acquired: Dictionary = _mutation_gate.acquire(&"causal_transaction")
+	if not acquired.get("ok", false): return acquired
+	var result := _commit_scene_round_owned(request.duplicate(true), acquired.value.token)
+	_scene_round_operation.clear()
+	var released: Dictionary = _mutation_gate.release(&"causal_transaction", acquired.value.token)
+	if not released.get("ok", false):
+		return _scene_event_fatal(&"scene_round_release_uncertain") if result.get("committed", false) else released
+	if result.get("ok", false) and not result.get("already_applied", false): _publish_scene_shop_purchase()
+	return result
+
+func _commit_scene_round_owned(request: Dictionary, lease: String) -> Dictionary:
+	if not _SCENE_EVENT._keys(request, ["transaction_id", "transaction_issuer_receipt", "expected_identity", "expected_revision"]) \
+			or not request.transaction_issuer_receipt is Dictionary or not request.expected_identity is Dictionary \
+			or typeof(request.expected_revision) != TYPE_INT:
+		return _transaction_failure(&"scene_round_request_invalid", "")
+	var id: String = str(request.transaction_id)
+	if request.transaction_issuer_receipt.get("token") != id:
+		return _transaction_failure(&"scene_round_command_conflict", "")
+	var verified: Dictionary = _identity_issuer.verify_issued(request.transaction_issuer_receipt, &"transaction_id")
+	if not verified.get("ok", false): return verified
+	var prior: Dictionary = _command_receipts.get(id, {})
+	if not prior.is_empty():
+		var checked := _SCENE_EVENT.validate_scene_round_completion(prior, _identity_issuer)
+		if not checked.ok: return checked
+		var done: Dictionary = prior.scene_round_completion.completion
+		if not _SCENE_EVENT._equal(done.board_identity, request.expected_identity) or done.revision != request.expected_revision \
+				or not _SCENE_EVENT._equal(prior.scene_round_completion.issuer_receipt, request.transaction_issuer_receipt):
+			return _transaction_failure(&"scene_round_command_conflict", "")
+		return {"ok": true, "committed": true, "already_applied": true, "receipt": prior.duplicate(true)}
+	var session := capture_live_session()
+	if not session.ok: return session
+	var context := capture_scene_shop_context()
+	if not context.ok: return context
+	var captured: Dictionary = _scene_round_board.capture()
+	if captured.phase != "ACTIVE_VISIBLE" or not _SCENE_EVENT._equal(captured.identity, request.expected_identity) \
+			or captured.revision != request.expected_revision:
+		return _transaction_failure(&"scene_round_source_changed", "")
+	for field: String in ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance"]:
+		if captured.identity.get(field) != context.value.identity.get(field):
+			return _transaction_failure(&"scene_round_identity_changed", "")
+	if _scene_round_board.has_settled_inspection():
+		return {"ok": true, "committed": true, "already_applied": true}
+	if not captured.board.board.get("terminal", false):
+		return _transaction_failure(&"scene_round_requires_terminal_board", "")
+	var ordinal: int = int(captured.identity.app_round_ordinal)
+	if ordinal != minesweeper_app_rounds_finished_today + 1:
+		return _transaction_failure(&"scene_round_ordinal_changed", "")
+	var before := capture_run_snapshot_input().duplicate(true)
+	if not _SCENE_EVENT._equal(before.desktop.board, captured):
+		return _transaction_failure(&"scene_round_board_changed", "")
+	var boundary: Dictionary = _scene_event_bridge.capture_scene_event_boundary()
+	if not boundary.get("ok", false): return boundary
+	var difficulty: String = str(captured.board.get("spec", {}).get("difficulty_id", captured.board.paid_start_receipt.get("difficulty_id", "")))
+	var reward: Dictionary = _scene_round_reward.prepare_scene_complete(difficulty, captured.board.board)
+	if not reward.get("ok", false): return reward
+	var completion := {"board_identity": captured.identity.duplicate(true),
+		"board_sha256": _scene_round_board.inspection_board_sha256(captured.board),
+		"revision": int(captured.revision), "difficulty": difficulty, "outcome": reward.value.outcome,
+		"gameplay_sha256": _SCENE_EVENT._sha(reward.value.gameplay)}
+	var receipt := _SCENE_EVENT.make_scene_round_completion(context.value.identity, request.transaction_issuer_receipt,
+		context.value.scene_occurrence, completion, _identity_issuer)
+	if not receipt.ok: return receipt
+	var candidate := before.duplicate(true)
+	candidate.gameplay = reward.value.gameplay.duplicate(true)
+	candidate.command_receipts[id] = receipt.value.duplicate(true)
+	var board_after := captured.duplicate(true)
+	board_after.revision += 1
+	board_after.terminal_receipts["round_complete." + id] = {"kind": "complete",
+		"outcome": str(captured.board.board.outcome), "app_round_ordinal": ordinal,
+		"board_sha256": completion.board_sha256}
+	var prepared_board: Dictionary = _scene_round_board.prepare_restore(board_after)
+	if not prepared_board.get("ok", false): return prepared_board
+	if not _scene_round_board.is_settled_inspection(board_after):
+		return _transaction_failure(&"scene_round_inspection_invalid", "")
+	candidate.desktop.board = board_after
+	var consequence: Dictionary = _scene_shop_consequence.capture()
+	if not consequence.get("ok", false): return consequence
+	if not _SCENE_EVENT._equal(consequence.value.state, before.desktop.consequence) \
+			or consequence.value.state.pending != null \
+			or consequence.value.state.causal_day_instance != context.value.identity.causal_day_instance:
+		return _transaction_failure(&"scene_round_consequence_changed", "")
+	var prepared_consequence: Dictionary = {}
+	if ordinal in [1, 2]:
+		var recorded: Dictionary = _scene_shop_consequence.prepare_record_base_completion({"kind": "complete",
+			"app_round_ordinal": ordinal, "causal_day_instance": context.value.identity.causal_day_instance})
+		if not recorded.get("ok", false): return recorded
+		candidate.desktop.consequence = recorded.value.candidate.state_after.duplicate(true)
+		prepared_consequence = _scene_shop_consequence.prepare_restore(candidate.desktop.consequence)
+		if not prepared_consequence.get("ok", false): return prepared_consequence
+	var configured: Dictionary = _narrative_checkpoint_port.configure_scene_round_authority(self, _validate_scene_round_checkpoint)
+	if not configured.get("ok", false): return configured
+	_scene_round_operation = {"lease": lease, "session": session.value, "before": before,
+		"candidate": candidate, "checkpoint": boundary.value.checkpoint.duplicate(true)}
+	var saved: Dictionary = _narrative_checkpoint_port.commit_scene_round(candidate, boundary.value.checkpoint)
+	if not saved.get("ok", false):
+		return _scene_event_fatal(saved.get("code", &"scene_round_commit_uncertain")) if saved.get("committed", false) else saved
+	if not _validate_scene_round_checkpoint(candidate, boundary.value.checkpoint, "after_commit"):
+		return _scene_event_fatal(&"scene_round_adoption_changed")
+	if not prepared_consequence.is_empty():
+		var adopted: Dictionary = _scene_shop_consequence.commit(prepared_consequence.value.candidate)
+		if not adopted.get("ok", false): return _scene_event_fatal(&"scene_round_consequence_adoption_failed")
+	var board_adopted: Dictionary = _scene_round_board.commit(prepared_board.value.candidate)
+	if not board_adopted.get("ok", false): return _scene_event_fatal(&"scene_round_board_adoption_failed")
+	_apply_gameplay_silent(candidate.gameplay)
+	_command_receipts = candidate.command_receipts.duplicate(true)
+	return {"ok": true, "committed": true, "receipt": receipt.value.duplicate(true)}
+
+func _validate_scene_round_checkpoint(candidate: Dictionary, checkpoint: Dictionary, _phase: String) -> bool:
+	if _scene_round_operation.is_empty(): return false
+	var op := _scene_round_operation.duplicate(true)
 	var session := capture_live_session()
 	var boundary: Dictionary = _scene_event_bridge.capture_scene_event_boundary()
 	return session.get("ok", false) and boundary.get("ok", false) \

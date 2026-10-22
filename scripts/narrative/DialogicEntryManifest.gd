@@ -299,8 +299,12 @@ static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 		for signal_id: String in row.allowed_signals:
 			if not signals.value.has(signal_id): return _scene_fail("unbound signal")
 	var programme: Dictionary = bundle.scene_programme
-	if not _scene_exact(programme, ["kind", "schema_version", "entries"]) or programme.kind != "scene_programme" \
+	var programme_keys := ["kind", "schema_version", "entries"]
+	if programme.has("story_days"): programme_keys.append("story_days")
+	if not _scene_exact(programme, programme_keys) or programme.kind != "scene_programme" \
 			or typeof(programme.schema_version) != TYPE_INT or programme.schema_version != 1: return _scene_fail("programme shape")
+	var story_days := SCENE_EVENTS.validate_story_days(programme)
+	if not story_days.ok: return story_days
 	var programmes := _scene_table(programme.entries, "entry_id", ["entry_id", "content_version", "content_sha256", "program_sha256", "markers"])
 	if not programmes.ok or programmes.value.size() != entries.size(): return _scene_fail("programme coverage")
 	var compiled := {}
