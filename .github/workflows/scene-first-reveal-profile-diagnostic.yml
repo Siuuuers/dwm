@@ -17,11 +17,11 @@ jobs:
       run:
         shell: pwsh
     env:
-      SOURCE_SHA: 564a7dd2c816c213a7c863390ff68e23b760f580
+      SOURCE_SHA: 6d8b066b48f96f793728c752fc44e782c8e425d8
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: 564a7dd2c816c213a7c863390ff68e23b760f580
+          ref: 6d8b066b48f96f793728c752fc44e782c8e425d8
           persist-credentials: true
       - name: Verify immutable source and prepare disposable checkout
         run: |
@@ -58,7 +58,10 @@ jobs:
           $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
           New-Item -ItemType Directory -Force $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
           & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
-          if ($LASTEXITCODE -ne 0) { throw 'Native import failed.' }
+          $importExit = $LASTEXITCODE
+          git restore -- project.godot
+          if ($LASTEXITCODE -ne 0) { throw 'Could not restore editor-rewritten project configuration.' }
+          if ($importExit -ne 0) { throw 'Native import failed.' }
           if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Native import reported script errors.' }
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { throw 'Could not restore editor-rewritten project configuration.' }
