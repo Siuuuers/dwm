@@ -37,9 +37,9 @@
   },
   {
     "path": "tools/testing/Read-ContinueNativeProvider.ps1",
-    "bytes": 17644,
-    "sha256": "7792a932251a250d461f749e9f5267689a8b6d378078803b25e397685cd57847",
-    "blob": "1d8d02a4e3dd9dd13017a281fa35160836c40f59"
+    "bytes": 17866,
+    "sha256": "459ef12d8f2e454658c938305a7c29049f7f0820b68f248356981dd893abc421",
+    "blob": "caf357759b54f1ea105438a971850493541f46b8"
   },
   {
     "path": "tools/testing/Save-ContinueReaderEvent.ps1",

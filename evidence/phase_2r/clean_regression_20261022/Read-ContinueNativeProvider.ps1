@@ -32,6 +32,12 @@ $selectionObserved = $false
 
 try {
     Save-ReaderEvent 'reader_start'
+    # Compile declarations before attaching to the short-lived game fixture.
+    # No native client/session operation occurs until after managed discovery.
+    $interopPath = Join-Path $PSScriptRoot 'ContinueNativeProvider.cs'
+    Save-ReaderEvent 'interop_compile_start'
+    Add-Type -Path $interopPath
+    Save-ReaderEvent 'interop_compile_ready'
     $binding = Get-Content -LiteralPath $BindingPath -Raw -Encoding UTF8 | ConvertFrom-Json
     $launcherPid = [int]$binding.launcher_pid
     $launcherTicks = [long]$binding.launcher_start_ticks
@@ -181,7 +187,6 @@ public static class DwmContinueReader {
                 # This may itself activate a provider; it is not a matched baseline.
                 $record.native_provider.status = 'loading_interop'
                 Save-ReaderEvent 'native_interop_start'
-                $interopPath = Join-Path $PSScriptRoot 'ContinueNativeProvider.cs'
                 $record.native_provider['interop_sha256'] = (Get-ContinueFileSha256 -LiteralPath $interopPath)
                 $record.native_provider['powershell'] = $PSVersionTable.PSVersion.ToString()
                 $record.native_provider['clr'] = [Environment]::Version.ToString()
@@ -192,7 +197,6 @@ public static class DwmContinueReader {
                 $record.native_provider['uia_core'] = [ordered]@{ path = $uiaCorePath;
                     file_version = [Diagnostics.FileVersionInfo]::GetVersionInfo($uiaCorePath).FileVersion;
                     sha256 = (Get-ContinueFileSha256 -LiteralPath $uiaCorePath) }
-                Add-Type -Path $interopPath
                 $nativeSession = New-Object DwmNativeProvider.Session
                 $record.native_provider['assembly'] = $nativeSession.GetType().Assembly.FullName
                 $record.native_provider['apartment'] = $nativeSession.Apartment
