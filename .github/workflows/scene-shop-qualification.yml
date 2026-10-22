@@ -1,0 +1,190 @@
+name: Scene Shop checkpoint qualification
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/scene-shop-qualification.yml'
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: scene-shop-qualification-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+jobs:
+  authority-audit:
+    if: github.event.pull_request.head.ref == 'codex/scene-shop-qualification-20261023' && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
+    name: Windows / Scene Shop checkpoint qualification
+    runs-on: windows-2022
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Preserve source bytes
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@v7
+        with:
+          ref: c5791b6fb036656a00c9e84ddc8145c4852ce99d
+          fetch-depth: 2
+          # Defer credential removal until the post-job cleanup, after the
+          # malformed gitlinks are removed from this disposable runner's index.
+          persist-credentials: true
+      - name: Record pinned source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ((git rev-parse HEAD) -cne 'c5791b6fb036656a00c9e84ddc8145c4852ce99d') { throw 'Candidate mismatch' }
+          if ((git rev-parse 'HEAD^{tree}') -cne '86461175f6a2411e9b51183cb59893b762d0b747') { throw 'Candidate tree mismatch' }
+          New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
+          @{candidate='c5791b6fb036656a00c9e84ddc8145c4852ce99d'; tree='86461175f6a2411e9b51183cb59893b762d0b747'; controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'; base='d7d0faf84941d0e5dc6f8a90d0896b6da47236d7'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+      - name: Prepare disposable checkout for credential cleanup
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
+          # submodule foreach reads the index even with sparse checkout.
+          # The source commit and working files remain unchanged.
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git submodule foreach --recursive 'true'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Install Godot 4.6.3 standard
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
+          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
+          # SHA256 published with the official 4.6.3-stable release asset.
+          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
+            throw 'Godot archive checksum mismatch.'
+          }
+          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
+          Expand-Archive -LiteralPath $archive -DestinationPath $editor
+          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
+          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
+          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          & $console --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Import project
+        timeout-minutes: 8
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
+          $env:APPDATA = Join-Path $output 'import-user/appdata'
+          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
+          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
+          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
+          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
+          $importExit = $LASTEXITCODE
+          @{exit_code=$importExit} | ConvertTo-Json | Set-Content "$output/import-process.json"
+          if ($importExit -ne 0) { exit $importExit }
+          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
+            throw 'Project import reported script errors; inspect import.log.'
+          }
+      - name: Restore committed project settings after editor import
+        run: |
+          # Dialogic's editor scan rewrites its timeline lookup during import.
+          # Execute the committed configuration with the freshly imported assets.
+          git restore -- project.godot
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Qualify shop-unit in its own isolated process
+        timeout-minutes: 12
+        run: |
+          $ErrorActionPreference = 'Stop'
+          ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'shop-unit' -LogName 'shop-unit.log' -EvidenceLogPath '.godot/ci/shop-unit.jsonl' -TimeoutSeconds 600 -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/unit/test_scene_shop_purchase_rules.gd,res://tests/unit/test_scene_shop_purchase_contract.gd,res://tests/unit/test_scene_shop_presentation_port.gd,res://tests/unit/test_scene_shop_checkpoint_custody.gd,res://tests/unit/test_scene_checkpoint_ack.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/shop-unit.xml')
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Qualify contact-regression in its own isolated process
+        timeout-minutes: 12
+        run: |
+          $ErrorActionPreference = 'Stop'
+          ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'contact-regression' -LogName 'contact-regression.log' -EvidenceLogPath '.godot/ci/contact-regression.jsonl' -TimeoutSeconds 600 -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_scene_contacts_checkpoint_refusal.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/contact-regression.xml', '--', '--phase2r-bootstrap-mode=test_manual')
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Qualify shop-transaction in its own isolated process
+        timeout-minutes: 12
+        run: |
+          $ErrorActionPreference = 'Stop'
+          ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'shop-transaction' -LogName 'shop-transaction.log' -EvidenceLogPath '.godot/ci/shop-transaction.jsonl' -TimeoutSeconds 600 -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_scene_shop_checkpoint_transaction.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/shop-transaction.xml', '--', '--phase2r-bootstrap-mode=test_manual')
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify exact Shop and regression census
+        run: |
+          $ErrorActionPreference = 'Stop'
+          @'
+          import collections,json,pathlib,re,subprocess,xml.etree.ElementTree as ET
+          out=pathlib.Path('.godot/ci')
+          expected={'tests/unit/test_scene_shop_purchase_rules.gd': ['test_pressure_purchase_is_detached_and_debits_the_catalogue_price', 'test_money_credit_boundary_and_negative_start_match_owner', 'test_coin_purchase_and_owned_capability', 'test_repeatable_batch_cap_is_not_a_lifetime_counter', 'test_invalid_quantities_and_overflow_refuse_without_mutation', 'test_retired_or_malformed_effect_does_not_publish_partial_debit', 'test_missing_or_malformed_gameplay_is_not_defaulted', 'test_inventory_overflow_is_refused', 'test_supportz_uses_existing_prepared_effect_and_preserves_other_state', 'test_supportz_requires_matching_previous_floor_and_bounded_successor', 'test_current_catalogue_items_prepare_without_retired_effects', 'test_maximal_money_balance_does_not_overflow_credit_check', 'test_invalid_currency_and_price_are_refused'], 'tests/unit/test_scene_shop_purchase_contract.gd': ['test_purchase_authenticates_quote_detaches_inputs_and_has_no_authored_ordinal', 'test_changed_quote_source_fingerprint_or_provenance_refuses', 'test_missing_source_wrong_map_key_or_purchase_before_admission_refuses', 'test_wrong_issuer_purpose_and_unallocated_identity_refuse', 'test_malformed_quotes_overflow_and_retired_effects_refuse', 'test_retained_quote_is_not_repriced_and_partition_excludes_purchase', 'test_restore_identity_can_buy_from_retained_admission_without_rewriting_history', 'test_purchase_cannot_join_an_admission_from_another_allocated_run'], 'tests/unit/test_scene_shop_presentation_port.gd': ['test_scene_retry_keeps_issued_request_and_does_not_requote', 'test_scene_pending_retry_cannot_cross_session', 'test_scene_configuration_requires_shared_gate_and_cannot_switch_mode', 'test_configured_legacy_port_rejects_scene_reconfiguration', 'test_configured_scene_port_rejects_legacy_reconfiguration', 'test_changed_source_releases_refused_pending_without_retargeting_it'], 'tests/unit/test_scene_shop_checkpoint_custody.gd': ['test_shop_and_contact_keep_one_lower_commit_and_three_owner_phases', 'test_shop_requires_bound_owner_and_refuses_authority_replacement', 'test_shop_refuses_lease_loss_before_write_and_marks_postwrite_loss_uncertain', 'test_shop_detects_source_replacement_at_each_authority_phase', 'test_shop_detaches_public_inputs_before_owner_callback', 'test_shop_refuses_candidate_mutation_from_final_authority_or_source_callback', 'test_shop_prepare_and_write_refusals_preserve_rollback_classification', 'test_shop_bad_durable_ack_or_readback_never_becomes_retryable_refusal', 'test_shop_reentrant_publication_and_configuration_are_excluded', 'test_shop_cannot_change_the_saved_reading_boundary', 'test_shop_explicit_committed_failure_is_not_rolled_back_as_fresh_refusal'], 'tests/unit/test_scene_checkpoint_ack.gd': ['test_confirmed_commit_ack_binds_actual_snapshot_and_consumes_once', 'test_foreign_authority_and_reconfiguration_refuse', 'test_uncommitted_candidate_cannot_be_confirmed_with_hash_knowledge', 'test_bridge_custody_required_again_at_commit_and_consumption', 'test_retained_copies_refuse_altered_target_and_source', 'test_prepared_real_candidate_must_match_before_disk_commit', 'test_prepare_refusal_preserves_same_capability_for_retry', 'test_confirmed_rollback_allows_retry_but_failed_rollback_is_uncertain', 'test_bad_success_and_changed_committed_snapshot_are_fatal_without_ack', 'test_later_checkpoint_replacement_cannot_consume_stale_ack', 'test_reentrant_callbacks_cannot_publish_or_consume', 'test_invalid_binding_and_target_fields_refuse_before_retention', 'test_source_commit_reference_does_not_create_entry_ack', 'test_empty_journal_source_refuses_without_runtime_error', 'test_malformed_nested_checkpoint_refuses_before_callback_or_write', 'test_prepare_callback_cannot_invalidate_custody_or_source_before_write', 'test_real_save8_prepare_refuses_unintegrated_scene_identity_without_ack', 'test_authority_callback_cannot_change_public_checkpoint_or_snapshot_commit', 'test_final_external_callbacks_cannot_mutate_prepared_candidate_before_write', 'test_scene_route_keeps_real_candidate_identity_and_exact_checkpoint_ack', 'test_scene_entry_captures_target_audio_without_changing_live_provider', 'test_scene_entry_audio_refusal_or_lost_custody_never_reaches_prepare', 'test_scene_route_rejects_unbound_input_or_legacy_prepared_family_before_write', 'test_scene_route_rejects_candidate_payload_change_and_uncertain_readback'], 'tests/integration/test_scene_contacts_checkpoint_refusal.gd': ['test_message_and_read_refusal_preserve_state_and_allow_exact_retry'], 'tests/integration/test_scene_shop_checkpoint_transaction.gd': ['test_shop_checkpoint_retry_custody_and_uncertain_commit']}
+          suites={'shop-unit': ['tests/unit/test_scene_shop_purchase_rules.gd', 'tests/unit/test_scene_shop_purchase_contract.gd', 'tests/unit/test_scene_shop_presentation_port.gd', 'tests/unit/test_scene_shop_checkpoint_custody.gd', 'tests/unit/test_scene_checkpoint_ack.gd'], 'contact-regression': ['tests/integration/test_scene_contacts_checkpoint_refusal.gd'], 'shop-transaction': ['tests/integration/test_scene_shop_checkpoint_transaction.gd']}
+          reports=[]
+          for suite,scripts in suites.items():
+              root=ET.parse(out/(suite+'.xml')).getroot(); rows=list(root.iter('testcase'))
+              wanted=[]
+              for script in scripts:
+                  actual=re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(encoding='utf-8'),re.M)
+                  assert actual==expected[script],(script,actual)
+                  wanted.extend((script,n) for n in actual)
+              assert collections.Counter((r.attrib['classname'],r.attrib['name']) for r in rows)==collections.Counter(wanted),(suite,rows)
+              assert not any(list(root.iter(t)) for t in ['failure','error','skipped']),suite
+              assert all(r.attrib.get('status')=='pass' and int(r.attrib.get('assertions','0'))>0 for r in rows),suite
+              events=[json.loads(x) for x in (out/(suite+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if x.strip()]
+              assert len(events)==1 and events[0]['exit_code']==0,(suite,events)
+              reports.append({'suite':suite,'tests':len(rows),'assertions':sum(int(r.attrib['assertions']) for r in rows),'process':events[0]})
+          assert json.loads((out/'import-process.json').read_text(encoding='utf-8-sig'))['exit_code']==0
+          for p in pathlib.Path('.godot/phase2r_logs').glob('*.log'):
+              assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',p.read_text(encoding='utf-8-sig')),str(p)
+          allowed={'.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1'}
+          changed=set(subprocess.check_output(['git','diff','HEAD','--name-only'],text=True).splitlines())
+          assert not changed-allowed,changed
+          untracked=subprocess.check_output(['git','ls-files','--others','--exclude-standard','--','autoload','scripts','scenes','tests'],text=True).splitlines()
+          assert not [p for p in untracked if pathlib.Path(p).suffix in {'.gd','.tscn'}],untracked
+          for script in expected:
+              uid=pathlib.Path(script+'.uid');assert uid.is_file(),str(uid)
+              assert re.fullmatch(r'uid://[a-z0-9]+\s*',uid.read_text()),str(uid)
+          report={'source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'reports':reports,'tests':sum(x['tests'] for x in reports),'changed':sorted(changed)}
+          (out/'shop-gate.json').write_text(json.dumps(report,indent=2));print(json.dumps(report))
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Retain original bounded evidence
+        if: always()
+        run: |
+          @'
+          import base64,hashlib,io,json,pathlib,subprocess,zipfile
+          out=pathlib.Path('.godot/ci')
+          missing=[]
+          pending=['tests/unit/test_scene_shop_purchase_rules.gd', 'tests/unit/test_scene_shop_purchase_contract.gd', 'tests/unit/test_scene_shop_presentation_port.gd', 'tests/unit/test_scene_shop_checkpoint_custody.gd', 'tests/unit/test_scene_checkpoint_ack.gd', 'tests/integration/test_scene_contacts_checkpoint_refusal.gd', 'tests/integration/test_scene_shop_checkpoint_transaction.gd', 'autoload/GameState.gd', 'scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd', 'scripts/application/shop/ShopPresentationPort.gd', 'scripts/domain/shop/SceneShopPurchaseRules.gd', 'scripts/domain/narrative/SceneEventContract.gd', 'scripts/domain/run/RunSnapshotSchema.gd', 'tools/testing/Invoke-IsolatedGodot.ps1', 'project.godot']
+          sources=set()
+          while pending:
+              source=pending.pop()
+              if source in sources: continue
+              sources.add(source)
+              path=pathlib.Path(source)
+              if path.is_file() and path.suffix=='.gd':
+                  import re
+                  pending.extend(re.findall(r'(?:preload\(|load\(|extends\s+)["\']res://([^"\']+)',path.read_text(encoding='utf-8')))
+                  if pathlib.Path(source+'.uid').is_file(): sources.add(source+'.uid')
+          for source in sorted(sources):
+              original=pathlib.Path(source)
+              if not original.is_file():
+                  missing.append(source); continue
+              p=out/'source'/source;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(original.read_bytes())
+          (out/'missing-retained-sources.json').write_text(json.dumps(missing,indent=2))
+          (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
+          files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))
+          manifest={p.relative_to('.godot').as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in files}
+          retained=out/'retained-hashes.json';retained.write_text(json.dumps(manifest,indent=2));files.append(retained)
+          payload=io.BytesIO()
+          with zipfile.ZipFile(payload,'w',zipfile.ZIP_DEFLATED) as z:
+              for p in files:z.write(p,p.relative_to('.godot').as_posix())
+          data=payload.getvalue()
+          if len(data)>8*1024*1024:raise RuntimeError('Bounded evidence too large')
+          (out/'original-evidence.zip').write_bytes(data)
+          print('DWM_EVIDENCE_BEGIN '+json.dumps({'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}))
+          encoded=base64.b64encode(data).decode()
+          for i in range(0,len(encoded),4096):print('DWM_EVIDENCE_CHUNK '+encoded[i:i+4096])
+          print('DWM_EVIDENCE_END')
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Upload bounded original evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scene-shop-qualification-evidence
+          path: .godot/ci/original-evidence.zip
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
