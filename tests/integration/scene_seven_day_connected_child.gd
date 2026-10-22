@@ -155,13 +155,33 @@ func _new_from_title(expected_ready: int) -> bool:
 	if ready_count != expected_ready or not await _wait_route(HOST): return false
 	return await _wait_line("line.Day1.one")
 
+
+func _seven_marker_diagnostic(phase: String) -> void:
+	var adapter: RefCounted = bridge._runtime_adapter
+	var session: RefCounted = bridge._reading_session
+	var native: Node = adapter._dialogic
+	var observation := {"phase": phase,
+		"pending_marker": bridge.capture_scene_pending_marker(),
+		"source_boundary": adapter._scene_source_boundary(session),
+		"entry": adapter._caption_entry, "requested_path": adapter._requested_path,
+		"timeline_path": native.current_timeline.resource_path if native.current_timeline != null else "",
+		"native_index": native.current_event_idx, "activity": adapter._activity_phase,
+		"session_family": session.family if session != null else "",
+		"session_boundary": session.boundary if session != null else "",
+		"session_index": session.scene_index if session != null else -1,
+		"frontier": adapter.capture_reading_frontier()}
+	print("SEVEN_MARKER_DIAGNOSTIC ", JSON.stringify(observation))
+	_write_json("res://.godot/ci/seven-marker-" + phase + ".json", observation)
+
 func _walk(first_day: int, first_half: int, last_day: int, last_half: int) -> bool:
 	for day: int in range(first_day, last_day + 1):
 		for half: int in range(1, 3):
 			if day == first_day and half < first_half: continue
 			if day == last_day and half > last_half: continue
 			_ending_phase("walk.Day%d.%d.begin" % [day, half])
+			if day == 2 and half == 1: _seven_marker_diagnostic("before")
 			await _accept()
+			if day == 2 and half == 1: _seven_marker_diagnostic("after")
 			var line_id := "line.Day%d.%s" % [day, "one" if half == 1 else "two"]
 			if not await _wait_line(line_id): return false
 			_ending_phase("walk.Day%d.%d.ready" % [day, half])
