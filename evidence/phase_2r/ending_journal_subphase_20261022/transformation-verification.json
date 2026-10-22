@@ -1,0 +1,6 @@
+{
+  "baseline_sha256": "9d8864e32e4fa8cead3422452cbd3edd1c3eaada1b352ff987d9d27ed1299c7e",
+  "candidate_sha256": "c0fe0f1e37d2c11fe4884a1efd6fde31c3f93c1963a65f6606c5ff9fe31cfce0",
+  "reversible_transformations": 10,
+  "exact_baseline_reconstruction": true
+}
