@@ -4365,7 +4365,7 @@ func request_scene_marker_step(expected: Dictionary) -> Dictionary:
 	if not current.get("ok", false): return current
 	var marker := capture_scene_pending_marker()
 	if not marker.get("ok", false): return marker
-	var caption_scoped := marker.value.kind == "challenge.playable" and _scene_caption_challenge_end().get("ok", false)
+	var caption_scoped: bool = marker.value.kind == "challenge.playable" and _scene_caption_challenge_end().get("ok", false)
 	var admitted: Dictionary = _scene_event_context_provider.get_object().advance_scene_registered_marker()
 	if not admitted.get("ok", false) or not caption_scoped: return admitted
 	# Continue leaves this caption. Opening Computer uses admission only, below.
