@@ -1,0 +1,7 @@
+# Ending baseline qualification packet (2026-10-22)
+
+Nine-case clean qualification run39721643031 succeeded at controllerfebbb741786c1a3997ef363808c9bc9049fc24c4: all9 cases,169assertions, zero skips. Native readers' clock drift7.303/9.6897ms within10ms; final independent receipt audit pending. Original artifacts downloaded and SHA256 verified; preservation pending.
+
+Next observable outcome: identify the active ending presentation after the real Day7 transition, prior layout retirement, premature input refusal, and fresh-input durable completion. Test-only baseline700fdccc3fe1ae257eb1c61f4183ded42e580426 adds the reviewed ending regression to41e03888e966a57faed27286920f164c46db223a. No production Bridge change. External assets6fa1a1aa9492b96683c58880ca576cbc9133be52; controller SHA256713abf7f857950855aa5aab8228b3e79db419f22d0c98b6c16d3e4718c2f19ac, Git blob9c83d9a89edd3a10199918f99a0c608ef0b40f2e. Exact independent published-file and controller review cleared.
+
+One rendered Godot4.6.3 standard Windows case,120s child bound, no external native consumer. Preserve baseline failure as failure; inspect owner evidence before any production correction. This does not establish native hang causation or complete exported recovery qualification. Master41592fcc792aa615e47ee2ce2f05008ca195b311, held PR36c8358870d3ece92d5f8cc7ba65aefe34a746be5c, integration3ae6d9138fb53c388380c78550cf6082eafc0ea3 remain held.
