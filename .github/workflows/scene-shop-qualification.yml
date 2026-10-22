@@ -146,6 +146,7 @@ jobs:
           import base64,hashlib,io,json,pathlib,subprocess,zipfile
           out=pathlib.Path('.godot/ci')
           missing=[]
+          omitted_assets=[]
           pending=['tests/unit/test_scene_shop_purchase_rules.gd', 'tests/unit/test_scene_shop_purchase_contract.gd', 'tests/unit/test_scene_shop_presentation_port.gd', 'tests/unit/test_scene_shop_checkpoint_custody.gd', 'tests/unit/test_scene_checkpoint_ack.gd', 'tests/integration/test_scene_contacts_checkpoint_refusal.gd', 'tests/integration/test_scene_shop_checkpoint_transaction.gd', 'autoload/GameState.gd', 'scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd', 'scripts/application/shop/ShopPresentationPort.gd', 'scripts/domain/shop/SceneShopPurchaseRules.gd', 'scripts/domain/narrative/SceneEventContract.gd', 'scripts/domain/run/RunSnapshotSchema.gd', 'tools/testing/Invoke-IsolatedGodot.ps1', 'project.godot']
           sources=set()
           while pending:
@@ -161,7 +162,14 @@ jobs:
               original=pathlib.Path(source)
               if not original.is_file():
                   missing.append(source); continue
+              if original.suffix not in {'.gd','.uid','.ps1','.godot','.tscn','.tres','.json','.dtl','.cfg'}:
+                  omitted_assets.append({'path':source,'bytes':original.stat().st_size,'sha256':hashlib.sha256(original.read_bytes()).hexdigest()});continue
               p=out/'source'/source;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(original.read_bytes())
+          (out/'omitted-assets.json').write_text(json.dumps(omitted_assets,indent=2))
+          for log in pathlib.Path('.godot/phase2r_logs').glob('*.log'):
+              print('DWM_LOG_TAIL_BEGIN '+str(log))
+              print('\n'.join(log.read_text(encoding='utf-8-sig',errors='replace').splitlines()[-250:]))
+              print('DWM_LOG_TAIL_END '+str(log))
           (out/'missing-retained-sources.json').write_text(json.dumps(missing,indent=2))
           (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
           files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))
@@ -171,8 +179,9 @@ jobs:
           with zipfile.ZipFile(payload,'w',zipfile.ZIP_DEFLATED) as z:
               for p in files:z.write(p,p.relative_to('.godot').as_posix())
           data=payload.getvalue()
-          if len(data)>8*1024*1024:raise RuntimeError('Bounded evidence too large')
           (out/'original-evidence.zip').write_bytes(data)
+          if len(data)>8*1024*1024:
+              print('DWM_EVIDENCE_ARTIFACT_ONLY '+json.dumps({'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}));raise SystemExit(0)
           print('DWM_EVIDENCE_BEGIN '+json.dumps({'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}))
           encoded=base64.b64encode(data).decode()
           for i in range(0,len(encoded),4096):print('DWM_EVIDENCE_CHUNK '+encoded[i:i+4096])
