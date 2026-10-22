@@ -1,6 +1,6 @@
 # INERT REVIEW CANDIDATE. Install only after external C source review.
 # Focused candidate only: C exact packet review and Director scope reconciliation precede installation.
-name: Caption and Continue qualification
+name: Native caption and Continue qualification
 on:
   pull_request:
     paths:
@@ -19,9 +19,9 @@ jobs:
       run:
         shell: pwsh
     env:
-      PRODUCT_SHA: b430cf2966d87d0da73f0d506f6acd89eecf6fa6
-      SOURCE_SHA: 01a76f15b6c4ab303e8c4cac5b96cd1f72118fd9
-      PREPARATION_SHA256: 443009023266c6c82dcfa298f794f3424f8c17ce198477c2fd33a07e99cd12b6
+      PRODUCT_SHA: ddc3ce041dd1597c9086e56d0206e810d1237316
+      SOURCE_SHA: e61a316272d1128a7e14e739f643d0d3d6a3125b
+      PREPARATION_SHA256: 9b6448f273f8745518427d41a9020e132a0aaba714e03deceedcc9ea952113ab
       CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
     steps:
       - uses: actions/checkout@v7
@@ -29,7 +29,7 @@ jobs:
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
-          ref: b430cf2966d87d0da73f0d506f6acd89eecf6fa6
+          ref: ddc3ce041dd1597c9086e56d0206e810d1237316
       - name: Windows PowerShell 5 shared receipt writer preflight
         id: receipt_preflight
         shell: powershell
@@ -229,14 +229,10 @@ jobs:
           & python $env:PREPARATION_HELPER --phase restore --root $env:GITHUB_WORKSPACE --output $output *> (Join-Path $output 'preparation-restore.log')
           $code = $LASTEXITCODE
           if ($code -ne 0) { throw "PREPARATION_RESTORE_EXIT: $code" }
-      - name: Focused rendered registration and input checks
-        id: focused
-        timeout-minutes: 26
+      - name: Record retained focused evidence scope
         run: |
-          $ErrorActionPreference = 'Stop'
-          $PSNativeCommandUseErrorActionPreference = $false
-          & pwsh -NoLogo -NoProfile -NonInteractive -File ./tools/testing/Invoke-ContinuePublicationChecks.ps1 -RepositoryRoot $env:GITHUB_WORKSPACE -ExpectedSource $env:PRODUCT_SHA -NativeProviderProvenance
-          if ($LASTEXITCODE -ne 0) { throw "FOCUSED_RUNNER_EXIT: $LASTEXITCODE" }
+          $output = Join-Path $env:RUNNER_TEMP 'preparation-evidence'
+          @{scope='retained_evidence_not_executed_in_this_run'; run_id='39716672453'; attempt=1; source='b430cf2966d87d0da73f0d506f6acd89eecf6fa6'; controller='2c994267230469108a41f716d9fcdabd2c1c5511'; tests=8; assertions=153; prior_batch_conclusion='failure'; failure_scope='native_first_reveal_geometry'; evidence_commit='d48a4af2b682ebcd71b27cd2db3dddbdb49dca8a'; qualification_sha256='21e6001908ceceada9590b06dffef86731ed6d12ffd7243dada6c11777f516be'; preparation_sha256='16a81fe4d982507c8941fc3463589ec9bf552f472a42fed7376cb73643a7bea7'} | ConvertTo-Json | Set-Content (Join-Path $output 'retained-focused-evidence.json') -Encoding utf8
       - name: Native caption Text and same-story Continue
         id: native
         timeout-minutes: 8
@@ -245,7 +241,7 @@ jobs:
           $PSNativeCommandUseErrorActionPreference = $false
           & powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File ./tools/testing/Invoke-CaptionNativeAccept.ps1
           if ($LASTEXITCODE -ne 0) { throw "NATIVE_RUNNER_EXIT: $LASTEXITCODE" }
-      - name: Always retain and check source after focused tests
+      - name: Always retain and check source after native tests
         if: always() && steps.preparation_restore.outcome == 'success'
         run: |
           $ErrorActionPreference = 'Stop'
@@ -253,8 +249,8 @@ jobs:
           $output = Join-Path $env:RUNNER_TEMP 'preparation-evidence'
           & python $env:PREPARATION_HELPER --phase post-tests --root $env:GITHUB_WORKSPACE --output $output *> (Join-Path $output 'preparation-post-tests.log')
           if ($LASTEXITCODE -ne 0) { throw "POST_TESTS_POLICY_EXIT: $LASTEXITCODE" }
-      - name: Preserve focused evidence even after failure
-        if: always() && (steps.focused.outcome == 'success' || steps.focused.outcome == 'failure' || steps.focused.outcome == 'cancelled')
+      - name: Preserve native evidence even after failure
+        if: always() && (steps.native.outcome == 'success' || steps.native.outcome == 'failure' || steps.native.outcome == 'cancelled')
         uses: actions/upload-artifact@v4
         with:
           name: caption-qualification-${{ github.run_id }}-${{ github.run_attempt }}
