@@ -2,7 +2,7 @@
 
 PASS for the offline metric checker and its composition with the retained custody/durable review. This is preparation approval, not evidence that a new diagnostic or the whole game has passed. No engine/PowerShell execution or remote mutation occurred in this review.
 
-Reviewed `check_restored_profiles.py` SHA256 `8f3dfe9c83f270b1048cab64f2fefdaabcf1c7d0376d14b6ed2b7b274901ffd7` and `test_restored_profiles.py` SHA256 `a14000bd886f9b3e71133e3638b0a9beca86136d260f7e367b2284928a770552`.
+Reviewed `check_restored_profiles.py` SHA256 `8f3dfe9c83f270b1048cab64f2fefdaabcf1c7d0376d14b6ed2b7b274901ffd7` and `test_restored_profiles.py` SHA256 `d1866889ddaee85c0bb8c9a425be55d2b6900c69a09891f9c49cc3916cfd9084`.
 
 The current SceneValidationTiming and RunSnapshotSchema local bodies match the accepted fourteen-source manifest. The current connected child writer was also read at product `4278756add50ea27da8237106260a0efee606cda`, blob `d9f31e79658a83b3a835766564033ba448177cc0`: it emits each aggregate after the synchronous owner returns and before its operation return marker, within the final-Accept-only writer substitution. No new runtime observer is needed.
 
@@ -15,3 +15,5 @@ I executed the five focused checker test groups: all pass. They use nine retaine
 The companion `custody-review/review_restored_evidence.py` invokes this checker only after current source/harness pins, retained-byte checks, four custody policies, exact two-case 102+234 assertions, clean child exits/deadlines and durable slot/history/COMPLETED/GALLERY_RECORDED/fresh-Day1 checks. It records raw aggregate payload strings before those gates and writes final acceptance only after metric validation. The separate accepted 38-unit evidence is explicitly reused, not counted as executed. Final API archive digests and actual workflow event identity remain Lead verification responsibilities, as before.
 
 No dispatch-blocking checker finding remains. The original log and archives must still be retained; a missing/censored profile or timed-out diagnostic must remain incomplete rather than trigger automatic deadline growth or retry.
+
+Portable fixture follow-up: verified retained-aggregate-payloads.json exactly equals raw extraction from the original retained short-route log. The final test script loads that sibling fixture instead of a scratch-specific path; all five groups still pass.
