@@ -52,6 +52,10 @@ static func get_texture(asset_id: String, expected_size: Vector2i = Vector2i.ZER
 		return null
 	return texture
 
+static func uses_split_panels(entry_id: String) -> bool:
+	var placement: Variant = _catalog().get("scenes", {}).get(entry_id, {})
+	return placement is Dictionary and placement.get("split_panels", false) == true
+
 static func get_scene_art(entry_id: String) -> Dictionary:
 	var value: Variant = _catalog().get("scenes", {}).get(entry_id, {})
 	if not value is Dictionary:
@@ -221,3 +225,4 @@ static func resolve_visual(records: Array, visual_id: String, required: bool) ->
 
 static func _visual_fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message}
+

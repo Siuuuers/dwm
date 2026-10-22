@@ -9,6 +9,7 @@ const RECORD := preload("res://scripts/ui/gallery/GalleryRecordButton.gd")
 const RECORD_PAPER := preload("res://scripts/ui/gallery/GalleryRecordPaper.gd")
 const VERSION_REGISTER := preload("res://scripts/ui/gallery/GalleryVersionRegister.gd")
 const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
+const ARTWORK_GALLERY := preload("res://scripts/ui/gallery/ArtworkGallery.gd")
 const REPLAY_OWNER := preload("res://scripts/application/ending/GalleryReplayOwner.gd")
 const PRACTICE_HOST := preload("res://scripts/ui/gallery/GalleryRehearsalHost.gd")
 const DATING_PRESENTATION := preload("res://scripts/ui/DatingScene.gd")
@@ -64,6 +65,51 @@ var _record_title_label: Label
 var _record_paper: Control
 var _replay_return_hidden := false
 var _record_catalog: RefCounted = RECORD_CATALOG.new()
+var _artwork: Control
+var _gallery_tabs: HBoxContainer
+var _artwork_active := false
+var _art_return_was_visible := false
+
+func _ensure_artwork_gallery() -> void:
+	if _artwork != null: return
+	_artwork = ARTWORK_GALLERY.new()
+	_artwork.name = "ArtworkGallery"
+	_artwork.position = _canvas.position + Vector2(32, 48)
+	_artwork.size = Vector2(896, 576)
+	_artwork.configure(_profile)
+	_artwork.viewer_visibility_changed.connect(_on_art_viewer_changed)
+	add_child(_artwork)
+	_artwork.hide()
+	_gallery_tabs = HBoxContainer.new()
+	_gallery_tabs.name = "GalleryTabs"
+	_gallery_tabs.position = _canvas.position + Vector2(32, 0)
+	add_child(_gallery_tabs)
+	for title: String in ["Records", "Artwork"]:
+		var button := Button.new()
+		button.text = title
+		button.add_theme_font_size_override("font_size", 20)
+		button.pressed.connect(_show_gallery_tab.bind(title == "Artwork"))
+		_gallery_tabs.add_child(button)
+	refresh_return_navigation()
+
+func _show_gallery_tab(artwork: bool) -> void:
+	if has_active_rehearsal() or (_replay_owner != null and _replay_owner.is_playing()): return
+	_artwork_active = artwork
+	_canvas.visible = not artwork
+	_artwork.visible = artwork
+	if artwork:
+		_artwork.refresh()
+		_artwork.focus_first()
+	else:
+		_focus_entry()
+	refresh_return_navigation()
+
+func _on_art_viewer_changed(active: bool) -> void:
+	if active:
+		_art_return_was_visible = _return_button.visible
+		_return_button.hide()
+	else:
+		_return_button.visible = _art_return_was_visible
 
 func configure_title_host(home: Button, localization: Node, profile: Object) -> Dictionary:
 	if is_node_ready() or _host_return != null or not is_instance_valid(home) \
@@ -236,6 +282,9 @@ func open_in_title_host() -> void:
 	_focus_entry.call_deferred()
 
 func close_for_title_host() -> bool:
+	if is_instance_valid(_artwork) and _artwork.viewer_is_open():
+		_artwork.close_viewer()
+		return false
 	if has_active_rehearsal():
 		_practice_host.request_return()
 		return false # One Return closes one practice layer.
@@ -274,6 +323,7 @@ func _ready() -> void:
 	_refresh_presentation()
 	_refresh_tiles()
 	_focus_entry.call_deferred()
+	_ensure_artwork_gallery()
 
 func _refresh_tiles() -> void:
 	if _replay_owner != null and _replay_owner.is_playing():
@@ -382,6 +432,10 @@ func _focus_return() -> void:
 
 func _focus_entry() -> void:
 	if not is_visible_in_tree(): return
+	if _artwork_active and is_instance_valid(_artwork):
+		_artwork.refresh()
+		_artwork.focus_first()
+		return
 	if _ending_tile_grid.get_child_count() > 0:
 		_ending_tile_grid.get_child(0).grab_focus()
 	else: _return_button.grab_focus()
@@ -719,8 +773,21 @@ func _relayout_rows() -> void:
 
 func refresh_return_navigation() -> void:
 	if not is_node_ready() or not is_visible_in_tree() or not is_instance_valid(_return_button): return
+	if _artwork_active and is_instance_valid(_artwork):
+		var art_sequence: Array[Control] = []
+		for tab: Button in _gallery_tabs.get_children(): art_sequence.append(tab)
+		for row: Button in _artwork._rows:
+			if not row.disabled: art_sequence.append(row)
+		if not _artwork._preview.disabled: art_sequence.append(_artwork._preview)
+		art_sequence.append(_return_button)
+		for index: int in art_sequence.size():
+			art_sequence[index].focus_previous = art_sequence[posmod(index - 1, art_sequence.size())].get_path()
+			art_sequence[index].focus_next = art_sequence[(index + 1) % art_sequence.size()].get_path()
+		return
 	var rows := _ending_tile_grid.get_children()
 	var sequence: Array[Control] = []
+	if is_instance_valid(_gallery_tabs):
+		for tab: Button in _gallery_tabs.get_children(): sequence.append(tab)
 	var selected_row: Button = null
 	for row: Button in rows:
 		if str(row.get_meta(&"gallery_record_id")) == _selected_id: selected_row = row
@@ -791,3 +858,4 @@ func _on_index_input(event: InputEvent) -> void:
 		_index_offset += amount
 		_update_scroll()
 		_index_viewport.accept_event()
+

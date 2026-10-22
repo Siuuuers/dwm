@@ -69,12 +69,13 @@ func configure_entry(entry_id: String, text_percent: int = 100,
 		challenge: bool = false, show_portraits: bool = true, caption_overlay: bool = false) -> void:
 	_entry_id = entry_id
 	var placement: Dictionary = ART.get_scene_art(entry_id)
+	var split_panels: bool = ART.uses_split_panels(entry_id)
 	var portraits: Array[Texture2D] = []
-	if show_portraits:
+	if show_portraits or split_panels:
 		for asset_id: String in placement.get("portraits", []):
 			portraits.append(ART.get_texture(asset_id))
 	configure_textures(ART.get_texture(str(placement.get("background", ""))), portraits,
-		ART.get_texture(str(placement.get("cg", ""))), text_percent, challenge, entry_id.begins_with("dating."),
+		ART.get_texture(str(placement.get("cg", ""))), text_percent, challenge, entry_id.begins_with("dating.") or split_panels,
 		&"solo" if entry_id.begins_with("dating.solo.") else &"group", caption_overlay)
 
 func configure_textures(background: Texture2D, portraits: Array[Texture2D], cg: Texture2D = null,
@@ -247,3 +248,4 @@ func _texture_rect(node_name: String, stretch: TextureRect.StretchMode) -> Textu
 	rect.stretch_mode = stretch
 	add_child(rect)
 	return rect
+

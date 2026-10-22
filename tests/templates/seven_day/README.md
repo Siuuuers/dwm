@@ -58,3 +58,5 @@ for five-result mappings, recall, optional option_a/b/c holders and explicit
 scene ordering. The [seven-day handoff](../scene_sequence/SEVEN_DAY_HANDOFF.md)
 records the concrete day/marker map. This documentation update adds no tests or
 runtime behavior; final build acceptance remains pending.
+
+Artwork and music replacement paths: [five-picture guide](../../../art/pictures/README.md). Title and story music use separate OGG files. Regenerate registration after replacing story music so its hash and duration match.

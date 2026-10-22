@@ -161,3 +161,44 @@ func test_old_registration_is_not_reinterpreted_as_scene_audio() -> void:
 		var registration: Dictionary = _registration()
 		registration.schema_version = version
 		assert_false(MANIFEST.make_scene_context(registration, "scene.test.b", "receipt.1").ok)
+
+
+func test_music_bed_requires_version_two_and_one_unambiguous_channel() -> void:
+	var catalogue: Dictionary = _catalogue()
+	catalogue.plans[0].music = "TEST.audio.asset.01"
+	catalogue.plans[0].ambience_asset_id = null
+	assert_false(_valid(catalogue), "version 1 keeps its ambience-only contract")
+	catalogue.schema_version = 2
+	assert_true(_valid(catalogue))
+	catalogue.plans[0].ambience_asset_id = "TEST.audio.asset.01"
+	assert_false(_valid(catalogue), "two competing beds are not silently combined")
+	catalogue.plans[0].ambience_asset_id = null
+	for invalid: Variant in [null, {}, "missing", 3]:
+		catalogue.plans[0].music = invalid
+		assert_false(_valid(catalogue), str(invalid))
+	catalogue.plans[0].music = "TEST.audio.asset.01"
+	catalogue.assets[0].path = "res://audio/bgm/menu_theme.ogg"
+	assert_true(_valid(catalogue), "version 2 admits original shipped music bytes")
+	for path: String in ["res://audio/bgm/../menu_theme.ogg", "res://audio/bgm//menu_theme.ogg", "res://audio/bgm/menu_theme.gd", "res://audio/bgm/x\\menu_theme.ogg", "res://audio/other/menu_theme.ogg"]:
+		catalogue.assets[0].path = path
+		assert_false(_valid(catalogue), path)
+
+
+func test_music_resolves_to_music_channel_without_new_saved_snapshot_fields() -> void:
+	var registration: Dictionary = _registration()
+	registration.audio_catalogue.schema_version = 2
+	registration.audio_catalogue.plans[0].ambience_asset_id = null
+	registration.audio_catalogue.plans[0].music = "TEST.audio.asset.01"
+	var made: Dictionary = MANIFEST.make_scene_context(registration, "scene.test.b", "receipt.music")
+	assert_true(made.ok)
+	var resolved: Dictionary = MANIFEST.resolve_scene_context(made.value, registration)
+	assert_true(resolved.ok)
+	assert_eq(resolved.value.channel, &"music")
+	assert_eq(resolved.value.record.asset.asset_id, "TEST.audio.asset.01")
+	assert_eq(resolved.value.load_seconds, 1.0)
+	assert_eq(made.value.keys().size(), 5, "persistent snapshot shape is unchanged")
+	assert_eq(made.value.schema_version, 1)
+	assert_false(made.value.has("channel"))
+	registration.audio_catalogue.plans[0].music = "changed"
+	assert_false(MANIFEST.resolve_scene_context(made.value, registration).ok)
+

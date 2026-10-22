@@ -230,6 +230,8 @@ try {
         $expected[$resource] = (Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash.ToLowerInvariant()
     }
     $result.story_compatibility_resources = $storyCompatibilityResources
+    $musicResource = "res://audio/bgm/story_theme.ogg"
+    $expected[$musicResource] = (Get-FileHash -LiteralPath (Join-Path $repositoryRoot $musicResource.Substring(6)) -Algorithm SHA256).Hash.ToLowerInvariant()
     $expected | ConvertTo-Json -Depth 3 | Set-Content -LiteralPath (Join-Path $work 'expected.json') -Encoding utf8NoBOM
     $probe = @'
 extends SceneTree

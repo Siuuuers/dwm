@@ -1057,6 +1057,21 @@
         1920,
         672
       ]
+    },
+    "picture1": {
+      "path": "res://art/pictures/picture1.jpg"
+    },
+    "picture2": {
+      "path": "res://art/pictures/picture2.jpg"
+    },
+    "picture3": {
+      "path": "res://art/pictures/picture3.jpg"
+    },
+    "picture4": {
+      "path": "res://art/pictures/picture4.jpg"
+    },
+    "picture5": {
+      "path": "res://art/pictures/picture5.jpg"
     }
   },
   "scenes": {
@@ -2342,6 +2357,69 @@
       "background": "background.core.tutorial_desktop_day1",
       "portraits": [],
       "cg": ""
+    },
+    "Day1": {
+      "day": 1,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day2": {
+      "day": 2,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day3": {
+      "day": 3,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day4": {
+      "day": 4,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day5": {
+      "day": 5,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day6": {
+      "day": 6,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day7": {
+      "day": 7,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
     }
   }
 }

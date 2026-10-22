@@ -253,3 +253,41 @@ func test_legacy_restore_can_replace_scene_and_rollback_recovers_scene_playhead(
 	assert_eq(_port.players[active[&"ambience"]].playback_position, 0.0)
 	assert_true(_manager.rollback_restore_silent(before).get("ok", false))
 	assert_eq(_manager.capture_restore_state().value, before)
+
+
+func _use_music_bed() -> void:
+	_manager.registration.audio_catalogue.schema_version = 2
+	_manager.registration.audio_catalogue.plans[0].ambience_asset_id = null
+	_manager.registration.audio_catalogue.plans[0].music = "TEST.audio.asset.01"
+
+
+func test_music_bed_uses_music_player_and_restores_authored_anchor() -> void:
+	_use_music_bed()
+	var context: Dictionary = _context()
+	assert_true(_admit(context).get("ok", false))
+	assert_true(_port.players[&"MusicA"].playing)
+	assert_eq(_port.players[&"MusicA"].playback_position, 0.0)
+	assert_false(_port.players[&"AmbienceA"].playing)
+	assert_null(_port.players[&"AmbienceA"].stream)
+	_port.players[&"MusicA"].playback_position = 2.75
+	var restore: Dictionary = _manager.prepare_semantic_restore(context, _profile_snapshot())
+	assert_true(restore.get("ok", false))
+	assert_true(_manager.apply_restore_silent(restore.value).get("ok", false))
+	assert_eq(_port.players[&"MusicA"].playback_position, 1.0)
+	assert_eq(_manager.get_semantic_audio_context(), context)
+	assert_true(_manager.finalize_restore().get("ok", false))
+	var silent: Dictionary = _context("scene.test.a", "admission.music.silent")
+	assert_true(_admit(silent).get("ok", false))
+	_assert_long_lived_silence()
+
+
+func test_music_apply_failure_restores_prior_music_output_and_snapshot() -> void:
+	_use_music_bed()
+	assert_true(_admit(_context()).get("ok", false))
+	_port.players[&"MusicA"].playback_position = 2.75
+	var before: Dictionary = _manager.capture_restore_state().value
+	var plan: Dictionary = _manager.prepare_scene_admission(_context("scene.test.b", "admission.music.2"))
+	_port.fail_next(&"play", &"MusicA")
+	assert_eq(_manager.apply_scene_admission(plan.value).get("code"), &"injected_audio_failure")
+	assert_eq(_manager.capture_restore_state().value, before)
+

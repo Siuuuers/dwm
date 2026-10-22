@@ -421,16 +421,19 @@ func _install_scene_output(prepared: Dictionary, restoring: bool) -> Dictionary:
 	for player: StringName in MUSIC_PLAYERS + AMBIENCE_PLAYERS:
 		operations.append([&"stop_and_clear", [player]])
 		operations.append([&"set_player_db", [player, SILENCE_DB]])
+	var channel: StringName = prepared.get("channel", &"ambience")
 	if prepared.stream != null:
 		var position: float = prepared.load_seconds if restoring else prepared.entrance_seconds
-		operations.append([&"assign_stream", [AMBIENCE_PLAYERS[0], prepared.stream]])
-		operations.append([&"set_player_db", [AMBIENCE_PLAYERS[0], 0.0]])
-		operations.append([&"play", [AMBIENCE_PLAYERS[0], position]])
+		var target_player: StringName = MUSIC_PLAYERS[0] if channel == &"music" else AMBIENCE_PLAYERS[0]
+		operations.append([&"assign_stream", [target_player, prepared.stream]])
+		operations.append([&"set_player_db", [target_player, 0.0]])
+		operations.append([&"play", [target_player, position]])
 	for operation: Array in operations:
 		var result: Dictionary = _playback_port.callv(operation[0], operation[1])
 		if not result.get("ok", false): return result
 	_semantic = prepared.snapshot.duplicate(true)
-	_records = {&"music": {}, &"ambience": {} if prepared.record == null else prepared.record.duplicate(true)}
+	_records = {&"music": {}, &"ambience": {}}
+	if prepared.record != null: _records[channel] = prepared.record.duplicate(true)
 	_active_players = {&"music": MUSIC_PLAYERS[0], &"ambience": AMBIENCE_PLAYERS[0]}
 	if prepared.missing_media:
 		_warn_missing(str(prepared.record.asset.asset_id))
@@ -928,3 +931,4 @@ func _lifecycle_failure(code: StringName) -> Dictionary:
 
 func _failure(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code, "details": {}, "receipt": {}}
+

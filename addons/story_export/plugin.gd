@@ -5,6 +5,8 @@ extends EditorPlugin
 
 class StoryExport extends EditorExportPlugin:
 	const RESOURCES := [
+		# Scene admission authenticates the original OGG bytes in exported builds.
+		"res://audio/bgm/story_theme.ogg",
 		"res://tests/fixtures/dialogic/Day1.dtl",
 		"res://tests/fixtures/dialogic/Day2.dtl",
 		"res://tests/fixtures/dialogic/Day3.dtl",

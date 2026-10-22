@@ -8,9 +8,23 @@ const CONTENT_VERSION := 1
 const ORDER_PATH := "res://tests/templates/scene_sequence/seven_day_order.json"
 const ENDING_PATH := DAY_DIRECTORY + "Day7.dtl"
 const ENDING_ID := "ending.alone.normal"
+const MUSIC_PATH := "res://audio/bgm/story_theme.ogg"
+const MUSIC_ASSET_ID := "template.shared.music"
+const MUSIC_PLAN_ID := "template.shared.music.plan"
 const STRICT := preload("res://scripts/validation/StrictJson.gd")
 
 static func prepare() -> Dictionary:
+	# Scene music has its own replaceable file; Title keeps menu_theme.ogg.
+	# Native import owns duration; original source bytes own media identity.
+	if not FileAccess.file_exists(MUSIC_PATH):
+		return {"ok": false, "code": "template_music_missing"}
+	var soundtrack: AudioStreamOggVorbis = ResourceLoader.load(MUSIC_PATH) as AudioStreamOggVorbis
+	if soundtrack == null or not soundtrack.loop:
+		return {"ok": false, "code": "template_music_invalid"}
+	var duration_seconds: float = soundtrack.get_length()
+	if not is_finite(duration_seconds) or duration_seconds <= 0.0:
+		return {"ok": false, "code": "template_music_invalid"}
+	var duration_ms: int = roundi(duration_seconds * 1000.0)
 	var configured: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(ORDER_PATH))
 	if not configured.ok: return configured
 	var order: Array = configured.value.order
@@ -29,7 +43,13 @@ static func prepare() -> Dictionary:
 		"scene_programme": {"kind": "scene_programme", "schema_version": 1, "entries": []},
 		"targets": [], "board_profiles": [], "challenges": [], "contacts": [],
 		"contact_definitions": {"kind": "scene_contact_definitions", "schema_version": 1, "messages": [], "replies": []},
-		"audio_catalogue": {"kind": "scene_audio_catalogue", "schema_version": 1, "assets": [], "plans": [], "bindings": []}}
+		"audio_catalogue": {"kind": "scene_audio_catalogue", "schema_version": 2,
+			"assets": [{"asset_id": MUSIC_ASSET_ID, "path": MUSIC_PATH,
+				"sha256": FileAccess.get_sha256(MUSIC_PATH), "duration_ms": duration_ms}],
+			"plans": [{"plan_id": MUSIC_PLAN_ID, "revision": 1, "variant_id": "base",
+				"ambience_asset_id": null, "entrance_ms": 0, "load_anchor_id": "template.music.start",
+				"load_anchor_ms": 0, "authorial": true, "essential": false,
+				"missing_media": "silence", "music": MUSIC_ASSET_ID, "cues": []}], "bindings": []}}
 	for index in range(order.size()):
 		var id: String = order[index]
 		var path: String = DAY_DIRECTORY + id + ".dtl"
@@ -99,7 +119,7 @@ static func prepare() -> Dictionary:
 		"content_sha256": ending.value.content_sha256, "program_sha256": ending.value.program_sha256, "markers": []})
 	bundle.targets.append({"target_id": "target." + ENDING_ID, "target": {"kind": "ending",
 		"entry_id": ENDING_ID, "label": ENDING_ID, "content_version": ending_entry.content_version, "program_sha256": ending.value.program_sha256}})
-	for id: String in all_ids: bundle.audio_catalogue.bindings.append({"entry_id": id, "plan_id": null})
+	for id: String in all_ids: bundle.audio_catalogue.bindings.append({"entry_id": id, "plan_id": MUSIC_PLAN_ID})
 	# Closed registration tables require canonical sorting; story order remains ORDER.
 	for rows: Array in [bundle.entry_manifest.entries, bundle.context_registry.schemas,
 			bundle.caption_registry.entries, bundle.scene_programme.entries]:
@@ -109,3 +129,4 @@ static func prepare() -> Dictionary:
 	var result: Dictionary = SEQUENCE.build(order, bundle, bindings)
 	if not result.get("ok", false): return result
 	return result
+

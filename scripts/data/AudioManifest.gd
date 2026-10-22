@@ -179,7 +179,7 @@ const SCENE_WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 static func validate_scene_catalogue(catalogue: Variant, entry_ids: Array) -> Dictionary:
 	if not _scene_keys(catalogue, ["kind", "schema_version", "assets", "plans", "bindings"]):
 		return _scene_failure()
-	if typeof(catalogue.kind) != TYPE_STRING or catalogue.kind != "scene_audio_catalogue" or typeof(catalogue.schema_version) != TYPE_INT or catalogue.schema_version != 1:
+	if typeof(catalogue.kind) != TYPE_STRING or catalogue.kind != "scene_audio_catalogue" or typeof(catalogue.schema_version) != TYPE_INT or catalogue.schema_version not in [1, 2]:
 		return _scene_failure()
 	for field: String in ["assets", "plans", "bindings"]:
 		if typeof(catalogue[field]) != TYPE_ARRAY:
@@ -196,7 +196,7 @@ static func validate_scene_catalogue(catalogue: Variant, entry_ids: Array) -> Di
 			return _scene_failure()
 		if not _scene_id(asset.asset_id) or asset.asset_id <= previous or not _scene_hash(asset.sha256):
 			return _scene_failure()
-		if typeof(asset.duration_ms) != TYPE_INT or asset.duration_ms <= 0 or not _scene_path(asset.path):
+		if typeof(asset.duration_ms) != TYPE_INT or asset.duration_ms <= 0 or not _scene_path(asset.path, catalogue.schema_version):
 			return _scene_failure()
 		previous = asset.asset_id
 		assets[asset.asset_id] = asset
@@ -205,16 +205,22 @@ static func validate_scene_catalogue(catalogue: Variant, entry_ids: Array) -> Di
 	for plan: Variant in catalogue.plans:
 		if not _scene_keys(plan, ["plan_id", "revision", "variant_id", "ambience_asset_id", "entrance_ms", "load_anchor_id", "load_anchor_ms", "authorial", "essential", "missing_media", "music", "cues"]):
 			return _scene_failure()
-		if not _scene_id(plan.plan_id) or plan.plan_id <= previous or not _scene_id(plan.ambience_asset_id) or not assets.has(plan.ambience_asset_id):
+		# Version 1 remains ambience-only. Version 2 admits one authored bed on
+		# its proper channel; it does not combine independent channel timelines.
+		var asset_id: Variant = plan.ambience_asset_id
+		if catalogue.schema_version == 2 and plan.music != null:
+			if plan.ambience_asset_id != null: return _scene_failure()
+			asset_id = plan.music
+		if not _scene_id(plan.plan_id) or plan.plan_id <= previous or not _scene_id(asset_id) or not assets.has(asset_id):
 			return _scene_failure()
 		if typeof(plan.revision) != TYPE_INT or plan.revision <= 0 or typeof(plan.variant_id) != TYPE_STRING or plan.variant_id != "base" or not _scene_id(plan.load_anchor_id):
 			return _scene_failure()
 		if typeof(plan.authorial) != TYPE_BOOL or not plan.authorial or typeof(plan.essential) != TYPE_BOOL or plan.essential:
 			return _scene_failure()
-		if typeof(plan.missing_media) != TYPE_STRING or plan.missing_media != "silence" or plan.music != null or typeof(plan.cues) != TYPE_ARRAY or not plan.cues.is_empty():
+		if typeof(plan.missing_media) != TYPE_STRING or plan.missing_media != "silence" or (catalogue.schema_version == 1 and plan.music != null) or typeof(plan.cues) != TYPE_ARRAY or not plan.cues.is_empty():
 			return _scene_failure()
 		for field: String in ["entrance_ms", "load_anchor_ms"]:
-			if typeof(plan[field]) != TYPE_INT or plan[field] < 0 or plan[field] >= assets[plan.ambience_asset_id].duration_ms:
+			if typeof(plan[field]) != TYPE_INT or plan[field] < 0 or plan[field] >= assets[asset_id].duration_ms:
 				return _scene_failure()
 		previous = plan.plan_id
 		plans[plan.plan_id] = plan
@@ -282,9 +288,11 @@ static func resolve_scene_context(context: Dictionary, registration: Dictionary)
 	for plan: Dictionary in checked.value.plans:
 		if context.selection != _scene_selection(plan):
 			continue
+		var asset_id: String = plan.music if plan.music != null else plan.ambience_asset_id
 		for asset: Dictionary in checked.value.assets:
-			if asset.asset_id == plan.ambience_asset_id:
+			if asset.asset_id == asset_id:
 				result.record = {"asset": asset.duplicate(true), "plan": plan.duplicate(true)}
+				if plan.music != null: result["channel"] = &"music"
 				result.entrance_seconds = float(plan.entrance_ms) / 1000.0
 				result.load_seconds = float(plan.load_anchor_ms) / 1000.0
 				return {"ok": true, "value": result}
@@ -331,10 +339,14 @@ static func _scene_hash(value: Variant) -> bool:
 	return true
 
 
-static func _scene_path(value: Variant) -> bool:
-	if typeof(value) != TYPE_STRING or not value.begins_with("res://tests/fixtures/audio/"):
+static func _scene_path(value: Variant, catalogue_version: int = 1) -> bool:
+	if typeof(value) != TYPE_STRING:
 		return false
-	var relative: String = value.trim_prefix("res://tests/fixtures/audio/")
+	var prefix := "res://tests/fixtures/audio/"
+	if catalogue_version == 2 and value.begins_with(BGM_DIR) and value.ends_with(".ogg"):
+		prefix = BGM_DIR
+	if not value.begins_with(prefix): return false
+	var relative: String = value.trim_prefix(prefix)
 	if relative.is_empty() or "\\" in relative or ":" in relative or "%" in relative:
 		return false
 	for part: String in relative.split("/", true):
@@ -345,3 +357,4 @@ static func _scene_path(value: Variant) -> bool:
 
 static func _scene_failure(code: StringName = &"invalid_scene_audio_catalogue") -> Dictionary:
 	return {"ok": false, "code": code, "details": {}, "receipt": {}}
+
