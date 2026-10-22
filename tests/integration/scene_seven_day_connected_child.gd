@@ -11,28 +11,43 @@ class TimedEndingCheckpointPort extends RefCounted:
 	var owner_port: RefCounted
 	var mark: Callable
 	var prefix: String
+	var lifecycle_state: String
+	var playback_stage: String
+	var next_step_index: int
 
 	func capture() -> Dictionary:
 		mark.call(prefix + ".capture.begin")
+		var timing := preload("res://scripts/narrative/SceneValidationTiming.gd")
+		var observed: bool = timing.begin_scope(prefix + ".capture", lifecycle_state, playback_stage, next_step_index)
 		var result: Dictionary = owner_port.capture()
+		if observed: timing.end_scope(bool(result.get("ok", false)))
 		mark.call(prefix + ".capture.return")
 		return result
 
 	func prepare(inputs: Dictionary, kind: StringName, disk_write: Dictionary) -> Dictionary:
 		mark.call(prefix + ".prepare.begin")
+		var timing := preload("res://scripts/narrative/SceneValidationTiming.gd")
+		var observed: bool = timing.begin_scope(prefix + ".prepare", lifecycle_state, playback_stage, next_step_index)
 		var result: Dictionary = owner_port.prepare(inputs, kind, disk_write)
+		if observed: timing.end_scope(bool(result.get("ok", false)))
 		mark.call(prefix + ".prepare.return")
 		return result
 
 	func commit(candidate: Dictionary) -> Dictionary:
 		mark.call(prefix + ".commit.begin")
+		var timing := preload("res://scripts/narrative/SceneValidationTiming.gd")
+		var observed: bool = timing.begin_scope(prefix + ".commit", lifecycle_state, playback_stage, next_step_index)
 		var result: Dictionary = owner_port.commit(candidate)
+		if observed: timing.end_scope(bool(result.get("ok", false)))
 		mark.call(prefix + ".commit.return")
 		return result
 
 	func rollback(backup: Dictionary) -> Dictionary:
 		mark.call(prefix + ".rollback.begin")
+		var timing := preload("res://scripts/narrative/SceneValidationTiming.gd")
+		var observed: bool = timing.begin_scope(prefix + ".rollback", lifecycle_state, playback_stage, next_step_index)
 		var result: Dictionary = owner_port.rollback(backup)
+		if observed: timing.end_scope(bool(result.get("ok", false)))
 		mark.call(prefix + ".rollback.return")
 		return result
 
@@ -65,6 +80,10 @@ func _timed_ending_writer() -> Dictionary:
 	timed_port.owner_port = original_port
 	timed_port.mark = Callable(self, "_ending_phase")
 	timed_port.prefix = prefix
+	# Scalar labels only; do not capture/copy the lifecycle or retained history.
+	timed_port.lifecycle_state = str(game._run_lifecycle._state)
+	timed_port.playback_stage = str(game._run_lifecycle._ending_plan.get("playback_stage", ""))
+	timed_port.next_step_index = int(game._run_lifecycle._ending_plan.get("next_step_index", -1))
 	# No await or policy logic: narrow substitution lasts one synchronous call.
 	_writer_bootstrap._retained_checkpoint_port = timed_port
 	var result: Dictionary = _original_ending_writer.call()
@@ -485,6 +504,7 @@ func _save_ending_caption() -> bool:
 	await _screenshot("seven-day-ending-saved")
 	if not _write_json("user://scene-seven-day-ending-proof.json", proof): return false
 	return _write_json("res://.godot/ci/scene-seven-day-ending-save-proof.json", proof)
+
 
 
 

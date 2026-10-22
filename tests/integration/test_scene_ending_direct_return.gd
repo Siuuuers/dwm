@@ -92,6 +92,9 @@ func test_direct_ending_accept_returns_without_save() -> void:
 	_ending_phase_timing = true
 	var had_checkpoint_profile: bool = OS.has_environment("DWM_CHECKPOINT_PROFILE")
 	var previous_checkpoint_profile: String = OS.get_environment("DWM_CHECKPOINT_PROFILE")
+	var had_scene_profile: bool = OS.has_environment("DWM_SCENE_VALIDATION_PROFILE")
+	var previous_scene_profile: String = OS.get_environment("DWM_SCENE_VALIDATION_PROFILE")
+	OS.set_environment("DWM_SCENE_VALIDATION_PROFILE", "1")
 	OS.set_environment("DWM_CHECKPOINT_PROFILE", "1")
 	_ending_phase("direct_ending.accept.begin")
 	await _accept()
@@ -101,6 +104,10 @@ func test_direct_ending_accept_returns_without_save() -> void:
 		OS.set_environment("DWM_CHECKPOINT_PROFILE", previous_checkpoint_profile)
 	else:
 		OS.unset_environment("DWM_CHECKPOINT_PROFILE")
+	if had_scene_profile:
+		OS.set_environment("DWM_SCENE_VALIDATION_PROFILE", previous_scene_profile)
+	else:
+		OS.unset_environment("DWM_SCENE_VALIDATION_PROFILE")
 	_ending_phase_timing = false
 	assert_gt(_ending_writer_calls, 0, "fresh Accept must exercise the real checkpoint writer")
 	if not await _wait_route(MENU): return
@@ -118,3 +125,4 @@ func test_direct_ending_accept_returns_without_save() -> void:
 	assert_eq(profile.get_profile_snapshot().gallery_transaction_receipts.get(gallery_id),
 		{"ending_id": "ending.alone", "unlocked": true})
 	print("DIRECT_ENDING_GUARD fresh_accept_returned_to_title_without_save")
+

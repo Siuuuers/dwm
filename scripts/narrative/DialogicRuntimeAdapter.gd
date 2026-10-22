@@ -454,6 +454,15 @@ func _start_held_scene_target(path: String, native_index: int) -> Dictionary:
 ## native event indices. Only the returned native map may drive installed playback.
 static func compile_scene_programme(path: String, entry_label: String,
 		callable_labels: Array, markers: Array = []) -> Dictionary:
+	var timing := preload("res://scripts/narrative/SceneValidationTiming.gd")
+	var started_us: int = timing.start_sample()
+	if started_us < 0: return _compile_scene_programme_observed_body(path, entry_label, callable_labels, markers)
+	var result: Dictionary = _compile_scene_programme_observed_body(path, entry_label, callable_labels, markers)
+	timing.finish_sample("compilation", started_us, bool(result.get("ok", false)))
+	return result
+
+static func _compile_scene_programme_observed_body(path: String, entry_label: String,
+		callable_labels: Array, markers: Array = []) -> Dictionary:
 	if not path.begins_with("res://") or not ResourceLoader.exists(path) or entry_label not in callable_labels:
 		return {"ok": false, "code": &"scene_programme_unavailable"}
 	var resource := load(path)
@@ -1866,5 +1875,6 @@ func install_marker_candidate(plan: Dictionary, candidate: NarrativeCaptionLedge
 	_marker_hold = {}
 	_dialogic.handle_event(int(indices.value.target_index))
 	return {"ok": true, "value": {"pending": true}}
+
 
 

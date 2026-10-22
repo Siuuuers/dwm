@@ -33,6 +33,14 @@ var scene_index := 0
 var _scene_nodes: Dictionary = {}
 
 func configure_scene() -> Dictionary:
+	var timing := preload("res://scripts/narrative/SceneValidationTiming.gd")
+	var started_us: int = timing.start_sample()
+	if started_us < 0: return _configure_scene_observed_body()
+	var result: Dictionary = _configure_scene_observed_body()
+	timing.finish_sample("configuration", started_us, bool(result.get("ok", false)))
+	return result
+
+func _configure_scene_observed_body() -> Dictionary:
 	if not catalogue.is_empty() or ledger != null: return _fail(&"reading_catalogue_already_configured")
 	var owner := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 	var selected := owner.scene_registration()
@@ -934,4 +942,5 @@ func validate_marker_receipts(saved: Dictionary, entry_id: String, receipts: Dic
 						or not TRAVERSAL.EVENT._same_types(cursor.frontier.anchor, anchor) or cursor.frontier.anchor != anchor:
 					return _fail(&"reading_marker_receipt_conflict")
 	return {"ok": true}
+
 
