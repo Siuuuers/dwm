@@ -388,7 +388,10 @@ func _scene_source_current() -> bool:
 	if not checked.ok: return false
 	var frontier: Dictionary = _runtime_adapter.capture_reading_frontier()
 	if not frontier.ok: return false
-	var captured: Dictionary = _reading_session.capture(frontier.value)
+	# The native cue remains a real caption while Reading5 owns a held control.
+	# validate_scene_source above proves that exact native/control pairing; its
+	# checkpoint frontier is empty, as in capture_reading_checkpoint.
+	var captured: Dictionary = _reading_session.capture({} if _reading_session.boundary == "control" else frontier.value)
 	return captured.ok and _READING_TRAVERSAL._same(captured.value, _scene_stage.source_reading)
 
 func _scene_candidate_current() -> bool:
