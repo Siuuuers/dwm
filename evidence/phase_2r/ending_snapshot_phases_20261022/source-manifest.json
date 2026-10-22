@@ -1,0 +1,14 @@
+[
+  {
+    "path": "scripts/domain/run/RunSnapshotSchema.gd",
+    "bytes": 74361,
+    "sha256": "dd08969c98e93664ca10c05767a5b0c9844d2065b00677888ccfa50cb8564698",
+    "blob": "672d6c641f149164ac84966b4c0a1fead227496e"
+  },
+  {
+    "path": "scripts/narrative/SceneValidationTiming.gd",
+    "bytes": 2233,
+    "sha256": "096601cd0aef88cebfa281738e3d893f96d9346ce192d6b988bdca05e39557e5",
+    "blob": "a6214ae8bcfdf0b3d766c3f5413780fb2b48a7de"
+  }
+]

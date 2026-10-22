@@ -1,0 +1,6 @@
+{
+  "original_validate_scene_body_restored_exactly": true,
+  "baseline_schema_sha256": "735025bedba926b9dbc3eee4df86df55d7efaca72b9adf8d50c30d8958836701",
+  "baseline_helper_sha256": "b07eddde556ea8b15d633da93640c500e910223cc1b2de579480992e050bf793",
+  "local_godot_or_powershell": false
+}
