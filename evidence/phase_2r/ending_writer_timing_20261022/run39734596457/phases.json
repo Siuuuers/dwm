@@ -1,0 +1,537 @@
+[
+  {
+    "pid": 2880,
+    "ticks_usec": 8392144,
+    "phase": "loader.begin"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 33134903,
+    "phase": "witness_save.begin"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 100254929,
+    "phase": "witness_back.begin"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 100354781,
+    "phase": "witness_back.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 100398264,
+    "phase": "witness_save.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 100398301,
+    "phase": "remaining_walk.begin"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 100398366,
+    "phase": "walk.Day5.1.begin"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 100398393,
+    "phase": "accept.begin"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 100398608,
+    "phase": "accept.input_ready"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 100406880,
+    "phase": "accept.focus_checked"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 100406940,
+    "phase": "accept.press.before"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 133323791,
+    "phase": "accept.press.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 133398174,
+    "phase": "accept.press.frame"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 133398229,
+    "phase": "accept.release.before"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 133400654,
+    "phase": "accept.release.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 133423967,
+    "phase": "accept.release.frame"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 133503685,
+    "phase": "accept.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 133510368,
+    "phase": "walk.Day5.1.ready"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 133511627,
+    "phase": "walk.Day5.2.begin"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 133511667,
+    "phase": "accept.begin"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 133511870,
+    "phase": "accept.input_ready"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 133530074,
+    "phase": "accept.focus_checked"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 133530139,
+    "phase": "accept.press.before"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 133542893,
+    "phase": "accept.press.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 133597009,
+    "phase": "accept.press.frame"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 133597082,
+    "phase": "accept.release.before"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 133599564,
+    "phase": "accept.release.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 133616398,
+    "phase": "accept.release.frame"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 133680430,
+    "phase": "accept.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 133718870,
+    "phase": "walk.Day5.2.ready"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 133720298,
+    "phase": "walk.Day6.1.begin"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 133720334,
+    "phase": "accept.begin"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 133826599,
+    "phase": "accept.input_ready"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 133848762,
+    "phase": "accept.focus_checked"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 133848970,
+    "phase": "accept.press.before"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 163008742,
+    "phase": "accept.press.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 163076631,
+    "phase": "accept.press.frame"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 163076685,
+    "phase": "accept.release.before"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 163079057,
+    "phase": "accept.release.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 163102199,
+    "phase": "accept.release.frame"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 163165936,
+    "phase": "accept.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 163172028,
+    "phase": "walk.Day6.1.ready"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 163173914,
+    "phase": "walk.Day6.2.begin"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 163173960,
+    "phase": "accept.begin"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 163174138,
+    "phase": "accept.input_ready"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 163184602,
+    "phase": "accept.focus_checked"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 163184644,
+    "phase": "accept.press.before"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 163198407,
+    "phase": "accept.press.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 163253902,
+    "phase": "accept.press.frame"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 163253960,
+    "phase": "accept.release.before"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 163256614,
+    "phase": "accept.release.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 163277981,
+    "phase": "accept.release.frame"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 163342167,
+    "phase": "accept.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 163396792,
+    "phase": "walk.Day6.2.ready"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 163398448,
+    "phase": "walk.Day7.1.begin"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 163398483,
+    "phase": "accept.begin"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 163505044,
+    "phase": "accept.input_ready"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 163520779,
+    "phase": "accept.focus_checked"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 163520855,
+    "phase": "accept.press.before"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 196904735,
+    "phase": "accept.press.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 196988847,
+    "phase": "accept.press.frame"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 196988906,
+    "phase": "accept.release.before"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 196992589,
+    "phase": "accept.release.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 197014501,
+    "phase": "accept.release.frame"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 197078432,
+    "phase": "accept.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 197084610,
+    "phase": "walk.Day7.1.ready"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 197086378,
+    "phase": "walk.Day7.2.begin"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 197086437,
+    "phase": "accept.begin"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 197086604,
+    "phase": "accept.input_ready"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 197105626,
+    "phase": "accept.focus_checked"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 197105887,
+    "phase": "accept.press.before"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 197122177,
+    "phase": "accept.press.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 197183150,
+    "phase": "accept.press.frame"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 197183207,
+    "phase": "accept.release.before"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 197185843,
+    "phase": "accept.release.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 197206273,
+    "phase": "accept.release.frame"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 197270212,
+    "phase": "accept.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 197308389,
+    "phase": "walk.Day7.2.ready"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 197310013,
+    "phase": "remaining_walk.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 197310404,
+    "phase": "ending_entry.begin"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 197310455,
+    "phase": "accept.begin"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 197416669,
+    "phase": "accept.input_ready"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 197439163,
+    "phase": "accept.focus_checked"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 197439203,
+    "phase": "accept.press.before"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 238501305,
+    "phase": "accept.press.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 238515172,
+    "phase": "accept.press.frame"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 238515221,
+    "phase": "accept.release.before"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 238515914,
+    "phase": "accept.release.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 238739641,
+    "phase": "accept.release.frame"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 238813749,
+    "phase": "accept.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 238813848,
+    "phase": "ending_entry.accept_return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 238821162,
+    "phase": "ending_readiness.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 238821195,
+    "phase": "ending_evidence.begin"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 239088635,
+    "phase": "ending_evidence.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 239330689,
+    "phase": "ending_completion.begin"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 239330720,
+    "phase": "accept.begin"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 239330916,
+    "phase": "accept.input_ready"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 239332321,
+    "phase": "accept.focus_checked"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 239332366,
+    "phase": "accept.press.before"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 239333187,
+    "phase": "accept.press.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 239340248,
+    "phase": "accept.press.frame"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 239340290,
+    "phase": "accept.release.before"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 239340687,
+    "phase": "accept.release.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 239440014,
+    "phase": "ending_writer.1.begin"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 239443742,
+    "phase": "ending_writer.1.capture.begin"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 239445100,
+    "phase": "ending_writer.1.capture.return"
+  },
+  {
+    "pid": 2880,
+    "ticks_usec": 239445131,
+    "phase": "ending_writer.1.prepare.begin"
+  }
+]
