@@ -7,6 +7,7 @@
       "entry_id": "Day1",
       "path": "res://dialogic/timelines/authored_week/Day1.dtl",
       "role": "scene",
+      "story_day": 1,
       "markers": [
         {
           "marker_id": "Day1.thought",
@@ -213,6 +214,7 @@
       "entry_id": "Day1.photo.yes",
       "path": "res://dialogic/timelines/authored_week/Day1.dtl",
       "role": "scene",
+      "story_day": 1,
       "markers": [
         {
           "marker_id": "Day1.photo.yes.next",
@@ -285,6 +287,7 @@
       "entry_id": "Day1.photo.default",
       "path": "res://dialogic/timelines/authored_week/Day1.dtl",
       "role": "scene",
+      "story_day": 1,
       "markers": [
         {
           "marker_id": "Day1.photo.default.next",
@@ -333,6 +336,7 @@
       "entry_id": "Day1.reading",
       "path": "res://dialogic/timelines/authored_week/Day1.dtl",
       "role": "scene",
+      "story_day": 1,
       "markers": [
         {
           "marker_id": "Day1.reading.playable",
@@ -1026,6 +1030,7 @@
       "entry_id": "Day1.result.A",
       "path": "res://dialogic/timelines/authored_week/Day1.dtl",
       "role": "scene",
+      "story_day": 1,
       "markers": [
         {
           "marker_id": "Day1.result.A.next",
@@ -1248,6 +1253,7 @@
       "entry_id": "Day1.result.B",
       "path": "res://dialogic/timelines/authored_week/Day1.dtl",
       "role": "scene",
+      "story_day": 1,
       "markers": [
         {
           "marker_id": "Day1.result.B.next",
@@ -1464,6 +1470,7 @@
       "entry_id": "Day1.result.C",
       "path": "res://dialogic/timelines/authored_week/Day1.dtl",
       "role": "scene",
+      "story_day": 1,
       "markers": [
         {
           "marker_id": "Day1.result.C.next",
@@ -1674,6 +1681,7 @@
       "entry_id": "Day1.result.D",
       "path": "res://dialogic/timelines/authored_week/Day1.dtl",
       "role": "scene",
+      "story_day": 1,
       "markers": [
         {
           "marker_id": "Day1.result.D.next",
@@ -1926,6 +1934,7 @@
       "entry_id": "Day1.result.E",
       "path": "res://dialogic/timelines/authored_week/Day1.dtl",
       "role": "scene",
+      "story_day": 1,
       "markers": [
         {
           "marker_id": "Day1.result.E.next",
@@ -2148,6 +2157,7 @@
       "entry_id": "Day1.coda",
       "path": "res://dialogic/timelines/authored_week/Day1.dtl",
       "role": "scene",
+      "story_day": 1,
       "markers": [
         {
           "marker_id": "Day1.coda.next",
@@ -2460,6 +2470,7 @@
       "entry_id": "Day2",
       "path": "res://dialogic/timelines/authored_week/Day2.dtl",
       "role": "scene",
+      "story_day": 2,
       "markers": [
         {
           "marker_id": "Day2.thought",
@@ -2696,6 +2707,7 @@
       "entry_id": "Day2.food.yes",
       "path": "res://dialogic/timelines/authored_week/Day2.dtl",
       "role": "scene",
+      "story_day": 2,
       "markers": [
         {
           "marker_id": "Day2.food.yes.next",
@@ -2768,6 +2780,7 @@
       "entry_id": "Day2.food.default",
       "path": "res://dialogic/timelines/authored_week/Day2.dtl",
       "role": "scene",
+      "story_day": 2,
       "markers": [
         {
           "marker_id": "Day2.food.default.next",
@@ -2816,6 +2829,7 @@
       "entry_id": "Day2.answer",
       "path": "res://dialogic/timelines/authored_week/Day2.dtl",
       "role": "scene",
+      "story_day": 2,
       "markers": [
         {
           "marker_id": "Day2.answer.playable",
@@ -2957,6 +2971,7 @@
       "entry_id": "Day2.result.A",
       "path": "res://dialogic/timelines/authored_week/Day2.dtl",
       "role": "scene",
+      "story_day": 2,
       "markers": [
         {
           "marker_id": "Day2.result.A.next",
@@ -3161,6 +3176,7 @@
       "entry_id": "Day2.result.B",
       "path": "res://dialogic/timelines/authored_week/Day2.dtl",
       "role": "scene",
+      "story_day": 2,
       "markers": [
         {
           "marker_id": "Day2.result.B.next",
@@ -3287,6 +3303,7 @@
       "entry_id": "Day2.result.C",
       "path": "res://dialogic/timelines/authored_week/Day2.dtl",
       "role": "scene",
+      "story_day": 2,
       "markers": [
         {
           "marker_id": "Day2.result.C.next",
@@ -3557,6 +3574,7 @@
       "entry_id": "Day2.result.E",
       "path": "res://dialogic/timelines/authored_week/Day2.dtl",
       "role": "scene",
+      "story_day": 2,
       "markers": [
         {
           "marker_id": "Day2.result.E.next",
@@ -3833,6 +3851,7 @@
       "entry_id": "Day2.result.D",
       "path": "res://dialogic/timelines/authored_week/Day2.dtl",
       "role": "scene",
+      "story_day": 2,
       "markers": [
         {
           "marker_id": "Day2.result.D.thought",
@@ -4152,6 +4171,7 @@
       "entry_id": "Day2.threshold.stay",
       "path": "res://dialogic/timelines/authored_week/Day2.dtl",
       "role": "scene",
+      "story_day": 2,
       "markers": [
         {
           "marker_id": "Day2.threshold.stay.next",
@@ -4272,6 +4292,7 @@
       "entry_id": "Day2.threshold.benchmark",
       "path": "res://dialogic/timelines/authored_week/Day2.dtl",
       "role": "scene",
+      "story_day": 2,
       "markers": [
         {
           "marker_id": "Day2.threshold.benchmark.next",
@@ -4434,6 +4455,7 @@
       "entry_id": "Day2.threshold.cruel",
       "path": "res://dialogic/timelines/authored_week/Day2.dtl",
       "role": "scene",
+      "story_day": 2,
       "markers": [
         {
           "marker_id": "Day2.threshold.cruel.next",
@@ -4566,6 +4588,7 @@
       "entry_id": "Day3",
       "path": "res://dialogic/timelines/authored_week/Day3.dtl",
       "role": "scene",
+      "story_day": 3,
       "markers": [
         {
           "marker_id": "Day3.thought",
@@ -5114,6 +5137,7 @@
       "entry_id": "Day3.lavinia",
       "path": "res://dialogic/timelines/authored_week/Day3.dtl",
       "role": "scene",
+      "story_day": 3,
       "markers": [
         {
           "marker_id": "Day3.lavinia.playable",
@@ -5429,6 +5453,7 @@
       "entry_id": "Day3.sylvia",
       "path": "res://dialogic/timelines/authored_week/Day3.dtl",
       "role": "scene",
+      "story_day": 3,
       "markers": [
         {
           "marker_id": "Day3.sylvia.playable",
@@ -5618,6 +5643,7 @@
       "entry_id": "Day3.lavinia.result.A",
       "path": "res://dialogic/timelines/authored_week/Day3.dtl",
       "role": "scene",
+      "story_day": 3,
       "markers": [
         {
           "marker_id": "Day3.lavinia.result.A.next",
@@ -5702,6 +5728,7 @@
       "entry_id": "Day3.lavinia.result.B",
       "path": "res://dialogic/timelines/authored_week/Day3.dtl",
       "role": "scene",
+      "story_day": 3,
       "markers": [
         {
           "marker_id": "Day3.lavinia.result.B.next",
@@ -5774,6 +5801,7 @@
       "entry_id": "Day3.lavinia.result.C",
       "path": "res://dialogic/timelines/authored_week/Day3.dtl",
       "role": "scene",
+      "story_day": 3,
       "markers": [
         {
           "marker_id": "Day3.lavinia.result.C.next",
@@ -5858,6 +5886,7 @@
       "entry_id": "Day3.lavinia.result.D",
       "path": "res://dialogic/timelines/authored_week/Day3.dtl",
       "role": "scene",
+      "story_day": 3,
       "markers": [
         {
           "marker_id": "Day3.lavinia.result.D.next",
@@ -6020,6 +6049,7 @@
       "entry_id": "Day3.lavinia.result.E",
       "path": "res://dialogic/timelines/authored_week/Day3.dtl",
       "role": "scene",
+      "story_day": 3,
       "markers": [
         {
           "marker_id": "Day3.lavinia.result.E.next",
@@ -6140,6 +6170,7 @@
       "entry_id": "Day3.sylvia.result.A",
       "path": "res://dialogic/timelines/authored_week/Day3.dtl",
       "role": "scene",
+      "story_day": 3,
       "markers": [
         {
           "marker_id": "Day3.sylvia.result.A.next",
@@ -6224,6 +6255,7 @@
       "entry_id": "Day3.sylvia.result.B",
       "path": "res://dialogic/timelines/authored_week/Day3.dtl",
       "role": "scene",
+      "story_day": 3,
       "markers": [
         {
           "marker_id": "Day3.sylvia.result.B.next",
@@ -6266,6 +6298,7 @@
       "entry_id": "Day3.sylvia.result.C",
       "path": "res://dialogic/timelines/authored_week/Day3.dtl",
       "role": "scene",
+      "story_day": 3,
       "markers": [
         {
           "marker_id": "Day3.sylvia.result.C.next",
@@ -6362,6 +6395,7 @@
       "entry_id": "Day3.sylvia.result.D",
       "path": "res://dialogic/timelines/authored_week/Day3.dtl",
       "role": "scene",
+      "story_day": 3,
       "markers": [
         {
           "marker_id": "Day3.sylvia.result.D.next",
@@ -6560,6 +6594,7 @@
       "entry_id": "Day3.sylvia.result.E",
       "path": "res://dialogic/timelines/authored_week/Day3.dtl",
       "role": "scene",
+      "story_day": 3,
       "markers": [
         {
           "marker_id": "Day3.sylvia.result.E.next",
@@ -6686,6 +6721,7 @@
       "entry_id": "Day4",
       "path": "res://dialogic/timelines/authored_week/Day4.dtl",
       "role": "scene",
+      "story_day": 4,
       "markers": [
         {
           "marker_id": "Day4.thought",
@@ -7109,6 +7145,7 @@
       "entry_id": "Day4.pastille.yes",
       "path": "res://dialogic/timelines/authored_week/Day4.dtl",
       "role": "scene",
+      "story_day": 4,
       "markers": [
         {
           "marker_id": "Day4.pastille.yes.next",
@@ -7187,6 +7224,7 @@
       "entry_id": "Day4.pastille.default",
       "path": "res://dialogic/timelines/authored_week/Day4.dtl",
       "role": "scene",
+      "story_day": 4,
       "markers": [
         {
           "marker_id": "Day4.pastille.default.next",
@@ -7229,6 +7267,7 @@
       "entry_id": "Day4.impulse",
       "path": "res://dialogic/timelines/authored_week/Day4.dtl",
       "role": "scene",
+      "story_day": 4,
       "markers": [
         {
           "marker_id": "Day4.impulse.playable",
@@ -7334,6 +7373,7 @@
       "entry_id": "Day4.A",
       "path": "res://dialogic/timelines/authored_week/Day4.dtl",
       "role": "scene",
+      "story_day": 4,
       "markers": [
         {
           "marker_id": "Day4.A.next",
@@ -7400,6 +7440,7 @@
       "entry_id": "Day4.B",
       "path": "res://dialogic/timelines/authored_week/Day4.dtl",
       "role": "scene",
+      "story_day": 4,
       "markers": [
         {
           "marker_id": "Day4.B.next",
@@ -7460,6 +7501,7 @@
       "entry_id": "Day4.C",
       "path": "res://dialogic/timelines/authored_week/Day4.dtl",
       "role": "scene",
+      "story_day": 4,
       "markers": [
         {
           "marker_id": "Day4.C.next",
@@ -7526,6 +7568,7 @@
       "entry_id": "Day4.D",
       "path": "res://dialogic/timelines/authored_week/Day4.dtl",
       "role": "scene",
+      "story_day": 4,
       "markers": [
         {
           "marker_id": "Day4.D.thought",
@@ -7665,6 +7708,7 @@
       "entry_id": "Day4.D.default",
       "path": "res://dialogic/timelines/authored_week/Day4.dtl",
       "role": "scene",
+      "story_day": 4,
       "markers": [
         {
           "marker_id": "Day4.D.default.next",
@@ -7707,6 +7751,7 @@
       "entry_id": "Day4.D.mirror",
       "path": "res://dialogic/timelines/authored_week/Day4.dtl",
       "role": "scene",
+      "story_day": 4,
       "markers": [
         {
           "marker_id": "Day4.D.mirror.next",
@@ -7755,6 +7800,7 @@
       "entry_id": "Day4.D.friday",
       "path": "res://dialogic/timelines/authored_week/Day4.dtl",
       "role": "scene",
+      "story_day": 4,
       "markers": [
         {
           "marker_id": "Day4.D.friday.next",
@@ -7797,6 +7843,7 @@
       "entry_id": "Day4.E",
       "path": "res://dialogic/timelines/authored_week/Day4.dtl",
       "role": "scene",
+      "story_day": 4,
       "markers": [
         {
           "marker_id": "Day4.E.next",
@@ -7906,6 +7953,7 @@
       "entry_id": "Day5",
       "path": "res://dialogic/timelines/authored_week/Day5.dtl",
       "role": "scene",
+      "story_day": 5,
       "markers": [
         {
           "marker_id": "Day5.echo",
@@ -8277,6 +8325,7 @@
       "entry_id": "Day5.cheek",
       "path": "res://dialogic/timelines/authored_week/Day5.dtl",
       "role": "scene",
+      "story_day": 5,
       "markers": [
         {
           "marker_id": "Day5.cheek.thought",
@@ -8321,6 +8370,7 @@
       "entry_id": "Day5.cheek.yes",
       "path": "res://dialogic/timelines/authored_week/Day5.dtl",
       "role": "scene",
+      "story_day": 5,
       "markers": [
         {
           "marker_id": "Day5.cheek.yes.next",
@@ -8387,6 +8437,7 @@
       "entry_id": "Day5.cheek.default",
       "path": "res://dialogic/timelines/authored_week/Day5.dtl",
       "role": "scene",
+      "story_day": 5,
       "markers": [
         {
           "marker_id": "Day5.cheek.default.next",
@@ -8429,6 +8480,7 @@
       "entry_id": "Day5.impulse",
       "path": "res://dialogic/timelines/authored_week/Day5.dtl",
       "role": "scene",
+      "story_day": 5,
       "markers": [
         {
           "marker_id": "Day5.impulse.playable",
@@ -8486,6 +8538,7 @@
       "entry_id": "Day5.A",
       "path": "res://dialogic/timelines/authored_week/Day5.dtl",
       "role": "scene",
+      "story_day": 5,
       "markers": [
         {
           "marker_id": "Day5.A.next",
@@ -8540,6 +8593,7 @@
       "entry_id": "Day5.B",
       "path": "res://dialogic/timelines/authored_week/Day5.dtl",
       "role": "scene",
+      "story_day": 5,
       "markers": [
         {
           "marker_id": "Day5.B.next",
@@ -8601,6 +8655,7 @@
       "entry_id": "Day5.C",
       "path": "res://dialogic/timelines/authored_week/Day5.dtl",
       "role": "scene",
+      "story_day": 5,
       "markers": [
         {
           "marker_id": "Day5.C.next",
@@ -8673,6 +8728,7 @@
       "entry_id": "Day5.D",
       "path": "res://dialogic/timelines/authored_week/Day5.dtl",
       "role": "scene",
+      "story_day": 5,
       "markers": [
         {
           "marker_id": "Day5.D.thought",
@@ -8824,6 +8880,7 @@
       "entry_id": "Day5.D.default",
       "path": "res://dialogic/timelines/authored_week/Day5.dtl",
       "role": "scene",
+      "story_day": 5,
       "markers": [
         {
           "marker_id": "Day5.D.default.next",
@@ -8866,6 +8923,7 @@
       "entry_id": "Day5.D.note",
       "path": "res://dialogic/timelines/authored_week/Day5.dtl",
       "role": "scene",
+      "story_day": 5,
       "markers": [
         {
           "marker_id": "Day5.D.note.next",
@@ -8916,6 +8974,7 @@
       "entry_id": "Day5.D.arch",
       "path": "res://dialogic/timelines/authored_week/Day5.dtl",
       "role": "scene",
+      "story_day": 5,
       "markers": [
         {
           "marker_id": "Day5.D.arch.next",
@@ -8966,6 +9025,7 @@
       "entry_id": "Day5.E",
       "path": "res://dialogic/timelines/authored_week/Day5.dtl",
       "role": "scene",
+      "story_day": 5,
       "markers": [
         {
           "marker_id": "Day5.E.next",
@@ -9088,6 +9148,7 @@
       "entry_id": "Day6",
       "path": "res://dialogic/timelines/authored_week/Day6.dtl",
       "role": "scene",
+      "story_day": 6,
       "markers": [
         {
           "marker_id": "Day6.thought",
@@ -9810,6 +9871,7 @@
       "entry_id": "Day6.rehearsal.yes",
       "path": "res://dialogic/timelines/authored_week/Day6.dtl",
       "role": "scene",
+      "story_day": 6,
       "markers": [
         {
           "marker_id": "Day6.rehearsal.yes.next",
@@ -9877,6 +9939,7 @@
       "entry_id": "Day6.rehearsal.default",
       "path": "res://dialogic/timelines/authored_week/Day6.dtl",
       "role": "scene",
+      "story_day": 6,
       "markers": [
         {
           "marker_id": "Day6.rehearsal.default.next",
@@ -9931,6 +9994,7 @@
       "entry_id": "Day6.impulse",
       "path": "res://dialogic/timelines/authored_week/Day6.dtl",
       "role": "scene",
+      "story_day": 6,
       "markers": [
         {
           "marker_id": "Day6.impulse.playable",
@@ -10000,6 +10064,7 @@
       "entry_id": "Day6.A",
       "path": "res://dialogic/timelines/authored_week/Day6.dtl",
       "role": "scene",
+      "story_day": 6,
       "markers": [
         {
           "marker_id": "Day6.A.next",
@@ -10066,6 +10131,7 @@
       "entry_id": "Day6.B",
       "path": "res://dialogic/timelines/authored_week/Day6.dtl",
       "role": "scene",
+      "story_day": 6,
       "markers": [
         {
           "marker_id": "Day6.B.next",
@@ -10128,6 +10194,7 @@
       "entry_id": "Day6.C",
       "path": "res://dialogic/timelines/authored_week/Day6.dtl",
       "role": "scene",
+      "story_day": 6,
       "markers": [
         {
           "marker_id": "Day6.C.next",
@@ -10194,6 +10261,7 @@
       "entry_id": "Day6.D",
       "path": "res://dialogic/timelines/authored_week/Day6.dtl",
       "role": "scene",
+      "story_day": 6,
       "markers": [
         {
           "marker_id": "Day6.D.thought",
@@ -10297,6 +10365,7 @@
       "entry_id": "Day6.D.default",
       "path": "res://dialogic/timelines/authored_week/Day6.dtl",
       "role": "scene",
+      "story_day": 6,
       "markers": [
         {
           "marker_id": "Day6.D.default.next",
@@ -10339,6 +10408,7 @@
       "entry_id": "Day6.D.word",
       "path": "res://dialogic/timelines/authored_week/Day6.dtl",
       "role": "scene",
+      "story_day": 6,
       "markers": [
         {
           "marker_id": "Day6.D.word.next",
@@ -10369,6 +10439,7 @@
       "entry_id": "Day6.D.dark",
       "path": "res://dialogic/timelines/authored_week/Day6.dtl",
       "role": "scene",
+      "story_day": 6,
       "markers": [
         {
           "marker_id": "Day6.D.dark.next",
@@ -10399,6 +10470,7 @@
       "entry_id": "Day6.E",
       "path": "res://dialogic/timelines/authored_week/Day6.dtl",
       "role": "scene",
+      "story_day": 6,
       "markers": [
         {
           "marker_id": "Day6.E.next",
@@ -10507,6 +10579,7 @@
       "entry_id": "Day7",
       "path": "res://dialogic/timelines/authored_week/Day7.dtl",
       "role": "scene",
+      "story_day": 7,
       "markers": [
         {
           "marker_id": "Day7.thought",
@@ -10695,6 +10768,7 @@
       "entry_id": "Day7.clipboard.yes",
       "path": "res://dialogic/timelines/authored_week/Day7.dtl",
       "role": "scene",
+      "story_day": 7,
       "markers": [
         {
           "marker_id": "Day7.clipboard.yes.next",
@@ -10761,6 +10835,7 @@
       "entry_id": "Day7.crossed.impulse",
       "path": "res://dialogic/timelines/authored_week/Day7.dtl",
       "role": "scene",
+      "story_day": 7,
       "markers": [
         {
           "marker_id": "Day7.crossed.impulse.playable",
@@ -10812,6 +10887,7 @@
       "entry_id": "Day7.crossed.D",
       "path": "res://dialogic/timelines/authored_week/Day7.dtl",
       "role": "scene",
+      "story_day": 7,
       "markers": [
         {
           "marker_id": "Day7.crossed.D.echo",
@@ -10877,6 +10953,7 @@
       "entry_id": "Day7.crossed.D.recording",
       "path": "res://dialogic/timelines/authored_week/Day7.dtl",
       "role": "scene",
+      "story_day": 7,
       "markers": [
         {
           "marker_id": "Day7.crossed.D.recording.thought",
@@ -10945,6 +11022,7 @@
       "entry_id": "Day7.crossed.D.no_recording",
       "path": "res://dialogic/timelines/authored_week/Day7.dtl",
       "role": "scene",
+      "story_day": 7,
       "markers": [
         {
           "marker_id": "Day7.crossed.D.no_recording.thought",
@@ -11013,6 +11091,7 @@
       "entry_id": "Day7.crossed.D.board",
       "path": "res://dialogic/timelines/authored_week/Day7.dtl",
       "role": "scene",
+      "story_day": 7,
       "markers": [
         {
           "marker_id": "Day7.crossed.D.board.next",
@@ -11043,6 +11122,7 @@
       "entry_id": "Day7.clipboard.default",
       "path": "res://dialogic/timelines/authored_week/Day7.dtl",
       "role": "scene",
+      "story_day": 7,
       "markers": [
         {
           "marker_id": "Day7.clipboard.default.next",
@@ -11103,6 +11183,7 @@
       "entry_id": "Day7.untouched.impulse",
       "path": "res://dialogic/timelines/authored_week/Day7.dtl",
       "role": "scene",
+      "story_day": 7,
       "markers": [
         {
           "marker_id": "Day7.untouched.impulse.playable",
@@ -11154,6 +11235,7 @@
       "entry_id": "Day7.untouched.D",
       "path": "res://dialogic/timelines/authored_week/Day7.dtl",
       "role": "scene",
+      "story_day": 7,
       "markers": [
         {
           "marker_id": "Day7.untouched.D.echo",
@@ -11219,6 +11301,7 @@
       "entry_id": "Day7.untouched.D.recording",
       "path": "res://dialogic/timelines/authored_week/Day7.dtl",
       "role": "scene",
+      "story_day": 7,
       "markers": [
         {
           "marker_id": "Day7.untouched.D.recording.thought",
@@ -11287,6 +11370,7 @@
       "entry_id": "Day7.untouched.D.no_recording",
       "path": "res://dialogic/timelines/authored_week/Day7.dtl",
       "role": "scene",
+      "story_day": 7,
       "markers": [
         {
           "marker_id": "Day7.untouched.D.no_recording.thought",
@@ -11342,6 +11426,7 @@
       "entry_id": "Day7.untouched.D.board",
       "path": "res://dialogic/timelines/authored_week/Day7.dtl",
       "role": "scene",
+      "story_day": 7,
       "markers": [
         {
           "marker_id": "Day7.untouched.D.board.next",
@@ -11374,6 +11459,7 @@
       "entry_id": "Day7.A",
       "path": "res://dialogic/timelines/authored_week/Day7.dtl",
       "role": "scene",
+      "story_day": 7,
       "markers": [
         {
           "marker_id": "Day7.A.next",
@@ -11440,6 +11526,7 @@
       "entry_id": "Day7.B",
       "path": "res://dialogic/timelines/authored_week/Day7.dtl",
       "role": "scene",
+      "story_day": 7,
       "markers": [
         {
           "marker_id": "Day7.B.next",
@@ -11506,6 +11593,7 @@
       "entry_id": "Day7.C",
       "path": "res://dialogic/timelines/authored_week/Day7.dtl",
       "role": "scene",
+      "story_day": 7,
       "markers": [
         {
           "marker_id": "Day7.C.next",
@@ -11572,6 +11660,7 @@
       "entry_id": "Day7.D.default",
       "path": "res://dialogic/timelines/authored_week/Day7.dtl",
       "role": "scene",
+      "story_day": 7,
       "markers": [
         {
           "marker_id": "Day7.D.default.next",
@@ -11602,6 +11691,7 @@
       "entry_id": "Day7.D.pocket",
       "path": "res://dialogic/timelines/authored_week/Day7.dtl",
       "role": "scene",
+      "story_day": 7,
       "markers": [
         {
           "marker_id": "Day7.D.pocket.next",
@@ -11638,6 +11728,7 @@
       "entry_id": "Day7.E",
       "path": "res://dialogic/timelines/authored_week/Day7.dtl",
       "role": "scene",
+      "story_day": 7,
       "markers": [
         {
           "marker_id": "Day7.E.next",
@@ -11740,6 +11831,7 @@
       "entry_id": "ending.alone.normal",
       "path": "res://dialogic/timelines/authored_week/Day7.dtl",
       "role": "ending",
+      "story_day": 7,
       "markers": [],
       "lines": [
         {

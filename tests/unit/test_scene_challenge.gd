@@ -200,6 +200,95 @@ func test_same_owner_selected_prefix_clears_materialization_scratch_and_requires
 	assert_eq(closed.value.outcome, "unfinished")
 	assert_eq(closed.value.attempt_proof.branch_id, "TEST.same.owner.load")
 
+func test_restore_journal_flush_leaves_selected_prefix_unadmitted_and_unchanged() -> void:
+	assert_true(f.begin().ok)
+	assert_true(f.action("start").ok)
+	var selected: Dictionary = f.state.capture_restore_state().value.backup
+	assert_true(f.action("reveal", 36).ok)
+	selected.lifecycle.branch_id = "TEST.restore.journal.load"
+	var lease: Dictionary = f.gate.acquire(&"restore")
+	assert_true(lease.ok)
+	assert_true(f.state.rollback_restore_silent(selected).ok)
+	assert_true(f.owner.reconcile_restore_silent({}).ok)
+	var owner_before: Dictionary = f.owner.capture_reconciliation_state()
+	assert_false(owner_before.value.history.committed)
+	assert_true(owner_before.value.admitted_command.is_empty())
+	assert_true(owner_before.value.pending_checkpoint.is_empty())
+	var run_before: Dictionary = f.state.capture_restore_state()
+	var profile_state_before: Dictionary = f.profile.get_profile_snapshot()
+	var profile_before: Dictionary = f.storage.read_text("profile.json")
+	assert_true(profile_before.ok)
+	var checkpoints_before: Array = f.authority.checkpoints.duplicate(true)
+	for _journal_write: int in range(2):
+		var flushed: Dictionary = f.owner.flush_pending_attempt()
+		assert_true(flushed.ok, str(flushed))
+		assert_eq(flushed.get("value", {}), {"committed": false})
+		assert_false(f.owner.pull_physical(f.token).ok)
+		assert_false(f.owner.dispatch_physical(f.token, "prepare", -1, 0).ok)
+	assert_eq(f.owner.capture_reconciliation_state(), owner_before)
+	assert_eq(f.state.capture_restore_state(), run_before)
+	assert_eq(f.profile.get_profile_snapshot(), profile_state_before)
+	assert_eq(f.storage.read_text("profile.json"), profile_before)
+	assert_eq(f.authority.checkpoints, checkpoints_before)
+	assert_true(f.gate.release(&"restore", lease.value.token).ok)
+	assert_false(f.owner.flush_pending_attempt().ok)
+	assert_false(f.owner.pull_physical(f.token).ok)
+	assert_eq(f.owner.capture_reconciliation_state(), owner_before)
+
+func test_restore_journal_flush_refuses_profile_ahead_pending_source() -> void:
+	assert_true(f.begin().ok)
+	assert_true(f.action("start").ok)
+	var saved: Dictionary = f.state.capture_restore_state().value.backup
+	f.authority.reject_checkpoint = true
+	assert_false(f.action("flag", 0).ok)
+	var ahead: Dictionary = f.attempt().value.record
+	assert_true(f.state.rollback_restore_silent(saved).ok)
+	assert_true(f.recreate_owner().ok)
+	var lease: Dictionary = f.gate.acquire(&"restore")
+	assert_true(lease.ok)
+	assert_true(f.owner.reconcile_restore_silent({}).ok)
+	var owner_before: Dictionary = f.owner.capture_reconciliation_state()
+	assert_true(owner_before.value.admitted_command.is_empty())
+	assert_eq(owner_before.value.pending_checkpoint, ahead)
+	var run_before: Dictionary = f.state.capture_restore_state()
+	var profile_state_before: Dictionary = f.profile.get_profile_snapshot()
+	var profile_before: Dictionary = f.storage.read_text("profile.json")
+	assert_true(profile_before.ok)
+	var checkpoints_before: Array = f.authority.checkpoints.duplicate(true)
+	assert_false(f.owner.flush_pending_attempt().ok)
+	assert_eq(f.owner.capture_reconciliation_state(), owner_before)
+	assert_eq(f.state.capture_restore_state(), run_before)
+	assert_eq(f.profile.get_profile_snapshot(), profile_state_before)
+	assert_eq(f.storage.read_text("profile.json"), profile_before)
+	assert_eq(f.authority.checkpoints, checkpoints_before)
+	assert_true(f.gate.release(&"restore", lease.value.token).ok)
+	f.authority.reject_checkpoint = false
+	assert_true(f.begin().ok)
+	assert_true(f.action("retry").ok)
+	assert_eq(f.record(), ahead)
+
+func test_restore_journal_flush_refuses_unadmitted_routine_progress_and_fatal_custody() -> void:
+	assert_true(f.begin().ok)
+	assert_true(f.action("start").ok)
+	var lease: Dictionary = f.gate.acquire(&"restore")
+	assert_true(lease.ok)
+	assert_true(f.owner.reconcile_restore_silent({}).ok)
+	var run_before: Dictionary = f.state.capture_restore_state()
+	var profile_state_before: Dictionary = f.profile.get_profile_snapshot()
+	var profile_before: Dictionary = f.storage.read_text("profile.json")
+	assert_true(profile_before.ok)
+	for fence: String in ["_routine_pending", "_scene_fatal"]:
+		f.owner.set(fence, true)
+		var owner_before: Dictionary = f.owner.capture_reconciliation_state()
+		assert_false(f.owner.flush_pending_attempt().ok, fence)
+		assert_eq(f.owner.get(fence), true)
+		assert_eq(f.owner.capture_reconciliation_state(), owner_before)
+		assert_eq(f.state.capture_restore_state(), run_before)
+		assert_eq(f.profile.get_profile_snapshot(), profile_state_before)
+		assert_eq(f.storage.read_text("profile.json"), profile_before)
+		f.owner.set(fence, false)
+	assert_true(f.gate.release(&"restore", lease.value.token).ok)
+
 func test_same_operation_profile_ahead_with_existing_run_waits_for_source_retry() -> void:
 	assert_true(f.begin().ok)
 	assert_true(f.action("start").ok)
@@ -362,3 +451,54 @@ func test_same_owner_same_operation_restore_keeps_profile_ahead_retry_after_read
 	f.authority.reject_checkpoint = false
 	assert_true(f.action("retry").ok)
 	assert_eq(f.record(), ahead)
+
+func test_before_save_flush_with_no_started_board_needs_no_playable_admission() -> void:
+	assert_true(f.begin().ok)
+	f.authority.presentation_held = true
+	var flushed: Dictionary = f.owner.flush_pending_attempt()
+	assert_true(flushed.ok, str(flushed))
+	assert_false(flushed.value.get("committed", true))
+	assert_eq(f.record(), {})
+	assert_eq(f.attempt().value, {})
+	assert_eq(f.authority.checkpoints.size(), 0)
+
+func test_before_save_flush_of_checkpointed_board_preserves_held_presentation() -> void:
+	assert_true(f.begin().ok)
+	assert_true(f.action("start").ok)
+	assert_true(f.action("reveal", 36).ok)
+	var record: Dictionary = f.record()
+	var attempt: Dictionary = f.attempt().value
+	var checkpoints: int = f.authority.checkpoints.size()
+	f.authority.presentation_held = true
+	var flushed: Dictionary = f.owner.flush_pending_attempt()
+	assert_true(flushed.ok, str(flushed))
+	assert_false(flushed.value.get("committed", true))
+	assert_true(f.authority.presentation_held)
+	assert_eq(f.record(), record)
+	assert_eq(f.attempt().value, attempt)
+	assert_eq(f.authority.checkpoints.size(), checkpoints)
+
+func test_before_save_flush_of_pending_checkpoint_still_requires_source_admission() -> void:
+	assert_true(f.begin().ok)
+	assert_true(f.action("start").ok)
+	f.authority.reject_checkpoint = true
+	assert_false(f.action("flag", 0).ok)
+	var owner_backup: Dictionary = f.owner.capture_reconciliation_state().value
+	var record: Dictionary = f.record()
+	var attempt: Dictionary = f.attempt().value
+	var checkpoints: int = f.authority.checkpoints.size()
+	f.authority.reject_checkpoint = false
+	f.authority.presentation_held = true
+	var refused: Dictionary = f.owner.flush_pending_attempt()
+	assert_false(refused.ok)
+	assert_eq(str(refused.code), "event_presentation_held")
+	assert_eq(f.owner.capture_reconciliation_state().value, owner_backup)
+	assert_eq(f.record(), record)
+	assert_eq(f.attempt().value, attempt)
+	assert_eq(f.authority.checkpoints.size(), checkpoints)
+	f.authority.presentation_held = false
+	var retried: Dictionary = f.owner.flush_pending_attempt()
+	assert_true(retried.ok, str(retried))
+	assert_true(retried.value.get("committed", false))
+	assert_eq(f.attempt().value, attempt)
+	assert_eq(f.authority.checkpoints.size(), checkpoints + 1)

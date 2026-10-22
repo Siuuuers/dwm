@@ -35,6 +35,7 @@ var _next_source: Dictionary = {}
 
 func configure(checkpoint_port: Object, providers: Dictionary) -> Dictionary:
 	if not _scene_challenge.is_empty(): return _fail(&"transaction_in_progress", "Challenge owns checkpoint publication")
+	if not _scene_mutation.is_empty() and _scene_mutation.kind in ["shop", "round"]: return _fail(&"transaction_in_progress", "Scene app mutation owns checkpoint publication")
 	if checkpoint_port == null:
 		return _fail(&"invalid_checkpoint_port", "checkpoint port is null")
 	for method in REAL_PORT_METHODS:
@@ -265,7 +266,7 @@ func configure_scene_challenge_authority(authority: Object, validator: Callable)
 
 func commit_scene_challenge(snapshot_input: Dictionary, checkpoint: Dictionary) -> Dictionary:
 	if not _configured or _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy \
-			or not _scene_entry.is_empty() or not _scene_control.is_empty() or not _scene_challenge.is_empty() or not _scene_contact.is_empty():
+			or not _scene_entry.is_empty() or not _scene_control.is_empty() or not _scene_challenge.is_empty() or not _scene_mutation.is_empty():
 		return {"ok": false, "code": &"scene_challenge_checkpoint_busy", "committed": false}
 	snapshot_input = snapshot_input.duplicate(true)
 	checkpoint = checkpoint.duplicate(true)
@@ -315,7 +316,12 @@ func _scene_challenge_source_matches(captured: Dictionary) -> bool:
 
 var _scene_contact_authority: Object
 var _scene_contact_validator: Callable
-var _scene_contact: Dictionary = {}
+var _scene_shop_authority: Object
+var _scene_shop_validator: Callable
+var _scene_round_authority: Object
+var _scene_round_validator: Callable
+# Contacts and Shop share one publication transaction, never two simultaneous owners.
+var _scene_mutation: Dictionary = {}
 
 func configure_scene_contact_authority(authority: Object, validator: Callable) -> Dictionary:
 	if not _configured or _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy \
@@ -330,54 +336,103 @@ func configure_scene_contact_authority(authority: Object, validator: Callable) -
 	_scene_contact_validator = validator
 	return {"ok": true}
 
-func commit_scene_contact(snapshot_input: Dictionary, checkpoint: Dictionary) -> Dictionary:
+func configure_scene_shop_authority(authority: Object, validator: Callable) -> Dictionary:
 	if not _configured or _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy \
-			or not _scene_entry.is_empty() or not _scene_control.is_empty() or not _scene_contact.is_empty() or not _scene_challenge.is_empty():
-		return {"ok": false, "code": &"scene_contact_checkpoint_busy", "committed": false}
+			or not _scene_entry.is_empty() or not _scene_control.is_empty() \
+			or not is_instance_valid(authority) or not validator.is_valid() \
+			or validator.get_object() != authority or validator.get_argument_count() != 3:
+		return _fail(&"scene_shop_authority_invalid", "configure the Run owner while idle")
+	if _scene_shop_authority != null:
+		if _scene_shop_authority == authority and _scene_shop_validator == validator: return {"ok": true}
+		return _fail(&"scene_shop_authority_invalid", "authority replacement refused")
+	_scene_shop_authority = authority
+	_scene_shop_validator = validator
+	return {"ok": true}
+
+func configure_scene_round_authority(authority: Object, validator: Callable) -> Dictionary:
+	if not _configured or _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy \
+			or not _scene_entry.is_empty() or not _scene_control.is_empty() \
+			or not is_instance_valid(authority) or not validator.is_valid() \
+			or validator.get_object() != authority or validator.get_argument_count() != 3:
+		return _fail(&"scene_round_authority_invalid", "configure the Run owner while idle")
+	if _scene_round_authority != null:
+		if _scene_round_authority == authority and _scene_round_validator == validator: return {"ok": true}
+		return _fail(&"scene_round_authority_invalid", "authority replacement refused")
+	_scene_round_authority = authority
+	_scene_round_validator = validator
+	return {"ok": true}
+
+func commit_scene_contact(snapshot_input: Dictionary, checkpoint: Dictionary) -> Dictionary:
+	return _commit_scene_mutation(snapshot_input, checkpoint, "contact", _scene_contact_authority, _scene_contact_validator)
+
+func commit_scene_shop(snapshot_input: Dictionary, checkpoint: Dictionary) -> Dictionary:
+	return _commit_scene_mutation(snapshot_input, checkpoint, "shop", _scene_shop_authority, _scene_shop_validator)
+
+func commit_scene_round(snapshot_input: Dictionary, checkpoint: Dictionary) -> Dictionary:
+	return _commit_scene_mutation(snapshot_input, checkpoint, "round", _scene_round_authority, _scene_round_validator)
+
+func _commit_scene_mutation(snapshot_input: Dictionary, checkpoint: Dictionary, kind: String,
+		authority: Object, validator: Callable) -> Dictionary:
+	var prefix := "scene_" + kind
+	if not _configured or _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy \
+			or not _scene_entry.is_empty() or not _scene_control.is_empty() or not _scene_mutation.is_empty() or not _scene_challenge.is_empty():
+		return {"ok": false, "code": StringName(prefix + "_checkpoint_busy"), "committed": false}
+
 	snapshot_input = snapshot_input.duplicate(true)
 	checkpoint = checkpoint.duplicate(true)
 	if checkpoint.get("stage") != "scene" or not checkpoint.get("reading_session") is Dictionary \
 			or typeof(checkpoint.reading_session.get("schema_version")) != TYPE_INT \
 			or checkpoint.reading_session.schema_version != 5 or checkpoint.reading_session.get("boundary") not in ["control", "line"]:
-		return {"ok": false, "code": &"scene_contact_checkpoint_invalid", "committed": false}
+		return {"ok": false, "code": StringName(prefix + "_checkpoint_invalid"), "committed": false}
 	_next_commit_in_progress = true
-	_scene_contact = {"input": snapshot_input, "checkpoint": checkpoint,
-		"input_hash": _fingerprint(snapshot_input), "checkpoint_hash": _fingerprint(checkpoint)}
+	_scene_mutation = {"input": snapshot_input, "checkpoint": checkpoint,
+		"input_hash": _fingerprint(snapshot_input), "checkpoint_hash": _fingerprint(checkpoint), "kind": kind, "authority": authority, "validator": validator}
 	var result: Dictionary
 	var captured: Dictionary = _real_port.capture()
 	if not captured.get("ok", false) or not captured.get("value", {}).get("backup") is Dictionary:
-		result = _fail(&"scene_contact_source_unavailable", "real journal capture required")
+		result = _fail(StringName(prefix + "_source_unavailable"), "real journal capture required")
 	elif not _scene_reference_valid(_scene_snapshot_reference(_scene_bundle_snapshot(captured.value.backup.get("current")))):
-		result = _fail(&"scene_contact_source_unavailable", "stable journal source required")
+		result = _fail(StringName(prefix + "_source_unavailable"), "stable journal source required")
+	elif kind in ["shop", "round"] and _fingerprint(_scene_bundle_snapshot(captured.value.backup.get("current")).get("narrative_checkpoint")) != _scene_mutation.checkpoint_hash:
+		result = _fail(StringName(prefix + "_source_changed"), "mutation must retain the exact stable reading checkpoint")
 	else:
-		_scene_contact["source_hash"] = _fingerprint(captured.value.backup)
-		if _scene_contact.source_hash.is_empty() or not _scene_contact_validate("before_prepare"):
-			result = _fail(&"scene_contact_custody_invalid", "Run owner refused preparation")
+		_scene_mutation["source_hash"] = _fingerprint(captured.value.backup)
+		if _scene_mutation.source_hash.is_empty() or not _scene_mutation_validate("before_prepare"):
+			result = _fail(StringName(prefix + "_custody_invalid"), "Run owner refused preparation")
 		else:
 			result = _commit_scene_event_autosave(snapshot_input, checkpoint)
-			if result.get("ok", false) and not _scene_contact_validate("after_commit"):
-				result = {"ok": false, "code": &"scene_contact_commit_uncertain", "committed": true}
-	_scene_contact = {}
+			if result.get("ok", false) and not _scene_mutation_validate("after_commit"):
+				result = {"ok": false, "code": StringName(prefix + "_commit_uncertain"), "committed": true}
+			if result.get("ok", false) and kind in ["shop", "round"]:
+				# A post-write owner callback cannot displace the acknowledged journal.
+				var confirmed: Dictionary = _real_port.capture()
+				var reference := _scene_snapshot_reference(_scene_bundle_snapshot(confirmed.get("value", {}).get("backup", {}).get("current")))
+				if not confirmed.get("ok", false) or reference.is_empty() \
+						or reference != result.get("value", {}).get("checkpoint_reference") \
+						or _fingerprint(snapshot_input) != _scene_mutation.input_hash \
+						or _fingerprint(checkpoint) != _scene_mutation.checkpoint_hash:
+					result = {"ok": false, "code": StringName(prefix + "_commit_uncertain"), "committed": true}
+	_scene_mutation = {}
 	_next_commit_in_progress = false
 	if not result.get("ok", false) and not result.has("committed") and not result.get("rolled_back", false):
 		result["committed"] = false
 	return result
 
-func _scene_contact_validate(phase: String) -> bool:
-	if _scene_callback_busy or _scene_contact.is_empty() or not _next_commit_in_progress \
-			or not is_instance_valid(_scene_contact_authority) or not _scene_contact_validator.is_valid(): return false
+func _scene_mutation_validate(phase: String) -> bool:
+	if _scene_callback_busy or _scene_mutation.is_empty() or not _next_commit_in_progress \
+			or not is_instance_valid(_scene_mutation.authority) or not _scene_mutation.validator.is_valid(): return false
 	_scene_callback_busy = true
-	var checked: Variant = _scene_contact_validator.call(_scene_contact.input.duplicate(true),
-		_scene_contact.checkpoint.duplicate(true), phase)
+	var checked: Variant = _scene_mutation.validator.call(_scene_mutation.input.duplicate(true),
+		_scene_mutation.checkpoint.duplicate(true), phase)
 	_scene_callback_busy = false
 	return typeof(checked) == TYPE_BOOL and checked == true \
-		and not _scene_contact.input_hash.is_empty() and not _scene_contact.checkpoint_hash.is_empty() \
-		and _fingerprint(_scene_contact.input) == _scene_contact.input_hash \
-		and _fingerprint(_scene_contact.checkpoint) == _scene_contact.checkpoint_hash
+		and not _scene_mutation.input_hash.is_empty() and not _scene_mutation.checkpoint_hash.is_empty() \
+		and _fingerprint(_scene_mutation.input) == _scene_mutation.input_hash \
+		and _fingerprint(_scene_mutation.checkpoint) == _scene_mutation.checkpoint_hash
 
-func _scene_contact_source_matches(captured: Dictionary) -> bool:
+func _scene_mutation_source_matches(captured: Dictionary) -> bool:
 	return captured.get("ok", false) and captured.get("value", {}).get("backup") is Dictionary \
-		and _fingerprint(captured.value.backup) == _scene_contact.get("source_hash", "")
+		and _fingerprint(captured.value.backup) == _scene_mutation.get("source_hash", "")
 
 
 func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictionary) -> Dictionary:
@@ -416,8 +471,8 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 	var inputs := _checkpoint_inputs(active.value, audio.value, content.value, checkpoint, route.value, snapshot_input)
 	var captured: Dictionary = _real_port.capture()
 	if not captured.get("ok", false): return captured
-	if not _scene_contact.is_empty() and not _scene_contact_source_matches(captured):
-		return _fail(&"scene_contact_source_changed", "journal changed before preparation")
+	if not _scene_mutation.is_empty() and not _scene_mutation_source_matches(captured):
+		return _fail(StringName("scene_" + str(_scene_mutation.kind) + "_source_changed"), "journal changed before preparation")
 	if not _scene_challenge.is_empty() and not _scene_challenge_source_matches(captured):
 		return _fail(&"scene_challenge_source_changed", "journal changed before preparation")
 	if not _scene_control_source_matches(captured):
@@ -476,18 +531,18 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 				or _fingerprint(candidate) != candidate_hash \
 				or not _scene_route_candidate_valid(candidate, snapshot_input, checkpoint):
 			return _fail(&"scene_challenge_candidate_changed", "candidate changed before commit")
-	if not _scene_contact.is_empty():
-		if not _scene_contact_validate("before_commit"):
-			return _fail(&"scene_contact_custody_invalid", "Run owner refused commit")
+	if not _scene_mutation.is_empty():
+		if not _scene_mutation_validate("before_commit"):
+			return _fail(StringName("scene_" + str(_scene_mutation.kind) + "_custody_invalid"), "Run owner refused commit")
 		var challenge_source: Dictionary = _real_port.capture()
-		if not _scene_contact_source_matches(challenge_source):
-			return _fail(&"scene_contact_source_changed", "journal changed before commit")
+		if not _scene_mutation_source_matches(challenge_source):
+			return _fail(StringName("scene_" + str(_scene_mutation.kind) + "_source_changed"), "journal changed before commit")
 		# Final callbacks may not change either the admitted bytes or lower candidate.
-		if _fingerprint(snapshot_input) != _scene_contact.input_hash \
-				or _fingerprint(checkpoint) != _scene_contact.checkpoint_hash \
+		if _fingerprint(snapshot_input) != _scene_mutation.input_hash \
+				or _fingerprint(checkpoint) != _scene_mutation.checkpoint_hash \
 				or _fingerprint(candidate) != candidate_hash \
 				or not _scene_route_candidate_valid(candidate, snapshot_input, checkpoint):
-			return _fail(&"scene_contact_candidate_changed", "candidate changed before commit")
+			return _fail(StringName("scene_" + str(_scene_mutation.kind) + "_candidate_changed"), "candidate changed before commit")
 	var committed: Dictionary = _real_port.commit(candidate)
 	if guarded_candidate and _fingerprint(candidate) != candidate_hash:
 		return {"ok": false, "code": &"scene_entry_commit_uncertain", "committed": true}
@@ -499,10 +554,15 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 	if committed.get("ok", false) and not confirmed:
 		return {"ok": false, "code": &"event_commit_ack_invalid", "committed": true}
 	if not committed.get("ok", false):
+		if not _scene_mutation.is_empty() and _scene_mutation.kind in ["shop", "round"] \
+				and (committed.get("committed", false) or str(committed.get("code", "")) == "APPLICATION_FATAL"):
+			var committed_failure := committed.duplicate(true)
+			committed_failure["committed"] = true
+			return committed_failure
 		var rolled: Dictionary = _real_port.rollback({"journal_backup": captured.value.backup,
 			"storage_backup": candidate.storage_backup})
 		if not rolled.get("ok", false):
-			if _scene_entry.is_empty() and _scene_control.is_empty() and _scene_challenge.is_empty() and _scene_contact.is_empty(): return rolled
+			if _scene_entry.is_empty() and _scene_control.is_empty() and _scene_challenge.is_empty() and _scene_mutation.is_empty(): return rolled
 			var uncertain := rolled.duplicate(true)
 			uncertain["committed"] = true
 			return uncertain
@@ -877,6 +937,7 @@ func prepare_candidate(owner_id: StringName, snapshot_input: Dictionary, transac
 
 func commit(owner_id: StringName, candidate: Dictionary) -> Dictionary:
 	if not _scene_challenge.is_empty(): return _fail(&"transaction_in_progress", "Challenge owns checkpoint publication")
+	if not _scene_mutation.is_empty() and _scene_mutation.kind in ["shop", "round"]: return _fail(&"transaction_in_progress", "Scene app mutation owns checkpoint publication")
 	if _active_owner == &"" or owner_id != _active_owner:
 		return _fail(&"invalid_owner", str(owner_id))
 	if _fingerprint(candidate) != str(_active_candidate.get("hash", "")):
@@ -891,6 +952,7 @@ func commit(owner_id: StringName, candidate: Dictionary) -> Dictionary:
 
 func rollback(owner_id: StringName, backup: Dictionary) -> Dictionary:
 	if not _scene_challenge.is_empty(): return _fail(&"transaction_in_progress", "Challenge owns checkpoint publication")
+	if not _scene_mutation.is_empty() and _scene_mutation.kind in ["shop", "round"]: return _fail(&"transaction_in_progress", "Scene app mutation owns checkpoint publication")
 	if _active_owner == &"" or owner_id != _active_owner:
 		return _fail(&"invalid_owner", str(owner_id))
 	var rolled: Dictionary = _real_port.rollback(backup)
@@ -1003,6 +1065,7 @@ var _marker_validator: Callable
 
 func configure_marker_handoff(authority: Object, validator: Callable) -> Dictionary:
 	if not _scene_challenge.is_empty(): return _fail(&"transaction_in_progress", "Challenge owns checkpoint publication")
+	if not _scene_mutation.is_empty() and _scene_mutation.kind in ["shop", "round"]: return _fail(&"transaction_in_progress", "Scene app mutation owns checkpoint publication")
 	if authority == null or not validator.is_valid() or validator.get_object() != authority \
 			or (_marker_authority != null and (_marker_authority != authority or _marker_validator != validator)):
 		return _fail(&"event_handoff_authority_invalid", "")

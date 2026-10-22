@@ -643,6 +643,11 @@ func _commit_attempt() -> Dictionary:
 ## is active, otherwise takes and releases its own; a foreign lease refuses pending progress.
 func flush_pending_attempt() -> Dictionary:
 	if _record.get("schema_version") == 4 and not _scene_command():
+		# Restore journal writes can run after silent reconciliation, before playable
+		# readmission. Unchanged staged state has no source progress to flush.
+		if not _scene_fatal and not _routine_pending and _pending_checkpoint.is_empty() \
+				and _attempt_gate != null and _attempt_gate.is_internal_owner_active(&"restore"):
+			return _ok({"committed": false})
 		# A selected completed save keeps its historical closure. There is no
 		# playable input to re-admit and no new physical progress to flush.
 		if not _routine_pending and _pending_checkpoint.is_empty() \
@@ -1977,12 +1982,14 @@ func _flush_scene_pending() -> Dictionary:
 	# observes an already Profile-committed exact record; it must not start a second save.
 	if _scene_checkpoint_in_flight: return _ok({"committed": false})
 	if _scene_fatal: return _fail(&"scene_challenge_fatal_custody")
+	# Save owns a presentation pause. Already checkpointed state needs no new
+	# playable admission; actual pending writes still validate their source below.
+	if _record.is_empty() or (_history_committed and not _routine_pending and _pending_checkpoint.is_empty()): return _ok({"committed": false})
 	var admitted := _scene_authorize(_admitted_command)
 	if not admitted.ok: return admitted
 	var closed := _scene_closed()
 	if not closed.ok: return closed
 	if not closed.value.is_empty(): return _ok({"committed": false})
-	if _record.is_empty() or (_history_committed and not _routine_pending and _pending_checkpoint.is_empty()): return _ok({"committed": false})
 	var lease := {}
 	var prior_lease := _scene_lease
 	if not _attempt_gate.is_internal_owner_active(&"causal_transaction"):

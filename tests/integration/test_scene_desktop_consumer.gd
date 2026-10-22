@@ -110,3 +110,33 @@ func test_all_existing_locales_keep_surviving_app_titles() -> void:
 		assert_eq(desktop.title_label.text, titles[locale])
 		assert_eq(desktop.launcher_buttons[&"shop"].get_node("Caption").text, titles[locale])
 		assert_true(desktop.return_home().ok)
+
+func test_restored_external_sheets_go_home_without_rewriting_saved_input() -> void:
+	var external_calls: Array[StringName] = []
+	var external := func(id: StringName) -> Dictionary:
+		external_calls.append(id)
+		return {"ok": true}
+	assert_true(desktop.configure_scene_shell_actions(external, func() -> bool: return true).ok)
+	for id: StringName in [&"settings", &"backup"]:
+		var prepared: Dictionary = host.prepare_scene_restore(id)
+		assert_true(prepared.ok)
+		var original := prepared.duplicate(true)
+		assert_true(host.commit_restore(prepared.value.candidate_state).ok)
+		ports.commands.clear()
+		assert_true(desktop.return_home().ok)
+		assert_null(host.get_state().active_app_id)
+		assert_eq(ports.commands, [{"kind": "hide_app", "app_id": String(id)}])
+		assert_eq(prepared, original, "Home navigation does not rewrite the saved restore input")
+		assert_true(external_calls.is_empty(), "Home neither reopens a sheet nor executes its action")
+		assert_true(desktop._cached_app_windows.is_empty())
+
+func test_restored_external_sheet_home_refusal_preserves_host_and_commands() -> void:
+	assert_true(desktop.configure_scene_shell_actions(func(_id: StringName) -> Dictionary: return {"ok": true}, func() -> bool: return true).ok)
+	for id: StringName in [&"settings", &"backup"]:
+		assert_true(host.commit_restore(host.prepare_scene_restore(id).value.candidate_state).ok)
+		var before: Dictionary = host.get_state()
+		ports.phase = &"invalid_phase"
+		assert_eq(desktop.return_home().code, &"invalid_board_phase")
+		assert_eq(host.get_state(), before)
+		assert_true(ports.commands.is_empty())
+		ports.phase = &"NONE"

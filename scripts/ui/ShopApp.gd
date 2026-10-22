@@ -429,6 +429,9 @@ func _ready() -> void:
 	info_scroll.focus_exited.connect(_information_overlay.queue_redraw)
 	_meta_price = _label(_body, Vector2(496, 400), Vector2(136, 48))
 	_meta_state = _label(_body, Vector2(632, 400), Vector2(136, 48))
+	# Pinned facts stay on one line; their exact bounds are checked before use.
+	_meta_price.autowrap_mode = TextServer.AUTOWRAP_OFF
+	_meta_state.autowrap_mode = TextServer.AUTOWRAP_OFF
 	_meta_state.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_quantity_label = _label(_body, Vector2(608, 456), Vector2(48, 48), false)
 	_quantity_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -582,12 +585,22 @@ func _render_selection() -> void:
 	_description_label.text = record.get("description", "")
 	_meta_price.text = _price(record.unit_price, record.currency)
 	_meta_state.text = _t("available" if record.available else "sold_out")
-	var state_width := mini(272,maxi(136,2*ceili(_meta_state.get_theme_font("font").get_string_size(
-		_meta_state.text,HORIZONTAL_ALIGNMENT_LEFT,-1,_meta_state.get_theme_font_size("font_size")).x/2.0)))
-	_meta_price.size = Vector2(272-state_width,48)
-	_meta_state.position.x = 496+_meta_price.size.x
-	_meta_state.size = Vector2(state_width,48)
-	var meta_y := 336 if _large else 400
+	# Keep both exact facts in the pinned band. Enlarged localized copy may use
+	# its side padding, but never the information pane or transaction controls.
+	var state_width := 2 * ceili(_meta_state.get_theme_font("font").get_string_size(
+		_meta_state.text, HORIZONTAL_ALIGNMENT_LEFT, -1, _meta_state.get_theme_font_size("font_size")).x / 2.0)
+	var price_width := 2 * ceili(_meta_price.get_theme_font("font").get_string_size(
+		_meta_price.text, HORIZONTAL_ALIGNMENT_LEFT, -1, _meta_price.get_theme_font_size("font_size")).x / 2.0)
+	var meta_padding := clampi(2 * floori((304 - price_width - state_width - 16) / 4.0), 0, 16)
+	# Label line metrics can exceed get_string_size (including fallback ascent).
+	# Grow upward into scrollable information, keeping the dock boundary fixed.
+	var meta_height := maxi(48, 2 * ceili(maxf(_meta_price.get_minimum_size().y,
+		_meta_state.get_minimum_size().y) / 2.0))
+	_meta_price.position.x = 480 + meta_padding
+	_meta_price.size = Vector2(maxi(0, 304 - 2 * meta_padding - state_width - 16), meta_height)
+	_meta_state.position.x = 784 - meta_padding - state_width
+	_meta_state.size = Vector2(state_width, meta_height)
+	var meta_y := (384 if _large else 448) - meta_height
 	info_scroll.size.y = meta_y - 16
 	_meta_price.position.y = meta_y
 	_meta_state.position.y = meta_y
@@ -639,6 +652,12 @@ func _verify_dock_fit() -> void:
 			last_result = {"ok": false, "code": "shop_dock_does_not_fit"}
 			_show_recovery()
 			return
+	var band_top := info_scroll.position.y + info_scroll.size.y
+	var meta_band := Rect2(480, band_top, 304, (384 if _large else 448) - band_top)
+	if not meta_band.encloses(_meta_price.get_rect()) or not meta_band.encloses(_meta_state.get_rect()) \
+			or _meta_price.position.x + _meta_price.size.x + 16 > _meta_state.position.x:
+		last_result = {"ok": false, "code": "shop_dock_does_not_fit"}
+		_show_recovery()
 
 func _measure_information() -> void:
 	if not _view_is_current(): return
@@ -793,7 +812,7 @@ func _card_input(event: InputEvent, item_id: String) -> void:
 	elif event.is_action_pressed("ui_up"):
 		if slot >= 3: target = index - 3
 	elif event.is_action_pressed("ui_down"):
-		if slot + 3 < page_capacity: target = index + 3
+		if slot + 3 < page_capacity and index + 3 < _records.size(): target = index + 3
 		else:
 			if slot % 3 == 2 and not next_button.disabled: next_button.grab_focus()
 			elif not previous_button.disabled: previous_button.grab_focus()
@@ -941,7 +960,7 @@ func _draw_plate() -> void:
 	if not last_result.ok: return
 	_body.draw_rect(Rect2(16, 16, 768, 624), _role("controlled_face"))
 	_body.draw_rect(Rect2(480, 16, 304, 368 if _large else 432), _role("laminate"))
-	var blank_index := 8 - page_index * page_capacity
+	var blank_index := _index_of("supportz") - page_index * page_capacity
 	if blank_index >= 0 and blank_index < page_capacity and not cards.is_empty():
 		var height: float = cards.values()[0].size.y
 		var at := Vector2(16 + (blank_index % 3) * 152, 16 + (blank_index / 3) * (height + 8))

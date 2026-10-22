@@ -121,3 +121,45 @@ func test_scene_verification_requires_retained_allocation_and_preserves_publishe
 	wrong = _bundle()
 	wrong.transaction_issuer_receipt.token = "TEST.foreign"
 	assert_false(REMAPPER.prepare(source, "TEST.restore", wrong).ok)
+
+func test_scene_same_day_load_preserves_supportz_eligibility_and_purchase_limits() -> void:
+	var rules := preload("res://scripts/domain/minesweeper/MinesweeperCapabilityRules.gd")
+	for purchased: bool in [false, true]:
+		var source := _source()
+		var ledger: Dictionary = source.desktop.consequence.shop_ledger
+		ledger.base_completion_receipts = [
+			{"kind": "complete", "app_round_ordinal": 1, "causal_day_instance": "TEST.previous.day"},
+			{"kind": "complete", "app_round_ordinal": 1, "causal_day_instance": "TEST.old.causal"},
+			{"kind": "complete", "app_round_ordinal": 2, "causal_day_instance": "TEST.old.causal"}]
+		ledger.supportz_branch_purchase_count = 1 if purchased else 0
+		ledger.supportz_last_purchase_causal_day_instance = "TEST.old.causal" if purchased else "TEST.previous.day"
+		var before := source.duplicate(true)
+		var bundle := _bundle()
+		for load_index: int in range(2):
+			var result := REMAPPER.prepare(source, bundle.transaction_id, bundle)
+			assert_true(result.ok, str(result))
+			if not result.ok: return
+			var candidate: Dictionary = result.value.snapshot
+			var projected: Dictionary = candidate.desktop.consequence.shop_ledger
+			assert_eq(projected.base_completion_receipts[0], before.desktop.consequence.shop_ledger.base_completion_receipts[0])
+			assert_eq(projected.base_completion_receipts.size(), 3)
+			for index: int in [1, 2]:
+				assert_eq(projected.base_completion_receipts[index], {"kind": "complete", "app_round_ordinal": index,
+					"causal_day_instance": bundle.causal_day_instance})
+			assert_eq(projected.supportz_branch_purchase_count, 1 if purchased else 0)
+			assert_eq(projected.supportz_last_purchase_causal_day_instance,
+				bundle.causal_day_instance if purchased else "TEST.previous.day")
+			var eligibility := rules.supportz_eligible({"causal_day_instance": bundle.causal_day_instance,
+				"completion_receipts": projected.base_completion_receipts,
+				"branch_purchase_count": projected.supportz_branch_purchase_count,
+				"daily_purchase_done": projected.supportz_last_purchase_causal_day_instance == bundle.causal_day_instance})
+			assert_true(eligibility.ok)
+			assert_eq(eligibility.value.eligible, not purchased)
+			assert_eq(candidate.command_receipts, before.command_receipts)
+			assert_true(REMAPPER.validate_remap(source, candidate, bundle).ok)
+			if load_index == 0: assert_eq(source, before, "remapping never edits the selected save")
+			source = candidate
+			bundle.causal_day_instance = "TEST.next.causal"
+			bundle.causal_day_instance_issuer_receipt = _receipt("causal_day_instance", bundle.causal_day_instance)
+			bundle.branch_id = "TEST.next.branch"
+			bundle.desktop_timeline_generation = 2

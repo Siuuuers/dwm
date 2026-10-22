@@ -40,13 +40,13 @@ func test_real_registry_exposes_five_languages_with_two_selectable_drafts() -> v
 		assert_eq(manager.get_presentation_profile().font_profile, language + "_pixel")
 	assert_eq(manager.prepare_locale("xx-QA-unregistered").get("code"), &"unknown_locale")
 
-func test_both_catalogs_cover_all_308_source_ids_and_exact_placeholders() -> void:
+func test_both_catalogs_cover_all_323_source_ids_and_exact_placeholders() -> void:
 	var loaded: Dictionary = CATALOG.load_bundle("res://localization/manifest.json")
 	assert_true(loaded.get("ok", false), str(loaded))
 	if not loaded.get("ok", false): return
 	var source: Dictionary = SCHEMA._message_map(loaded.value.catalogs.en)
-	assert_eq(source.size(), 308)
-	for id: String in ["gallery.history.added", "gallery.history.failed", "gallery.history.uncertain"]:
+	assert_eq(source.size(), 323)
+	for id: String in ["gallery.history.added", "gallery.history.failed", "gallery.history.uncertain", "scene.controls.apps", "scene.controls.check_computer", "scene.controls.close_computer", "scene.thought.yes", "gallery.artwork.hints", "gallery.tab.artwork", "ui.pause.back"]:
 		assert_true(source.has(id), "source catalogue includes " + id)
 	for language: String in ["ja", "ko"]:
 		var translated: Dictionary = SCHEMA._message_map(loaded.value.catalogs[language])

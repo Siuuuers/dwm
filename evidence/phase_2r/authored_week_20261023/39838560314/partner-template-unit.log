@@ -1,0 +1,51 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+---  GUT  ---
+[INFO]:  using [D:/a/dwm/dwm/.godot/phase2r_tests/2ea09802-868c-4865-b21f-793a1e4277db/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_scene_partner_fork_template.gd
+* test_replaceable_segments_compile_with_isolated_caption_identities
+    [Passed]:  { "ok": true, "value": { "events": [{ "kind": "label", "label": "scene.test.partner.shared" }, { "kind": "text", "line_id": "line.scene.test.partner.shared.before", "text": "TEST ONLY: shared Priscilla-viewpoint passage before the later fork." }, { "kind": "label", "label": "scene.test.partner.offer" }, { "kind": "text", "line_id": "line.scene.test.partner.shared.offer", "text": "TEST ONLY: Priscilla considers the Sylvia continuation." }, { "kind": "label", "label": "scene.test.partner.expiry" }, { "kind": "return" }], "nodes": [{ "kind": "caption", "line_id": "line.scene.test.partner.shared.before", "next": 1 }, { "kind": "caption", "line_id": "line.scene.test.partner.shared.offer", "next": 2 }, { "kind": "completion" }], "label_nodes": { "scene.test.partner.shared": 0, "scene.test.partner.offer": 1, "scene.test.partner.expiry": 2 }, "native_indices": [4, 6, 8], "content_sha256": "a4c0ae59d827fe9fe6dcf07ca36737410f1a61e213946c7cd5caa62cfa6f4240", "program_sha256": "17eb66b585e6905bed55224e77e60ae058bf9eca33d7a9653babe84cd67d39a6" } }
+    [INFO]:  Array/Dictionary compared by value.  Use assert_same to compare references.  Use assert_eq_deep to see diff when failing.
+    [Passed]:  ARRAY(["line.scene.test.partner.shared.before", "line.scene.test.partner.shared.offer"]) == ARRAY(["line.scene.test.partner.shared.before", "line.scene.test.partner.shared.offer"])  No continuation leaks into a different entry.
+    [Passed]:  ["completion"] expected to equal ["completion"]:  
+    [Passed]:  Uninstalled content must not dispatch effects.
+    [Passed]:  Uninstalled content must not dispatch effects.
+    [Passed]:  Uninstalled content must not dispatch effects.
+    [Passed]:  { "ok": true, "value": { "events": [{ "kind": "label", "label": "scene.test.partner.sylvia" }, { "kind": "text", "line_id": "line.scene.test.partner.sylvia.after", "text": "TEST ONLY: Priscilla-viewpoint continuation after accepting Yes." }, { "kind": "return" }], "nodes": [{ "kind": "caption", "line_id": "line.scene.test.partner.sylvia.after", "next": 1 }, { "kind": "completion" }], "label_nodes": { "scene.test.partner.sylvia": 0 }, "native_indices": [10, 11], "content_sha256": "a4c0ae59d827fe9fe6dcf07ca36737410f1a61e213946c7cd5caa62cfa6f4240", "program_sha256": "81157c12ff738daeda0287847e7c45a5586949836637b89e58cf39d2843b3de4" } }
+    [INFO]:  Array/Dictionary compared by value.  Use assert_same to compare references.  Use assert_eq_deep to see diff when failing.
+    [Passed]:  ARRAY(["line.scene.test.partner.sylvia.after"]) == ARRAY(["line.scene.test.partner.sylvia.after"])  No continuation leaks into a different entry.
+    [Passed]:  ["completion"] expected to equal ["completion"]:  
+    [Passed]:  Uninstalled content must not dispatch effects.
+    [Passed]:  Uninstalled content must not dispatch effects.
+    [Passed]:  { "ok": true, "value": { "events": [{ "kind": "label", "label": "scene.test.partner.lavinia" }, { "kind": "text", "line_id": "line.scene.test.partner.lavinia.after", "text": "TEST ONLY: Priscilla-viewpoint continuation after passing the opportunity." }, { "kind": "return" }], "nodes": [{ "kind": "caption", "line_id": "line.scene.test.partner.lavinia.after", "next": 1 }, { "kind": "completion" }], "label_nodes": { "scene.test.partner.lavinia": 0 }, "native_indices": [13, 14], "content_sha256": "a4c0ae59d827fe9fe6dcf07ca36737410f1a61e213946c7cd5caa62cfa6f4240", "program_sha256": "ad38ada6ad254c0b98c1f434e92ef43f61602971445e24487978476274171944" } }
+    [INFO]:  Array/Dictionary compared by value.  Use assert_same to compare references.  Use assert_eq_deep to see diff when failing.
+    [Passed]:  ARRAY(["line.scene.test.partner.lavinia.after"]) == ARRAY(["line.scene.test.partner.lavinia.after"])  No continuation leaks into a different entry.
+    [Passed]:  ["completion"] expected to equal ["completion"]:  
+    [Passed]:  Uninstalled content must not dispatch effects.
+    [Passed]:  Uninstalled content must not dispatch effects.
+1/1 passed.
+
+
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               1
+Tests                 1
+Passing Tests         1
+Asserts              16
+Time              0.423s
+
+
+---- All tests passed! ----
+
+Results saved to res://.godot/ci/authored-week/partner-template-unit.xml
+[INFO]:  Exiting with code 0

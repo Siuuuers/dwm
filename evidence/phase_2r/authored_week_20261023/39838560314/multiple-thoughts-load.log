@@ -1,0 +1,79 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+WARNING: Your video card drivers seem not to support the required OpenGL 3.3 version, switching to ANGLE.
+   at: DisplayServerWindows (platform/windows/display_server_windows.cpp:7421)
+OpenGL API OpenGL ES 3.0 (ANGLE 2.1.1 git hash: aaebda1c5a40) - Compatibility - Using Device: Google Inc. (Microsoft) - ANGLE (Microsoft, Microsoft Basic Render Driver (0x0000008C) Direct3D11 vs_5_0 ps_5_0, D3D11-10.0.20348.5386)
+
+---  GUT  ---
+[INFO]:  using [D:/a/dwm/dwm/.godot/phase2r_tests/52bf9563-f9c3-48cc-9404-bdd28396f727/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/integration/test_scene_multiple_thoughts_load.gd
+* test_multiple_thoughts_fresh_load_and_default
+    [Passed]:  { "ok": true, "value": { "pid": 3692, "receipt": { "kind": "scene_event", "request_fingerprint": "316d198b584e0b736565e6def89acbcc0016a37c58653cbbc3796d209c022031", "scene_event": { "reading_anchor": { "catalogue_fingerprint": "f1c0c6089216d3e2b26213ded828d8781d8dcf5c205bc2ff1af9c3d828741c4b", "content_version": 1, "entry_id": "scene.test.partner.shared", "line_id": "line.scene.test.partner.shared.offer", "publication_id": "caption:2", "session_id": "transaction_id.bf3bd284448ce1af2abbc1c88089ac68e182a3231db866b518ee7d4f1b65545a" }, "registration_fingerprint": "f1c0c6089216d3e2b26213ded828d8781d8dcf5c205bc2ff1af9c3d828741c4b", "result": { "choice": "second", "kind": "thought_resolved", "opportunity_id": "TEST.partner", "target_id": "partner.lavinia" }, "schema_version": 2, "semantic": { "command_id": "transaction_id.c350cd0933594ae13ca7c8cf0d54794e4ef9fc2ab16e4715d4841e3fdf9d819e", "event_id": "scene.test.partner.expiry", "issuer_receipt": { "counter": 7, "namespace": "5f0b17a5462e8e9f6f9de0f93ccaabbf7f9228e4e3fbedc3538a05c7a637f9f2", "numeric_value": <null>, "purpose": "transaction_id", "receipt_id": "issuer_receipt.211a6aed4a6fbb43c1c484e1a858bc3c5dfb20182485c7a84a86dc56827749bd", "token": "transaction_id.c350cd0933594ae13ca7c8cf0d54794e4ef9fc2ab16e4715d4841e3fdf9d819e" }, "kind": "thought.select", "ordinal": 0, "payload": { "choice_id": "second", "opportunity_id": "TEST.partner", "options": [{ "choice_id": "first", "target_id": "partner.sylvia", "text": "Choose the first continuation." }, { "choice_id": "second", "target_id": "partner.lavinia", "text": "Choose the second continuation." }], "pass_target_id": "partner.benchmark" }, "predecessor": "", "schema_version": 2, "source": { "branch_id": "branch_id.81e887ab888929c80ce4a33f6127afd6e1a1cf859af369d63bfbb63f7d028595", "causal_day_instance": "causal_day_instance.f4a019c892ae373e1741baf1b252df9c635d858294f627c05bb99a20898e67f5", "content_version": 1, "entry_id": "scene.test.partner.shared", "run_id": "run_id.af86dcaad1657237b5f435acd8bb8eeb422bf26777b978b9d2d4257e9005250f", "scene_occurrence": "transaction_id.bf3bd284448ce1af2abbc1c88089ac68e182a3231db866b518ee7d4f1b65545a" } } }, "source_id": "transaction_id.bf3bd284448ce1af2abbc1c88089ac68e182a3231db866b518ee7d4f1b65545a", "transaction_id": "transaction_id.c350cd0933594ae13ca7c8cf0d54794e4ef9fc2ab16e4715d4841e3fdf9d819e" }, "resolved": "3678e5e14d7ba0adb36b27c76ccbb2e00ca01be1110c75384091aa201a92df07", "unresolved": "2af1e77137e7b2d6ea9c698c3dca173634d013af01040f73285bb42ab01b33f7" } }
+    [Passed]:  [5092] expected to not equal [3692]:  
+    [Passed] 
+    [Passed]:  { "ok": true, "value": "f1c0c6089216d3e2b26213ded828d8781d8dcf5c205bc2ff1af9c3d828741c4b" }
+    [Passed]:  [STRING_NAME(test_manual)] expected to equal [STRING_NAME(test_manual)]:  
+    [Passed] 
+    [Passed]:  { "ok": true, "value": { "started": true, "ready": true, "mode": &"final", "completed_stages": [&"select_and_prove_roots", &"construct_and_inject_mutation_gate", &"construct_identity_issuer_and_contact_commands", &"initialize_saves", &"initialize_profile", &"initialize_localization", &"initialize_input", &"initialize_accessibility", &"initialize_audio", &"initialize_window_mode", &"initialize_dialogic_bridge", &"configure_restore_participants", &"configure_day_resolution", &"configure_minesweeper_rounds", &"publish_application_ready"], "planned_blockers": [], "fatal_result": {  }, "failed_stage": <null>, "gate_injection": { "factory_invocation_count": 1, "gate_instance_id": -9223371719564064252, "targets": [&"SaveManager", &"GameState", &"ProfileManager", &"LocalizationManager", &"AudioManager", &"WindowModeManager", &"SceneRouter", &"DialogicBridge", &"InputManager"], "target_instance_ids": [-9223371719564064252, -9223371719564064252, -9223371719564064252, -9223371719564064252, -9223371719564064252, -9223371719564064252, -9223371719564064252, -9223371719564064252, -9223371719564064252] } } }
+    [INFO]:  Array/Dictionary compared by value.  Use assert_same to compare references.  Use assert_eq_deep to see diff when failing.
+    [Passed]:  ARRAY([&"select_and_prove_roots", &"construct_and_inject_mutation_gate", &"construct_ident...n_ready"]) == ARRAY([&"select_and_prove_roots", &"construct_and_inject_mutation_gate", &"construct_ident...n_ready"])  
+    [Passed] 
+    [Passed]:  [9] expected to equal [9]:  
+    [Passed]:  [0] expected to equal [0]:  completed prior operations do not fabricate a live Ready
+    [Passed]:  { "ok": true }
+    [Passed]:  { "ok": true, "value": { "confirmation_required": false, "confirmation_kind": "none", "token": "backup-1", "record": { "locator": "slot:2", "state": "occupied", "day": <null>, "saved_time": "19:19", "fallback": false, "load_day": <null>, "load_saved_time": "19:19", "reason": "", "family": "scene", "load_family": "scene", "actions": { "save": false, "load": true, "delete": true } } } }
+    [Passed]:  { "ok": false, "code": &"scene_activation_pending", "recovery_required": true, "transaction_id": "transaction_id.26a408bba1068576c1a865b6da2d6e096c094a4182783172edaeaed10bd9f609", "value": { "transaction_id": "transaction_id.26a408bba1068576c1a865b6da2d6e096c094a4182783172edaeaed10bd9f609" } }
+    [Passed]:  [1] expected to equal [1]:  
+    [Passed]:  line.scene.test.partner.lavinia.after is rendered
+    [Passed]:  line.scene.test.partner.lavinia.after fully revealed
+    [Passed]:  [1.0] expected to equal [1.0]:  
+    [Passed]:  line.scene.test.partner.lavinia.after native event DONE
+    [Passed]:  [1] expected to equal [1]:  
+    [INFO]:  Array/Dictionary compared by value.  Use assert_same to compare references.  Use assert_eq_deep to see diff when failing.
+    [Passed]:  DICTIONARY({ "kind": "scene_event", "request_fingerprint": "316d198b584e0b736565e6def89acb...9d819e" }) == DICTIONARY({ "kind": "scene_event", "request_fingerprint": "316d198b584e0b736565e6def89acb...9d819e" })  fresh process retains exact selected option receipt
+    [Passed]:  { "ok": true, "value": { "confirmation_required": true, "confirmation_kind": "replace_progress", "token": "backup-2", "record": { "locator": "slot:1", "state": "occupied", "day": <null>, "saved_time": "19:19", "fallback": false, "load_day": <null>, "load_saved_time": "19:19", "reason": "", "family": "scene", "load_family": "scene", "actions": { "save": true, "load": true, "delete": true } } } }
+    [Passed]:  { "ok": true, "transaction_id": "transaction_id.fcb9bec06942f57a13cddc1567a34691647dbd872cc7e43e80695e1109837fe9", "value": { "transaction_id": "transaction_id.fcb9bec06942f57a13cddc1567a34691647dbd872cc7e43e80695e1109837fe9" } }
+    [Passed]:  [2] expected to equal [2]:  
+    [Passed]:  line.scene.test.partner.shared.offer is rendered
+    [Passed]:  line.scene.test.partner.shared.offer fully revealed
+    [Passed]:  [1.0] expected to equal [1.0]:  
+    [Passed]:  line.scene.test.partner.shared.offer native event DONE
+    [Passed]:  selected earlier save restores unresolved opportunity
+    [Passed] 
+    [Passed]:  native manual input is ready
+    [Passed]:  Expected [WitnessedCaptionLayer:<Node#65742275873922>(WitnessedCaptionLayer.gd)] to be anything but NULL:  
+    [Passed]:  caption owns Accept focus
+    [Passed]:  line.scene.test.partner.benchmark.after is rendered
+    [Passed]:  line.scene.test.partner.benchmark.after fully revealed
+    [Passed]:  [1.0] expected to equal [1.0]:  
+    [Passed]:  line.scene.test.partner.benchmark.after native event DONE
+    [Passed]:  [1] expected to equal [1]:  
+    [Passed]:  ["pass"] expected to equal ["pass"]:  
+    [Passed]:  ["partner.benchmark"] expected to equal ["partner.benchmark"]:  
+    [Passed]:  ["2af1e77137e7b2d6ea9c698c3dca173634d013af01040f73285bb42ab01b33f7"] expected to equal ["2af1e77137e7b2d6ea9c698c3dca173634d013af01040f73285bb42ab01b33f7"]:  
+    [Passed]:  ["3678e5e14d7ba0adb36b27c76ccbb2e00ca01be1110c75384091aa201a92df07"] expected to equal ["3678e5e14d7ba0adb36b27c76ccbb2e00ca01be1110c75384091aa201a92df07"]:  
+1/1 passed.
+
+
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               1
+Tests                 1
+Passing Tests         1
+Asserts              42
+Time              27.363s
+
+
+---- All tests passed! ----
+
+Results saved to res://.godot/ci/authored-week/multiple-thoughts-load.xml
+[INFO]:  Exiting with code 0

@@ -2,8 +2,8 @@ extends "res://addons/gut/test.gd"
 
 const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 
-## Production Shop purchase transaction (Plan 02 Task 7, dwm-p2r.32.7, req.shop.capabilities).
-## Configures the REAL GameStateMinesweeperShopPort over the real GameState autoload, the real
+## Retained legacy DesktopActionReceipt v1 Shop purchase transaction (Plan 02 Task 7, dwm-p2r.32.7, req.shop.capabilities).
+## Uses an explicit TEST-only historical condition projection over GameStateMinesweeperShopPort, the real
 ## DesktopConsequenceState, the real ApplicationMutationGate, a real DesktopIdentityNonceIssuer over
 ## an isolated root store, and the real SaveManagerCheckpointPort's consequence-checkpoint seam
 ## (SaveManager over isolated storage) -- mirroring test_minesweeper_first_reveal_transaction.gd's
@@ -29,6 +29,17 @@ const IDENTITY_CONTEXT := {
 	"run_id": "run-shop", "branch_id": "branch-shop", "desktop_timeline_generation": 0,
 	"causal_day_instance": "causal-day-shop-1",
 }
+
+
+# The frozen v1 action receipt requires historical health facts. The production
+# scene Shop successor is pressure-only and is tested separately. Retain the old
+# receipt/recovery contract here without restoring health to the runtime port.
+class LegacyConditionShopPort extends "res://scripts/application/shop/GameStateMinesweeperShopPort.gd":
+	func capture() -> Dictionary:
+		var result: Dictionary = super.capture()
+		if result.get("ok", false):
+			result.value["health"] = _game_state.get_stat("health")
+		return result
 
 
 func _fresh_issuer(root: String) -> RefCounted:
@@ -83,7 +94,7 @@ func _wired() -> Dictionary:
 
 	var identity_context := IDENTITY_CONTEXT.duplicate(true)
 	identity_context["causal_day_instance"] = str(day_receipt["token"])
-	var state_port: Object = load(STATE_PORT_PATH).new()
+	var state_port: Object = LegacyConditionShopPort.new()
 	assert_true(state_port.configure(gs, identity_context).get("ok", false))
 
 	var gate := ApplicationMutationGate.new()
@@ -117,7 +128,7 @@ func before_each() -> void:
 	assert_true(load(REGISTRY_PATH).initialize().get("ok", false), "shop registry must load")
 
 
-## Full end-to-end drive against every REAL production port this task builds: quote, prepare
+## Retained v1 integration over real transaction ports and the explicit historical projection: quote, prepare
 ## (durable action_checkpointed handoff), Task-8-substitute admission to sequence_committed, forward
 ## commit (real currency spend via GameState.try_spend_coins, real inventory grant), and publish.
 func test_lucky_charm_purchase_transacts_exactly_once_against_real_ports() -> void:
@@ -148,6 +159,8 @@ func test_lucky_charm_purchase_transacts_exactly_once_against_real_ports() -> vo
 	var receipt: Dictionary = (prepared["value"] as Dictionary)["action_receipt"]
 	var validated: Dictionary = load(ACTION_RECEIPT_PATH).validate(receipt)
 	assert_true(validated.get("ok", false), JSON.stringify(validated))
+	assert_eq(receipt.condition_before.health, gs.get_stat("health"), "Historical v1 condition is retained explicitly.")
+	assert_eq(receipt.condition_after.health, receipt.condition_before.health, "Capability purchase never changes historical health.")
 
 	_force_sequence_committed(wired, txn["transaction_id"])
 	var candidate: Dictionary = (prepared["value"] as Dictionary)["candidate"]

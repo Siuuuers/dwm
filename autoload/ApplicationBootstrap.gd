@@ -215,6 +215,7 @@ var _desktop_eviction_port: Object = null
 ## first-Reveal wiring of these SAME live objects into gameplay is Task 9's job; here they exist only
 ## so SaveManager's 8-key restore participant set has somewhere real to restore desktop state into.
 var _desktop_consequence_state: RefCounted = null
+var _scene_shop_catalog: RefCounted = null
 var _desktop_board_state: RefCounted = null
 ## The ONE Minesweeper round coordinator and its two production adapters (dwm-p2r.9 Plan 06
 ## Task 2). Constructed once, configured with initialized production ports, and installed in
@@ -1578,6 +1579,13 @@ func _configure_desktop_production_graph() -> Dictionary:
 
 	var snapshot_bound: Dictionary = game_state.configure_desktop_snapshot_provider(Callable(self, "_capture_live_desktop_snapshot"))
 	if not snapshot_bound.get("ok", false): return snapshot_bound
+	if _scene_shop_catalog == null: _scene_shop_catalog = GAMEPLAY_DATA_CATALOG.new()
+	var shop_bound: Dictionary = game_state.configure_scene_shop_runtime(_scene_shop_catalog, _desktop_consequence_state)
+	if not shop_bound.get("ok", false): return shop_bound
+	var day_bound: Dictionary = game_state.configure_scene_day_runtime(_retained_causal_day_advance_identity_port, _desktop_board_state, _desktop_consequence_state)
+	if not day_bound.get("ok", false): return day_bound
+	var scene_round_bound: Dictionary = game_state.configure_scene_round_runtime(_desktop_board_state, _retained_minesweeper_state_port)
+	if not scene_round_bound.get("ok", false): return scene_round_bound
 
 	# One distinct root-scoped desktop publication ledger, loaded before any recovery/publish call.
 	if _retained_desktop_publication_ledger == null:
@@ -1740,6 +1748,8 @@ func _configure_desktop_production_graph() -> Dictionary:
 
 	var round_rewards: Dictionary = _retained_minesweeper_round_coordinator_app.configure_reward_port(_retained_minesweeper_state_port)
 	if not round_rewards.get("ok", false): return round_rewards
+	var scene_completion_bound: Dictionary = _retained_minesweeper_round_coordinator_app.configure_scene_completion(game_state)
+	if not scene_completion_bound.get("ok", false): return scene_completion_bound
 
 	# The Plan-03 condition-policy/ScheduleView pair, configured TOGETHER on the one shared
 	# consequence coordinator (dwm-oyo.3 slice, 2026-08-24, authorized on dwm-p2r.21 / dwm-oyo.3).
@@ -2733,6 +2743,7 @@ func configure_scene_host_view(host: Control) -> void:
 		"computer_open": open_scene_computer.bind(host),
 		"computer_close": close_scene_computer.bind(host),
 		"contacts": open_scene_contacts.bind(host),
+		"apps": open_scene_apps.bind(host),
 		"settings": open_scene_settings.bind(host),
 		"backup": open_scene_backup.bind(host, "backup"),
 		"save": open_scene_backup.bind(host, "save"),
@@ -2786,12 +2797,7 @@ func open_scene_computer(host: Control) -> Dictionary:
 	if not cue.get("ok", false): return cue
 	var captured: Dictionary = game.capture_scene_challenge_command()
 	if not captured.get("ok", false):
-		var context: Dictionary = game.capture_scene_contact_context()
-		if not context.get("ok", false): return context
-		var held: Dictionary = _target(&"DialogicBridge").hold_computer_captions(host)
-		if not held.get("ok", false): return held
-		host.set_computer_open(true)
-		return open_scene_contacts(host)
+		return open_scene_apps(host)
 	configured = _retained_dating_physical_owner.configure_scene_challenges(captured.value.bundle, game)
 	if not configured.get("ok", false): return configured
 	var admitted: Dictionary = _retained_dating_presentation_port.begin(captured.value.command)
@@ -2808,7 +2814,10 @@ func open_scene_computer(host: Control) -> Dictionary:
 		panel.configure_input(_target(&"InputManager"))
 		panel.presentation_changed.connect(_scene_challenge_published.bind(host, panel))
 	var held: Dictionary = _target(&"DialogicBridge").hold_computer_captions(host)
-	if not held.get("ok", false): return held
+	if not held.get("ok", false):
+		if held.get("recovery_required", false): host.set_computer_open(true)
+		return held
+	host.set_computer_content_visible(false)
 	host.set_computer_open(true)
 	if not panel.open_panel():
 		close_scene_computer(host)
@@ -2835,13 +2844,24 @@ func _complete_scene_challenge(host: Control, panel: Control) -> void:
 		panel.presentation_failed.emit(StringName(continued.get("code", "scene_continuation_refused")))
 
 func close_scene_computer(host: Control) -> Dictionary:
-	if not is_instance_valid(host): return _failure(&"scene_host_unavailable", "")
-	var contacts_view: Control = host.get_challenge_mount().get_node_or_null("SceneContactsApp")
-	if contacts_view != null: contacts_view.hide_window()
+	if not _scene_host_admitted(host): return _failure(&"scene_host_unavailable", "")
+	var guarded: Dictionary = _application_gate.guard_external(&"scene_computer")
+	if not guarded.get("ok", false): return guarded
+	var desktop: Control = host.get_computer_mount().get_node_or_null("SceneComputerDesktop")
+	if desktop != null and host.is_computer_open():
+		var home: Dictionary = desktop.prepare_scene_close()
+		if not home.get("ok", false): return home
+	var released: Dictionary = _target(&"DialogicBridge").release_computer_captions(host)
+	if not released.get("ok", false): return released
+	if desktop != null and host.is_computer_open():
+		var home: Dictionary = desktop.return_home()
+		if not home.get("ok", false):
+			var held: Dictionary = _target(&"DialogicBridge").hold_computer_captions(host)
+			return home if held.get("ok", false) else held
 	var panel: Control = host.get_challenge_mount().get_node_or_null("SceneChallengePanel")
 	if panel != null: panel.close_panel()
 	host.set_computer_open(false)
-	return _target(&"DialogicBridge").release_computer_captions(host)
+	return {"ok": true}
 
 func open_scene_settings(host: Control) -> Dictionary:
 	if not _scene_host_admitted(host): return _failure(&"scene_host_unavailable", "")
@@ -2857,41 +2877,118 @@ func open_scene_backup(host: Control, mode: String) -> Dictionary:
 
 
 func open_scene_contacts(host: Control) -> Dictionary:
-	if not _scene_host_admitted(host) or not host.is_computer_open():
-		return _failure(&"scene_host_unavailable", "")
-	var guarded: Dictionary = _application_gate.guard_external(&"scene_contacts")
+	var opened := open_scene_apps(host)
+	if not opened.get("ok", false): return opened
+	var desktop: Control = host.get_computer_mount().get_node("SceneComputerDesktop")
+	return desktop.open_app(&"contacts")
+
+
+func _scene_shell_input_admitted(host: Control) -> bool:
+	return _scene_host_admitted(host) and host.is_computer_open() \
+		and _target(&"DialogicBridge").is_computer_caption_held() \
+		and _application_gate.guard_external(&"scene_desktop").get("ok", false)
+
+func _scene_desktop_phase() -> StringName:
+	return StringName(_desktop_board_state.capture().phase)
+
+func _scene_desktop_dispatch(command: Dictionary, panel: RefCounted) -> Dictionary:
+	var kind: String = str(command.get("kind", ""))
+	if kind in ["open_app", "hide_app"]: return {"ok": true}
+	if kind not in ["suspend_board", "resume_board"]:
+		return _failure(&"invalid_scene_desktop_command", "")
+	var board: Dictionary = _desktop_board_state.capture()
+	return panel.set_foreground(kind == "resume_board", int(board.revision))
+
+func _prepare_scene_desktop_app(app_id: StringName, app: Control, ports: Dictionary) -> Dictionary:
+	var locale := _target(&"LocalizationManager")
+	var profile := _target(&"ProfileManager")
+	var configuration: Dictionary = _target(&"GameState").get_run_configuration()
+	if not configuration.get("ok", false): return configuration
+	var palette: StringName = &"midnight" if configuration.value.dark_mode else &"after_hours"
+	match app_id:
+		&"contacts": return app.configure_scene_presentation(ports.contacts, locale, profile, palette)
+		&"shop": return app.configure_scene_catalog(ports.shop, locale, profile, palette)
+		&"minesweeper": return app.configure_scene_presentation(ports.panel, locale, profile, _target(&"InputManager"), palette)
+	return _failure(&"scene_external_action_required", "")
+
+func _ensure_scene_desktop(host: Control) -> Dictionary:
+	var mount: Control = host.get_computer_mount()
+	var desktop: Control = mount.get_node_or_null("SceneComputerDesktop")
+	if desktop != null: return {"ok": true, "value": desktop}
+	var game := _target(&"GameState")
+	var session: Dictionary = game.capture_live_session()
+	if not session.get("ok", false): return session
+	var admitted: Dictionary = game.validate_live_session(session.value)
+	if not admitted.get("ok", false): return admitted
+	var contacts: RefCounted = CONTACTS_PRESENTATION_PORT.new()
+	var configured: Dictionary = contacts.configure(game, _contact_command_port)
+	if not configured.get("ok", false): return configured
+	var panel: RefCounted = MINESWEEPER_PANEL_PORT.new()
+	configured = panel.configure(_retained_minesweeper_round_coordinator_app,
+		_desktop_identity_nonce_issuer, game, _scene_shop_catalog)
+	if not configured.get("ok", false): return configured
+	var shop: RefCounted = preload("res://scripts/application/shop/ShopPresentationPort.gd").new()
+	configured = shop.configure_scene(game, _scene_shop_catalog, _desktop_identity_nonce_issuer, _application_gate)
+	if not configured.get("ok", false): return configured
+	var ports := {"contacts": contacts, "panel": panel, "shop": shop}
+	desktop = preload("res://scenes/desktop/ComputerDesktop.tscn").instantiate()
+	desktop.name = "SceneComputerDesktop"
+	configured = desktop.configure_scene_navigation(_desktop_host_state, _scene_desktop_phase,
+		_scene_desktop_dispatch.bind(panel), _prepare_scene_desktop_app.bind(ports),
+		_target(&"LocalizationManager"), _target(&"ProfileManager"))
+	if not configured.get("ok", false):
+		desktop.free()
+		return configured
+	configured = desktop.configure_scene_shell_actions(_open_scene_external_app.bind(host), _scene_shell_input_admitted.bind(host))
+	if not configured.get("ok", false):
+		desktop.free()
+		return configured
+	desktop.set_meta("scene_ports", ports)
+	mount.add_child(desktop)
+	mount.resized.connect(_layout_scene_desktop.bind(host, desktop))
+	_layout_scene_desktop(host, desktop)
+	return {"ok": true, "value": desktop}
+
+func _layout_scene_desktop(host: Control, desktop: Control) -> void:
+	if not is_instance_valid(host) or not is_instance_valid(desktop): return
+	var available: Vector2 = host.get_computer_mount().size
+	desktop.size = Vector2(800, 720)
+	desktop.scale = Vector2.ONE * maxf(0.1, minf(available.x / 800.0, available.y / 720.0))
+	desktop.position = Vector2.ZERO
+
+func open_scene_apps(host: Control) -> Dictionary:
+	if not _scene_host_admitted(host): return _failure(&"scene_host_unavailable", "")
+	var guarded: Dictionary = _application_gate.guard_external(&"scene_desktop")
 	if not guarded.get("ok", false): return guarded
-	if _contacts_presentation_port == null:
-		_contacts_presentation_port = CONTACTS_PRESENTATION_PORT.new()
-		var bound: Dictionary = _contacts_presentation_port.configure(_target(&"GameState"), _contact_command_port)
-		if not bound.get("ok", false):
-			_contacts_presentation_port = null
-			return bound
-	var mount: Control = host.get_challenge_mount()
-	var app: Control = mount.get_node_or_null("SceneContactsApp")
-	if app == null:
-		app = preload("res://scenes/apps/ContactListApp.tscn").instantiate()
-		app.name = "SceneContactsApp"
-		mount.add_child(app)
-		app.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
-		host.resized.connect(_layout_scene_contacts.bind(host, app))
-		var configured: Dictionary = app.configure_scene_presentation(_contacts_presentation_port,
-			_target(&"LocalizationManager"), _target(&"ProfileManager"))
-		if not configured.get("ok", false):
-			app.queue_free()
-			return configured
-	var refreshed: Dictionary = app.refresh_view()
-	if not refreshed.get("ok", false): return refreshed
-	_layout_scene_contacts(host, app)
-	app.show_window()
-	mount.move_child(app, mount.get_child_count() - 1)
+	var prepared := _ensure_scene_desktop(host)
+	if not prepared.get("ok", false): return prepared
+	var desktop: Control = prepared.value
+	var held: Dictionary = _target(&"DialogicBridge").hold_computer_captions(host)
+	if not held.get("ok", false):
+		if held.get("recovery_required", false): host.set_computer_open(true)
+		return held
+	host.set_computer_open(true)
+	var active: Variant = _desktop_host_state.get_state().get("active_app_id")
+	if active != null and active not in [&"settings", &"backup"] and desktop._active_id == &"":
+		var restored: Dictionary = desktop.open_app(StringName(active))
+		if not restored.get("ok", false): return restored
+	var home: Dictionary = desktop.return_home()
+	if not home.get("ok", false): return home
+	var panel: Control = host.get_challenge_mount().get_node_or_null("SceneChallengePanel")
+	if panel != null: panel.close_panel()
+	host.set_computer_content_visible(true)
+	host.set_computer_open(true)
+	desktop._focus_initial_launcher.call_deferred()
 	return {"ok": true}
 
-
-func _layout_scene_contacts(host: Control, app: Control) -> void:
-	if not is_instance_valid(host) or not is_instance_valid(app): return
-	var available := host.get_viewport_rect().size - Vector2(184, 16)
-	var factor := maxf(0.1, minf(available.x / 800.0, available.y / 656.0))
-	app.size = Vector2(800, 656)
-	app.scale = Vector2.ONE * factor
-	app.global_position = Vector2(176, 8)
+func _open_scene_external_app(app_id: StringName, host: Control) -> Dictionary:
+	if app_id == &"settings": return await open_scene_settings(host)
+	if app_id == &"backup": return await open_scene_backup(host, "backup")
+	if app_id != &"logout" or not _scene_host_admitted(host): return _failure(&"scene_host_unavailable", "")
+	var closed := close_scene_computer(host)
+	if not closed.get("ok", false): return closed
+	var pause: Node = _target(&"SceneRouter")._production_pause
+	var opened: Dictionary = await pause.request_pause()
+	if not opened.get("ok", false): return opened
+	pause.surface._activate(&"return")
+	return {"ok": true}
