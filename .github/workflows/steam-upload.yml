@@ -2,6 +2,7 @@ name: Steam private upload
 run-name: Steam ${{ inputs.mode }} - localized week cc40aee
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: steam-app-5199120
   cancel-in-progress: false
@@ -182,20 +183,25 @@ jobs:
         include-hidden-files: true
         if-no-files-found: warn
         retention-days: 7
+    if: ${{ inputs.rebuild }}
   steam:
     runs-on: windows-2022
     timeout-minutes: 20
     steps:
-    - name: Download this run’s verified runtime package
+    - name: Download the selected run’s verified runtime package
       uses: actions/download-artifact@v4
       with:
         name: steam-localized-package
         path: game-build
-    - name: Download this run’s export receipt
+        run-id: ${{ inputs.rebuild && github.run_id || '39867537354' }}
+        github-token: ${{ github.token }}
+    - name: Download the selected run’s export receipt
       uses: actions/download-artifact@v4
       with:
         name: steam-localized-receipt
         path: receipt
+        run-id: ${{ inputs.rebuild && github.run_id || '39867537354' }}
+        github-token: ${{ github.token }}
     - name: Validate package, preview mappings, and optionally upload
       shell: python
       env:
@@ -263,6 +269,17 @@ jobs:
             text = result.stdout.decode('utf-8', errors='replace')
             if stage == 'bootstrap':
                 print(text[-6000:])  # No account or configuration has been supplied yet.
+                # Observed Windows updater returned 7 after completing its update.
+                # Retry only this unauthenticated stage once; never accept 7 as success.
+                if result.returncode == 7 and re.search(r'Update complete, launching', text, re.I):
+                    report('SteamCMD completed its self-update with exit 7; checking the updated client once.')
+                    try:
+                        result = subprocess.run([executable] + args, cwd=sdk, stdin=subprocess.DEVNULL,
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=limit)
+                    except subprocess.TimeoutExpired:
+                        stop('Updated SteamCMD bootstrap timed out before authentication.')
+                    text = result.stdout.decode('utf-8', errors='replace')
+                    print(text[-6000:])
             if result.returncode != 0 or re.search(r'ERROR!|Login Failure|FAILED \(', text, re.I):
                 reasons = [label for pattern, label in [
                     (r'Invalid Password|InvalidPassword', 'invalid cached login'),
@@ -308,6 +325,7 @@ jobs:
       run: |-
         Remove-Item -LiteralPath "$env:RUNNER_TEMP/dwm-steam" -Recurse -Force -ErrorAction SilentlyContinue
     needs: build
+    if: ${{ !cancelled() && (needs.build.result == 'success' || needs.build.result == 'skipped') }}
 'on':
   workflow_dispatch:
     inputs:
@@ -318,4 +336,9 @@ jobs:
         - preview
         - upload
         default: preview
+        required: true
+      rebuild:
+        description: Re-export source (leave off to reuse verified run 39867537354)
+        type: boolean
+        default: false
         required: true
