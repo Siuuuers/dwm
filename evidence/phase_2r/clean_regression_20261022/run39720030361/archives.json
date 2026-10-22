@@ -1,0 +1,132 @@
+{
+  "run": 39720030361,
+  "attempt": 1,
+  "archives": [
+    {
+      "name": "caption-preparation-39720030361-1.zip",
+      "artifact_id": 12400887578,
+      "bytes": 10825344,
+      "sha256": "e9384deda50e5fe0cb3439e8860a18d654edf048093a0458f6a1e75eab91e8b6",
+      "parts": [
+        {
+          "name": "caption-preparation-39720030361-1.zip.part000",
+          "sha": "b091290c18ce630ca51f2017c23896a1b85c60d6",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720030361-1.zip.part001",
+          "sha": "2bf2a052dda4a53b1fe4a12f130ff9f1b91a1020",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720030361-1.zip.part002",
+          "sha": "4d3c02ecf172b6b0665863c5a616971afe677286",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720030361-1.zip.part003",
+          "sha": "3c54bb33f45d07177317ac31d8ceb8bd64fddd23",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720030361-1.zip.part004",
+          "sha": "cc744b0b491c6b63e50b57c7c2089400b17dd55d",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720030361-1.zip.part005",
+          "sha": "22917f32109c993fb6480b88c30628153d98fedf",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720030361-1.zip.part006",
+          "sha": "d6870e59dfb62983572d1c1f903de0f02ba9c6f8",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720030361-1.zip.part007",
+          "sha": "f8b591bf9cba33d23884b69c265d323f57886aec",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720030361-1.zip.part008",
+          "sha": "6049dfc2161618a1e1c2121c7c40d44774664f21",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720030361-1.zip.part009",
+          "sha": "75c984a3f5a5a0ae7cfcddd8aec74fc0c8154d5f",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720030361-1.zip.part010",
+          "sha": "9a00fae211b3e8fd7e69971acd4301268751a172",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720030361-1.zip.part011",
+          "sha": "b7d5d8ceab5992c1427d8c4cf7e653d3aaede0e9",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720030361-1.zip.part012",
+          "sha": "af11cd1d7f01f27ad86663d94264aad0b125e380",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720030361-1.zip.part013",
+          "sha": "70487df2660e278827d1f0b33d30e21dbb0a886e",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720030361-1.zip.part014",
+          "sha": "3d34df44d5df864d7ad3b10f1e9da5eae9f74e7f",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720030361-1.zip.part015",
+          "sha": "290971c087887e34e9af5dc6d73bb5511ed85add",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720030361-1.zip.part016",
+          "sha": "658fba91725001b5a4010c3eeba45310ec4bb223",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720030361-1.zip.part017",
+          "sha": "f93b6ef12e13a5497895cb7a065defdfb64b1f21",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720030361-1.zip.part018",
+          "sha": "94f370cb275fb9cbddcc385b207e47db4a285aec",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720030361-1.zip.part019",
+          "sha": "4a6eac7b1d076f66e68cf2392bdf129084cc8f4d",
+          "size": 524288
+        },
+        {
+          "name": "caption-preparation-39720030361-1.zip.part020",
+          "sha": "e37c6a22d611b76e01e8324b025596e62c191a1c",
+          "size": 339584
+        }
+      ]
+    },
+    {
+      "name": "caption-qualification-39720030361-1.zip",
+      "artifact_id": 12400668126,
+      "bytes": 10839,
+      "sha256": "b2540db8f82c266003e8bc0cd598d2223b03506b5ee162f19122be504c7ef58c",
+      "parts": [
+        {
+          "name": "caption-qualification-39720030361-1.zip",
+          "sha": "1b53929e4496d9b5c7ed0deb3b0e4eec04a12bd7",
+          "size": 10839
+        }
+      ]
+    }
+  ]
+}
