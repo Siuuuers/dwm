@@ -1,0 +1,29 @@
+{
+  "byte_hashes": 5205,
+  "source_pins": 14,
+  "assertions": [
+    102,
+    234
+  ],
+  "child_wall_seconds": [
+    60.279653,
+    204.45027
+  ],
+  "timings": {
+    "loader_to_witness": 15.923686,
+    "witness_save_back": 42.071024,
+    "remaining_walk": 56.01045,
+    "ending_entry_readiness": 22.097313,
+    "ending_evidence": 0.266785,
+    "ending_accept": 51.664227,
+    "title_after_accept": 0.002927,
+    "completion_checks": 0.202186,
+    "fresh_day1": 6.600604,
+    "writer_1": 15.05484,
+    "writer_2": 17.522606,
+    "writer_3": 18.889143
+  },
+  "phase_marks": 133,
+  "creator_pid": 5700,
+  "loader_pid": 4340
+}
