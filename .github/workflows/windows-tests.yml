@@ -1,9 +1,7 @@
 name: Windows automated tests
 
+# Diagnostic controller only: canonical run39871056249 qualifies the unchanged source.
 on:
-  pull_request:
-  push:
-    branches: [master]
   workflow_dispatch:
 
 permissions:

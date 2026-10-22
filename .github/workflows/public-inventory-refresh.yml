@@ -12,7 +12,7 @@ concurrency:
 jobs:
   inventory-refresh:
     # Explicitly enable only after confirming source/controller pins.
-    if: ${{ false }} # Native outputs adopted from run39870246257.
+    if: ${{ github.head_ref == 'codex/story-day-qualification-20261023' }}
     name: Windows / Public inventory refresh preparation
     runs-on: windows-2022
     timeout-minutes: 30
@@ -24,7 +24,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 7d2db1fb05a5b298f9fc14b47cdf3a5b6f890e7e
+          ref: 103f7ad2e8c7acaf110abcd37232741de15fe811
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -32,10 +32,10 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '7d2db1fb05a5b298f9fc14b47cdf3a5b6f890e7e') { throw 'Candidate mismatch' }
-          if ((git rev-parse 'HEAD^{tree}') -cne 'd27d996a4cfe021220a8c25813b1b036c6a9bfaf') { throw 'Candidate tree mismatch' }
+          if ((git rev-parse HEAD) -cne '103f7ad2e8c7acaf110abcd37232741de15fe811') { throw 'Candidate mismatch' }
+          if ((git rev-parse 'HEAD^{tree}') -cne '36c7200f9fd69d61bdd8eee1825ce1b881243708') { throw 'Candidate tree mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{mode='inventory-preparation-not-release-acceptance'; predecessor_controller='5d4cbdcf3ed71fccf05d3baa42fb0e83d16d3b91'; candidate='7d2db1fb05a5b298f9fc14b47cdf3a5b6f890e7e'; tree=(git rev-parse 'HEAD^{tree}'); controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{mode='inventory-preparation-not-release-acceptance'; predecessor_controller='fe3d7614777f364010cb97c9ac94c075e181de7f'; candidate='103f7ad2e8c7acaf110abcd37232741de15fe811'; tree=(git rev-parse 'HEAD^{tree}'); controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -108,7 +108,7 @@ jobs:
           import json,pathlib,re,subprocess,xml.etree.ElementTree as ET
           root=pathlib.Path.cwd();out=root/'.godot/ci'
           source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
-          assert source=='7d2db1fb05a5b298f9fc14b47cdf3a5b6f890e7e'
+          assert source=='103f7ad2e8c7acaf110abcd37232741de15fe811'
           assert json.loads((out/'import-process.json').read_text(encoding='utf-8-sig'))['exit_code']==0
           processes=[]
           for owner in ['game_state','save_manager']:

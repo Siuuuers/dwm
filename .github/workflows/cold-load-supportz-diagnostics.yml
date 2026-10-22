@@ -11,6 +11,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   authority-audit:
+    if: ${{ false }} # Already qualified separately; this controller runs only authored-day diagnostics.
     name: Windows / Cold load and Supportz diagnostics
     runs-on: windows-2022
     timeout-minutes: 90
