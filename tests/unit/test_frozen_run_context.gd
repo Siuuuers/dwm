@@ -18,6 +18,7 @@ func before_each() -> void:
 		"dating.solo.priscilla.day2.post_challenge",
 		"dating.group.priscilla_lavinia.day2.pre_challenge",
 		"hospital.faint.day1",
+		"contact.invitation.solo.sylvia.day1.offer",
 		"hospital.faint.day2",
 		"ending.priscilla.sweet",
 		"ending.priscilla.observer.residue",

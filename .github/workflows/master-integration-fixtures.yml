@@ -23,7 +23,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 8f4a0a6a4694e3e84ca061dc22375a1d8ba2f2de
+          ref: 71f9722404c74e547ade057b433665e9c3606d55
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -31,10 +31,10 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '8f4a0a6a4694e3e84ca061dc22375a1d8ba2f2de') { throw 'Candidate mismatch' }
-          if ((git rev-parse 'HEAD^{tree}') -cne '68c386e7e583aa729da9a149b72f96cad1ba59f1') { throw 'Candidate tree mismatch' }
+          if ((git rev-parse HEAD) -cne '71f9722404c74e547ade057b433665e9c3606d55') { throw 'Candidate mismatch' }
+          if ((git rev-parse 'HEAD^{tree}') -cne 'f502e4764aacc2df53cdb9cf70c66a6d571a54ae') { throw 'Candidate tree mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='8f4a0a6a4694e3e84ca061dc22375a1d8ba2f2de'; tree='68c386e7e583aa729da9a149b72f96cad1ba59f1'; controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'; base='d7d0faf84941d0e5dc6f8a90d0896b6da47236d7'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{candidate='71f9722404c74e547ade057b433665e9c3606d55'; tree='f502e4764aacc2df53cdb9cf70c66a6d571a54ae'; controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'; base='d7d0faf84941d0e5dc6f8a90d0896b6da47236d7'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -163,7 +163,7 @@ jobs:
           import base64,hashlib,io,json,pathlib,subprocess,zipfile
           out=pathlib.Path('.godot/ci')
           missing=[]
-          for source in ['tests/unit/test_frozen_run_context.gd', 'tests/unit/test_reading_restore_admission.gd', 'tests/unit/test_reading_next_checkpoint.gd', 'tests/unit/test_seven_day_calendar.gd', 'tests/integration/test_save_manager_public_boundaries.gd', 'tests/support/RetainedOrdinaryRegistryFixture.gd', 'tests/support/GalleryEndingFixtureCatalog.gd', 'tests/integration/test_gallery_navigation.gd', 'tests/integration/test_gallery_replay_status.gd', 'tests/integration/test_gallery_version_register.gd', 'tests/integration/test_gallery_art_placements.gd', 'tests/integration/test_gallery_record_metadata.gd', 'tests/unit/test_ending_frozen_context.gd', 'tests/support/RetainedFrozenContextFixture.gd', 'tests/support/RetainedOrdinaryRegistryFixture.gd.uid', 'tests/support/GalleryEndingFixtureCatalog.gd.uid', 'tools/runtime/PublicSurfaceInventory.gd', 'tools/runtime/generate_public_surface_inventory.gd', 'tools/testing/Invoke-PublicSurfaceValidation.ps1', 'tests/unit/tooling/test_public_surface_inventory.gd', 'evidence/phase_2r/runtime/game_state_surface.json', 'evidence/phase_2r/runtime/save_manager_surface.json']:
+          for source in ['tests/unit/test_frozen_run_context.gd', 'tests/unit/test_reading_restore_admission.gd', 'tests/unit/test_reading_next_checkpoint.gd', 'tests/unit/test_seven_day_calendar.gd', 'tests/integration/test_save_manager_public_boundaries.gd', 'tests/support/RetainedOrdinaryRegistryFixture.gd', 'tests/support/GalleryEndingFixtureCatalog.gd', 'tests/integration/test_gallery_navigation.gd', 'tests/integration/test_gallery_replay_status.gd', 'tests/integration/test_gallery_version_register.gd', 'tests/integration/test_gallery_art_placements.gd', 'tests/integration/test_gallery_record_metadata.gd', 'tests/unit/test_ending_frozen_context.gd', 'tests/support/RetainedOrdinaryRegistryFixture.gd.uid', 'tests/support/GalleryEndingFixtureCatalog.gd.uid', 'tests/support/RetainedFrozenContextFixture.gd', 'tests/support/RetainedOrdinaryRegistryFixture.gd.uid', 'tests/support/GalleryEndingFixtureCatalog.gd.uid', 'tools/runtime/PublicSurfaceInventory.gd', 'tools/runtime/generate_public_surface_inventory.gd', 'tools/testing/Invoke-PublicSurfaceValidation.ps1', 'tests/unit/tooling/test_public_surface_inventory.gd', 'evidence/phase_2r/runtime/game_state_surface.json', 'evidence/phase_2r/runtime/save_manager_surface.json']:
               original=pathlib.Path(source)
               if not original.is_file():
                   missing.append(source); continue
