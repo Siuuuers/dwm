@@ -1,0 +1,38 @@
+[
+  {
+    "path": "scripts/narrative/DialogicRuntimeAdapter.gd",
+    "bytes": 100103,
+    "sha256": "5b8edeeb27eefa097a02c249026ff93ef016255955d0096f1661dcaec7379711",
+    "blob": "39d441c636688177e9b1b809013843cc8db0e47d"
+  },
+  {
+    "path": "scripts/narrative/SceneValidationTiming.gd",
+    "bytes": 1415,
+    "sha256": "b07eddde556ea8b15d633da93640c500e910223cc1b2de579480992e050bf793",
+    "blob": "88b7cf8c00ec2b71942fa33c299498b34161c9db"
+  },
+  {
+    "path": "scripts/narrative/SoloReadingSession.gd",
+    "bytes": 53874,
+    "sha256": "1639a42e6f4d5a76a516a2738cea247a0e797bfda53990dbdf46d597a6b19cdf",
+    "blob": "cf9e72d23c21a0926248d706f41098cdf3256b1a"
+  },
+  {
+    "path": "tests/integration/scene_seven_day_connected_child.gd",
+    "bytes": 30036,
+    "sha256": "1ae0943ad187e6f85d42345a439178cd01f692ca61348a9cf40330ace6c9f7fb",
+    "blob": "d9f31e79658a83b3a835766564033ba448177cc0"
+  },
+  {
+    "path": "tests/integration/test_scene_ending_direct_return.gd",
+    "bytes": 7840,
+    "sha256": "88e554c884e613018309fd9225014121f50a48ab5f5d67ec9f86a94c2d81835d",
+    "blob": "d270ab1535e966f8b32f3a3100350332142c4c5f"
+  },
+  {
+    "path": "tests/integration/scene_later_caption_child.gd",
+    "bytes": 13113,
+    "sha256": "eb032c12a41d188573cebcbdc30e0c059441fe9a572b277fb55ef8b4174526be",
+    "blob": "5a5b16e1dfd00910be6995317fbc9646581d34e6"
+  }
+]
