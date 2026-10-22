@@ -97,14 +97,14 @@ jobs:
         timeout-minutes: 12
         run: |
           $ErrorActionPreference = 'Stop'
-          ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'contact-regression' -LogName 'contact-regression.log' -EvidenceLogPath '.godot/ci/contact-regression.jsonl' -TimeoutSeconds 600 -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_scene_contacts_checkpoint_refusal.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/contact-regression.xml', '--', '--phase2r-bootstrap-mode=test_manual')
+          ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'contact-regression' -LogName 'contact-regression.log' -EvidenceLogPath '.godot/ci/contact-regression.jsonl' -TimeoutSeconds 600 -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_scene_contacts_checkpoint_refusal.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/contact-regression.xml')
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Qualify shop-transaction in its own isolated process
         if: always() && steps.project_import.outcome == 'success' && steps.project_settings.outcome == 'success'
         timeout-minutes: 12
         run: |
           $ErrorActionPreference = 'Stop'
-          ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'shop-transaction' -LogName 'shop-transaction.log' -EvidenceLogPath '.godot/ci/shop-transaction.jsonl' -TimeoutSeconds 600 -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_scene_shop_checkpoint_transaction.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/shop-transaction.xml', '--', '--phase2r-bootstrap-mode=test_manual')
+          ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'shop-transaction' -LogName 'shop-transaction.log' -EvidenceLogPath '.godot/ci/shop-transaction.jsonl' -TimeoutSeconds 600 -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_scene_shop_checkpoint_transaction.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/shop-transaction.xml')
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Verify exact Shop and regression census
         if: always() && steps.project_import.outcome == 'success' && steps.project_settings.outcome == 'success'
