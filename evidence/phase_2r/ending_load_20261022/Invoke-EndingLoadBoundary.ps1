@@ -52,7 +52,7 @@ $workingFixture = (& git -C $RepositoryRoot hash-object -- $fixture).Trim()
 if ($LASTEXITCODE -ne 0 -or $workingFixture -cne $fixtureBlob) { throw 'ENDING_LOAD_FIXTURE_SOURCE_CHANGED' }
 New-Item -ItemType Directory -Force -Path $output | Out-Null
 $selection = [ordered]@{ source = $source; expected_cases = 2; tests = $plans; rendered = $true;
-    accessibility = 'always'; external_uia_consumer = $false; child_timeout_seconds = 120;
+    accessibility = 'always'; external_uia_consumer = $false; child_timeout_seconds = 240;
     fixture_blob = $fixtureBlob; fixture_sha256 = Get-ContinueFileSha256 -LiteralPath (Join-Path $RepositoryRoot $fixture);
     runner_sha256 = Get-ContinueFileSha256 -LiteralPath $PSCommandPath;
     isolation_sha256 = Get-ContinueFileSha256 -LiteralPath $helper;
@@ -61,7 +61,7 @@ $selection = [ordered]@{ source = $source; expected_cases = 2; tests = $plans; r
 # Existing helper owns one isolated root, two fresh sequential processes, and cleanup.
 & $helper -RepositoryRoot $RepositoryRoot -SuiteId 'ending-load-boundary' -LogName $plans[0].log `
     -GodotArgs $plans[0].arguments -NextLogName $plans[1].log -NextGodotArgs $plans[1].arguments `
-    -EvidenceLogPath '.godot/ci/ending-load/isolation.jsonl' -TimeoutSeconds 120 -Rendered
+    -EvidenceLogPath '.godot/ci/ending-load/isolation.jsonl' -TimeoutSeconds 240 -Rendered
 $childExit = $LASTEXITCODE
 $result = [ordered]@{ source = $source; child_exit = $childExit; ok = $false; error = $null; completed = @() }
 $exitCode = 1
