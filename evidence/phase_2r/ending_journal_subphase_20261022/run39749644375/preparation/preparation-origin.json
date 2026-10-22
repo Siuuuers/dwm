@@ -1,0 +1,17 @@
+{
+  "run_id": "39749644375",
+  "capture_sha256": "a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379",
+  "git": "git version 2.56.0.windows.2",
+  "workflow": "d8b7cd7ebe685aaa42af7189066ccc8fcd70d2fe",
+  "os": "Microsoft Windows NT 10.0.20348.0",
+  "product": "bef78c105697a256ee0ff1a40e9b4c306e2740e7",
+  "controller": "5071b061850b13a2b81e1ea6119e6d19f621ff76",
+  "attempt": "1",
+  "runner_image": "win22",
+  "architecture": "X64",
+  "python": "Python 3.12.10",
+  "preparation_sha256": "2b503cad88833cfc6039f62f4012fef7d327f845934a4707cbe608e9c7c2b309",
+  "source": "e2a0f30edb8fe8eae8315449f7b8d71423aeb5d9",
+  "powershell": "7.6.6",
+  "runner_image_version": "20261012.333.1"
+}

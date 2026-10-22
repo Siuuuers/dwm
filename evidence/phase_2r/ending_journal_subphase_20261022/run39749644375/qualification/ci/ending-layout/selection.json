@@ -1,0 +1,49 @@
+{
+  "source": "bef78c105697a256ee0ff1a40e9b4c306e2740e7",
+  "fixtures": [
+    {
+      "path": "tests/integration/scene_seven_day_connected_child.gd",
+      "blob": "d9f31e79658a83b3a835766564033ba448177cc0",
+      "sha256": "1ae0943ad187e6f85d42345a439178cd01f692ca61348a9cf40330ace6c9f7fb"
+    },
+    {
+      "path": "tests/integration/scene_later_caption_child.gd",
+      "blob": "5a5b16e1dfd00910be6995317fbc9646581d34e6",
+      "sha256": "eb032c12a41d188573cebcbdc30e0c059441fe9a572b277fb55ef8b4174526be"
+    },
+    {
+      "path": "scripts/narrative/DialogicRuntimeAdapter.gd",
+      "blob": "39d441c636688177e9b1b809013843cc8db0e47d",
+      "sha256": "5b8edeeb27eefa097a02c249026ff93ef016255955d0096f1661dcaec7379711"
+    },
+    {
+      "path": "scripts/narrative/SoloReadingSession.gd",
+      "blob": "cf9e72d23c21a0926248d706f41098cdf3256b1a",
+      "sha256": "1639a42e6f4d5a76a516a2738cea247a0e797bfda53990dbdf46d597a6b19cdf"
+    },
+    {
+      "path": "scripts/narrative/SceneValidationTiming.gd",
+      "blob": "88b7cf8c00ec2b71942fa33c299498b34161c9db",
+      "sha256": "b07eddde556ea8b15d633da93640c500e910223cc1b2de579480992e050bf793"
+    },
+    {
+      "path": "scripts/infrastructure/save/SaveDocumentSchema.gd",
+      "blob": "c9b3b58e21671cf5de39e3d5195869462ef68ca2",
+      "sha256": "c0fe0f1e37d2c11fe4884a1efd6fde31c3f93c1963a65f6606c5ff9fe31cfce0"
+    }
+  ],
+  "script": "tests/integration/test_scene_ending_direct_return.gd",
+  "test": "test_direct_ending_accept_returns_without_save",
+  "test_blob": "d270ab1535e966f8b32f3a3100350332142c4c5f",
+  "test_sha256": "88e554c884e613018309fd9225014121f50a48ab5f5d67ec9f86a94c2d81835d",
+  "runner_sha256": "f2f802e5b5f83091cdf0028a8cf9309d2b0b4baea0cb0cd04fe07454294d3674",
+  "isolation_sha256": "a8b5c2452ccd9bbf18e362f9b526efdf5af62ac4f95a0074a853a97dcc9bc76e",
+  "console_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+  "expected_cases": 1,
+  "rendered": true,
+  "accessibility": "always",
+  "child_timeout_seconds": 120,
+  "external_uia_consumer": false,
+  "scope": "short-route journal subphase observation; not restored journey acceptance",
+  "capture_source": "Godot viewport, not desktop"
+}
