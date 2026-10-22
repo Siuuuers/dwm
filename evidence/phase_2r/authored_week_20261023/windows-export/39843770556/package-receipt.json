@@ -1,0 +1,16 @@
+{
+  "source_commit": "2146c4435041c2b4ccc467a526f7b127d3980a2f",
+  "files": 17,
+  "runtime_bytes_unchanged": true,
+  "steam_review_approved": false,
+  "zip_sha256": "a4e514b93a3f5acc0b3e58901608f511c64c075692fc8d31119fbce8c193a33e",
+  "zip_bytes": 104667421,
+  "removed": [
+    "validation.json"
+  ],
+  "launch_executable": "DWM.exe",
+  "export_run_id": "39843283227",
+  "export_artifact_id": "12454556049",
+  "export_zip_sha256": "b766618089b74b65bfc25475287ae2b7873da38d07e51f6a7a78c437d88bec5c",
+  "previous_build_commit": "cfbfd70f8ac79bfb0e1e81f8bd6ef05a9ef0e9a9"
+}

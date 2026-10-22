@@ -1,0 +1,8 @@
+{
+  "run_id": 39843283227,
+  "artifact_id": 12454556049,
+  "source": "2146c4435041c2b4ccc467a526f7b127d3980a2f",
+  "sha256": "0cb32261222f7b575dc16d0055f0c692fb45a405c2b6ef8e382923385451652d",
+  "size": 108893703,
+  "conclusion": "success: Windows export, 131 data hashes, pack audit, isolated headless startup and final source custody"
+}

@@ -1,0 +1,8 @@
+{
+  "run_id": 39842240751,
+  "artifact_id": 12453407109,
+  "source": "c490915bde06a20779ee37cf82beba8f104a1ae6",
+  "sha256": "3a78f888454156766cc28b886a05724569e5a067d82613e5c32a6f3db127fb5b",
+  "size": 3149770,
+  "conclusion": "failed before export: importer generated evidence screenshot metadata; fixed with evidence/.gdignore; no gameplay change"
+}

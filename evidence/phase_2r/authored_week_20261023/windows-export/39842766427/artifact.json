@@ -1,0 +1,8 @@
+{
+  "run_id": 39842766427,
+  "artifact_id": 12453298137,
+  "source": "11f7df52759a5addb30e6d97d2c2903fd7eeb1b5",
+  "sha256": "179a099c365aa4bbbddfaaa028fe9313ee1f6cc4c6644e2b9060e212d7a4bae7",
+  "size": 108896635,
+  "conclusion": "export, 131 data hashes, pack audit and startup passed; final custody failed on nine new native DTL UIDs; exact files committed before retry"
+}

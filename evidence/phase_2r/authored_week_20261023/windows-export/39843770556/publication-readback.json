@@ -1,0 +1,16 @@
+{
+  "build_commit": "1b98886628c3e042c5a7c5738ddb2912f27d7ae8",
+  "build_branch": "builds/windows-playable-20261023",
+  "expected_build_parent": "cfbfd70f8ac79bfb0e1e81f8bd6ef05a9ef0e9a9",
+  "source_sha": "2146c4435041c2b4ccc467a526f7b127d3980a2f",
+  "export_run_id": "39843283227",
+  "export_artifact_id": "12454556049",
+  "export_zip_sha256": "b766618089b74b65bfc25475287ae2b7873da38d07e51f6a7a78c437d88bec5c",
+  "non_force_push": true,
+  "source_merged": false,
+  "steam_published": false,
+  "publication_run_id": 39843770556,
+  "publication_artifact_id": 12454377739,
+  "publication_artifact_sha256": "b801eb3c98f1b16ee94674827d514709f7a34f0d61c43c7b8a665b097395187d",
+  "receipt_source": "Successful Actions publication log and independent GitHub branch/committed receipt readback"
+}

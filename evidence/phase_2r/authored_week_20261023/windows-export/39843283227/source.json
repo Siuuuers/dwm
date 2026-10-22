@@ -1,0 +1,7 @@
+{
+  "source_sha": "2146c4435041c2b4ccc467a526f7b127d3980a2f",
+  "controller_sha": "24ca51067e092904d41a53c28d58c2cd4b09ced5",
+  "run_id": "39843283227",
+  "attempt": "1",
+  "scope": "Export, packaged data audit, isolated headless startup only; no repeated source tests"
+}

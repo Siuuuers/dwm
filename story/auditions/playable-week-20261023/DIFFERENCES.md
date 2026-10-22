@@ -72,5 +72,4 @@ Four public API inventory generation/check processes also pass. Accepted results
 are reused, not repeatedly qualified. Full evidence, failures and scope limits:
 [evidence report](../../../evidence/phase_2r/authored_week_20261023/README.md).
 
-Windows package export follows this qualified source. This is not an old-save
-migration or a full combination/release qualification.
+Windows package export passed for source `2146c4435041c2b4ccc467a526f7b127d3980a2f`: 131 packaged data hashes, isolated headless startup, and unchanged source custody. See the evidence report for the exact build delivery and receipts. This is not an old-save migration or a full combination/release qualification.

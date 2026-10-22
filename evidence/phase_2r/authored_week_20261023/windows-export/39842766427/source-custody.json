@@ -1,0 +1,16 @@
+{
+  "source_sha": "11f7df52759a5addb30e6d97d2c2903fd7eeb1b5",
+  "changed": [],
+  "untracked": [
+    "dialogic/timelines/authored_week/Day1.dtl.uid",
+    "dialogic/timelines/authored_week/Day2.dtl.uid",
+    "dialogic/timelines/authored_week/Day3.dtl.uid",
+    "dialogic/timelines/authored_week/Day4.dtl.uid",
+    "dialogic/timelines/authored_week/Day5.dtl.uid",
+    "dialogic/timelines/authored_week/Day6.dtl.uid",
+    "dialogic/timelines/authored_week/Day7.dtl.uid",
+    "tests/fixtures/dialogic/scene_caption_challenge.dtl.uid",
+    "tests/fixtures/dialogic/scene_multiple_thoughts.dtl.uid"
+  ],
+  "unchanged": false
+}

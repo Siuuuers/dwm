@@ -92,8 +92,16 @@ metadata hashes were compared against the final artifact and remain identical.
 Windows rendering used the runner's documented ANGLE fallback; no script errors
 were reported by the focused logs. Source and generated-output custody passed.
 
-Windows export is next. No full week combination sweep, accessibility qualification,
+Windows export passed in [39843283227](https://github.com/Siuuuers/dwm/actions/runs/39843283227) for source `2146c4435041c2b4ccc467a526f7b127d3980a2f`: 131 packaged data hashes, pack audit, isolated headless startup, and unchanged source custody. Export receipts and preceding failed custody attempts are retained under `windows-export/`. The first stopped on screenshot import metadata (fixed by `evidence/.gdignore`); the second passed package checks but produced nine native DTL UIDs (committed exactly before retry). No gameplay qualification was repeated.
+
+No full week combination sweep, accessibility qualification,
 Steam approval, performance improvement, merge, or release is claimed. Naturally
 triggered generic Windows CI is separate and is not claimed as accepted by this
 focused result. Changed content fingerprints are not an old-save migration; old
 saved bytes are left intact.
+
+## Windows delivery
+
+[Publication run](https://github.com/Siuuuers/dwm/actions/runs/39843770556) passed. The existing binary branch received one non-force child commit, `1b98886628c3e042c5a7c5738ddb2912f27d7ae8`, of `cfbfd70f8ac79bfb0e1e81f8bd6ef05a9ef0e9a9`. Independent branch and package-receipt readback agree. Runtime bytes match the validated export. Source commit is `2146c4435041c2b4ccc467a526f7b127d3980a2f`; subsequent source documentation does not change that packaged revision.
+
+[Windows build](https://github.com/Siuuuers/dwm/tree/builds/windows-playable-20261023) · [download artifact](https://github.com/Siuuuers/dwm/actions/runs/39843770556/artifacts/12454377739). Extract game-build.zip and launch DWM.exe beside DWM.pck; keep licenses/. Use fresh test saves. The Actions artifact expires; the build branch preserves the package. The existing Steam review checklist is historical and is explicitly identified as such in BUILD_README.md.
