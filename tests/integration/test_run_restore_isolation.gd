@@ -200,12 +200,62 @@ func _restore_retired_query_source(source: String) -> String:
 	return source.replace(current_comment, historical_comment)
 
 
+func _without_authenticated_scene_composition(source: String) -> String:
+	# Fixed inverse of d1d8313's owner to the accepted 23d8b3df owner.
+	# Byte offsets apply only after the complete normalized owner is authenticated.
+	# This is evidence reconstruction, never execution or a runtime migration.
+	const CURRENT_SHA256 := "c3b9949ba09bf1a47969afd73daf835645bb7b4eb494d91f19a6f7e222917c4d"
+	const ACCEPTED_SHA256 := "6cbd8f935e2fb6c02db5e78cbafd915d5cd2971712d061c5d9e8f336bbea100f"
+	assert_eq(source.sha256_text(), CURRENT_SHA256, "exact current inherited owner")
+	if source.sha256_text() != CURRENT_SHA256: return ""
+	# [inclusive byte start, exclusive byte end, historical replacement].
+	const SPANS := [
+		[24754, 24892, ""],
+		[36209, 36357, ""],
+		[62037, 62234, ""],
+		[64168, 64543, ""],
+		[133839, 134071, ""],
+		[143635, 143740, ""],
+		[144321, 144376, ""],
+		[155237, 155273, ""],
+		[157369, 157620, "\treturn {\"ok\": true, \"value\": {\"dark_mode\": _run_lifecycle.to_dict()[\"dark_mode\"]}}\n"],
+		[159457, 160218, ""],
+		[164340, 164425, ""],
+		[166833, 166903, ""],
+		[168470, 168685, ""],
+		[170707, 170740, ""],
+		[198004, 198288, ""],
+		[199117, 199211, ""],
+		[201441, 201554, ""],
+		[206746, 292650, ""],
+	]
+	var encoded := source.to_utf8_buffer()
+	var restored := PackedByteArray()
+	var cursor := 0
+	for span: Array in SPANS:
+		var start: int = span[0]
+		var finish: int = span[1]
+		if start < cursor or finish <= start or finish > encoded.size():
+			fail_test("invalid fixed scene-composition inverse span")
+			return ""
+		restored.append_array(encoded.slice(cursor, start))
+		var replacement: String = span[2]
+		restored.append_array(replacement.to_utf8_buffer())
+		cursor = finish
+	restored.append_array(encoded.slice(cursor))
+	var accepted := restored.get_string_from_utf8()
+	assert_eq(accepted.sha256_text(), ACCEPTED_SHA256, "exact accepted Notes owner before existing inverses")
+	return accepted if accepted.sha256_text() == ACCEPTED_SHA256 else ""
+
+
 func _assert_frozen_provenance() -> bool:
 	# A later owner edit must deliberately rebase this comparison contract and
 	# retain a reproducible failing control; do not silently loosen these hashes.
 	const LIVE_REFERENCE := preload("res://tests/support/LiveRunRollbackAliasingReference.gd")
-	# Authenticate each accepted layer in order: E Notes -> A marker -> af944020.
-	var marker_owner := _without_authenticated_note_counts(FileAccess.get_file_as_string("res://autoload/GameState.gd").replace("\r\n", "\n"))
+	# Authenticate current composition -> E Notes -> A marker -> af944020.
+	var notes_owner := _without_authenticated_scene_composition(FileAccess.get_file_as_string("res://autoload/GameState.gd").replace("\r\n", "\n"))
+	if notes_owner.is_empty(): return false
+	var marker_owner := _without_authenticated_note_counts(notes_owner)
 	if marker_owner.is_empty(): return false
 	var accepted_owner := _without_authenticated_marker_validation(marker_owner)
 	if accepted_owner.is_empty(): return false
@@ -243,7 +293,7 @@ func _assert_frozen_provenance() -> bool:
 	restored = restored.replace(live_rollback, live_rollback.replace('detached["gameplay"].duplicate(true)', 'detached["gameplay"]'))
 	restored = _restore_retired_source(restored)
 	restored = _restore_retired_query_source(restored)
-	assert_eq(restored.sha256_text(), REFERENCE.SOURCE_SHA256, "five isolation edits and exact retirement fragments reconstruct the historical owner")
+	assert_eq(restored.sha256_text(), REFERENCE.SOURCE_SHA256, "reconstructed foundation: five isolation edits and exact retirement fragments recover the historical owner")
 	return capture_reference.sha256_text() == REFERENCE.CAPTURE_RESTORE_STATE_SHA256 \
 		and install_reference.sha256_text() == REFERENCE.APPLY_GAMEPLAY_SILENT_SHA256 \
 		and live_capture_reference.sha256_text() == LIVE_REFERENCE.CAPTURE_LIVE_RUN_STATE_SHA256 \
