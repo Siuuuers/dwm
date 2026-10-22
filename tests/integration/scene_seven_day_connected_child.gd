@@ -6,6 +6,72 @@ const MENU := "res://scenes/menu/MenuScene.tscn"
 const SAVED_LINE := "line.Day4.two"
 var observed_lines: Array[String] = []
 
+# Diagnostic-only pass-through: original owners retain arguments/results and all policy.
+class TimedEndingCheckpointPort extends RefCounted:
+	var owner_port: RefCounted
+	var mark: Callable
+	var prefix: String
+
+	func capture() -> Dictionary:
+		mark.call(prefix + ".capture.begin")
+		var result: Dictionary = owner_port.capture()
+		mark.call(prefix + ".capture.return")
+		return result
+
+	func prepare(inputs: Dictionary, kind: StringName, disk_write: Dictionary) -> Dictionary:
+		mark.call(prefix + ".prepare.begin")
+		var result: Dictionary = owner_port.prepare(inputs, kind, disk_write)
+		mark.call(prefix + ".prepare.return")
+		return result
+
+	func commit(candidate: Dictionary) -> Dictionary:
+		mark.call(prefix + ".commit.begin")
+		var result: Dictionary = owner_port.commit(candidate)
+		mark.call(prefix + ".commit.return")
+		return result
+
+	func rollback(backup: Dictionary) -> Dictionary:
+		mark.call(prefix + ".rollback.begin")
+		var result: Dictionary = owner_port.rollback(backup)
+		mark.call(prefix + ".rollback.return")
+		return result
+
+var _original_ending_writer: Callable
+var _writer_bootstrap: Node
+var _ending_writer_calls: int = 0
+
+func _install_ending_writer_timing() -> bool:
+	_writer_bootstrap = get_node("/root/ApplicationBootstrap")
+	_original_ending_writer = game._ending_checkpoint_writer
+	assert_true(_original_ending_writer.is_valid())
+	if not _original_ending_writer.is_valid(): return false
+	assert_eq(_original_ending_writer.get_object(), _writer_bootstrap)
+	assert_eq(_original_ending_writer.get_method(), &"_commit_ending_checkpoint")
+	if _original_ending_writer.get_object() != _writer_bootstrap \
+			or _original_ending_writer.get_method() != &"_commit_ending_checkpoint": return false
+	assert_not_null(_writer_bootstrap._retained_checkpoint_port)
+	if _writer_bootstrap._retained_checkpoint_port == null: return false
+	# The public configuration deliberately refuses replacement. This private test
+	# seam is installed only for final witness Accept, never application setup.
+	game._ending_checkpoint_writer = Callable(self, "_timed_ending_writer")
+	return true
+
+func _timed_ending_writer() -> Dictionary:
+	_ending_writer_calls += 1
+	var prefix: String = "ending_writer.%d" % _ending_writer_calls
+	_ending_phase(prefix + ".begin")
+	var original_port: RefCounted = _writer_bootstrap._retained_checkpoint_port
+	var timed_port := TimedEndingCheckpointPort.new()
+	timed_port.owner_port = original_port
+	timed_port.mark = Callable(self, "_ending_phase")
+	timed_port.prefix = prefix
+	# No await or policy logic: narrow substitution lasts one synchronous call.
+	_writer_bootstrap._retained_checkpoint_port = timed_port
+	var result: Dictionary = _original_ending_writer.call()
+	_writer_bootstrap._retained_checkpoint_port = original_port
+	_ending_phase(prefix + ".return")
+	return result
+
 func _ok(result: Dictionary) -> bool:
 	assert_true(result.get("ok", false), str(result))
 	return result.get("ok", false)
@@ -220,8 +286,10 @@ func load_and_complete_week(stop_after_load: bool = false, witness_save: bool = 
 	# This opt-in journey keeps slot 2 as the restored Day4 witness, like export.
 	# The original ending-save/terminal-load journey remains unchanged by default.
 	if not witness_save and not await _save_ending_caption(): return
+	if witness_save and not _install_ending_writer_timing(): return
 	_ending_phase("ending_completion.begin")
 	await _accept()
+	if witness_save: game._ending_checkpoint_writer = _original_ending_writer
 	_ending_phase("ending_completion.accept_return")
 	if not await _wait_route(MENU): return
 	_ending_phase("title.ready")
@@ -417,5 +485,6 @@ func _save_ending_caption() -> bool:
 	await _screenshot("seven-day-ending-saved")
 	if not _write_json("user://scene-seven-day-ending-proof.json", proof): return false
 	return _write_json("res://.godot/ci/scene-seven-day-ending-save-proof.json", proof)
+
 
 
