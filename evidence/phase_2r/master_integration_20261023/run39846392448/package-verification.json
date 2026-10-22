@@ -1,0 +1,41 @@
+{
+  "verification": "Independent package recheck PASS",
+  "origin": {
+    "candidate": "90c95013baa235151a42fce52c6dc47a7fff8748",
+    "attempt": "1",
+    "run_id": "39846392448",
+    "workflow": "36b5fb1b177c019301ba9ba218bdcb0db2fa038c",
+    "event": "36b5fb1b177c019301ba9ba218bdcb0db2fa038c",
+    "tree": "0cf00e51b7f56cfbab96aef557424233eb914c43",
+    "controller": "bc719baaf0087621b93d92bfa2f07109f0ccdeda",
+    "base": "d7d0faf84941d0e5dc6f8a90d0896b6da47236d7"
+  },
+  "original_zip": {
+    "bytes": 1557754,
+    "sha256": "9277fde784ac234ae6a72e93fa07e92f443652f9ce992fbdcf0466ef2dff0860"
+  },
+  "zip_crc_valid": true,
+  "member_hashes_verified": 540,
+  "source_derived_case_counters_exact": true,
+  "all_cases_pass_no_skips_errors": true,
+  "suites": [
+    {
+      "suite": "shop-unit",
+      "tests": 62,
+      "assertions": 757
+    },
+    {
+      "suite": "contact-regression",
+      "tests": 1,
+      "assertions": 60
+    },
+    {
+      "suite": "shop-transaction",
+      "tests": 1,
+      "assertions": 66
+    }
+  ],
+  "total_tests": 64,
+  "total_assertions": 883,
+  "limit": "Shop checkpoint scoped; Apps gate failed and unresolved runtime paths not accepted."
+}

@@ -16,6 +16,23 @@ func _open_apps(host: Control) -> Control:
 	if shell != null: assert_true(shell.is_visible_in_tree())
 	return shell
 
+## A launcher belongs to the Home grid; navigate through the visible Home button
+## before selecting a different app, rather than clicking hidden icon coordinates.
+func _launch_app(shell: Control, app_id: StringName) -> bool:
+	if shell._active_id != &"":
+		assert_true(shell.home_button.is_visible_in_tree())
+		if not shell.home_button.is_visible_in_tree(): return false
+		await _click(shell.home_button)
+		assert_eq(shell._active_id, &"")
+		if shell._active_id != &"": return false
+	var button: Button = shell.launcher_buttons[app_id]
+	assert_true(button.is_visible_in_tree(), "Launcher must be physically visible before its Viewport click.")
+	assert_false(button.disabled)
+	if not button.is_visible_in_tree() or button.disabled: return false
+	await _click(button)
+	assert_eq(shell._active_id, app_id)
+	return shell._active_id == app_id
+
 func _shop_receipts() -> Dictionary:
 	var result: Dictionary = {}
 	for key: String in game.capture_run_snapshot_input().command_receipts:
@@ -40,15 +57,16 @@ func create_apps_scene() -> void:
 	await _screenshot("apps-ordinary-caption")
 	var shell: Control = await _open_apps(host)
 	if shell == null: return
-	await _click(shell.launcher_buttons[&"shop"])
-	assert_eq(shell._active_id, &"shop")
+	if not await _launch_app(shell, &"shop"): return
 	var shop: Control = shell._cached_app_windows.get(&"shop")
 	assert_not_null(shop)
 	if shop == null: return
 	assert_true(shop.is_visible_in_tree())
+	assert_true(shop.cards["pineapple_bun"].is_visible_in_tree())
 	await _click(shop.cards["pineapple_bun"])
 	assert_eq(shop.selected_id, "pineapple_bun")
 	assert_eq(shop.quantity, 1)
+	assert_true(shop._buy_button.is_visible_in_tree())
 	assert_false(shop._buy_button.disabled)
 	await _screenshot("apps-shop-before-buy")
 	await _click(shop._buy_button)
@@ -60,13 +78,13 @@ func create_apps_scene() -> void:
 	assert_eq(bought.scene, before.scene, "Purchase does not advance the story occurrence.")
 	assert_eq(bridge.capture_reading_checkpoint(false).value, reading, "Purchase preserves the visible beat.")
 	await _screenshot("apps-shop-purchased")
-	await _click(shell.launcher_buttons[&"contacts"])
-	assert_eq(shell._active_id, &"contacts")
+	if not await _launch_app(shell, &"contacts"): return
 	var contacts_app: Control = shell._cached_app_windows.get(&"contacts")
 	assert_not_null(contacts_app)
 	if contacts_app == null: return
 	assert_true(contacts_app.is_visible_in_tree())
 	await _screenshot("apps-contacts")
+	assert_true(shell.home_button.is_visible_in_tree())
 	await _click(shell.home_button)
 	assert_eq(shell._active_id, &"")
 	await _screenshot("apps-home")
@@ -93,8 +111,7 @@ func create_apps_scene() -> void:
 	await _screenshot("apps-challenge-before-switch")
 	shell = await _open_apps(host)
 	if shell == null: return
-	await _click(shell.launcher_buttons[&"shop"])
-	assert_eq(shell._active_id, &"shop")
+	if not await _launch_app(shell, &"shop"): return
 	assert_eq(game.capture_dating_challenge_state().value, record)
 	await _screenshot("apps-shop-during-challenge")
 	await _click(_controls(host, "CheckComputer"))
@@ -141,8 +158,7 @@ func load_apps_scene() -> void:
 	await _screenshot("apps-fresh-load-board")
 	var shell: Control = await _open_apps(host)
 	if shell == null: return
-	await _click(shell.launcher_buttons[&"shop"])
-	assert_eq(shell._active_id, &"shop")
+	if not await _launch_app(shell, &"shop"): return
 	assert_eq(game.money, proof.money)
 	assert_eq(game.inventory, proof.inventory)
 	assert_eq(_shop_receipts(), proof.shop_receipts)

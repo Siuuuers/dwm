@@ -793,7 +793,7 @@ func _card_input(event: InputEvent, item_id: String) -> void:
 	elif event.is_action_pressed("ui_up"):
 		if slot >= 3: target = index - 3
 	elif event.is_action_pressed("ui_down"):
-		if slot + 3 < page_capacity: target = index + 3
+		if slot + 3 < page_capacity and index + 3 < _records.size(): target = index + 3
 		else:
 			if slot % 3 == 2 and not next_button.disabled: next_button.grab_focus()
 			elif not previous_button.disabled: previous_button.grab_focus()
