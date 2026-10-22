@@ -98,3 +98,20 @@ offset_bottom = 76.0
 grow_horizontal = 0
 text = "Yes"
 accessibility_name = "Yes"
+
+[node name="ThoughtOptions" type="ScrollContainer" parent="SceneControlsLayer/Surface"]
+visible = false
+layout_mode = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -544.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = 344.0
+grow_horizontal = 0
+horizontal_scroll_mode = 0
+
+[node name="Options" type="VBoxContainer" parent="SceneControlsLayer/Surface/ThoughtOptions"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12

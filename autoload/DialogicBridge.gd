@@ -388,7 +388,10 @@ func _scene_source_current() -> bool:
 	if not checked.ok: return false
 	var frontier: Dictionary = _runtime_adapter.capture_reading_frontier()
 	if not frontier.ok: return false
-	var captured: Dictionary = _reading_session.capture(frontier.value)
+	# The native cue remains a real caption while Reading5 owns a held control.
+	# validate_scene_source above proves that exact native/control pairing; its
+	# checkpoint frontier is empty, as in capture_reading_checkpoint.
+	var captured: Dictionary = _reading_session.capture({} if _reading_session.boundary == "control" else frontier.value)
 	return captured.ok and _READING_TRAVERSAL._same(captured.value, _scene_stage.source_reading)
 
 func _scene_candidate_current() -> bool:
@@ -526,8 +529,45 @@ var _next_generation := 0
 var _signal_receipts: Dictionary = {}
 
 
+const _STORY_LOCALE := preload("res://scripts/localization/StoryLocalization.gd")
+
 func _ready() -> void:
-	pass
+	var localization := get_node_or_null("/root/LocalizationManager")
+	if localization != null:
+		localization.locale_changed.connect(_refresh_story_language)
+
+func _story_line() -> Dictionary:
+	var runtime := get_node_or_null("/root/Dialogic")
+	if runtime == null: return {}
+	var index: int = runtime.current_event_idx
+	if index < 0 or index >= runtime.current_timeline_events.size(): return {}
+	var event: Variant = runtime.current_timeline_events[index]
+	if not event is DialogicTextEvent: return {}
+	var parts: PackedStringArray = event.get_property_translation_key("text").split("/")
+	if parts.size() != 3 or parts[0] != "Text" or parts[2] != "text": return {}
+	return {"line_id": parts[1], "text": event.get_property_translated("text")}
+
+func _translate_story_text(source: String) -> String:
+	var line := _story_line()
+	if line.get("text") != source: return source
+	if _STORY_LOCALE.catalog("en").get(line.line_id) != source: return source
+	return _STORY_LOCALE.display_markup(_STORY_LOCALE.text(_current_locale(), line.line_id, source))
+
+func _refresh_story_language(_locale: String) -> void:
+	# Repaint the same native event; never advance, republish or alter its ledger.
+	_speech_publication.clear()
+	var line := _story_line()
+	if line.is_empty() or not _STORY_LOCALE.catalog("en").has(line.line_id): return
+	var runtime := get_node_or_null("/root/Dialogic")
+	var translated: String = runtime.Text.parse_text(line.text, 0)
+	runtime.current_state_info["text"] = translated
+	for node: Node in get_tree().get_nodes_in_group("dialogic_dialog_text"):
+		if not node.enabled: continue
+		var ratio: float = node.visible_ratio
+		node.text = translated
+		node.visible_ratio = ratio
+		runtime.current_state_info["text_parsed"] = node.get_parsed_text()
+
 
 
 func configure_mutation_gate(gate: Object) -> Dictionary:
@@ -948,6 +988,10 @@ func _connect_speech_runtime() -> void:
 	var text: Object = dialogic.get_subsystem("Text")
 	if text == null:
 		return
+	var modifier := {"method": _translate_story_text, "type": 0, "order": 10}
+	if not text.text_modifiers.has(modifier):
+		text.text_modifiers.append(modifier)
+		text.load_parse_stack()
 	if text.has_signal("about_to_show_text") and not text.about_to_show_text.is_connected(_on_speech_about_to_show_text):
 		text.about_to_show_text.connect(_on_speech_about_to_show_text)
 	if text.has_signal("text_started") and not text.text_started.is_connected(_on_speech_text_started):
@@ -1066,6 +1110,9 @@ func _current_speech_owner() -> Dictionary:
 	if str(owner.get("token", "")).is_empty() or str(owner.get("timeline_id", "")).is_empty() \
 			or str(owner.get("content_locale", "")).is_empty():
 		return {}
+	var line := _story_line()
+	if not line.is_empty() and _STORY_LOCALE.has_translation(_current_locale(), line.line_id, line.text):
+		owner["content_locale"] = _current_locale()
 	return owner
 
 
@@ -2800,7 +2847,7 @@ func get_ending_caption_memory() -> Dictionary:
 	var frontier := {}
 	if _reading_session.boundary == "line":
 		frontier = {"line_id": rows.back().beat.line_id, "publication_id": rows.back().publication_id}
-	return _reading_session.project(frontier)
+	return _STORY_LOCALE.project(_reading_session.project(frontier), _current_locale())
 
 
 ## Read-only display reconstruction bound to the renderer's exact live proof.
@@ -2813,7 +2860,7 @@ func get_scene_caption_memory(expected_presentation: Dictionary) -> Dictionary:
 	var projected: Dictionary = _reading_session.project_scene_caption_memory(current.value.caption_publication)
 	if not projected.ok: return projected
 	projected.value["presentation"] = current.duplicate(true)
-	return projected
+	return _STORY_LOCALE.project(projected, _current_locale())
 
 
 func get_reading_history() -> Dictionary:
@@ -2823,7 +2870,7 @@ func get_reading_history() -> Dictionary:
 		var captured: Dictionary = _runtime_adapter.capture_reading_frontier()
 		if not captured.ok: return captured
 		frontier = captured.value
-	return _reading_session.project(frontier)
+	return _STORY_LOCALE.project(_reading_session.project(frontier), _current_locale())
 
 
 ## Prepare is pure and validates every frame and occurrence, never a prefix.
@@ -4341,7 +4388,7 @@ func dispatch_scene_event(live_session: Dictionary, envelope: Dictionary) -> Dic
 		return _command_failure(&"event_dependency_invalid")
 	_scene_event_dispatching = true
 	var result: Dictionary
-	if typeof(envelope.get("schema_version")) == TYPE_INT and envelope.schema_version == 2 and envelope.get("kind") in ["challenge.playable", "challenge.end", "challenge.recall", "thought.accept", "thought.pass"]:
+	if typeof(envelope.get("schema_version")) == TYPE_INT and envelope.schema_version == 2 and envelope.get("kind") in ["challenge.playable", "challenge.end", "challenge.recall", "thought.accept", "thought.pass", "thought.options", "thought.select"]:
 		# This path holds the actual native caption instead of pausing/resuming it.
 		result = _scene_event_port.dispatch(envelope.duplicate(true))
 	else:
@@ -4365,15 +4412,68 @@ func request_scene_marker_step(expected: Dictionary) -> Dictionary:
 	if not current.get("ok", false): return current
 	var marker := capture_scene_pending_marker()
 	if not marker.get("ok", false): return marker
+	var caption_scoped: bool = marker.value.kind == "challenge.playable" and _scene_caption_challenge_end().get("ok", false)
+	var admitted: Dictionary = _scene_event_context_provider.get_object().advance_scene_registered_marker()
+	if not admitted.get("ok", false) or not caption_scoped: return admitted
+	# Continue leaves this caption. Opening Computer uses admission only, below.
+	return _scene_event_context_provider.get_object().continue_optional_scene_challenge()
+
+## Lazy admission on explicit Computer input keeps capability reads side-effect free.
+## The cue is usable as soon as it appears: opening completes its real reveal and
+## acknowledges the existing publication before acquiring the playable receipt.
+func _admit_caption_challenge_on_open() -> Dictionary:
+	if not has_reading_session() or _reading_session.family != "scene" or _reading_session.boundary != "line":
+		return {"ok": true}
+	if not _scene_caption_challenge_end().get("ok", false): return {"ok": true}
+	var current := _line_presentation_context()
+	if not current.ok: return current
+	var revealed: Dictionary = _runtime_adapter.reveal_current_line(true)
+	if not revealed.ok: return revealed
+	if not _line_presentation_context(current).get("ok", false): return _command_failure(&"presentation_frontier_changed")
+	var acknowledged := _acknowledge_next_source(current)
+	if not acknowledged.ok: return acknowledged
 	return _scene_event_context_provider.get_object().advance_scene_registered_marker()
 
-func capture_scene_pending_marker() -> Dictionary:
-	if not has_reading_session() or _reading_session.family != "scene" or _reading_session.boundary != "line" \
-			or is_computer_caption_held() or not _runtime_adapter.is_current_line_complete():
+## Only an exact native-proven cue/playable pair can expose its adjacent End.
+## Both semantic markers retain the same real caption publication; no synthetic
+## caption, control cursor, receipt, or history witness is introduced.
+func _scene_caption_challenge_end() -> Dictionary:
+	if not has_reading_session() or _reading_session.family != "scene" or _reading_session.boundary not in ["line", "control"]:
 		return _command_failure(&"scene_marker_unavailable")
 	var source: Dictionary = _runtime_adapter._scene_source_boundary(_reading_session)
 	if not source.get("ok", false): return source
-	if source.value.marker.kind not in ["scene.transition", "challenge.playable", "challenge.end", "contact.enter", "contact.return", "thought.pass", "challenge.recall"]:
+	var reading: Dictionary = source.value.reading
+	var index: int = int(reading.program_index) + (1 if reading.boundary == "line" else 0)
+	var registered := preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_registration()
+	if not registered.ok: return registered
+	for programme: Dictionary in registered.value.scene_programme.entries:
+		if programme.entry_id == reading.entry_id:
+			return _adjacent_challenge_end(_reading_session._scene_nodes[reading.entry_id], programme.markers, index, source.value.marker)
+	return _command_failure(&"scene_marker_unavailable")
+
+static func _adjacent_challenge_end(nodes: Array, markers: Array, index: int, playable: Dictionary) -> Dictionary:
+	if playable.get("kind") != "challenge.playable" or index < 1 or index + 1 >= nodes.size() \
+			or nodes[index].get("marker_id") != playable.get("marker_id") \
+			or nodes[index - 1].get("kind") != "caption" or nodes[index - 1].get("line_id") != playable.get("after_line_id") \
+			or nodes[index + 1].get("kind") != "control":
+		return {"ok": false, "code": &"scene_marker_unavailable"}
+	for marker: Dictionary in markers:
+		if marker.marker_id == nodes[index + 1].marker_id and marker.kind == "challenge.end" \
+				and marker.payload == playable.payload and marker.after_line_id == playable.after_line_id:
+			return {"ok": true, "value": marker.duplicate(true)}
+	return {"ok": false, "code": &"scene_marker_unavailable"}
+
+func capture_scene_pending_marker() -> Dictionary:
+	if not has_reading_session() or _reading_session.family != "scene" or _reading_session.boundary not in ["line", "control"] \
+			or is_computer_caption_held() or not _runtime_adapter.is_current_line_complete():
+		return _command_failure(&"scene_marker_unavailable")
+	if _reading_session.boundary == "control":
+		var held := capture_scene_challenge_control()
+		if not held.ok: return held
+		return _scene_caption_challenge_end()
+	var source: Dictionary = _runtime_adapter._scene_source_boundary(_reading_session)
+	if not source.get("ok", false): return source
+	if source.value.marker.kind not in ["scene.transition", "challenge.playable", "challenge.end", "contact.enter", "contact.return", "thought.pass", "thought.options", "challenge.recall"]:
 		return _command_failure(&"scene_marker_unavailable")
 	return {"ok": true, "value": source.value.marker.duplicate(true)}
 

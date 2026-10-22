@@ -461,6 +461,10 @@ static func compile_scene_programme(path: String, entry_label: String,
 	timing.finish_sample("compilation", started_us, bool(result.get("ok", false)))
 	return result
 
+# Keep only successful, detached values for the current physical source at each path.
+# Translation-enabled Dialogic can change independently of source bytes; never cache that mode.
+static var _scene_compile_cache: Dictionary = {}
+
 static func _compile_scene_programme_observed_body(path: String, entry_label: String,
 		callable_labels: Array, markers: Array = []) -> Dictionary:
 	if not path.begins_with("res://") or not ResourceLoader.exists(path) or entry_label not in callable_labels:
@@ -468,8 +472,30 @@ static func _compile_scene_programme_observed_body(path: String, entry_label: St
 	var resource := load(path)
 	if not resource is DialogicTimeline:
 		return {"ok": false, "code": &"scene_programme_unavailable"}
+	var source := FileAccess.open(path, FileAccess.READ)
+	if source == null: return {"ok": false, "code": &"scene_programme_unavailable"}
+	var bytes := source.get_buffer(source.get_length())
+	source.close()
+	var arguments := SCENE_JSON.stringify([entry_label, callable_labels, markers])
+	if not arguments.ok: return arguments
+	var cacheable: bool = not ProjectSettings.get_setting("dialogic/translation/enabled", false)
+	var cached: Dictionary = _scene_compile_cache.get(path, {})
+	if cached.is_empty() or cached.bytes != bytes:
+		cached = {"bytes": bytes, "results": {}}
+		_scene_compile_cache[path] = cached
+	var key: String = arguments.value
+	if cacheable and cached.results.has(key):
+		return cached.results[key].duplicate(true)
+	var result := _compile_scene_programme_source(bytes.get_string_from_utf8(), entry_label, callable_labels, markers)
+	if cacheable and result.get("ok", false):
+		if cached.results.size() >= 256: cached.results.clear()
+		cached.results[key] = result.duplicate(true)
+	return result
+
+static func _compile_scene_programme_source(text: String, entry_label: String,
+		callable_labels: Array, markers: Array) -> Dictionary:
 	var timeline := DialogicTimeline.new()
-	timeline.from_text((resource as DialogicTimeline).as_text())
+	timeline.from_text(text)
 	timeline.process()
 	var selected := false
 	var found := 0
@@ -557,7 +583,7 @@ static func _compile_scene_programme_observed_body(path: String, entry_label: St
 	var encoded := SCENE_JSON.stringify(events)
 	if not encoded.ok: return encoded
 	return {"ok": true, "value": {"events": events, "nodes": nodes, "label_nodes": label_nodes,
-		"native_indices": native_indices, "content_sha256": FileAccess.get_file_as_string(path).sha256_text(),
+		"native_indices": native_indices, "content_sha256": text.sha256_text(),
 		"program_sha256": str(encoded.value).sha256_text()}}
 const CLEAR_KEEP_TEXT := 4
 const REQUIRED_METHODS := ["start", "start_timeline", "end_timeline", "handle_next_event", "handle_event", "clear", "has_subsystem", "get_subsystem"]
