@@ -1,6 +1,6 @@
 # INERT REVIEW CANDIDATE. Install only after external C source review.
 # Focused candidate only: C exact packet review and Director scope reconciliation precede installation.
-name: First Continue registration observation
+name: Caption and Continue qualification
 on:
   pull_request:
     paths:
@@ -19,9 +19,9 @@ jobs:
       run:
         shell: pwsh
     env:
-      PRODUCT_SHA: bf0c0b1048b1f4cb0959e36f17ce0032780867f3
-      SOURCE_SHA: 6597de2a2f686753ffd9097e8b630b3b1b7337c0
-      PREPARATION_SHA256: 7a51e4b0e7e61db09da46b3c365b7cd3ae78cd538f5b39d2e58f535f60dc6e44
+      PRODUCT_SHA: b430cf2966d87d0da73f0d506f6acd89eecf6fa6
+      SOURCE_SHA: 01a76f15b6c4ab303e8c4cac5b96cd1f72118fd9
+      PREPARATION_SHA256: 443009023266c6c82dcfa298f794f3424f8c17ce198477c2fd33a07e99cd12b6
       CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
     steps:
       - uses: actions/checkout@v7
@@ -29,7 +29,7 @@ jobs:
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
-          ref: bf0c0b1048b1f4cb0959e36f17ce0032780867f3
+          ref: b430cf2966d87d0da73f0d506f6acd89eecf6fa6
       - name: Windows PowerShell 5 shared receipt writer preflight
         id: receipt_preflight
         shell: powershell
@@ -237,6 +237,14 @@ jobs:
           $PSNativeCommandUseErrorActionPreference = $false
           & pwsh -NoLogo -NoProfile -NonInteractive -File ./tools/testing/Invoke-ContinuePublicationChecks.ps1 -RepositoryRoot $env:GITHUB_WORKSPACE -ExpectedSource $env:PRODUCT_SHA -NativeProviderProvenance
           if ($LASTEXITCODE -ne 0) { throw "FOCUSED_RUNNER_EXIT: $LASTEXITCODE" }
+      - name: Native caption Text and same-story Continue
+        id: native
+        timeout-minutes: 8
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $false
+          & powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File ./tools/testing/Invoke-CaptionNativeAccept.ps1
+          if ($LASTEXITCODE -ne 0) { throw "NATIVE_RUNNER_EXIT: $LASTEXITCODE" }
       - name: Always retain and check source after focused tests
         if: always() && steps.preparation_restore.outcome == 'success'
         run: |
