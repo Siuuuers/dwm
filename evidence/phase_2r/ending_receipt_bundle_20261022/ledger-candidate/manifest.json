@@ -1,0 +1,14 @@
+[
+  {
+    "path": "scripts/domain/narrative/SceneEventContract.gd",
+    "bytes": 78833,
+    "sha256": "14cebbbcee4a3592e88d0055fa052da86440c0a357c9c5357b96d5dd126b2203",
+    "blob": "3f383b92f787489b70ca7acd71b00f4a9f5a47f8"
+  },
+  {
+    "path": "scripts/narrative/SceneValidationTiming.gd",
+    "bytes": 2503,
+    "sha256": "377fdc07a6ba19e8c2727d83a22e58a54999d981ce9f14efd80372e3e3c7d8e8",
+    "blob": "39a650d2d0986b82ff519780d4b61b8c735e1dff"
+  }
+]

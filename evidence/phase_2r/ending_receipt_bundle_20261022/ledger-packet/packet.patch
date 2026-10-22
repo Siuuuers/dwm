@@ -1,0 +1,200 @@
+--- physical-proof/prepare_caption.py
++++ ledger/prepare_caption.py
+@@ -10,13 +10,13 @@
+ import sys
+ import capture_import as custody
+ 
+-PRODUCT = "5a506a9768287762b2a0e86f94d5eb0006562cc5"
++PRODUCT = "REVIEWED_PRODUCT_COMMIT_REQUIRED"
+ PROJECT = "5e8009d890f9e4359b24bb68a59fdec1bf56ef0a3ea94be06c3e43a6d2353053"
+ IMPORTED_PROJECT = "6880d26a04484587a54c63e0a98072984b6adac7ac3e9d07e8d138e934428fdd"
+ PRESET = "76d904435496d2057572225b796f8b3c74f121a21254d211a6246caaf96efcaa"
+ RUNTIME_UID_OWNERS = {
+     "scripts/ui/witnessed/WitnessedAccessibleContinue.gd.uid": "9e37a90dfb3ca1816df85e41fcc849da90bb64fa",
+-    "scripts/narrative/SceneValidationTiming.gd.uid": "b422d142ced6c6f65910758501d87fd79e8ad7f7",
++    "scripts/narrative/SceneValidationTiming.gd.uid": "39a650d2d0986b82ff519780d4b61b8c735e1dff",
+ }
+ OBSERVATION_SOURCES = {
+     "scripts/narrative/DialogicRuntimeAdapter.gd": {
+@@ -24,8 +24,8 @@
+         "sha256": "5b8edeeb27eefa097a02c249026ff93ef016255955d0096f1661dcaec7379711"
+     },
+     "scripts/narrative/SceneValidationTiming.gd": {
+-        "blob": "b422d142ced6c6f65910758501d87fd79e8ad7f7",
+-        "sha256": "c3b4dd851d1bbf9773cddf9323c0ed485d892939d41807626d280c93b021dfdb"
++        "blob": "39a650d2d0986b82ff519780d4b61b8c735e1dff",
++        "sha256": "377fdc07a6ba19e8c2727d83a22e58a54999d981ce9f14efd80372e3e3c7d8e8"
+     },
+     "scripts/narrative/SoloReadingSession.gd": {
+         "blob": "cf9e72d23c21a0926248d706f41098cdf3256b1a",
+@@ -54,6 +54,10 @@
+     "autoload/ProfileManager.gd": {
+         "blob": "381329a08e5b6cfd79389e52d3a5dcbad6f6fa80",
+         "sha256": "225552c3141c3731566dda8bf40ba33667f6bc61fc4d448e6f495eaf7606c3c7"
++    },
++    "scripts/domain/narrative/SceneEventContract.gd": {
++        "blob": "3f383b92f787489b70ca7acd71b00f4a9f5a47f8",
++        "sha256": "14cebbbcee4a3592e88d0055fa052da86440c0a357c9c5357b96d5dd126b2203"
+     }
+ }
+ GITLINKS = {".claude/skills/godot-prompter/1.10.0", ".claude/skills/superpowers/6.1.1"}
+--- physical-proof/Invoke-EndingLayoutBoundary.ps1
++++ ledger/Invoke-EndingLayoutBoundary.ps1
+@@ -42,7 +42,7 @@
+     ForEach-Object { $_.Groups[1].Value } | Where-Object { $_.Contains($testName) })
+ if ($names.Count -ne 1 -or $names[0] -cne $testName) { throw 'ENDING_FILTER_NOT_UNIQUE' }
+ $fixtureReceipts = @()
+-foreach ($fixture in @('tests/integration/scene_seven_day_connected_child.gd', 'tests/integration/scene_later_caption_child.gd', 'scripts/narrative/DialogicRuntimeAdapter.gd', 'scripts/narrative/SoloReadingSession.gd', 'scripts/narrative/SceneValidationTiming.gd', 'scripts/infrastructure/save/SaveDocumentSchema.gd', 'scripts/domain/run/RunSnapshotSchema.gd', 'autoload/ProfileManager.gd')) {
++foreach ($fixture in @('tests/integration/scene_seven_day_connected_child.gd', 'tests/integration/scene_later_caption_child.gd', 'scripts/narrative/DialogicRuntimeAdapter.gd', 'scripts/narrative/SoloReadingSession.gd', 'scripts/narrative/SceneValidationTiming.gd', 'scripts/infrastructure/save/SaveDocumentSchema.gd', 'scripts/domain/run/RunSnapshotSchema.gd', 'autoload/ProfileManager.gd', 'scripts/domain/narrative/SceneEventContract.gd')) {
+     $blob = (& git -C $RepositoryRoot rev-parse "HEAD:$fixture").Trim()
+     if ($LASTEXITCODE -ne 0) { throw 'ENDING_FIXTURE_SOURCE_MISSING' }
+     $working = (& git -C $RepositoryRoot hash-object -- $fixture).Trim()
+@@ -56,7 +56,7 @@
+     isolation_sha256 = Get-ContinueFileSha256 -LiteralPath $helper;
+     console_sha256 = Get-ContinueFileSha256 -LiteralPath $env:GODOT_CONSOLE_PATH;
+     expected_cases = 1; rendered = $true; accessibility = 'always'; child_timeout_seconds = 120;
+-    external_uia_consumer = $false; scope = 'short-route physical assignment proof observation; not restored journey acceptance';
++    external_uia_consumer = $false; scope = 'short-route receipt and bundle validation observation; not restored journey acceptance';
+     capture_source = 'Godot viewport, not desktop'
+ }
+ [IO.File]::WriteAllText((Join-Path $output 'selection.json'), ($selection | ConvertTo-Json -Depth 5), $utf8)
+@@ -117,7 +117,7 @@
+     # Retain parsed evidence before validating; never turn missing returns into zero times.
+     [IO.File]::WriteAllText((Join-Path $output 'validation-aggregates.json'), (ConvertTo-Json -InputObject $aggregates -Depth 12), $utf8)
+     if ($aggregates.Count -ne 9) { throw 'ENDING_AGGREGATE_COUNT_INVALID' }
+-    $expectedFields = @('operation','lifecycle_state','playback_stage','next_step_index','configuration_calls','configuration_us','configuration_failures','compilation_calls','compilation_us','compilation_failures','inclusive_nested','elapsed_us','ok','snapshot_validations','physical_proof_calls','physical_proof_us','physical_proof_failures')
++    $expectedFields = @('operation','lifecycle_state','playback_stage','next_step_index','configuration_calls','configuration_us','configuration_failures','compilation_calls','compilation_us','compilation_failures','inclusive_nested','elapsed_us','ok','snapshot_validations','physical_proof_calls','physical_proof_us','physical_proof_failures','receipt_validation_calls','receipt_validation_us','receipt_validation_failures','bundle_validation_calls','bundle_validation_us','bundle_validation_failures')
+     $stages = @('EPILOGUE_PLAYED','GALLERY_RECORDED','GALLERY_RECORDED')
+     $states = @('ENDING','ENDING','COMPLETED')
+     $cursor = 0
+@@ -145,6 +145,20 @@
+             # The exact count is observed; the known prepare/commit path must witness the wrapper.
+             # Capture may contain no proof calls; the measured leaf has no recursive self-call.
+             # This inclusive leaf time overlaps snapshot/operation totals, never add it to them.
++            foreach ($kind in @('receipt_validation','bundle_validation')) {
++                foreach ($suffix in @('calls','us','failures')) {
++                    $field = $kind + '_' + $suffix
++                    $value = $record.$field
++                    if (($value -isnot [int] -and $value -isnot [long] -and $value -isnot [bigint]) -or $value -lt 0) { throw "ENDING_VALIDATION_INTEGER_INVALID: $field" }
++                }
++                $calls = $record.($kind + '_calls')
++                $duration = $record.($kind + '_us')
++                $failures = $record.($kind + '_failures')
++                if ($failures -ne 0 -or ($calls -eq 0 -and $duration -ne 0)) { throw "ENDING_VALIDATION_RESULT_INVALID: $kind" }
++                if (($operation -cne 'capture' -and $calls -eq 0) -or $duration -gt $record.elapsed_us) { throw "ENDING_VALIDATION_WITNESS_OR_NESTING_INVALID: $kind" }
++            }
++            # Counts remain observations. Parent/leaf totals overlap; never add them.
++            # Neither observed function recursively invokes itself on this path.
+             $snapshotRecords = $record.snapshot_validations
+             if ($snapshotRecords -isnot [array] -or ($operation -cne 'capture' -and $snapshotRecords.Count -eq 0)) { throw 'ENDING_SNAPSHOT_RECORDS_MISSING' }
+             for ($snapshotOrdinal = 0; $snapshotOrdinal -lt $snapshotRecords.Count; $snapshotOrdinal++) {
+--- physical-proof/manifest.json
++++ ledger/manifest.json
+@@ -1,9 +1,9 @@
+ [
+   {
+     "path": "tools/testing/Invoke-EndingLayoutBoundary.ps1",
+-    "bytes": 22897,
+-    "sha256": "da89ca7d270f111ac489c480bf4c1502bab36bda1c8486e04df099ad65568191",
+-    "blob": "1ae1e491a800108c2f77e646ec4249539d2f697a"
++    "bytes": 24178,
++    "sha256": "e2554b98ee77b2a0505fd755d9975fbac5cbd4bf4022ad8360c8fc9a6d728873",
++    "blob": "a75d6f2e61e4abdac8bb061a7e09183b3a26684d"
+   },
+   {
+     "path": "tools/testing/Invoke-IsolatedGodot.ps1",
+--- physical-proof/controller.yml
++++ ledger/controller.yml
+@@ -1,6 +1,6 @@
+ # INERT REVIEW CANDIDATE. Install only after external C source review.
+ # Focused candidate only: C exact packet review and Director scope reconciliation precede installation.
+-name: Short ending physical assignment proof observation
++name: Short ending receipt and bundle validation observation
+ on:
+   pull_request:
+     paths:
+@@ -19,18 +19,18 @@
+       run:
+         shell: pwsh
+     env:
+-      PRODUCT_SHA: 5a506a9768287762b2a0e86f94d5eb0006562cc5
+-      SOURCE_SHA: 517a647f97a075769bf94f8b6469f76ec024ae86
+-      PREPARATION_SHA256: 8772700c0c1ac6a0223736245ab03a4f3c3a603aa193f414b2829f3f2a385b96
++      PRODUCT_SHA: REVIEWED_PRODUCT_COMMIT_REQUIRED
++      SOURCE_SHA: REVIEWED_ASSET_COMMIT_REQUIRED
++      PREPARATION_SHA256: 9978368e00fbd6b7716b8df1bd1b17dec005f3e36f8838c55002b5a651b14bad
+       CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+-      HARNESS_MANIFEST_SHA256: c61772e8f200e3bed393980f48337aa26ff679030550ba45d5e3b15c22e6d8b9
++      HARNESS_MANIFEST_SHA256: 87fa670737e16fb84f94e67beb52861f1613633d04a645bf2f9d33bab7cb7393
+     steps:
+       - uses: actions/checkout@v7
+         with:
+           # Defer credential removal until the post-job cleanup, after the
+           # malformed gitlinks are removed from this disposable runner's index.
+           persist-credentials: true
+-          ref: 5a506a9768287762b2a0e86f94d5eb0006562cc5
++          ref: REVIEWED_PRODUCT_COMMIT_REQUIRED
+       - name: Pin external preparation helpers
+         id: preparation_helpers
+         run: |
+@@ -42,7 +42,7 @@
+           New-Item -ItemType Directory -Force $helpers | Out-Null
+           $prepare = Join-Path $helpers 'prepare_caption.py'
+           $capture = Join-Path $helpers 'capture_import.py'
+-          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_physical_proof_20261022/prepare_caption.py" -OutFile $prepare
++          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_receipt_bundle_20261022/prepare_caption.py" -OutFile $prepare
+           Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/import_integrity_20261020/capture_import.py" -OutFile $capture
+           if ((Get-FileHash $prepare -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:PREPARATION_SHA256) { throw 'PREPARATION_HASH_MISMATCH' }
+           if ((Get-FileHash $capture -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:CAPTURE_SHA256) { throw 'CAPTURE_HASH_MISMATCH' }
+@@ -75,13 +75,13 @@
+           $harness = Join-Path $env:RUNNER_TEMP 'clean-focused-harness'
+           New-Item -ItemType Directory -Force $harness | Out-Null
+           $manifest = Join-Path $harness 'manifest.json'
+-          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_physical_proof_20261022/manifest.json" -OutFile $manifest
++          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_receipt_bundle_20261022/manifest.json" -OutFile $manifest
+           if ((Get-FileHash $manifest -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:HARNESS_MANIFEST_SHA256) { throw 'HARNESS_MANIFEST_HASH_MISMATCH' }
+           foreach ($entry in (Get-Content $manifest -Raw | ConvertFrom-Json)) {
+             $name = [IO.Path]::GetFileName($entry.path)
+             if ($entry.path -notlike 'tools/testing/*' -or $name -notmatch '^[A-Za-z0-9.-]+$') { continue }
+             $path = Join-Path $harness $name
+-            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_physical_proof_20261022/$name" -OutFile $path
++            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_receipt_bundle_20261022/$name" -OutFile $path
+             if ((Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $entry.sha256) { throw "HARNESS_HASH_MISMATCH: $name" }
+             if ($name.EndsWith('.ps1')) {
+               $tokens=$null; $parseErrors=$null
+@@ -155,7 +155,7 @@
+           & python $env:PREPARATION_HELPER --phase restore --root $env:GITHUB_WORKSPACE --output $output *> (Join-Path $output 'preparation-restore.log')
+           $code = $LASTEXITCODE
+           if ($code -ne 0) { throw "PREPARATION_RESTORE_EXIT: $code" }
+-      - name: Rendered short ending physical assignment proof observation
++      - name: Rendered short ending receipt and bundle validation observation
+         id: focused
+         timeout-minutes: 10
+         run: |
+--- physical-proof/source-manifest.json
++++ ledger/source-manifest.json
+@@ -7,9 +7,9 @@
+   },
+   {
+     "path": "scripts/narrative/SceneValidationTiming.gd",
+-    "bytes": 2316,
+-    "sha256": "c3b4dd851d1bbf9773cddf9323c0ed485d892939d41807626d280c93b021dfdb",
+-    "blob": "b422d142ced6c6f65910758501d87fd79e8ad7f7"
++    "bytes": 2503,
++    "sha256": "377fdc07a6ba19e8c2727d83a22e58a54999d981ce9f14efd80372e3e3c7d8e8",
++    "blob": "39a650d2d0986b82ff519780d4b61b8c735e1dff"
+   },
+   {
+     "path": "scripts/narrative/SoloReadingSession.gd",
+@@ -52,5 +52,11 @@
+     "bytes": 94712,
+     "sha256": "225552c3141c3731566dda8bf40ba33667f6bc61fc4d448e6f495eaf7606c3c7",
+     "blob": "381329a08e5b6cfd79389e52d3a5dcbad6f6fa80"
++  },
++  {
++    "path": "scripts/domain/narrative/SceneEventContract.gd",
++    "bytes": 78833,
++    "sha256": "14cebbbcee4a3592e88d0055fa052da86440c0a357c9c5357b96d5dd126b2203",
++    "blob": "3f383b92f787489b70ca7acd71b00f4a9f5a47f8"
+   }
+ ]
