@@ -104,7 +104,13 @@ jobs:
         s = p.read_text(encoding='utf-8-sig')
         marker = '$expected | ConvertTo-Json -Depth 3'
         assert s.count(marker) == 1
-        s = s.replace(marker, "$expected['res://audio/bgm/menu_theme.ogg'] = (Get-FileHash -LiteralPath (Join-Path $repositoryRoot 'audio/bgm/menu_theme.ogg') -Algorithm SHA256).Hash.ToLowerInvariant()\n    " + marker)
+        music_import = Path('audio/bgm/menu_theme.ogg.import').read_text(encoding='utf-8')
+        import re
+        imported_path = re.search(r'^path="(res://\.godot/imported/[^"]+)"$', music_import, re.M)
+        assert imported_path, 'Title music imported-resource path missing'
+        resource = imported_path[1]
+        assert Path(resource.removeprefix('res://')).is_file()
+        s = s.replace(marker, "$expected['" + resource + "'] = (Get-FileHash -LiteralPath (Join-Path $repositoryRoot '" + resource.removeprefix('res://') + "') -Algorithm SHA256).Hash.ToLowerInvariant()\n    " + marker)
         marker = '    var license_directory: String = OS.get_cmdline_user_args()[1]'
         assert s.count(marker) == 1
         probe = '''    for resource: String in ["res://art/pictures/picture1.jpg", "res://art/pictures/picture2.jpg", "res://art/pictures/picture3.jpg", "res://art/pictures/picture4.jpg", "res://art/pictures/picture5.jpg", "res://assets/ui/contacts/fonts/dejavu-sans-fallback.ttf"]:
@@ -112,6 +118,12 @@ jobs:
                     push_error("Required localized media resource cannot load: " + resource)
                     quit(1)
                     return
+        '''
+        probe += '''    var title_music := ResourceLoader.load("res://audio/bgm/menu_theme.ogg") as AudioStreamOggVorbis
+            if title_music == null or not title_music.loop or absf(title_music.get_length() - 104.6) > 0.1:
+                push_error("Title music missing, wrong duration, or loop disabled")
+                quit(1)
+                return
         '''
         s = s.replace(marker, probe + marker)
         s = s.replace('["tools", "docs", "evidence",', '[".agents", ".beads", ".claude", ".codex", ".github", "story", "handoff", "game-build", "builds", "tools", "docs", "evidence",')
