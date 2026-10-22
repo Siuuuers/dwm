@@ -40,10 +40,10 @@ func test_card_has_only_public_copy_and_no_purchase_or_hidden_controls() -> void
 	var row: Dictionary = CATALOG_PROJECTION.project(_valid_rows()).value[0]
 	var card := _card(row)
 	await _settle()
-	assert_eq(card.name_label.text, "Coffee")
-	assert_eq(card.price_label.text, "$20")
+	assert_eq(card.name_label.text, "Wine")
+	assert_eq(card.price_label.text, "$55")
 	assert_eq(card.availability_label.text, "Available")
-	assert_eq(card.accessibility_name, "Coffee, $20, Available")
+	assert_eq(card.accessibility_name, "Wine, $55, Available")
 	assert_eq(card.get_child_count(), 4, "Three public labels plus nonfocusable pointer surface.")
 	for child in card.get_children():
 		assert_false(child is BaseButton, "No nested Buy/quantity/secret target.")
@@ -113,7 +113,7 @@ func test_pointer_release_selects_once_and_cancels_after_leave_or_hide() -> void
 	assert_eq(activations.size(), 1, "Leaving cancels contact even after re-entry.")
 	await _mouse(point, true)
 	var changed: Dictionary = CATALOG_PROJECTION.project(_valid_rows()).value[1]
-	card.configure(changed, "$55", "Available")
+	card.configure(changed, "$10", "Available")
 	await _mouse(point, false)
 	assert_eq(activations.size(), 1, "A new projection cannot inherit a held activation.")
 	await _mouse(point, true)
@@ -172,7 +172,7 @@ func test_cjk_font_metrics_preserve_complete_public_labels_at_all_sizes() -> voi
 	# Representative literal object-name fixtures, not a production translation catalog.
 	for font: Font in [FONTS.SIMPLIFIED, FONTS.TRADITIONAL]:
 		for font_size in [20, 25, 30]:
-			var row: Dictionary = CATALOG_PROJECTION.project(_valid_rows()).value[17]
+			var row: Dictionary = CATALOG_PROJECTION.project(_valid_rows()).value[12]
 			row.name = "口袋計算器"
 			var card := _card(row, font_size)
 			card.theme.default_font = font

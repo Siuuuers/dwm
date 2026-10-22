@@ -1,5 +1,6 @@
 extends GutTest
 
+const LOCALIZATION := preload("res://autoload/LocalizationManager.gd")
 const ARTWORK := preload("res://scripts/ui/gallery/ArtworkGallery.gd")
 const GALLERY := preload("res://scenes/menu/GalleryScene.tscn")
 const ART := preload("res://scripts/data/ArtManifest.gd")
@@ -133,3 +134,44 @@ func test_seven_day_art_assets_and_split_placement() -> void:
 		assert_eq(view._background.texture, ART.get_texture(placement.background))
 		assert_gt(view.get_right_rect().position.x, 0.0)
 		assert_gt(view.get_right_rect().size.x, 0.0)
+
+func test_canonical_locales_refresh_artwork_tabs_preview_and_open_viewer_without_writes() -> void:
+	ART.reload_placements()
+	var profile := _profile(STORAGE.new("artwork-locales.memory", FILES.new()))
+	assert_true(profile.mark_line_visited("line.Day1.one").get("ok", false))
+	var localization := LOCALIZATION.new()
+	add_child_autofree(localization)
+	assert_true(localization.initialize(profile).get("ok", false))
+	var home := Button.new()
+	add_child_autofree(home)
+	var gallery: Control = GALLERY.instantiate()
+	assert_true(gallery.configure_title_host(home, localization, profile).get("ok", false))
+	add_child_autofree(gallery)
+	gallery.open_in_title_host()
+	gallery._show_gallery_tab(true)
+	await get_tree().process_frame
+	var artwork: Control = gallery._artwork
+	artwork.select_picture("picture1")
+	artwork.open_viewer()
+	assert_true(artwork.viewer_is_open())
+	artwork._hints.hide()
+	for locale: String in ["en", "zh_CN", "zh_HK", "ja", "ko"]:
+		assert_true(localization.set_locale(locale).get("ok", false))
+		await get_tree().process_frame
+		var before: Dictionary = profile.get_profile_snapshot()
+		artwork.refresh()
+		var title: String = localization.t("gallery.artwork.title", {"number": "1"})
+		assert_eq(artwork._rows[0].text, title)
+		assert_eq(artwork._rows[2].text, localization.t("gallery.artwork.locked"))
+		assert_eq(artwork._rows[2].accessibility_name, localization.t("gallery.artwork.locked_accessible"))
+		assert_eq(artwork._preview.accessibility_name, localization.t("gallery.artwork.view", {"title": title}))
+		assert_eq(artwork._caption.text, localization.t("gallery.artwork.open", {"title": title}))
+		assert_eq(artwork._hints.text, localization.t("gallery.artwork.hints"))
+		assert_false(artwork._hints.visible, "locale refresh preserves the player's hidden hints")
+		assert_true(artwork.viewer_is_open(), "locale refresh does not dismiss the artwork")
+		assert_eq(artwork._selected, "picture1")
+		var tabs: Array[Node] = gallery._gallery_tabs.get_children()
+		assert_eq(tabs[0].text, localization.t("gallery.tab.records"))
+		assert_eq(tabs[1].text, localization.t("gallery.tab.artwork"))
+		assert_eq(profile.get_profile_snapshot(), before, "Gallery locale projection writes no unlock or preference state")
+	artwork.close_viewer()

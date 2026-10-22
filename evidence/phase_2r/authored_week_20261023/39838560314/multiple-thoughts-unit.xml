@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="2" >
+  <testsuite name="tests/unit/test_scene_multiple_thoughts.gd" tests="2" failures="0" skipped="0" time="0.188142" >
+      <testcase name="test_options_validate_all_targets_and_reject_ambiguous_or_forged_choices" assertions="15" status="pass" classname="tests/unit/test_scene_multiple_thoughts.gd" time="0.113744" >
+      </testcase>
+      <testcase name="test_each_choice_and_default_receipt_authenticates_the_registered_offer" assertions="17" status="pass" classname="tests/unit/test_scene_multiple_thoughts.gd" time="0.074398" >
+      </testcase>
+  </testsuite>
+</testsuites>

@@ -7,7 +7,7 @@ const BACKUP := preload("res://scenes/apps/BackupApp.tscn")
 const OPERATIONS := preload("res://tests/backup_ui/test_backup_ui.gd")
 const FIXTURES := preload("res://tests/contacts_shell/test_contacts_shell.gd")
 const LOCALES := {"en": "en", "zh_CN": "zh-CN", "zh_HK": "zh-HK"}
-const COPY_KEYS := ["continue", "backup", "settings", "return", "title", "question", "warning", "cancel"]
+const COPY_KEYS := ["continue", "backup", "settings", "return", "title", "question", "warning", "cancel", "back"]
 
 var _viewport: SubViewport
 var _surface: Control

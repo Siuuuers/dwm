@@ -5,6 +5,14 @@ const ART := preload("res://scripts/data/ArtManifest.gd")
 const UNLOCK_LINES := {"picture1": "line.Day1.one", "picture2": "line.Day1.one",
 	"picture3": "line.Day4.one", "picture4": "line.Day2.one", "picture5": "line.Day3.one"}
 
+# English fallback for isolated hosts without a LocalizationManager. Production
+# GalleryScene projects every value from the canonical catalogue before display.
+const DEFAULT_COPY := {"title": "Picture {number}", "locked": "Locked",
+	"locked_accessible": "Locked artwork", "view": "View {title}",
+	"empty": "Artwork appears here after you encounter it in the story.",
+	"open": "{title} · Click to view", "unavailable": "Artwork unavailable",
+	"hints": "H — Hide · Esc — Exit"}
+var _copy: Dictionary = DEFAULT_COPY.duplicate()
 var _profile: Object
 var _rows: Array[Button] = []
 var _preview: TextureButton
@@ -25,6 +33,13 @@ func configure(profile: Object) -> void:
 			profile.visited_history_changed.connect(_on_history_changed)
 		if profile.has_signal("profile_restored"):
 			profile.profile_restored.connect(_on_profile_restored)
+
+func configure_copy(copy: Dictionary) -> void:
+	_copy = copy.duplicate()
+	if is_node_ready(): refresh()
+
+func _picture_title(id: String) -> String:
+	return str(_copy.title).format({"number": id.trim_prefix("picture")})
 
 func _ready() -> void:
 	var layout := HBoxContainer.new()
@@ -75,9 +90,9 @@ func refresh() -> void:
 		var id := str(row.name)
 		var reached := unlocked(_profile, id)
 		row.disabled = not reached
-		row.text = id.capitalize() if reached else "Locked"
+		row.text = _picture_title(id) if reached else str(_copy.locked)
 		row.icon = ART.get_texture(id) if reached else null
-		row.accessibility_name = id.capitalize() if reached else "Locked artwork"
+		row.accessibility_name = _picture_title(id) if reached else str(_copy.locked_accessible)
 	if not _selected.is_empty() and not unlocked(_profile, _selected):
 		close_viewer()
 		_selected = ""
@@ -97,9 +112,10 @@ func _update_preview() -> void:
 	var texture: Texture2D = ART.get_texture(_selected) if not _selected.is_empty() else null
 	_preview.texture_normal = texture
 	_preview.disabled = texture == null
-	_preview.accessibility_name = "View " + _selected.capitalize()
-	_caption.text = "Artwork appears here after you encounter it in the story." if _selected.is_empty() \
-		else (_selected.capitalize() + " · Click to view" if texture != null else "Artwork unavailable")
+	_preview.accessibility_name = str(_copy.view).format({"title": _picture_title(_selected)}) if texture != null else str(_copy.unavailable)
+	_caption.text = str(_copy.empty) if _selected.is_empty() \
+		else (str(_copy.open).format({"title": _picture_title(_selected)}) if texture != null else str(_copy.unavailable))
+	if is_instance_valid(_hints): _hints.text = str(_copy.hints)
 
 func focus_first() -> void:
 	for row: Button in _rows:
@@ -133,7 +149,7 @@ func open_viewer() -> void:
 	picture.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	backdrop.add_child(picture)
 	_hints = Label.new()
-	_hints.text = "H — Hide · Esc — Exit"
+	_hints.text = str(_copy.hints)
 	_hints.add_theme_color_override("font_color", Color.WHITE)
 	_hints.add_theme_color_override("font_shadow_color", Color.BLACK)
 	_hints.add_theme_constant_override("shadow_offset_x", 2)

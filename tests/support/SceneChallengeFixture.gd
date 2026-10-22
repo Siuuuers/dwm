@@ -49,6 +49,7 @@ class Authority extends RefCounted:
 	var bundle: Dictionary
 	var closures := {}
 	var checkpoints: Array = []
+	var presentation_held := false
 	var reject_checkpoint := false
 	var reject_closure := false
 	var held_end := true
@@ -56,6 +57,7 @@ class Authority extends RefCounted:
 	var checkpoint_failure: Dictionary = {}
 	var malformed_closure := false
 	func validate_scene_challenge_command(candidate: Dictionary, registration: Dictionary) -> Dictionary:
+		if presentation_held: return {"ok": false, "code": &"event_presentation_held"}
 		var detached := candidate.duplicate(true)
 		detached.erase("physical_token")
 		return {"ok": detached == command and registration == bundle, "code": &"TEST.admission", "value": {}}

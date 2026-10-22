@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="2" >
+  <testsuite name="tests/unit/test_scene_caption_challenge.gd" tests="2" failures="0" skipped="0" time="0.029498" >
+      <testcase name="test_adjacent_challenge_end_requires_same_challenge_and_real_caption" assertions="5" status="pass" classname="tests/unit/test_scene_caption_challenge.gd" time="0.00057" >
+      </testcase>
+      <testcase name="test_native_registration_accepts_two_markers_on_one_caption" assertions="2" status="pass" classname="tests/unit/test_scene_caption_challenge.gd" time="0.028928" >
+      </testcase>
+  </testsuite>
+</testsuites>

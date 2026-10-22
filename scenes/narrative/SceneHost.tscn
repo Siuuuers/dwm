@@ -46,6 +46,20 @@ offset_bottom = 664.0
 grow_horizontal = 2
 mouse_filter = 0
 
+[node name="ComputerMount" type="Control" parent="SceneControlsLayer/Surface"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 176.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
 [node name="Controls" type="VBoxContainer" parent="SceneControlsLayer/Surface"]
 layout_mode = 1
 offset_left = 8.0
@@ -76,6 +90,12 @@ custom_minimum_size = Vector2(0, 38)
 autowrap_mode = 3
 
 [node name="Load" type="Button" parent="SceneControlsLayer/Surface/Controls"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 38)
+autowrap_mode = 3
+
+[node name="Apps" type="Button" parent="SceneControlsLayer/Surface/Controls"]
+visible = false
 layout_mode = 2
 custom_minimum_size = Vector2(0, 38)
 autowrap_mode = 3

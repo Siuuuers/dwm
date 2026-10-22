@@ -17,7 +17,7 @@ const SETTINGS := preload("res://scenes/apps/SettingsApp.tscn")
 const PAUSE := preload("res://scenes/overlay/PauseSurface.tscn")
 const PRESENTATION := preload("res://scripts/ui/SettingsTheme.gd")
 const LOCALES := {"en": "en", "zh_CN": "zh-CN", "zh_HK": "zh-HK"}
-const COPY_KEYS := ["continue", "backup", "settings", "return", "title", "question", "warning", "cancel"]
+const COPY_KEYS := ["continue", "backup", "settings", "return", "title", "question", "warning", "cancel", "back"]
 
 var _files: RefCounted
 var _failure_journey := false

@@ -93,6 +93,14 @@ func _fixture(retain: bool = true) -> Dictionary:
 	if retain: assert_true(port.retain_scene_entry(authority, "cap:1", binding, checkpoint).ok)
 	return {"port": port, "real": real, "authority": authority, "binding": binding, "checkpoint": checkpoint}
 
+var _retained_contexts: RefCounted
+
+func after_each() -> void:
+	if _retained_contexts != null:
+		_retained_contexts.restore()
+		_retained_contexts = null
+
+
 func test_confirmed_commit_ack_binds_actual_snapshot_and_consumes_once() -> void:
 	var f := _fixture()
 	var saved: Dictionary = f.port.commit_scene_event({"real_payload": "payload"}, f.checkpoint)
@@ -259,6 +267,11 @@ func test_prepare_callback_cannot_invalidate_custody_or_source_before_write() ->
 		f.real.after_prepare = Callable()
 
 func test_real_save8_prepare_refuses_unintegrated_scene_identity_without_ack() -> void:
+	# This one negative Save8 control explicitly selects its retained schema.
+	_retained_contexts = preload("res://tests/support/RetainedFrozenContextFixture.gd").new()
+	var selected: Dictionary = _retained_contexts.install(["dating.solo.priscilla.day1.pre_challenge"])
+	assert_true(selected.get("ok", false), str(selected))
+	if not selected.get("ok", false): return
 	# Real SaveManagerCheckpointPort + Run/Save validators and journal, FakeFileOps.
 	# The accepted legacy control is durable through real write/readback APIs in that
 	# injected filesystem; this is NOT a physical filesystem/process-restart claim.

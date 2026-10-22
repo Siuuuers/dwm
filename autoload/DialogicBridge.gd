@@ -3467,6 +3467,7 @@ func capture_pause_frontier(timeline_id: String = "") -> Dictionary:
 
 
 func begin_suspend(handle: Dictionary) -> Dictionary:
+	if not _computer_hold_frontier.is_empty(): return _pause_failure(&"computer_caption_held")
 	if not _valid_pause_handle(handle): return _pause_failure(&"invalid_suspension_handle")
 	if _pause_changing: return _pause_failure(&"narrative_suspended")
 	if not _pause_handle.is_empty():
@@ -4522,6 +4523,10 @@ func capture_scene_challenge_control() -> Dictionary:
 		"checkpoint": boundary.value.checkpoint.duplicate(true)}}
 
 func capture_scene_event_boundary() -> Dictionary:
+	# Causal checkpoints may inspect a held source, but must not borrow an old
+	# semantic line after its native invocation has been replaced.
+	if not _computer_hold_frontier.is_empty() and (_computer_hold_changing or not _computer_frontier_matches(true)):
+		return _command_failure(&"computer_source_changed")
 	if not _marker_context.is_empty():
 		if not _marker_source_valid(): return _command_failure(&"reading_marker_source_changed")
 		return {"ok": true, "value": _marker_context.duplicate(true)}
@@ -4890,30 +4895,88 @@ func _marker_reading_identity() -> Dictionary:
 
 
 
-## Presentation-only hold. Native control/checkpoint authority remains available to
-## the board; this never changes SceneTree pause, Auto preference, or Load custody.
+## Computer freezes native/art presentation without global Pause or input custody.
+## Semantic checkpoint reads remain available to the existing causal transactions.
 var _computer_hold_host: WeakRef
 var _computer_hold_session: RefCounted
+var _computer_hold_frontier: Dictionary = {}
+var _computer_hold_changing := false
 
 func is_computer_caption_held() -> bool:
 	return _computer_hold_host != null and is_instance_valid(_computer_hold_host.get_ref()) \
 		and _computer_hold_session != null and _computer_hold_session == _reading_session
 
+func _computer_frontier_matches(paused: bool) -> bool:
+	if _computer_hold_frontier.is_empty() or not is_computer_caption_held(): return false
+	var expected := _computer_hold_frontier.duplicate(true)
+	expected.paused = paused
+	var current: Dictionary = _capture_presentation_frontier()
+	return current.get("ok", false) and current.value == expected
+
+func _clear_computer_hold() -> void:
+	_computer_hold_host = null
+	_computer_hold_session = null
+	_computer_hold_frontier = {}
+
 func hold_computer_captions(host: Node) -> Dictionary:
 	if not is_instance_valid(host) or not has_reading_session() or _reading_session.family != "scene":
 		return _command_failure(&"computer_source_unavailable")
-	if is_computer_caption_held() and _computer_hold_host.get_ref() != host:
-		return _command_failure(&"computer_source_changed")
+	if _computer_hold_changing or not _pause_handle.is_empty() or _pause_changing or is_pause_restore_pending():
+		return _command_failure(&"narrative_suspended")
+	if _mutation_gate == null: return _command_failure(&"computer_source_unavailable")
+	var guarded: Dictionary = _mutation_gate.guard_external(&"scene_computer")
+	if not guarded.get("ok", false): return guarded
+	if not _computer_hold_frontier.is_empty():
+		if _computer_hold_host.get_ref() != host or not _computer_frontier_matches(true):
+			return _command_failure(&"computer_source_changed")
+		return {"ok": true}
+	var admitted: Dictionary = capture_pause_frontier()
+	if not admitted.get("ok", false): return admitted
+	var before: Dictionary = _capture_presentation_frontier()
+	if not before.get("ok", false): return before
 	_computer_hold_host = weakref(host)
 	_computer_hold_session = _reading_session
+	_computer_hold_frontier = before.value.duplicate(true)
+	_computer_hold_changing = true
+	var held: Dictionary = _set_presentation_paused(true)
+	var exact := _computer_frontier_matches(true)
+	if held.get("ok", false) and exact:
+		_computer_hold_changing = false
+		computer_hold_changed.emit()
+		return {"ok": true}
+	# Compensate only this exact source; never unpause a replacement timeline.
+	var recovered := false
+	if exact or _computer_frontier_matches(bool(_computer_hold_frontier.paused)):
+		var rolled_back: Dictionary = _set_presentation_paused(bool(_computer_hold_frontier.paused))
+		recovered = rolled_back.get("ok", false) and _computer_frontier_matches(bool(_computer_hold_frontier.paused))
+	_computer_hold_changing = false
+	if recovered:
+		_clear_computer_hold()
+		return _command_failure(&"computer_suspend_failed")
 	computer_hold_changed.emit()
-	return {"ok": true}
+	return {"ok": false, "code": &"computer_suspend_unproven", "recovery_required": true}
 
 func release_computer_captions(host: Node) -> Dictionary:
-	if _computer_hold_host == null: return {"ok": true}
-	if _computer_hold_host.get_ref() != host: return _command_failure(&"computer_source_changed")
-	_computer_hold_host = null
-	_computer_hold_session = null
-	# The caption reconciles its other holds; no runtime resume is performed here.
+	if _computer_hold_frontier.is_empty(): return {"ok": true}
+	if _computer_hold_changing or not _pause_handle.is_empty() or _pause_changing or is_pause_restore_pending():
+		return _command_failure(&"narrative_suspended")
+	if _mutation_gate == null: return _command_failure(&"computer_source_unavailable")
+	var guarded: Dictionary = _mutation_gate.guard_external(&"scene_computer")
+	if not guarded.get("ok", false): return guarded
+	if _computer_hold_host.get_ref() != host or not _computer_frontier_matches(true):
+		return _command_failure(&"computer_source_changed")
+	_computer_hold_changing = true
+	var prior_paused := bool(_computer_hold_frontier.paused)
+	var released: Dictionary = _set_presentation_paused(prior_paused)
+	var exact := _computer_frontier_matches(prior_paused)
+	_computer_hold_changing = false
+	if not released.get("ok", false) or not exact:
+		# Retain the owner on refusal. Re-hold only this exact physical source.
+		if exact or _computer_frontier_matches(true):
+			_computer_hold_changing = true
+			_set_presentation_paused(true)
+			_computer_hold_changing = false
+		return {"ok": false, "code": &"computer_resume_unproven", "recovery_required": true}
+	_clear_computer_hold()
 	computer_hold_changed.emit()
 	return {"ok": true}
