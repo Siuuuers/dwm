@@ -1,5 +1,7 @@
 extends Node
 
+const _SCENE_VALIDATION_TIMING := preload("res://scripts/narrative/SceneValidationTiming.gd")
+
 signal profile_restored(profile: Dictionary)
 signal preference_changed(path: StringName, value: Variant)
 signal gallery_changed(ending_id: String, unlocked: bool)
@@ -890,6 +892,12 @@ func get_pair_deck_draw(run_id: String) -> Dictionary:
 ## Prove that row against current physical canonical bytes, never an old whole-file
 ## hash or silent in-memory adoption. Pending creation still uses full-output proof.
 func prove_scene_assignment(run_id: String, receipt: Dictionary) -> Dictionary:
+	var started_us: int = _SCENE_VALIDATION_TIMING.start_sample()
+	var result: Dictionary = _prove_scene_assignment_observed_body(run_id, receipt)
+	_SCENE_VALIDATION_TIMING.finish_sample("physical_proof", started_us, bool(result.get("ok", false)))
+	return result
+
+func _prove_scene_assignment_observed_body(run_id: String, receipt: Dictionary) -> Dictionary:
 	# Bootstrap binds storage before adoption; this physical proof intentionally
 	# works before initialize() and never reads the live Profile candidate.
 	if _mutation_blocked: return _failure(&"indeterminate_commit", "Profile mutation is blocked", true)
