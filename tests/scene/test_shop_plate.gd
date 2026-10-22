@@ -161,6 +161,7 @@ func test_every_locale_and_size_keeps_full_catalog_inside_the_plate() -> void:
 				assert_true(shop.cards.wine.has_focus())
 				var seen: Array[String] = []
 				for page in shop.page_count:
+					assert_true(shop.last_result.ok, "%s %s %s%% page %s: %s" % [font_style, locale, percent, page, str(shop.last_result)])
 					assert_eq(shop.page_index, page)
 					assert_eq(shop.previous_button.disabled, page == 0)
 					assert_eq(shop.next_button.disabled, page == shop.page_count - 1)
@@ -179,6 +180,36 @@ func test_every_locale_and_size_keeps_full_catalog_inside_the_plate() -> void:
 				assert_eq(seen, expected)
 				assert_false(shop.cards.has("supportz"), "Blank capacity has no Control/assistive/hidden target.")
 				f.root.hide()
+
+func test_enlarged_japanese_coin_metadata_fits_the_pinned_band() -> void:
+	for large: bool in [false, true]:
+		for available: bool in [true, false]:
+			var f := _fixture("ja", 150, large)
+			if not available:
+				for row: Dictionary in f.rows:
+					row.available = false
+					row.legal_max = 0
+				f.shop.configure_shop(f.rows, "ja", 150, large)
+			await _settle()
+			f.shop.next_button.pressed.emit()
+			await _settle()
+			assert_true(f.shop.last_result.ok, "Japanese coin metadata remains visible at full text size.")
+			assert_eq(f.shop.selected_id, "debug_key")
+			var price: Label = f.shop._meta_price
+			var state: Label = f.shop._meta_state
+			assert_eq(price.text, "3 コイン")
+			assert_eq(state.text, "在庫あり" if available else "売り切れ")
+			var band := Rect2(480, 336 if large else 400, 304, 48)
+			for label: Label in [price, state]:
+				assert_true(label.is_visible_in_tree())
+				assert_eq(label.get_theme_font_size("font_size"), 36)
+				assert_true(band.encloses(label.get_rect()))
+				var measured := label.get_theme_font("font").get_string_size(label.text,
+					HORIZONTAL_ALIGNMENT_LEFT, -1, label.get_theme_font_size("font_size"))
+				assert_lte(measured.x, label.size.x)
+				assert_lte(measured.y, label.size.y)
+			assert_lte(price.position.x + price.size.x + 16, state.position.x)
+			f.root.hide()
 
 func test_selection_quantity_and_page_memory_are_presentation_only() -> void:
 	var f := _fixture()

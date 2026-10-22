@@ -173,7 +173,7 @@ func present(captions: Array) -> bool:
 			_rows.add_child(separator)
 		var label := RichTextLabel.new()
 		label.name = "Caption%d" % index
-		label.bbcode_enabled = false
+		label.bbcode_enabled = true
 		label.selection_enabled = false
 		label.focus_mode = Control.FOCUS_NONE
 		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -185,7 +185,7 @@ func present(captions: Array) -> bool:
 		label.add_theme_color_override(&"font_outline_color", Color.TRANSPARENT)
 		label.add_theme_constant_override(&"outline_size", 0)
 		label.language = close_button.language
-		label.text = _captions[index]
+		label.text = preload("res://scripts/localization/StoryLocalization.gd").display_markup(_captions[index])
 		_rows.add_child(label)
 	_active = true
 	set_interactive(true)

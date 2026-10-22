@@ -51,6 +51,14 @@ static func font(locale: String, percent: int, font_style: String = "pixel") -> 
 	if not _loaded.has(path):
 		var face := load(path) as FontFile
 		if face == null: return null
+		# The authored week includes Romanian and a combining crossed-out word.
+		# Bundle deterministic fallback faces rather than relying on installed fonts.
+		var marks := load("res://assets/ui/contacts/fonts/dejavu-sans-fallback.ttf") as FontFile
+		face.fallbacks = [marks]
+		if font_style == "pixel":
+			face.fallbacks.append(load(_READABLE_FONTS[locale_key]) as FontFile)
+		if font_style == "readable" and locale_key in ["ja", "ko"]:
+			face.fallbacks.append(TRADITIONAL)
 		if font_style == "pixel":
 			face.allow_system_fallback = false
 			face.antialiasing = TextServer.FONT_ANTIALIASING_NONE

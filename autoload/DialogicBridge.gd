@@ -529,8 +529,45 @@ var _next_generation := 0
 var _signal_receipts: Dictionary = {}
 
 
+const _STORY_LOCALE := preload("res://scripts/localization/StoryLocalization.gd")
+
 func _ready() -> void:
-	pass
+	var localization := get_node_or_null("/root/LocalizationManager")
+	if localization != null:
+		localization.locale_changed.connect(_refresh_story_language)
+
+func _story_line() -> Dictionary:
+	var runtime := get_node_or_null("/root/Dialogic")
+	if runtime == null: return {}
+	var index: int = runtime.current_event_idx
+	if index < 0 or index >= runtime.current_timeline_events.size(): return {}
+	var event: Variant = runtime.current_timeline_events[index]
+	if not event is DialogicTextEvent: return {}
+	var parts: PackedStringArray = event.get_property_translation_key("text").split("/")
+	if parts.size() != 3 or parts[0] != "Text" or parts[2] != "text": return {}
+	return {"line_id": parts[1], "text": event.get_property_translated("text")}
+
+func _translate_story_text(source: String) -> String:
+	var line := _story_line()
+	if line.get("text") != source: return source
+	if _STORY_LOCALE.catalog("en").get(line.line_id) != source: return source
+	return _STORY_LOCALE.display_markup(_STORY_LOCALE.text(_current_locale(), line.line_id, source))
+
+func _refresh_story_language(_locale: String) -> void:
+	# Repaint the same native event; never advance, republish or alter its ledger.
+	_speech_publication.clear()
+	var line := _story_line()
+	if line.is_empty() or not _STORY_LOCALE.catalog("en").has(line.line_id): return
+	var runtime := get_node_or_null("/root/Dialogic")
+	var translated: String = runtime.Text.parse_text(line.text, 0)
+	runtime.current_state_info["text"] = translated
+	for node: Node in get_tree().get_nodes_in_group("dialogic_dialog_text"):
+		if not node.enabled: continue
+		var ratio: float = node.visible_ratio
+		node.text = translated
+		node.visible_ratio = ratio
+		runtime.current_state_info["text_parsed"] = node.get_parsed_text()
+
 
 
 func configure_mutation_gate(gate: Object) -> Dictionary:
@@ -951,6 +988,10 @@ func _connect_speech_runtime() -> void:
 	var text: Object = dialogic.get_subsystem("Text")
 	if text == null:
 		return
+	var modifier := {"method": _translate_story_text, "type": 0, "order": 10}
+	if not text.text_modifiers.has(modifier):
+		text.text_modifiers.append(modifier)
+		text.load_parse_stack()
 	if text.has_signal("about_to_show_text") and not text.about_to_show_text.is_connected(_on_speech_about_to_show_text):
 		text.about_to_show_text.connect(_on_speech_about_to_show_text)
 	if text.has_signal("text_started") and not text.text_started.is_connected(_on_speech_text_started):
@@ -1069,6 +1110,9 @@ func _current_speech_owner() -> Dictionary:
 	if str(owner.get("token", "")).is_empty() or str(owner.get("timeline_id", "")).is_empty() \
 			or str(owner.get("content_locale", "")).is_empty():
 		return {}
+	var line := _story_line()
+	if not line.is_empty() and _STORY_LOCALE.has_translation(_current_locale(), line.line_id, line.text):
+		owner["content_locale"] = _current_locale()
 	return owner
 
 
@@ -2803,7 +2847,7 @@ func get_ending_caption_memory() -> Dictionary:
 	var frontier := {}
 	if _reading_session.boundary == "line":
 		frontier = {"line_id": rows.back().beat.line_id, "publication_id": rows.back().publication_id}
-	return _reading_session.project(frontier)
+	return _STORY_LOCALE.project(_reading_session.project(frontier), _current_locale())
 
 
 ## Read-only display reconstruction bound to the renderer's exact live proof.
@@ -2816,7 +2860,7 @@ func get_scene_caption_memory(expected_presentation: Dictionary) -> Dictionary:
 	var projected: Dictionary = _reading_session.project_scene_caption_memory(current.value.caption_publication)
 	if not projected.ok: return projected
 	projected.value["presentation"] = current.duplicate(true)
-	return projected
+	return _STORY_LOCALE.project(projected, _current_locale())
 
 
 func get_reading_history() -> Dictionary:
@@ -2826,7 +2870,7 @@ func get_reading_history() -> Dictionary:
 		var captured: Dictionary = _runtime_adapter.capture_reading_frontier()
 		if not captured.ok: return captured
 		frontier = captured.value
-	return _reading_session.project(frontier)
+	return _STORY_LOCALE.project(_reading_session.project(frontier), _current_locale())
 
 
 ## Prepare is pure and validates every frame and occurrence, never a prefix.

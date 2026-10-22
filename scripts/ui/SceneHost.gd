@@ -170,7 +170,8 @@ func _refresh_thought_options(options: Array) -> void:
 	var panel: ScrollContainer = $SceneControlsLayer/Surface/ThoughtOptions
 	var column: VBoxContainer = panel.get_node("Options")
 	panel.visible = not options.is_empty()
-	var offer := {"options": options, "frontier": _thought_frontier} if panel.visible else {}
+	var locale: String = _localization.get_locale() if _localization != null else "en"
+	var offer := {"options": options, "frontier": _thought_frontier, "locale": locale} if panel.visible else {}
 	if offer == _thought_options_offer: return
 	_thought_options_offer = offer.duplicate(true)
 	for child: Node in column.get_children():
@@ -178,8 +179,10 @@ func _refresh_thought_options(options: Array) -> void:
 		child.queue_free()
 	for option: Dictionary in options:
 		var button := Button.new()
-		button.text = option.text
-		button.accessibility_name = option.text
+		var marker: Dictionary = get_node("/root/DialogicBridge").capture_scene_pending_marker()
+		var key := "choice.%s.%s" % [marker.get("value", {}).get("payload", {}).get("opportunity_id", ""), option.choice_id]
+		button.text = preload("res://scripts/localization/StoryLocalization.gd").text(locale, key, option.text)
+		button.accessibility_name = button.text
 		button.custom_minimum_size = Vector2(0, 60)
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

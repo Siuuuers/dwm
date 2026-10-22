@@ -55,5 +55,12 @@
     "license": "SIL Open Font License 1.1",
     "license_file": "fonts/SOURCE-HAN-LICENSE.txt",
     "scope": "Unmodified official regional Regular font bundled for the Readable UI style. Commercial software bundling is permitted with the copyright notice and OFL license retained."
+  },
+  {
+    "url": "https://dejavu-fonts.github.io/",
+    "file": "fonts/dejavu-sans-fallback.ttf",
+    "bytes": 759720,
+    "sha256": "ae7b7855e115a5966d8b1b3f80f254ccc117ec86f9965e202ee2940453837280",
+    "scope": "Unmodified Debian fonts-dejavu-core bundled DejaVu Sans; fallback for Romanian letters and combining strike-through in authored dialogue. See DEJAVU-LICENSE.txt."
   }
 ]

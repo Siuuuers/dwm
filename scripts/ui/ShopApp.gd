@@ -582,11 +582,17 @@ func _render_selection() -> void:
 	_description_label.text = record.get("description", "")
 	_meta_price.text = _price(record.unit_price, record.currency)
 	_meta_state.text = _t("available" if record.available else "sold_out")
-	var state_width := mini(272,maxi(136,2*ceili(_meta_state.get_theme_font("font").get_string_size(
-		_meta_state.text,HORIZONTAL_ALIGNMENT_LEFT,-1,_meta_state.get_theme_font_size("font_size")).x/2.0)))
-	_meta_price.size = Vector2(272-state_width,48)
-	_meta_state.position.x = 496+_meta_price.size.x
-	_meta_state.size = Vector2(state_width,48)
+	# Keep both exact facts in the pinned band. Enlarged localized copy may use
+	# its side padding, but never the information pane or transaction controls.
+	var state_width := 2 * ceili(_meta_state.get_theme_font("font").get_string_size(
+		_meta_state.text, HORIZONTAL_ALIGNMENT_LEFT, -1, _meta_state.get_theme_font_size("font_size")).x / 2.0)
+	var price_width := 2 * ceili(_meta_price.get_theme_font("font").get_string_size(
+		_meta_price.text, HORIZONTAL_ALIGNMENT_LEFT, -1, _meta_price.get_theme_font_size("font_size")).x / 2.0)
+	var meta_padding := clampi(2 * floori((304 - price_width - state_width - 16) / 4.0), 0, 16)
+	_meta_price.position.x = 480 + meta_padding
+	_meta_price.size = Vector2(maxi(0, 304 - 2 * meta_padding - state_width - 16), 48)
+	_meta_state.position.x = 784 - meta_padding - state_width
+	_meta_state.size = Vector2(state_width, 48)
 	var meta_y := 336 if _large else 400
 	info_scroll.size.y = meta_y - 16
 	_meta_price.position.y = meta_y
@@ -793,7 +799,7 @@ func _card_input(event: InputEvent, item_id: String) -> void:
 	elif event.is_action_pressed("ui_up"):
 		if slot >= 3: target = index - 3
 	elif event.is_action_pressed("ui_down"):
-		if slot + 3 < page_capacity: target = index + 3
+		if slot + 3 < page_capacity and index + 3 < _records.size(): target = index + 3
 		else:
 			if slot % 3 == 2 and not next_button.disabled: next_button.grab_focus()
 			elif not previous_button.disabled: previous_button.grab_focus()

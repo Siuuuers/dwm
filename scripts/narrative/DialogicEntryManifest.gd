@@ -87,6 +87,7 @@ const WITNESS_SIGNAL := "history.line.witness"
 
 const SCENE_SCHEMA_PATH := "res://schemas/manifests/dialogic-scene-entries.schema.json"
 static var _scene_bundle: Dictionary = {}
+static var _scene_bundle_fingerprint := ""
 static var _registration_used := false
 static var _startup_selection_checked := false
 static var _startup_selection_error: Dictionary = {}
@@ -146,7 +147,8 @@ static func _configure_scene_registration(bundle: Dictionary) -> Dictionary:
 	if not checked.ok: return checked
 	_scene_bundle = bundle.duplicate(true)
 	_scene_freeze(_scene_bundle)
-	return {"ok": true, "value": _scene_hash(_scene_bundle)}
+	_scene_bundle_fingerprint = _scene_hash(_scene_bundle)
+	return {"ok": true, "value": _scene_bundle_fingerprint}
 
 static func scene_registration() -> Dictionary:
 	var startup := _select_startup_fixture()
@@ -158,7 +160,7 @@ static func scene_registration() -> Dictionary:
 static func scene_registration_fingerprint() -> String:
 	if not _select_startup_fixture().ok: return ""
 	_registration_used = true
-	return "" if _scene_bundle.is_empty() else _scene_hash(_scene_bundle)
+	return "" if _scene_bundle.is_empty() else _scene_bundle_fingerprint
 
 static func _scene_hash(value: Variant) -> String:
 	var encoded := CANONICAL_JSON.stringify(value)

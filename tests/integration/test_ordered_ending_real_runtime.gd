@@ -1,8 +1,10 @@
 extends GutTest
-## Shipped scene-oriented ending files, real Dialogic runtime, Bridge, ending port and GameState.
+## Retained physical ending files, real Dialogic runtime, Bridge, ending port and GameState.
 ## Only disk failure injection and the final navigation destination are recorded fixtures.
 const BRIDGE := preload("res://autoload/DialogicBridge.gd")
 const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
+const CATALOG := preload("res://scripts/data/DialogicTimelineCatalog.gd")
+const MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 
 class Navigation extends RefCounted:
 	var returns := 0
@@ -43,6 +45,12 @@ var playback: RefCounted
 var ending_scene: Node
 var navigation: Navigation
 var checkpoint: Checkpoint
+var _retained_frozen: RefCounted
+var _retained_entries := false
+var _prior_catalog_document: Dictionary
+var _prior_catalog_ready := false
+var _prior_bridge_document: Dictionary
+var _prior_bridge_ready := false
 
 func before_each() -> void:
 	_native_starts = 0
@@ -138,6 +146,15 @@ func after_each() -> void:
 	else: Engine.remove_meta("dialogic_persistent_style_info")
 	DialogicStylesUtil.style_directory = _style_directory
 	_original_layout_parent = null
+	if _retained_frozen != null:
+		_retained_frozen.restore()
+		_retained_frozen = null
+	if _retained_entries:
+		CATALOG._entry_document = _prior_catalog_document
+		CATALOG._entries_initialized = _prior_catalog_ready
+		BRIDGE._entry_document_cache = _prior_bridge_document
+		BRIDGE._entry_document_ready = _prior_bridge_ready
+		_retained_entries = false
 
 func _ordered_plan() -> Dictionary:
 	return {"ending_id": "ending.sylvia.special", "epilogue_ending_id": "ending.priscilla_lavinia",
@@ -258,7 +275,41 @@ func test_completed_snapshot_returns_without_replaying_or_rewriting_rewards() ->
 	assert_false(state.complete_ending_playback_stage("invented", &"COMPLETED", {}).ok)
 
 
+# Explicit historical dependencies for this native-label test only. The current
+# scene registration stays selected; no missing production ID gains a fallback.
+func _install_retained_ending_entries() -> bool:
+	var parsed: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(
+		FileAccess.get_file_as_string(MANIFEST.MANIFEST_PATH))
+	assert_true(parsed.get("ok", false), str(parsed))
+	if not parsed.get("ok", false): return false
+	var source: Dictionary = parsed.value
+	var checked: Dictionary = MANIFEST.validate_document(source)
+	assert_true(checked.get("ok", false), str(checked))
+	if not checked.get("ok", false): return false
+	var selected: Array[Dictionary] = []
+	for entry_id: String in ["ending.sylvia.special.full", "ending.sylvia.dark",
+			"ending.priscilla_lavinia.sweet", "ending.priscilla_lavinia.observer.full"]:
+		var rows: Array = source.entries.filter(func(row: Dictionary) -> bool:
+			return row.entry_id == entry_id)
+		assert_eq(rows.size(), 1, entry_id)
+		if rows.size() != 1: return false
+		selected.append(rows[0].duplicate(true))
+	# Restore exact cache references and initialization bits after the case.
+	_prior_catalog_document = CATALOG._entry_document
+	_prior_catalog_ready = CATALOG._entries_initialized
+	_prior_bridge_document = BRIDGE._entry_document_cache
+	_prior_bridge_ready = BRIDGE._entry_document_ready
+	var fixture := {"default_locale": "en", "entries": selected}
+	CATALOG._entry_document = fixture
+	CATALOG._entries_initialized = true
+	BRIDGE._entry_document_cache = fixture
+	BRIDGE._entry_document_ready = true
+	_retained_entries = true
+	return true
+
+
 func test_exact_canonical_labels_record_then_native_gallery_replay_preserves_run_and_profile() -> void:
+	if not _install_retained_ending_entries(): return
 	# The fixture's original New Run pair form matches its frozen pair-ending step.
 	state.inter_friend_route_state = {"priscilla_lavinia":{"frozen_form":"love_sweet"}}
 	assert_true(playback.configure_reached_presentations(profile,state.capture_ending_presentation_signature).ok)
@@ -325,6 +376,9 @@ class ReadingBoundaryBridge extends BRIDGE:
 		return {"ok": true, "receipt": {"playback_token": _active_entry.token}}
 
 func _ending_boundary_fixture() -> Dictionary:
+	_retained_frozen = preload("res://tests/support/RetainedFrozenContextFixture.gd").new()
+	var installed: Dictionary = _retained_frozen.install(["ending.sylvia.special.full", "ending.sylvia.dark"])
+	assert_true(installed.get("ok", false), str(installed))
 	var frozen := preload("res://scripts/narrative/EndingFrozenContext.gd")
 	var inputs := {"dark_mode": false, "pair_form": "love_sweet", "special_variant": "full"}
 	for friend: String in frozen.FRIENDS:

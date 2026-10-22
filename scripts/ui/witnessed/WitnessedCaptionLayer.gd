@@ -1391,6 +1391,9 @@ func _apply_preferences() -> void:
 func _on_locale_changed(_locale_id: String) -> void:
 	_cancel_speech()
 	_apply_preferences()
+	_project_scene_caption_memory()
+	_project_ending_caption_memory()
+	_request_layout()
 	_configure_recovery_presentation()
 
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
@@ -1440,9 +1443,13 @@ func _layout_stack(publication: bool = false, desired_scroll: float = -1.0) -> v
 	scroll.position = Vector2(16, FIELD_TOP[_text_percent])
 	scroll.size = Vector2(1248, FIELD_BOTTOM - FIELD_TOP[_text_percent])
 	var window := _caption_window()
+	for retained: RichTextLabel in [older, previous, review_current]:
+		retained.bbcode_enabled = true
 	older.text = window[0] if window.size() == 3 else ""
 	previous.text = window[window.size() - 2] if window.size() >= 2 else ""
 	review_current.text = window.back() if _review_offset > 0 and not window.is_empty() else ""
+	for retained: RichTextLabel in [older, previous, review_current]:
+		retained.text = preload("res://scripts/localization/StoryLocalization.gd").display_markup(retained.text)
 	older.visible = _has_caption() and window.size() == 3
 	previous.visible = _has_caption() and window.size() >= 2
 	review_current.visible = _has_caption() and _review_offset > 0

@@ -362,3 +362,54 @@ func test_same_owner_same_operation_restore_keeps_profile_ahead_retry_after_read
 	f.authority.reject_checkpoint = false
 	assert_true(f.action("retry").ok)
 	assert_eq(f.record(), ahead)
+
+func test_before_save_flush_with_no_started_board_needs_no_playable_admission() -> void:
+	assert_true(f.begin().ok)
+	f.authority.presentation_held = true
+	var flushed: Dictionary = f.owner.flush_pending_attempt()
+	assert_true(flushed.ok, str(flushed))
+	assert_false(flushed.value.get("committed", true))
+	assert_eq(f.record(), {})
+	assert_eq(f.attempt().value, {})
+	assert_eq(f.authority.checkpoints.size(), 0)
+
+func test_before_save_flush_of_checkpointed_board_preserves_held_presentation() -> void:
+	assert_true(f.begin().ok)
+	assert_true(f.action("start").ok)
+	assert_true(f.action("reveal", 36).ok)
+	var record: Dictionary = f.record()
+	var attempt: Dictionary = f.attempt().value
+	var checkpoints: int = f.authority.checkpoints.size()
+	f.authority.presentation_held = true
+	var flushed: Dictionary = f.owner.flush_pending_attempt()
+	assert_true(flushed.ok, str(flushed))
+	assert_false(flushed.value.get("committed", true))
+	assert_true(f.authority.presentation_held)
+	assert_eq(f.record(), record)
+	assert_eq(f.attempt().value, attempt)
+	assert_eq(f.authority.checkpoints.size(), checkpoints)
+
+func test_before_save_flush_of_pending_checkpoint_still_requires_source_admission() -> void:
+	assert_true(f.begin().ok)
+	assert_true(f.action("start").ok)
+	f.authority.reject_checkpoint = true
+	assert_false(f.action("flag", 0).ok)
+	var owner_backup: Dictionary = f.owner.capture_reconciliation_state().value
+	var record: Dictionary = f.record()
+	var attempt: Dictionary = f.attempt().value
+	var checkpoints: int = f.authority.checkpoints.size()
+	f.authority.reject_checkpoint = false
+	f.authority.presentation_held = true
+	var refused: Dictionary = f.owner.flush_pending_attempt()
+	assert_false(refused.ok)
+	assert_eq(str(refused.code), "event_presentation_held")
+	assert_eq(f.owner.capture_reconciliation_state().value, owner_backup)
+	assert_eq(f.record(), record)
+	assert_eq(f.attempt().value, attempt)
+	assert_eq(f.authority.checkpoints.size(), checkpoints)
+	f.authority.presentation_held = false
+	var retried: Dictionary = f.owner.flush_pending_attempt()
+	assert_true(retried.ok, str(retried))
+	assert_true(retried.value.get("committed", false))
+	assert_eq(f.attempt().value, attempt)
+	assert_eq(f.authority.checkpoints.size(), checkpoints + 1)

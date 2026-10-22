@@ -31,8 +31,10 @@ progress. Clearing that history also clears these artwork unlocks.
 | `audio/bgm/story_theme.ogg` | Days 1–7 and the template ending |
 
 The paths stay separate. You may export the same recording to both files, or use
-different music. Supply actual Ogg Vorbis files. The supplied quiet eight-second
-loop is an original synthesized placeholder, not final music. Both use the Music
+different music. Supply actual Ogg Vorbis files. The Title uses Bach / Kimiko Ishizaka, Prelude No. 9 in E major (BWV 854).
+The story uses Prelude No. 14 in F-sharp minor (BWV 859), reduced by 6 dB.
+Both are complete movements repeated by the existing loop setting; they are not
+claimed seamless loops. Credits and exact sources: `audio/bgm/CLASSICAL_MUSIC_NOTICES.txt`. Both use the Music
 volume control. Scene admission restarts at the authored entrance; loading uses
 the authored load anchor rather than saving a playback timestamp.
 

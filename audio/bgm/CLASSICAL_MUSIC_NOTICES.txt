@@ -1,0 +1,34 @@
+Classical piano recordings used in DWM
+Retrieved: 2026-10-23
+
+Composer: Johann Sebastian Bach
+Piano: Kimiko Ishizaka
+Recording project: Open Well-Tempered Clavier, Book 1 (2015)
+Production credits: Anne-Marie Sylvestre (producer, editing, mixing, mastering);
+Tobias Lehmann (engineer); Robert Douglass (executive producer).
+
+Title: Prelude No. 9 in E major, BWV 854
+Runtime file: audio/bgm/menu_theme.ogg
+Source:
+https://commons.wikimedia.org/wiki/File:Kimiko_Ishizaka_-_Bach_-_Well-Tempered_Clavier,_Book_1_-_17_Prelude_No._9_in_E_major,_BWV_854.ogg
+Changes: filename only; original Ogg bytes preserved.
+
+Story: Prelude No. 14 in F-sharp minor, BWV 859
+Runtime file: audio/bgm/story_theme.ogg
+Source:
+https://commons.wikimedia.org/wiki/File:Kimiko_Ishizaka_-_Bach_-_Well-Tempered_Clavier,_Book_1_-_27_Prelude_No._14_in_F-sharp_minor,_BWV_859.ogg
+Changes: gain reduced by 6 dB; re-encoded as Ogg Vorbis quality 5.
+Complete movement retained; no generated or added music.
+
+Exact Commons masters: CC0 1.0 Universal
+https://creativecommons.org/publicdomain/zero/1.0/
+https://creativecommons.org/publicdomain/zero/1.0/legalcode
+Creator album confirms a CC0 release:
+https://kimikoishizaka.bandcamp.com/album/bach-well-tempered-clavier-book-1
+Its separate license link points to CC BY 4.0; these full credits and change
+notices also honor that attribution requirement conservatively:
+https://creativecommons.org/licenses/by/4.0/
+
+No endorsement by the composer, performer, recording team or licensors is implied.
+The grant applies to these recordings, not arbitrary recordings of Bach.
+Original files and checksums are retained under art_source/audio/ishizaka/.
