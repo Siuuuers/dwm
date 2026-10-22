@@ -19,9 +19,9 @@ jobs:
       run:
         shell: pwsh
     env:
-      PRODUCT_SHA: 700fdccc3fe1ae257eb1c61f4183ded42e580426
-      SOURCE_SHA: 6fa1a1aa9492b96683c58880ca576cbc9133be52
-      PREPARATION_SHA256: c13fb168c5276dd91e622d0ccc01adc538f1c7015dc93d3b6dd9dae2462c7203
+      PRODUCT_SHA: 3f346680c90ab53b4e68bfd187f44bc8fca50961
+      SOURCE_SHA: ab362e5ca5f7089286bd679173bdbbc7af8d832e
+      PREPARATION_SHA256: 315f216ed8de58b82cc28892f91ad887ef618e48be7f5b2ddf2fcac9dd0e62d5
       CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
       HARNESS_MANIFEST_SHA256: 7df0b84bb484a87a77a5f5a11acd89e3b2747b97196b62a97722f13836756f7e
     steps:
@@ -30,7 +30,7 @@ jobs:
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
-          ref: 700fdccc3fe1ae257eb1c61f4183ded42e580426
+          ref: 3f346680c90ab53b4e68bfd187f44bc8fca50961
       - name: Pin external preparation helpers
         id: preparation_helpers
         run: |
