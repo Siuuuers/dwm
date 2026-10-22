@@ -1,0 +1,10 @@
+# Paired validation observation — run39757235992
+Independent review PASS for bounded short route. One test69assertions,zero failures/skips,35.219648s,child0. Accept23.586143s reaches durable COMPLETED/GALLERY_RECORDED/Title.
+Receipt validation188calls15.434748s (65.44%Accept); bundle validation2064calls12.649887s (53.63%); physical proof188calls1.507370s (6.39%). All failures0. Nine aggregates exactly match raw log. Snapshot24calls22.603942s:pre10.268074s,semantic12.096604s,guards0.233032s.
+Times overlap; bundle also has callers outside receipt validation. Do not subtract full bundle totals from receipt total or treat durations as guaranteed savings.
+Independent review verified10source pins across4custody phases,4policy receipts,5205retained byte hashes, preparation and3PowerShell helpers, exact result census and clean exit. Lead verified actual eventeb8f418679c421999fe5bef35ce5198f82830e6c workflow blob4002bbc1d28365e52977436ce950d9a5eb5e7714 and both GitHub API ZIP digests. Product32c4521c533685a411cb059916a3f86c48e20799; assets4828398a035ca41cdf5e910a05bee6edbdc0ca03; controller225518694c7f9455d60f1cab3b85cc2be2af0bcb.
+Original ZIPs retained as25ordered512KiB parts; concatenate numeric parts per filename. parts.json includes sizes/Git blobs, all uploaded hashes verified.
+12416950376.zip preparation SHA25614b213b3e269cb66b818072256377eee80f8e983cbcf671bd5fb79d010b85288.
+12416129169.zip qualification SHA256e4a65329f0a3ce57be64af08cb762307b5ddfd72b57b71b4254e498edf748a37.
+GeneralCI39757235974 failed separately. No exported/restored-journey/generalCI acceptance or optimization claim.
+Next: narrow candidate reusing freshly computed bundle tables only within synchronous pure receipt-construction chain; each public entrypoint still freshly validates. Preserve issuer/storage callbacks, all ledger traversals and recovery boundaries. Source/caller/failure-order review plus focused existing regressions precede complete ending-operation comparison. No cross-call cache, saved trust flag or production promotion without evidence.
