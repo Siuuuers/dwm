@@ -227,8 +227,10 @@ static func _validate_scene_manifest(document: Dictionary) -> Dictionary:
 		elif row.has("day") or row.has("ending_id") or row.has("allowed_ending_forms"):
 			return _scene_fail("scene ending metadata")
 		var locator: Dictionary = row.locators.en
-		if not _locator_is_usable(locator, row.entry_id) or not locator.path.begins_with("res://tests/fixtures/dialogic/") \
-				or ".." in locator.path or not locator.path.ends_with(".dtl"): return _scene_fail("TEST locator")
+		var shipped_path: bool = locator.path.begins_with("res://dialogic/timelines/authored_week/") \
+				or locator.path.begins_with("res://tests/fixtures/dialogic/")
+		if not _locator_is_usable(locator, row.entry_id) or not shipped_path \
+				or ".." in locator.path or not locator.path.ends_with(".dtl"): return _scene_fail("scene locator")
 		var pair: String = locator.path + "|" + locator.label
 		if seen.has(pair): return _scene_fail("duplicate locator")
 		seen[pair] = true
