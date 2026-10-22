@@ -1,0 +1,80 @@
+name: Classical music intake and native registration
+on:
+  pull_request:
+    paths: ['.github/workflows/classical-music-intake.yml']
+permissions:
+  contents: write
+jobs:
+  intake:
+    if: github.event.pull_request.head.ref == 'codex/classical-music-intake-20261023' && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
+    runs-on: windows-2022
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: 65914c0cf4bfb0492268849d8f0bf96b7f639ad1
+          persist-credentials: true
+      - name: Prepare disposable index
+        run: git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+      - name: Install conversion and native import tools
+        run: |
+          $ErrorActionPreference = 'Stop'
+          choco install ffmpeg --no-progress -y
+          if ($LASTEXITCODE -ne 0) { throw 'FFmpeg installation failed' }
+          $env:Path += ';C:\ProgramData\chocolatey\bin'
+          $archive = Join-Path $env:RUNNER_TEMP 'godot.zip'
+          Invoke-WebRequest 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
+          if ((Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90') { throw 'Engine hash mismatch' }
+          Expand-Archive $archive (Join-Path $env:RUNNER_TEMP 'godot')
+          "GODOT_CONSOLE_PATH=$(Join-Path $env:RUNNER_TEMP 'godot/Godot_v4.6.3-stable_win64_console.exe')" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Acquire exact CC0 masters and prepare runtime tracks
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $source = 'art_source/audio/ishizaka'
+          New-Item -ItemType Directory -Force $source | Out-Null
+          Set-Content art_source/audio/.gdignore '' -Encoding utf8
+          $rows = @(
+            @{name='bwv854'; url='https://upload.wikimedia.org/wikipedia/commons/b/bc/Kimiko_Ishizaka_-_Bach_-_Well-Tempered_Clavier%2C_Book_1_-_17_Prelude_No._9_in_E_major%2C_BWV_854.ogg'; hash='e4b2999f155a97f6ff6c52cad9c5ea7fba175151603ae47d77b7e447b4b1565c'; target='menu_theme'; gain=0},
+            @{name='bwv859'; url='https://upload.wikimedia.org/wikipedia/commons/f/fc/Kimiko_Ishizaka_-_Bach_-_Well-Tempered_Clavier%2C_Book_1_-_27_Prelude_No._14_in_F-sharp_minor%2C_BWV_859.ogg'; hash='541bc8b1c09dd2844c5a8a9f9f8c4aea478ea7470f07bc59dee7644e38c6181b'; target='story_theme'; gain=-6}
+          )
+          $receipt = @()
+          foreach ($row in $rows) {
+            $original = "$source/$($row.name).ogg"
+            Invoke-WebRequest $row.url -OutFile $original
+            if ((Get-FileHash $original -Algorithm SHA256).Hash.ToLowerInvariant() -cne $row.hash) { throw 'Source master hash mismatch' }
+            $target = "audio/bgm/$($row.target).ogg"
+            if ($row.gain -eq 0) { Copy-Item $original $target -Force }
+            else {
+              & C:\ProgramData\chocolatey\bin\ffmpeg.exe -hide_banner -y -i $original -af 'volume=-6dB' -c:a libvorbis -q:a 5 $target
+              if ($LASTEXITCODE -ne 0) { throw 'Audio conversion failed' }
+            }
+            $receipt += @{source=$row.url; original_sha256=$row.hash; path=$target; gain_db=$row.gain; runtime_sha256=(Get-FileHash $target -Algorithm SHA256).Hash.ToLowerInvariant(); bytes=(Get-Item $target).Length}
+          }
+          $receipt | ConvertTo-Json -Depth 4 | Set-Content "$source/intake.json" -Encoding utf8
+      - name: Native import and regenerate music registration
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $env:APPDATA = Join-Path $env:RUNNER_TEMP 'music-user'
+          & $env:GODOT_CONSOLE_PATH --headless --path . --import --log-file "$env:RUNNER_TEMP/music-import.log"
+          if ($LASTEXITCODE -ne 0) { throw 'Import failed' }
+          if (Select-String "$env:RUNNER_TEMP/music-import.log" -Pattern 'SCRIPT ERROR:|ERROR:' -Quiet) { throw 'Import reported errors' }
+          & $env:GODOT_CONSOLE_PATH --headless --path . --script tools/authoring/ExportSevenDayRegistration.gd
+          if ($LASTEXITCODE -ne 0) { throw 'Registration generation failed' }
+          & $env:GODOT_CONSOLE_PATH --headless --path . --script tools/authoring/ExportSevenDayRegistration.gd -- --validate-seven-day-export
+          if ($LASTEXITCODE -ne 0) { throw 'Registration validation failed' }
+      - name: Preserve qualified assets on new candidate branch
+        run: |
+          $ErrorActionPreference = 'Stop'
+          git reset
+          git add -- art_source/audio audio/bgm/menu_theme.ogg audio/bgm/story_theme.ogg audio/bgm/menu_theme.ogg.import audio/bgm/story_theme.ogg.import data/manifests/scene_story_registration.json data/manifests/scene_ending_reading_catalogue.json
+          if ($LASTEXITCODE -ne 0) { throw 'Staging failed' }
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'audio: import licensed Bach piano and regenerate story registration'
+          if ($LASTEXITCODE -ne 0) { throw 'Commit failed' }
+          git push origin HEAD:refs/heads/codex/classical-music-assets-20261023
+          if ($LASTEXITCODE -ne 0) { throw 'Candidate push failed' }
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
