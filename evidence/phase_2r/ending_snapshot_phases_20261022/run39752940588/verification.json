@@ -1,0 +1,8 @@
+{
+  "archive_members_verified": 5300,
+  "retained_content_hashes_verified": 5205,
+  "source_receipts_verified": 32,
+  "actual_workflow_commit": "e6618172c9b95d9f7062af869c88c6b74de8c1c9",
+  "actual_workflow_blob": "5bada1bcb5b9bcefb281e1a6886ba44c458e1925",
+  "actual_workflow_blob_matches": true
+}
