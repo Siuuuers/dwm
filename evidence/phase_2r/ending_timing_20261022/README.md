@@ -31,3 +31,15 @@ Read scalar phase records with existing isolation start/elapsed evidence. Preser
 
 ## Reconciliation
 master41592fcc792aa615e47ee2ce2f05008ca195b311, PR36c8358870d3ece92d5f8cc7ba65aefe34a746be5c, integration3ae6d9138fb53c388380c78550cf6082eafc0ea3 and controller99898a4f6553b1409a6ea9de6e0b6e3cc752ab9a matched handoff. Controller's targeted39725463509 and ordinary39725463468 runs are completed failures. No protected/product/controller movement, PR messages, merge or release. Existing clean/native/direct-ending acceptance is not rerun.
+
+## Launch checkpoint — 2026-10-22
+User requested one launch then handback while cloud runs. Independently reviewed complete packet is installed.
+- Target run: https://github.com/Siuuuers/dwm/actions/runs/39731355730 (run249), observed in_progress, no conclusion.
+- Separately triggered ordinary Windows run39731355684 is not the targeted diagnostic.
+- Controller99bc047ca19489ef44714dafbf7bec8000e40cd0, tree35bd06fcf89f51551aafb73dc9dfd9d729a1f828. Expected-old99898a4f update succeeded; compare exactly one workflow file and published bytes match reviewed blob9d80fd755605a26f32e9cc2b68b059cc28a2102a; SHA2563bf113dcd07cfdca88f59aa501d8a853dead70bfbb740462604b6b07d09256ac.
+- Product43c907f8249b28d50c1cd4ea71ee61469c21157a; assets aac507fe98971a6779edc550ce6c7fbba0890cdb (tree32ff305d4430b5597d87272053bdf3c75303bf7a).
+- Assets under evidence/phase_2r/ending_timing_20261022: prep SHA256689c0c84b81997b2e8761752522457e32ba2cdd8c167fdfdd7646e407896a508; manifest073dbbedf000ad706c080f33342d561d135c46cd5a1c05409619d8c0e9725591; runner885a34370cd14228cae08e7baf316124216f64a3f5f119c5ae2ed6451ccb40d0.
+- Only runner delta is inherited fixture source binding and receipt; preparation only changes PRODUCT. Isolation/hash helpers exact baseline blobs. All5 asset contents read back exactly. Independent reviewer checked final controller/pins; no launch blocker.
+- Local validation was static Python parse/hash/YAML/pin checking only. All Godot and PowerShell execution remains on cloud.
+- Existing240s child,10min focused step,8min import and strict engine/JUnit/source/failure-evidence gates unchanged. No production/WCT/export retry or merge.
+Next: consume this run, verify actual preparation-origin/source/selection/isolation receipts, retain original artifacts, and interpret phase records with actual outcome. Do not dispatch a duplicate or infer runtime success from static clearance. User will notify when finished; no continued polling required this turn.
