@@ -1950,9 +1950,10 @@ func test_background_mixed_control_edges_and_review_pause_do_not_accept() -> voi
 
 
 func _caption_accessibility_action(target: Control = null) -> Callable:
-	var mounted_target: Control = caption.caption_text if target == null else target
-	var provider: Callable = mounted_target.get("accept_action_provider")
-	return provider.call(mounted_target)
+	if target != null:
+		assert_eq(target, caption.accept_input._focus_caption(), "Continue binds the real live/review target")
+	assert_eq(caption.background_input._accept_input, caption.accept_input)
+	return caption.background_input.capture_continue_action()
 
 func test_assistive_caption_accept_completes_then_advances_without_reusing_callback() -> void:
 	if not await _mount_root_accept_fixture("Current.\nFollowing."): return
@@ -2082,3 +2083,43 @@ func test_full_scrollback_reprojection_keeps_native_state_and_three_caption_wind
 	assert_eq(caption._scrollback, [])
 	assert_eq(caption.get_caption_projection().retained_captions, [])
 	assert_eq(_stack_invariants(), before)
+
+func test_continue_projection_uses_existing_surface_and_follows_source_admission() -> void:
+	# Isolated tests skip startup; initialize real display owners with in-memory storage.
+	var profile: Node = preload("res://autoload/ProfileManager.gd").new()
+	var storage: RefCounted = preload("res://scripts/infrastructure/storage/JsonFileStorage.gd").new(
+		"continue-projection-fixture", preload("res://tests/support/FakeFileOps.gd").new())
+	_replace_caption_display_source("ProfileManager", profile)
+	var profile_result: Dictionary = profile.initialize(storage)
+	assert_true(profile_result.get("ok", false), "isolated Continue profile initializes")
+	if not profile_result.get("ok", false): return
+	var localization: Node = preload("res://autoload/LocalizationManager.gd").new()
+	_replace_caption_display_source("LocalizationManager", localization)
+	var localization_result: Dictionary = localization.initialize(profile)
+	assert_true(localization_result.get("ok", false), "isolated Continue localization initializes")
+	if not localization_result.get("ok", false): return
+	assert_eq(localization.get_readiness(), &"ready")
+	assert_true(localization.has_key("button.continue"))
+	if not await _mount_root_accept_fixture("Current.\nFollowing."): return
+	var surface: Control = caption.background_input
+	assert_eq(surface.get_script().resource_path, "res://scripts/ui/witnessed/WitnessedAccessibleContinue.gd")
+	assert_eq(surface._label, get_node("/root/LocalizationManager").t("button.continue"))
+	assert_true(surface._available)
+	assert_eq(caption.caption_text.focus_mode, Control.FOCUS_ALL, "text retains keyboard focus")
+	caption._history_open = true
+	surface._refresh_projection()
+	assert_false(surface._available, "History blocks the same ordinary source")
+	assert_false(surface._source_visible, "covered story surface withdraws Continue")
+	var blocked: Callable = surface.capture_continue_action()
+	blocked.call(null)
+	assert_eq(_finished, 0)
+	caption._history_open = false
+	caption.accept_input.retire_input()
+	await _settle()
+	blocked.call(null)
+	assert_eq(_finished, 0, "closing History does not resurrect its callback")
+	assert_true(surface._available)
+	surface.capture_continue_action().call(null)
+	await _settle()
+	assert_eq(_finished, 1)
+	assert_eq(runtime.current_event_idx, 0)
