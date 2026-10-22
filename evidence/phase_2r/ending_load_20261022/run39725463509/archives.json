@@ -1,0 +1,162 @@
+[
+  {
+    "name": "preparation.zip",
+    "artifact_id": 12403008893,
+    "bytes": 10816396,
+    "sha256": "ed9f84739e2f201ddd937ba4d09928df994de98a5343597547ac72b2a6f914c2",
+    "parts": [
+      {
+        "name": "preparation.zip.part000",
+        "bytes": 524288,
+        "sha256": "7e84bfb947357ea3b59325f330da6a2b1f5c61db10824195c341c32ed792195b",
+        "git_blob": "c8333a134f8edc90d083ecc7a78faef632cfbc9c"
+      },
+      {
+        "name": "preparation.zip.part001",
+        "bytes": 524288,
+        "sha256": "39275606f33fbc5c0a52f6fa06a5b59ac96cdb494e676e23d17da922bb5ad374",
+        "git_blob": "39ac83a6473b8d0fc0218bb15d03bf24b0fa967d"
+      },
+      {
+        "name": "preparation.zip.part002",
+        "bytes": 524288,
+        "sha256": "8e1b7afc2b641866116af2b75374a5117a96e66fdc31f349340f2171a5ed4771",
+        "git_blob": "971ed83937b762a43a6af00ad6203f2baddbb3d7"
+      },
+      {
+        "name": "preparation.zip.part003",
+        "bytes": 524288,
+        "sha256": "09e88a02ca05a2c566e3601da01402944e12749b4e34b35580896bc6603b288a",
+        "git_blob": "30ff58ba5881422840964a0a371f510df38677bd"
+      },
+      {
+        "name": "preparation.zip.part004",
+        "bytes": 524288,
+        "sha256": "1982d2ac59f7fb411953686355ed2e8f38b70daa8abf4522fe8b5319ce2b3647",
+        "git_blob": "5246a4c1a4f11e19f4c50488a73cfa2a43e9b706"
+      },
+      {
+        "name": "preparation.zip.part005",
+        "bytes": 524288,
+        "sha256": "ed45af96ea8e46747297eaf3732924434c5e426ffef9829044e7394f78b0cbde",
+        "git_blob": "eae635125de822f41aabe196c1fce7f02c71005d"
+      },
+      {
+        "name": "preparation.zip.part006",
+        "bytes": 524288,
+        "sha256": "895c5749bf55a954dc2bde7a8b07f1593b00be3212c1fabecacfed99b1354dd0",
+        "git_blob": "cf9c4843ac5c07a60d34cdb911d105d8578b6ba2"
+      },
+      {
+        "name": "preparation.zip.part007",
+        "bytes": 524288,
+        "sha256": "939591641eb5ff8bb9af053410646f5222a11bc2a062b6a7b03a82a5bf8922a2",
+        "git_blob": "10f033520580ebdc65a364b508724fcc41b66442"
+      },
+      {
+        "name": "preparation.zip.part008",
+        "bytes": 524288,
+        "sha256": "7bda2f8314c9290364042d4c6d33c2946e2072217ce5c5ebe9b180a53c3ae219",
+        "git_blob": "ecf56c097b4364a99403ed710eda52079d4fcbc7"
+      },
+      {
+        "name": "preparation.zip.part009",
+        "bytes": 524288,
+        "sha256": "9ede5e6ed56efb168b7a9c7c5d461987fef8622629b3250b75d90fe95f30e23a",
+        "git_blob": "8fbf2edcf0229b4de5dce1d645d8bf34e4e1934b"
+      },
+      {
+        "name": "preparation.zip.part010",
+        "bytes": 524288,
+        "sha256": "2d0b82664956995fdb1e43d4a31447d81333fabd0444bc281c51adcc2a495636",
+        "git_blob": "e1663f8b45731533dc516e8ea5d5951a25775e43"
+      },
+      {
+        "name": "preparation.zip.part011",
+        "bytes": 524288,
+        "sha256": "6a586e57995cd5891bb5d8d35cc8c1f7d8ba14dab4ccf8bf092f9dc33b602fea",
+        "git_blob": "bb003d458a16f112c45be66b07cdff169cbe29f0"
+      },
+      {
+        "name": "preparation.zip.part012",
+        "bytes": 524288,
+        "sha256": "d619160a75b439b9ec1c81555adc1c2e5f4498c7ef7b1f7fd6804bce9ae8c70f",
+        "git_blob": "212bfb4246f83a2628d00d2848b44e9eaa93b102"
+      },
+      {
+        "name": "preparation.zip.part013",
+        "bytes": 524288,
+        "sha256": "df5f1cf9956c76c9045f44245ef0a905c0519b403069d5eb9e8f04b5d68c75e5",
+        "git_blob": "4b90812553b22e6fce5eb7b0f198c1e54a7666b1"
+      },
+      {
+        "name": "preparation.zip.part014",
+        "bytes": 524288,
+        "sha256": "57808625aec98fbfdca9a718e1b5096ba06fc0343eea0aa1f2d355bd9539febd",
+        "git_blob": "fef6a6c2339a21025b0757ed53461cd9c3a6580c"
+      },
+      {
+        "name": "preparation.zip.part015",
+        "bytes": 524288,
+        "sha256": "8d8657302293000030a843636b63a10e4b4f4e1a6aba47dc4d575badb90e1d7c",
+        "git_blob": "caa7a27fb0deb4568d39c118c35382ab75e98f98"
+      },
+      {
+        "name": "preparation.zip.part016",
+        "bytes": 524288,
+        "sha256": "9f63680970842d1e96bc17c394e4f74e6170e614decd63b55ee34951e0569d0f",
+        "git_blob": "13f227230d071defb20a434a9e2cdb34ad31ccc7"
+      },
+      {
+        "name": "preparation.zip.part017",
+        "bytes": 524288,
+        "sha256": "e3579d7391c57dcd451b020d8e2915207f5b00aac4a7f0b47a6f334053ebb57c",
+        "git_blob": "b0ac1810edaab032f545d46304fab6656f8c7e60"
+      },
+      {
+        "name": "preparation.zip.part018",
+        "bytes": 524288,
+        "sha256": "6dcd8900418dd67d0b4e821cc5b1a32df571c7c6c33db29e9a3cabd5dacd1c54",
+        "git_blob": "55dc8b66dae3a4134d047ca0ea510b790afc9bda"
+      },
+      {
+        "name": "preparation.zip.part019",
+        "bytes": 524288,
+        "sha256": "48f50182a2b46de3752f32f3f7af55e1f04f6c55a8c841a890d97694c6350d95",
+        "git_blob": "409c9c0d655c278d634ae68d7ace3e348e239ac2"
+      },
+      {
+        "name": "preparation.zip.part020",
+        "bytes": 330636,
+        "sha256": "670d551012213651a8411e68331e70d262eeadfba8b757dce8f21250d111e8e8",
+        "git_blob": "d9dc21673cd88253abff1ef535eae9e319aed9de"
+      }
+    ]
+  },
+  {
+    "name": "qualification.zip",
+    "artifact_id": 12402704471,
+    "bytes": 1300651,
+    "sha256": "52ae1a5b57f0e678abaa19309ff33aa5a48840e867ec1c5fb37b2529dc2cc379",
+    "parts": [
+      {
+        "name": "qualification.zip.part000",
+        "bytes": 524288,
+        "sha256": "93abc6e2aeec7f65fc8efb4239d811d56b45aa1dcf6e25e88262f767ffc36007",
+        "git_blob": "898cb2eeb064116d2ffdf5ffc9951f0f1d1db2bd"
+      },
+      {
+        "name": "qualification.zip.part001",
+        "bytes": 524288,
+        "sha256": "80a6fe6ca3a5a08deb8e4eeb49231779588333887dfaf52028a9356922e3fd21",
+        "git_blob": "9951933ba111c74a8200dfcf2be073f73831c2de"
+      },
+      {
+        "name": "qualification.zip.part002",
+        "bytes": 252075,
+        "sha256": "d5f0212775897ea810e862daa4c519d043bf3e5d2561f0c7426666088212f4b4",
+        "git_blob": "ee5f22c93d2385e3ec45f09cf6ed0932fdbc72b4"
+      }
+    ]
+  }
+]
