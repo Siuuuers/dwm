@@ -50,7 +50,7 @@ func test_direct_ending_accept_returns_without_save() -> void:
 	if not await _wait_line("line.Day7.two"): return
 	var prior_layout: Node = bridge._runtime_adapter._dialogic.Styles.get_layout_node()
 	var prior_layout_id: int = prior_layout.get_instance_id()
-	var prior_layout_ref := weakref(prior_layout)
+	var prior_layout_ref: WeakRef = weakref(prior_layout)
 	var default_style: Variant = ProjectSettings.get_setting("dialogic/layout/default_style", "")
 	var end_behaviour: Variant = ProjectSettings.get_setting("dialogic/layout/end_behaviour", 0)
 	# Widen the existing organic-reveal delay only to make the observed timing
