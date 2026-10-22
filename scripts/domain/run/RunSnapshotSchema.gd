@@ -37,6 +37,8 @@ const DATING_ENDING_RULES := preload("res://scripts/domain/ending/DatingEndingRu
 const SCHEDULE_STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
 const NARRATIVE_VARIABLE_REGISTRY_PATH := "res://data/manifests/narrative_variables.json"
 const DESKTOP_APP_REGISTRY := preload("res://scripts/domain/desktop/DesktopAppRegistry.gd")
+const SCENE_VALIDATION_TIMING := preload("res://scripts/narrative/SceneValidationTiming.gd")
+
 const RUN_LIFECYCLE := preload("res://scripts/domain/run/RunLifecycle.gd")
 const DESKTOP_BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
 const DESKTOP_CONSEQUENCE_STATE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
@@ -790,6 +792,31 @@ static func _scene_exact_value(left: Variant, right: Variant) -> bool:
 	return SCENE_EVENT_CONTRACT._same_types(left, right) and _scene_equal(left, right)
 
 static func validate_scene(snapshot: Dictionary, bundle: Dictionary) -> Dictionary:
+	var started_us: int = SCENE_VALIDATION_TIMING.start_sample()
+	if started_us < 0: return _validate_scene_observed_body(snapshot, bundle)
+	var observation: Dictionary = {}
+	var sequence: Variant = snapshot.get("checkpoint_sequence")
+	if typeof(sequence) == TYPE_INT: observation["checkpoint_sequence"] = sequence
+	var lifecycle_label: Variant = snapshot.get("lifecycle")
+	if lifecycle_label is Dictionary:
+		var state_label: Variant = lifecycle_label.get("state")
+		if typeof(state_label) in [TYPE_STRING, TYPE_STRING_NAME] and String(state_label) in LIFECYCLE_STATES:
+			observation["lifecycle_state"] = String(state_label)
+		var plan_label: Variant = lifecycle_label.get("ending_plan")
+		if plan_label is Dictionary:
+			var stage_label: Variant = plan_label.get("playback_stage")
+			if typeof(stage_label) in [TYPE_STRING, TYPE_STRING_NAME] and String(stage_label) in PLAYBACK_SEQUENCE:
+				observation["playback_stage"] = String(stage_label)
+	# An active record must remain nonempty even when malformed input has no admitted labels.
+	observation["inclusive_nested"] = true
+	var result: Dictionary = _validate_scene_observed_body(snapshot, bundle, observation)
+	SCENE_VALIDATION_TIMING.finish_snapshot(started_us, observation, bool(result.get("ok", false)))
+	return result
+
+
+static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictionary,
+		observation: Dictionary = {}) -> Dictionary:
+	var phase_tick: int = Time.get_ticks_usec() if not observation.is_empty() else 0
 	var type_error := _scene_initial_types_error(snapshot)
 	if not type_error.is_empty(): return _fail(&"scene_initial_types_invalid", type_error)
 	var run_join := _validate_scene_history_run(snapshot.get("command_receipts"), snapshot.get("run_id"))
@@ -857,15 +884,20 @@ static func validate_scene(snapshot: Dictionary, bundle: Dictionary) -> Dictiona
 	# chains, physical Profile references, assignment creation and Frozen frames.
 	# It must not call Run.validate again. A Boolean supplied by saved data is
 	# never substituted for this privately installed owner.
+	phase_tick = SCENE_VALIDATION_TIMING.snapshot_phase(observation, "pre_semantic_us", phase_tick)
 	var before := _scene_hash(candidate)
 	var detached := candidate.duplicate(true)
 	var detached_bundle := bundle.duplicate(true)
 	var bundle_before := _scene_hash(detached_bundle)
+	phase_tick = SCENE_VALIDATION_TIMING.snapshot_phase(observation, "guard_prepare_us", phase_tick)
 	_scene_semantic_busy = true
 	var semantic: Variant = _scene_authority.call("validate_scene_snapshot_semantics", detached, detached_bundle)
 	_scene_semantic_busy = false
+	phase_tick = SCENE_VALIDATION_TIMING.snapshot_phase(observation, "semantic_us", phase_tick)
 	if _scene_hash(detached) != before or _scene_hash(detached_bundle) != bundle_before:
+		SCENE_VALIDATION_TIMING.snapshot_phase(observation, "guard_verify_us", phase_tick)
 		return _fail(&"scene_validation_mutated", "semantic owner mutated validation input")
+	SCENE_VALIDATION_TIMING.snapshot_phase(observation, "guard_verify_us", phase_tick)
 	if not semantic is Dictionary or semantic.get("ok") != true:
 		return semantic if semantic is Dictionary else _fail(&"scene_validation_invalid_result", "semantic owner must return a result")
 	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
