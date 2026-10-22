@@ -1,0 +1,24 @@
+{
+  "candidate": "7606e994308cbad6511f88dd1bb47594d2df0d07",
+  "kind": "static_literal_replay_not_engine_execution",
+  "game_state_sha256": "c3b9949ba09bf1a47969afd73daf835645bb7b4eb494d91f19a6f7e222917c4d",
+  "test_sha256": "82069c407360cac94a1d5caae440d824b2135ff3f834dbc3836c25436417fcb3",
+  "required_occurrences": 1,
+  "actual_occurrences": [
+    1,
+    1,
+    0,
+    1,
+    0,
+    1,
+    0
+  ],
+  "missing_fragment_indices_zero_based": [
+    2,
+    4,
+    6
+  ],
+  "expected_marker_owner_sha256": "264c91220e99977085838f24ced5f9a4ef95eb74f8c24609aebcbf98b63707db",
+  "all_literal_replacements_hash_for_diagnosis_only": "5d13506f2623a21663a11a5036a043e5a4553953df00c119b886db41875a1f8b",
+  "runtime_defect_claimed": false
+}

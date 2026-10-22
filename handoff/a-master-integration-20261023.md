@@ -1,3 +1,37 @@
+# Qualified restore proof and explicit product boundary — 2026-10-23
+
+User authorizes autonomous cloud-only continuation, stopping for a genuine unresolved design decision. All Godot/PowerShell execution remains GitHub Actions with official Godot4.6.3standard. PR42 targets master; neither master nor builds/windows-playable-20261023 has been changed. Concurrent authored-week work owns PR30/PR43; do not overwrite that controller or mix its candidate without explicit source composition.
+
+## Completed, bounded correction
+
+Exact runtime remains unchanged. Test candidate cd78673c1ba36fc4cdd5458c662d214ea33dacb5/tree1f860ea3293e70998d57719b71ab64a176f27714 adds one finite provenance inverse to test_run_restore_isolation.gd. It authenticates complete current owner bytes, reverses18fixed spans to exact accepted23d8b3df owner, then reuses all unchanged Notes/marker/scene/five-isolation-edit/retirement seals. Both frozen faulty fixtures still inherit actual current GameState; all existing behavioral controls remain unchanged. No historical hash was replaced to conceal drift.
+
+Focused run39839181557/job120035376012 passed8original restore/live-rollback cases with1408assertions and11inventory cases with352assertions; both six-direction historical markers appear once;6isolated exits are zero. Independent review verified original37-member ZIP,36manifest entries, source/tree, patch and census. Original inner473280-byte ZIP SHAbabffdca8e0fd252a841cf80c0ea86c7d66f2db8e38bbc2efdd826104feb60c8 is retained directly; outerartifact12453155519sha38b198572e82cf6030b3362b83c93bfb2605ee1e7456a120656c094d5b4119c8 verified. Exact regenerated GameState inventorySHA57f882e45a97eca6a267564f1c7b2520db79726277ba446bfd5868bc85d0a9b1 shifts15references by50lines; all other fields and SaveManager bytes unchanged.
+
+Integrate only that qualified test+inventory and records. Use [skip ci] on the publication commit because the broad run already demonstrated independent unresolved failures; do not repeat a knowingly incoherent campaign. This does NOT waive full qualification before master. PR45 is diagnostic-only and must close without merging its workflow after exact product changes are incorporated.
+
+## Broad run39837646584 remains unqualified
+
+Source d1d8313cff343a46733c021ad9125d6c0702eeff and tested merge3b171dbb60f6edc9cd267e6244f786893b146e76 share tree108b5426f75007562067223fe34676d2dd846ec7. Public-surface gate passed including native9Continue/1wheel/21geometry/5HRESULT0, runner isolation and11inventory tests352assertions. Export/startup, audio, minesweeper and checkpoint_diagnostics jobs passed. Restored PR32 three desktop cases all passed78assertions within an otherwise failing desktop suite.
+
+Other jobs fail on documented fixture/registration/receipt/provenance issues. Latest snapshot still reports settings and rendered-journeys jobs in progress, although rendered-journeys steps already show failure; do not invent final run completion. Four history comparisons are unexecuted after producer failure. Detailed triage and original small artifacts are retained in run39837646584; artifact metadata lists other available originals, including the large export package not duplicated here. None of the broad failures is relabeled by focused success.
+
+## Genuine product decision now required
+
+Current game intentionally retires health. Legacy MinesweeperShopPurchaseParticipant still constructs exact schema-v1 DesktopActionReceipt condition facts using health/pressure/carried_sequela. Current port omits health, so supported legacy purchase tests crash. Downstream receipt/recovery/Day7/remapping contracts retain those saved fields; deleting them or inventing zero is unsafe. The new scene Shop's configure_scene_catalog has no production caller. This is an unfinished boundary, not a one-line test fix.
+
+Choose release scope: (A) complete scene-native Shop purchasing with a versioned successor transaction/receipt contract while retaining legacy saved-receipt compatibility and keeping health retired; or (B) keep Shop unavailable in this first current-story Windows build and defer that feature. Recommend A for a playable build that includes purchases, but do not silently implement/version that feature before the user's scope answer. Do not revive retired health, automatically migrate old receipts, or silently discard old controls.
+
+## Ready work and remaining obligations
+
+Read triage-shop-new-account.md, triage-history.md, triage-endings.md, triage-render-ui.md, triage-desktop-checkpoint-dating.md and persistence-nonprovenance-triage.md. Existing frozen/reading/ending tests often request retained legacy IDs from the now-selected current scene registry. Proposed bounded fixture patches are retained under proposals/ but are NOT installed or cloud-qualified. Reuse existing explicit retained-context seam and exact Gallery fixture catalogue; don't reopen legacy production IDs. Two ordinary-correspondence tests need a separate retained-ID fixture decision. Original shape validation stays closed.
+
+Additional concrete work: stale dating override signature prevents12cases loading; outdated UI ownership classifiers and genuine untranslated Gallery/Pause chrome; old desktop-start assumptions in rendered/performance/history journeys; source admission baseline must preserve four-validation ablation rather than lower its marker count. History/performance failure is not a measured runtime regression; preserve deadlines, baselines and saved-data contracts. Do compatible audits first and then one coherent candidate, with focused unit/integration/rendered checks appropriate to each boundary.
+
+All older proposals were audited; see proposal-behavior-disposition.md. Most are incorporated/superseded, not missing whole branches. Notes production activation, Schedule deletion and legacy assignment migration holds remain. No older product PR closed. Source integration and final master merge are still pending.
+
+---
+
 # Canonical inventory refresh accepted — 2026-10-23
 
 Cloud run39836672362/job120026707814 passed on pinned source7606e994308cbad6511f88dd1bb47594d2df0d07/tree3cf7a659fb76b3ce61a352f33273434c7e3b268d: canonical generate/check both inventories,11 distinct contract tests,352 assertions,5 clean isolated exits. Only two generated inventories changed, apart from disposable gitlink index removal. No engine or PowerShell executed locally.

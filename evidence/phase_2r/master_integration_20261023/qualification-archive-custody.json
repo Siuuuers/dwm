@@ -1,0 +1,139 @@
+[
+  {
+    "path": "evidence/phase_2r/master_integration_20261023/run39837646584/windows-new_account-39837646584-1.zip",
+    "bytes": 237186,
+    "sha256": "d49d50a420ffd5462c7b8b1f197fbd7ec47aa6ef01706b3b033b13a12c84f1e0",
+    "git_blob": "00e61f48e16ebdfea5a07e137138eeded12f51d4",
+    "artifact_id": 12452700613,
+    "members": 4
+  },
+  {
+    "path": "evidence/phase_2r/master_integration_20261023/run39837646584/windows-persistence-39837646584-1.zip",
+    "bytes": 155391,
+    "sha256": "d2fba431518199086672137dc324dfa54921528831c20ae571c51e39b8d8e0f1",
+    "git_blob": "476e452d1062ee05e909786504f3a31682c10d0e",
+    "artifact_id": 12451283766,
+    "members": 4
+  },
+  {
+    "path": "evidence/phase_2r/master_integration_20261023/run39837646584/checkpoint-performance-39837646584-1.zip",
+    "bytes": 25616,
+    "sha256": "61ad4db33ef3caa5c36021d495c73f5ae522603c61e110e0d70b4cccb7558b91",
+    "git_blob": "d31052fde74ec11fc1f5707415d337eb2daebc1e",
+    "artifact_id": 12452401426,
+    "members": 4
+  },
+  {
+    "path": "evidence/phase_2r/master_integration_20261023/run39837646584/windows-checkpoint_diagnostics-39837646584-1.zip",
+    "bytes": 603388,
+    "sha256": "1b4bf6d12f7f4c77ce7aba541b101eb3d9a538a8096d81c3a820511340852b45",
+    "git_blob": "530e463ff0ba5e9851ff65d54e49d72b4c48cd96",
+    "artifact_id": 12451927660,
+    "members": 4
+  },
+  {
+    "path": "evidence/phase_2r/master_integration_20261023/run39837646584/windows-dating-39837646584-1.zip",
+    "bytes": 598716,
+    "sha256": "c1a8adce43ee6794383e3ba64440b5ef13a076fbc75e5b6aebcbd0152e628325",
+    "git_blob": "f89c071bdeddca97c1e75c6d0eb1a61a27269bf4",
+    "artifact_id": 12451458105,
+    "members": 4
+  },
+  {
+    "path": "evidence/phase_2r/master_integration_20261023/run39837646584/windows-desktop-39837646584-1.zip",
+    "bytes": 242241,
+    "sha256": "de5b0bf37f1f23b43bc415d443da0f2b0a1c13368d0f1d1b508d9af5f777f78d",
+    "git_blob": "1e9783dcbf3f8e35bcfa9d49c5d43eb8b0637e85",
+    "artifact_id": 12451328747,
+    "members": 4
+  },
+  {
+    "path": "evidence/phase_2r/master_integration_20261023/run39837646584/seven-day-history-39837646584-1.zip",
+    "bytes": 16146,
+    "sha256": "fffe4a346fe1dad9998d37d38ec948d282cc9f2073608cbc3fc1419221fc1eeb",
+    "git_blob": "54974fc14c78c031dbb82dbda6c694b5cd3ace8f",
+    "artifact_id": 12452236710,
+    "members": 1
+  },
+  {
+    "path": "evidence/phase_2r/master_integration_20261023/run39837646584/public-surfaces-39837646584-1.zip",
+    "bytes": 261314,
+    "sha256": "15f1e259f123b5bfe601c05e71938364210dc99da43c831feb15c141c011740c",
+    "git_blob": "7271fb830872fed5d8916f9ce22a96492f59cfd5",
+    "artifact_id": 12451397630,
+    "members": 50
+  },
+  {
+    "path": "evidence/phase_2r/master_integration_20261023/run39837646584/windows-endings-39837646584-1.zip",
+    "bytes": 91340,
+    "sha256": "26354bcc33b0efaa662eb314349472d3da5ca9c0ab3b3113f2949ca4b5aa0328",
+    "git_blob": "d08aaa96526c3c5fca3b18803e31638fb5de57ab",
+    "artifact_id": 12452725538,
+    "members": 4
+  },
+  {
+    "path": "evidence/phase_2r/master_integration_20261023/run39837646584/ending-reading-39837646584-1.zip",
+    "bytes": 30863,
+    "sha256": "c99de6aebd74cc7b42f8d56ee3b1b4c5d7a200633f1393120e7856e3c1946c79",
+    "git_blob": "ea9907b8ffeb9b72fd52600a6a081689556ef885",
+    "artifact_id": 12451432793,
+    "members": 14
+  },
+  {
+    "path": "evidence/phase_2r/master_integration_20261023/run39837646584/windows-reading_delivery-39837646584-1.zip",
+    "bytes": 213048,
+    "sha256": "24c933867ce8b84eb25b5ea7efb3fd54e0856c317b91c4ac9413ea675863e290",
+    "git_blob": "da5e857a90c14ff90ad8d2bb6f345d59d4c74de5",
+    "artifact_id": 12451438164,
+    "members": 4
+  },
+  {
+    "path": "evidence/phase_2r/master_integration_20261023/run39837646584/windows-localization-39837646584-1.zip",
+    "bytes": 371718,
+    "sha256": "f031a970e9aa53daae44aa3d9887ec6289cc2722efc37613ab8f4584ae58ed52",
+    "git_blob": "19efa490998d223c5c9c3291b0acd98a3ae2cae2",
+    "artifact_id": 12452840514,
+    "members": 4
+  },
+  {
+    "path": "evidence/phase_2r/master_integration_20261023/run39837646584/ui-literal-audit-39837646584-1.zip",
+    "bytes": 30859,
+    "sha256": "23edb969d59d6d63da3f4f3f0e3d3fb44c776a5823cd75397b5ccebb652cf73d",
+    "git_blob": "6046009ca49ace9c62f26fa63b9d06ea6fff50e3",
+    "artifact_id": 12453045045,
+    "members": 3
+  },
+  {
+    "path": "evidence/phase_2r/master_integration_20261023/run39837646584/timed-hold-39837646584-1.zip",
+    "bytes": 33312,
+    "sha256": "2f4d1ee86bfdce92da7f1af5faf42c78fe6118ca37ee96eca9b10968ac3daa72",
+    "git_blob": "e027d2537560b01d6aaab98f7b3892b2dfc8a873",
+    "artifact_id": 12452905314,
+    "members": 16
+  },
+  {
+    "path": "evidence/phase_2r/master_integration_20261023/run39837646584/hospital-reading-39837646584-1.zip",
+    "bytes": 71364,
+    "sha256": "ea7c410face846489f0b32f348ba1be802d55ea81b1c0623d64de8866501046b",
+    "git_blob": "9bb0089c02bd976f45eac4fc13a97dc447bdc7f8",
+    "artifact_id": 12451583035,
+    "members": 36
+  },
+  {
+    "path": "evidence/phase_2r/master_integration_20261023/run39837646584/windows-shop-39837646584-1.zip",
+    "bytes": 59773,
+    "sha256": "8369c3f97db728018edde1c53139f5b82a497119a224eec6d045f71bb1fd1fd4",
+    "git_blob": "62fb3433e7dc3b06a036e81547aa597a7400324c",
+    "artifact_id": 12452890354,
+    "members": 4
+  },
+  {
+    "path": "evidence/phase_2r/master_integration_20261023/run39839181557/original-evidence.zip",
+    "bytes": 473280,
+    "sha256": "babffdca8e0fd252a841cf80c0ea86c7d66f2db8e38bbc2efdd826104feb60c8",
+    "git_blob": "9d10889748621e9e5c50a703246b0ee2f0888924",
+    "artifact_id": 12453155519,
+    "members": 37,
+    "outer_sha256": "38b198572e82cf6030b3362b83c93bfb2605ee1e7456a120656c094d5b4119c8"
+  }
+]
