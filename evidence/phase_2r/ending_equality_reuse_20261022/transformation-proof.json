@@ -1,0 +1,9 @@
+{
+  "baseline_sha256": "0ed73a5e8a1e691f1712d90cb75b45905b48e83535f9dd244b281369cb6c1eae",
+  "candidate_sha256": "67c2c23286de1fb1318b6c68473701367114a2e9b01c2301e0ef6d1bccd98851",
+  "exact_original_reconstruction": true,
+  "only_equal_body_changed": true,
+  "type_check_first": true,
+  "actual_failure_short_circuits_expected": true,
+  "hash_comparison_preserved": true
+}

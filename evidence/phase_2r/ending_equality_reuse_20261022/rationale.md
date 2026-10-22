@@ -1,0 +1,9 @@
+# Call-local equality hash reuse candidate
+
+Based on the admission candidate's exact SceneEventContract bytes (SHA2560ed73a5e8a1e691f1712d90cb75b45905b48e83535f9dd244b281369cb6c1eae). Only `_equal` changes: preserve the initial `_same_types` guard, compute actual's canonical SHA256 once, preserve the nonempty check and then compare it with expected's freshly computed SHA256. The entire original file is recovered by reversing this single function-body substitution.
+
+The removed call is an immediate identical successful serialization/hash of the same value, with no callback, await, input mutation, external read or retained state between calls. All public fresh validation and live-owner/recovery boundaries remain. CanonicalJsonWriter is unchanged, as are its type/encoding refusals and exact bytes. Do not infer a whole-operation speedup from the source reduction; compare the completed restored operation after the current admission run is preserved.
+
+The existing38unit cases include exact event/admission reconstruction, changed-bundle/fingerprint refusal, child forgery, nested field/result mismatch, strict primitive types and detached outputs. Existing input refusal tests often fail before `_equal`; there is no explicit public case forcing writer failure inside `_equal`. The candidate preserves that path mechanically by retaining the identical first actual hash and empty check before expected. No test was added merely to count a private helper's invocations, and no malformed-string construction was guessed. Reviewers should retain this coverage limit explicitly.
+
+No source apart from SceneEventContract was modified; no tests, cloud run or remote mutation performed. The candidate is prepared only, not qualified. Audit and rationale for rejecting broader bundle/header/journal shortcuts are in ending-audit/remaining-options.md.

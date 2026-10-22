@@ -1,0 +1,93 @@
+--- admission/prepare_caption.py
++++ equality/prepare_caption.py
+@@ -10,7 +10,7 @@
+ import sys
+ import capture_import as custody
+ 
+-PRODUCT = "02a6e275dc3188921edc1fc08ac423c08b306a1e"
++PRODUCT = "REVIEWED_PRODUCT_COMMIT_REQUIRED"
+ PROJECT = "5e8009d890f9e4359b24bb68a59fdec1bf56ef0a3ea94be06c3e43a6d2353053"
+ IMPORTED_PROJECT = "6880d26a04484587a54c63e0a98072984b6adac7ac3e9d07e8d138e934428fdd"
+ PRESET = "76d904435496d2057572225b796f8b3c74f121a21254d211a6246caaf96efcaa"
+@@ -56,8 +56,8 @@
+         "sha256": "225552c3141c3731566dda8bf40ba33667f6bc61fc4d448e6f495eaf7606c3c7"
+     },
+     "scripts/domain/narrative/SceneEventContract.gd": {
+-        "blob": "4c6f4ec0d53490a03a6963d5eb94db52440ff4a1",
+-        "sha256": "0ed73a5e8a1e691f1712d90cb75b45905b48e83535f9dd244b281369cb6c1eae"
++        "blob": "9be861a644351c461fbbc9a4591cd6e5b1f4e937",
++        "sha256": "67c2c23286de1fb1318b6c68473701367114a2e9b01c2301e0ef6d1bccd98851"
+     },
+     "tests/unit/test_scene_event_contract.gd": {
+         "blob": "b05f775f199244e603b7c454b57ff66224de180e",
+--- admission/source-manifest.json
++++ equality/source-manifest.json
+@@ -55,9 +55,9 @@
+   },
+   {
+     "path": "scripts/domain/narrative/SceneEventContract.gd",
+-    "bytes": 79984,
+-    "sha256": "0ed73a5e8a1e691f1712d90cb75b45905b48e83535f9dd244b281369cb6c1eae",
+-    "blob": "4c6f4ec0d53490a03a6963d5eb94db52440ff4a1"
++    "bytes": 80033,
++    "sha256": "67c2c23286de1fb1318b6c68473701367114a2e9b01c2301e0ef6d1bccd98851",
++    "blob": "9be861a644351c461fbbc9a4591cd6e5b1f4e937"
+   },
+   {
+     "path": "tests/unit/test_scene_event_contract.gd",
+--- admission/controller.yml
++++ equality/controller.yml
+@@ -1,6 +1,6 @@
+ # INERT REVIEW CANDIDATE. Install only after external C source review.
+ # Focused candidate only: C exact packet review and Director scope reconciliation precede installation.
+-name: Admission validation reuse and restored ending qualification
++name: Equality hash reuse and restored ending qualification
+ on:
+   pull_request:
+     paths:
+@@ -19,9 +19,9 @@
+       run:
+         shell: pwsh
+     env:
+-      PRODUCT_SHA: 02a6e275dc3188921edc1fc08ac423c08b306a1e
++      PRODUCT_SHA: REVIEWED_PRODUCT_COMMIT_REQUIRED
+       SOURCE_SHA: REVIEWED_ASSET_COMMIT_REQUIRED
+-      PREPARATION_SHA256: 8a5365c175f32746db6c0edca88ad8bb8177d27af78a05292c79b460fc775abf
++      PREPARATION_SHA256: ea9933edf62d279cc367470dd1c8cc5e1b10ae1ac9b4e8d543aa1d40f85a2115
+       CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+       HARNESS_MANIFEST_SHA256: 19bcca3f6e8d016fa8c221b1395b5f21b66c219a56df2e6017a3ce3e971d6976
+     steps:
+@@ -30,7 +30,7 @@
+           # Defer credential removal until the post-job cleanup, after the
+           # malformed gitlinks are removed from this disposable runner's index.
+           persist-credentials: true
+-          ref: 02a6e275dc3188921edc1fc08ac423c08b306a1e
++          ref: REVIEWED_PRODUCT_COMMIT_REQUIRED
+       - name: Pin external preparation helpers
+         id: preparation_helpers
+         run: |
+@@ -42,7 +42,7 @@
+           New-Item -ItemType Directory -Force $helpers | Out-Null
+           $prepare = Join-Path $helpers 'prepare_caption.py'
+           $capture = Join-Path $helpers 'capture_import.py'
+-          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_admission_reuse_20261022/prepare_caption.py" -OutFile $prepare
++          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_equality_reuse_20261022/prepare_caption.py" -OutFile $prepare
+           Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/import_integrity_20261020/capture_import.py" -OutFile $capture
+           if ((Get-FileHash $prepare -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:PREPARATION_SHA256) { throw 'PREPARATION_HASH_MISMATCH' }
+           if ((Get-FileHash $capture -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:CAPTURE_SHA256) { throw 'CAPTURE_HASH_MISMATCH' }
+@@ -75,13 +75,13 @@
+           $harness = Join-Path $env:RUNNER_TEMP 'clean-focused-harness'
+           New-Item -ItemType Directory -Force $harness | Out-Null
+           $manifest = Join-Path $harness 'manifest.json'
+-          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_admission_reuse_20261022/manifest.json" -OutFile $manifest
++          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_equality_reuse_20261022/manifest.json" -OutFile $manifest
+           if ((Get-FileHash $manifest -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:HARNESS_MANIFEST_SHA256) { throw 'HARNESS_MANIFEST_HASH_MISMATCH' }
+           foreach ($entry in (Get-Content $manifest -Raw | ConvertFrom-Json)) {
+             $name = [IO.Path]::GetFileName($entry.path)
+             if ($entry.path -notlike 'tools/testing/*' -or $name -notmatch '^[A-Za-z0-9.-]+$') { continue }
+             $path = Join-Path $harness $name
+-            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_admission_reuse_20261022/$name" -OutFile $path
++            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_equality_reuse_20261022/$name" -OutFile $path
+             if ((Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $entry.sha256) { throw "HARNESS_HASH_MISMATCH: $name" }
+             if ($name.EndsWith('.ps1')) {
+               $tokens=$null; $parseErrors=$null
