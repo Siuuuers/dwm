@@ -26,6 +26,7 @@ static func prepare() -> Dictionary:
 	bundle.ids_registry.signals = []
 	bundle.caption_registry.entries = []
 	bundle.scene_programme.entries = []
+	bundle.scene_programme["story_days"] = {}
 	bundle.targets = []
 	bundle.audio_catalogue.bindings = []
 	bundle.challenges = source.challenges.duplicate(true)
@@ -45,6 +46,9 @@ static func prepare() -> Dictionary:
 	for spec: Dictionary in source.entries: ids.append(spec.entry_id)
 	for spec: Dictionary in source.entries:
 		var id: String = spec.entry_id
+		if typeof(spec.get("story_day")) != TYPE_INT or spec.story_day < 1 or spec.story_day > 7:
+			return {"ok": false, "code": "authored_story_day_invalid"}
+		bundle.scene_programme.story_days[id] = spec.story_day
 		var compiled: Dictionary = ADAPTER.compile_scene_programme(spec.path, id, ids, spec.markers)
 		if not compiled.ok: return compiled
 		var ending: bool = spec.role == "ending"

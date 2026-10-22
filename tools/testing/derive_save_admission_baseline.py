@@ -50,7 +50,7 @@ def derive_baseline(source: bytes) -> bytes:
             '\tif not validated.get("ok", false):\n'
             '\t\treturn validated\n'
             '\tdocument = validated["value"]["candidate"]',
-            3,
+            2,
         ),
     ]
     for after, before, expected_count in replacements:
@@ -58,6 +58,25 @@ def derive_baseline(source: bytes) -> bytes:
         if candidate.count(needle) != expected_count:
             raise ValueError(f"Expected {expected_count} current-source admission anchors")
         candidate = candidate.replace(needle, before.encode())
+    # The retained scene-restore branch and disk-loaded legacy branch meet here.
+    # Keep the fourth redundant validation after that shared document selection;
+    # neither branch nor its authenticated source changes in the comparison.
+    start = candidate.index(b"func _reconstruct_restore_materials(")
+    end = candidate.find(b"\nfunc ", start + 1)
+    if end == -1:
+        end = len(candidate)
+    method = candidate[start:end]
+    anchor = b'\tvar document: Dictionary = migrated["value"]["document"]\n'
+    if method.count(anchor) != 1:
+        raise ValueError("Expected one restore-materials document admission anchor")
+    validation = (
+        b'\tvar validated: Dictionary = SAVE_DOCUMENT_SCHEMA.validate(document)\n'
+        b'\tif not validated.get("ok", false):\n'
+        b'\t\treturn validated\n'
+        b'\tdocument = validated["value"]["candidate"]\n'
+    )
+    method = method.replace(anchor, anchor + validation)
+    candidate = candidate[:start] + method + candidate[end:]
     return candidate.replace(b"\n", newline)
 
 

@@ -667,3 +667,29 @@ func _provided(key: String, fallback: Variant) -> Variant:
 func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": {}, "receipt": {}}
 
+
+
+## Scene completion shares the established money and task rules without invoking
+## legacy contact/calendar/condition consequences on the detached candidate.
+func prepare_scene_complete(difficulty: String, board: Dictionary) -> Dictionary:
+	if _game_state == null or difficulty not in ["beginner", "intermediate", "expert"] \
+			or not board.get("terminal", false) or board.get("outcome") not in ["cleared", "exploded"]:
+		return _fail(&"scene_round_reward_invalid", "terminal app board required")
+	var reasons: Array = preload("res://scripts/domain/minesweeper/BoardPerformance.gd").perfect_reasons(board)
+	var outcome: String = "perfect" if not reasons.is_empty() else str(board.outcome)
+	var tasks := _task_ids_for(outcome, difficulty)
+	if reasons.has("no_flag"): tasks.append("no_flag_finish")
+	if reasons.has("efficiency_gt_100") or reasons.has("efficiency_gte_100"): tasks.append("foresight_finish")
+	var clone: Object = _detached_clone()
+	if clone == null: return _fail(&"scene_round_reward_invalid", "detached owner required")
+	var result := {"context": "app", "difficulty": difficulty, "outcome": outcome, "task_ids": tasks}
+	clone.set("unfinished_minesweeper_result", {})
+	clone.set("minesweeper_app_rounds_finished_today", int(clone.get("minesweeper_app_rounds_finished_today")) + 1)
+	var reward: Dictionary = clone.call("apply_minesweeper_money_reward", result)
+	var claimed: Array = clone.call("check_and_claim_minesweeper_task_rewards", result)
+	var gameplay: Dictionary = {}
+	for key: String in _game_state.SCENE_GAMEPLAY_KEYS:
+		var value: Variant = _game_state._narrative_variables if key == "narrative_variables" else clone.get(key)
+		gameplay[key] = value.duplicate(true) if value is Dictionary or value is Array else value
+	clone.free()
+	return {"ok": true, "value": {"gameplay": gameplay, "reward": reward, "claimed": claimed, "outcome": outcome}}

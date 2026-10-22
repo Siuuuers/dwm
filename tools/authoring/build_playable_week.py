@@ -110,7 +110,7 @@ class Week:
                 assert kind == 'end' and entry['role'] == 'ending', (id, terminal)
             rows += ['return', '']
             entries.append({'entry_id': id, 'path': f'res://dialogic/timelines/authored_week/Day{day}.dtl',
-                            'role': entry['role'], 'markers': markers, 'lines': lines})
+                            'role': entry['role'], 'story_day': day, 'markers': markers, 'lines': lines})
         challenge_ids = {row['challenge_id'] for row in challenges}
         assert len(challenge_ids) == len(challenges)
         for entry in entries:

@@ -278,9 +278,12 @@ func _shop_samples(app: Control, catalog: RefCounted) -> void:
 	app.next_button.pressed.emit()
 	await settle()
 	check(app.page_index == 1,"Shop page two reached without a purchase")
-	await _hover_shop_item(app,"protein_box")
+	await _hover_shop_item(app,"debug_key")
 	await pair("shop-page-two")
-	var sold_out: Dictionary = catalog.rows[12]
+	var matches: Array = catalog.rows.filter(func(row: Dictionary) -> bool: return row.id == "lucky_charm")
+	check(matches.size() == 1,"sold-out preview has one exact ordinary item")
+	if matches.size() != 1: return
+	var sold_out: Dictionary = matches[0]
 	check(sold_out.id == "lucky_charm","sold-out preview uses the intended ordinary item")
 	sold_out.available = false
 	sold_out.legal_max = 0
@@ -293,7 +296,7 @@ func _shop_samples(app: Control, catalog: RefCounted) -> void:
 	profile.present(150,true)
 	profile.present_contrast(true)
 	await settle()
-	await _hover_shop_item(app,"healthy_meal")
+	await _hover_shop_item(app,"pocket_calculator_keepsake")
 	await capture("shop-page-two-readable-large-contrast",960)
 	for index: int in original.size():
 		check(catalog.rows[index].card_art == original[index].card_art
@@ -445,7 +448,7 @@ func _check_launcher_geometry(name: String) -> void:
 		check(caption.size.y >= caption.get_minimum_size().y, name+": native caption height retained for "+String(id))
 		check(button.find_children("*","BaseButton",true,false).is_empty(), name+": decorative icon adds no action target")
 		check(caption.mouse_filter == Control.MOUSE_FILTER_IGNORE and caption.focus_mode == Control.FOCUS_NONE, name+": caption remains inert")
-	check(desktop.contacts_button.caption.text == desktop.LABELS[desktop._locale][1], name+": unread marker does not wrap the Contacts name")
+	check(desktop.contacts_button.caption.text == desktop.LABELS[desktop._locale][&"contacts"], name+": unread marker does not wrap the Contacts name")
 
 func _icon_sample(image: Image, button: Control, point: Vector2) -> Color:
 	return image.get_pixelv(Vector2i(button.get_global_transform() * point))

@@ -10,6 +10,36 @@ const GATE := preload("res://scripts/application/transaction/ApplicationMutation
 const PORT := preload("res://scripts/application/contact/ContactsPresentationPort.gd")
 const SURFACE := preload("res://scripts/ui/Day7PreludeSurface.gd")
 
+# These fixtures exercise retained contact receipts, not the shipped scene registry.
+var _retained_context := preload("res://tests/support/RetainedFrozenContextFixture.gd").new()
+var _retained_ordinary := preload("res://tests/support/RetainedOrdinaryRegistryFixture.gd").new()
+
+func before_each() -> void:
+	var ordinary: Dictionary = _retained_ordinary.install()
+	assert_true(ordinary.get("ok", false), str(ordinary))
+	var contexts: Dictionary = _retained_context.install([
+		"contact.ordinary.lavinia.day1", "echo.fallback.day7",
+		"contact.invitation.solo.priscilla.day1.offer",
+		"contact.invitation.solo.sylvia.day1.offer",
+		"contact.hospital_care.sylvia.day2",
+		"contact.invitation.solo.priscilla.day2.offer",
+		"contact.invitation.solo.lavinia.day2.offer",
+		"contact.invitation.group.priscilla_lavinia.day2.offer",
+		"contact.invitation.group.priscilla_lavinia.day2.first_open_lavinia",
+		"contact.invitation.group.priscilla_lavinia.day2.second_open_priscilla",
+		"contact.invitation.group.priscilla_lavinia.day2.need_reply_lavinia_first",
+		"contact.invitation.group.priscilla_lavinia.day2.nevermind_priscilla",
+		"contact.invitation.group.priscilla_lavinia.day2.nevermind_lavinia",
+		"contact.invitation.solo.priscilla.day6.offer",
+		"contact.invitation.solo.lavinia.day6.offer",
+		"contact.invitation.group.priscilla_lavinia.day6.offer",
+	])
+	assert_true(contexts.get("ok", false), str(contexts))
+
+func after_each() -> void:
+	_retained_context.restore()
+	_retained_ordinary.restore()
+
 class Commands extends RefCounted:
 	func request_open_contact(_friend: String, _guard: Callable) -> Dictionary: return {"ok": false}
 	func request_reply_invitation(_friend: String) -> Dictionary: return {"ok": false}

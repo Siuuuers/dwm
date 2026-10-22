@@ -313,7 +313,9 @@ static func _validate_bundle_structure_observed_body(bundle: Variant) -> Diction
 		if not bundle[key] is Dictionary or bundle[key].is_empty() or not WRITER.stringify(bundle[key]).get("ok", false):
 			return _fail(&"scene_bundle_nested_invalid")
 	var programme: Variant = bundle.scene_programme
-	if not _keys(programme, ["kind", "schema_version", "entries"]) or programme.kind != "scene_programme" \
+	var programme_keys := ["kind", "schema_version", "entries"]
+	if programme is Dictionary and programme.has("story_days"): programme_keys.append("story_days")
+	if not _keys(programme, programme_keys) or programme.kind != "scene_programme" \
 			or typeof(programme.schema_version) != TYPE_INT or programme.schema_version != 1:
 		return _fail(&"scene_programme_invalid")
 	var tables := {}
@@ -324,6 +326,8 @@ static func _validate_bundle_structure_observed_body(bundle: Variant) -> Diction
 		if not indexed.ok: return indexed
 		tables[pair[0]] = indexed.value
 	if tables.entries.is_empty(): return _fail(&"scene_programme_invalid")
+	var days := validate_story_days(programme)
+	if not days.ok: return days
 	var markers := {}
 	for entry: Dictionary in tables.entries.values():
 		if not _keys(entry, PROGRAMME_ENTRY_KEYS) or not _positive_int(entry.content_version) \
@@ -677,6 +681,7 @@ static func _validate_scene_receipts_observed_body(receipts: Dictionary, bundle:
 	var admissions := {}
 	var admission_receipts := {}
 	var shop_purchases := {}
+	var completed_rounds := {}
 	var resolved_thoughts := {}
 	for command: Variant in receipts:
 		var receipt: Variant = receipts[command]
@@ -686,6 +691,14 @@ static func _validate_scene_receipts_observed_body(receipts: Dictionary, bundle:
 			if not _keys(receipt, ["kind", "request_fingerprint", "source_id", "transaction_id"]) \
 					or not _hash(receipt.request_fingerprint) or not _id(receipt.source_id):
 				return _fail(&"scene_receipt_invalid")
+			continue
+		if receipt.get("kind") == "scene_round_completion":
+			var completed := validate_scene_round_completion(receipt, issuer)
+			if not completed.ok: return completed
+			var board_key := _sha(receipt.scene_round_completion.completion.board_identity)
+			if completed_rounds.has(board_key): return _fail(&"scene_round_already_completed")
+			completed_rounds[board_key] = command
+			shop_purchases[command] = receipt
 			continue
 		if receipt.get("kind") == "scene_shop_purchase":
 			var purchased := validate_scene_shop_purchase(receipt, issuer)
@@ -740,7 +753,7 @@ static func _validate_scene_receipts_observed_body(receipts: Dictionary, bundle:
 		var source_id: String = purchase_receipt.source_id
 		if not admission_receipts.has(source_id): return _fail(&"scene_shop_admission_missing")
 		var source_admission: Dictionary = admission_receipts[source_id].scene_admission
-		var purchase: Dictionary = purchase_receipt.scene_shop_purchase
+		var purchase: Dictionary = purchase_receipt.get("scene_shop_purchase", purchase_receipt.get("scene_round_completion", {}))
 		if source_admission.source_identity.run_id != purchase.source_identity.run_id \
 				or source_admission.issuer_receipt.counter >= purchase.issuer_receipt.counter:
 			return _fail(&"scene_shop_admission_mismatch")
@@ -842,6 +855,13 @@ static func _validate_scene_receipts_observed_body(receipts: Dictionary, bundle:
 				return _fail(&"scene_contact_parent_mismatch")
 		elif trigger.result.kind not in ["scene_transition_accepted", "challenge_closed", "challenge_recalled", "thought_resolved"] or trigger.result.target_id != admission.target_id:
 			return _fail(&"scene_admission_trigger_mismatch")
+		var boundary := scene_day_boundary(bundle, trigger.semantic.source.entry_id, admission.entry_id)
+		if not boundary.ok: return boundary
+		if boundary.value:
+			if trigger.result.kind != "scene_transition_accepted" or admission.return_to != null:
+				return _fail(&"scene_day_transition_required")
+			var day_allocation := validate_scene_day_allocation(commands[admission.trigger_command_id], identity, issuer)
+			if not day_allocation.ok: return day_allocation
 		var source_admission: Dictionary = admission_receipts.get(trigger.semantic.source.scene_occurrence, {})
 		if source_admission.is_empty() or source_admission.scene_admission.issuer_receipt.counter >= admission_receipts[admission_id].scene_admission.issuer_receipt.counter:
 			return _fail(&"scene_admission_cycle")
@@ -1370,3 +1390,123 @@ static func validate_scene_shop_purchase(receipt: Dictionary, issuer: Object) ->
 	var proven: Dictionary = issuer.validate_child(saved.provenance, &"continuation_operation")
 	if not proven.get("ok", false): return proven
 	return {"ok": true}
+
+
+static func scene_round_completion_shape_valid(receipt: Variant) -> bool:
+	if not _json_data(receipt) or not _keys(receipt,
+			["transaction_id", "request_fingerprint", "kind", "source_id", "scene_round_completion"]): return false
+	if receipt.kind != "scene_round_completion" or not _id(receipt.transaction_id) \
+			or not _id(receipt.source_id) or not _hash(receipt.request_fingerprint): return false
+	var saved: Variant = receipt.scene_round_completion
+	return _keys(saved, ["schema_version", "source_identity", "issuer_receipt", "completion", "provenance"]) \
+		and typeof(saved.schema_version) == TYPE_INT and saved.schema_version == 1 \
+		and saved.issuer_receipt is Dictionary and saved.provenance is Dictionary \
+		and _scene_shop_identity_valid(saved.source_identity) and _scene_round_result_valid(saved.completion)
+
+static func _scene_round_result_valid(completion: Variant) -> bool:
+	if not _keys(completion, ["board_identity", "board_sha256", "revision", "difficulty", "outcome", "gameplay_sha256"]): return false
+	var identity: Variant = completion.board_identity
+	return identity is Dictionary and preload("res://scripts/domain/desktop/DesktopIdentity.gd").validate(identity).get("ok", false) \
+		and _hash(completion.board_sha256) and _hash(completion.gameplay_sha256) \
+		and typeof(completion.revision) == TYPE_INT and completion.revision >= 0 \
+		and completion.difficulty in ["beginner", "intermediate", "expert"] \
+		and completion.outcome in ["exploded", "cleared", "perfect"]
+
+static func make_scene_round_completion(identity: Dictionary, root_issuer_receipt: Dictionary,
+		source_id: String, completion: Dictionary, issuer: Object) -> Dictionary:
+	if issuer == null or issuer.get_script() != SCENE_RECEIPT_ISSUER:
+		return _fail(&"scene_receipt_issuer_unbound")
+	if not _json_data(identity) or not _scene_shop_identity_valid(identity) or not _id(source_id) \
+			or not _json_data(completion) or not _scene_round_result_valid(completion):
+		return _fail(&"scene_round_completion_invalid")
+	for field: String in ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance"]:
+		if completion.board_identity.get(field) != identity.get(field): return _fail(&"scene_round_identity_mismatch")
+	var issued: Dictionary = issuer.verify_issued(root_issuer_receipt, &"transaction_id")
+	if not issued.get("ok", false): return issued
+	var causal: Dictionary = issuer.verify_issued(identity.causal_day_instance_issuer_receipt, &"causal_day_instance")
+	if not causal.get("ok", false): return causal
+	var allocated := _scene_admission_identity_proof(identity, issuer)
+	if not allocated.ok: return allocated
+	if root_issuer_receipt.counter <= identity.causal_day_instance_issuer_receipt.counter:
+		return _fail(&"scene_round_completion_identity_invalid")
+	var request := {"kind": "scene_round_completion", "schema_version": 1, "source_id": source_id,
+		"source_identity": identity.duplicate(true), "issuer_receipt": root_issuer_receipt.duplicate(true),
+		"completion": completion.duplicate(true)}
+	var fingerprint := _sha(request)
+	if fingerprint.is_empty(): return _fail(&"scene_round_completion_invalid")
+	var source_ids: Array[String] = [
+		"request_fingerprint=" + str(WRITER.stringify(fingerprint).value), 'role="scene.round_completion"']
+	source_ids.sort()
+	var child: Dictionary = issuer.derive_child({"parent_receipt_id": root_issuer_receipt.receipt_id,
+		"child_kind": "continuation_operation", "ordinal": 0, "source_ids": source_ids})
+	if not child.get("ok", false): return child
+	return {"ok": true, "value": {"transaction_id": root_issuer_receipt.token,
+		"request_fingerprint": fingerprint, "kind": "scene_round_completion", "source_id": source_id,
+		"scene_round_completion": {"schema_version": 1, "source_identity": identity.duplicate(true),
+			"issuer_receipt": root_issuer_receipt.duplicate(true), "completion": completion.duplicate(true),
+			"provenance": child.value.provenance.duplicate(true)}}}
+
+static func validate_scene_round_completion(receipt: Dictionary, issuer: Object) -> Dictionary:
+	if not scene_round_completion_shape_valid(receipt): return _fail(&"scene_round_completion_invalid")
+	var saved: Dictionary = receipt.scene_round_completion
+	var rebuilt := make_scene_round_completion(saved.source_identity, saved.issuer_receipt,
+		receipt.source_id, saved.completion, issuer)
+	if not rebuilt.ok: return rebuilt
+	if not _equal(receipt, rebuilt.value): return _fail(&"scene_round_completion_mismatch")
+	var proven: Dictionary = issuer.validate_child(saved.provenance, &"continuation_operation")
+	if not proven.get("ok", false): return proven
+	return {"ok": true}
+
+
+## Optional explicit authoring metadata. Historical programmes without this map
+## keep their original transition semantics and exact hashes.
+static func validate_story_days(programme: Dictionary) -> Dictionary:
+	if not programme.has("story_days"): return {"ok": true, "value": {}}
+	var days: Variant = programme.story_days
+	if not days is Dictionary or not programme.get("entries") is Array or days.size() != programme.entries.size():
+		return _fail(&"scene_story_days_invalid")
+	for entry: Variant in programme.entries:
+		if not entry is Dictionary or not days.has(entry.get("entry_id")):
+			return _fail(&"scene_story_days_invalid")
+		var day: Variant = days[entry.entry_id]
+		if typeof(day) != TYPE_INT or day < 1 or day > 7: return _fail(&"scene_story_days_invalid")
+	return {"ok": true, "value": days.duplicate(true)}
+
+static func scene_day_boundary(bundle: Dictionary, source_entry: String, target_entry: String) -> Dictionary:
+	var days := validate_story_days(bundle.scene_programme)
+	if not days.ok: return days
+	if days.value.is_empty(): return {"ok": true, "value": false}
+	if not days.value.has(source_entry) or not days.value.has(target_entry): return _fail(&"scene_story_days_invalid")
+	var difference: int = days.value[target_entry] - days.value[source_entry]
+	if difference not in [0, 1]: return _fail(&"scene_story_day_order_invalid")
+	return {"ok": true, "value": difference == 1}
+
+## The original event survives Load; the live causal identity does not. Bind the
+## allocation to both, so retry is stable without sharing a day token across branches.
+static func scene_day_renewal_request(trigger: Dictionary, identity: Dictionary) -> Dictionary:
+	var event: Dictionary = trigger.scene_event
+	var source_ids: Array[String] = ["identity=" + _sha(identity),
+		"resolution=" + event.result.resolution_receipt.receipt_id,
+		"role=scene_daily_renewal", "transition=" + _sha(trigger)]
+	source_ids.sort()
+	return {"parent_receipt_id": event.semantic.issuer_receipt.receipt_id,
+		"child_kind": "scene_day_completion", "ordinal": 1, "source_ids": source_ids}
+
+static func validate_scene_day_allocation(trigger: Dictionary, identity: Dictionary, issuer: Object) -> Dictionary:
+	var captured: Dictionary = issuer.capture_root()
+	if not captured.get("ok", false): return captured
+	for allocation: Dictionary in captured.value.get("day_advance_allocation_receipts", {}).values():
+		if allocation.get("resolution_kind") != "scene_day_complete" \
+				or allocation.get("target_causal_day_instance") != identity.causal_day_instance: continue
+		var source := identity.duplicate(true)
+		source.causal_day_instance = allocation.source_causal_day_instance
+		source.causal_day_instance_issuer_receipt = allocation.source_causal_day_instance_issuer_receipt.duplicate(true)
+		for key: String in ["run_id", "branch_id", "desktop_timeline_generation"]:
+			if allocation.get(key) != identity.get(key): return _fail(&"scene_day_allocation_mismatch")
+		var derived: Dictionary = issuer.derive_child(scene_day_renewal_request(trigger, source))
+		if not derived.get("ok", false): return derived
+		if allocation.source_resolution_receipt_id != derived.value.child_id \
+				or not _equal(allocation.source_resolution_receipt_provenance, derived.value.provenance):
+			return _fail(&"scene_day_allocation_mismatch")
+		return {"ok": true}
+	return _fail(&"scene_day_allocation_missing")
