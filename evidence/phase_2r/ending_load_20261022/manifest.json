@@ -1,0 +1,20 @@
+[
+  {
+    "path": "tools/testing/Invoke-EndingLoadBoundary.ps1",
+    "bytes": 7280,
+    "sha256": "9d76dcc421f3d0505702c194048d78fa3d2ce6940f3e17b0a3134b794dc126c8",
+    "blob": "f3f49a7306a35457eba0ed82b416298640e9e99e"
+  },
+  {
+    "path": "tools/testing/Invoke-IsolatedGodot.ps1",
+    "bytes": 26193,
+    "sha256": "a8b5c2452ccd9bbf18e362f9b526efdf5af62ac4f95a0074a853a97dcc9bc76e",
+    "blob": "a232d51f73da5a6134cabd9dc71e9514c104fc6e"
+  },
+  {
+    "path": "tools/testing/Get-ContinueFileSha256.ps1",
+    "bytes": 442,
+    "sha256": "5b88a633c7f6c63a460465bb1db0fa7f5594d8420e666594c0dfcbfa43533d2c",
+    "blob": "125dc8c496f4f918ef21024f0577dada0a6b4446"
+  }
+]
