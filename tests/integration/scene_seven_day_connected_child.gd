@@ -274,7 +274,10 @@ func _press_witness(button: Button, label: String) -> bool:
 		button.get_global_transform_with_canvas().get_scale() * button.size)
 	assert_true(get_viewport().get_visible_rect().encloses(bounds), label + " on screen")
 	var observed := [0]
-	button.pressed.connect(func(): observed[0] += 1, CONNECT_ONE_SHOT)
+	if button is WitnessedTransportButton:
+		button.activated.connect(func(): observed[0] += 1, CONNECT_ONE_SHOT)
+	else:
+		button.pressed.connect(func(): observed[0] += 1, CONNECT_ONE_SHOT)
 	await _click(button)
 	assert_eq(observed[0], 1, label + " receives pointer activation")
 	return observed[0] == 1
