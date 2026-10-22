@@ -1,0 +1,11 @@
+# Corrected ending baseline 39722728261 — PASS, no production fix needed
+
+Official Windows Godot 4.6.3 standard, source 3f346680c90ab53b4e68bfd187f44bc8fca50961, external assets ab362e5ca5f7089286bd679173bdbbc7af8d832e, controller 667136c320b07919e78050e050fc8f8a322e1e46. One exact rendered direct-ending test passed 64 assertions, child exit 0. All source preparation/import/restoration/post-tests gates passed. Independent source and evidence review accepted the result.
+
+The prior layout retired (not alive/in tree); a new layout selected res://dialogic/styles/witnessed_caption_style.tres and WitnessedCaptionLayer.gd. Ending rail true, clock false. Existing premature Enter refusal and exact lifecycle/checkpoint preservation passed; fresh Accept reached Title, durable COMPLETED and GALLERY_RECORDED, with expected Gallery receipt and no slot2-save prerequisite. Viewport image 992x558 SHA256 109cfa97f789e47797ad52365168e6131445e702362791b752db1b92c17d2ca5; not a desktop capture.
+
+CORRECTION: the earlier missing-style hypothesis was wrong for this journey. Shipped ending.alone.normal has nonempty background and CG art, so original _prepare_scene_art selects witnessed style. Scene terminal activation also calls _prepare_witnessed_style explicitly in _start_scene_restore_native. The failed export screenshot's six bottom controls cannot identify a default style, and visually match this successful baseline. Do not apply the parked Bridge change or run the proposed ending/default pair as a fix qualification.
+
+This baseline does not resolve export39718772420's native timeout. Differences include direct new Day7 versus fresh-process Day4 Load with post-load witness Save, viewport Enter versus managed/native UIA traversal and InvokePattern, editor gl_compatibility versus packaged ProjectDefault. Next discriminator should reuse genuine connected create/load fixtures and the actual post-load witness-save/back path without production surgery or changing native deadlines.
+
+Both original artifact ZIPs retained without repacking. archives.json records provider digests, original sizes and ordered 512KiB chunks. Concatenate each numbered set in order. All 23 uploaded blob hashes match local original bytes.
