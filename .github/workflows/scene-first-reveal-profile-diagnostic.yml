@@ -1,146 +1,195 @@
-name: Authored week Windows export
+name: Publish validated authored week Windows build
 on:
   pull_request:
     paths:
       - '.github/workflows/scene-first-reveal-profile-diagnostic.yml'
 permissions:
-  contents: read
+  contents: write
+  actions: read
 concurrency:
-  group: authored-week-windows-export
+  group: publish-validated-windows-folder
   cancel-in-progress: false
 jobs:
-  export:
+  publish:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
-    runs-on: windows-2022
-    timeout-minutes: 35
-    defaults:
-      run:
-        shell: pwsh
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     env:
       SOURCE_SHA: 2146c4435041c2b4ccc467a526f7b127d3980a2f
+      EXPORT_RUN_ID: 39843283227
+      EXPORT_ARTIFACT_ID: 12454556049
+      EXPORT_ZIP_SHA256: b766618089b74b65bfc25475287ae2b7873da38d07e51f6a7a78c437d88bec5c
+      BUILD_BRANCH: builds/windows-playable-20261023
+      EXPECTED_BUILD_PARENT: cfbfd70f8ac79bfb0e1e81f8bd6ef05a9ef0e9a9
     steps:
       - uses: actions/checkout@v7
         with:
           ref: 2146c4435041c2b4ccc467a526f7b127d3980a2f
           persist-credentials: true
-      - name: Verify immutable source and committed authored registration
-        run: |
-          $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD).Trim() -cne $env:SOURCE_SHA) { throw 'Source checkout mismatch.' }
-          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-          if ($LASTEXITCODE -ne 0) { throw 'Disposable gitlink cleanup failed.' }
-          New-Item -ItemType Directory -Force '.godot/ci/authored-week-export' | Out-Null
-          [ordered]@{ source_sha = $env:SOURCE_SHA; controller_sha = '${{ github.event.pull_request.head.sha }}'; run_id = '${{ github.run_id }}'; attempt = '${{ github.run_attempt }}'; scope = 'Export, packaged data audit, isolated headless startup only; no repeated source tests' } |
-            ConvertTo-Json | Set-Content '.godot/ci/authored-week-export/source.json' -Encoding utf8
-          # This workflow consumes metadata committed after focused qualification;
-          # it deliberately does not regenerate or silently repair registration.
-          $registration = Get-Content -Raw 'data/manifests/scene_story_registration.json' | ConvertFrom-Json
-          $expectedPaths = @(1..7 | ForEach-Object { "res://dialogic/timelines/authored_week/Day$_.dtl" })
-          $actualPaths = @($registration.entry_manifest.entries | ForEach-Object { $_.locators.en.path } | Sort-Object -Unique)
-          if ($actualPaths.Count -ne 7 -or @($actualPaths | Where-Object { $_ -notin $expectedPaths }).Count -ne 0) { throw 'Committed registration is not the authored seven-day candidate.' }
-          if (-not (Test-Path -LiteralPath 'data/manifests/scene_ending_reading_catalogue.json' -PathType Leaf)) { throw 'Committed ending catalogue missing.' }
-      - name: Install official Godot 4.6.3 standard
-        timeout-minutes: 5
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
-          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
-          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
-          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -cne $expected) { throw 'Godot checksum mismatch.' }
-          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
-          Expand-Archive -LiteralPath $archive -DestinationPath $editor
-          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
-          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console missing.' }
-          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          & $console --version | Tee-Object -FilePath '.godot/ci/authored-week-export/godot-version.txt'
-          if ($LASTEXITCODE -ne 0) { throw 'Godot version failed.' }
-      - name: Restore cached official export templates
-        id: export-templates-cache
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830
-        with:
-          path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
-          key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
-      - name: Download and verify official export templates
-        timeout-minutes: 10
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $folder = Join-Path $env:RUNNER_TEMP 'dwm-godot-templates'
-          New-Item -ItemType Directory -Force -Path $folder | Out-Null
-          $archive = Join-Path $folder 'Godot_v4.6.3-stable_export_templates.tpz'
-          if (-not (Test-Path -LiteralPath $archive)) {
-            Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_export_templates.tpz' -OutFile $archive
-          }
-          $expected = '3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8'
-          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -cne $expected) { throw 'Godot export templates checksum mismatch.' }
-          "GODOT_EXPORT_TEMPLATES_ARCHIVE=$archive" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          "$expected  Godot_v4.6.3-stable_export_templates.tpz" | Set-Content '.godot/ci/authored-week-export/templates-SHA256SUMS.txt' -Encoding ascii
-      - name: Retain verified templates for subsequent exports
-        if: steps.export-templates-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830
-        with:
-          path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
-          key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
-      - name: Import native resources and restore committed project settings
-        timeout-minutes: 8
+      - name: Verify source, successful export, artifact identity, and existing build parent
         env:
-          DWM_SCENE_READING_FIXTURE: '1'
+          GH_TOKEN: ${{ github.token }}
         run: |
-          $ErrorActionPreference = 'Stop'
-          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/authored-week-export'
-          $env:APPDATA = Join-Path $output 'import-user/appdata'
-          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
-          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
-          New-Item -ItemType Directory -Force $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
-          try {
-            & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
-            $importExit = $LASTEXITCODE
-          } finally {
-            git restore -- project.godot
-            if ($LASTEXITCODE -ne 0) { throw 'Could not restore editor-rewritten project configuration.' }
-          }
-          if ($importExit -ne 0) { throw 'Native import failed.' }
-          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Native import reported script errors.' }
-          $changed = @(git diff --name-only)
-          $untracked = @(git ls-files --others --exclude-standard)
-          if ($changed.Count -ne 0 -or $untracked.Count -ne 0) { throw 'Import changed source or generated uncommitted metadata; preserve evidence and commit exact native outputs before export.' }
-      - name: Export and validate isolated Windows package
-        timeout-minutes: 12
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          mkdir -p "$RUNNER_TEMP/authored-week-publication"
+          gh api "repos/Siuuuers/dwm/actions/runs/$EXPORT_RUN_ID" > "$RUNNER_TEMP/authored-week-publication/export-run.json"
+          gh api "repos/Siuuuers/dwm/actions/artifacts/$EXPORT_ARTIFACT_ID" > "$RUNNER_TEMP/authored-week-publication/export-artifact.json"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['RUNNER_TEMP']) / 'authored-week-publication'
+          run = json.loads((root / 'export-run.json').read_text())
+          artifact = json.loads((root / 'export-artifact.json').read_text())
+          if str(run['id']) != os.environ['EXPORT_RUN_ID'] or run['status'] != 'completed' or run['conclusion'] != 'success':
+              raise SystemExit('Export run is not the specified completed success')
+          if str(artifact['id']) != os.environ['EXPORT_ARTIFACT_ID'] or artifact.get('expired') is not False or str(artifact['workflow_run']['id']) != os.environ['EXPORT_RUN_ID']:
+              raise SystemExit('Export artifact identity/run/expiry mismatch')
+          if not artifact['name'].startswith('authored-week-windows-export-' + os.environ['EXPORT_RUN_ID'] + '-'):
+              raise SystemExit('Unexpected export artifact name')
+          PY
+          remote="$(git ls-remote --exit-code origin "refs/heads/$BUILD_BRANCH" | cut -f1)"
+          test "$remote" = "$EXPECTED_BUILD_PARENT"
+          git fetch --no-tags origin "refs/heads/$BUILD_BRANCH"
+          test "$(git rev-parse FETCH_HEAD)" = "$EXPECTED_BUILD_PARENT"
+      - uses: actions/download-artifact@v4
+        with:
+          artifact-ids: 12454556049
+          run-id: 39843283227
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/validated-artifact
+          merge-multiple: true
+      - name: Verify the unique inner ZIP and stage validated runtime bytes
+        env:
+          ARTIFACT_ROOT: ${{ runner.temp }}/validated-artifact
         run: |
-          $ErrorActionPreference = 'Stop'
-          # Import's fixture flag is step-local; release startup must use normal
-          # story selection and a fresh isolated user, as owned by this script.
-          Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue
-          Remove-Item Env:DWM_TEST_ROOT -ErrorAction SilentlyContinue
-          & ./tools/testing/Invoke-WindowsExportValidation.ps1 *>&1 | Tee-Object -FilePath '.godot/ci/authored-week-export/export-controller.log'
-          if ($LASTEXITCODE -ne 0) { throw 'Windows export validation script failed.' }
-          $result = Get-Content -Raw '.godot/ci/windows-export/validation.json' | ConvertFrom-Json
-          if (-not $result.ok -or $result.commit -cne $env:SOURCE_SHA -or -not $result.pack_audit.ok -or -not $result.smoke.ok) { throw 'Export validation receipt does not qualify this source.' }
-      - name: Preserve source custody and unexpected native metadata
-        if: always()
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, json, os, subprocess, sys, zipfile
+          from pathlib import Path
+          root = Path(os.environ['ARTIFACT_ROOT'])
+          candidates = list(root.rglob('DWM-windows-x86_64-validation.zip'))
+          if len(candidates) != 1:
+              raise SystemExit('Expected exactly one inner Windows validation ZIP')
+          archive = candidates[0]
+          actual = hashlib.sha256(archive.read_bytes()).hexdigest()
+          if actual != os.environ['EXPORT_ZIP_SHA256']:
+              raise SystemExit('Inner export ZIP checksum mismatch')
+          with zipfile.ZipFile(archive) as z:
+              receipt = json.loads(z.read('validation.json'))
+          if receipt.get('commit') != os.environ['SOURCE_SHA'] or receipt.get('ok') is not True or receipt.get('smoke', {}).get('ok') is not True or receipt.get('pack_audit', {}).get('ok') is not True:
+              raise SystemExit('Inner validation receipt does not qualify this exact source')
+          staged = Path(os.environ['RUNNER_TEMP']) / 'steam-staged'
+          subprocess.run([sys.executable, 'tools/packaging/prepare_steam_build.py', str(archive), str(staged)], check=True)
+          result = json.loads((staged / 'package-receipt.json').read_text())
+          if result['source_commit'] != os.environ['SOURCE_SHA'] or result['runtime_bytes_unchanged'] is not True:
+              raise SystemExit('Staged package source/custody mismatch')
+          result.update(export_run_id=os.environ['EXPORT_RUN_ID'], export_artifact_id=os.environ['EXPORT_ARTIFACT_ID'], export_zip_sha256=actual, previous_build_commit=os.environ['EXPECTED_BUILD_PARENT'])
+          (staged / 'package-receipt.json').write_text(json.dumps(result, indent=2) + '\n')
+          evidence = Path(os.environ['RUNNER_TEMP']) / 'authored-week-publication'
+          (evidence / 'input-validation.json').write_text(json.dumps(receipt, indent=2) + '\n')
+          (evidence / 'package-receipt.json').write_bytes((staged / 'package-receipt.json').read_bytes())
+          PY
+      - name: Replace runtime files on the existing build branch parent
         run: |
-          $ErrorActionPreference = 'Stop'
-          $output = '.godot/ci/authored-week-export'
-          New-Item -ItemType Directory -Force $output | Out-Null
-          git status --short | Set-Content "$output/source-status.txt" -Encoding utf8
-          git diff --binary | Set-Content "$output/source-diff.patch" -Encoding utf8
-          $changed = @(git diff --name-only)
-          $untracked = @(git ls-files --others --exclude-standard)
-          [ordered]@{ source_sha = $env:SOURCE_SHA; changed = $changed; untracked = $untracked; unchanged = ($changed.Count -eq 0 -and $untracked.Count -eq 0) } |
-            ConvertTo-Json -Depth 5 | Set-Content "$output/source-custody.json" -Encoding utf8
-          foreach ($path in @($changed + $untracked | Where-Object { $_ -match '\.uid$' } | Sort-Object -Unique)) {
-            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { continue }
-            $destination = Join-Path "$output/unexpected-native-metadata" $path
-            New-Item -ItemType Directory -Force (Split-Path -Parent $destination) | Out-Null
-            Copy-Item -LiteralPath $path -Destination $destination
-          }
-          if ($changed.Count -ne 0 -or $untracked.Count -ne 0) { throw 'Source custody failed: export candidate changed.' }
+          set -euo pipefail
+          git worktree add --detach "$RUNNER_TEMP/build-publish" "$EXPECTED_BUILD_PARENT"
+          python - <<'PY'
+          import hashlib, json, os, shutil
+          from pathlib import Path
+          staged = Path(os.environ['RUNNER_TEMP']) / 'steam-staged'
+          build = Path(os.environ['RUNNER_TEMP']) / 'build-publish'
+          game = build / 'game-build'
+          # Replace only the previous runtime package. Keep the administrative
+          # Steam review checklist and all parent history.
+          for name in ['DWM.exe', 'DWM.pck']:
+              old = game / name
+              if old.exists(): old.unlink()
+          if (game / 'licenses').exists(): shutil.rmtree(game / 'licenses')
+          shutil.copytree(staged / 'game-build', game, dirs_exist_ok=True)
+          shutil.copyfile(staged / 'package-receipt.json', build / 'package-receipt.json')
+          for source in (staged / 'game-build').rglob('*'):
+              if not source.is_file(): continue
+              target = game / source.relative_to(staged / 'game-build')
+              if hashlib.sha256(target.read_bytes()).digest() != hashlib.sha256(source.read_bytes()).digest():
+                  raise SystemExit('Published staging changed runtime bytes: ' + str(target))
+          for file in game.rglob('*'):
+              if file.is_file() and file.stat().st_size >= 104857600:
+                  raise SystemExit('File exceeds GitHub regular Git limit: ' + str(file))
+          source_sha = os.environ['SOURCE_SHA']
+          run_id = os.environ['EXPORT_RUN_ID']
+          artifact_id = os.environ['EXPORT_ARTIFACT_ID']
+          zip_sha = os.environ['EXPORT_ZIP_SHA256']
+          (build / 'BUILD_README.md').write_text(f'''# Authored seven-day Windows development build
+
+          Launch game-build/DWM.exe with DWM.pck beside it. Keep licenses/.
+          Runtime source: {source_sha}.
+          Source branch: codex/seven-day-story-20261023 (draft PR #43).
+          Export evidence: https://github.com/Siuuuers/dwm/actions/runs/{run_id}
+          Export artifact: https://github.com/Siuuuers/dwm/actions/runs/{run_id}/artifacts/{artifact_id}
+          Validated input ZIP SHA256: {zip_sha}.
+
+          This unsigned Windows x64 development build contains the authored Day1–Day7
+          adaptation. Export evidence covers package-data integrity and isolated
+          headless startup. It is not Steam approval, an installed Steam test, or
+          whole-game graphical acceptance. See the source PR for scoped test evidence
+          and remaining limitations. No public release or source merge is performed.
+
+          Edit story source in dialogic/timelines/authored_week/Day1.dtl through
+          Day7.dtl via its authoring pipeline, regenerate registration, then re-export.
+          Loose source assets beside the executable do not override the PCK.
+          This content revision requires fresh test saves; older saves are retained,
+          and no automatic migration is claimed.
+
+          Upload only DWM.exe, DWM.pck, and licenses/** as Steam depot content.
+          Configure DWM.exe as the launch executable. Steam AppID and DepotID are
+          account-specific. Steam API integration is optional; no SDK belongs here.
+
+          game-build/STEAM_BUILD_REVIEW.md is retained from the preceding template
+          build as a checklist; its recorded source hashes, paths, and earlier
+          qualification describe that historical build. This README and the adjacent
+          package-receipt.json identify the current package.
+          Do not merge this binary delivery branch into source branches.
+          '''.replace('\n          ', '\n'))
+          roots = {p.name for p in build.iterdir() if p.name != '.git'}
+          if roots != {'BUILD_README.md', 'game-build', 'package-receipt.json'}:
+              raise SystemExit('Unexpected top-level build content: ' + repr(roots))
+          PY
+          git -C "$RUNNER_TEMP/build-publish" add -f -- game-build BUILD_README.md package-receipt.json
+          git -C "$RUNNER_TEMP/build-publish" diff --cached --check
+          git -C "$RUNNER_TEMP/build-publish" config user.name 'github-actions[bot]'
+          git -C "$RUNNER_TEMP/build-publish" config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C "$RUNNER_TEMP/build-publish" commit -m "build: update validated authored seven-day Windows package"
+          test "$(git -C "$RUNNER_TEMP/build-publish" rev-parse HEAD^)" = "$EXPECTED_BUILD_PARENT"
+      - name: Verify remote parent and push one non-force build commit
+        run: |
+          set -euo pipefail
+          remote="$(git ls-remote --exit-code origin "refs/heads/$BUILD_BRANCH" | cut -f1)"
+          if [ "$remote" != "$EXPECTED_BUILD_PARENT" ]; then
+            echo 'Build branch moved; refusing publication. Inspect its new head before retrying.'
+            exit 1
+          fi
+          build_commit="$(git -C "$RUNNER_TEMP/build-publish" rev-parse HEAD)"
+          git -C "$RUNNER_TEMP/build-publish" push origin "HEAD:refs/heads/$BUILD_BRANCH"
+          published="$(git ls-remote --exit-code origin "refs/heads/$BUILD_BRANCH" | cut -f1)"
+          test "$published" = "$build_commit"
+          BUILD_COMMIT="$build_commit" python - <<'PY'
+          import json, os
+          from pathlib import Path
+          receipt = {key.lower(): os.environ[key] for key in ['BUILD_COMMIT', 'BUILD_BRANCH', 'EXPECTED_BUILD_PARENT', 'SOURCE_SHA', 'EXPORT_RUN_ID', 'EXPORT_ARTIFACT_ID', 'EXPORT_ZIP_SHA256']}
+          receipt.update(non_force_push=True, source_merged=False, steam_published=False)
+          (Path(os.environ['RUNNER_TEMP']) / 'authored-week-publication' / 'publication.json').write_text(json.dumps(receipt, indent=2) + '\n')
+          print(json.dumps(receipt))
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: authored-week-windows-export-${{ github.run_id }}-${{ github.run_attempt }}
+          name: authored-week-build-publication-${{ github.run_id }}-${{ github.run_attempt }}
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 90
           path: |
-            .godot/ci/authored-week-export/
-            .godot/ci/windows-export/
+            ${{ runner.temp }}/authored-week-publication/
+            ${{ runner.temp }}/steam-staged/game-build.zip
+            ${{ runner.temp }}/steam-staged/package-receipt.json
