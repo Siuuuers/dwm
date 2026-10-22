@@ -22,7 +22,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 60ffc7b5624bf414f8919d084b598dbd65cc4524
+          ref: 7a476ab92dd4f0831adf1ac6ef80fc3918ffe739
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -30,9 +30,9 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '60ffc7b5624bf414f8919d084b598dbd65cc4524') { throw 'Candidate mismatch' }
+          if ((git rev-parse HEAD) -cne '7a476ab92dd4f0831adf1ac6ef80fc3918ffe739') { throw 'Candidate mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='60ffc7b5624bf414f8919d084b598dbd65cc4524'; tree=(git rev-parse 'HEAD^{tree}'); controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{candidate='7a476ab92dd4f0831adf1ac6ef80fc3918ffe739'; tree=(git rev-parse 'HEAD^{tree}'); controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -96,12 +96,12 @@ jobs:
           pathlib.Path('.godot/ci/uid-sidecar-provenance.json').write_text(json.dumps(records,indent=2))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Qualify challenge-flush
+      - name: Qualify restore-diagnostics
         continue-on-error: true
         timeout-minutes: 12
         run: |
           $ErrorActionPreference = 'Stop'
-          ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'challenge-flush' -LogName 'challenge-flush.log' -EvidenceLogPath '.godot/ci/challenge-flush.jsonl' -TimeoutSeconds 600 -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/unit/test_scene_challenge.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/challenge-flush.xml')
+          ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'restore-diagnostics' -LogName 'restore-diagnostics.log' -EvidenceLogPath '.godot/ci/restore-diagnostics.jsonl' -TimeoutSeconds 600 -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_restore_transaction.gd,res://tests/unit/test_fatal_diagnostic_projector.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/restore-diagnostics.xml')
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Qualify Shop plate fit
         continue-on-error: true
@@ -138,7 +138,7 @@ jobs:
           @'
           import collections,json,pathlib,re,subprocess,xml.etree.ElementTree as ET
           out=pathlib.Path('.godot/ci')
-          suites={'same-day-owners': ['tests/unit/test_scene_round_completion.gd','tests/integration/test_scene_round_checkpoint_transaction.gd'], 'supportz-render-create': ['tests/integration/test_scene_same_day_supportz_create.gd'], 'supportz-render-load': ['tests/integration/test_scene_same_day_supportz_load.gd'], 'shop-fit': ['tests/scene/test_shop_plate.gd'], 'challenge-flush': ['tests/unit/test_scene_challenge.gd'], 'apps-render-create': ['tests/integration/test_scene_apps_connected_create.gd'], 'apps-render-load': ['tests/integration/test_scene_apps_connected_load.gd']}
+          suites={'same-day-owners': ['tests/unit/test_scene_round_completion.gd','tests/integration/test_scene_round_checkpoint_transaction.gd'], 'supportz-render-create': ['tests/integration/test_scene_same_day_supportz_create.gd'], 'supportz-render-load': ['tests/integration/test_scene_same_day_supportz_load.gd'], 'shop-fit': ['tests/scene/test_shop_plate.gd'], 'restore-diagnostics': ['tests/integration/test_restore_transaction.gd','tests/unit/test_fatal_diagnostic_projector.gd'], 'apps-render-create': ['tests/integration/test_scene_apps_connected_create.gd'], 'apps-render-load': ['tests/integration/test_scene_apps_connected_load.gd']}
           def effective_tests(script):
               text=pathlib.Path(script).read_text(encoding='utf-8')
               own=re.findall(r'^func (test_\w+)\(',text,re.M)
@@ -157,7 +157,7 @@ jobs:
               assert all(r.attrib.get('status')=='pass' and int(r.attrib.get('assertions','0'))>0 for r in rows),suite
               reports.append({'suite':suite,'tests':len(rows),'assertions':sum(int(r.attrib['assertions']) for r in rows)})
           processes={}
-          for suite,count in [('same-day-owners',1),('supportz-render',2),('shop-fit',1),('challenge-flush',1),('apps-render',2)]:
+          for suite,count in [('same-day-owners',1),('supportz-render',2),('shop-fit',1),('restore-diagnostics',1),('apps-render',2)]:
               events=[json.loads(x) for x in (out/(suite+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if x.strip()]
               assert len(events)==count and all(e['exit_code']==0 for e in events),(suite,events)
               processes[suite]=events
@@ -198,7 +198,9 @@ jobs:
           assert 'DWM_SAVE_LOAD_PROFILE ' not in create_log
           profiles=[json.loads(line.split('DWM_SAVE_LOAD_PROFILE ',1)[1]) for line in load_log.splitlines() if line.startswith('DWM_SAVE_LOAD_PROFILE ')]
           assert profiles and all(p['context']=='scene-apps-cold-load' for p in profiles)
-          assert {'backup_prepare','backup_commit','restore_prepare','restore_commit'} <= {p['scope'] for p in profiles}
+          assert {'backup_prepare','backup_commit','restore_prepare'} <= {p['scope'] for p in profiles}
+          commits=[p for p in profiles if p['scope']=='backup_commit' and p['action']=='load']
+          assert len(commits)==1 and commits[0]['ok'] and type(commits[0].get('restore_commit_us')) is int and commits[0]['restore_commit_us']>=0
           assert json.loads((out/'import-process.json').read_text(encoding='utf-8-sig'))['exit_code']==0
           for p in pathlib.Path('.godot/phase2r_logs').glob('*.log'):
               assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',p.read_text(encoding='utf-8-sig')),str(p)
@@ -224,7 +226,7 @@ jobs:
           out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
           missing=[]
           omitted_assets=[]
-          pending=['tests/unit/test_scene_round_completion.gd','tests/integration/test_scene_round_checkpoint_transaction.gd','tests/integration/test_scene_same_day_supportz_create.gd','tests/integration/test_scene_same_day_supportz_load.gd','tests/unit/test_scene_challenge.gd','tests/unit/test_desktop_app_host_state.gd', 'tests/unit/test_scene_desktop_host_restore.gd', 'tests/integration/test_scene_app_preparation.gd', 'tests/integration/test_scene_desktop_consumer.gd', 'tests/integration/test_scene_backup_desktop_entry.gd', 'tests/unit/test_scene_computer_suspension.gd', 'tests/unit/test_localization.gd', 'tests/unit/test_pause_surface.gd', 'tests/integration/test_artwork_gallery.gd', 'tests/integration/test_scene_controls_localization.gd', 'tests/unit/tooling/test_ui_literal_audit.gd', 'tests/scene/test_shop_card.gd', 'tests/scene/test_shop_plate.gd', 'tests/integration/test_shop_desktop_host.gd', 'tests/integration/test_minesweeper_shop_transaction.gd', 'tests/unit/test_frozen_presentation_context.gd', 'tests/unit/test_dating_narrative_playback.gd', 'tests/unit/test_dating_attempt_runtime.gd', 'tests/integration/test_ordered_ending_real_runtime.gd', 'tests/scene/test_shop_blank_rendered.gd', 'tests/integration/test_scene_apps_connected_create.gd', 'tests/integration/test_scene_apps_connected_load.gd', 'tests/integration/scene_apps_connected_child.gd', 'autoload/GameState.gd', 'autoload/ApplicationBootstrap.gd', 'scripts/ui/SceneHost.gd', 'scripts/ui/ComputerDesktop.gd', 'scripts/application/shop/ShopPresentationPort.gd', 'scripts/ui/GalleryScene.gd', 'scripts/ui/gallery/ArtworkGallery.gd', 'scripts/ui/pause/PauseSurface.gd', 'tools/localization/UiLiteralAudit.gd', 'tools/testing/Invoke-IsolatedGodot.ps1', 'project.godot', 'localization/ui/en.json', 'localization/ui/zh_CN.json', 'localization/ui/zh_HK.json', 'localization/ui/ja.json', 'localization/ui/ko.json']
+          pending=['tests/integration/test_restore_transaction.gd','tests/unit/test_fatal_diagnostic_projector.gd','tests/unit/test_scene_round_completion.gd','tests/integration/test_scene_round_checkpoint_transaction.gd','tests/integration/test_scene_same_day_supportz_create.gd','tests/integration/test_scene_same_day_supportz_load.gd','tests/unit/test_scene_challenge.gd','tests/unit/test_desktop_app_host_state.gd', 'tests/unit/test_scene_desktop_host_restore.gd', 'tests/integration/test_scene_app_preparation.gd', 'tests/integration/test_scene_desktop_consumer.gd', 'tests/integration/test_scene_backup_desktop_entry.gd', 'tests/unit/test_scene_computer_suspension.gd', 'tests/unit/test_localization.gd', 'tests/unit/test_pause_surface.gd', 'tests/integration/test_artwork_gallery.gd', 'tests/integration/test_scene_controls_localization.gd', 'tests/unit/tooling/test_ui_literal_audit.gd', 'tests/scene/test_shop_card.gd', 'tests/scene/test_shop_plate.gd', 'tests/integration/test_shop_desktop_host.gd', 'tests/integration/test_minesweeper_shop_transaction.gd', 'tests/unit/test_frozen_presentation_context.gd', 'tests/unit/test_dating_narrative_playback.gd', 'tests/unit/test_dating_attempt_runtime.gd', 'tests/integration/test_ordered_ending_real_runtime.gd', 'tests/scene/test_shop_blank_rendered.gd', 'tests/integration/test_scene_apps_connected_create.gd', 'tests/integration/test_scene_apps_connected_load.gd', 'tests/integration/scene_apps_connected_child.gd', 'autoload/GameState.gd', 'autoload/ApplicationBootstrap.gd', 'scripts/ui/SceneHost.gd', 'scripts/ui/ComputerDesktop.gd', 'scripts/application/shop/ShopPresentationPort.gd', 'scripts/ui/GalleryScene.gd', 'scripts/ui/gallery/ArtworkGallery.gd', 'scripts/ui/pause/PauseSurface.gd', 'tools/localization/UiLiteralAudit.gd', 'tools/testing/Invoke-IsolatedGodot.ps1', 'project.godot', 'localization/ui/en.json', 'localization/ui/zh_CN.json', 'localization/ui/zh_HK.json', 'localization/ui/ja.json', 'localization/ui/ko.json']
           sources=set()
           while pending:
               source=pending.pop()
