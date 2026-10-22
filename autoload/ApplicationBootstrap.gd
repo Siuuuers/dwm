@@ -215,6 +215,7 @@ var _desktop_eviction_port: Object = null
 ## first-Reveal wiring of these SAME live objects into gameplay is Task 9's job; here they exist only
 ## so SaveManager's 8-key restore participant set has somewhere real to restore desktop state into.
 var _desktop_consequence_state: RefCounted = null
+var _scene_shop_catalog: RefCounted = null
 var _desktop_board_state: RefCounted = null
 ## The ONE Minesweeper round coordinator and its two production adapters (dwm-p2r.9 Plan 06
 ## Task 2). Constructed once, configured with initialized production ports, and installed in
@@ -1578,6 +1579,9 @@ func _configure_desktop_production_graph() -> Dictionary:
 
 	var snapshot_bound: Dictionary = game_state.configure_desktop_snapshot_provider(Callable(self, "_capture_live_desktop_snapshot"))
 	if not snapshot_bound.get("ok", false): return snapshot_bound
+	if _scene_shop_catalog == null: _scene_shop_catalog = GAMEPLAY_DATA_CATALOG.new()
+	var shop_bound: Dictionary = game_state.configure_scene_shop_runtime(_scene_shop_catalog, _desktop_consequence_state)
+	if not shop_bound.get("ok", false): return shop_bound
 
 	# One distinct root-scoped desktop publication ledger, loaded before any recovery/publish call.
 	if _retained_desktop_publication_ledger == null:
@@ -2782,6 +2786,8 @@ func open_scene_computer(host: Control) -> Dictionary:
 	var game := _target(&"GameState")
 	var configured: Dictionary = game.configure_scene_challenge_runtime()
 	if not configured.get("ok", false): return configured
+	var cue: Dictionary = _target(&"DialogicBridge")._admit_caption_challenge_on_open()
+	if not cue.get("ok", false): return cue
 	var captured: Dictionary = game.capture_scene_challenge_command()
 	if not captured.get("ok", false):
 		var context: Dictionary = game.capture_scene_contact_context()

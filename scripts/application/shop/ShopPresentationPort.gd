@@ -46,6 +46,7 @@ const _PARTICIPANT_METHODS: Array[String] = [
 	"capture", "quote", "prepare_purchase", "release_recovery_lease",
 ]
 
+var _scene_mode := false
 var _game_state: Object
 var _data_catalog: Object
 var _purchase_participant: Object
@@ -79,7 +80,7 @@ func configure(game_state: Object, data_catalog: Object, purchase_participant: O
 	if int(game_state.call(&"get_mutation_gate_instance_id")) != mutation_gate.get_instance_id():
 		return _fail(&"shop_mutation_gate_mismatch")
 	if _game_state != null:
-		if _game_state != game_state or _data_catalog != data_catalog \
+		if _scene_mode or _game_state != game_state or _data_catalog != data_catalog \
 				or _purchase_participant != purchase_participant \
 				or _consequence_coordinator != consequence_coordinator \
 				or _round_coordinator != round_coordinator or _identity_issuer != identity_issuer \
@@ -99,6 +100,42 @@ func configure(game_state: Object, data_catalog: Object, purchase_participant: O
 	_round_coordinator = round_coordinator
 	_identity_issuer = identity_issuer
 	_mutation_gate = mutation_gate
+	return _ok({"already_configured": false})
+
+
+## Scene purchases are owned and checkpointed by GameState; no legacy participant is involved.
+func configure_scene(game_state: Object, data_catalog: Object, identity_issuer: Object,
+		mutation_gate: Object) -> Dictionary:
+	if not _has_methods(game_state, ["get_mutation_gate_instance_id", "capture_live_session",
+			"validate_live_session", "capture_scene_shop_context", "preview_scene_shop_purchase", "commit_scene_shop_purchase"]):
+		return _fail(&"invalid_shop_game_state")
+	if not _has_methods(data_catalog, _CATALOG_METHODS):
+		return _fail(&"invalid_shop_data_catalog")
+	if not _has_methods(identity_issuer, ["issue", "verify_issued"]):
+		return _fail(&"invalid_shop_identity_issuer")
+	if not _has_methods(mutation_gate, ["guard_external"]):
+		return _fail(&"invalid_shop_mutation_gate")
+	if int(game_state.call(&"get_mutation_gate_instance_id")) != mutation_gate.get_instance_id():
+		return _fail(&"shop_mutation_gate_mismatch")
+	if _game_state != null:
+		if not _scene_mode or _game_state != game_state or _data_catalog != data_catalog \
+				or _identity_issuer != identity_issuer or _mutation_gate != mutation_gate:
+			return _fail(&"shop_presentation_port_already_configured")
+		return _ok({"already_configured": true})
+	var captured: Variant = game_state.call(&"capture_live_session")
+	if not captured is Dictionary or not captured.get("ok", false) \
+			or not captured.get("value") is Dictionary:
+		return _fail(&"shop_session_capture_malformed")
+	var admitted: Variant = game_state.call(&"validate_live_session", captured.value.duplicate(true))
+	if not admitted is Dictionary:
+		return _fail(&"shop_session_admission_malformed")
+	if not admitted.get("ok", false): return admitted.duplicate(true)
+	_session_handle = captured.value.duplicate(true)
+	_game_state = game_state
+	_data_catalog = data_catalog
+	_identity_issuer = identity_issuer
+	_mutation_gate = mutation_gate
+	_scene_mode = true
 	return _ok({"already_configured": false})
 
 
@@ -161,6 +198,10 @@ func can_purchase(item_id: String, quantity: int = 1) -> Dictionary:
 	if not resolved.get("ok", false):
 		return resolved
 	var item: ShopItemData = resolved["value"]
+	if _scene_mode:
+		var preview: Variant = _game_state.call(&"preview_scene_shop_purchase", item.id, quantity)
+		return preview.duplicate(true) if preview is Dictionary \
+			else _fail(&"shop_preview_result_malformed")
 	var checked := _validate_quantity(item_id, item, quantity)
 	if not checked.get("ok", false):
 		return checked
@@ -184,6 +225,9 @@ func has_pending_purchase() -> bool:
 
 
 func purchase(item_id: String, quantity: int) -> Dictionary:
+	if _scene_mode:
+		var admitted := _admit_session()
+		if not admitted.get("ok", false): return admitted
 	if not _pending_purchase.is_empty():
 		if item_id != str(_pending_purchase.get("item_id", "")) or quantity != int(_pending_purchase.get("quantity", 1)):
 			return _fail(&"shop_purchase_pending")
@@ -191,10 +235,27 @@ func purchase(item_id: String, quantity: int) -> Dictionary:
 	var eligible := can_purchase(item_id, quantity)
 	if not eligible.get("ok", false):
 		return eligible
+	var source_context: Dictionary = {}
+	if _scene_mode:
+		var source: Variant = _game_state.call(&"capture_scene_shop_context")
+		if not source is Dictionary or not source.get("ok", false):
+			return source.duplicate(true) if source is Dictionary else _fail(&"shop_source_context_malformed")
+		if not source.get("value") is Dictionary:
+			return _fail(&"shop_source_context_malformed")
+		source_context = source.value.duplicate(true)
 	var issued := _issue_transaction()
 	if not issued.get("ok", false):
 		return issued
 	var issue_value: Dictionary = issued["value"]
+	if _scene_mode:
+		_pending_purchase = {
+			"item_id": item_id, "quantity": quantity,
+			"source_id": str(_PUBLIC_TO_SOURCE.get(item_id, item_id)),
+			"source_context": source_context.duplicate(true),
+			"transaction_id": issue_value.transaction_id,
+			"issuer_receipt": issue_value.issuer_receipt.duplicate(true),
+		}
+		return _retry_purchase()
 	return _prepare_purchase(item_id, quantity, issue_value)
 
 
@@ -252,6 +313,22 @@ func _prepare_purchase(item_id: String, quantity: int, issue_value: Dictionary) 
 
 
 func _retry_purchase() -> Dictionary:
+	if _scene_mode:
+		var admitted := _admit_session()
+		if not admitted.get("ok", false): return admitted
+		var committed: Variant = _game_state.call(&"commit_scene_shop_purchase",
+			str(_pending_purchase.source_id), int(_pending_purchase.quantity),
+			str(_pending_purchase.transaction_id), _pending_purchase.issuer_receipt.duplicate(true),
+			_pending_purchase.source_context.duplicate(true))
+		if not committed is Dictionary:
+			return _fail(&"shop_scene_commit_result_malformed")
+		if committed.get("ok", false):
+			_pending_purchase.clear()
+			catalog_changed.emit()
+		elif committed.get("code") == &"scene_shop_source_changed":
+			# Owner guarantees this refusal happened before a durable commit.
+			_pending_purchase.clear()
+		return committed.duplicate(true)
 	var result: Variant = _consequence_coordinator.call(&"accept_prepared_action",
 		(_pending_purchase["accept_request"] as Dictionary).duplicate(true))
 	if typeof(result) != TYPE_DICTIONARY:

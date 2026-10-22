@@ -207,6 +207,8 @@ static func _fail(code: StringName) -> Dictionary:
 const SCENE_PAYLOAD_KEYS := {
 	"thought.pass": ["opportunity_id", "yes_target_id", "pass_target_id"],
 	"thought.accept": ["opportunity_id", "yes_target_id", "pass_target_id"],
+	"thought.options": ["opportunity_id", "options", "pass_target_id"],
+	"thought.select": ["opportunity_id", "options", "pass_target_id", "choice_id"],
 	"scene.transition": ["target_id"], "challenge.playable": ["challenge_id"],
 	"challenge.end": ["challenge_id"], "contact.enter": ["contact_event_id"],
 	"challenge.recall": ["challenge_id", "never_started_target_id", "unfinished_target_id", "won_target_id", "lost_target_id", "perfect_target_id"],
@@ -246,12 +248,51 @@ static func _inspect_scene_shape(envelope: Variant) -> Dictionary:
 static func _scene_payload(kind: String, payload: Variant) -> bool:
 	if not SCENE_PAYLOAD_KEYS.has(kind) or not _keys(payload, SCENE_PAYLOAD_KEYS[kind]): return false
 	for key: String in payload:
-		if key == "parameters":
+		if key == "options":
+			if not _thought_options(payload[key], payload.pass_target_id): return false
+		elif key == "parameters":
 			if not payload[key] is Dictionary: return false
 			for parameter: Variant in payload[key]:
 				if not _id(parameter) or typeof(payload[key][parameter]) not in [TYPE_STRING, TYPE_INT, TYPE_BOOL]: return false
 		elif not _id(payload[key]): return false
+	if kind == "thought.select" and thought_option_target(payload, payload.choice_id).is_empty(): return false
 	return true
+
+static func _thought_options(options: Variant, pass_target_id: Variant) -> bool:
+	if not options is Array or options.is_empty(): return false
+	var ids := {}
+	var targets := {str(pass_target_id): true}
+	for option: Variant in options:
+		if not _keys(option, ["choice_id", "text", "target_id"]) or not _id(option.choice_id) \
+				or option.choice_id == "pass" or ids.has(option.choice_id) or not _id(option.target_id) \
+				or targets.has(option.target_id) or not option.text is String or option.text.strip_edges().is_empty(): return false
+		ids[option.choice_id] = true
+		targets[option.target_id] = true
+	return true
+
+static func thought_option_target(payload: Dictionary, choice_id: String) -> String:
+	for option: Dictionary in payload.get("options", []):
+		if option.choice_id == choice_id: return option.target_id
+	return ""
+
+static func thought_targets(payload: Dictionary) -> Array:
+	var targets: Array = [payload.pass_target_id]
+	if payload.has("options"):
+		for option: Dictionary in payload.options: targets.append(option.target_id)
+	else: targets.append(payload.yes_target_id)
+	return targets
+
+static func thought_result(envelope: Dictionary) -> Dictionary:
+	var choice := "pass"
+	var target_id: String = envelope.payload.pass_target_id
+	if envelope.kind == "thought.accept":
+		choice = "yes"
+		target_id = envelope.payload.yes_target_id
+	elif envelope.kind == "thought.select":
+		choice = envelope.payload.choice_id
+		target_id = thought_option_target(envelope.payload, choice)
+	return {"kind": "thought_resolved", "opportunity_id": envelope.payload.opportunity_id,
+		"choice": choice, "target_id": target_id}
 
 static func validate_bundle_structure(bundle: Variant) -> Dictionary:
 	var started_us: int = _VALIDATION_TIMING.start_sample()
@@ -329,13 +370,13 @@ static func _validate_bundle_structure_observed_body(bundle: Variant) -> Diction
 	for bound: Dictionary in markers.values():
 		var marker: Dictionary = bound.marker
 		match marker.kind:
-			"thought.accept":
+			"thought.accept", "thought.select":
 				return _fail(&"scene_thought_accept_not_authored")
-			"thought.pass":
+			"thought.pass", "thought.options":
 				if opportunities.has(marker.payload.opportunity_id): return _fail(&"scene_thought_binding_duplicate")
 				opportunities[marker.payload.opportunity_id] = true
-				if marker.payload.yes_target_id == marker.payload.pass_target_id: return _fail(&"scene_thought_targets_invalid")
-				for target_id: String in [marker.payload.yes_target_id, marker.payload.pass_target_id]:
+				if marker.kind == "thought.pass" and marker.payload.yes_target_id == marker.payload.pass_target_id: return _fail(&"scene_thought_targets_invalid")
+				for target_id: String in thought_targets(marker.payload):
 					if not _table_has(tables.targets, target_id) or tables.targets[target_id].target.kind != "scene":
 						return _fail(&"scene_thought_targets_invalid")
 			"scene.transition":
@@ -391,9 +432,12 @@ static func _bind_scene_context(envelope: Variant, shaped: Dictionary, registere
 	var markers: Dictionary = registered.value.markers
 	if not entries.has(envelope.source.entry_id) or not markers.has(envelope.event_id): return _fail(&"scene_marker_unregistered")
 	var bound: Dictionary = markers[envelope.event_id]
+	var authored_payload: Dictionary = envelope.payload.duplicate(true)
+	if envelope.kind == "thought.select": authored_payload.erase("choice_id")
 	if bound.entry_id != envelope.source.entry_id or entries[bound.entry_id].content_version != envelope.source.content_version \
-			or not (bound.marker.kind == envelope.kind or (bound.marker.kind == "thought.pass" and envelope.kind == "thought.accept")) \
-			or not _equal(bound.marker.payload, envelope.payload):
+			or not (bound.marker.kind == envelope.kind or (bound.marker.kind == "thought.pass" and envelope.kind == "thought.accept") \
+				or (bound.marker.kind == "thought.options" and envelope.kind == "thought.select")) \
+			or not _equal(bound.marker.payload, authored_payload):
 		return _fail(&"scene_marker_mismatch")
 	shaped.value["registration_fingerprint"] = registered.value.fingerprint
 	shaped.value["programme_entry"] = entries[bound.entry_id].duplicate(true)
@@ -467,13 +511,10 @@ static func _validate_scene_result_inspected(envelope: Dictionary, result: Varia
 	var targets: Dictionary = registered.value.targets
 	match result.kind:
 		"thought_resolved":
-			if not _keys(result, ["kind", "opportunity_id", "choice", "target_id"]) or envelope.kind not in ["thought.accept", "thought.pass"]:
+			if envelope.kind not in ["thought.accept", "thought.pass", "thought.options", "thought.select"] \
+					or not _equal(result, thought_result(envelope)):
 				return _fail(&"scene_result_invalid")
-			var accepted: bool = envelope.kind == "thought.accept"
-			if result.opportunity_id != envelope.payload.opportunity_id or result.choice != ("yes" if accepted else "pass"):
-				return _fail(&"scene_result_invalid")
-			var target_id: String = envelope.payload.yes_target_id if accepted else envelope.payload.pass_target_id
-			if result.target_id != target_id or not _table_has(targets, target_id) or targets[target_id].target.kind != "scene":
+			if not _table_has(targets, result.target_id) or targets[result.target_id].target.kind != "scene":
 				return _fail(&"scene_result_invalid")
 		"notification_updated":
 			if not _keys(result, ["kind", "notification"]) or envelope.kind not in ["notification.set", "notification.clear"]:
@@ -635,6 +676,7 @@ static func _validate_scene_receipts_observed_body(receipts: Dictionary, bundle:
 	var commands := {}
 	var admissions := {}
 	var admission_receipts := {}
+	var shop_purchases := {}
 	var resolved_thoughts := {}
 	for command: Variant in receipts:
 		var receipt: Variant = receipts[command]
@@ -644,6 +686,11 @@ static func _validate_scene_receipts_observed_body(receipts: Dictionary, bundle:
 			if not _keys(receipt, ["kind", "request_fingerprint", "source_id", "transaction_id"]) \
 					or not _hash(receipt.request_fingerprint) or not _id(receipt.source_id):
 				return _fail(&"scene_receipt_invalid")
+			continue
+		if receipt.get("kind") == "scene_shop_purchase":
+			var purchased := validate_scene_shop_purchase(receipt, issuer)
+			if not purchased.ok: return purchased
+			shop_purchases[command] = receipt
 			continue
 		if receipt.get("kind") == "scene_admission":
 			var admitted: Dictionary
@@ -689,6 +736,14 @@ static func _validate_scene_receipts_observed_body(receipts: Dictionary, bundle:
 				if not _equal(prior_anchor[field], saved.reading_anchor[field]): return _fail(&"event_anchor_changed")
 		group.receipts.append(receipt.duplicate(true))
 		commands[command] = receipt.duplicate(true)
+	for purchase_receipt: Dictionary in shop_purchases.values():
+		var source_id: String = purchase_receipt.source_id
+		if not admission_receipts.has(source_id): return _fail(&"scene_shop_admission_missing")
+		var source_admission: Dictionary = admission_receipts[source_id].scene_admission
+		var purchase: Dictionary = purchase_receipt.scene_shop_purchase
+		if source_admission.source_identity.run_id != purchase.source_identity.run_id \
+				or source_admission.issuer_receipt.counter >= purchase.issuer_receipt.counter:
+			return _fail(&"scene_shop_admission_mismatch")
 	for group: Dictionary in occurrences.values():
 		var occurrence: String = group.source.scene_occurrence
 		if not admissions.has(occurrence): return _fail(&"scene_admission_missing")
@@ -709,9 +764,9 @@ static func _validate_scene_receipts_observed_body(receipts: Dictionary, bundle:
 				return _fail(&"event_notification_clear_invalid")
 			if semantic.kind in ["notification.set", "notification.clear"]:
 				group.notification = receipt.scene_event.result.notification.duplicate(true)
-			if contact_child and semantic.kind in ["contact.enter", "scene.transition", "challenge.end", "challenge.recall", "thought.accept", "thought.pass"]:
+			if contact_child and semantic.kind in ["contact.enter", "scene.transition", "challenge.end", "challenge.recall", "thought.accept", "thought.pass", "thought.options", "thought.select"]:
 				return _fail(&"scene_contact_exit_refused")
-			transitioned = semantic.kind in ["scene.transition", "contact.return", "challenge.recall", "thought.accept", "thought.pass"]
+			transitioned = semantic.kind in ["scene.transition", "contact.return", "challenge.recall", "thought.accept", "thought.pass", "thought.options", "thought.select"]
 			seen[semantic.event_id] = true
 			group.next_ordinal += 1
 			group.predecessor = semantic.event_id
@@ -805,7 +860,7 @@ static func _validate_scene_receipts_observed_body(receipts: Dictionary, bundle:
 		for receipt: Dictionary in commands.values():
 			var event: Dictionary = receipt.scene_event.semantic
 			if event.source.scene_occurrence != entered.source.scene_occurrence or event.ordinal <= entered.ordinal: continue
-			if event.kind in ["contact.enter", "scene.transition", "challenge.end", "challenge.recall", "thought.accept", "thought.pass"] \
+			if event.kind in ["contact.enter", "scene.transition", "challenge.end", "challenge.recall", "thought.accept", "thought.pass", "thought.options", "thought.select"] \
 					and (returned_counter < 0 or event.issuer_receipt.counter <= returned_counter):
 				return _fail(&"scene_contact_exit_refused")
 	for receipt: Dictionary in admission_receipts.values():
@@ -1228,4 +1283,90 @@ static func validate_scene_terminal_admission(record: Dictionary, bundle: Dictio
 		record.target_id, bundle, issuer)
 	if not rebuilt.ok: return rebuilt
 	if not _equal(rebuilt.value, record): return _fail(&"scene_terminal_admission_mismatch")
+	return {"ok": true}
+
+## A saved quote authenticates the accepted purchase, never a later catalogue price.
+## Purchases are outside authored marker order; the Run ledger joins their admission.
+static func scene_shop_purchase_shape_valid(receipt: Variant) -> bool:
+	if not _json_data(receipt) or not _keys(receipt,
+			["transaction_id", "request_fingerprint", "kind", "source_id", "scene_shop_purchase"]): return false
+	if receipt.kind != "scene_shop_purchase" or not _id(receipt.transaction_id) \
+			or not _id(receipt.source_id) or not _hash(receipt.request_fingerprint): return false
+	var saved: Variant = receipt.scene_shop_purchase
+	if not _keys(saved, ["schema_version", "source_identity", "issuer_receipt", "purchase", "provenance"]) \
+			or typeof(saved.schema_version) != TYPE_INT or saved.schema_version != 1 \
+			or not saved.issuer_receipt is Dictionary or not saved.provenance is Dictionary: return false
+	return _scene_shop_identity_valid(saved.source_identity) and _scene_shop_quote_valid(saved.purchase)
+
+static func _scene_shop_identity_valid(identity: Variant) -> bool:
+	if not _keys(identity, ["run_id", "branch_id", "desktop_timeline_generation",
+			"causal_day_instance", "causal_day_instance_issuer_receipt"]): return false
+	for key: String in ["run_id", "branch_id", "causal_day_instance"]:
+		if not _id(identity[key]): return false
+	return typeof(identity.desktop_timeline_generation) == TYPE_INT and identity.desktop_timeline_generation >= 0 \
+		and identity.causal_day_instance_issuer_receipt is Dictionary \
+		and identity.causal_day_instance_issuer_receipt.get("token") == identity.causal_day_instance
+
+static func _scene_shop_quote_valid(purchase: Variant) -> bool:
+	if not _keys(purchase, ["item_id", "quantity", "currency", "unit_price", "effect_ids"]) \
+			or not _id(purchase.item_id) or not _positive_int(purchase.quantity) \
+			or not _positive_int(purchase.unit_price) or typeof(purchase.currency) != TYPE_STRING \
+			or purchase.currency not in ["money", "minesweeper_coin"] \
+			or not purchase.effect_ids is Array or purchase.effect_ids.is_empty(): return false
+	@warning_ignore("integer_division")
+	var maximum_quantity: int = 9223372036854775807 / purchase.unit_price
+	if purchase.quantity > maximum_quantity: return false
+	var seen := {}
+	for effect: Variant in purchase.effect_ids:
+		if typeof(effect) != TYPE_STRING or seen.has(effect): return false
+		seen[effect] = true
+		if effect == "minesweeper:round_floor:-1" and purchase.item_id == "supportz": continue
+		if effect == "inventory:add:" + purchase.item_id: continue
+		if effect.begins_with("pressure:"):
+			var amount: String = effect.trim_prefix("pressure:")
+			if amount.is_valid_int() and amount.to_int() < 0 and str(amount.to_int()) == amount: continue
+		return false
+	return true
+
+static func make_scene_shop_purchase(identity: Dictionary, root_issuer_receipt: Dictionary,
+		source_id: String, purchase: Dictionary, issuer: Object) -> Dictionary:
+	if issuer == null or issuer.get_script() != SCENE_RECEIPT_ISSUER:
+		return _fail(&"scene_receipt_issuer_unbound")
+	if not _json_data(identity) or not _scene_shop_identity_valid(identity) or not _id(source_id) \
+			or not _json_data(purchase) or not _scene_shop_quote_valid(purchase):
+		return _fail(&"scene_shop_purchase_invalid")
+	var issued: Dictionary = issuer.verify_issued(root_issuer_receipt, &"transaction_id")
+	if not issued.get("ok", false): return issued
+	var causal: Dictionary = issuer.verify_issued(identity.causal_day_instance_issuer_receipt, &"causal_day_instance")
+	if not causal.get("ok", false): return causal
+	var allocated := _scene_admission_identity_proof(identity, issuer)
+	if not allocated.ok: return allocated
+	if root_issuer_receipt.counter <= identity.causal_day_instance_issuer_receipt.counter:
+		return _fail(&"scene_shop_purchase_identity_invalid")
+	var request := {"kind": "scene_shop_purchase", "schema_version": 1, "source_id": source_id,
+		"source_identity": identity.duplicate(true), "issuer_receipt": root_issuer_receipt.duplicate(true),
+		"purchase": purchase.duplicate(true)}
+	var fingerprint := _sha(request)
+	if fingerprint.is_empty(): return _fail(&"scene_shop_purchase_invalid")
+	var source_ids: Array[String] = [
+		"request_fingerprint=" + str(WRITER.stringify(fingerprint).value), 'role="scene.shop_purchase"']
+	source_ids.sort()
+	var child: Dictionary = issuer.derive_child({"parent_receipt_id": root_issuer_receipt.receipt_id,
+		"child_kind": "continuation_operation", "ordinal": 0, "source_ids": source_ids})
+	if not child.get("ok", false): return child
+	return {"ok": true, "value": {"transaction_id": root_issuer_receipt.token,
+		"request_fingerprint": fingerprint, "kind": "scene_shop_purchase", "source_id": source_id,
+		"scene_shop_purchase": {"schema_version": 1, "source_identity": identity.duplicate(true),
+			"issuer_receipt": root_issuer_receipt.duplicate(true), "purchase": purchase.duplicate(true),
+			"provenance": child.value.provenance.duplicate(true)}}}
+
+static func validate_scene_shop_purchase(receipt: Dictionary, issuer: Object) -> Dictionary:
+	if not scene_shop_purchase_shape_valid(receipt): return _fail(&"scene_shop_purchase_invalid")
+	var saved: Dictionary = receipt.scene_shop_purchase
+	var rebuilt := make_scene_shop_purchase(saved.source_identity, saved.issuer_receipt,
+		receipt.source_id, saved.purchase, issuer)
+	if not rebuilt.ok: return rebuilt
+	if not _equal(receipt, rebuilt.value): return _fail(&"scene_shop_purchase_mismatch")
+	var proven: Dictionary = issuer.validate_child(saved.provenance, &"continuation_operation")
+	if not proven.get("ok", false): return proven
 	return {"ok": true}
