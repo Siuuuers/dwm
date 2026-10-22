@@ -2,10 +2,11 @@ extends RefCounted
 ## Offline TEST authoring preparation; does not install content or start a Run.
 const SEQUENCE := preload("res://tools/authoring/SceneSequenceAuthoring.gd")
 const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
-const PATH := "res://tests/fixtures/dialogic/scene_seven_day_linear.dtl"
+const DAY_DIRECTORY := "res://tests/fixtures/dialogic/"
+const CONTENT_VERSION := 2
 # This explicit list owns ordinary-next ordering, independently of registry sorting.
 const ORDER_PATH := "res://tests/templates/scene_sequence/seven_day_order.json"
-const ENDING_PATH := "res://tests/fixtures/dialogic/scene_seven_day_ending.dtl"
+const ENDING_PATH := DAY_DIRECTORY + "Day7.dtl"
 const ENDING_ID := "ending.alone.normal"
 const STRICT := preload("res://scripts/validation/StrictJson.gd")
 
@@ -31,6 +32,7 @@ static func prepare() -> Dictionary:
 		"audio_catalogue": {"kind": "scene_audio_catalogue", "schema_version": 1, "assets": [], "plans": [], "bindings": []}}
 	for index in range(order.size()):
 		var id: String = order[index]
+		var path: String = DAY_DIRECTORY + id + ".dtl"
 		var markers: Array = []
 		var grants := ["history.line.witness"]
 		var next_marker := ""
@@ -45,13 +47,13 @@ static func prepare() -> Dictionary:
 				"after_line_id": "line.Day7.two", "kind": "scene.transition",
 				"payload": {"target_id": "target." + ENDING_ID}})
 			grants.append("scene.transition")
-		var compiled: Dictionary = ADAPTER.compile_scene_programme(PATH, id, all_ids, markers)
+		var compiled: Dictionary = ADAPTER.compile_scene_programme(path, id, all_ids, markers)
 		if not compiled.get("ok", false): return compiled
 		bundle.entry_manifest.entries.append({"entry_id": id, "role": "scene",
 			"allowed_signals": grants, "atom_namespace": "atom." + id,
-			"line_namespace": "line." + id, "content_version": 1,
+			"line_namespace": "line." + id, "content_version": CONTENT_VERSION,
 			"context_schema_id": "context.scene." + id + ".v1",
-			"locators": {"en": {"path": PATH, "label": id}},
+			"locators": {"en": {"path": path, "label": id}},
 			"visual_ids": {"required": [], "optional": []},
 			"presentation_signature_schema": {"schema_version": 1, "fields": {}}})
 		bundle.context_registry.schemas.append({"entry_id": id,
@@ -66,11 +68,11 @@ static func prepare() -> Dictionary:
 				lines.append({"beat_id": "beat." + event.line_id, "line_id": event.line_id,
 					"text": event.text, "revision": "1"})
 		bundle.caption_registry.entries.append({"entry_id": id, "lines": lines})
-		bundle.scene_programme.entries.append({"entry_id": id, "content_version": 1,
+		bundle.scene_programme.entries.append({"entry_id": id, "content_version": CONTENT_VERSION,
 			"content_sha256": compiled.value.content_sha256,
 			"program_sha256": compiled.value.program_sha256, "markers": markers})
 		bundle.targets.append({"target_id": "target." + id, "target": {"kind": "scene",
-			"entry_id": id, "label": id, "content_version": 1,
+			"entry_id": id, "label": id, "content_version": CONTENT_VERSION,
 			"program_sha256": compiled.value.program_sha256}})
 	# Use the real registered ending role/context, with a dedicated replaceable TEST locator.
 	var legacy: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string("res://data/manifests/dialogic_entries.json"))
@@ -93,10 +95,10 @@ static func prepare() -> Dictionary:
 			bundle.ids_registry.lines.append({"line_id": event.line_id, "owning_entry_id": ENDING_ID})
 			ending_lines.append({"beat_id": "beat." + event.line_id, "line_id": event.line_id, "text": event.text, "revision": "1"})
 	bundle.caption_registry.entries.append({"entry_id": ENDING_ID, "lines": ending_lines})
-	bundle.scene_programme.entries.append({"entry_id": ENDING_ID, "content_version": 1,
+	bundle.scene_programme.entries.append({"entry_id": ENDING_ID, "content_version": ending_entry.content_version,
 		"content_sha256": ending.value.content_sha256, "program_sha256": ending.value.program_sha256, "markers": []})
 	bundle.targets.append({"target_id": "target." + ENDING_ID, "target": {"kind": "ending",
-		"entry_id": ENDING_ID, "label": ENDING_ID, "content_version": 1, "program_sha256": ending.value.program_sha256}})
+		"entry_id": ENDING_ID, "label": ENDING_ID, "content_version": ending_entry.content_version, "program_sha256": ending.value.program_sha256}})
 	for id: String in all_ids: bundle.audio_catalogue.bindings.append({"entry_id": id, "plan_id": null})
 	# Closed registration tables require canonical sorting; story order remains ORDER.
 	for rows: Array in [bundle.entry_manifest.entries, bundle.context_registry.schemas,

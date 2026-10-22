@@ -20,6 +20,9 @@ func test_seven_days_and_registered_ending_compile_with_explicit_links() -> void
 		assert_eq(lines.size(), 2)
 		assert_eq(lines[0].text, "TEST Day%d opening." % (index + 1))
 		assert_eq(lines[1].text, "TEST Day%d closing." % (index + 1))
+		var entry: Dictionary = bundle.entry_manifest.entries[index]
+		assert_eq(entry.locators.en.path, "res://tests/fixtures/dialogic/Day%d.dtl" % (index + 1))
+		assert_eq(entry.content_version, 2)
 		var programme: Dictionary = bundle.scene_programme.entries[index]
 		assert_eq(programme.markers.size(), 1)
 		assert_eq(programme.markers[0].kind, "scene.transition")
@@ -27,6 +30,8 @@ func test_seven_days_and_registered_ending_compile_with_explicit_links() -> void
 		var target: String = "target.Day%d" % (index + 2) if index < 6 else "target.ending.alone.normal"
 		assert_eq(programme.markers[0].payload, {"target_id": target})
 	assert_eq(bundle.entry_manifest.entries[7].role, "alone_step")
+	assert_eq(bundle.entry_manifest.entries[7].locators.en.path, "res://tests/fixtures/dialogic/Day7.dtl")
+	assert_eq(bundle.entry_manifest.entries[7].content_version, 1)
 	assert_eq(bundle.targets[7].target.kind, "ending")
 	assert_eq(bundle.challenges, [], "no mandatory Minesweeper")
 	assert_eq(bundle.board_profiles, [])

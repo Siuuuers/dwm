@@ -213,11 +213,16 @@ try {
             }
     }
     if ($expected.Count -eq 0) { throw 'No runtime data files were found to audit.' }
-    # These exact files retain the resource identities of already accepted saves.
+    # These exact files are the active seven-file template revision.
     # They are normal-story dependencies, not permission to package test tools.
     $storyCompatibilityResources = @(
-        'res://tests/fixtures/dialogic/scene_seven_day_linear.dtl'
-        'res://tests/fixtures/dialogic/scene_seven_day_ending.dtl'
+        'res://tests/fixtures/dialogic/Day1.dtl'
+        'res://tests/fixtures/dialogic/Day2.dtl'
+        'res://tests/fixtures/dialogic/Day3.dtl'
+        'res://tests/fixtures/dialogic/Day4.dtl'
+        'res://tests/fixtures/dialogic/Day5.dtl'
+        'res://tests/fixtures/dialogic/Day6.dtl'
+        'res://tests/fixtures/dialogic/Day7.dtl'
         'res://tests/templates/scene_sequence/seven_day_order.json'
     )
     foreach ($resource in $storyCompatibilityResources) {
@@ -240,7 +245,7 @@ func _initialize() -> void:
             push_error("Pack data missing or changed: " + path)
             quit(1)
             return
-    # The expected map independently permits only three test-path data files.
+    # The expected map independently permits only seven DTL templates and their ordering JSON.
     # Reject every other file recursively, including compiled test scripts.
     var pending: Array[String] = ["res://tests"]
     while not pending.is_empty():

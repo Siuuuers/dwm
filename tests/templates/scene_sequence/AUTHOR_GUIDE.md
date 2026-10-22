@@ -302,7 +302,13 @@ Existing template inventory (one author guide; use the linked owners):
 | [Optional option_a/b holders](../../fixtures/dialogic/scene_author_option_slots.dtl) | [OptionSlotTemplates.gd](OptionSlotTemplates.gd) | Offline A→B registration; option_c is optional, no quota |
 | [Partner TEST fork](../partner_fork/README.md) | [ScenePartnerForkFixture.gd](../../support/ScenePartnerForkFixture.gd) | Connected test fixture, outside normal seven-day startup |
 | [Title-opening template](../scene_startup/README.md) | [Registration.gd](../scene_startup/Registration.gd) | Earlier isolated opening milestone |
-| [Ending DTL](../../fixtures/dialogic/scene_seven_day_ending.dtl) | Seven-day builder plus existing terminal owner | Registered TEST ending; exported final acceptance pending |
+| [Ending DTL section](../../fixtures/dialogic/Day7.dtl) | Seven-day builder plus existing terminal owner | Registered TEST ending; exported final acceptance pending |
+
+The active week uses exactly `Day1.dtl` through `Day7.dtl` under
+`tests/fixtures/dialogic/`; edit each day's file independently. The ending label
+is in `Day7.dtl`. The older monolithic fixtures are historical, not active startup
+content. Moving the content creates a new registration revision, not an old-save
+migration; retain existing saves and use a fresh profile for the new layout.
 
 The seven-day builder registers Day7.end→ending.alone.normal through the existing
 terminal owner. A bare return is not a replacement for that contract.

@@ -1,7 +1,7 @@
 # Seven-day TEST story registration
 
 `SevenDayTemplates.prepare()` compiles B's replaceable two-caption day templates
-in `tests/fixtures/dialogic/scene_seven_day_linear.dtl`. The explicit order and
+in seven files: `tests/fixtures/dialogic/Day1.dtl` through `Day7.dtl`. The explicit order and
 bindings come from `tests/templates/scene_sequence/seven_day_order.json`.
 `SceneSequenceAuthoring` owns ordinary-next relinking; registry sorting does not
 choose story order. The historical single-caption fixture remains untouched.
@@ -10,12 +10,20 @@ The schema-3 registration has Day1 through Day7 and `ending.alone.normal`.
 Day7's `Day7.end` marker follows `line.Day7.two` and selects the registered ending
 target. Its role, presentation signature and frozen context come from the
 existing neutral ending definition; its one TEST caption lives in
-`scene_seven_day_ending.dtl`. Empty Contacts definitions and explicit null audio
+`Day7.dtl`, after the Day7 section. There are eight registered entries in exactly
+seven active DTL files; the ending keeps its own role and completion behavior. Empty Contacts definitions and explicit null audio
 bindings introduce no mandatory challenge or media. No production story is claimed.
 
 Replace DTL text while retaining stable IDs and labels, then rebuild through the
 native compiler. Add caption IDs and marker anchors together when adding beats.
 Do not hand-edit generated hashes.
+
+This split is a new template revision: day content versions are 2; the ending
+retains its canonical definition version. Locators and whole-file hashes change.
+Old monolithic fixtures remain as historical fixtures, but old saved runs are not
+migrated by this change. Keep existing save files intact; incompatible registration
+must be refused through the existing checks, never silently loaded or overwritten.
+Use a fresh isolated profile when qualifying this revision.
 
 On the cloud Godot runner, run `tools/authoring/ExportSevenDayRegistration.gd`
 before focused tests/export. During the first export use the existing debug

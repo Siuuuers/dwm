@@ -1,13 +1,17 @@
 @tool
 extends EditorPlugin
-## These three files became normal-story dependencies before export qualification.
-## Keep their logical paths: changing the registration would invalidate saved readers.
-## The broad tests/* exclusion still removes all test code and unrelated fixtures.
+## Package only the seven active template DTLs and their explicit order.
+## The broad tests/* exclusion continues to remove unrelated fixtures and test code.
 
 class StoryExport extends EditorExportPlugin:
 	const RESOURCES := [
-		"res://tests/fixtures/dialogic/scene_seven_day_linear.dtl",
-		"res://tests/fixtures/dialogic/scene_seven_day_ending.dtl",
+		"res://tests/fixtures/dialogic/Day1.dtl",
+		"res://tests/fixtures/dialogic/Day2.dtl",
+		"res://tests/fixtures/dialogic/Day3.dtl",
+		"res://tests/fixtures/dialogic/Day4.dtl",
+		"res://tests/fixtures/dialogic/Day5.dtl",
+		"res://tests/fixtures/dialogic/Day6.dtl",
+		"res://tests/fixtures/dialogic/Day7.dtl",
 		"res://tests/templates/scene_sequence/seven_day_order.json",
 	]
 
