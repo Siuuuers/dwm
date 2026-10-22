@@ -1,75 +1,185 @@
-name: Publish validated Windows build folder
+name: Authored week focused qualification
 on:
   pull_request:
     paths:
       - '.github/workflows/scene-first-reveal-profile-diagnostic.yml'
 permissions:
-  contents: write
-  actions: read
+  contents: read
 concurrency:
-  group: publish-validated-windows-folder
+  group: authored-week-focused
   cancel-in-progress: false
 jobs:
-  publish:
+  focused:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
+    runs-on: windows-2022
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      SOURCE_SHA: 564a7dd2c816c213a7c863390ff68e23b760f580
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: 5eee8406f4c2c466ac05d03c489c7cdd1cbc1164
+          ref: 564a7dd2c816c213a7c863390ff68e23b760f580
           persist-credentials: true
-      - name: Clean malformed legacy gitlinks from disposable index
-        run: git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-      - uses: actions/download-artifact@v4
-        with:
-          artifact-ids: 12445803960
-          run-id: 39825608353
-          github-token: ${{ github.token }}
-          path: ${{ runner.temp }}/validated-artifact
-          merge-multiple: true
-      - name: Verify and stage existing validated bytes
+      - name: Verify immutable source and prepare disposable checkout
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ((git rev-parse HEAD).Trim() -cne $env:SOURCE_SHA) { throw 'Source checkout mismatch.' }
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          if ($LASTEXITCODE -ne 0) { throw 'Disposable gitlink cleanup failed.' }
+          New-Item -ItemType Directory -Force '.godot/ci/authored-week' | Out-Null
+          [ordered]@{ source_sha = $env:SOURCE_SHA; controller_sha = '${{ github.event.pull_request.head.sha }}'; run_id = '${{ github.run_id }}'; attempt = '${{ github.run_attempt }}' } |
+            ConvertTo-Json | Set-Content '.godot/ci/authored-week/source.json' -Encoding utf8
+      - name: Install official Godot 4.6.3 standard
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
+          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
+          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -cne $expected) { throw 'Godot checksum mismatch.' }
+          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
+          Expand-Archive -LiteralPath $archive -DestinationPath $editor
+          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
+          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console missing.' }
+          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          & $console --version | Tee-Object -FilePath '.godot/ci/authored-week/godot-version.txt'
+          if ($LASTEXITCODE -ne 0) { throw 'Godot version failed.' }
+      - name: Import native resources
+        timeout-minutes: 8
         env:
-          ARTIFACT_ROOT: ${{ runner.temp }}/validated-artifact
+          DWM_SCENE_READING_FIXTURE: '1'
         run: |
-          set -euo pipefail
-          archive="$ARTIFACT_ROOT/dwm/dwm/.godot/ci/windows-export/DWM-windows-x86_64-validation.zip"
-          echo "8420129c411b82051432ba01aebbb4ab62a0d2c2519ce0fd8934885945796f28  $archive" | sha256sum -c -
-          python tools/packaging/prepare_steam_build.py "$archive" "$RUNNER_TEMP/steam-staged"
-          cp -R "$RUNNER_TEMP/steam-staged/game-build" game-build
-          cp "$RUNNER_TEMP/steam-staged/package-receipt.json" package-receipt.json
-          python - <<'PY'
-          from pathlib import Path
-          for p in Path("game-build").rglob("*"):
-              if p.is_file() and p.stat().st_size >= 104857600:
-                  raise SystemExit("File exceeds GitHub regular Git limit: " + str(p))
-          Path("BUILD_README.md").write_text("""# Windows playable template build
-          
-          Launch game-build/DWM.exe with DWM.pck beside it. Keep licenses/.
-          This branch contains only the validated Windows x64 build and its receipt.
-          Runtime source: 82d42d3524ac0cdcc90e7c7ae7f69298d5046bcc.
-          Export evidence: https://github.com/Siuuuers/dwm/actions/runs/39825608353
-          
-          This is a playable template, not a Steam-approved final-content build.
-          Replace art, music, and Day1-Day7 scripts in source branch codex/art-media-20261023,
-          then re-export. Loose source assets beside the EXE do not override its PCK.
-          Upload the contents of game-build as the Steam Windows depot content.
-          Configure DWM.exe as the launch executable. Steam AppID and DepotID are account-specific.
-          Steam API integration is optional; no SDK directory belongs in this build.
-          Do not merge this binary delivery branch into the source branches.
-          """)
-          PY
-      - name: Push new build-only branch
+          $ErrorActionPreference = 'Stop'
+          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/authored-week'
+          $env:APPDATA = Join-Path $output 'import-user/appdata'
+          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
+          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
+          New-Item -ItemType Directory -Force $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
+          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
+          if ($LASTEXITCODE -ne 0) { throw 'Native import failed.' }
+          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Native import reported script errors.' }
+          git restore -- project.godot
+          if ($LASTEXITCODE -ne 0) { throw 'Could not restore editor-rewritten project configuration.' }
+      - name: Generate and validate native story registration
+        timeout-minutes: 9
         run: |
-          set -euo pipefail
-          branch=builds/windows-playable-20261023
-          if git ls-remote --exit-code origin "refs/heads/$branch"; then
-            echo "Build branch already exists; refusing to overwrite it."
-            exit 1
-          fi
-          git read-tree --empty
-          git add -f game-build BUILD_README.md package-receipt.json
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m "build: preserve validated Windows playable template folder"
-          git push origin "HEAD:refs/heads/$branch"
+          $ErrorActionPreference = 'Stop'
+          $env:DWM_SCENE_READING_FIXTURE = '1'
+          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'authored-week-generate' -LogName 'authored-week-generate.log' -EvidenceLogPath '.godot/ci/authored-week/generate.jsonl' -TimeoutSeconds 240 -GodotArgs @('-s','res://tools/authoring/ExportSevenDayRegistration.gd','--','--phase2r-bootstrap-mode=test_manual')
+          if ($LASTEXITCODE -ne 0) { throw 'Native registration generation failed.' }
+          Remove-Item Env:DWM_SCENE_READING_FIXTURE
+          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'authored-week-normal-validation' -LogName 'authored-week-normal-validation.log' -EvidenceLogPath '.godot/ci/authored-week/normal-validation.jsonl' -TimeoutSeconds 240 -GodotArgs @('-s','res://tools/authoring/ExportSevenDayRegistration.gd','--','--phase2r-bootstrap-mode=test_manual','--validate-seven-day-export')
+          if ($LASTEXITCODE -ne 0) { throw 'Fresh normal-story validation failed.' }
+          foreach ($item in @(@('authored-week-generate.log','SEVEN_DAY_REGISTRATION_EXPORTED first_target_id=target.Day1'),@('authored-week-normal-validation.log','SEVEN_DAY_EXPORT_VALIDATED first_target_id=target.Day1'))) {
+            $lines = @(Get-Content (Join-Path '.godot/phase2r_logs' $item[0]))
+            if (@($lines | Where-Object { $_ -ceq $item[1] }).Count -ne 1) { throw "Missing exact registration success marker: $($item[0])" }
+            if ($lines | Select-String -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Registration log reported errors.' }
+          }
+      - name: Run focused unit and rendered integration tests
+        timeout-minutes: 28
+        env:
+          DWM_SCENE_READING_FIXTURE: '1'
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = 'Stop'
+          function Test-Args([string]$Path, [string]$Id) {
+            return @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$Path",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/authored-week/$Id.xml",'--','--phase2r-bootstrap-mode=test_manual')
+          }
+          function Assert-Result([string]$Path, [string]$Id) {
+            $xmlPath = ".godot/ci/authored-week/$Id.xml"
+            if (-not (Test-Path -LiteralPath $xmlPath)) { throw "Missing JUnit: $Id" }
+            [xml]$xml = Get-Content -Raw -LiteralPath $xmlPath
+            $expected = @([regex]::Matches((Get-Content -Raw -LiteralPath $Path), '(?m)^func (test_[A-Za-z0-9_]+)\(') | ForEach-Object { $_.Groups[1].Value } | Sort-Object)
+            $cases = @($xml.SelectNodes('//testcase'))
+            $actual = @($cases | ForEach-Object { [string]$_.name } | Sort-Object)
+            if ($expected.Count -eq 0 -or $cases.Count -ne $expected.Count -or ($actual -join "`n") -cne ($expected -join "`n")) { throw "Exact test census mismatch: $Id" }
+            foreach ($case in $cases) {
+              if ([string]$case.classname -cne $Path -or [int]$case.assertions -le 0 -or [string]$case.status -cne 'pass' -or $case.SelectNodes('failure|error|skipped').Count -ne 0) { throw "Non-passing/empty test: $Id / $($case.name)" }
+            }
+            $log = ".godot/phase2r_logs/$Id.log"
+            if (Select-String -LiteralPath $log -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character|ERROR: Tween invalid' -Quiet) { throw "Strict log error: $Id" }
+            [ordered]@{ id = $Id; source = $env:SOURCE_SHA; test_names = $actual; cases = $cases.Count; assertions = ($cases | ForEach-Object { [int]$_.assertions } | Measure-Object -Sum).Sum } |
+              ConvertTo-Json -Depth 5 | Set-Content ".godot/ci/authored-week/$Id.census.json" -Encoding utf8
+          }
+          $units = @(
+            @('tests/unit/test_authored_week.gd','authored-week-unit',240),
+            @('tests/unit/test_scene_multiple_thoughts.gd','multiple-thoughts-unit',120),
+            @('tests/unit/test_scene_partner_fork_template.gd','partner-template-unit',120),
+            @('tests/unit/test_scene_caption_challenge.gd','caption-challenge-unit',120)
+          )
+          foreach ($unit in $units) {
+            & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId $unit[1] -LogName ($unit[1] + '.log') -EvidenceLogPath ('.godot/ci/authored-week/' + $unit[1] + '.jsonl') -TimeoutSeconds $unit[2] -GodotArgs (Test-Args $unit[0] $unit[1])
+            if ($LASTEXITCODE -ne 0) { throw "Unit child failed: $($unit[1])" }
+            Assert-Result $unit[0] $unit[1]
+          }
+          $creator = 'tests/integration/test_scene_multiple_thoughts_create.gd'
+          $loader = 'tests/integration/test_scene_multiple_thoughts_load.gd'
+          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'multiple-thoughts-pair' -LogName 'multiple-thoughts-create.log' -NextLogName 'multiple-thoughts-load.log' -EvidenceLogPath '.godot/ci/authored-week/multiple-thoughts-pair.jsonl' -TimeoutSeconds 240 -Rendered -KeepRoot -GodotArgs (Test-Args $creator 'multiple-thoughts-create') -NextGodotArgs (Test-Args $loader 'multiple-thoughts-load')
+          if ($LASTEXITCODE -ne 0) { throw 'Rendered multiple-thoughts creator/loader failed.' }
+          Assert-Result $creator 'multiple-thoughts-create'
+          Assert-Result $loader 'multiple-thoughts-load'
+          $challenge = 'tests/integration/test_scene_caption_challenge.gd'
+          $challengeLoader = 'tests/integration/test_scene_caption_challenge_load.gd'
+          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'caption-challenge-pair' -LogName 'caption-challenge-create.log' -NextLogName 'caption-challenge-load.log' -EvidenceLogPath '.godot/ci/authored-week/caption-challenge-pair.jsonl' -TimeoutSeconds 240 -Rendered -KeepRoot -GodotArgs (Test-Args $challenge 'caption-challenge-create') -NextGodotArgs (Test-Args $challengeLoader 'caption-challenge-load')
+          if ($LASTEXITCODE -ne 0) { throw 'Rendered caption Challenge creator/loader failed.' }
+          Assert-Result $challenge 'caption-challenge-create'
+          Assert-Result $challengeLoader 'caption-challenge-load'
+      - name: Regenerate and check public API inventories
+        timeout-minutes: 9
+        env:
+          DWM_SCENE_READING_FIXTURE: '1'
+        run: |
+          $ErrorActionPreference = 'Stop'
+          foreach ($target in @('game_state','save_manager')) {
+            $scriptName = if ($target -eq 'game_state') { 'GameState' } else { 'SaveManager' }
+            foreach ($mode in @('generate','check')) {
+              $arguments = @('-s','res://tools/runtime/generate_public_surface_inventory.gd','--',"--script=res://autoload/$scriptName.gd", "--required=res://evidence/phase_2r/runtime/${target}_required_surface.json", "--output=res://evidence/phase_2r/runtime/${target}_surface.json",'--search-root=res://autoload','--search-root=res://scripts','--search-root=res://scenes','--search-root=res://tests')
+              if ($mode -eq 'check') { $arguments += '--check' }
+              $id = "authored-surface-$target-$mode"
+              & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId $id -LogName "$id.log" -EvidenceLogPath ".godot/ci/authored-week/$id.jsonl" -TimeoutSeconds 120 -GodotArgs $arguments
+              if ($LASTEXITCODE -ne 0) { throw "Inventory child failed: $id" }
+              $lines = @(Get-Content ".godot/phase2r_logs/$id.log")
+              if (@($lines | Where-Object { $_ -ceq 'SURFACE_INVENTORY: PASS' }).Count -ne 1) { throw "Inventory pass marker absent: $id" }
+              if ($lines | Select-String -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw "Inventory log error: $id" }
+            }
+          }
+      - name: Preserve exact generated metadata and source custody
+        if: always()
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $root = '.godot/ci/authored-week/native-generated'
+          New-Item -ItemType Directory -Force $root | Out-Null
+          $paths = @('data/manifests/scene_story_registration.json','data/manifests/scene_ending_reading_catalogue.json','evidence/phase_2r/runtime/game_state_surface.json','evidence/phase_2r/runtime/save_manager_surface.json')
+          $paths += @(1..7 | ForEach-Object { "dialogic/timelines/authored_week/Day$_.dtl.uid" })
+          $paths += @(git ls-files --others --exclude-standard | Where-Object { $_ -match '\.uid$' })
+          $paths += @(git diff --name-only -- '*.uid')
+          $records = @()
+          foreach ($path in @($paths | Sort-Object -Unique)) {
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { continue }
+            $destination = Join-Path $root $path
+            New-Item -ItemType Directory -Force (Split-Path -Parent $destination) | Out-Null
+            Copy-Item -LiteralPath $path -Destination $destination
+            $records += [ordered]@{ path = $path; bytes = (Get-Item -LiteralPath $path).Length; sha256 = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant() }
+          }
+          [ordered]@{ source_sha = $env:SOURCE_SHA; job_status = '${{ job.status }}'; files = $records } |
+            ConvertTo-Json -Depth 6 | Set-Content '.godot/ci/authored-week/native-generated-receipt.json' -Encoding utf8
+          git status --short | Set-Content '.godot/ci/authored-week/source-status.txt' -Encoding utf8
+          git diff --stat | Set-Content '.godot/ci/authored-week/source-diff-stat.txt' -Encoding utf8
+          $changed = @(git diff --name-only)
+          $unexpected = @($changed | Where-Object { $_ -notin $paths })
+          if ($unexpected.Count -ne 0) { throw ('Unexpected source mutation: ' + ($unexpected -join ', ')) }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: authored-week-focused-${{ github.run_id }}-${{ github.run_attempt }}
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            .godot/ci/authored-week/
+            .godot/phase2r_logs/
+            .godot/ci/*.png
+            .godot/ci/*proof*.json
+            .godot/phase2r_tests/
