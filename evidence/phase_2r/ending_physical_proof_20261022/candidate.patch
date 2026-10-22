@@ -1,0 +1,34 @@
+--- baseline/ProfileManager.gd
++++ candidate/ProfileManager.gd
+@@ -1,4 +1,6 @@
+ extends Node
++
++const _SCENE_VALIDATION_TIMING := preload("res://scripts/narrative/SceneValidationTiming.gd")
+ 
+ signal profile_restored(profile: Dictionary)
+ signal preference_changed(path: StringName, value: Variant)
+@@ -890,6 +892,12 @@
+ ## Prove that row against current physical canonical bytes, never an old whole-file
+ ## hash or silent in-memory adoption. Pending creation still uses full-output proof.
+ func prove_scene_assignment(run_id: String, receipt: Dictionary) -> Dictionary:
++	var started_us: int = _SCENE_VALIDATION_TIMING.start_sample()
++	var result: Dictionary = _prove_scene_assignment_observed_body(run_id, receipt)
++	_SCENE_VALIDATION_TIMING.finish_sample("physical_proof", started_us, bool(result.get("ok", false)))
++	return result
++
++func _prove_scene_assignment_observed_body(run_id: String, receipt: Dictionary) -> Dictionary:
+ 	# Bootstrap binds storage before adoption; this physical proof intentionally
+ 	# works before initialize() and never reads the live Profile candidate.
+ 	if _mutation_blocked: return _failure(&"indeterminate_commit", "Profile mutation is blocked", true)
+--- baseline/SceneValidationTiming.gd
++++ candidate/SceneValidationTiming.gd
+@@ -10,7 +10,8 @@
+ 	_record = {"operation": operation, "lifecycle_state": state, "playback_stage": stage,
+ 		"next_step_index": step, "configuration_calls": 0, "configuration_us": 0,
+ 		"configuration_failures": 0, "compilation_calls": 0, "compilation_us": 0,
+-		"compilation_failures": 0, "inclusive_nested": true, "snapshot_validations": []}
++		"compilation_failures": 0, "physical_proof_calls": 0, "physical_proof_us": 0,
++		"physical_proof_failures": 0, "inclusive_nested": true, "snapshot_validations": []}
+ 	_started_us = Time.get_ticks_usec()
+ 	_active = true
+ 	return true

@@ -1,0 +1,14 @@
+[
+  {
+    "path": "autoload/ProfileManager.gd",
+    "bytes": 94712,
+    "sha256": "225552c3141c3731566dda8bf40ba33667f6bc61fc4d448e6f495eaf7606c3c7",
+    "blob": "381329a08e5b6cfd79389e52d3a5dcbad6f6fa80"
+  },
+  {
+    "path": "scripts/narrative/SceneValidationTiming.gd",
+    "bytes": 2316,
+    "sha256": "c3b4dd851d1bbf9773cddf9323c0ed485d892939d41807626d280c93b021dfdb",
+    "blob": "b422d142ced6c6f65910758501d87fd79e8ad7f7"
+  }
+]
