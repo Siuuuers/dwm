@@ -1,0 +1,48 @@
+--- baseline/SceneEventContract.gd
++++ candidate/SceneEventContract.gd
+@@ -375,12 +375,18 @@
+ ## Call-local computed material only. Public entrypoints always inspect fresh inputs.
+ ## No issuer, Profile, saved-data or cross-call validation authority is retained here.
+ static func _inspect_scene_context(envelope: Variant, bundle: Variant) -> Dictionary:
+-	if not envelope is Dictionary or typeof(envelope.get("schema_version")) != TYPE_INT or envelope.schema_version != 2:
+-		return _fail(&"scene_event_version_invalid")
+-	var shaped := _inspect_scene_shape(envelope)
++	var shaped := _inspect_scene_versioned_shape(envelope)
+ 	if not shaped.ok: return shaped
+ 	var registered := validate_bundle_structure(bundle)
+ 	if not registered.ok: return registered
++	return _bind_scene_context(envelope, shaped, registered)
++
++static func _inspect_scene_versioned_shape(envelope: Variant) -> Dictionary:
++	if not envelope is Dictionary or typeof(envelope.get("schema_version")) != TYPE_INT or envelope.schema_version != 2:
++		return _fail(&"scene_event_version_invalid")
++	return _inspect_scene_shape(envelope)
++
++static func _bind_scene_context(envelope: Variant, shaped: Dictionary, registered: Dictionary) -> Dictionary:
+ 	var entries: Dictionary = registered.value.entries
+ 	var markers: Dictionary = registered.value.markers
+ 	if not entries.has(envelope.source.entry_id) or not markers.has(envelope.event_id): return _fail(&"scene_marker_unregistered")
+@@ -429,6 +435,10 @@
+ static func make_scene_receipt(envelope: Dictionary, anchor: Dictionary, result: Dictionary, bundle: Dictionary) -> Dictionary:
+ 	var context := _inspect_scene_context(envelope, bundle)
+ 	if not context.ok: return context
++	return _make_scene_receipt_from_context(envelope, anchor, result, context)
++
++static func _make_scene_receipt_from_context(envelope: Dictionary, anchor: Dictionary,
++		result: Dictionary, context: Dictionary) -> Dictionary:
+ 	var checked: Dictionary = context.inspection
+ 	var registered: Dictionary = context.registered
+ 	if not _valid_anchor(anchor, envelope.source): return _fail(&"event_anchor_invalid")
+@@ -1116,7 +1126,11 @@
+ 			or not event.get("result") is Dictionary: return _fail(&"scene_terminal_trigger_invalid")
+ 	var envelope: Dictionary = event.semantic.duplicate(true)
+ 	envelope["playback_token"] = "terminal.validation"
+-	var rebuilt := make_scene_receipt(envelope, event.reading_anchor, event.result, bundle)
++	var shaped := _inspect_scene_versioned_shape(envelope)
++	if not shaped.ok: return shaped
++	var context := _bind_scene_context(envelope, shaped, registered)
++	if not context.ok: return context
++	var rebuilt := _make_scene_receipt_from_context(envelope, event.reading_anchor, event.result, context)
+ 	if not rebuilt.ok: return rebuilt
+ 	if not _equal(trigger_receipt, rebuilt.value) or event.result.kind != "scene_transition_accepted" \
+ 			or event.result.target_id != target_id or event.semantic.source.scene_occurrence != source_occurrence_id \

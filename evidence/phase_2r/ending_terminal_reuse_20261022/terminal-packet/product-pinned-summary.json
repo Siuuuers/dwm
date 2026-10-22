@@ -1,0 +1,32 @@
+{
+  "product": "c787ff11e177973a7919972de3bcd630e51e6d82",
+  "assets": "REVIEWED_ASSET_COMMIT_REQUIRED",
+  "source_pins": 15,
+  "harnesses": 4,
+  "workflow": {
+    "path": ".github/workflows/scene-first-reveal-profile-diagnostic.yml",
+    "bytes": 14565,
+    "sha256": "682af1752f45c6c385ded581c13660054e3bb2d5cc0c6ce83c612769f196d0ce",
+    "blob": "b347186b2a6e7f2c630847d8e869bf6de431b61e"
+  },
+  "preparation": {
+    "path": "evidence/phase_2r/ending_terminal_reuse_20261022/prepare_caption.py",
+    "bytes": 17884,
+    "sha256": "c9caf2d23056a1843cb396c1e5736193ba9dde0c33a2eb31b174f1c7a552d5ef",
+    "blob": "e376d40a95a3e91c8c480c04f3ee309d47cd722e"
+  },
+  "unit_scripts": [
+    "tests/unit/test_scene_event_contract.gd",
+    "tests/unit/test_scene_receipt_validation.gd",
+    "tests/unit/test_scene_terminal_lifecycle.gd"
+  ],
+  "new_terminal_cases": [
+    "test_authenticated_terminal_roundtrip_retains_source_without_legacy_day",
+    "test_terminal_tampering_stale_source_and_ordinary_admission_are_refused",
+    "test_physical_completion_and_gallery_are_ordered_and_persisted",
+    "test_delayed_duplicate_admission_preserves_ending_reader_and_completed_run",
+    "test_terminal_route_waits_for_transaction_then_rejects_replaced_session",
+    "test_terminal_constructor_preserves_mixed_invalid_first_refusal",
+    "test_terminal_constructor_detaches_and_rechecks_changed_bundle_on_next_call"
+  ]
+}

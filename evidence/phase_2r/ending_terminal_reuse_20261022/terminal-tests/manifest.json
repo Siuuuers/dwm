@@ -1,0 +1,17 @@
+{
+  "source": "4278756add50ea27da8237106260a0efee606cda",
+  "baseline_blob": "64be622a49ca0d089787d410c107da652ee25680",
+  "path": "tests/unit/test_scene_terminal_lifecycle.gd",
+  "sha256": "82f996cee273ab38a69f8e54d5eaaba64699f80f883170e0e8e4b60627cd46fc",
+  "bytes": 16480,
+  "test_cases": [
+    "test_authenticated_terminal_roundtrip_retains_source_without_legacy_day",
+    "test_terminal_tampering_stale_source_and_ordinary_admission_are_refused",
+    "test_physical_completion_and_gallery_are_ordered_and_persisted",
+    "test_delayed_duplicate_admission_preserves_ending_reader_and_completed_run",
+    "test_terminal_route_waits_for_transaction_then_rejects_replaced_session",
+    "test_terminal_constructor_preserves_mixed_invalid_first_refusal",
+    "test_terminal_constructor_detaches_and_rechecks_changed_bundle_on_next_call"
+  ],
+  "runtime_executed": false
+}

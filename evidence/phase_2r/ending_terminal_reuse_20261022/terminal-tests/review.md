@@ -1,0 +1,11 @@
+# Terminal constructor regression additions
+
+Authoritative baseline: product4278756add50ea27da8237106260a0efee606cda, tests/unit/test_scene_terminal_lifecycle.gd Git blob64be622a49ca0d089787d410c107da652ee25680. The candidate retains that complete source as an exact prefix and appends one public-constructor fixture helper and two regression cases. Seven total cases; no existing test body changed. Candidate and hashes are recorded in manifest.json; test.patch is the exact additive diff.
+
+First regression uses the original real issuer fixture and a real authenticated terminal receipt, then combines faults to pin original public refusal order: unbound issuer; malformed bundle before missing target/event; missing and wrong-kind target before event; malformed trigger; semantic version/shape before anchor/result; anchor before result. It explicitly contrasts ordinary make_scene_receipt, whose event version/shape precedes a malformed bundle. This protects the two different public contracts without counting internal helper calls.
+
+Second regression reconstructs the exact authenticated terminal admission, mutates returned checkpoint/identity/target and verifies input detachment. A later call sees a structurally valid changed caption registry: its fingerprint changes and the old completion proof fails with scene_completion_mismatch because completion source_ids bind registration_fingerprint. Adding an illegal bundle member then refuses scene_bundle_invalid. Reusing the original bundle after these refusals reconstructs the original admission exactly. No stale cross-call registration trust is accepted.
+
+Expected error codes were read from the current authoritative make_scene_terminal_admission, _inspect_scene_context, _inspect_scene_shape, make_scene_receipt, _scene_completion_request_inspected and _completion_matches bodies. Current contract/receipt suites already cover their broader APIs; they are preserved and reused. These new cases test public outcomes, not private extraction shape or call counts.
+
+Static exact-prefix/diff/case census checks passed. No Godot, PowerShell, remote mutation, new test result or runtime assertion count is claimed. The fresh candidate needs independent test-body review and cloud engine qualification. Installed DTL, physical disk and connected player journey remain separate acceptance obligations.

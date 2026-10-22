@@ -1,0 +1,168 @@
+--- baseline/Invoke-SceneContractRegression.ps1
++++ terminal/Invoke-SceneContractRegression.ps1
+@@ -22,7 +22,7 @@
+ if ($LASTEXITCODE -ne 0 -or $source -cne $ExpectedSource) { throw 'CONTRACT_SOURCE_MISMATCH' }
+ if (Test-Path -LiteralPath $output) { throw 'CONTRACT_OUTPUT_NOT_FRESH' }
+ New-Item -ItemType Directory -Force -Path $output | Out-Null
+-$scripts = @('tests/unit/test_scene_event_contract.gd', 'tests/unit/test_scene_receipt_validation.gd')
++$scripts = @('tests/unit/test_scene_event_contract.gd', 'tests/unit/test_scene_receipt_validation.gd', 'tests/unit/test_scene_terminal_lifecycle.gd')
+ $sourceReceipts = @()
+ foreach ($path in ($scripts + @('scripts/domain/narrative/SceneEventContract.gd', 'scripts/narrative/SceneValidationTiming.gd'))) {
+     $blob = (& git -C $RepositoryRoot rev-parse "HEAD:$path").Trim()
+--- baseline/manifest.json
++++ terminal/manifest.json
+@@ -19,8 +19,8 @@
+   },
+   {
+     "path": "tools/testing/Invoke-SceneContractRegression.ps1",
+-    "bytes": 7093,
+-    "sha256": "19bc9d7eeaf903884dd903978e9ab36456b4f59b00784da7fdcb8dddfbf1a61e",
+-    "blob": "668775cc7b4d925dc24944f17443a113c2f241e7"
++    "bytes": 7140,
++    "sha256": "e58b70725d3eaa70a4d9e1adb1ff6e84021b27b78089ec0cd5add6b900071127",
++    "blob": "8ac0ab00a39e607854f87351fb9ad68d58001579"
+   }
+ ]
+--- baseline/prepare_caption.py
++++ terminal/prepare_caption.py
+@@ -10,7 +10,7 @@
+ import sys
+ import capture_import as custody
+ 
+-PRODUCT = "4278756add50ea27da8237106260a0efee606cda"
++PRODUCT = "c787ff11e177973a7919972de3bcd630e51e6d82"
+ PROJECT = "5e8009d890f9e4359b24bb68a59fdec1bf56ef0a3ea94be06c3e43a6d2353053"
+ IMPORTED_PROJECT = "6880d26a04484587a54c63e0a98072984b6adac7ac3e9d07e8d138e934428fdd"
+ PRESET = "76d904435496d2057572225b796f8b3c74f121a21254d211a6246caaf96efcaa"
+@@ -56,8 +56,8 @@
+         "sha256": "225552c3141c3731566dda8bf40ba33667f6bc61fc4d448e6f495eaf7606c3c7"
+     },
+     "scripts/domain/narrative/SceneEventContract.gd": {
+-        "blob": "9be861a644351c461fbbc9a4591cd6e5b1f4e937",
+-        "sha256": "67c2c23286de1fb1318b6c68473701367114a2e9b01c2301e0ef6d1bccd98851"
++        "blob": "bb166326f70927ba159956a258a147e70bdb29a7",
++        "sha256": "7aa86be14dd8bd435f2a77d35e3b403b628c3c707b3c64944ad99f3d7e0509ff"
+     },
+     "tests/unit/test_scene_event_contract.gd": {
+         "blob": "b05f775f199244e603b7c454b57ff66224de180e",
+@@ -74,6 +74,10 @@
+     "tests/integration/test_scene_seven_day_witness_load.gd": {
+         "blob": "e39f0bc3deb836762b39b1c9302a3ad949add6bc",
+         "sha256": "ac8e7007f0ca198e173ce885c1d604a64e80444cc80e6d681e0453f440696b1a"
++    },
++    "tests/unit/test_scene_terminal_lifecycle.gd": {
++        "blob": "0456d8db794b32781959c27f1e70125647599bcb",
++        "sha256": "82f996cee273ab38a69f8e54d5eaaba64699f80f883170e0e8e4b60627cd46fc"
+     }
+ }
+ GITLINKS = {".claude/skills/godot-prompter/1.10.0", ".claude/skills/superpowers/6.1.1"}
+--- baseline/source-manifest.json
++++ terminal/source-manifest.json
+@@ -55,9 +55,9 @@
+   },
+   {
+     "path": "scripts/domain/narrative/SceneEventContract.gd",
+-    "bytes": 80033,
+-    "sha256": "67c2c23286de1fb1318b6c68473701367114a2e9b01c2301e0ef6d1bccd98851",
+-    "blob": "9be861a644351c461fbbc9a4591cd6e5b1f4e937"
++    "bytes": 80756,
++    "sha256": "7aa86be14dd8bd435f2a77d35e3b403b628c3c707b3c64944ad99f3d7e0509ff",
++    "blob": "bb166326f70927ba159956a258a147e70bdb29a7"
+   },
+   {
+     "path": "tests/unit/test_scene_event_contract.gd",
+@@ -82,5 +82,11 @@
+     "bytes": 203,
+     "sha256": "ac8e7007f0ca198e173ce885c1d604a64e80444cc80e6d681e0453f440696b1a",
+     "blob": "e39f0bc3deb836762b39b1c9302a3ad949add6bc"
++  },
++  {
++    "path": "tests/unit/test_scene_terminal_lifecycle.gd",
++    "bytes": 16480,
++    "sha256": "82f996cee273ab38a69f8e54d5eaaba64699f80f883170e0e8e4b60627cd46fc",
++    "blob": "0456d8db794b32781959c27f1e70125647599bcb"
+   }
+ ]
+--- baseline/controller.yml
++++ terminal/controller.yml
+@@ -1,6 +1,6 @@
+ # INERT REVIEW CANDIDATE. Install only after external C source review.
+ # Focused candidate only: C exact packet review and Director scope reconciliation precede installation.
+-name: Restored ending validation profile diagnostic
++name: Terminal bundle reuse and restored ending qualification
+ on:
+   pull_request:
+     paths:
+@@ -19,18 +19,18 @@
+       run:
+         shell: pwsh
+     env:
+-      PRODUCT_SHA: 4278756add50ea27da8237106260a0efee606cda
+-      SOURCE_SHA: b36f5b6773a754bc33a7e9b5c591316b622b426b
+-      PREPARATION_SHA256: d239e0cfa6c95bfe1340af72ebe707ceb998423ec5efcb2c08bba3ff835faa6f
++      PRODUCT_SHA: c787ff11e177973a7919972de3bcd630e51e6d82
++      SOURCE_SHA: 6d7ae19dff38de379830652ca56d3cf595bbcb73
++      PREPARATION_SHA256: c9caf2d23056a1843cb396c1e5736193ba9dde0c33a2eb31b174f1c7a552d5ef
+       CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+-      HARNESS_MANIFEST_SHA256: 19bcca3f6e8d016fa8c221b1395b5f21b66c219a56df2e6017a3ce3e971d6976
++      HARNESS_MANIFEST_SHA256: efba88859204b09d306fdd8ec28a078b28e6dc0f95f87972aaea19bf0f7187ed
+     steps:
+       - uses: actions/checkout@v7
+         with:
+           # Defer credential removal until the post-job cleanup, after the
+           # malformed gitlinks are removed from this disposable runner's index.
+           persist-credentials: true
+-          ref: 4278756add50ea27da8237106260a0efee606cda
++          ref: c787ff11e177973a7919972de3bcd630e51e6d82
+       - name: Pin external preparation helpers
+         id: preparation_helpers
+         run: |
+@@ -42,7 +42,7 @@
+           New-Item -ItemType Directory -Force $helpers | Out-Null
+           $prepare = Join-Path $helpers 'prepare_caption.py'
+           $capture = Join-Path $helpers 'capture_import.py'
+-          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_equality_reuse_20261022/prepare_caption.py" -OutFile $prepare
++          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_terminal_reuse_20261022/prepare_caption.py" -OutFile $prepare
+           Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/import_integrity_20261020/capture_import.py" -OutFile $capture
+           if ((Get-FileHash $prepare -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:PREPARATION_SHA256) { throw 'PREPARATION_HASH_MISMATCH' }
+           if ((Get-FileHash $capture -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:CAPTURE_SHA256) { throw 'CAPTURE_HASH_MISMATCH' }
+@@ -75,13 +75,13 @@
+           $harness = Join-Path $env:RUNNER_TEMP 'clean-focused-harness'
+           New-Item -ItemType Directory -Force $harness | Out-Null
+           $manifest = Join-Path $harness 'manifest.json'
+-          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_equality_reuse_20261022/manifest.json" -OutFile $manifest
++          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_terminal_reuse_20261022/manifest.json" -OutFile $manifest
+           if ((Get-FileHash $manifest -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:HARNESS_MANIFEST_SHA256) { throw 'HARNESS_MANIFEST_HASH_MISMATCH' }
+           foreach ($entry in (Get-Content $manifest -Raw | ConvertFrom-Json)) {
+             $name = [IO.Path]::GetFileName($entry.path)
+             if ($entry.path -notlike 'tools/testing/*' -or $name -notmatch '^[A-Za-z0-9.-]+$') { continue }
+             $path = Join-Path $harness $name
+-            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_equality_reuse_20261022/$name" -OutFile $path
++            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_terminal_reuse_20261022/$name" -OutFile $path
+             if ((Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $entry.sha256) { throw "HARNESS_HASH_MISMATCH: $name" }
+             if ($name.EndsWith('.ps1')) {
+               $tokens=$null; $parseErrors=$null
+@@ -155,6 +155,14 @@
+           & python $env:PREPARATION_HELPER --phase restore --root $env:GITHUB_WORKSPACE --output $output *> (Join-Path $output 'preparation-restore.log')
+           $code = $LASTEXITCODE
+           if ($code -ne 0) { throw "PREPARATION_RESTORE_EXIT: $code" }
++      - name: Focused scene contract unit regression
++        id: contract_regression
++        timeout-minutes: 8
++        run: |
++          $ErrorActionPreference = 'Stop'
++          $PSNativeCommandUseErrorActionPreference = $false
++          & pwsh -NoLogo -NoProfile -NonInteractive -File (Join-Path $env:FOCUSED_HARNESS 'Invoke-SceneContractRegression.ps1') -RepositoryRoot $env:GITHUB_WORKSPACE -ExpectedSource $env:PRODUCT_SHA
++          if ($LASTEXITCODE -ne 0) { throw "CONTRACT_REGRESSION_EXIT: $LASTEXITCODE" }
+       - name: Rendered Day4 restore through durable ending and Title
+         id: focused
+         timeout-minutes: 10
+@@ -174,7 +182,7 @@
+           & python $env:PREPARATION_HELPER --phase post-tests --root $env:GITHUB_WORKSPACE --output $output *> (Join-Path $output 'preparation-post-tests.log')
+           if ($LASTEXITCODE -ne 0) { throw "POST_TESTS_POLICY_EXIT: $LASTEXITCODE" }
+       - name: Preserve focused evidence even after failure
+-        if: always() && (steps.focused.outcome == 'success' || steps.focused.outcome == 'failure' || steps.focused.outcome == 'cancelled')
++        if: always() && (steps.contract_regression.outcome == 'success' || steps.contract_regression.outcome == 'failure' || steps.contract_regression.outcome == 'cancelled' || steps.focused.outcome == 'success' || steps.focused.outcome == 'failure' || steps.focused.outcome == 'cancelled')
+         uses: actions/upload-artifact@v4
+         with:
+           name: caption-qualification-${{ github.run_id }}-${{ github.run_attempt }}

@@ -1,0 +1,33 @@
+{
+  "workflow_baseline": "6f810be0449e7fb9570172c092f7c05cab718bae:c49bbd186c05e9297374b3861b34701aec666765",
+  "baseline_product": "4278756add50ea27da8237106260a0efee606cda",
+  "baseline_assets": "b36f5b6773a754bc33a7e9b5c591316b622b426b",
+  "unchanged_helpers": [
+    "Invoke-EndingLoadBoundary-240.ps1",
+    "Invoke-IsolatedGodot.ps1",
+    "Get-ContinueFileSha256.ps1"
+  ],
+  "changed_helper": "Invoke-SceneContractRegression.ps1: exactly add tests/unit/test_scene_terminal_lifecycle.gd to scripts list",
+  "prep_body": "AST-identical except PRODUCT and OBSERVATION_SOURCES; checked by builder",
+  "source_pins": 15,
+  "unit_source_cases": {
+    "contract": 28,
+    "receipt": 10,
+    "terminal_lifecycle": 7
+  },
+  "rendered_cases": 2,
+  "rendered_assertions": 336,
+  "profile_records": 9,
+  "deadlines": {
+    "unit_child_seconds": 120,
+    "unit_step_minutes": 8,
+    "rendered_child_seconds": 240,
+    "rendered_step_minutes": 10,
+    "import_minutes": 8,
+    "job_minutes": 50
+  },
+  "product_published": false,
+  "assets_published": false,
+  "dispatch_approved": false,
+  "local_execution": "Python static preparation only; no Godot/PowerShell"
+}

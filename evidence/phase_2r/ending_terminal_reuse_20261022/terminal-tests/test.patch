@@ -1,0 +1,74 @@
+--- baseline/tests/unit/test_scene_terminal_lifecycle.gd
++++ candidate/tests/unit/test_scene_terminal_lifecycle.gd
+@@ -206,3 +206,71 @@
+ 	assert_false(gate.is_fatal_latched(), "stale callback does not route or fault the replacement")
+ 	assert_eq(lifecycle.to_dict().state, "ENDING")
+ 	game.free()
++
++# Rebuild through the public constructor using the already authenticated source.
++func _rebuild_terminal(trigger: Dictionary, supplied_bundle: Dictionary,
++		target_id: String = "terminal.alone") -> Dictionary:
++	return CONTRACT.make_scene_terminal_admission(identity, admission.issuer_receipt,
++		admission.source_occurrence_id, admission.source_admission_receipt_id, trigger,
++		admission.source_checkpoint, target_id, supplied_bundle, fixture.issuer)
++
++func test_terminal_constructor_preserves_mixed_invalid_first_refusal() -> void:
++	if not _setup(): return
++	var trigger: Dictionary = receipts[admission.trigger_command_id].duplicate(true)
++	var bad_bundle: Dictionary = bundle.duplicate(true)
++	bad_bundle.extra_table = []
++	var mixed: Dictionary = trigger.duplicate(true)
++	mixed.scene_event.semantic.schema_version = 1
++	mixed.scene_event.reading_anchor = {}
++	mixed.scene_event.result = {}
++	assert_eq(CONTRACT.make_scene_terminal_admission({}, {}, "", "", mixed, {},
++		"TEST.missing", bad_bundle, null).code, &"scene_receipt_issuer_unbound")
++	assert_eq(_rebuild_terminal(mixed, bad_bundle, "TEST.missing").code, &"scene_bundle_invalid")
++	assert_eq(_rebuild_terminal(mixed, bundle, "TEST.missing").code, &"scene_target_unregistered")
++	assert_eq(_rebuild_terminal(mixed, bundle, "TEST.target").code, &"scene_terminal_target_invalid")
++	assert_eq(_rebuild_terminal({}, bundle).code, &"scene_terminal_trigger_invalid")
++	assert_eq(_rebuild_terminal(mixed, bundle).code, &"scene_event_version_invalid")
++	var envelope: Dictionary = mixed.scene_event.semantic.duplicate(true)
++	envelope.playback_token = "TEST.validation"
++	assert_eq(CONTRACT.make_scene_receipt(envelope, {}, {}, bad_bundle).code, &"scene_event_version_invalid",
++		"ordinary receipt validates its event before its bundle")
++	mixed.scene_event.semantic = trigger.scene_event.semantic.duplicate(true)
++	mixed.scene_event.semantic.erase("source")
++	assert_eq(_rebuild_terminal(mixed, bundle).code, &"scene_event_shape_invalid")
++	envelope = mixed.scene_event.semantic.duplicate(true)
++	envelope.playback_token = "TEST.validation"
++	assert_eq(CONTRACT.make_scene_receipt(envelope, {}, {}, bad_bundle).code, &"scene_event_shape_invalid")
++	mixed.scene_event.semantic = trigger.scene_event.semantic.duplicate(true)
++	assert_eq(_rebuild_terminal(mixed, bundle).code, &"event_anchor_invalid")
++	mixed.scene_event.reading_anchor = trigger.scene_event.reading_anchor.duplicate(true)
++	assert_eq(_rebuild_terminal(mixed, bundle).code, &"scene_result_invalid")
++	assert_eq(receipts[admission.trigger_command_id], trigger, "fault cases leave the durable trigger unchanged")
++
++func test_terminal_constructor_detaches_and_rechecks_changed_bundle_on_next_call() -> void:
++	if not _setup(): return
++	var trigger: Dictionary = receipts[admission.trigger_command_id].duplicate(true)
++	var original_bundle: Dictionary = bundle.duplicate(true)
++	var original_admission: Dictionary = admission.duplicate(true)
++	var original_identity: Dictionary = identity.duplicate(true)
++	var made: Dictionary = _rebuild_terminal(trigger, bundle)
++	if not _ok(made, "same live source reconstructs terminal admission"): return
++	assert_eq(made.value, admission)
++	made.value.source_checkpoint.checkpoint_id = "TEST.changed"
++	made.value.source_identity.run_id = "TEST.changed"
++	made.value.target.label = "TEST.changed"
++	assert_eq(admission, original_admission, "returned terminal record is detached from constructor inputs")
++	assert_eq(identity, original_identity)
++	assert_eq(bundle, original_bundle)
++	assert_eq(receipts[admission.trigger_command_id], trigger)
++	bundle.caption_registry["terminal_revalidation"] = "changed installed bundle"
++	var changed: Dictionary = CONTRACT.validate_bundle_structure(bundle)
++	if not _ok(changed, "changed nested registration is structurally valid"): return
++	assert_ne(changed.value.fingerprint, admission.registration_fingerprint)
++	assert_eq(_rebuild_terminal(trigger, bundle).code, &"scene_completion_mismatch",
++		"old completion proof cannot borrow the first call's registration")
++	bundle.extra_table = []
++	assert_eq(_rebuild_terminal(trigger, bundle).code, &"scene_bundle_invalid")
++	var repeated: Dictionary = _rebuild_terminal(trigger, original_bundle)
++	if not _ok(repeated, "original registration still reconstructs after refused calls"): return
++	assert_eq(repeated.value, original_admission)
++	assert_eq(receipts[admission.trigger_command_id], trigger)
