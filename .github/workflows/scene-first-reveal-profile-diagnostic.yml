@@ -1,5 +1,5 @@
-# Inert until source and packet pins are replaced and reviewed.
-name: Seven DTL playable template qualification
+# Inert until exact native-generated source is published and d5eb03ef2d72c5b7cad4265bc83d0d4a969c3e29 replaced.
+name: Seven DTL Windows package and startup qualification
 on:
   pull_request:
     paths:
@@ -10,51 +10,44 @@ concurrency:
   group: caption-qualification-${{ github.event.pull_request.number }}
   cancel-in-progress: false
 jobs:
-  delivery:
+  windows-export:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm'
+    name: Windows / exported release startup
     runs-on: windows-2022
     timeout-minutes: 35
     defaults:
       run:
         shell: pwsh
     env:
-      PRODUCT_SHA: 606cf0b5a1b90a590babe16682d7a45afc58b568
+      PRODUCT_SHA: d5eb03ef2d72c5b7cad4265bc83d0d4a969c3e29
       PACKET_SHA: a4f3788f03712a9fe58a74ed56b27adb032809e8
-      MANIFEST_SHA256: 61315ab40fc448ad551e0c2d7e069a7b7fc4925d6452991eb4ec9bd55a366c9f
+      CAPTURE_SHA256: efdac580f665a3028ee669eb40daf803013025f92f8dcf41a86ba25f21c362da
     steps:
       - uses: actions/checkout@v7
         with:
+          # Defer credential removal until the post-job cleanup, after the
+          # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
-          ref: 606cf0b5a1b90a590babe16682d7a45afc58b568
-      - name: Pin external qualification packet and clean source
+          ref: d5eb03ef2d72c5b7cad4265bc83d0d4a969c3e29
+      - name: Retain pinned source and provenance
         run: |
           $ErrorActionPreference = 'Stop'
-          $output = Join-Path $env:RUNNER_TEMP 'seven-evidence'
-          $harness = Join-Path $env:RUNNER_TEMP 'seven-harness'
-          New-Item -ItemType Directory -Force $output,$harness | Out-Null
-          if ($env:PRODUCT_SHA -cnotmatch '^[a-f0-9]{40}$' -or $env:PACKET_SHA -cnotmatch '^[a-f0-9]{40}$') { throw 'REVIEWED_PINS_REQUIRED' }
-          $base = "https://raw.githubusercontent.com/Siuuuers/dwm/$env:PACKET_SHA/evidence/phase_2r/seven_files_20261023/packet"
-          $manifest = Join-Path $harness 'manifest.json'
-          Invoke-WebRequest "$base/manifest.json" -OutFile $manifest
-          if ((Get-FileHash $manifest -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:MANIFEST_SHA256) { throw 'PACKET_MANIFEST_MISMATCH' }
-          foreach ($entry in (Get-Content $manifest -Raw | ConvertFrom-Json)) {
-            if ($entry.name -cnotmatch '^[A-Za-z0-9_.-]+$') { throw 'PACKET_NAME_INVALID' }
-            $path = Join-Path $harness $entry.name
-            Invoke-WebRequest "$base/$($entry.name)" -OutFile $path
-            if ((Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $entry.sha256) { throw 'PACKET_HASH_MISMATCH' }
-            if ($entry.name.EndsWith('.ps1')) {
-              $tokens=$null; $parseErrors=$null
-              $null=[Management.Automation.Language.Parser]::ParseFile($path,[ref]$tokens,[ref]$parseErrors)
-              if ($parseErrors.Count -ne 0) { throw ($parseErrors | Out-String) }
-            }
-          }
-          Copy-Item $harness (Join-Path $output 'harness') -Recurse
-          "SEVEN_HARNESS=$harness" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
-          @{product=$env:PRODUCT_SHA; packet=$env:PACKET_SHA; event='${{ github.sha }}'; controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; run='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'; powershell=$PSVersionTable.PSVersion.ToString()} | ConvertTo-Json | Set-Content (Join-Path $output 'origin.json') -Encoding utf8
-          python (Join-Path $harness 'capture_seven.py') --root $env:GITHUB_WORKSPACE --output $output --source $env:PRODUCT_SHA --phase before
-          if ($LASTEXITCODE -ne 0) { throw 'SOURCE_BEFORE_FAILED' }
+          if ($env:PRODUCT_SHA -cnotmatch '^[a-f0-9]{40}$') { throw 'PUBLISHED_GENERATED_d5eb03ef2d72c5b7cad4265bc83d0d4a969c3e29_REQUIRED' }
+          $output = Join-Path $env:RUNNER_TEMP 'seven-export-source'
+          New-Item -ItemType Directory -Force $output | Out-Null
+          $capture = Join-Path $output 'capture_seven.py'
+          Invoke-WebRequest "https://raw.githubusercontent.com/Siuuuers/dwm/$env:PACKET_SHA/evidence/phase_2r/seven_files_20261023/packet/capture_seven.py" -OutFile $capture
+          if ((Get-FileHash $capture -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:CAPTURE_SHA256) { throw 'CAPTURE_HASH_MISMATCH' }
+          "SEVEN_EXPORT_CAPTURE=$capture" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          @{product=$env:PRODUCT_SHA; packet=$env:PACKET_SHA; event='${{ github.sha }}'; controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; run='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'; powershell=$PSVersionTable.PSVersion.ToString(); scope='packaging and isolated headless startup only'} | ConvertTo-Json | Set-Content (Join-Path $output 'origin.json') -Encoding utf8
+          python $capture --root $env:GITHUB_WORKSPACE --output $output --source $env:PRODUCT_SHA --phase before
+          if ($LASTEXITCODE -ne 0) { throw 'EXPORT_SOURCE_BEFORE_FAILED' }
       - name: Prepare disposable checkout for credential cleanup
         run: |
+          $ErrorActionPreference = 'Stop'
+          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
+          # submodule foreach reads the index even with sparse checkout.
+          # The source commit and working files remain unchanged.
           git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           git submodule foreach --recursive 'true'
@@ -74,84 +67,78 @@ jobs:
           $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
           if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
           "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          $output = Join-Path $env:RUNNER_TEMP 'seven-evidence'
-          & $console --version *> (Join-Path $output 'godot-version.txt')
-          $code = $LASTEXITCODE
-          @{archive_sha256=$expected; executable=$console; executable_sha256=(Get-FileHash $console -Algorithm SHA256).Hash.ToLowerInvariant(); version_exit=$code} | ConvertTo-Json | Set-Content (Join-Path $output 'editor.json') -Encoding utf8
-          if ($code -ne 0) { throw "GODOT_VERSION_EXIT: $code" }
-      - name: Official import with isolated user directory
+          & $console --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Import project
         id: import
         timeout-minutes: 8
         run: |
           $ErrorActionPreference = 'Stop'
-          $logRoot = Join-Path $env:GITHUB_WORKSPACE '.godot/phase2r_logs'
-          $env:APPDATA = Join-Path $env:RUNNER_TEMP 'seven-import-user/appdata'
-          $env:LOCALAPPDATA = Join-Path $env:RUNNER_TEMP 'seven-import-user/localappdata'
-          $env:DWM_TEST_ROOT = Join-Path $env:RUNNER_TEMP 'seven-import-user/test-root'
-          New-Item -ItemType Directory -Force $logRoot,$env:APPDATA,$env:LOCALAPPDATA,$env:DWM_TEST_ROOT | Out-Null
-          $args = @('--headless','--path',('"' + $env:GITHUB_WORKSPACE + '"'),'--import','--log-file',('"' + (Join-Path $logRoot 'seven-import.log') + '"'))
-          $child = Start-Process -FilePath $env:GODOT_CONSOLE_PATH -ArgumentList $args -PassThru -RedirectStandardOutput (Join-Path $logRoot 'seven-import.stdout.log') -RedirectStandardError (Join-Path $logRoot 'seven-import.stderr.log')
-          $exited = $child.WaitForExit(480000)
-          if (-not $exited) { $child.Kill($true); $child.WaitForExit(); throw 'IMPORT_DEADLINE_480S' }
-          $child.Refresh()
-          @{exit_code=$child.ExitCode; pid=$child.Id; timeout_seconds=480} | ConvertTo-Json | Set-Content (Join-Path $env:RUNNER_TEMP 'seven-evidence/import-process.json')
-          if ($child.ExitCode -ne 0) { throw "IMPORT_EXIT: $($child.ExitCode)" }
-          if (Select-String -Path (Join-Path $logRoot 'seven-import.log') -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character') { throw 'IMPORT_DIAGNOSTIC' }
-      - name: Retain imported files then restore exact project settings
+          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
+          $env:APPDATA = Join-Path $output 'import-user/appdata'
+          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
+          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
+          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
+          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
+            throw 'Project import reported script errors; inspect import.log.'
+          }
+      - name: Retain imported files and restore committed settings
         if: always() && steps.import.outcome != 'skipped'
         run: |
-          python (Join-Path $env:SEVEN_HARNESS 'capture_seven.py') --root $env:GITHUB_WORKSPACE --output (Join-Path $env:RUNNER_TEMP 'seven-evidence') --source $env:PRODUCT_SHA --phase import
-          if ($LASTEXITCODE -ne 0) { throw 'SOURCE_IMPORT_FAILED' }
-      - name: Native registration generation and fresh-process validation
-        id: generation
-        timeout-minutes: 6
-        run: |
-          $helper = Join-Path $env:SEVEN_HARNESS 'Invoke-IsolatedGodot.ps1'
-          try {
-            $env:DWM_SCENE_READING_FIXTURE = '1'
-            & $helper -RepositoryRoot $env:GITHUB_WORKSPACE -SuiteId 'seven-generate' -LogName 'seven-generate.log' -GodotArgs @('-s','res://tools/authoring/ExportSevenDayRegistration.gd') -TimeoutSeconds 120 -EvidenceLogPath '.godot/ci/seven-generate-isolation.jsonl'
-            if ($LASTEXITCODE -ne 0) { throw "GENERATION_EXIT: $LASTEXITCODE" }
-          } finally { Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue }
-          & $helper -RepositoryRoot $env:GITHUB_WORKSPACE -SuiteId 'seven-validate' -LogName 'seven-validate.log' -GodotArgs @('-s','res://tools/authoring/ExportSevenDayRegistration.gd','--','--validate-seven-day-export') -TimeoutSeconds 120 -EvidenceLogPath '.godot/ci/seven-validate-isolation.jsonl'
-          if ($LASTEXITCODE -ne 0) { throw "VALIDATION_EXIT: $LASTEXITCODE" }
-          foreach ($log in @('seven-generate.log','seven-validate.log')) {
-            if (Select-String -Path (Join-Path '.godot/phase2r_logs' $log) -Pattern 'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character') { throw 'GENERATION_OR_VALIDATION_DIAGNOSTIC' }
-          }
-      - name: Freeze generated working-source receipts
+          python $env:SEVEN_EXPORT_CAPTURE --root $env:GITHUB_WORKSPACE --output (Join-Path $env:RUNNER_TEMP 'seven-export-source') --source $env:PRODUCT_SHA --phase import
+          if ($LASTEXITCODE -ne 0) { throw 'EXPORT_SOURCE_IMPORT_FAILED' }
+      - name: Freeze imported source before packaging
         id: freeze
         run: |
-          python (Join-Path $env:SEVEN_HARNESS 'capture_seven.py') --root $env:GITHUB_WORKSPACE --output (Join-Path $env:RUNNER_TEMP 'seven-evidence') --source $env:PRODUCT_SHA --phase generated
-          if ($LASTEXITCODE -ne 0) { throw 'SOURCE_GENERATED_FAILED' }
-      - name: Seven-file template compiler and registration tests
-        timeout-minutes: 4
-        run: |
-          & (Join-Path $env:SEVEN_HARNESS 'Invoke-SevenDayTemplates.ps1') -RepositoryRoot $env:GITHUB_WORKSPACE -ExpectedSource $env:PRODUCT_SHA
-          if ($LASTEXITCODE -ne 0) { throw "TEMPLATE_TEST_EXIT: $LASTEXITCODE" }
-      - name: Rendered New Game Day4 save fresh Load ending and Title
+          python $env:SEVEN_EXPORT_CAPTURE --root $env:GITHUB_WORKSPACE --output (Join-Path $env:RUNNER_TEMP 'seven-export-source') --source $env:PRODUCT_SHA --phase generated
+          if ($LASTEXITCODE -ne 0) { throw 'EXPORT_SOURCE_FREEZE_FAILED' }
+      - name: Cache pinned export templates
+        id: export-templates-cache
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
+          key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
+      - name: Download verified Godot export templates
         timeout-minutes: 10
         run: |
-          & (Join-Path $env:SEVEN_HARNESS 'Invoke-EndingLoadBoundary-240.ps1') -RepositoryRoot $env:GITHUB_WORKSPACE -ExpectedSource $env:PRODUCT_SHA
-          if ($LASTEXITCODE -ne 0) { throw "CONNECTED_TEST_EXIT: $LASTEXITCODE" }
-      - name: Verify working source unchanged by qualification
+          $ErrorActionPreference = 'Stop'
+          $folder = Join-Path $env:RUNNER_TEMP 'dwm-godot-templates'
+          New-Item -ItemType Directory -Force -Path $folder | Out-Null
+          $archive = Join-Path $folder 'Godot_v4.6.3-stable_export_templates.tpz'
+          if (-not (Test-Path -LiteralPath $archive)) {
+            Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_export_templates.tpz' -OutFile $archive
+          }
+          $expected = '3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8'
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
+            throw 'Godot export templates checksum mismatch.'
+          }
+          "GODOT_EXPORT_TEMPLATES_ARCHIVE=$archive" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Retain verified export templates for subsequent runs
+        if: steps.export-templates-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
+          key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
+      - name: Export and launch isolated Windows executable
+        timeout-minutes: 12
+        run: ./tools/testing/Invoke-WindowsExportValidation.ps1
+      - name: Verify source after packaging
         if: always() && steps.freeze.outcome == 'success'
         run: |
-          python (Join-Path $env:SEVEN_HARNESS 'capture_seven.py') --root $env:GITHUB_WORKSPACE --output (Join-Path $env:RUNNER_TEMP 'seven-evidence') --source $env:PRODUCT_SHA --phase after
-          if ($LASTEXITCODE -ne 0) { throw 'SOURCE_AFTER_FAILED' }
-      - name: Retain native generated outputs even on failure
-        if: always()
-        run: |
-          $target = Join-Path $env:RUNNER_TEMP 'seven-evidence/last-registration'
-          New-Item -ItemType Directory -Force $target | Out-Null
-          Copy-Item 'data/manifests/scene_story_registration.json','data/manifests/scene_ending_reading_catalogue.json' $target
-      - name: Preserve source generation and qualification evidence
+          python $env:SEVEN_EXPORT_CAPTURE --root $env:GITHUB_WORKSPACE --output (Join-Path $env:RUNNER_TEMP 'seven-export-source') --source $env:PRODUCT_SHA --phase after
+          if ($LASTEXITCODE -ne 0) { throw 'EXPORT_SOURCE_AFTER_FAILED' }
+      - name: Upload Windows validation build and evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: seven-file-qualification-${{ github.run_id }}-${{ github.run_attempt }}
+          name: windows-export-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
-            ${{ runner.temp }}/seven-evidence
-            ${{ github.workspace }}/.godot/ci
-            ${{ github.workspace }}/.godot/phase2r_logs
+            .godot/ci/import.log
+            .godot/ci/windows-export/
+            ${{ runner.temp }}/seven-export-source
           include-hidden-files: true
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 7
+
