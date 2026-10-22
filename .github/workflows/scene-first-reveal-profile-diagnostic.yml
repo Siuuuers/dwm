@@ -1,6 +1,6 @@
 # INERT REVIEW CANDIDATE. Install only after external C source review.
 # Focused candidate only: C exact packet review and Director scope reconciliation precede installation.
-name: Clean caption regression qualification
+name: Ending presentation baseline qualification
 on:
   pull_request:
     paths:
@@ -19,18 +19,18 @@ jobs:
       run:
         shell: pwsh
     env:
-      PRODUCT_SHA: 41e03888e966a57faed27286920f164c46db223a
-      SOURCE_SHA: 875d695779e7ed7f9804a86a41a0912eb8ccc2e1
-      PREPARATION_SHA256: 34575a34d0e60871a0720c051bbaec22f116ad7fd6b50a848e5d8623467778ad
+      PRODUCT_SHA: 700fdccc3fe1ae257eb1c61f4183ded42e580426
+      SOURCE_SHA: 6fa1a1aa9492b96683c58880ca576cbc9133be52
+      PREPARATION_SHA256: c13fb168c5276dd91e622d0ccc01adc538f1c7015dc93d3b6dd9dae2462c7203
       CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
-      HARNESS_MANIFEST_SHA256: e8e91c08fa2c27c6e6725d271cda7ac103b78736175b764dc34f1ca4452f74dc
+      HARNESS_MANIFEST_SHA256: 7df0b84bb484a87a77a5f5a11acd89e3b2747b97196b62a97722f13836756f7e
     steps:
       - uses: actions/checkout@v7
         with:
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
-          ref: 41e03888e966a57faed27286920f164c46db223a
+          ref: 700fdccc3fe1ae257eb1c61f4183ded42e580426
       - name: Pin external preparation helpers
         id: preparation_helpers
         run: |
@@ -42,7 +42,7 @@ jobs:
           New-Item -ItemType Directory -Force $helpers | Out-Null
           $prepare = Join-Path $helpers 'prepare_caption.py'
           $capture = Join-Path $helpers 'capture_import.py'
-          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/clean_regression_20261022/prepare_caption.py" -OutFile $prepare
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_layout_20261022/prepare_caption.py" -OutFile $prepare
           Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/import_integrity_20261020/capture_import.py" -OutFile $capture
           if ((Get-FileHash $prepare -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:PREPARATION_SHA256) { throw 'PREPARATION_HASH_MISMATCH' }
           if ((Get-FileHash $capture -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:CAPTURE_SHA256) { throw 'CAPTURE_HASH_MISMATCH' }
@@ -75,13 +75,13 @@ jobs:
           $harness = Join-Path $env:RUNNER_TEMP 'clean-focused-harness'
           New-Item -ItemType Directory -Force $harness | Out-Null
           $manifest = Join-Path $harness 'manifest.json'
-          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/clean_regression_20261022/manifest.json" -OutFile $manifest
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_layout_20261022/manifest.json" -OutFile $manifest
           if ((Get-FileHash $manifest -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:HARNESS_MANIFEST_SHA256) { throw 'HARNESS_MANIFEST_HASH_MISMATCH' }
           foreach ($entry in (Get-Content $manifest -Raw | ConvertFrom-Json)) {
             $name = [IO.Path]::GetFileName($entry.path)
             if ($entry.path -notlike 'tools/testing/*' -or $name -notmatch '^[A-Za-z0-9.-]+$') { continue }
             $path = Join-Path $harness $name
-            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/clean_regression_20261022/$name" -OutFile $path
+            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_layout_20261022/$name" -OutFile $path
             if ((Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $entry.sha256) { throw "HARNESS_HASH_MISMATCH: $name" }
             if ($name.EndsWith('.ps1')) {
               $tokens=$null; $parseErrors=$null
@@ -155,13 +155,13 @@ jobs:
           & python $env:PREPARATION_HELPER --phase restore --root $env:GITHUB_WORKSPACE --output $output *> (Join-Path $output 'preparation-restore.log')
           $code = $LASTEXITCODE
           if ($code -ne 0) { throw "PREPARATION_RESTORE_EXIT: $code" }
-      - name: Focused rendered registration and input checks
+      - name: Rendered ordinary ending presentation boundary
         id: focused
-        timeout-minutes: 26
+        timeout-minutes: 4
         run: |
           $ErrorActionPreference = 'Stop'
           $PSNativeCommandUseErrorActionPreference = $false
-          & pwsh -NoLogo -NoProfile -NonInteractive -File (Join-Path $env:FOCUSED_HARNESS 'Invoke-ContinuePublicationChecks.ps1') -RepositoryRoot $env:GITHUB_WORKSPACE -ExpectedSource $env:PRODUCT_SHA -NativeProviderProvenance
+          & pwsh -NoLogo -NoProfile -NonInteractive -File (Join-Path $env:FOCUSED_HARNESS 'Invoke-EndingLayoutBoundary.ps1') -RepositoryRoot $env:GITHUB_WORKSPACE -ExpectedSource $env:PRODUCT_SHA
           if ($LASTEXITCODE -ne 0) { throw "FOCUSED_RUNNER_EXIT: $LASTEXITCODE" }
       - name: Always retain and check source after focused tests
         if: always() && steps.preparation_restore.outcome == 'success'
