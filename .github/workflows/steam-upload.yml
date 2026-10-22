@@ -1,0 +1,129 @@
+name: Steam private upload
+run-name: Steam ${{ inputs.mode }} - authored-week package
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Preview only, or preview then upload (never sets a branch live)
+        type: choice
+        options: [preview, upload]
+        default: preview
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: steam-app-5199120
+  cancel-in-progress: false
+
+jobs:
+  steam:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out the fixed validated delivery package
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: 1b98886628c3e042c5a7c5738ddb2912f27d7ae8
+          persist-credentials: false
+      - name: Validate package, preview mappings, and optionally upload
+        shell: python
+        env:
+          STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
+          STEAM_CONFIG_VDF: ${{ secrets.STEAM_CONFIG_VDF }}
+          UPLOAD_MODE: ${{ inputs.mode }}
+        run: |
+          import base64, hashlib, os, pathlib, re, shutil, subprocess, sys, urllib.request, zipfile
+          root = pathlib.Path(os.environ['RUNNER_TEMP']) / 'dwm-steam'
+          root.mkdir()
+          sdk = root / 'steamcmd'
+          sdk.mkdir()
+          content = root / 'content'
+          content.mkdir()
+          output = root / 'output'
+          output.mkdir()
+          summary = pathlib.Path(os.environ['GITHUB_STEP_SUMMARY'])
+          def report(message):
+              print(message)
+              with summary.open('a', encoding='utf-8') as f:
+                  f.write(message + '\n\n')
+          def stop(message):
+              report(message)
+              sys.exit(1)
+          username = os.environ.pop('STEAM_USERNAME', '')
+          encoded = os.environ.pop('STEAM_CONFIG_VDF', '')
+          if not username or not encoded:
+              stop('Missing STEAM_USERNAME or STEAM_CONFIG_VDF repository secret.')
+          try:
+              config = base64.b64decode(re.sub(r'\s+', '', encoded), validate=True)
+          except Exception:
+              stop('STEAM_CONFIG_VDF is not valid Base64. Remove certificate wrapper lines and encode the original file again.')
+          if b'InstallConfigStore' not in config:
+              stop('Decoded configuration is not a Steam config.vdf. Check the source file privately.')
+          source = pathlib.Path('game-build')
+          for name in ('DWM.exe', 'DWM.pck'):
+              if not (source / name).is_file() or (source / name).stat().st_size < 1000000:
+                  stop('Required game binary is missing or is an LFS pointer.')
+              shutil.copy2(source / name, content / name)
+          shutil.copytree(source / 'licenses', content / 'licenses')
+          files = sorted(p for p in content.rglob('*') if p.is_file())
+          report('Package commit: 1b98886628c3e042c5a7c5738ddb2912f27d7ae8; runtime source: 2146c4435041c2b4ccc467a526f7b127d3980a2f.')
+          report('AppID 5199120; DepotID 5199121. No SetLive directive. This is an upload test, not release approval.')
+          for p in files:
+              report(p.relative_to(content).as_posix() + ' — SHA256 ' + hashlib.sha256(p.read_bytes()).hexdigest())
+          archive = root / 'steamcmd.zip'
+          urllib.request.urlretrieve('https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip', archive)
+          with zipfile.ZipFile(archive) as z:
+              z.extractall(sdk)
+          executable = str(sdk / 'steamcmd.exe')
+          def invoke(args, limit):
+              try:
+                  result = subprocess.run([executable] + args, cwd=sdk, stdin=subprocess.DEVNULL,
+                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=limit)
+              except subprocess.TimeoutExpired:
+                  stop('SteamCMD timed out. A fresh private SteamCMD login may be needed; no raw authentication logs were published.')
+              text = result.stdout.decode('utf-8', errors='replace')
+              if result.returncode != 0 or re.search(r'ERROR!|Login Failure|FAILED \(', text, re.I):
+                  reasons = [label for pattern, label in [
+                      (r'Invalid Password|InvalidPassword', 'invalid cached login'),
+                      (r'Access Denied|AccessDenied|insufficient privilege', 'account permissions rejected'),
+                      (r'Steam Guard|two.factor|auth.*code', 'Steam Guard authentication required'),
+                      (r'Invalid App|Invalid Depot', 'app or depot configuration rejected')
+                  ] if re.search(pattern, text, re.I)]
+                  stop('SteamCMD failed: ' + (', '.join(reasons) or 'unclassified SteamCMD error') + '. Raw logs are withheld to protect authentication material.')
+              return text
+          try:
+              invoke(['+quit'], 180)
+              (sdk / 'config').mkdir(exist_ok=True)
+              (sdk / 'config' / 'config.vdf').write_bytes(config)
+              config = b''
+              encoded = ''
+              script = root / 'app_build_5199120.vdf'
+              def build(preview):
+                  script.write_text('"AppBuild" { "AppID" "5199120" "Desc" "DWM private test source 2146c443" '
+                      + '"ContentRoot" "' + content.as_posix() + '" "BuildOutput" "' + output.as_posix()
+                      + '" "Preview" "' + str(preview) + '" "Depots" { "5199121" { '
+                      + '"FileMapping" { "LocalPath" "*" "DepotPath" "." "Recursive" "1" } } } }', encoding='utf-8')
+                  return invoke(['+@ShutdownOnFailedCommand', '1', '+@NoPromptForPassword', '1',
+                      '+login', username, '+run_app_build', str(script), '+quit'], 480)
+              build(1)
+              manifests = list(output.glob('*manifest*'))
+              if not any(p.is_file() and p.stat().st_size > 0 for p in manifests):
+                  stop('Preview returned without a nonempty manifest. Upload was not attempted.')
+              report('SteamPipe preview completed and produced a nonempty manifest. Only the staged runtime files are mapped.')
+              if os.environ['UPLOAD_MODE'] == 'upload':
+                  text = build(0)
+                  match = re.search(r'Successfully finished AppID 5199120 build \(BuildID (\d+)\)', text, re.I)
+                  if not match:
+                      stop('No confirmed BuildID was returned. Check Steamworks Builds before retrying; an upload may have completed.')
+                  report('Uploaded BuildID: ' + match.group(1) + '. No Steam branch was set live.')
+              else:
+                  report('Preview only: no content uploaded. Run again with mode upload when ready.')
+          finally:
+              shutil.rmtree(root, ignore_errors=True)
+      - name: Remove temporary authentication and upload data
+        if: always()
+        shell: pwsh
+        run: Remove-Item -LiteralPath "$env:RUNNER_TEMP/dwm-steam" -Recurse -Force -ErrorAction SilentlyContinue
