@@ -7,9 +7,9 @@
   },
   {
     "path": "tests/manual/test_continue_reveal_publication.gd",
-    "bytes": 6112,
-    "sha256": "2f508980ced6f9440d817133ef2a78e99071f3b83ab358f84d5304e66958af1b",
-    "blob": "b7daa2459f1a982326e7e6ebf862d90e3785ab5c"
+    "bytes": 8901,
+    "sha256": "72ca10041f21cd14b6f8dbf0458b82f6b607301149d18faa6f3f038634a31828",
+    "blob": "0bd3cfe945a9842c79e60534a19700c30e61c1e9"
   },
   {
     "path": "tools/testing/ContinueNativeProvider.cs",
@@ -31,9 +31,9 @@
   },
   {
     "path": "tools/testing/Invoke-IsolatedGodot.ps1",
-    "bytes": 25812,
-    "sha256": "380c84c4a2e4f4b5a8f0c042ca83223e2e3bfa841c2fab0eb7f83db0cf3a01b4",
-    "blob": "71c964807eeadfcb0c648ce52d794ae75d5347d2"
+    "bytes": 26193,
+    "sha256": "a8b5c2452ccd9bbf18e362f9b526efdf5af62ac4f95a0074a853a97dcc9bc76e",
+    "blob": "a232d51f73da5a6134cabd9dc71e9514c104fc6e"
   },
   {
     "path": "tools/testing/Read-ContinueNativeProvider.ps1",

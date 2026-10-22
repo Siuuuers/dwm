@@ -134,6 +134,11 @@ function Invoke-GodotChild {
     $start.EnvironmentVariables['APPDATA'] = $AppData
     $start.EnvironmentVariables['LOCALAPPDATA'] = $LocalAppData
     $start.EnvironmentVariables['DWM_TEST_ROOT'] = $DwmTestRoot
+    # Scope the handshake to this native-consumer child; never inherit a stale path.
+    $start.EnvironmentVariables.Remove('DWM_CONTINUE_READER_RECEIPT')
+    if ($UseNativeProviderProvenance -and -not [string]::IsNullOrWhiteSpace($ConsumerDirectory)) {
+        $start.EnvironmentVariables['DWM_CONTINUE_READER_RECEIPT'] = Join-Path $ConsumerDirectory 'consumer-reader.json'
+    }
     $process = New-Object Diagnostics.Process
     $process.StartInfo = $start
     $processStarted = $false
