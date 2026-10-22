@@ -1,6 +1,7 @@
 extends RefCounted
 ## TEST-only multiple thoughts; reuse the qualified partner fixture's owners.
 const PARTNER := preload("res://tests/support/ScenePartnerForkFixture.gd")
+const STRICT := preload("res://scripts/validation/StrictJson.gd")
 const STORY := "res://tests/fixtures/dialogic/scene_multiple_thoughts.dtl"
 
 static func bundle() -> Dictionary:
@@ -14,7 +15,9 @@ static func bundle() -> Dictionary:
 		for row: Dictionary in table.duplicate():
 			if row.entry_id == before:
 				# All replacements are deterministic fixture IDs, not runtime parsing.
-				table.append(JSON.parse_string(JSON.stringify(row).replace(before, after)))
+				var cloned: Dictionary = STRICT.parse_object(JSON.stringify(row).replace(before, after))
+				if not cloned.ok: return cloned
+				table.append(cloned.value)
 		for row: Dictionary in table:
 			if row.entry_id == after and row.has("lines"):
 				row.lines[0].text = "TEST default Benchmark."
@@ -24,7 +27,9 @@ static func bundle() -> Dictionary:
 	value.ids_registry.lines.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.line_id < b.line_id)
 	for row: Dictionary in value.targets.duplicate():
 		if row.target.entry_id == before:
-			value.targets.append(JSON.parse_string(JSON.stringify(row).replace("partner.lavinia", "partner.benchmark")))
+			var cloned: Dictionary = STRICT.parse_object(JSON.stringify(row).replace("partner.lavinia", "partner.benchmark"))
+			if not cloned.ok: return cloned
+			value.targets.append(cloned.value)
 	value.targets.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.target_id < b.target_id)
 	value.ids_registry.signals[1] = {"signal_id": "thought.options", "payload_fields": ["opportunity_id", "options", "pass_target_id"]}
 	var labels: Array = []

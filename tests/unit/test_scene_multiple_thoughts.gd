@@ -43,7 +43,7 @@ func test_each_choice_and_default_receipt_authenticates_the_registered_offer() -
 	for choice: String in targets:
 		event.kind = "thought.options" if choice == "pass" else "thought.select"
 		event.payload = _marker(built.value).payload.duplicate(true)
-		if choice != "pass": event.payload.choice_id = choice
+		if choice != "pass": event.payload["choice_id"] = choice
 		var result := {"kind": "thought_resolved", "opportunity_id": "TEST.partner", "choice": choice, "target_id": targets[choice]}
 		assert_true(CONTRACT.make_scene_receipt(event, anchor, result, built.value).ok, choice)
 		var wrong := result.duplicate(true)
@@ -54,7 +54,7 @@ func test_each_choice_and_default_receipt_authenticates_the_registered_offer() -
 		assert_false(CONTRACT.inspect_scene(spoof, built.value).ok)
 		spoof = event.duplicate(true)
 		spoof.kind = "thought.select"
-		spoof.payload.choice_id = "missing"
+		spoof.payload["choice_id"] = "missing"
 		assert_false(CONTRACT.inspect_scene(spoof, built.value).ok)
 		var old := anchor.duplicate(true)
 		old.line_id = "line.scene.test.partner.shared.before"
