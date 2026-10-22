@@ -1,0 +1,56 @@
+[
+  {
+    "path": "tests/integration/test_witnessed_caption_runtime.gd",
+    "bytes": 104883,
+    "sha256": "e8faaf78b17c8d3d65a0562f9d40677755314a2fed63ec314795ea6ae74b7c97",
+    "blob": "52ec145e1ec3df7f135314d64197ae9427ceb458"
+  },
+  {
+    "path": "tests/manual/test_continue_reveal_publication.gd",
+    "bytes": 6112,
+    "sha256": "2f508980ced6f9440d817133ef2a78e99071f3b83ab358f84d5304e66958af1b",
+    "blob": "b7daa2459f1a982326e7e6ebf862d90e3785ab5c"
+  },
+  {
+    "path": "tools/testing/ContinueNativeProvider.cs",
+    "bytes": 11022,
+    "sha256": "81135cc9571654f52ee746bb41e146123c91722abda987d01cb76627922488b6",
+    "blob": "2174afddda04b2d59c1e126e738c9e64056dfa01"
+  },
+  {
+    "path": "tools/testing/Get-ContinueFileSha256.ps1",
+    "bytes": 442,
+    "sha256": "5b88a633c7f6c63a460465bb1db0fa7f5594d8420e666594c0dfcbfa43533d2c",
+    "blob": "125dc8c496f4f918ef21024f0577dada0a6b4446"
+  },
+  {
+    "path": "tools/testing/Invoke-ContinuePublicationChecks.ps1",
+    "bytes": 11229,
+    "sha256": "07039ae648fe4d7e1efbb8a2127328c5f5ec8f767f1d60b780c0db3b005b7994",
+    "blob": "87df86b2e9bceb2be1ddb16b79e71710bc54c1d5"
+  },
+  {
+    "path": "tools/testing/Invoke-IsolatedGodot.ps1",
+    "bytes": 25812,
+    "sha256": "380c84c4a2e4f4b5a8f0c042ca83223e2e3bfa841c2fab0eb7f83db0cf3a01b4",
+    "blob": "71c964807eeadfcb0c648ce52d794ae75d5347d2"
+  },
+  {
+    "path": "tools/testing/Read-ContinueNativeProvider.ps1",
+    "bytes": 17644,
+    "sha256": "7792a932251a250d461f749e9f5267689a8b6d378078803b25e397685cd57847",
+    "blob": "1d8d02a4e3dd9dd13017a281fa35160836c40f59"
+  },
+  {
+    "path": "tools/testing/Save-ContinueReaderEvent.ps1",
+    "bytes": 1118,
+    "sha256": "665f9e37a0fefd001935ea93da7dc3f2e5a343b23be6fc4087e10a26030aa0fa",
+    "blob": "b0ce7ec5bfaadccfae556aaa88ddae0d3f99d7c4"
+  },
+  {
+    "path": "tools/testing/Select-ContinueEngineChild.ps1",
+    "bytes": 1795,
+    "sha256": "f23734bce9b0d560b311a43f998d1efc694d50509abee0591b5f45f639bfa315",
+    "blob": "b3422e01eeaeb542fea26439f5718418e4c73a77"
+  }
+]
