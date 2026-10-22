@@ -66,3 +66,24 @@ The GitHub connector does not expose new-run dispatch; use Run workflow in GitHu
 References:
 - https://partner.steamgames.com/doc/sdk/uploading
 - https://game.ci/docs/github/deployment/steam/
+
+## Verified export and upload retry — 2026-10-23
+
+Run 39867537354 passed the localized Windows export, package audit, isolated
+startup, license checks and staged-file integrity. Clean package artifact:
+https://github.com/Siuuuers/dwm/actions/runs/39867537354/artifacts/12465201065
+Receipt artifact: 12465265774. Runtime source remains cc40aee5722afaa24e8a8daa556e8c27bc956810.
+PCK SHA256: cb2f1410546563ad39563decb2ec8f383e959f327062992670b4a2e33bf9cb15.
+
+SteamCMD failed during unauthenticated bootstrap with exit 7 after printing
+Update complete, launching. No login, preview or upload was attempted in that run.
+The workflow now retries that specific bootstrap result once and requires the
+second invocation to pass normal exit/error checks; authenticated commands are
+never retried automatically. Five mocked success/failure cases passed locally.
+A cloud retry is still required; this is not evidence of working Steam authentication.
+
+For the next NEW Run workflow, select master and upload, leaving rebuild off.
+The default reuses package and receipt from run 39867537354, validates all hashes,
+and skips Godot export. Select rebuild only if that artifact has expired or a
+fresh export of the same pinned source is needed. Failed exports still block upload.
+The artifact expires 2026-10-30 at approximately 06:50 Hong Kong time.
