@@ -8,5 +8,5 @@ func _registration_bundle() -> Dictionary:
 	for key: String in ["entry_manifest", "ids_registry", "scene_programme", "targets"]:
 		built.value[key] = original.value[key].duplicate(true)
 	built.value.challenges = []
-	built.value.scene_programme.story_days = {"scene.test.b": 1, "scene.test.a": 2, "contact.test.a": 2}
+	built.value.scene_programme["story_days"] = {"scene.test.b": 1, "scene.test.a": 2, "contact.test.a": 2}
 	return built

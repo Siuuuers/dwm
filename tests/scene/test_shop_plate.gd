@@ -199,11 +199,22 @@ func test_enlarged_japanese_coin_metadata_fits_the_pinned_band() -> void:
 			var state: Label = f.shop._meta_state
 			assert_eq(price.text, "3 コイン")
 			assert_eq(state.text, "在庫あり" if available else "売り切れ")
-			var band := Rect2(480, 336 if large else 400, 304, 48)
+			var dock_top := 384 if large else 448
+			var information_bottom: float = f.shop.info_scroll.position.y + f.shop.info_scroll.size.y
+			var expected_height := maxi(48, 2 * ceili(maxf(price.get_minimum_size().y,
+				state.get_minimum_size().y) / 2.0))
+			var band := Rect2(480, dock_top - expected_height, 304, expected_height)
+			assert_eq(information_bottom, band.position.y, "Scrollable information stops above pinned metadata.")
+			assert_eq(band.end.y, dock_top, "Metadata keeps the authored dock boundary.")
+			assert_eq(f.shop.quantity_buttons.minimum.position.y, 384.0 if large else 456.0)
+			assert_eq(f.shop._total_label.position.y, 512.0)
+			assert_eq(f.shop._buy_button.position.y, 576.0)
 			for label: Label in [price, state]:
 				assert_true(label.is_visible_in_tree())
 				assert_eq(label.get_theme_font_size("font_size"), 36)
-				assert_true(band.encloses(label.get_rect()))
+				assert_true(band.encloses(label.get_rect()), "large=%s available=%s actual_rect=%s expected_band=%s" % [large, available, label.get_rect(), band])
+				assert_eq(label.autowrap_mode, TextServer.AUTOWRAP_OFF)
+				assert_lte(label.get_minimum_size().y, label.size.y)
 				var measured := label.get_theme_font("font").get_string_size(label.text,
 					HORIZONTAL_ALIGNMENT_LEFT, -1, label.get_theme_font_size("font_size"))
 				assert_lte(measured.x, label.size.x)

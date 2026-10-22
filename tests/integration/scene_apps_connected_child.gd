@@ -143,7 +143,10 @@ func load_apps_scene() -> void:
 	if not _ok(backup.configure(saves, "title")): return
 	var prepared: Dictionary = backup.prepare_action("load", "slot:1")
 	if not _ok(prepared): return
+	var prior_diagnostics := OS.get_environment("DWM_RESTORE_FAILURE_DIAGNOSTICS")
+	OS.set_environment("DWM_RESTORE_FAILURE_DIAGNOSTICS", "1")
 	var loaded: Dictionary = backup.commit_action(prepared.value.token)
+	OS.set_environment("DWM_RESTORE_FAILURE_DIAGNOSTICS", prior_diagnostics)
 	assert_eq(loaded.get("code"), &"scene_activation_pending", str(loaded))
 	if loaded.get("code") != &"scene_activation_pending" or not await _await_ready(): return
 	assert_eq(game.money, proof.money)

@@ -430,6 +430,11 @@ func _ready() -> void:
 	_meta_price = _label(_body, Vector2(496, 400), Vector2(136, 48))
 	_meta_state = _label(_body, Vector2(632, 400), Vector2(136, 48))
 	_meta_state.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	for label: Label in [_meta_price, _meta_state]:
+		label.autowrap_mode = TextServer.AUTOWRAP_OFF
+		# The fit gate checks the full copy; clipping only removes Label's minimum
+		# width so an oversized fact can reach that strict refusal instead of grow.
+		label.clip_text = true
 	_quantity_label = _label(_body, Vector2(608, 456), Vector2(48, 48), false)
 	_quantity_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	for key in ["minimum", "minus", "plus", "maximum"]:
@@ -589,11 +594,15 @@ func _render_selection() -> void:
 	var price_width := 2 * ceili(_meta_price.get_theme_font("font").get_string_size(
 		_meta_price.text, HORIZONTAL_ALIGNMENT_LEFT, -1, _meta_price.get_theme_font_size("font_size")).x / 2.0)
 	var meta_padding := clampi(2 * floori((304 - price_width - state_width - 16) / 4.0), 0, 16)
+	# Label's shaped line height includes fallback metrics that get_string_size
+	# can omit. Grow upward into scrollable information, keeping the dock fixed.
+	var meta_height := maxi(48, 2 * ceili(maxf(_meta_price.get_minimum_size().y,
+		_meta_state.get_minimum_size().y) / 2.0))
 	_meta_price.position.x = 480 + meta_padding
-	_meta_price.size = Vector2(maxi(0, 304 - 2 * meta_padding - state_width - 16), 48)
+	_meta_price.size = Vector2(maxi(0, 304 - 2 * meta_padding - state_width - 16), meta_height)
 	_meta_state.position.x = 784 - meta_padding - state_width
-	_meta_state.size = Vector2(state_width, 48)
-	var meta_y := 336 if _large else 400
+	_meta_state.size = Vector2(state_width, meta_height)
+	var meta_y := (384 if _large else 448) - meta_height
 	info_scroll.size.y = meta_y - 16
 	_meta_price.position.y = meta_y
 	_meta_state.position.y = meta_y
@@ -637,6 +646,16 @@ func _render_selection() -> void:
 func _verify_dock_fit() -> void:
 	if not _view_is_current(): return
 	if _catalog_layout_pending or not last_result.ok: return
+	# Bound the actual shaped labels, not just a string measurement inside a
+	# Label that may have expanded outside the pinned metadata region.
+	var dock_top := 384 if _large else 448
+	var meta_top := info_scroll.position.y + info_scroll.size.y
+	var meta_band := Rect2(480, meta_top, 304, dock_top - meta_top)
+	for label: Label in [_meta_price, _meta_state]:
+		if label.visible and not meta_band.encloses(label.get_rect()):
+			last_result = {"ok": false, "code": "shop_dock_does_not_fit"}
+			_show_recovery()
+			return
 	# Do not truncate exact amounts or invent a lower owner maximum to fit a key.
 	for label: Label in [_quantity_label, _total_label, _meta_price, _meta_state]:
 		if not label.visible: continue

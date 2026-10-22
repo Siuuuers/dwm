@@ -1,0 +1,25 @@
+{
+  "source_commit": "30342bbdfab86d003e131f0d56a00cceb3bc682e",
+  "span_count": 18,
+  "current_bytes": 322799,
+  "accepted_bytes": 203638,
+  "removed_bytes": 121450,
+  "replacement_bytes": 2289,
+  "layers": {
+    "current": "ffdb1857526402d5e566cd7306a23989976bc287535aa69b74bcc1efbac14ca6",
+    "accepted_23d8b3df": "6cbd8f935e2fb6c02db5e78cbafd915d5cd2971712d061c5d9e8f336bbea100f",
+    "after_notes": "264c91220e99977085838f24ced5f9a4ef95eb74f8c24609aebcbf98b63707db",
+    "after_marker": "ce2fb9fc8c9821c8857641a377d0832fb1a862bafd86268c43226b24329ff2a8",
+    "foundation": "02ed11392633e9ded43609d93977adb0805870880add55b67c483d5d305694bc",
+    "historical_226d3da": "95073205c6016935a3fb6339f004129e0ac93cf8728e64f812a940891a27da5c"
+  },
+  "frozen_controls": {
+    "capture_restore_state": "504577a7f12a53cbfd3fe55832b3129affda8de2fa08388a21b49ffcb394df0e",
+    "_apply_gameplay_silent": "05ef7d065d570b7a2e9a9552f702bde2f12301ec2ec592888750171689a990f1",
+    "capture_live_run_state": "87b61014c824a1a045fad67d69db9332661d760a2bca609157ebda5d992fc37a",
+    "restore_live_run_state": "ef7f3c0f21f22cf3db6af2229b03f24b59562e1d1808ae6f77e96c68ae2d2e1c"
+  },
+  "changed_test_function": "_without_authenticated_scene_composition",
+  "downstream_test_bytes_unchanged": true,
+  "engine_execution": false
+}

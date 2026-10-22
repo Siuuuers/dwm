@@ -1,0 +1,19 @@
+{
+  "original_file": "original-evidence.zip",
+  "bytes": 15529880,
+  "sha256": "fb204396d6f5690bcc51a27852b84fbda0eb15ae8b7a65c832df5cb554103b7e",
+  "parts": [
+    {
+      "file": "original-evidence.zip.part001",
+      "bytes": 7800000,
+      "sha256": "793d6cd63dba016c418353eb5b945de66a6534958a4c4d5b527679f377435d1b"
+    },
+    {
+      "file": "original-evidence.zip.part002",
+      "bytes": 7729880,
+      "sha256": "36ab27f2ad72dcd3f42dea89c72924b19e5a0886cae22d1a04a730d3eb8feb21"
+    }
+  ],
+  "reconstruction": "Concatenate the binary parts in listed order. Verify the combined SHA256 before opening as ZIP.",
+  "reason": "Preserve exact original archive within connector request-size limit."
+}

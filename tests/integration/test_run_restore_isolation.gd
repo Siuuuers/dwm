@@ -201,33 +201,33 @@ func _restore_retired_query_source(source: String) -> String:
 
 
 func _without_authenticated_scene_composition(source: String) -> String:
-	# Fixed inverse of d1d8313's owner to the accepted 23d8b3df owner.
+	# Fixed inverse of the scene Apps/day/round owner to accepted 23d8b3df.
 	# Byte offsets apply only after the complete normalized owner is authenticated.
 	# This is evidence reconstruction, never execution or a runtime migration.
-	const CURRENT_SHA256 := "c3b9949ba09bf1a47969afd73daf835645bb7b4eb494d91f19a6f7e222917c4d"
+	const CURRENT_SHA256 := "ffdb1857526402d5e566cd7306a23989976bc287535aa69b74bcc1efbac14ca6"
 	const ACCEPTED_SHA256 := "6cbd8f935e2fb6c02db5e78cbafd915d5cd2971712d061c5d9e8f336bbea100f"
 	assert_eq(source.sha256_text(), CURRENT_SHA256, "exact current inherited owner")
 	if source.sha256_text() != CURRENT_SHA256: return ""
 	# [inclusive byte start, exclusive byte end, historical replacement].
 	const SPANS := [
-		[24754, 24892, ""],
-		[36209, 36357, ""],
-		[62037, 62234, ""],
-		[64168, 64543, ""],
-		[133839, 134071, ""],
-		[143635, 143740, ""],
-		[144321, 144376, ""],
-		[155237, 155273, ""],
-		[157369, 157620, "\treturn {\"ok\": true, \"value\": {\"dark_mode\": _run_lifecycle.to_dict()[\"dark_mode\"]}}\n"],
-		[159457, 160218, ""],
-		[164340, 164425, ""],
-		[166833, 166903, ""],
-		[168470, 168685, ""],
-		[170707, 170740, ""],
-		[198004, 198288, ""],
-		[199117, 199211, ""],
-		[201441, 201554, ""],
-		[206746, 292650, ""],
+		[24638, 24952, "func preview_open_contact(friend_id: String, command_id: String, command_issuer_receipt: Dictionary) -> Dictionary:\n\tvar day7_admitted := require_day7_presentations_complete()\n"],
+		[36101, 36452, "func open_contact(friend_id: String, command_id: String, command_issuer_receipt: Dictionary) -> Dictionary:\n\tvar replayed: bool = (contacts.get(\"transaction_receipts\", {}) as Dictionary).has(command_id)\n"],
+		[61983, 62304, "\tvar lifecycle: Dictionary = _run_lifecycle.to_dict()\n\tvar cached: Variant = route_context.get(\"ending_frozen_contexts_v1\")\n"],
+		[64086, 64580, "\t\treturn _transaction_failure(&\"ending_presentation_command_mismatch\", ending_id)\n\tif _frozen_ending_contexts_enabled:\n"],
+		[133806, 134148, "\t\tif not saved.get(\"ok\", false):\n\t\t\tvar restored: Dictionary = rollback_restore_silent(captured.value.backup)\n"],
+		[143587, 143812, "\tvar gameplay := to_save_dict().duplicate(true)\n\tgameplay[\"narrative_variables\"] = _narrative_variables.duplicate(true)\n"],
+		[144271, 144416, "\t\t\"session_generation\": _live_session_generation,\n\t\t\"contacts\": contacts.duplicate(true),\n"],
+		[155198, 155305, "\tif not admitted.value.already_active:\n\t\t_live_session_generation += 1\n"],
+		[157304, 157621, "\t\treturn {\"ok\": false, \"code\": &\"run_configuration_unavailable\"}\n\treturn {\"ok\": true, \"value\": {\"dark_mode\": _run_lifecycle.to_dict()[\"dark_mode\"]}}\n\n"],
+		[159408, 160260, "func capture_run_snapshot_input() -> Dictionary:\n\tvar current: Dictionary = to_save_dict()\n"],
+		[164234, 164510, "\t\treturn {\"ok\": false, \"code\": &\"invalid_run_backup\", \"message\": \"run installation evidence is required\"}\n\tvar gameplay_check: Dictionary = _prepare_note_restore_gameplay(source[\"gameplay\"])\n"],
+		[166764, 166973, "\t\t_desktop_snapshot = (desktop_backup as Dictionary).duplicate(true)\n\t_run_configuration_installed = source[\"run_configuration_installed\"]\n"],
+		[168401, 168743, "func _apply_run_snapshot_silent(snapshot: Dictionary) -> Dictionary:\n\tif typeof(snapshot.get(\"lifecycle\")) != TYPE_DICTIONARY:\n"],
+		[170645, 170777, "\t\t_desktop_snapshot = (desktop as Dictionary).duplicate(true)\n\t_run_configuration_installed = true\n"],
+		[197940, 198364, "func scene_event_registration(event: Dictionary) -> Dictionary:\n\tvar row: Dictionary = _scene_event_registry.get(event.source.entry_id, {})\n"],
+		[199075, 199287, "func scene_event_context() -> Dictionary:\n\tif not is_instance_valid(_scene_event_bridge) or _identity_issuer == null:\n"],
+		[201352, 201665, "func accept_scene_event(event: Dictionary, digest: String, lease: String) -> Dictionary:\n\tif not is_instance_valid(_mutation_gate) or not _mutation_gate.is_lease_active(&\"causal_transaction\", lease):\n"],
+		[206725, 322799, "\treturn {\"ok\": true}\n"],
 	]
 	var encoded := source.to_utf8_buffer()
 	var restored := PackedByteArray()

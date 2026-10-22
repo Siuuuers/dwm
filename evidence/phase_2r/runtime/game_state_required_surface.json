@@ -2244,6 +2244,78 @@
       "disposition": "retain",
       "replacement": "",
       "contract_test": "test_yes_and_unresolved_save"
+    },
+    {
+      "symbol": "capture_scene_shop_context",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_shop_checkpoint_retry_custody_and_uncertain_commit"
+    },
+    {
+      "symbol": "commit_scene_shop_purchase",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_shop_checkpoint_retry_custody_and_uncertain_commit"
+    },
+    {
+      "symbol": "configure_scene_shop_runtime",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_shop_checkpoint_retry_custody_and_uncertain_commit"
+    },
+    {
+      "symbol": "preview_scene_shop_purchase",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_shop_checkpoint_retry_custody_and_uncertain_commit"
+    },
+    {
+      "symbol": "configure_scene_day_runtime",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_refused_checkpoint_retains_board_counters_and_identity_then_retry_adopts_once"
+    },
+    {
+      "symbol": "renewed_scene_day_gameplay",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_daily_renewal_preserves_cumulative_rewards_purchases_pressure_and_task_claims"
+    },
+    {
+      "symbol": "configure_scene_round_runtime",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_scene_round_physical_refusal_retry_conflict_and_uncertain_acknowledgment"
+    },
+    {
+      "symbol": "scene_round_completion_active",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_scene_round_physical_refusal_retry_conflict_and_uncertain_acknowledgment"
+    },
+    {
+      "symbol": "commit_scene_round_completion",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_scene_round_physical_refusal_retry_conflict_and_uncertain_acknowledgment"
     }
   ]
 }

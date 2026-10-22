@@ -1452,6 +1452,7 @@ func _release_transaction(owner: StringName, gate_token: String, holds_save_lock
 		release_save_lock(&"restore")
 
 func _rollback_transaction(owner: StringName, applied: Array[String], backups: Dictionary, gate_token: String, holds_save_lock: bool, original_failure: Dictionary, journal_backup: Variant = null) -> Dictionary:
+	_trace_restore_failure(String(owner), "original_failure", original_failure)
 	var attempts: Array = []
 	var all_recovered := true
 	# The checkpoint commits after participant apply, so compensate it first.
@@ -1464,6 +1465,7 @@ func _rollback_transaction(owner: StringName, applied: Array[String], backups: D
 	for index: int in range(applied.size() - 1, -1, -1):
 		var key: String = applied[index]
 		var rolled: Dictionary = _restore_participants[key].rollback_silent(backups[key])
+		_trace_restore_failure(key, "rollback_silent", rolled)
 		attempts.append({"owner_id": key, "operation": "rollback_silent", "result": rolled})
 		if not rolled.get("ok", false):
 			all_recovered = false
@@ -1471,6 +1473,14 @@ func _rollback_transaction(owner: StringName, applied: Array[String], backups: D
 		_release_transaction(owner, gate_token, holds_save_lock)
 		return original_failure
 	return _fatal_transaction_recovery(String(owner), attempts)
+
+## Opt-in bounded diagnostics keep the original refusal visible when compensation
+## itself fails. Never print snapshots, participant backups or retained save bytes.
+func _trace_restore_failure(owner: String, phase: String, result: Dictionary) -> void:
+	if OS.get_environment("DWM_RESTORE_FAILURE_DIAGNOSTICS") != "1": return
+	print("DWM_RESTORE_FAILURE " + JSON.stringify({"owner": owner, "phase": phase,
+		"ok": result.get("ok"), "code": str(result.get("code", "")),
+		"message": str(result.get("message", ""))}))
 
 func _fatal_transaction_recovery(source: String, raw_diagnostics: Array) -> Dictionary:
 	if _mutation_gate == null:

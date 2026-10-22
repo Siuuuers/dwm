@@ -1,0 +1,23 @@
+[
+  {
+    "run": "run39859721050",
+    "bytes": 1560512,
+    "sha256": "174ace7bdbbaef6d2ada76d8294cfcc362dc4b87953b218713375332464deb50",
+    "crc_ok": true,
+    "verified_manifest_members": 542
+  },
+  {
+    "run": "run39859721013",
+    "bytes": 2348495,
+    "sha256": "dad41ff22a7afd017d48c6b451600dc459b5d8fc481e7a7e62d8d68004c4130f",
+    "crc_ok": true,
+    "verified_manifest_members": 674
+  },
+  {
+    "run": "run39860579535",
+    "bytes": 15529880,
+    "sha256": "fb204396d6f5690bcc51a27852b84fbda0eb15ae8b7a65c832df5cb554103b7e",
+    "crc_ok": true,
+    "verified_manifest_members": 670
+  }
+]
