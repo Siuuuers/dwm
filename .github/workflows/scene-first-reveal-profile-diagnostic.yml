@@ -19,18 +19,18 @@ jobs:
       run:
         shell: pwsh
     env:
-      PRODUCT_SHA: 3e28641569c90c06a225368a8889dc9d97db97f2
-      SOURCE_SHA: 936150b8a6effa4febe51419f2b0502c48e5675e
-      PREPARATION_SHA256: dc1dcf714b5f736f2878ae796037a77180d9f1c3ff443989ac29aa80f31da0d9
+      PRODUCT_SHA: 43c907f8249b28d50c1cd4ea71ee61469c21157a
+      SOURCE_SHA: aac507fe98971a6779edc550ce6c7fbba0890cdb
+      PREPARATION_SHA256: 689c0c84b81997b2e8761752522457e32ba2cdd8c167fdfdd7646e407896a508
       CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
-      HARNESS_MANIFEST_SHA256: 309791a254d91b88008bfa413c4393003dc8c5cb9044f5bcfb1e42d495f19e67
+      HARNESS_MANIFEST_SHA256: 073dbbedf000ad706c080f33342d561d135c46cd5a1c05409619d8c0e9725591
     steps:
       - uses: actions/checkout@v7
         with:
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
-          ref: 3e28641569c90c06a225368a8889dc9d97db97f2
+          ref: 43c907f8249b28d50c1cd4ea71ee61469c21157a
       - name: Pin external preparation helpers
         id: preparation_helpers
         run: |
@@ -42,7 +42,7 @@ jobs:
           New-Item -ItemType Directory -Force $helpers | Out-Null
           $prepare = Join-Path $helpers 'prepare_caption.py'
           $capture = Join-Path $helpers 'capture_import.py'
-          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_load_20261022/prepare_caption.py" -OutFile $prepare
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_timing_20261022/prepare_caption.py" -OutFile $prepare
           Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/import_integrity_20261020/capture_import.py" -OutFile $capture
           if ((Get-FileHash $prepare -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:PREPARATION_SHA256) { throw 'PREPARATION_HASH_MISMATCH' }
           if ((Get-FileHash $capture -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:CAPTURE_SHA256) { throw 'CAPTURE_HASH_MISMATCH' }
@@ -75,13 +75,13 @@ jobs:
           $harness = Join-Path $env:RUNNER_TEMP 'clean-focused-harness'
           New-Item -ItemType Directory -Force $harness | Out-Null
           $manifest = Join-Path $harness 'manifest.json'
-          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_load_20261022/manifest.json" -OutFile $manifest
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_timing_20261022/manifest.json" -OutFile $manifest
           if ((Get-FileHash $manifest -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:HARNESS_MANIFEST_SHA256) { throw 'HARNESS_MANIFEST_HASH_MISMATCH' }
           foreach ($entry in (Get-Content $manifest -Raw | ConvertFrom-Json)) {
             $name = [IO.Path]::GetFileName($entry.path)
             if ($entry.path -notlike 'tools/testing/*' -or $name -notmatch '^[A-Za-z0-9.-]+$') { continue }
             $path = Join-Path $harness $name
-            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_load_20261022/$name" -OutFile $path
+            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_timing_20261022/$name" -OutFile $path
             if ((Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $entry.sha256) { throw "HARNESS_HASH_MISMATCH: $name" }
             if ($name.EndsWith('.ps1')) {
               $tokens=$null; $parseErrors=$null
