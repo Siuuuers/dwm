@@ -23,7 +23,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: f20e559a7af26808eff3f0582eae60564ed3c352
+          ref: 29018e5e9876ea16a210de1568300c25c038dfe1
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -31,10 +31,10 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne 'f20e559a7af26808eff3f0582eae60564ed3c352') { throw 'Candidate mismatch' }
-          if ((git rev-parse 'HEAD^{tree}') -cne '76bef7a0c3c673badca5aba2e47fb34eaac02d19') { throw 'Candidate tree mismatch' }
+          if ((git rev-parse HEAD) -cne '29018e5e9876ea16a210de1568300c25c038dfe1') { throw 'Candidate mismatch' }
+          if ((git rev-parse 'HEAD^{tree}') -cne 'aa16882d37884f2e992c420095a4a8d57f60c74b') { throw 'Candidate tree mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='f20e559a7af26808eff3f0582eae60564ed3c352'; tree='76bef7a0c3c673badca5aba2e47fb34eaac02d19'; controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'; base='d7d0faf84941d0e5dc6f8a90d0896b6da47236d7'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{candidate='29018e5e9876ea16a210de1568300c25c038dfe1'; tree='aa16882d37884f2e992c420095a4a8d57f60c74b'; controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'; base='d7d0faf84941d0e5dc6f8a90d0896b6da47236d7'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
