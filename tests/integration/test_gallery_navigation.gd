@@ -1,5 +1,7 @@
 extends GutTest
 
+const FIXTURE_ENTRY_CATALOG := preload("res://tests/support/GalleryEndingFixtureCatalog.gd")
+
 const GALLERY := preload("res://scenes/menu/GalleryScene.tscn")
 const PROFILE := preload("res://autoload/ProfileManager.gd")
 const LOCALIZATION := preload("res://autoload/LocalizationManager.gd")
@@ -390,6 +392,7 @@ func _mount(long_record := false) -> void:
 	assert_true(_gallery.configure_title_host(_home, _localization, _profile).get("ok", false))
 	_bridge = ReplayBridge.new()
 	assert_true(_gallery.configure_replay(_bridge).get("ok", false))
+	_gallery._replay_owner.set("_entry_catalog", FIXTURE_ENTRY_CATALOG)
 	host.add_child(_gallery)
 	_gallery.open_in_title_host()
 	await _settle()

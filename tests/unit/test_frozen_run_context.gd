@@ -10,6 +10,20 @@ const READING_FIXTURE := preload("res://tests/unit/test_reading_restore_admissio
 const RETAINED_CONTEXTS := preload("res://tests/support/RetainedFrozenContextFixture.gd")
 var _retained_contexts: RefCounted
 
+func before_each() -> void:
+	# Retained tests explicitly select their historical context dependencies.
+	_retained_contexts = RETAINED_CONTEXTS.new()
+	var installed: Dictionary = _retained_contexts.install([
+		"dating.solo.priscilla.day2.pre_challenge",
+		"dating.solo.priscilla.day2.post_challenge",
+		"dating.group.priscilla_lavinia.day2.pre_challenge",
+		"hospital.faint.day1",
+		"hospital.faint.day2",
+		"ending.priscilla.sweet",
+		"ending.priscilla.observer.residue",
+	])
+	assert_true(installed.get("ok", false), str(installed))
+
 func after_each() -> void:
 	if _retained_contexts != null:
 		_retained_contexts.restore()
@@ -38,14 +52,6 @@ func _solo_fields(phase: String) -> Dictionary:
 	return fields
 
 func _dating(post: bool = false) -> Dictionary:
-	if _retained_contexts == null:
-		_retained_contexts = RETAINED_CONTEXTS.new()
-		var installed: Dictionary = _retained_contexts.install([
-			"dating.solo.priscilla.day2.pre_challenge", "dating.solo.priscilla.day2.post_challenge"])
-		assert_true(installed.get("ok", false), str(installed))
-		if not installed.get("ok", false):
-			_retained_contexts = null
-			return {}
 	var snapshot := _snapshot()
 	var route: Dictionary = snapshot.gameplay.route_context
 	route["active_dating_challenge"] = {"context": {"kind": "solo", "day": 2, "participants": ["priscilla"]},

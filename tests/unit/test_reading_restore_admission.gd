@@ -18,6 +18,25 @@ const ISSUER_ROOT := preload("res://tests/support/FakeDesktopIssuerRootStore.gd"
 const PRE := "dating.solo.priscilla.day2.pre_challenge"
 const POST := "dating.solo.priscilla.day2.post_challenge"
 
+const RETAINED_CONTEXTS := preload("res://tests/support/RetainedFrozenContextFixture.gd")
+var _retained_contexts: RefCounted
+
+func before_each() -> void:
+	# Retained tests explicitly select their historical context dependencies.
+	_retained_contexts = RETAINED_CONTEXTS.new()
+	var installed: Dictionary = _retained_contexts.install([
+		"dating.solo.priscilla.day1.pre_challenge",
+		"dating.solo.priscilla.day2.pre_challenge",
+		"dating.solo.priscilla.day2.post_challenge",
+		"hospital.faint.day1",
+	])
+	assert_true(installed.get("ok", false), str(installed))
+
+func after_each() -> void:
+	if _retained_contexts != null:
+		_retained_contexts.restore()
+		_retained_contexts = null
+
 class ReadingOwner extends RefCounted:
 	var staged: Dictionary = {}
 	var resumed: Array[Dictionary] = []
