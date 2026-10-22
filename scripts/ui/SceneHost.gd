@@ -4,11 +4,12 @@ extends Control
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const CONTROL_KEYS := {
 	"Settings": "ui.pause.settings", "Backup": "ui.pause.backup",
-	"Save": "button.save", "Load": "button.load", "Contacts": "app.contacts",
+	"Apps": "scene.controls.apps", "Save": "button.save", "Load": "button.load", "Contacts": "app.contacts",
 }
 
 var _actions: Dictionary = {}
 var _computer_open := false
+var _computer_content_visible := false
 var _busy := false
 var _localization: Node
 var _thought_frontier: Dictionary = {}
@@ -20,7 +21,7 @@ func _ready() -> void:
 	$SceneControlsLayer/Surface/ThoughtYes.pressed.connect(_accept_thought)
 	_bind_presentation()
 	$SceneControlsLayer/Surface/Controls/CheckComputer.pressed.connect(_toggle_computer)
-	for action: String in ["settings", "backup", "save", "load", "contacts"]:
+	for action: String in ["settings", "backup", "save", "load", "contacts", "apps"]:
 		get_node("SceneControlsLayer/Surface/Controls/" + action.capitalize()).pressed.connect(_invoke.bind(action))
 	if _actions.is_empty():
 		var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
@@ -35,13 +36,27 @@ func configure_scene_controls(actions: Dictionary) -> void:
 func get_challenge_mount() -> Control:
 	return $SceneControlsLayer/Surface/ChallengeMount
 
+func get_computer_mount() -> Control:
+	return $SceneControlsLayer/Surface/ComputerMount
+
+## Bootstrap selects the retained shell or Challenge view after successful admission.
+## This changes presentation only; it does not acquire or release reading custody.
+func set_computer_content_visible(shown: bool) -> void:
+	_computer_content_visible = shown
+	_update_computer_visibility()
+
+func _update_computer_visibility() -> void:
+	$SceneControlsLayer/Surface/ComputerMount.visible = _computer_open and _computer_content_visible
+	$SceneControlsLayer/Surface/ChallengeMount.visible = _computer_open and not _computer_content_visible
+	$SceneControlsLayer/Surface/Controls/Contacts.visible = _computer_open
+	$SceneControlsLayer/Surface/Controls/Apps.visible = _computer_open
+
 func is_computer_open() -> bool:
 	return _computer_open
 
 func set_computer_open(open: bool) -> void:
 	_computer_open = open
-	$SceneControlsLayer/Surface/ChallengeMount.visible = open
-	$SceneControlsLayer/Surface/Controls/Contacts.visible = open
+	_update_computer_visibility()
 	_refresh_presentation()
 	_update_controls()
 
@@ -123,7 +138,7 @@ func _update_controls() -> void:
 	if not is_inside_tree(): return
 	var computer: Callable = _actions.get("computer_close" if _computer_open else "computer_open", Callable())
 	$SceneControlsLayer/Surface/Controls/CheckComputer.disabled = _busy or not computer.is_valid()
-	for action: String in ["settings", "backup", "save", "load", "contacts"]:
+	for action: String in ["settings", "backup", "save", "load", "contacts", "apps"]:
 		var callback: Callable = _actions.get(action, Callable())
 		get_node("SceneControlsLayer/Surface/Controls/" + action.capitalize()).disabled = _busy or not callback.is_valid()
 

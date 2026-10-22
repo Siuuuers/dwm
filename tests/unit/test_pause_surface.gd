@@ -3,9 +3,9 @@ extends GutTest
 const SCENE := preload("res://scenes/overlay/PauseSurface.tscn")
 const PAUSE_THEME := preload("res://scripts/ui/pause/PauseTheme.gd")
 const COPY := {
-	"en":{"continue":"Continue","backup":"Backup","settings":"Settings","return":"Return to Title","title":"Pause","question":"Return to title?","warning":"No new save will be made. Unsaved progress will be left behind.","cancel":"Cancel"},
-	"zh-CN":{"continue":"继续","backup":"备份","settings":"设定","return":"返回标题","title":"暂停","question":"返回标题？","warning":"不会创建新存档。未保存的进度将被舍弃。","cancel":"取消"},
-	"zh-HK":{"continue":"繼續","backup":"備份","settings":"設定","return":"返回標題","title":"暫停","question":"返回標題？","warning":"不會建立新存檔。未儲存的進度將被捨棄。","cancel":"取消"},
+	"en":{"continue":"Continue","backup":"Backup","settings":"Settings","return":"Return to Title","title":"Pause","question":"Return to title?","warning":"No new save will be made. Unsaved progress will be left behind.","cancel":"Cancel","back":"Back"},
+	"zh-CN":{"continue":"继续","backup":"备份","settings":"设定","return":"返回标题","title":"暂停","question":"返回标题？","warning":"不会创建新存档。未保存的进度将被舍弃。","cancel":"取消","back":"返回"},
+	"zh-HK":{"continue":"繼續","backup":"備份","settings":"設定","return":"返回標題","title":"暫停","question":"返回標題？","warning":"不會建立新存檔。未儲存的進度將被捨棄。","cancel":"取消","back":"返回"},
 }
 
 class ChildHost extends Control:
@@ -65,6 +65,8 @@ func test_all_locales_scales_and_target_modes_keep_full_copy_and_exact_geometry(
 			for large: bool in [false,true]:
 				assert_true(surface.configure_presentation(locale,percent,"AfterHours",false,"standard",large))
 				assert_true(surface.configure_copy(COPY[locale]))
+				assert_eq(surface._sheet_back.text, COPY[locale].back)
+				assert_eq(surface._sheet_back.accessibility_name, COPY[locale].back)
 				surface.open_surface()
 				assert_eq(surface.size,Vector2(1280,720))
 				assert_eq(surface.context_strip.position,Vector2(480,0))

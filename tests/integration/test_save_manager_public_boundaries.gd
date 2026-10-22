@@ -14,6 +14,19 @@ const NAMESPACE := preload("res://tests/support/FakeDesktopNamespaceSource.gd")
 const READER := preload("res://scripts/validation/StrictJson.gd")
 const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
+const RETAINED_ORDINARY := preload("res://tests/support/RetainedOrdinaryRegistryFixture.gd")
+var _retained_ordinary: RefCounted
+const RETAINED_CONTEXTS := preload("res://tests/support/RetainedFrozenContextFixture.gd")
+var _retained_contexts: RefCounted
+
+func after_each() -> void:
+	if _retained_ordinary != null:
+		_retained_ordinary.restore()
+		_retained_ordinary = null
+	if _retained_contexts != null:
+		_retained_contexts.restore()
+		_retained_contexts = null
+
 class TargetFaultOps extends "res://tests/support/FakeFileOps.gd":
 	var refuse_path := ""
 	var before_write: Callable
@@ -177,6 +190,15 @@ func test_responsive_prepared_commit_yields_with_custody_and_publishes_one_live_
 
 
 func test_real_new_run_sparse_dating_supports_current_contacts_and_first_earned_offer() -> void:
+	_retained_ordinary = RETAINED_ORDINARY.new()
+	var historical: Dictionary = _retained_ordinary.install()
+	assert_true(historical.get("ok", false), str(historical))
+	if not historical.get("ok", false): return
+	_retained_contexts = RETAINED_CONTEXTS.new()
+	var contexts: Dictionary = _retained_contexts.install([
+		"contact.ordinary.lavinia.day1", "contact.invitation.solo.priscilla.day1.offer"])
+	assert_true(contexts.get("ok", false), str(contexts))
+	if not contexts.get("ok", false): return
 	var f := _fixture()
 	var prepared: Dictionary = f.manager.prepare_new_run_action(_context())
 	assert_true(prepared.get("ok", false), str(prepared))

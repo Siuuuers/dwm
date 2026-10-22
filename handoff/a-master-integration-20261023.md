@@ -113,3 +113,14 @@ See adjacent independent PR map and divergent-proposal audit. Thirteen open PR h
 Publish this candidate as a draft PR to master and inspect its naturally triggered cloud CI. Preserve the first causal failure and fix only the demonstrated supported behavior or stale fixture contract; do not relabel missing coverage as passed. Merge to master only after required qualification. Reconcile incorporated/superseded drafts after source integration; no old PR is closed by this preparation.
 
 User now authorizes work toward master integration, superseding historical blanket hold language for this task. This does not turn old targeted results into current broad acceptance. No additional user architecture choice was required for this conflict-free composition.
+
+
+---
+
+## Accepted retained fixture maintenance — 2026-10-23
+
+PR42 base `d7d0faf84941d0e5dc6f8a90d0896b6da47236d7` receives only 15 qualified test/helper/UID files, two exact cloud-generated inventories, and evidence/handoff records. No unqualified production changes or diagnostic controller workflow are imported. Existing runtime owner contracts are identical; inventory changes are reference line numbers only, with unchanged reference paths and multiplicity.
+
+Cloud run `39843560271`, job `120050757429`, source `71f9722404c74e547ade057b433665e9c3606d55`, tree `f502e4764aacc2df53cdb9cf70c66a6d571a54ae`, controller `89ee19361ea0b12e4c4d38e66aedde41129ee599`: 106/106 retained persistence/ending cases passed 2,102 assertions; public surfaces 11/11 passed 352 assertions; six clean isolated process exits. Exact source-derived census, no errors/skips, candidate byte identities, canonical regeneration and bounded-change gates passed. Original failed run `39842692548` (90 pass, 10 fail, six parser-omitted cases) and successful run ZIPs/custody are retained under `evidence/phase_2r/master_integration_20261023/`. Historical refusal assertions remain intact. This targeted acceptance does not establish broad production or rendered journey acceptance.
+
+User scope clarification: “actually the shop and other apps are all available at anytime” and “finish all remaining.” Apps including Shop are intended to remain available throughout the supported scene game. Complete current supported scene Shop composition as separate PR47 work; it is not part of this fixture publication or qualified by these 106 cases. Health/scheduling remain retired, and existing held-feature promises including Notes are not lifted. Continue toward all remaining work and eventual master integration under required cloud qualification; do not close historical PRs or merge master solely on this targeted evidence.

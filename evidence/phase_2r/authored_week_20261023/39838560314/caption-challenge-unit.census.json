@@ -1,0 +1,10 @@
+{
+  "id": "caption-challenge-unit",
+  "source": "6da7d6bb3a217f00468d5be7d7421fd90536d87e",
+  "test_names": [
+    "test_adjacent_challenge_end_requires_same_challenge_and_real_caption",
+    "test_native_registration_accepts_two_markers_on_one_caption"
+  ],
+  "cases": 2,
+  "assertions": 7.0
+}

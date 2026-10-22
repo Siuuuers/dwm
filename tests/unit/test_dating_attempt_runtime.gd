@@ -1,5 +1,9 @@
 extends "res://addons/gut/test.gd"
 
+# Explicit historical schema dependency; the production scene registration and
+# its exact prior schema cache are preserved across each retained-contract test.
+var _retained_context := preload("res://tests/support/RetainedFrozenContextFixture.gd").new()
+
 const STATE := preload("res://autoload/GameState.gd")
 const PROFILE := preload("res://autoload/ProfileManager.gd")
 const OWNER := preload("res://scripts/application/run/DatingPhysicalOwner.gd")
@@ -66,6 +70,19 @@ var checkpoint_calls := 0
 var checkpoint_records: Array[Dictionary] = []
 
 func before_each() -> void:
+	var installed: Dictionary = _retained_context.install([
+		"dating.solo.priscilla.day2.pre_challenge",
+		"dating.solo.priscilla.day2.post_challenge",
+		"dating.solo.lavinia.day2.pre_challenge",
+		"dating.solo.lavinia.day2.post_challenge",
+		"dating.solo.priscilla.day1.pre_challenge",
+		"dating.solo.priscilla.day1.post_challenge",
+		"dating.group.priscilla_lavinia.day2.pre_challenge",
+		"dating.group.priscilla_lavinia.day2.post_challenge",
+		"dating.twofriends.priscilla_lavinia.day2.pre_challenge",
+		"dating.twofriends.priscilla_lavinia.day2.post_challenge",
+	])
+	assert_true(installed.ok, str(installed))
 	state = add_child_autofree(STATE.new())
 	state.reset_game()
 	storage = ProfileStorage.new("dating-attempt-runtime", OPS.new())
@@ -1166,3 +1183,6 @@ func test_post_ending_preparing_older_load_uses_existing_attempt_continuation() 
 	assert_null(child.materialization_receipt)
 	assert_eq(profile.get_dating_attempt(parent.run_id, parent.slot_id, parent.attempt_id, parent.branch_id).value, parent)
 	assert_eq(issuer.capture_root().value, issued_before)
+
+func after_each() -> void:
+	_retained_context.restore()
