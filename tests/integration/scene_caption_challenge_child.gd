@@ -32,10 +32,21 @@ func create_caption_challenge() -> void:
 	assert_eq(marker.value.kind, "challenge.end")
 	if not _ok(saves.save_latest_to_slot(1)): return
 	var manual_sha := FileAccess.get_sha256("user://saves/slot_1.json")
+	var next_results: Array = []
+	var capture_next := func(_frontier: Dictionary, result: Dictionary): next_results.append(result.duplicate(true))
+	bridge.next_request_finished.connect(capture_next)
 	await _click(_caption().caption_text)
 	var deadline := Time.get_ticks_msec() + 15000
 	while bridge._runtime_adapter.current_line_id() != "line.scene.test.a.one" and Time.get_ticks_msec() < deadline:
 		await get_tree().process_frame
+	bridge.next_request_finished.disconnect(capture_next)
+	if bridge._runtime_adapter.current_line_id() != "line.scene.test.a.one":
+		var caption: Node = _caption()
+		var diagnostic := {"next_results": next_results, "presented_matches": caption._presented_line == held,
+			"next_admitted": caption._next_admitted(), "recovery": caption._reading_recovery}
+		if next_results.is_empty(): diagnostic["explicit_next"] = await bridge.request_next(held)
+		fail_test("Caption Continue refused: " + str(diagnostic))
+		return
 	assert_eq(bridge._runtime_adapter.current_line_id(), "line.scene.test.a.one")
 	assert_false(game.capture_scene_challenge_command().get("ok", false))
 	assert_false((await bridge.request_next(held)).get("ok", false), "Old cue cannot advance the new outcome.")
