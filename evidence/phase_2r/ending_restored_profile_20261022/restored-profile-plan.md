@@ -1,0 +1,29 @@
+# Minimal restored-route aggregate diagnostic plan
+
+Read-only plan, conditional on completed/reviewed equality run39776259056 remaining materially slow. No observer, runtime, fixture, workflow or harness edit has been made; no diagnostic dispatched.
+
+## Minimum change
+
+Use the accepted equality product `4278756add50ea27da8237106260a0efee606cda` unchanged. Enable only `DWM_SCENE_VALIDATION_PROFILE: '1'` as environment on the existing rendered restored step. Remove the separate unit regression step for this diagnostic: its accepted result is reused, not repeated. Retain the current two-process creator/loader because the loader needs fresh genuine Day4 save material. Keep the original 240-second child ceilings, 10-minute focused step, local 15/20/5-second guards, same renderer/engine and all preparation/source/durable gates. No timeout extension if profiling overhead exhausts the ceiling.
+
+No fixture change is required. GitHub current-source inspection confirms both creator/witness wrappers simply delegate, and the inheritance chain through scene_seven_day_connected_child, scene_later_caption_child, scene_computer_child and scene_bootstrap_restart_child does not set or unset either profile flag. Invoke-IsolatedGodot inherits process environment; it replaces only isolation-related roots and the separate native-consumer receipt flag. SceneValidationTiming.begin_scope reads DWM_SCENE_VALIDATION_PROFILE at each scope. Existing TimedEndingCheckpointPort is installed only for final witness Accept. Therefore the new aggregate flag alone scopes observations to that final Accept's capture/prepare/commit operations; no aggregate profile is expected in the creator.
+
+Current observer blob: `39a650d2d0986b82ff519780d4b61b8c735e1dff`. Current witness wrapper blob: `e39f0bc3deb836762b39b1c9302a3ad949add6bc`. Existing fourteen source pins already include observer, shared child and wrappers. Keep dual UID custody unchanged.
+
+## Minimum exact metric validation
+
+Perform offline extraction from original retained loader log, alongside the unchanged existing two-case qualification result. A small analysis checker can reuse the aggregate validation logic from the prior pure-packet runner; do not replace the restored runner with the direct-ending runner.
+
+1. Establish existing passing gates first: exact creator/loader names, XML census/no skips or failures, both clean child exits, current-source custody, saved-slot/history and durable COMPLETED/GALLERY_RECORDED proofs. A failed diagnostic remains failed; any partial observations are diagnostic only.
+2. Require one ordered final `ending_completion.begin`, `ending_completion.accept_return` and `title.ready` interval, monotonic same-loader-PID markers. Require each of three writer begin/return and capture/prepare/commit begin/return pairs exactly once inside Accept. The observed successful lifecycle mapping remains writer1 ENDING/EPILOGUE_PLAYED, writer2 ENDING/GALLERY_RECORDED, writer3 COMPLETED/GALLERY_RECORDED, step1; verify against that run's emitted labels and durable proof.
+3. Parse and retain raw aggregate JSON before applying gates. Require exactly nine returned records, ordered writer1..3 × capture/prepare/commit, each physically located between its matching operation begin/return log markers. Enforce exact current observer field schema, successful booleans and inclusive_nested=true. Require nonnegative integer counts/us/failures, zero failures, zero time when call count is zero, positive receipt/bundle/physical sample counts for prepare/commit. Capture may legitimately be empty. Never hard-code observed call counts or durations.
+4. Require complete snapshot records for successful prepare/commit scopes; preserve completion ordinals and optional valid sequence/state/stage labels. Validate nonnegative elapsed/phase times and phase sum <= snapshot elapsed <= scope elapsed. The snapshot's historical labels may differ from the current writer. Do not impose fixed journal/snapshot counts.
+5. Report whole Accept, each writer and each scope; receipt/bundle/physical calls and inclusive times; snapshot pre-semantic/semantic/guard portions. Timers from nested categories overlap. Never sum receipt+bundle+snapshot or describe a subtraction as exclusive CPU/I/O. Missing return records are censored, not zero. Same-kind leaf totals may be compared to their enclosing scope only after retaining the existing nonrecursive-path source justification.
+
+This directly distinguishes substantial residual bundle work from the wider receipt/snapshot/authority path. It also reports the portion of whole Accept accounted for by sequential writer intervals without allocating unmeasured residual to any subsystem. Profiling is an instrumented observation, not a new unprofiled speedup comparison.
+
+## Optional checkpoint profiles — unnecessary for this question
+
+DWM_CHECKPOINT_PROFILE='1' can also be inherited without changing wrappers. Current SaveManagerCheckpointPort reads the flag dynamically (blob `9306b21bd1e92e1c81c25a709c89470b4e2d8179`). It would emit profiles during creator and earlier loader actions as well as ending Accept. Thus the old short-route runner's global requirement of exactly six DWM_CHECKPOINT_PROFILE lines would be wrong for this journey.
+
+Only enable this second flag if journal/current-document partition becomes the actual unresolved question. Then retain every line but select exactly one successful checkpoint profile inside each final writer prepare/commit marker interval (six selected records). Match scope save_checkpoint_prepare/save_checkpoint and dynamic journal entries; preserve prior nested arithmetic/association checks without imposing global profile count or fixed checkpoint sequences. This is avoidable complexity for the currently requested receipt-versus-bundle separation.

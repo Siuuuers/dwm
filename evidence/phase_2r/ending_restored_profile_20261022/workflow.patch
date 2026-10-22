@@ -1,0 +1,39 @@
+--- qualified
++++ inert-profile
+@@ -1,6 +1,6 @@
+ # INERT REVIEW CANDIDATE. Install only after external C source review.
+ # Focused candidate only: C exact packet review and Director scope reconciliation precede installation.
+-name: Equality hash reuse and restored ending qualification
++name: Restored ending validation profile diagnostic
+ on:
+   pull_request:
+     paths:
+@@ -155,17 +155,11 @@
+           & python $env:PREPARATION_HELPER --phase restore --root $env:GITHUB_WORKSPACE --output $output *> (Join-Path $output 'preparation-restore.log')
+           $code = $LASTEXITCODE
+           if ($code -ne 0) { throw "PREPARATION_RESTORE_EXIT: $code" }
+-      - name: Focused scene contract unit regression
+-        id: contract_regression
+-        timeout-minutes: 8
+-        run: |
+-          $ErrorActionPreference = 'Stop'
+-          $PSNativeCommandUseErrorActionPreference = $false
+-          & pwsh -NoLogo -NoProfile -NonInteractive -File (Join-Path $env:FOCUSED_HARNESS 'Invoke-SceneContractRegression.ps1') -RepositoryRoot $env:GITHUB_WORKSPACE -ExpectedSource $env:PRODUCT_SHA
+-          if ($LASTEXITCODE -ne 0) { throw "CONTRACT_REGRESSION_EXIT: $LASTEXITCODE" }
+       - name: Rendered Day4 restore through durable ending and Title
+         id: focused
+         timeout-minutes: 10
++        env:
++          DWM_SCENE_VALIDATION_PROFILE: '1'
+         run: |
+           $ErrorActionPreference = 'Stop'
+           $PSNativeCommandUseErrorActionPreference = $false
+@@ -180,7 +174,7 @@
+           & python $env:PREPARATION_HELPER --phase post-tests --root $env:GITHUB_WORKSPACE --output $output *> (Join-Path $output 'preparation-post-tests.log')
+           if ($LASTEXITCODE -ne 0) { throw "POST_TESTS_POLICY_EXIT: $LASTEXITCODE" }
+       - name: Preserve focused evidence even after failure
+-        if: always() && (steps.contract_regression.outcome == 'success' || steps.contract_regression.outcome == 'failure' || steps.contract_regression.outcome == 'cancelled' || steps.focused.outcome == 'success' || steps.focused.outcome == 'failure' || steps.focused.outcome == 'cancelled')
++        if: always() && (steps.focused.outcome == 'success' || steps.focused.outcome == 'failure' || steps.focused.outcome == 'cancelled')
+         uses: actions/upload-artifact@v4
+         with:
+           name: caption-qualification-${{ github.run_id }}-${{ github.run_attempt }}
