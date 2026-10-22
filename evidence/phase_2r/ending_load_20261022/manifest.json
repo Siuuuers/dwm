@@ -1,9 +1,9 @@
 [
   {
     "path": "tools/testing/Invoke-EndingLoadBoundary.ps1",
-    "bytes": 7280,
-    "sha256": "fda82969441d0726db599e98b21cc2d30b8b4eae784190676cb2b3a4c7627502",
-    "blob": "f6c769782d090b0543e0dde6b7aec2e6008d0e09"
+    "bytes": 7946,
+    "sha256": "adcdcd4846afbf69e93947b1018a11978a023607b1ea65f4e212ab829eec0c1c",
+    "blob": "a886ec9e3dd54dee066b6973f174e4059f00e723"
   },
   {
     "path": "tools/testing/Invoke-IsolatedGodot.ps1",

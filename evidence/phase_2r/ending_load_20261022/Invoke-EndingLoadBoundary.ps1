@@ -50,10 +50,17 @@ $fixtureBlob = (& git -C $RepositoryRoot rev-parse "HEAD:$fixture").Trim()
 if ($LASTEXITCODE -ne 0) { throw 'ENDING_LOAD_FIXTURE_SOURCE_MISSING' }
 $workingFixture = (& git -C $RepositoryRoot hash-object -- $fixture).Trim()
 if ($LASTEXITCODE -ne 0 -or $workingFixture -cne $fixtureBlob) { throw 'ENDING_LOAD_FIXTURE_SOURCE_CHANGED' }
+# Bind the inherited Accept helper that owns opt-in key/frame timing markers.
+$inheritedFixture = 'tests/integration/scene_later_caption_child.gd'
+$inheritedBlob = (& git -C $RepositoryRoot rev-parse "HEAD:$inheritedFixture").Trim()
+if ($LASTEXITCODE -ne 0) { throw 'ENDING_LOAD_INHERITED_SOURCE_MISSING' }
+$workingInherited = (& git -C $RepositoryRoot hash-object -- $inheritedFixture).Trim()
+if ($LASTEXITCODE -ne 0 -or $workingInherited -cne $inheritedBlob) { throw 'ENDING_LOAD_INHERITED_SOURCE_CHANGED' }
 New-Item -ItemType Directory -Force -Path $output | Out-Null
 $selection = [ordered]@{ source = $source; expected_cases = 2; tests = $plans; rendered = $true;
     accessibility = 'always'; external_uia_consumer = $false; child_timeout_seconds = 240;
     fixture_blob = $fixtureBlob; fixture_sha256 = Get-ContinueFileSha256 -LiteralPath (Join-Path $RepositoryRoot $fixture);
+    inherited_fixture_blob = $inheritedBlob; inherited_fixture_sha256 = Get-ContinueFileSha256 -LiteralPath (Join-Path $RepositoryRoot $inheritedFixture);
     runner_sha256 = Get-ContinueFileSha256 -LiteralPath $PSCommandPath;
     isolation_sha256 = Get-ContinueFileSha256 -LiteralPath $helper;
     console_sha256 = Get-ContinueFileSha256 -LiteralPath $env:GODOT_CONSOLE_PATH }
@@ -99,3 +106,4 @@ try {
 if (-not $result.ok) { [Console]::Error.WriteLine($result.error); exit $exitCode }
 Write-Output 'ENDING_LOAD_BOUNDARY_PASSED: 2 exact rendered cases; no external UIA qualification'
 exit 0
+
