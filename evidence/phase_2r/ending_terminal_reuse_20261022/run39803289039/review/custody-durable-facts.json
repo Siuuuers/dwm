@@ -1,0 +1,49 @@
+{
+  "unit_totals": [
+    {
+      "script": "tests/unit/test_scene_event_contract.gd",
+      "cases": 28,
+      "assertions": 292,
+      "child_wall_seconds": 9.994001
+    },
+    {
+      "script": "tests/unit/test_scene_receipt_validation.gd",
+      "cases": 10,
+      "assertions": 121,
+      "child_wall_seconds": 9.990921
+    },
+    {
+      "script": "tests/unit/test_scene_terminal_lifecycle.gd",
+      "cases": 7,
+      "assertions": 169,
+      "child_wall_seconds": 10.075389
+    }
+  ],
+  "byte_hashes": 5205,
+  "source_pins": 15,
+  "assertions": [
+    102,
+    234
+  ],
+  "child_wall_seconds": [
+    60.096994,
+    196.378433
+  ],
+  "timings": {
+    "loader_to_witness": 15.664029,
+    "witness_save_back": 38.850871,
+    "remaining_walk": 53.847588,
+    "ending_entry_readiness": 20.989134,
+    "ending_evidence": 0.295591,
+    "ending_accept": 48.976581,
+    "title_after_accept": 0.003273,
+    "completion_checks": 0.216658,
+    "fresh_day1": 6.574389,
+    "writer_1": 14.240758,
+    "writer_2": 16.517896,
+    "writer_3": 18.00564
+  },
+  "phase_marks": 133,
+  "creator_pid": 4728,
+  "loader_pid": 2380
+}
