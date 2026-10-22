@@ -4341,7 +4341,7 @@ func dispatch_scene_event(live_session: Dictionary, envelope: Dictionary) -> Dic
 		return _command_failure(&"event_dependency_invalid")
 	_scene_event_dispatching = true
 	var result: Dictionary
-	if typeof(envelope.get("schema_version")) == TYPE_INT and envelope.schema_version == 2 and envelope.get("kind") in ["challenge.playable", "challenge.end", "challenge.recall", "thought.accept", "thought.pass"]:
+	if typeof(envelope.get("schema_version")) == TYPE_INT and envelope.schema_version == 2 and envelope.get("kind") in ["challenge.playable", "challenge.end", "challenge.recall", "thought.accept", "thought.pass", "thought.options", "thought.select"]:
 		# This path holds the actual native caption instead of pausing/resuming it.
 		result = _scene_event_port.dispatch(envelope.duplicate(true))
 	else:
@@ -4365,15 +4365,68 @@ func request_scene_marker_step(expected: Dictionary) -> Dictionary:
 	if not current.get("ok", false): return current
 	var marker := capture_scene_pending_marker()
 	if not marker.get("ok", false): return marker
+	var caption_scoped := marker.value.kind == "challenge.playable" and _scene_caption_challenge_end().get("ok", false)
+	var admitted: Dictionary = _scene_event_context_provider.get_object().advance_scene_registered_marker()
+	if not admitted.get("ok", false) or not caption_scoped: return admitted
+	# Continue leaves this caption. Opening Computer uses admission only, below.
+	return _scene_event_context_provider.get_object().continue_optional_scene_challenge()
+
+## Lazy admission on explicit Computer input keeps capability reads side-effect free.
+## The cue is usable as soon as it appears: opening completes its real reveal and
+## acknowledges the existing publication before acquiring the playable receipt.
+func _admit_caption_challenge_on_open() -> Dictionary:
+	if not has_reading_session() or _reading_session.family != "scene" or _reading_session.boundary != "line":
+		return {"ok": true}
+	if not _scene_caption_challenge_end().get("ok", false): return {"ok": true}
+	var current := _line_presentation_context()
+	if not current.ok: return current
+	var revealed: Dictionary = _runtime_adapter.reveal_current_line(true)
+	if not revealed.ok: return revealed
+	if not _line_presentation_context(current).get("ok", false): return _command_failure(&"presentation_frontier_changed")
+	var acknowledged := _acknowledge_next_source(current)
+	if not acknowledged.ok: return acknowledged
 	return _scene_event_context_provider.get_object().advance_scene_registered_marker()
 
-func capture_scene_pending_marker() -> Dictionary:
-	if not has_reading_session() or _reading_session.family != "scene" or _reading_session.boundary != "line" \
-			or is_computer_caption_held() or not _runtime_adapter.is_current_line_complete():
+## Only an exact native-proven cue/playable pair can expose its adjacent End.
+## Both semantic markers retain the same real caption publication; no synthetic
+## caption, control cursor, receipt, or history witness is introduced.
+func _scene_caption_challenge_end() -> Dictionary:
+	if not has_reading_session() or _reading_session.family != "scene" or _reading_session.boundary not in ["line", "control"]:
 		return _command_failure(&"scene_marker_unavailable")
 	var source: Dictionary = _runtime_adapter._scene_source_boundary(_reading_session)
 	if not source.get("ok", false): return source
-	if source.value.marker.kind not in ["scene.transition", "challenge.playable", "challenge.end", "contact.enter", "contact.return", "thought.pass", "challenge.recall"]:
+	var reading: Dictionary = source.value.reading
+	var index: int = int(reading.program_index) + (1 if reading.boundary == "line" else 0)
+	var registered := preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_registration()
+	if not registered.ok: return registered
+	for programme: Dictionary in registered.value.scene_programme.entries:
+		if programme.entry_id == reading.entry_id:
+			return _adjacent_challenge_end(_reading_session._scene_nodes[reading.entry_id], programme.markers, index, source.value.marker)
+	return _command_failure(&"scene_marker_unavailable")
+
+static func _adjacent_challenge_end(nodes: Array, markers: Array, index: int, playable: Dictionary) -> Dictionary:
+	if playable.get("kind") != "challenge.playable" or index < 1 or index + 1 >= nodes.size() \
+			or nodes[index].get("marker_id") != playable.get("marker_id") \
+			or nodes[index - 1].get("kind") != "caption" or nodes[index - 1].get("line_id") != playable.get("after_line_id") \
+			or nodes[index + 1].get("kind") != "control":
+		return {"ok": false, "code": &"scene_marker_unavailable"}
+	for marker: Dictionary in markers:
+		if marker.marker_id == nodes[index + 1].marker_id and marker.kind == "challenge.end" \
+				and marker.payload == playable.payload and marker.after_line_id == playable.after_line_id:
+			return {"ok": true, "value": marker.duplicate(true)}
+	return {"ok": false, "code": &"scene_marker_unavailable"}
+
+func capture_scene_pending_marker() -> Dictionary:
+	if not has_reading_session() or _reading_session.family != "scene" or _reading_session.boundary not in ["line", "control"] \
+			or is_computer_caption_held() or not _runtime_adapter.is_current_line_complete():
+		return _command_failure(&"scene_marker_unavailable")
+	if _reading_session.boundary == "control":
+		var held := capture_scene_challenge_control()
+		if not held.ok: return held
+		return _scene_caption_challenge_end()
+	var source: Dictionary = _runtime_adapter._scene_source_boundary(_reading_session)
+	if not source.get("ok", false): return source
+	if source.value.marker.kind not in ["scene.transition", "challenge.playable", "challenge.end", "contact.enter", "contact.return", "thought.pass", "thought.options", "challenge.recall"]:
 		return _command_failure(&"scene_marker_unavailable")
 	return {"ok": true, "value": source.value.marker.duplicate(true)}
 

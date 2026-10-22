@@ -2782,6 +2782,8 @@ func open_scene_computer(host: Control) -> Dictionary:
 	var game := _target(&"GameState")
 	var configured: Dictionary = game.configure_scene_challenge_runtime()
 	if not configured.get("ok", false): return configured
+	var cue: Dictionary = _target(&"DialogicBridge")._admit_caption_challenge_on_open()
+	if not cue.get("ok", false): return cue
 	var captured: Dictionary = game.capture_scene_challenge_command()
 	if not captured.get("ok", false):
 		var context: Dictionary = game.capture_scene_contact_context()

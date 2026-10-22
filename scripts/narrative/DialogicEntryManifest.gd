@@ -72,6 +72,7 @@ extends RefCounted
 const MANIFEST_PATH := "res://data/manifests/dialogic_entries.json"
 const SCHEMA_PATH := "res://schemas/manifests/dialogic-entries.schema.json"
 
+const SCENE_EVENTS := preload("res://scripts/domain/narrative/SceneEventContract.gd")
 const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
@@ -284,7 +285,7 @@ static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 	if not ids_lines.ok or not signals.ok or ids_lines.value.size() != lines.size(): return _scene_fail("ids coverage")
 	for id: String in lines:
 		if ids_lines.value.get(id, {}).get("owning_entry_id") != lines[id]: return _scene_fail("line owner")
-	var payloads := {"thought.pass": ["opportunity_id", "yes_target_id", "pass_target_id"], "scene.transition": ["target_id"], "challenge.playable": ["challenge_id"],
+	var payloads := {"thought.options": ["opportunity_id", "options", "pass_target_id"], "thought.pass": ["opportunity_id", "yes_target_id", "pass_target_id"], "scene.transition": ["target_id"], "challenge.playable": ["challenge_id"],
 		"challenge.end": ["challenge_id"], "contact.enter": ["contact_event_id"], "contact.return": ["contact_event_id"],
 		"challenge.recall": ["challenge_id", "never_started_target_id", "unfinished_target_id", "won_target_id", "lost_target_id", "perfect_target_id"],
 		"history.line.witness": ["entry_id", "line_id", "playback_token", "receipt_id"]}
@@ -336,8 +337,11 @@ static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 					or lines.get(marker.after_line_id) != id or marker.kind not in payloads \
 					or marker.kind == WITNESS_SIGNAL or marker.kind not in entries[id].allowed_signals \
 					or not _scene_exact(marker.payload, payloads[marker.kind]): return _scene_fail("marker")
-			for value: Variant in marker.payload.values():
-				if not _scene_id(value): return _scene_fail("marker payload")
+			if marker.kind == "thought.options":
+				if not SCENE_EVENTS._scene_payload(marker.kind, marker.payload): return _scene_fail("marker payload")
+			else:
+				for value: Variant in marker.payload.values():
+					if not _scene_id(value): return _scene_fail("marker payload")
 			markers[marker.marker_id] = {"entry_id": id, "row": marker}
 			marker_labels[marker.label] = true
 			expected_signals.append(marker.kind)
@@ -475,12 +479,12 @@ static func _validate_scene_tables(bundle: Dictionary, entries: Dictionary, prog
 	for value: Dictionary in markers.values():
 		var marker: Dictionary = value.row
 		match marker.kind:
-			"thought.accept": return _scene_fail("Yes is intent, not an authored boundary")
-			"thought.pass":
-				if opportunities.has(marker.payload.opportunity_id) or marker.payload.yes_target_id == marker.payload.pass_target_id:
+			"thought.accept", "thought.select": return _scene_fail("Yes is intent, not an authored boundary")
+			"thought.pass", "thought.options":
+				if opportunities.has(marker.payload.opportunity_id) or (marker.kind == "thought.pass" and marker.payload.yes_target_id == marker.payload.pass_target_id):
 					return _scene_fail("duplicate thought binding or target")
 				opportunities[marker.payload.opportunity_id] = true
-				for target_id: String in [marker.payload.yes_target_id, marker.payload.pass_target_id]:
+				for target_id: String in SCENE_EVENTS.thought_targets(marker.payload):
 					if not targets.value.has(target_id) or targets.value[target_id].target.kind != "scene":
 						return _scene_fail("dangling thought target")
 			"scene.transition":

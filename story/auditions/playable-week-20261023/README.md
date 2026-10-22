@@ -30,19 +30,11 @@ recognition insertion, rather than displaying the editorial instruction.
 | 6 | Lavinia scene; optional thought; Challenge A–E; D aftermath selector | Two selectable thoughts plus default |
 | 7 | Lavinia scene; clipboard Yes/default; Challenge A–E; D aftermath selector; shared P–L ending | D confession assumes Day1 D and clipboard Yes; Board aftermath also assumes clipboard Yes |
 
-## Decisions before runtime wiring
+## Decisions resolved
 
-1. Select Day2 D's Yes destination. Recommendation: Benchmark, explicitly labeled
-   “If Yes is taken”; retain Cruel as an unselected author alternative.
-2. Decide how this provisional build ends the supplied Sylvia route after Day3.
-   Recommendation: an explicit end-of-preview, without awarding the P–L ending.
-3. Approve the handling of later prose that depends on earlier optional events.
-   Recommendation: narrow conditional text/choice variants preserving actual
-   history; do not force Challenge losses or retroactively fabricate actions.
-4. The Days4–7 aftermath selectors request two thoughts plus default. Existing
-   thought contracts have one Yes and one pass target. Either extend that bounded
-   choice contract, or approve a specific sequential-Yes adaptation. This is a
-   runtime decision, not a Markdown formatting conversion.
+The owner resolved the routing and UI choices on 2026-10-23. See
+[DIFFERENCES.md](DIFFERENCES.md) for the selected defaults, provisional Sylvia
+convergence, conditional echo passages and precise adaptation changes.
 
 ## Verification scope
 
