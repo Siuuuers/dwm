@@ -3,7 +3,7 @@
 User priority: playable template week first; defer lag redesign. Active authored flow must use exactly Day1.dtl through Day7.dtl, with ending label inside Day7. No finished prose/art assumed.
 
 Source candidate0a6dc5d2f822adeda39a898a95b77a5b81eed85a, source tree de346c9872271ddf85d1c1ecdc8a9e220487b420. Packet a4f3788f03712a9fe58a74ed56b27adb032809e8. Controller4dedd5a37a3ded2be1477dc6dda77b3151674ce2.
-Focused run39814340200 queued at checkpoint: https://github.com/Siuuuers/dwm/actions/runs/39814340200
+Focused run39814340200 FAILED at the Day1-to-Day2 rendered transition: https://github.com/Siuuuers/dwm/actions/runs/39814340200
 GeneralCI39814339889 separate. Do not duplicate dispatch.
 
 Independent source/packet review is retained beside this handoff in evidence/phase_2r/seven_files_20261023/review.md. Final installed workflow fetched text-exact; source/packet pins and PR30 expected head checked before nonforced update.
@@ -17,3 +17,10 @@ Run generates registration/catalogue using official cloud Godot4.6.3, validates 
 Next: inspect focused result and preserve artifact; publish exact generated registration and runtime metadata only after custody/result checks. Then existing Windows export driver can make audited exe/pck package and headless startup smoke on that exact published composition; no new export-native ending replay or broad-green claim. Performance and existing exported ending/normal Load gap remain explicit. No merge/release.
 
 Local source: /workspace/scratch/90888f00e1d3/seven-candidate; packet: seven-packet. Branch codex/seven-dtl-playable-20261023 currently packet head. Master/PR36/integration held.
+
+
+## Transition diagnostic checkpoint
+
+Original artifact retained in evidence/phase_2r/seven_files_20261023/failure39814340200/ (binary parts and SHA256). Native generation/fresh validation and 3 tests/83 assertions passed; creator failed after Day1.two, loader not run. Rendered screenshot retains Day1 opening/closing; no active Day2 caption. Root cause not established. Independent read-only review found destination path resolution and native event ordering consistent; do not infer failure from resource-load logs alone.
+
+Diagnostic source 2f77ec0a9dcad3d7d7693d98d8463e417a1ac48e; controller61f415815ff51307ec8fa02722e0b5395deedb8c; run39815647276, job119953417321 queued. Test-only before/after marker refusal, session/index/path/frontier capture at Day1.two Accept. Original limits/owners unchanged. Do not duplicate dispatch or begin export until resolved.
