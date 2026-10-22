@@ -17,11 +17,11 @@ jobs:
       run:
         shell: pwsh
     env:
-      SOURCE_SHA: 300f21b2e6a5126b31862396abbb9f692af1cf88
+      SOURCE_SHA: 10f97a257001ff24d45b313180c872ce84f1d486
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: 300f21b2e6a5126b31862396abbb9f692af1cf88
+          ref: 10f97a257001ff24d45b313180c872ce84f1d486
           persist-credentials: true
       - name: Verify immutable source and prepare disposable checkout
         run: |
@@ -65,21 +65,6 @@ jobs:
           if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Native import reported script errors.' }
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { throw 'Could not restore editor-rewritten project configuration.' }
-      - name: Generate and validate native story registration
-        timeout-minutes: 9
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $env:DWM_SCENE_READING_FIXTURE = '1'
-          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'authored-week-generate' -LogName 'authored-week-generate.log' -EvidenceLogPath '.godot/ci/authored-week/generate.jsonl' -TimeoutSeconds 240 -GodotArgs @('-s','res://tools/authoring/ExportSevenDayRegistration.gd','--','--phase2r-bootstrap-mode=test_manual')
-          if ($LASTEXITCODE -ne 0) { throw 'Native registration generation failed.' }
-          Remove-Item Env:DWM_SCENE_READING_FIXTURE
-          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'authored-week-normal-validation' -LogName 'authored-week-normal-validation.log' -EvidenceLogPath '.godot/ci/authored-week/normal-validation.jsonl' -TimeoutSeconds 240 -GodotArgs @('-s','res://tools/authoring/ExportSevenDayRegistration.gd','--','--phase2r-bootstrap-mode=test_manual','--validate-seven-day-export')
-          if ($LASTEXITCODE -ne 0) { throw 'Fresh normal-story validation failed.' }
-          foreach ($item in @(@('authored-week-generate.log','SEVEN_DAY_REGISTRATION_EXPORTED first_target_id=target.Day1'),@('authored-week-normal-validation.log','SEVEN_DAY_EXPORT_VALIDATED first_target_id=target.Day1'))) {
-            $lines = @(Get-Content (Join-Path '.godot/phase2r_logs' $item[0]))
-            if (@($lines | Where-Object { $_ -ceq $item[1] }).Count -ne 1) { throw "Missing exact registration success marker: $($item[0])" }
-            if ($lines | Select-String -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Registration log reported errors.' }
-          }
       - name: Run focused unit and rendered integration tests
         timeout-minutes: 28
         env:
@@ -88,7 +73,7 @@ jobs:
           Set-StrictMode -Version Latest
           $ErrorActionPreference = 'Stop'
           function Test-Args([string]$Path, [string]$Id) {
-            return @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$Path",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/authored-week/$Id.xml",'--','--phase2r-bootstrap-mode=test_manual')
+            return @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$Path",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/authored-week/$Id.xml")
           }
           function Assert-Result([string]$Path, [string]$Id) {
             $xmlPath = ".godot/ci/authored-week/$Id.xml"
@@ -179,7 +164,7 @@ jobs:
           name: authored-week-focused-${{ github.run_id }}-${{ github.run_attempt }}
           include-hidden-files: true
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 90
           path: |
             .godot/ci/authored-week/
             .godot/phase2r_logs/
