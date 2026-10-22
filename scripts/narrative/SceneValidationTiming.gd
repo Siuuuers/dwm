@@ -11,7 +11,9 @@ static func begin_scope(operation: String, state: String, stage: String, step: i
 		"next_step_index": step, "configuration_calls": 0, "configuration_us": 0,
 		"configuration_failures": 0, "compilation_calls": 0, "compilation_us": 0,
 		"compilation_failures": 0, "physical_proof_calls": 0, "physical_proof_us": 0,
-		"physical_proof_failures": 0, "inclusive_nested": true, "snapshot_validations": []}
+		"physical_proof_failures": 0, "receipt_validation_calls": 0, "receipt_validation_us": 0,
+		"receipt_validation_failures": 0, "bundle_validation_calls": 0, "bundle_validation_us": 0,
+		"bundle_validation_failures": 0, "inclusive_nested": true, "snapshot_validations": []}
 	_started_us = Time.get_ticks_usec()
 	_active = true
 	return true

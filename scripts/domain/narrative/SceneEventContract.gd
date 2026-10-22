@@ -1,5 +1,6 @@
 class_name SceneEventContract
 extends RefCounted
+const _VALIDATION_TIMING := preload("res://scripts/narrative/SceneValidationTiming.gd")
 ## Isolated, nonwired contract foundation. Registration is supplied by a trusted owner,
 ## never by DTL. This validates semantic input, not content approval or disk durability.
 ## A production adapter must bind registration/identity/frontier to one supported Run.
@@ -253,6 +254,12 @@ static func _scene_payload(kind: String, payload: Variant) -> bool:
 	return true
 
 static func validate_bundle_structure(bundle: Variant) -> Dictionary:
+	var started_us: int = _VALIDATION_TIMING.start_sample()
+	var result: Dictionary = _validate_bundle_structure_observed_body(bundle)
+	_VALIDATION_TIMING.finish_sample("bundle_validation", started_us, bool(result.get("ok", false)))
+	return result
+
+static func _validate_bundle_structure_observed_body(bundle: Variant) -> Dictionary:
 	if not _json_data(bundle):
 		return _fail(&"scene_bundle_invalid")
 	# One envelope/Contacts definition owner; no full DTL admission or cache here.
@@ -584,6 +591,13 @@ static func _checkpoint(value: Variant) -> bool:
 ## Full scene command ledger admission. The Run owner separately checks the applied
 ## effect/variable partitions, physical Profile proofs and anchors against the actual ledger.
 static func validate_scene_receipts(receipts: Dictionary, bundle: Dictionary, issuer: Object,
+		creation_owner: Object = null, contacts: Dictionary = {}) -> Dictionary:
+	var started_us: int = _VALIDATION_TIMING.start_sample()
+	var result: Dictionary = _validate_scene_receipts_observed_body(receipts, bundle, issuer, creation_owner, contacts)
+	_VALIDATION_TIMING.finish_sample("receipt_validation", started_us, bool(result.get("ok", false)))
+	return result
+
+static func _validate_scene_receipts_observed_body(receipts: Dictionary, bundle: Dictionary, issuer: Object,
 		creation_owner: Object = null, contacts: Dictionary = {}) -> Dictionary:
 	if not _json_data(receipts): return _fail(&"scene_receipt_invalid")
 	if issuer == null or issuer.get_script() != SCENE_RECEIPT_ISSUER:
