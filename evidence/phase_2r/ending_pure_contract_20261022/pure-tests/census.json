@@ -1,0 +1,50 @@
+{
+  "tests/unit/test_scene_event_contract.gd": {
+    "sha256": "664db88d6636e760c9bf8e4d4125e9d19e5d4bce964938b882898d9282811770",
+    "tests": [
+      "test_all_nine_registered_kinds_have_narrow_fixture_payloads",
+      "test_token_is_ephemeral_but_payload_and_source_are_semantic",
+      "test_closed_envelope_rejects_malformed_values_without_throwing",
+      "test_source_and_payload_types_are_strict_and_no_paths_are_commands",
+      "test_day_bounds_and_parameter_dictionary_are_closed_primitives",
+      "test_registration_matches_whole_payload_identity_and_predecessor",
+      "test_digest_and_registration_results_are_detached",
+      "test_scene_bundle_binds_every_nested_document_and_g_table",
+      "test_scene_marker_binds_whole_source_payload_and_registered_version",
+      "test_local_return_targets_are_structural_and_callable_targets_require_entry",
+      "test_authentic_registration_accepts_ordinary_return_label_without_effect_marker",
+      "test_original_scene_completion_has_exact_nine_canonical_projections",
+      "test_transition_receipt_rederives_c0_instead_of_accepting_an_arbitrary_child",
+      "test_scene_tables_reject_dangling_markers_unsorted_ids_and_untyped_hashes",
+      "test_challenge_closure_separates_never_started_from_exact_attempt_proof",
+      "test_every_additional_table_is_in_the_one_bundle_fingerprint",
+      "test_scene_admission_shape_never_claims_pristine_or_checkpoint_authentication",
+      "test_scene_contract_rejects_engine_string_aliases_before_canonicalization",
+      "test_playable_result_is_exact_availability_not_start_or_closure",
+      "test_playable_result_rejects_missing_extra_and_non_json_members",
+      "test_playable_result_requires_lowercase_exact_occurrence_hash",
+      "test_playable_result_binds_registered_marker_kind_payload_and_version",
+      "test_playable_result_rederives_occurrence_from_semantic_source",
+      "test_playable_receipt_keeps_semantic_identity_across_live_token_change",
+      "test_playable_receipt_requires_exact_predecessor_anchor_and_detaches_result",
+      "test_scene_public_entries_preserve_mixed_invalid_refusal_order",
+      "test_scene_inspection_detaches_programme_and_revalidates_later_bundle"
+    ],
+    "test_count": 27
+  },
+  "tests/unit/test_scene_receipt_validation.gd": {
+    "sha256": "51de7ed2f3f23b12cc16c45362e346009f28f70a869a578bb8e150a7192da7af",
+    "tests": [
+      "test_registered_issuer_receipt_and_completion_child_rebuild_exactly",
+      "test_unissued_command_and_completion_child_forgery_refuse",
+      "test_shape_scalar_version_registration_and_result_tampering_refuse",
+      "test_hole_predecessor_and_unknown_receipt_family_refuse",
+      "test_legacy_partitions_remain_explicit_and_unknown_or_extended_members_refuse",
+      "test_admission_has_real_root_and_exact_child_bound_request",
+      "test_second_root_and_missing_admission_refuse_without_guessing_lineage",
+      "test_triggered_admission_reuses_accepted_transition_and_refuses_changed_preimage",
+      "test_notification_result_is_exact_and_clear_requires_retained_set"
+    ],
+    "test_count": 9
+  }
+}

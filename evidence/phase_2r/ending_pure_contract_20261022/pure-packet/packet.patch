@@ -1,0 +1,260 @@
+--- ledger/prepare_caption.py
++++ pure/prepare_caption.py
+@@ -10,7 +10,7 @@
+ import sys
+ import capture_import as custody
+ 
+-PRODUCT = "32c4521c533685a411cb059916a3f86c48e20799"
++PRODUCT = "REVIEWED_PRODUCT_COMMIT_REQUIRED"
+ PROJECT = "5e8009d890f9e4359b24bb68a59fdec1bf56ef0a3ea94be06c3e43a6d2353053"
+ IMPORTED_PROJECT = "6880d26a04484587a54c63e0a98072984b6adac7ac3e9d07e8d138e934428fdd"
+ PRESET = "76d904435496d2057572225b796f8b3c74f121a21254d211a6246caaf96efcaa"
+@@ -56,8 +56,16 @@
+         "sha256": "225552c3141c3731566dda8bf40ba33667f6bc61fc4d448e6f495eaf7606c3c7"
+     },
+     "scripts/domain/narrative/SceneEventContract.gd": {
+-        "blob": "3f383b92f787489b70ca7acd71b00f4a9f5a47f8",
+-        "sha256": "14cebbbcee4a3592e88d0055fa052da86440c0a357c9c5357b96d5dd126b2203"
++        "blob": "d410ec384b41c8af00993b1c94e85bb9f2c25ca7",
++        "sha256": "e4b6562355bf5e58a575a272c228be557102b08f65ad9ab35dbe4a0c754253fc"
++    },
++    "tests/unit/test_scene_event_contract.gd": {
++        "blob": "dc7bc7316770a943b55f47df1eb186a4a61098db",
++        "sha256": "664db88d6636e760c9bf8e4d4125e9d19e5d4bce964938b882898d9282811770"
++    },
++    "tests/unit/test_scene_receipt_validation.gd": {
++        "blob": "089e33bcb42ddb9a01d20011166645c403331dd2",
++        "sha256": "51de7ed2f3f23b12cc16c45362e346009f28f70a869a578bb8e150a7192da7af"
+     }
+ }
+ GITLINKS = {".claude/skills/godot-prompter/1.10.0", ".claude/skills/superpowers/6.1.1"}
+--- ledger/Invoke-SceneContractRegression.ps1
++++ pure/Invoke-SceneContractRegression.ps1
+@@ -0,0 +1,104 @@
++[CmdletBinding()]
++param(
++    [Parameter(Mandatory = $true)][string]$RepositoryRoot,
++    [Parameter(Mandatory = $true)][ValidatePattern('^[0-9a-f]{40}$')][string]$ExpectedSource
++)
++
++Set-StrictMode -Version Latest
++$ErrorActionPreference = 'Stop'
++$RepositoryRoot = [IO.Path]::GetFullPath($RepositoryRoot)
++$helper = Join-Path $PSScriptRoot 'Invoke-IsolatedGodot.ps1'
++. (Join-Path $PSScriptRoot 'Get-ContinueFileSha256.ps1')
++$utf8 = New-Object Text.UTF8Encoding($false)
++$output = Join-Path $RepositoryRoot '.godot/ci/scene-contract-regression'
++if ($env:OS -cne 'Windows_NT') { throw 'CONTRACT_WINDOWS_REQUIRED' }
++if ([string]::IsNullOrWhiteSpace($env:GODOT_CONSOLE_PATH) -or
++    -not (Test-Path -LiteralPath $env:GODOT_CONSOLE_PATH -PathType Leaf) -or
++    [IO.Path]::GetFileName($env:GODOT_CONSOLE_PATH) -cne 'Godot_v4.6.3-stable_win64_console.exe') {
++    throw 'CONTRACT_OFFICIAL_STANDARD_463_CONSOLE_REQUIRED'
++}
++if (-not (Test-Path -LiteralPath $helper -PathType Leaf)) { throw 'CONTRACT_ISOLATION_HELPER_MISSING' }
++$source = (& git -C $RepositoryRoot rev-parse HEAD).Trim()
++if ($LASTEXITCODE -ne 0 -or $source -cne $ExpectedSource) { throw 'CONTRACT_SOURCE_MISMATCH' }
++if (Test-Path -LiteralPath $output) { throw 'CONTRACT_OUTPUT_NOT_FRESH' }
++New-Item -ItemType Directory -Force -Path $output | Out-Null
++$scripts = @('tests/unit/test_scene_event_contract.gd', 'tests/unit/test_scene_receipt_validation.gd')
++$sourceReceipts = @()
++foreach ($path in ($scripts + @('scripts/domain/narrative/SceneEventContract.gd', 'scripts/narrative/SceneValidationTiming.gd'))) {
++    $blob = (& git -C $RepositoryRoot rev-parse "HEAD:$path").Trim()
++    if ($LASTEXITCODE -ne 0) { throw "CONTRACT_SOURCE_MISSING: $path" }
++    $working = (& git -C $RepositoryRoot hash-object -- $path).Trim()
++    if ($LASTEXITCODE -ne 0 -or $working -cne $blob) { throw "CONTRACT_SOURCE_CHANGED: $path" }
++    $sourceReceipts += [ordered]@{ path = $path; blob = $blob; sha256 = Get-ContinueFileSha256 -LiteralPath (Join-Path $RepositoryRoot $path) }
++}
++$selection = [ordered]@{
++    source = $source; sources = $sourceReceipts; scripts = $scripts;
++    runner_sha256 = Get-ContinueFileSha256 -LiteralPath $PSCommandPath;
++    isolation_sha256 = Get-ContinueFileSha256 -LiteralPath $helper;
++    console_sha256 = Get-ContinueFileSha256 -LiteralPath $env:GODOT_CONSOLE_PATH;
++    rendered = $false; child_timeout_seconds = 120; distinct_isolated_children = $true;
++    census = 'exact source function names against JUnit; no fixed assertion count';
++    scope = 'focused scene contract unit regression; not rendered or full-game acceptance'
++}
++[IO.File]::WriteAllText((Join-Path $output 'selection.json'), ($selection | ConvertTo-Json -Depth 8), $utf8)
++$results = @()
++$failureExit = 0
++foreach ($testPath in $scripts) {
++    $id = [IO.Path]::GetFileNameWithoutExtension($testPath)
++    $suiteOutput = Join-Path $output $id
++    $logName = "contract-$id.log"
++    $logPath = Join-Path $RepositoryRoot ".godot/phase2r_logs/$logName"
++    $reportPath = Join-Path $suiteOutput 'boundary.xml'
++    $result = [ordered]@{ source = $source; script = $testPath; child_exit = $null; ok = $false; error = $null;
++        expected_names = @(); actual_names = @(); cases = 0; assertions = 0; log = $logPath; report = $reportPath }
++    try {
++        if ((Test-Path -LiteralPath $suiteOutput) -or (Test-Path -LiteralPath $logPath) -or (Test-Path -LiteralPath ($logPath + '.timeout.log'))) { throw "CONTRACT_SUITE_OUTPUT_NOT_FRESH: $id" }
++        New-Item -ItemType Directory -Path $suiteOutput | Out-Null
++        $text = Get-Content -LiteralPath (Join-Path $RepositoryRoot $testPath) -Raw -Encoding utf8
++        $names = @([regex]::Matches($text, '(?m)^func (test_[A-Za-z0-9_]+)\(') | ForEach-Object { $_.Groups[1].Value })
++        if ($names.Count -eq 0 -or @($names | Sort-Object -Unique).Count -ne $names.Count) { throw 'CONTRACT_SOURCE_CENSUS_INVALID' }
++        $result.expected_names = $names
++        [IO.File]::WriteAllText((Join-Path $suiteOutput 'expected-names.json'), (ConvertTo-Json -InputObject $names), $utf8)
++        $arguments = @('--verbose', '-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', "-gtest=res://$testPath", '-gexit', '-glog=2', '-gdisable_colors', "-gjunit_xml_file=res://.godot/ci/scene-contract-regression/$id/boundary.xml")
++        & $helper -RepositoryRoot $RepositoryRoot -SuiteId "contract-$id" -LogName $logName `
++            -EvidenceLogPath ".godot/ci/scene-contract-regression/$id/isolation.jsonl" -TimeoutSeconds 120 -GodotArgs $arguments
++        $result.child_exit = $LASTEXITCODE
++        if ($result.child_exit -ne 0) {
++            if ($failureExit -eq 0) { $failureExit = [int]$result.child_exit }
++            throw "CONTRACT_CHILD_FAILED: $($result.child_exit)"
++        }
++        $log = Get-Content -LiteralPath $logPath -Raw -Encoding utf8
++        if ($log -notmatch '(?m)^Godot Engine v4\.6\.3\.stable\.official\.' -or
++            $log -match 'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character') { throw 'CONTRACT_ENGINE_OR_RUNTIME_DIAGNOSTIC' }
++        if (-not (Test-Path -LiteralPath $reportPath -PathType Leaf)) { throw 'CONTRACT_REPORT_MISSING' }
++        [xml]$xml = Get-Content -LiteralPath $reportPath -Raw -Encoding utf8
++        $cases = $xml.SelectNodes('//testcase')
++        $suites = $xml.SelectNodes('//testsuite')
++        if ($suites.Count -ne 1 -or $suites[0].GetAttribute('name') -cne $testPath -or
++            $cases.Count -ne $names.Count -or $xml.SelectNodes('//failure | //error | //skipped').Count -ne 0) { throw 'CONTRACT_SELECTION_OR_RESULT_INVALID' }
++        $actual = @($cases | ForEach-Object { $_.GetAttribute('name') })
++        $result.actual_names = $actual
++        if (@($actual | Sort-Object -Unique).Count -ne $actual.Count -or
++            @(Compare-Object -CaseSensitive ($names | Sort-Object) ($actual | Sort-Object)).Count -ne 0) { throw 'CONTRACT_EXACT_CENSUS_MISMATCH' }
++        foreach ($case in $cases) {
++            if ($case.GetAttribute('classname') -cne $testPath -or $case.GetAttribute('status') -cne 'pass' -or
++                $case.GetAttribute('assertions') -cnotmatch '^[0-9]+$' -or [long]$case.GetAttribute('assertions') -le 0) { throw 'CONTRACT_CASE_NOT_PASSED' }
++            $result.assertions += [long]$case.GetAttribute('assertions')
++        }
++        foreach ($receipt in $sourceReceipts) {
++            $working = (& git -C $RepositoryRoot hash-object -- $receipt.path).Trim()
++            if ($LASTEXITCODE -ne 0 -or $working -cne $receipt.blob) { throw "CONTRACT_POST_SOURCE_CHANGED: $($receipt.path)" }
++        }
++        $result.cases = $cases.Count
++        $result.ok = $true
++    } catch {
++        $result.error = $_.Exception.Message
++        if ($failureExit -eq 0) { $failureExit = 1 }
++        [Console]::Error.WriteLine($result.error)
++    } finally {
++        $results += $result
++        [IO.File]::WriteAllText((Join-Path $output "$id-result.json"), ($result | ConvertTo-Json -Depth 8), $utf8)
++        [IO.File]::WriteAllText((Join-Path $output 'results.json'), (ConvertTo-Json -InputObject $results -Depth 8), $utf8)
++    }
++}
++exit $failureExit
+--- ledger/manifest.json
++++ pure/manifest.json
+@@ -16,5 +16,11 @@
+     "bytes": 442,
+     "sha256": "5b88a633c7f6c63a460465bb1db0fa7f5594d8420e666594c0dfcbfa43533d2c",
+     "blob": "125dc8c496f4f918ef21024f0577dada0a6b4446"
++  },
++  {
++    "path": "tools/testing/Invoke-SceneContractRegression.ps1",
++    "bytes": 7093,
++    "sha256": "19bc9d7eeaf903884dd903978e9ab36456b4f59b00784da7fdcb8dddfbf1a61e",
++    "blob": "668775cc7b4d925dc24944f17443a113c2f241e7"
+   }
+ ]
+--- ledger/controller.yml
++++ pure/controller.yml
+@@ -1,6 +1,6 @@
+ # INERT REVIEW CANDIDATE. Install only after external C source review.
+ # Focused candidate only: C exact packet review and Director scope reconciliation precede installation.
+-name: Short ending receipt and bundle validation observation
++name: Scene contract regression and ending comparison
+ on:
+   pull_request:
+     paths:
+@@ -19,18 +19,18 @@
+       run:
+         shell: pwsh
+     env:
+-      PRODUCT_SHA: 32c4521c533685a411cb059916a3f86c48e20799
+-      SOURCE_SHA: 4828398a035ca41cdf5e910a05bee6edbdc0ca03
+-      PREPARATION_SHA256: 8acc777565da0ac039759808cdc1ec8bb12e3db7dc8ec1cae336211e2c25cf4f
++      PRODUCT_SHA: REVIEWED_PRODUCT_COMMIT_REQUIRED
++      SOURCE_SHA: REVIEWED_ASSET_COMMIT_REQUIRED
++      PREPARATION_SHA256: 68ff078502f3e06ced0fb0e8197de2bd249f793c6d6d3ee7bf177e57607bf9e6
+       CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
+-      HARNESS_MANIFEST_SHA256: 87fa670737e16fb84f94e67beb52861f1613633d04a645bf2f9d33bab7cb7393
++      HARNESS_MANIFEST_SHA256: b42a77fb08a0bd22bb2bbe27965e207a08d419f73e75728036ca099f5c2efada
+     steps:
+       - uses: actions/checkout@v7
+         with:
+           # Defer credential removal until the post-job cleanup, after the
+           # malformed gitlinks are removed from this disposable runner's index.
+           persist-credentials: true
+-          ref: 32c4521c533685a411cb059916a3f86c48e20799
++          ref: REVIEWED_PRODUCT_COMMIT_REQUIRED
+       - name: Pin external preparation helpers
+         id: preparation_helpers
+         run: |
+@@ -42,7 +42,7 @@
+           New-Item -ItemType Directory -Force $helpers | Out-Null
+           $prepare = Join-Path $helpers 'prepare_caption.py'
+           $capture = Join-Path $helpers 'capture_import.py'
+-          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_receipt_bundle_20261022/prepare_caption.py" -OutFile $prepare
++          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_pure_contract_20261022/prepare_caption.py" -OutFile $prepare
+           Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/import_integrity_20261020/capture_import.py" -OutFile $capture
+           if ((Get-FileHash $prepare -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:PREPARATION_SHA256) { throw 'PREPARATION_HASH_MISMATCH' }
+           if ((Get-FileHash $capture -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:CAPTURE_SHA256) { throw 'CAPTURE_HASH_MISMATCH' }
+@@ -75,13 +75,13 @@
+           $harness = Join-Path $env:RUNNER_TEMP 'clean-focused-harness'
+           New-Item -ItemType Directory -Force $harness | Out-Null
+           $manifest = Join-Path $harness 'manifest.json'
+-          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_receipt_bundle_20261022/manifest.json" -OutFile $manifest
++          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_pure_contract_20261022/manifest.json" -OutFile $manifest
+           if ((Get-FileHash $manifest -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:HARNESS_MANIFEST_SHA256) { throw 'HARNESS_MANIFEST_HASH_MISMATCH' }
+           foreach ($entry in (Get-Content $manifest -Raw | ConvertFrom-Json)) {
+             $name = [IO.Path]::GetFileName($entry.path)
+             if ($entry.path -notlike 'tools/testing/*' -or $name -notmatch '^[A-Za-z0-9.-]+$') { continue }
+             $path = Join-Path $harness $name
+-            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_receipt_bundle_20261022/$name" -OutFile $path
++            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_pure_contract_20261022/$name" -OutFile $path
+             if ((Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $entry.sha256) { throw "HARNESS_HASH_MISMATCH: $name" }
+             if ($name.EndsWith('.ps1')) {
+               $tokens=$null; $parseErrors=$null
+@@ -163,6 +163,14 @@
+           $PSNativeCommandUseErrorActionPreference = $false
+           & pwsh -NoLogo -NoProfile -NonInteractive -File (Join-Path $env:FOCUSED_HARNESS 'Invoke-EndingLayoutBoundary.ps1') -RepositoryRoot $env:GITHUB_WORKSPACE -ExpectedSource $env:PRODUCT_SHA
+           if ($LASTEXITCODE -ne 0) { throw "FOCUSED_RUNNER_EXIT: $LASTEXITCODE" }
++      - name: Focused scene contract unit regression
++        id: contract_regression
++        timeout-minutes: 8
++        run: |
++          $ErrorActionPreference = 'Stop'
++          $PSNativeCommandUseErrorActionPreference = $false
++          & pwsh -NoLogo -NoProfile -NonInteractive -File (Join-Path $env:FOCUSED_HARNESS 'Invoke-SceneContractRegression.ps1') -RepositoryRoot $env:GITHUB_WORKSPACE -ExpectedSource $env:PRODUCT_SHA
++          if ($LASTEXITCODE -ne 0) { throw "CONTRACT_REGRESSION_EXIT: $LASTEXITCODE" }
+       - name: Always retain and check source after focused tests
+         if: always() && steps.preparation_restore.outcome == 'success'
+         run: |
+@@ -172,7 +180,7 @@
+           & python $env:PREPARATION_HELPER --phase post-tests --root $env:GITHUB_WORKSPACE --output $output *> (Join-Path $output 'preparation-post-tests.log')
+           if ($LASTEXITCODE -ne 0) { throw "POST_TESTS_POLICY_EXIT: $LASTEXITCODE" }
+       - name: Preserve focused evidence even after failure
+-        if: always() && (steps.focused.outcome == 'success' || steps.focused.outcome == 'failure' || steps.focused.outcome == 'cancelled')
++        if: always() && (steps.contract_regression.outcome == 'success' || steps.contract_regression.outcome == 'failure' || steps.contract_regression.outcome == 'cancelled' || steps.focused.outcome == 'success' || steps.focused.outcome == 'failure' || steps.focused.outcome == 'cancelled')
+         uses: actions/upload-artifact@v4
+         with:
+           name: caption-qualification-${{ github.run_id }}-${{ github.run_attempt }}
+--- ledger/source-manifest.json
++++ pure/source-manifest.json
+@@ -55,8 +55,20 @@
+   },
+   {
+     "path": "scripts/domain/narrative/SceneEventContract.gd",
+-    "bytes": 78833,
+-    "sha256": "14cebbbcee4a3592e88d0055fa052da86440c0a357c9c5357b96d5dd126b2203",
+-    "blob": "3f383b92f787489b70ca7acd71b00f4a9f5a47f8"
++    "bytes": 79720,
++    "sha256": "e4b6562355bf5e58a575a272c228be557102b08f65ad9ab35dbe4a0c754253fc",
++    "blob": "d410ec384b41c8af00993b1c94e85bb9f2c25ca7"
++  },
++  {
++    "path": "tests/unit/test_scene_event_contract.gd",
++    "bytes": 27935,
++    "sha256": "664db88d6636e760c9bf8e4d4125e9d19e5d4bce964938b882898d9282811770",
++    "blob": "dc7bc7316770a943b55f47df1eb186a4a61098db"
++  },
++  {
++    "path": "tests/unit/test_scene_receipt_validation.gd",
++    "bytes": 10604,
++    "sha256": "51de7ed2f3f23b12cc16c45362e346009f28f70a869a578bb8e150a7192da7af",
++    "blob": "089e33bcb42ddb9a01d20011166645c403331dd2"
+   }
+ ]

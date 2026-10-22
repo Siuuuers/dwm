@@ -1,0 +1,13 @@
+{
+  "unchanged_existing_functions": 45,
+  "changed_existing_functions": [
+    "inspect_scene",
+    "make_scene_receipt",
+    "scene_completion_request",
+    "validate_scene_result"
+  ],
+  "completion_projection_tail_exact": true,
+  "result_validation_tail_exact": true,
+  "inspection_body_exact_except_success_packaging": true,
+  "no_local_Godot_or_PowerShell": true
+}
