@@ -1,0 +1,9 @@
+# Connected observer-corrected run39724531015 — incomplete outer-budget timeout
+
+Source3e28641569c90c06a225368a8889dc9d97db97f2; assets a55ada9efa0f111367d869fb039e291fd55e074f; controller febe331be361d5dabd436e55e314263edbf5d03f. Creator exact1case/102assertions PASS76.358s (86.525s process). Loader terminated by existing120s outer process cap, exit124, no final JUnit. All preparation/source gates passed.
+
+The signal correction worked: all four actual actions railSave/slot2/Save/Back each observed exactly once. Saved+disk guard passed, witnessJSON recorded restored Day4.two/caption8 fullvisible/eventDONE, source run preserved/new branch, source slot hash preserved, profile unchanged. Back returned unpaused to the exact restored caption. Last assertions confirm native manual-input readiness and caption focus before first advance toward Day5. No Day5 observation, ending state or completed-save evidence was produced. No local assertion/input/Save/caption/route timeout appears in retained log.
+
+The Saved wait's printed deadline115957 minus unchanged15000ms gives engine tick100957ms at wait entry. Fewer than19s of the whole120s budget remained, further consumed by assertions/Back/proof, before six subsequent captions, ending and NewGame. This supports correcting the outer test allowance, not diagnosing a hang or accepting latency. Independent author/reviewer agree one bounded240s-per-child diagnostic attempt with10min step is justified; all15s Saved/20s line-route/5s input bounds stay unchanged. Preserve this failure; if240s also expires, gather phase timing before any further allowance. No native/WCT/export retry follows from this incomplete result.
+
+Both original ZIPs retained unchanged; provider digests, ordered512KiB parts and Gitblob identities in archives.json. All22uploaded blobs hash-verified.
