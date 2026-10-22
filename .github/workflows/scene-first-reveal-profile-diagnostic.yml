@@ -18,14 +18,14 @@ jobs:
       run:
         shell: pwsh
     env:
-      PRODUCT_SHA: 0a6dc5d2f822adeda39a898a95b77a5b81eed85a
+      PRODUCT_SHA: 2f77ec0a9dcad3d7d7693d98d8463e417a1ac48e
       PACKET_SHA: a4f3788f03712a9fe58a74ed56b27adb032809e8
       MANIFEST_SHA256: 61315ab40fc448ad551e0c2d7e069a7b7fc4925d6452991eb4ec9bd55a366c9f
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: true
-          ref: 0a6dc5d2f822adeda39a898a95b77a5b81eed85a
+          ref: 2f77ec0a9dcad3d7d7693d98d8463e417a1ac48e
       - name: Pin external qualification packet and clean source
         run: |
           $ErrorActionPreference = 'Stop'
