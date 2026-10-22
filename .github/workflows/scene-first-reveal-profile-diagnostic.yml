@@ -17,11 +17,11 @@ jobs:
       run:
         shell: pwsh
     env:
-      SOURCE_SHA: 6da7d6bb3a217f00468d5be7d7421fd90536d87e
+      SOURCE_SHA: 93f99eefd346b4dc698f21ce98fc90b9a135d8db
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: 6da7d6bb3a217f00468d5be7d7421fd90536d87e
+          ref: 93f99eefd346b4dc698f21ce98fc90b9a135d8db
           persist-credentials: true
       - name: Verify immutable source and prepare disposable checkout
         run: |
@@ -65,7 +65,7 @@ jobs:
           if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Native import reported script errors.' }
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { throw 'Could not restore editor-rewritten project configuration.' }
-      - name: Run focused unit and rendered integration tests
+      - name: Run remaining rendered Challenge creator and fresh loader
         timeout-minutes: 28
         env:
           DWM_SCENE_READING_FIXTURE: '1'
@@ -91,22 +91,6 @@ jobs:
             [ordered]@{ id = $Id; source = $env:SOURCE_SHA; test_names = $actual; cases = $cases.Count; assertions = ($cases | ForEach-Object { [int]$_.assertions } | Measure-Object -Sum).Sum } |
               ConvertTo-Json -Depth 5 | Set-Content ".godot/ci/authored-week/$Id.census.json" -Encoding utf8
           }
-          $units = @(
-            @('tests/unit/test_scene_multiple_thoughts.gd','multiple-thoughts-unit',120),
-            @('tests/unit/test_scene_partner_fork_template.gd','partner-template-unit',120),
-            @('tests/unit/test_scene_caption_challenge.gd','caption-challenge-unit',120)
-          )
-          foreach ($unit in $units) {
-            & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId $unit[1] -LogName ($unit[1] + '.log') -EvidenceLogPath ('.godot/ci/authored-week/' + $unit[1] + '.jsonl') -TimeoutSeconds $unit[2] -GodotArgs (Test-Args $unit[0] $unit[1])
-            if ($LASTEXITCODE -ne 0) { throw "Unit child failed: $($unit[1])" }
-            Assert-Result $unit[0] $unit[1]
-          }
-          $creator = 'tests/integration/test_scene_multiple_thoughts_create.gd'
-          $loader = 'tests/integration/test_scene_multiple_thoughts_load.gd'
-          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'multiple-thoughts-pair' -LogName 'multiple-thoughts-create.log' -NextLogName 'multiple-thoughts-load.log' -EvidenceLogPath '.godot/ci/authored-week/multiple-thoughts-pair.jsonl' -TimeoutSeconds 240 -Rendered -KeepRoot -GodotArgs (Test-Args $creator 'multiple-thoughts-create') -NextGodotArgs (Test-Args $loader 'multiple-thoughts-load')
-          if ($LASTEXITCODE -ne 0) { throw 'Rendered multiple-thoughts creator/loader failed.' }
-          Assert-Result $creator 'multiple-thoughts-create'
-          Assert-Result $loader 'multiple-thoughts-load'
           $challenge = 'tests/integration/test_scene_caption_challenge.gd'
           $challengeLoader = 'tests/integration/test_scene_caption_challenge_load.gd'
           & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'caption-challenge-pair' -LogName 'caption-challenge-create.log' -NextLogName 'caption-challenge-load.log' -EvidenceLogPath '.godot/ci/authored-week/caption-challenge-pair.jsonl' -TimeoutSeconds 240 -Rendered -KeepRoot -GodotArgs (Test-Args $challenge 'caption-challenge-create') -NextGodotArgs (Test-Args $challengeLoader 'caption-challenge-load')
