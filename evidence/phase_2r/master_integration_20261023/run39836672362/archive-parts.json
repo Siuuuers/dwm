@@ -1,0 +1,96 @@
+{
+  "run_id": 39836672362,
+  "job_id": 120026707814,
+  "artifact_id": 12452040571,
+  "outer_bytes": 439432,
+  "outer_sha256": "69b2ba5b871703077fec3cae058fd6e93461335ea5b58bb3025bee38ce15aafe",
+  "original_bytes": 442831,
+  "original_sha256": "a8db5fe53b56e1aa08232f27ab956b43496378718c71730d3b45dec2d7b9c66e",
+  "parts": [
+    {
+      "name": "original.zip.part000",
+      "bytes": 32768,
+      "sha256": "f822bc10efeaa9a3540e66a41f12f0e0af3c70c4297f1deaadd88ba13735da32",
+      "git_blob": "fb991302c144803c798fb02fa926d7d3a6e086c7"
+    },
+    {
+      "name": "original.zip.part001",
+      "bytes": 32768,
+      "sha256": "d17155b7ca0ad282ac1cf09c3712b31e5d51c4af1b9ab040521a6f1299681887",
+      "git_blob": "f7ffb9ec7bfbeed3fa9de740fbc987bf9093ab11"
+    },
+    {
+      "name": "original.zip.part002",
+      "bytes": 32768,
+      "sha256": "2b89be1d99e2b7cc8cf92419339de080e50f35c9c53e7fdb2ac512d33c6d0923",
+      "git_blob": "79635515e7ac0e91a55298019c6ff99d6355aa04"
+    },
+    {
+      "name": "original.zip.part003",
+      "bytes": 32768,
+      "sha256": "0518f4058f010a9c5142d78b5835fa93430b52126be11b5faad4c0985e8c79df",
+      "git_blob": "c25672c3a2963c93ff1d815d67f6fe24bc016f19"
+    },
+    {
+      "name": "original.zip.part004",
+      "bytes": 32768,
+      "sha256": "fa5b21f1a296cf34150aeeb3f609e11344fe748e6c076f7033b4f26316030b9e",
+      "git_blob": "837f0825cc88ff000765e91be2341824a9861e67"
+    },
+    {
+      "name": "original.zip.part005",
+      "bytes": 32768,
+      "sha256": "a10bf8d6bae2431bb3b1dbdb7d4f3fcae65a7e38fd868072e37086796c46e408",
+      "git_blob": "b1fe45955c4595db692b87f4fece2a340fa17f2e"
+    },
+    {
+      "name": "original.zip.part006",
+      "bytes": 32768,
+      "sha256": "e74741914f7f1262e121e16810803c8509ba75392cb3424c0d4e1e4519efc524",
+      "git_blob": "fc848f1773d4d6feb4efb2bf8ad356dc4782c6bb"
+    },
+    {
+      "name": "original.zip.part007",
+      "bytes": 32768,
+      "sha256": "6f37f396565e3ff2073bae55b22b01a1c9adf7aec0f00feae0b5a09ae6e69248",
+      "git_blob": "d5ba0a907085c818e759028972dc634f55b02661"
+    },
+    {
+      "name": "original.zip.part008",
+      "bytes": 32768,
+      "sha256": "80cb6bf6f144517a9d99e94d6ffd5dc72ec476a584e998c5dfb4d42de0256ab0",
+      "git_blob": "cdef3ee217e9d19d471e56cdcb7b03d7eccbe1d4"
+    },
+    {
+      "name": "original.zip.part009",
+      "bytes": 32768,
+      "sha256": "e584eac73fdf0648c2ade900a590b7c330fb73f96cdd521fa13af472778fa6d4",
+      "git_blob": "e6ee4571a58c76ccf3f6a3d1c0ca8771d3f91d6b"
+    },
+    {
+      "name": "original.zip.part010",
+      "bytes": 32768,
+      "sha256": "e54ed0ec762b0301546b0af75a24c3a2d0a67295790e454033e07e27e404c086",
+      "git_blob": "d95a9da52022da62d232f7678b8b177e2909d242"
+    },
+    {
+      "name": "original.zip.part011",
+      "bytes": 32768,
+      "sha256": "4252b8f01d8ae29c6acda15c03a40ff2182714985e952734f56d235e7026f484",
+      "git_blob": "e4dd529e98f2897966ee48f070e4ebedfffbdd7e"
+    },
+    {
+      "name": "original.zip.part012",
+      "bytes": 32768,
+      "sha256": "d5411f4cb7b8c5aeba0e61f937cef07e91cf29be37a252590648511ba2c003b5",
+      "git_blob": "721a7bd0e404cfab7091ce278c107fe89ec168ec"
+    },
+    {
+      "name": "original.zip.part013",
+      "bytes": 16847,
+      "sha256": "2bf5d892abcc262116f867f292fa3cba71ff6f831956ab4b32a6c5171be98df0",
+      "git_blob": "91bc149e3ea61a80bcf611b38683533fab899e6b"
+    }
+  ],
+  "instructions": "Concatenate parts in numeric order as raw bytes to reconstruct original-evidence.zip. Original member hashes retained inside."
+}
