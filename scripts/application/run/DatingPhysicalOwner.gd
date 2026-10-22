@@ -643,6 +643,11 @@ func _commit_attempt() -> Dictionary:
 ## is active, otherwise takes and releases its own; a foreign lease refuses pending progress.
 func flush_pending_attempt() -> Dictionary:
 	if _record.get("schema_version") == 4 and not _scene_command():
+		# Restore journal writes can run after silent reconciliation, before playable
+		# readmission. Unchanged staged state has no source progress to flush.
+		if not _scene_fatal and not _routine_pending and _pending_checkpoint.is_empty() \
+				and _attempt_gate != null and _attempt_gate.is_internal_owner_active(&"restore"):
+			return _ok({"committed": false})
 		# A selected completed save keeps its historical closure. There is no
 		# playable input to re-admit and no new physical progress to flush.
 		if not _routine_pending and _pending_checkpoint.is_empty() \

@@ -3393,7 +3393,10 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 	var bookkeeping := _prepare_restore_bookkeeping(source, true)
 	if not bookkeeping.get("ok", false):
 		return bookkeeping
-	var restored: Dictionary = _run_lifecycle.prepare_restore((source as Dictionary)["lifecycle"])
+	var cold_lifecycle: bool = not source.run_configuration_installed and _run_lifecycle.is_uninstalled_backup(source.lifecycle)
+	if cold_lifecycle and not source.get("contacts") is Dictionary:
+		return _transaction_failure(&"invalid_run_backup", "cold contacts backup required")
+	var restored: Dictionary = {"ok": true} if cold_lifecycle else _run_lifecycle.prepare_restore(source.lifecycle)
 	if not restored.get("ok", false):
 		return restored
 	# Validate the aggregate BEFORE any mutation: a rollback must not leave the owner half-restored.
@@ -3404,7 +3407,7 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 		if not validated_backup.get("ok", false):
 			return validated_backup
 	var desktop_backup: Variant = (source as Dictionary).get("desktop")
-	if typeof(desktop_backup) == TYPE_DICTIONARY:
+	if typeof(desktop_backup) == TYPE_DICTIONARY and not (cold_lifecycle and desktop_backup.is_empty()):
 		var desktop_error := _RUN_SNAPSHOT_SCHEMA_DESKTOP._validate_desktop(desktop_backup)
 		if desktop_error != "":
 			return {"ok": false, "code": &"invalid_run_backup", "message": desktop_error}
@@ -3419,10 +3422,16 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 		if not dating_restored.get("ok", false): return dating_restored
 	elif dating_backup != null:
 		return _transaction_failure(&"invalid_dating_reconciliation_backup", "local owner is not configured")
-	_run_lifecycle.commit_restore(restored["value"]["candidate"])
+	if cold_lifecycle:
+		_run_lifecycle.restore_uninstalled_backup(source.lifecycle)
+	else:
+		_run_lifecycle.commit_restore(restored["value"]["candidate"])
 	_apply_gameplay_silent(gameplay_check["value"]["gameplay"])
 	_apply_restore_bookkeeping(bookkeeping["value"])
-	_restore_contacts_section((source as Dictionary).get("contacts"))
+	if cold_lifecycle:
+		contacts = source.contacts.duplicate(true)
+	else:
+		_restore_contacts_section((source as Dictionary).get("contacts"))
 	if not validated_backup.is_empty():
 		_committed_schedule = (validated_backup["value"] as Dictionary)["committed_schedule"]
 	if typeof(desktop_backup) == TYPE_DICTIONARY:

@@ -593,6 +593,17 @@ static func _dup_or_null(value: Variant) -> Variant:
 		return null
 	return (value as Dictionary).duplicate(true)
 
+## Process-local compensation may return to the constructor baseline, which is
+## deliberately not a persisted run. Keep this separate from prepare_restore.
+func is_uninstalled_backup(data: Dictionary) -> bool:
+	return var_to_bytes(data) == var_to_bytes(RunLifecycle.new().to_dict())
+
+func restore_uninstalled_backup(data: Dictionary) -> Dictionary:
+	if not is_uninstalled_backup(data):
+		return _fail(&"invalid_uninstalled_lifecycle", "exact cold lifecycle required")
+	reset("", "", 0, "", {}, false)
+	return {"ok": true}
+
 func prepare_restore(data: Dictionary) -> Dictionary:
 	if data.has("scene_assignment"):
 		var checked := validate_scene(data, _scene_issuer)
