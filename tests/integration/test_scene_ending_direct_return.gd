@@ -1,6 +1,40 @@
 extends "res://tests/integration/scene_seven_day_connected_child.gd"
 ## No Save/Pause detour: organic reveal guard, fresh Accept, durable Title return.
 
+func _ending_layout_observation(prior_layout_ref: WeakRef) -> Dictionary:
+	var prior_layout: Node = prior_layout_ref.get_ref()
+	var native: Node = bridge._runtime_adapter._dialogic
+	var active: Node = native.Styles.get_layout_node()
+	var result := {"process_id": OS.get_process_id(),
+		"window_handle": DisplayServer.window_get_native_handle(DisplayServer.WINDOW_HANDLE, get_tree().root.get_window_id()),
+		"prior_layout_alive": is_instance_valid(prior_layout),
+		"prior_layout_in_tree": is_instance_valid(prior_layout) and prior_layout.is_inside_tree(),
+		"layout_id": 0, "style": "", "caption_script": "",
+		"ending_layout": false, "clock_visible": true,
+		"lifecycle": game._run_lifecycle.to_dict().duplicate(true),
+		"reading_checkpoint": bridge.capture_reading_checkpoint(false).duplicate(true)}
+	if is_instance_valid(active):
+		result.layout_id = active.get_instance_id()
+		var style: Resource = active.get_meta("style", null)
+		if style != null: result.style = style.resource_path
+	var current_caption: Node = _caption()
+	if is_instance_valid(current_caption):
+		result.caption_script = current_caption.get_script().resource_path
+		result.ending_layout = current_caption.transport_rail.ending_layout
+		result.clock_visible = current_caption.transport_rail.clock_label.is_visible_in_tree()
+	return result
+
+func _capture_ending_layout() -> Dictionary:
+	if DisplayServer.get_name() == "headless": return {}
+	await RenderingServer.frame_post_draw
+	var pixels := get_viewport().get_texture().get_image()
+	assert_false(pixels.is_empty())
+	var path := "res://.godot/ci/ending-layout-boundary.png"
+	assert_eq(pixels.save_png(path), OK)
+	return {"file": "ending-layout-boundary.png", "source": "Godot viewport, not desktop",
+		"width": pixels.get_width(), "height": pixels.get_height(),
+		"sha256": FileAccess.get_sha256(path)}
+
 func test_direct_ending_accept_returns_without_save() -> void:
 	if not _start_services(): return
 	if not _ok(profile.set_preference(&"preferences.reading.auto_enabled", false)): return
@@ -14,12 +48,19 @@ func test_direct_ending_accept_returns_without_save() -> void:
 	if not await _wait_line("line.Day7.one"): return
 	await _accept()
 	if not await _wait_line("line.Day7.two"): return
+	var prior_layout: Node = bridge._runtime_adapter._dialogic.Styles.get_layout_node()
+	var prior_layout_id: int = prior_layout.get_instance_id()
+	var prior_layout_ref := weakref(prior_layout)
+	var default_style: Variant = ProjectSettings.get_setting("dialogic/layout/default_style", "")
+	var end_behaviour: Variant = ProjectSettings.get_setting("dialogic/layout/end_behaviour", 0)
 	# Widen the existing organic-reveal delay only to make the observed timing
 	# race deterministic on rendered CI. Do not alter timer/position/lifecycle.
 	var old_delay: Variant = ProjectSettings.get_setting("dialogic/text/advance_delay", 0.1)
 	ProjectSettings.set_setting("dialogic/text/advance_delay", 1.0)
 	await _accept()
-	if not await _wait_line("line.ending.alone.normal.one"):
+	var ending_ready: bool = await _wait_line("line.ending.alone.normal.one")
+	if not ending_ready:
+		_write_json("res://.godot/ci/ending-layout-boundary.json", _ending_layout_observation(prior_layout_ref))
 		ProjectSettings.set_setting("dialogic/text/advance_delay", old_delay)
 		return
 	ProjectSettings.set_setting("dialogic/text/advance_delay", old_delay)
@@ -32,6 +73,19 @@ func test_direct_ending_accept_returns_without_save() -> void:
 	assert_true(get_tree().current_scene is EndingScene, "guard refuses the premature Enter")
 	assert_eq(game._run_lifecycle.to_dict(), ending, "premature input cannot complete ending")
 	assert_eq(bridge.capture_reading_checkpoint(false), before, "premature input preserves the exact caption")
+	var observation := _ending_layout_observation(prior_layout_ref)
+	observation["prior_layout_id"] = prior_layout_id
+	observation["ending_ready"] = ending_ready
+	observation["capture"] = await _capture_ending_layout()
+	_write_json("res://.godot/ci/ending-layout-boundary.json", observation)
+	assert_eq(observation.style, "res://dialogic/styles/witnessed_caption_style.tres")
+	assert_eq(observation.caption_script, "res://scripts/ui/witnessed/WitnessedCaptionLayer.gd")
+	assert_ne(observation.layout_id, prior_layout_id, "ending selects its own layout after the ordinary layout retires")
+	assert_false(observation.prior_layout_in_tree)
+	assert_true(observation.ending_layout, "EndingScene retains its accepted six bottom controls")
+	assert_false(observation.clock_visible, "ending does not borrow the ordinary clock")
+	assert_eq(ProjectSettings.get_setting("dialogic/layout/default_style", ""), default_style)
+	assert_eq(ProjectSettings.get_setting("dialogic/layout/end_behaviour", 0), end_behaviour)
 	await _accept()
 	if not await _wait_route(MENU): return
 	var finished: Dictionary = game._run_lifecycle.to_dict()
