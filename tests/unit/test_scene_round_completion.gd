@@ -64,7 +64,8 @@ func test_completion_receipt_authenticates_board_and_reward_and_requires_admissi
 	var root: Dictionary = fixture.issuer.issue(&"transaction_id").value.issuer_receipt
 	var identity: Dictionary = fixture.identity.duplicate(true)
 	identity.erase("causal_day_instance_issuer_receipt")
-	identity.app_round_ordinal = 1
+	# A newly inserted dot key is StringName; persisted identities require String.
+	identity["app_round_ordinal"] = 1
 	var completion := {"board_identity": identity, "board_sha256": "ab".repeat(32),
 		"gameplay_sha256": "cd".repeat(32), "revision": 7, "difficulty": "expert", "outcome": "exploded"}
 	var made: Dictionary = CONTRACT.make_scene_round_completion(fixture.identity, root,

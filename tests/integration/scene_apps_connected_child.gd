@@ -138,14 +138,29 @@ func load_apps_scene() -> void:
 	var proof: Dictionary = parsed.value
 	assert_ne(OS.get_process_id(), proof.process_id)
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.slot_sha256)
+	# The controller opts in; only this fresh loader enables owner profiling.
+	if OS.get_environment("DWM_APPS_COLD_LOAD_PROFILE") == "1":
+		OS.set_environment("DWM_SAVE_LOAD_PROFILE", "1")
+		OS.set_environment("DWM_SAVE_LOAD_CONTEXT", "scene-apps-cold-load")
+		OS.set_environment("DWM_CHECKPOINT_PROFILE", "1")
 	if not _start_services(): return
 	var backup: RefCounted = preload("res://scripts/application/backup/BackupPresentationPort.gd").new()
 	if not _ok(backup.configure(saves, "title")): return
+	var load_started_us := Time.get_ticks_usec()
 	var prepared: Dictionary = backup.prepare_action("load", "slot:1")
+	var prepared_us := Time.get_ticks_usec()
 	if not _ok(prepared): return
 	var loaded: Dictionary = backup.commit_action(prepared.value.token)
+	var committed_us := Time.get_ticks_usec()
 	assert_eq(loaded.get("code"), &"scene_activation_pending", str(loaded))
 	if loaded.get("code") != &"scene_activation_pending" or not await _await_ready(): return
+	var ready_us := Time.get_ticks_usec()
+	var timing := {"prepare_us": prepared_us - load_started_us,
+		"commit_us": committed_us - prepared_us, "ready_us": ready_us - committed_us,
+		"total_us": ready_us - load_started_us, "process_id": OS.get_process_id(),
+		"slot_sha256": proof.slot_sha256, "context": "scene-apps-cold-load"}
+	print("DWM_APPS_COLD_LOAD " + JSON.stringify(timing))
+	_write_json("res://.godot/ci/scene-apps-cold-load-timing.json", timing)
 	assert_eq(game.money, proof.money)
 	assert_eq(game.inventory, proof.inventory)
 	assert_eq(_shop_receipts(), proof.shop_receipts, "Load does not replay the purchase.")
