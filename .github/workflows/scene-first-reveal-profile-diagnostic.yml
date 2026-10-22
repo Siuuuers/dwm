@@ -1,6 +1,6 @@
 # INERT REVIEW CANDIDATE. Install only after external C source review.
 # Focused candidate only: C exact packet review and Director scope reconciliation precede installation.
-name: Short ending physical assignment proof observation
+name: Short ending receipt and bundle validation observation
 on:
   pull_request:
     paths:
@@ -19,18 +19,18 @@ jobs:
       run:
         shell: pwsh
     env:
-      PRODUCT_SHA: 5a506a9768287762b2a0e86f94d5eb0006562cc5
-      SOURCE_SHA: 517a647f97a075769bf94f8b6469f76ec024ae86
-      PREPARATION_SHA256: 8772700c0c1ac6a0223736245ab03a4f3c3a603aa193f414b2829f3f2a385b96
+      PRODUCT_SHA: 32c4521c533685a411cb059916a3f86c48e20799
+      SOURCE_SHA: 4828398a035ca41cdf5e910a05bee6edbdc0ca03
+      PREPARATION_SHA256: 8acc777565da0ac039759808cdc1ec8bb12e3db7dc8ec1cae336211e2c25cf4f
       CAPTURE_SHA256: a04a8560ea2ac7e8ff77d6bb3e3ffe8d1404193f5e1de2a71676332403fe7379
-      HARNESS_MANIFEST_SHA256: c61772e8f200e3bed393980f48337aa26ff679030550ba45d5e3b15c22e6d8b9
+      HARNESS_MANIFEST_SHA256: 87fa670737e16fb84f94e67beb52861f1613633d04a645bf2f9d33bab7cb7393
     steps:
       - uses: actions/checkout@v7
         with:
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
-          ref: 5a506a9768287762b2a0e86f94d5eb0006562cc5
+          ref: 32c4521c533685a411cb059916a3f86c48e20799
       - name: Pin external preparation helpers
         id: preparation_helpers
         run: |
@@ -42,7 +42,7 @@ jobs:
           New-Item -ItemType Directory -Force $helpers | Out-Null
           $prepare = Join-Path $helpers 'prepare_caption.py'
           $capture = Join-Path $helpers 'capture_import.py'
-          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_physical_proof_20261022/prepare_caption.py" -OutFile $prepare
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_receipt_bundle_20261022/prepare_caption.py" -OutFile $prepare
           Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/import_integrity_20261020/capture_import.py" -OutFile $capture
           if ((Get-FileHash $prepare -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:PREPARATION_SHA256) { throw 'PREPARATION_HASH_MISMATCH' }
           if ((Get-FileHash $capture -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:CAPTURE_SHA256) { throw 'CAPTURE_HASH_MISMATCH' }
@@ -75,13 +75,13 @@ jobs:
           $harness = Join-Path $env:RUNNER_TEMP 'clean-focused-harness'
           New-Item -ItemType Directory -Force $harness | Out-Null
           $manifest = Join-Path $harness 'manifest.json'
-          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_physical_proof_20261022/manifest.json" -OutFile $manifest
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_receipt_bundle_20261022/manifest.json" -OutFile $manifest
           if ((Get-FileHash $manifest -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:HARNESS_MANIFEST_SHA256) { throw 'HARNESS_MANIFEST_HASH_MISMATCH' }
           foreach ($entry in (Get-Content $manifest -Raw | ConvertFrom-Json)) {
             $name = [IO.Path]::GetFileName($entry.path)
             if ($entry.path -notlike 'tools/testing/*' -or $name -notmatch '^[A-Za-z0-9.-]+$') { continue }
             $path = Join-Path $harness $name
-            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_physical_proof_20261022/$name" -OutFile $path
+            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Siuuuers/dwm/$env:SOURCE_SHA/evidence/phase_2r/ending_receipt_bundle_20261022/$name" -OutFile $path
             if ((Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $entry.sha256) { throw "HARNESS_HASH_MISMATCH: $name" }
             if ($name.EndsWith('.ps1')) {
               $tokens=$null; $parseErrors=$null
@@ -155,7 +155,7 @@ jobs:
           & python $env:PREPARATION_HELPER --phase restore --root $env:GITHUB_WORKSPACE --output $output *> (Join-Path $output 'preparation-restore.log')
           $code = $LASTEXITCODE
           if ($code -ne 0) { throw "PREPARATION_RESTORE_EXIT: $code" }
-      - name: Rendered short ending physical assignment proof observation
+      - name: Rendered short ending receipt and bundle validation observation
         id: focused
         timeout-minutes: 10
         run: |
