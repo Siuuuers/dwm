@@ -1070,7 +1070,9 @@ static func _sha(value: Variant) -> String:
 	return str(encoded.value).sha256_text() if encoded.get("ok", false) else ""
 
 static func _equal(actual: Variant, expected: Variant) -> bool:
-	return _same_types(actual, expected) and _sha(actual) != "" and _sha(actual) == _sha(expected)
+	if not _same_types(actual, expected): return false
+	var actual_hash := _sha(actual)
+	return actual_hash != "" and actual_hash == _sha(expected)
 
 static func _json_data(value: Variant, depth: int = 0) -> bool:
 	# Writer intentionally normalizes StringName; scene contracts instead require
