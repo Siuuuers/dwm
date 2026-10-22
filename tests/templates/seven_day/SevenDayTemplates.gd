@@ -3,7 +3,7 @@ extends RefCounted
 const SEQUENCE := preload("res://tools/authoring/SceneSequenceAuthoring.gd")
 const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 const DAY_DIRECTORY := "res://tests/fixtures/dialogic/"
-const CONTENT_VERSION := 2
+const CONTENT_VERSION := 1
 # This explicit list owns ordinary-next ordering, independently of registry sorting.
 const ORDER_PATH := "res://tests/templates/scene_sequence/seven_day_order.json"
 const ENDING_PATH := DAY_DIRECTORY + "Day7.dtl"

@@ -4361,11 +4361,6 @@ func dispatch_scene_event(live_session: Dictionary, envelope: Dictionary) -> Dic
 
 ## Expose only a currently authenticated held marker, never a guessed UI command.
 func request_scene_marker_step(expected: Dictionary) -> Dictionary:
-	var result: Dictionary = _request_scene_marker_step_observed(expected)
-	print("SEVEN_MARKER_RESULT ", JSON.stringify(result))
-	return result
-
-func _request_scene_marker_step_observed(expected: Dictionary) -> Dictionary:
 	var current := _line_presentation_context(expected)
 	if not current.get("ok", false): return current
 	var marker := capture_scene_pending_marker()

@@ -18,8 +18,8 @@ Replace DTL text while retaining stable IDs and labels, then rebuild through the
 native compiler. Add caption IDs and marker anchors together when adding beats.
 Do not hand-edit generated hashes.
 
-This split is a new template revision: day content versions are 2; the ending
-retains its canonical definition version. Locators and whole-file hashes change.
+This split is a new registration revision. All entries retain the existing narrative
+content version 1 required by the Run9 save contract. Locators and whole-file hashes change.
 Old monolithic fixtures remain as historical fixtures, but old saved runs are not
 migrated by this change. Keep existing save files intact; incompatible registration
 must be refused through the existing checks, never silently loaded or overwritten.

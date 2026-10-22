@@ -22,7 +22,7 @@ func test_seven_days_and_registered_ending_compile_with_explicit_links() -> void
 		assert_eq(lines[1].text, "TEST Day%d closing." % (index + 1))
 		var entry: Dictionary = bundle.entry_manifest.entries[index]
 		assert_eq(entry.locators.en.path, "res://tests/fixtures/dialogic/Day%d.dtl" % (index + 1))
-		assert_eq(entry.content_version, 2)
+		assert_eq(entry.content_version, 1, "matches the Run9 narrative content contract")
 		var programme: Dictionary = bundle.scene_programme.entries[index]
 		assert_eq(programme.markers.size(), 1)
 		assert_eq(programme.markers[0].kind, "scene.transition")
