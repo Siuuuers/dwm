@@ -1,52 +1,67 @@
-# Steam cloud upload
+# Steam cloud export and upload
 
 Workflow: [Steam private upload](https://github.com/Siuuuers/dwm/actions/workflows/steam-upload.yml).
 
-## Run
+## Selected source
 
-Open Actions, select Steam private upload, choose Run workflow on master.
-Mode `preview` checks the mapping without uploading. Mode `upload` performs
-that preview first, then uploads only if it succeeds. Neither mode sets a
-Steam branch live. This workflow never submits release review.
-
-Repository secrets: STEAM_USERNAME and STEAM_CONFIG_VDF (Base64 of an
-authenticated SteamCMD config/config.vdf, without certificate wrapper lines).
-Do not put passwords, configuration contents or Steam Guard codes in chat,
-source, logs or artifacts. Authentication is not verified until a run succeeds.
-
-## Pinned package
-
+The owner selected cc40aee5722afaa24e8a8daa556e8c27bc956810 from PR #42.
+It integrates PR #43's English authored week, Traditional/Simplified Chinese,
+Japanese and Korean display catalogs, current paintings and Bach Title/story music.
+The previous delivery commit 1b988866 is no longer selected by this workflow.
 AppID: 5199120. DepotID: 5199121.
-Delivery commit: 1b98886628c3e042c5a7c5738ddb2912f27d7ae8.
-Runtime source: 2146c4435041c2b4ccc467a526f7b127d3980a2f (PR #43 authored week).
-Only DWM.exe, DWM.pck and licenses/** are staged; the administrative Markdown
-is omitted. The workflow records file hashes in its summary. This is the
-existing upload-test package, not the newer integration art/music export.
-Update the pinned checkout and recorded source together after a new validated
-export; no automatic latest-branch deployment is configured.
 
-## Results and next step
+## Start a new run
 
-A successful upload summary reports the Steam BuildID. If no confirmed BuildID
-is found, inspect Steamworks Builds before retrying to avoid a duplicate upload.
-Raw SteamCMD output is withheld because it may contain account information.
-The workflow reports only known error categories and deletes temporary files.
-SteamCMD may refresh its cached token. This workflow deliberately does not
-publish or cache authentication files; if future login fails, authenticate
-privately again and replace the GitHub secret.
+Open the workflow, choose Run workflow, branch master, mode upload. Do not use
+Re-run jobs on the old failed run: it retains the old workflow revision.
+Mode preview performs export and SteamPipe preview without a content upload.
+Mode upload performs the same checks, then uploads. Neither mode sets a Steam
+branch live or submits release review.
 
-After upload, configure DWM.exe as the Windows launch executable, ensure depot
-5199121 is in the testing package, select the build for a protected test branch,
-and test installation and Save/Load through Steam. Upload success alone does
-not establish installation, gameplay acceptance or Valve approval.
+The build job checks out the exact source, checks story catalogs, imports and
+exports with the existing pinned Godot 4.6.3 toolchain. It reuses the existing
+Windows export validation helper and extends only its package audit in the
+disposable runner: both music files, five imported paintings, new font, and
+additional development-directory exclusions. Runtime source remains pinned.
+The existing audit hashes the packaged localization JSON and authored DTL.
+The executable must pass isolated headless startup. This is not a complete
+Windows graphical playthrough or listening assessment.
 
-## Validation at creation
+Only after export success does a separate Steam job download that run's clean
+runtime artifact and receipt, verify every file's hash, preview and upload.
+The validation JSON is kept outside the uploaded runtime package. Required
+engine sidecars, if produced by the validated exporter, are retained along with
+EXE, PCK and licenses. Music and DejaVu font notices are required.
+Artifacts steam-localized-package and steam-localized-receipt are retained for
+seven days, including when a later Steam login/upload fails. The old binary
+delivery branch is not overwritten by this workflow.
 
-YAML and embedded Python parsed successfully; read-only GitHub permissions,
-fixed package ref, staged file allowlist and absence of SetLive checked.
-No cloud execution or authenticated Steam result was available at creation.
-The connected GitHub tool can save workflows but does not expose new-run dispatch;
-the owner starts this manual workflow through GitHub's Run workflow button.
+## Authentication and results
+
+Repository secrets: STEAM_USERNAME and STEAM_CONFIG_VDF (Base64 of authenticated
+SteamCMD config/config.vdf, without certificate wrapper lines). Authentication
+contents are not committed, uploaded as artifacts or printed. Bootstrap diagnostics
+are printed before any account/configuration is supplied; authenticated stages
+report only stage, exit code and fixed error categories. Temporary files are deleted.
+Steam may refresh cached tokens; this workflow does not publish or cache those
+files. If login expires, authenticate privately and update the secret.
+
+A successful upload reports a Steam BuildID. If a run finishes without a confirmed
+BuildID, inspect Steamworks Builds before retrying; do not assume no upload occurred.
+After upload, configure DWM.exe as the Windows launch executable, include depot
+5199121 in the testing package, select the build for a protected test branch,
+and test installation and Save/Load through Steam with fresh saves.
+
+## Evidence and pending execution
+
+Old upload run 39866148728 failed with an unclassified SteamCMD error before a
+successful preview or upload was reported. Secrets were present and Base64 parsing
+passed, but the old log does not establish the failing SteamCMD stage or valid login.
+The revised workflow adds stage/exit diagnostics; it does not claim an authentication fix.
+YAML, embedded Python, the audit patch against the exact-source helper, fixed-source
+selection, export-before-upload dependency and no SetLive were checked locally.
+A new cloud run is required to verify Windows export and Steam authentication/upload.
+The GitHub connector does not expose new-run dispatch; use Run workflow in GitHub.
 
 References:
 - https://partner.steamgames.com/doc/sdk/uploading
