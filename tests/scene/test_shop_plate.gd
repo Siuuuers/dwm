@@ -161,6 +161,7 @@ func test_every_locale_and_size_keeps_full_catalog_inside_the_plate() -> void:
 				assert_true(shop.cards.wine.has_focus())
 				var seen: Array[String] = []
 				for page in shop.page_count:
+					assert_true(shop.last_result.ok, "%s %s %s%% page %s: %s" % [font_style, locale, percent, page, str(shop.last_result)])
 					assert_eq(shop.page_index, page)
 					assert_eq(shop.previous_button.disabled, page == 0)
 					assert_eq(shop.next_button.disabled, page == shop.page_count - 1)

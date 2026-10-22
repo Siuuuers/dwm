@@ -582,8 +582,9 @@ func _render_selection() -> void:
 	_description_label.text = record.get("description", "")
 	_meta_price.text = _price(record.unit_price, record.currency)
 	_meta_state.text = _t("available" if record.available else "sold_out")
-	var state_width := mini(272,maxi(136,2*ceili(_meta_state.get_theme_font("font").get_string_size(
-		_meta_state.text,HORIZONTAL_ALIGNMENT_LEFT,-1,_meta_state.get_theme_font_size("font_size")).x/2.0)))
+	# Share the metadata band by measured copy, including enlarged coin prices.
+	var state_width := mini(272,2*ceili(_meta_state.get_theme_font("font").get_string_size(
+		_meta_state.text,HORIZONTAL_ALIGNMENT_LEFT,-1,_meta_state.get_theme_font_size("font_size")).x/2.0))
 	_meta_price.size = Vector2(272-state_width,48)
 	_meta_state.position.x = 496+_meta_price.size.x
 	_meta_state.size = Vector2(state_width,48)
