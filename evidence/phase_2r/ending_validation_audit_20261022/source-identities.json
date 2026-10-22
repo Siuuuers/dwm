@@ -1,0 +1,27 @@
+[
+  {
+    "path": "autoload/GameState.gd",
+    "git_blob": "ca7fccac2344c9d59b21e101d5ac8930540681e3",
+    "sha256": "c3b9949ba09bf1a47969afd73daf835645bb7b4eb494d91f19a6f7e222917c4d"
+  },
+  {
+    "path": "scripts/narrative/FrozenRunContext.gd",
+    "git_blob": "b629043d98ecdb4dc61a0a2f054bfaa6f771d6a3",
+    "sha256": "3e12917f22920d7236d82f6bd3038a205d08b77a358fcadf4e88c420cae87093"
+  },
+  {
+    "path": "scripts/domain/narrative/SceneEventContract.gd",
+    "git_blob": "a37cd11d3409c5606239fad03c84aefb6749853f",
+    "sha256": "5c57c53209c61e5ac4d983f3d954ea856012dbdee4a1afdee64b8d60da39b138"
+  },
+  {
+    "path": "scripts/domain/run/RunSnapshotSchema.gd",
+    "git_blob": "672d6c641f149164ac84966b4c0a1fead227496e",
+    "sha256": "dd08969c98e93664ca10c05767a5b0c9844d2065b00677888ccfa50cb8564698"
+  },
+  {
+    "path": "scripts/domain/run/RunLifecycle.gd",
+    "git_blob": "ae678b1fa2652d31f3e6f954daec9e819e593352",
+    "sha256": "b3ac7c0c152a16aee32ae201b5349d11b95e147093827b1b80f30b97a838a408"
+  }
+]
