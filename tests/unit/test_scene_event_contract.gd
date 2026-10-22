@@ -495,3 +495,22 @@ func test_scene_inspection_detaches_programme_and_revalidates_later_bundle() -> 
 	assert_eq(CONTRACT.make_scene_receipt(event, _scene_anchor(), {}, bundle).code, &"scene_bundle_invalid")
 	assert_eq(CONTRACT.validate_scene_result(event, {}, bundle).code, &"scene_bundle_invalid")
 
+
+# Public admission validation must keep fresh bundle validation and first refusal.
+func test_admission_public_validation_rechecks_bundle_before_result() -> void:
+	var bundle := _scene_bundle()
+	var result := {"kind": "scene_admitted", "occurrence_id": "TEST.command", "entry_id": "TEST.scene",
+		"target_id": "TEST.target", "source_checkpoint": {"checkpoint_id": "TEST.checkpoint",
+			"checkpoint_sequence": 1, "snapshot_sha256": "a".repeat(64)}, "trigger_command_id": null, "return_to": null}
+	var original_result: Dictionary = result.duplicate(true)
+	assert_true(CONTRACT.validate_scene_admission(result, bundle).ok)
+	bundle.extra_table = []
+	var original_bundle: Dictionary = bundle.duplicate(true)
+	assert_eq(CONTRACT.validate_scene_admission(result, bundle).code, &"scene_bundle_invalid")
+	assert_eq(CONTRACT.validate_scene_admission({}, bundle).code, &"scene_bundle_invalid")
+	assert_eq(result, original_result)
+	assert_eq(bundle, original_bundle)
+	bundle.erase("extra_table")
+	assert_eq(CONTRACT.validate_scene_admission({}, bundle).code, &"scene_admission_invalid")
+	result.source_checkpoint.checkpoint_sequence = 1.0
+	assert_eq(CONTRACT.validate_scene_admission(result, bundle).code, &"scene_admission_invalid")

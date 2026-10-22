@@ -575,6 +575,10 @@ static func _attempt_proof(proof: Variant, run_id: String, occurrence: String) -
 static func validate_scene_admission(result: Variant, bundle: Dictionary) -> Dictionary:
 	var checked := validate_bundle_structure(bundle)
 	if not checked.ok: return checked
+	return _validate_scene_admission_registered(result, checked)
+
+# Reuse only immediately computed pure tables, never across an authority callback.
+static func _validate_scene_admission_registered(result: Variant, checked: Dictionary) -> Dictionary:
 	if not _json_data(result) or not _keys(result, ["kind", "occurrence_id", "entry_id", "target_id", "source_checkpoint", "trigger_command_id", "return_to"]) \
 			or typeof(result.kind) != TYPE_STRING or result.kind != "scene_admitted" \
 			or not _id(result.occurrence_id) or not _id(result.entry_id) \
@@ -829,7 +833,7 @@ static func make_scene_admission(identity: Dictionary, root_issuer_receipt: Dict
 	var result := {"kind": "scene_admitted", "occurrence_id": root_issuer_receipt.token,
 		"entry_id": target.entry_id, "target_id": target_id, "source_checkpoint": source_checkpoint.duplicate(true),
 		"trigger_command_id": trigger_command_id, "return_to": _scene_detach(return_to)}
-	var valid := validate_scene_admission(result, bundle)
+	var valid := _validate_scene_admission_registered(result, registered)
 	if not valid.ok: return valid
 	var request := {"schema_version": 2, "kind": "scene_admission",
 		"source_identity": identity.duplicate(true), "registration_fingerprint": registered.value.fingerprint,

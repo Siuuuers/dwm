@@ -192,3 +192,48 @@ func test_notification_result_is_exact_and_clear_requires_retained_set() -> void
 	made = CONTRACT.make_scene_receipt(event, anchor, {"kind": "notification_updated", "notification": {}}, bundle)
 	assert_false(CONTRACT.validate_scene_receipts(_bag(made.value), bundle, issuer).ok)
 
+
+# Exercise the live-issuer constructor, detached output and later public calls.
+func test_admission_constructor_detaches_and_revalidates_changed_inputs() -> void:
+	var root: Dictionary = admission.scene_admission.issuer_receipt.duplicate(true)
+	var checkpoint: Dictionary = admission.scene_admission.result.source_checkpoint.duplicate(true)
+	var original_identity: Dictionary = identity.duplicate(true)
+	var original_root: Dictionary = root.duplicate(true)
+	var original_checkpoint: Dictionary = checkpoint.duplicate(true)
+	var original_bundle: Dictionary = bundle.duplicate(true)
+	var made: Dictionary = CONTRACT.make_scene_admission(identity, root,
+		"TEST.target", checkpoint, null, null, bundle, issuer)
+	assert_true(made.ok, str(made))
+	if not made.ok: return
+	assert_eq(made.value, admission, "same live identity reconstructs the exact receipt")
+	made.value.scene_admission.result.source_checkpoint.checkpoint_id = "TEST.changed"
+	made.value.scene_admission.source_identity.run_id = "TEST.changed"
+	made.value.scene_admission.issuer_receipt.token = "TEST.changed"
+	assert_eq(checkpoint, original_checkpoint)
+	assert_eq(identity, original_identity)
+	assert_eq(root, original_root)
+	assert_eq(bundle, original_bundle)
+	bundle.caption_registry.TEST = "changed installed bundle"
+	var changed: Dictionary = CONTRACT.make_scene_admission(identity, root,
+		"TEST.target", checkpoint, null, null, bundle, issuer)
+	assert_true(changed.ok, str(changed))
+	if not changed.ok: return
+	assert_ne(changed.value.scene_admission.registration_fingerprint, admission.scene_admission.registration_fingerprint)
+	assert_ne(changed.value.request_fingerprint, admission.request_fingerprint)
+	assert_false(CONTRACT.validate_scene_receipts({admission.transaction_id: admission}, bundle, issuer).ok,
+		"previous receipt cannot borrow trust from a successful constructor call")
+	bundle.extra_table = []
+	assert_eq(CONTRACT.make_scene_admission(identity, root,
+		"TEST.missing", {}, null, null, bundle, issuer).code, &"scene_bundle_invalid")
+	assert_eq(CONTRACT.make_scene_admission({}, root,
+		"TEST.missing", {}, null, null, bundle, issuer).code, &"scene_admission_identity_invalid")
+	assert_eq(CONTRACT.make_scene_admission(identity, root,
+		"TEST.missing", {}, null, null, bundle, null).code, &"scene_receipt_issuer_unbound")
+	bundle.erase("extra_table")
+	assert_eq(CONTRACT.make_scene_admission(identity, root,
+		"TEST.missing", {}, null, null, bundle, issuer).code, &"scene_target_unregistered")
+	assert_eq(CONTRACT.make_scene_admission(identity, root,
+		"TEST.target", {}, null, null, bundle, issuer).code, &"scene_admission_invalid")
+	assert_eq(identity, original_identity)
+	assert_eq(root, original_root)
+	assert_eq(checkpoint, original_checkpoint)
