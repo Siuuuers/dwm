@@ -139,6 +139,7 @@ $suites = @{
         'tests/unit/test_angela_stat_overlay.gd'
         'tests/integration/test_ui_art_placements.gd'
         'tests/integration/test_desktop_logout_consent.gd'
+        'tests/integration/test_scene_backup_desktop_entry.gd'
         'tests/unit/test_session_exit_coordinator.gd'
     )
     settings = @(
