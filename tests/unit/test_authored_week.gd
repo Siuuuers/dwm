@@ -4,10 +4,18 @@ const CONTRACT := preload("res://scripts/domain/narrative/SceneEventContract.gd"
 
 func test_authored_week_compiles_and_preserves_conditional_branch_bindings() -> void:
 	var prepared: Dictionary = WEEK.prepare()
-	assert_true(prepared.get("ok", false), str(prepared))
+	assert_true(prepared.get("ok", false), str(prepared.get("code", "")))
 	if not prepared.get("ok", false): return
-	var bundle: Dictionary = prepared.value.registration
-	assert_true(CONTRACT.validate_bundle_structure(bundle).ok)
+	var writer := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+	var parsed: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(
+		FileAccess.get_file_as_string("res://data/manifests/scene_story_registration.json"))
+	assert_true(parsed.ok, "installed registration is strict JSON")
+	if not parsed.ok: return
+	var bundle: Dictionary = parsed.value
+	assert_true(writer.stringify(bundle).value == writer.stringify(prepared.value.registration).value,
+		"installed JSON matches the native-generated registration")
+	var checked: Dictionary = CONTRACT.validate_bundle_structure(bundle)
+	assert_true(checked.ok, str(checked.get("code", "")))
 	assert_eq(prepared.value.first_target_id, "target.Day1")
 	var entries := {}
 	for entry: Dictionary in bundle.scene_programme.entries: entries[entry.entry_id] = entry
