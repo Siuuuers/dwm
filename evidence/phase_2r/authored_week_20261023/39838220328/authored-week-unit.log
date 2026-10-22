@@ -1,0 +1,87 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+---  GUT  ---
+[INFO]:  using [D:/a/dwm/dwm/.godot/phase2r_tests/0e21ee3e-fad0-4a3f-8828-883e0801c44d/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_authored_week.gd
+* test_authored_week_compiles_and_preserves_conditional_branch_bindings
+    [Passed] 
+    [Passed]:  installed registration is strict JSON
+    [Passed]:  installed JSON matches the native-generated registration
+    [Passed] 
+    [Passed]:  ["target.Day1"] expected to equal ["target.Day1"]:  
+    [Passed]:  [92] expected to equal [92]:  
+    [Passed]:  [9] expected to equal [9]:  mutually exclusive Day3 and clipboard branches share the seven-day journey
+    [Passed]:  ["thought.options"] expected to equal ["thought.options"]:  
+    [Passed]:  ["target.Day2.threshold.benchmark"] expected to equal ["target.Day2.threshold.benchmark"]:  
+    [Passed]:  [2] expected to equal [2]:  
+    [Passed]:  ["Day2.challenge"] expected to equal ["Day2.challenge"]:  
+    [Passed]:  ["target.Day5.cheek"] expected to equal ["target.Day5.cheek"]:  
+    [Passed]:  ["target.Day5.impulse"] expected to equal ["target.Day5.impulse"]:  
+    [Passed]:  ["Day1.challenge"] expected to equal ["Day1.challenge"]:  
+    [Passed]:  ["target.Day7.crossed.D.recording"] expected to not equal ["target.Day7.crossed.D.no_recording"]:  
+    [Passed]:  ["Day1.challenge"] expected to equal ["Day1.challenge"]:  
+    [Passed]:  ["target.Day7.untouched.D.recording"] expected to not equal ["target.Day7.untouched.D.no_recording"]:  
+    [Passed]:  [2] expected to equal [2]:  
+    [Passed]:  ["challenge.playable"] expected to equal ["challenge.playable"]:  
+    [Passed]:  ["challenge.end"] expected to equal ["challenge.end"]:  
+    [Passed]:  ["line.Day1.reading.111"] expected to equal ["line.Day1.reading.111"]:  one real cue caption, no invented intermediate witness
+    [Passed]:  [2] expected to equal [2]:  
+    [Passed]:  ["challenge.playable"] expected to equal ["challenge.playable"]:  
+    [Passed]:  ["challenge.end"] expected to equal ["challenge.end"]:  
+    [Passed]:  ["line.Day2.answer.019"] expected to equal ["line.Day2.answer.019"]:  one real cue caption, no invented intermediate witness
+    [Passed]:  [2] expected to equal [2]:  
+    [Passed]:  ["challenge.playable"] expected to equal ["challenge.playable"]:  
+    [Passed]:  ["challenge.end"] expected to equal ["challenge.end"]:  
+    [Passed]:  ["line.Day3.lavinia.048"] expected to equal ["line.Day3.lavinia.048"]:  one real cue caption, no invented intermediate witness
+    [Passed]:  [2] expected to equal [2]:  
+    [Passed]:  ["challenge.playable"] expected to equal ["challenge.playable"]:  
+    [Passed]:  ["challenge.end"] expected to equal ["challenge.end"]:  
+    [Passed]:  ["line.Day3.sylvia.027"] expected to equal ["line.Day3.sylvia.027"]:  one real cue caption, no invented intermediate witness
+    [Passed]:  [2] expected to equal [2]:  
+    [Passed]:  ["challenge.playable"] expected to equal ["challenge.playable"]:  
+    [Passed]:  ["challenge.end"] expected to equal ["challenge.end"]:  
+    [Passed]:  ["line.Day4.impulse.013"] expected to equal ["line.Day4.impulse.013"]:  one real cue caption, no invented intermediate witness
+    [Passed]:  [2] expected to equal [2]:  
+    [Passed]:  ["challenge.playable"] expected to equal ["challenge.playable"]:  
+    [Passed]:  ["challenge.end"] expected to equal ["challenge.end"]:  
+    [Passed]:  ["line.Day5.impulse.005"] expected to equal ["line.Day5.impulse.005"]:  one real cue caption, no invented intermediate witness
+    [Passed]:  [2] expected to equal [2]:  
+    [Passed]:  ["challenge.playable"] expected to equal ["challenge.playable"]:  
+    [Passed]:  ["challenge.end"] expected to equal ["challenge.end"]:  
+    [Passed]:  ["line.Day6.impulse.007"] expected to equal ["line.Day6.impulse.007"]:  one real cue caption, no invented intermediate witness
+    [Passed]:  [2] expected to equal [2]:  
+    [Passed]:  ["challenge.playable"] expected to equal ["challenge.playable"]:  
+    [Passed]:  ["challenge.end"] expected to equal ["challenge.end"]:  
+    [Passed]:  ["line.Day7.crossed.impulse.004"] expected to equal ["line.Day7.crossed.impulse.004"]:  one real cue caption, no invented intermediate witness
+    [Passed]:  [2] expected to equal [2]:  
+    [Passed]:  ["challenge.playable"] expected to equal ["challenge.playable"]:  
+    [Passed]:  ["challenge.end"] expected to equal ["challenge.end"]:  
+    [Passed]:  ["line.Day7.untouched.impulse.004"] expected to equal ["line.Day7.untouched.impulse.004"]:  one real cue caption, no invented intermediate witness
+    [Passed]:  ["ending.alone.normal"] expected to equal ["ending.alone.normal"]:  
+    [Passed]:  ["alone_step"] expected to equal ["alone_step"]:  
+1/1 passed.
+
+
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               1
+Tests                 1
+Passing Tests         1
+Asserts              55
+Time              6.568s
+
+
+---- All tests passed! ----
+
+Results saved to res://.godot/ci/authored-week/authored-week-unit.xml
+[INFO]:  Exiting with code 0

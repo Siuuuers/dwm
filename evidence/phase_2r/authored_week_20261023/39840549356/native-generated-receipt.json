@@ -1,0 +1,26 @@
+{
+  "source_sha": "6bbce95bba70fa87e49b2ae88c555c5b8ccf93e8",
+  "job_status": "failure",
+  "files": [
+    {
+      "path": "data/manifests/scene_ending_reading_catalogue.json",
+      "bytes": 4398,
+      "sha256": "8b2eb1535862a95312d4a6d4891f4280367f445439053e5ee849c20b53fc7836"
+    },
+    {
+      "path": "data/manifests/scene_story_registration.json",
+      "bytes": 534981,
+      "sha256": "027ec10f0afb77b431fe130ef3960b48f87abfd7280960912ba19befdeee45ee"
+    },
+    {
+      "path": "evidence/phase_2r/runtime/game_state_surface.json",
+      "bytes": 640024,
+      "sha256": "23453d28620c3339f07d4859332439286a572b1e84961992060e558576e2c495"
+    },
+    {
+      "path": "evidence/phase_2r/runtime/save_manager_surface.json",
+      "bytes": 179262,
+      "sha256": "9db4a1b0a2eff273885459811762644a72a887921d8762d93db28ea82db4b616"
+    }
+  ]
+}

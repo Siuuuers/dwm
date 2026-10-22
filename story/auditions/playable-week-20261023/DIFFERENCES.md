@@ -1,7 +1,7 @@
 # Playable adaptation differences — 2026-10-23
 
 The original day Markdown files remain byte-exact. This document records the
-user-approved playable adaptation; it does not claim completed cloud qualification.
+user-approved playable adaptation. Focused cloud qualification is linked below.
 
 ## Owner decisions
 
@@ -65,5 +65,12 @@ require a new Windows export before the binary delivery branch can contain them.
 
 Python preparation and graph checks pass: every registered scene is reachable,
 all destinations exist, no cycles/dead ends occur, and every path ends at the
-shared registered ending. Native compilation, choice/Challenge integration and
-fresh-process recovery remain pending until linked cloud results are recorded.
+shared registered ending. Native compilation and normal-story registration pass.
+Focused cloud qualification passes 10 tests / 276 assertions across content,
+choice refusal/retry/default/restore, and caption Challenge creation/fresh restore.
+Four public API inventory generation/check processes also pass. Accepted results
+are reused, not repeatedly qualified. Full evidence, failures and scope limits:
+[evidence report](../../../evidence/phase_2r/authored_week_20261023/README.md).
+
+Windows package export follows this qualified source. This is not an old-save
+migration or a full combination/release qualification.
