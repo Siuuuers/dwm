@@ -1,0 +1,86 @@
+[
+  {
+    "path": "scripts/narrative/DialogicRuntimeAdapter.gd",
+    "bytes": 100103,
+    "sha256": "5b8edeeb27eefa097a02c249026ff93ef016255955d0096f1661dcaec7379711",
+    "blob": "39d441c636688177e9b1b809013843cc8db0e47d"
+  },
+  {
+    "path": "scripts/narrative/SceneValidationTiming.gd",
+    "bytes": 2503,
+    "sha256": "377fdc07a6ba19e8c2727d83a22e58a54999d981ce9f14efd80372e3e3c7d8e8",
+    "blob": "39a650d2d0986b82ff519780d4b61b8c735e1dff"
+  },
+  {
+    "path": "scripts/narrative/SoloReadingSession.gd",
+    "bytes": 53874,
+    "sha256": "1639a42e6f4d5a76a516a2738cea247a0e797bfda53990dbdf46d597a6b19cdf",
+    "blob": "cf9e72d23c21a0926248d706f41098cdf3256b1a"
+  },
+  {
+    "path": "tests/integration/scene_seven_day_connected_child.gd",
+    "bytes": 30036,
+    "sha256": "1ae0943ad187e6f85d42345a439178cd01f692ca61348a9cf40330ace6c9f7fb",
+    "blob": "d9f31e79658a83b3a835766564033ba448177cc0"
+  },
+  {
+    "path": "tests/integration/test_scene_ending_direct_return.gd",
+    "bytes": 7840,
+    "sha256": "88e554c884e613018309fd9225014121f50a48ab5f5d67ec9f86a94c2d81835d",
+    "blob": "d270ab1535e966f8b32f3a3100350332142c4c5f"
+  },
+  {
+    "path": "tests/integration/scene_later_caption_child.gd",
+    "bytes": 13113,
+    "sha256": "eb032c12a41d188573cebcbdc30e0c059441fe9a572b277fb55ef8b4174526be",
+    "blob": "5a5b16e1dfd00910be6995317fbc9646581d34e6"
+  },
+  {
+    "path": "scripts/infrastructure/save/SaveDocumentSchema.gd",
+    "bytes": 31845,
+    "sha256": "c0fe0f1e37d2c11fe4884a1efd6fde31c3f93c1963a65f6606c5ff9fe31cfce0",
+    "blob": "c9b3b58e21671cf5de39e3d5195869462ef68ca2"
+  },
+  {
+    "path": "scripts/domain/run/RunSnapshotSchema.gd",
+    "bytes": 74361,
+    "sha256": "dd08969c98e93664ca10c05767a5b0c9844d2065b00677888ccfa50cb8564698",
+    "blob": "672d6c641f149164ac84966b4c0a1fead227496e"
+  },
+  {
+    "path": "autoload/ProfileManager.gd",
+    "bytes": 94712,
+    "sha256": "225552c3141c3731566dda8bf40ba33667f6bc61fc4d448e6f495eaf7606c3c7",
+    "blob": "381329a08e5b6cfd79389e52d3a5dcbad6f6fa80"
+  },
+  {
+    "path": "scripts/domain/narrative/SceneEventContract.gd",
+    "bytes": 79984,
+    "sha256": "0ed73a5e8a1e691f1712d90cb75b45905b48e83535f9dd244b281369cb6c1eae",
+    "blob": "4c6f4ec0d53490a03a6963d5eb94db52440ff4a1"
+  },
+  {
+    "path": "tests/unit/test_scene_event_contract.gd",
+    "bytes": 29157,
+    "sha256": "aba46b84f0b5cdee6298697ecc67ce43f8b08488cc0a8dd83ff4cf0593ce3128",
+    "blob": "b05f775f199244e603b7c454b57ff66224de180e"
+  },
+  {
+    "path": "tests/unit/test_scene_receipt_validation.gd",
+    "bytes": 13340,
+    "sha256": "6b3794c255d9c806b48c3a6e17271c4faab62cd3d4f8474d664605c4cf12134e",
+    "blob": "3e13286578d170a33b6fed6dc3f19a4e5b78dc42"
+  },
+  {
+    "path": "tests/integration/test_scene_seven_day_connected_create.gd",
+    "bytes": 171,
+    "sha256": "885275841d4ccf3de2fd7c1772467554919f7606f95d9b3507f82346c3af4971",
+    "blob": "fb945f9c03672739d700c58ee22f0ef4a705b4f9"
+  },
+  {
+    "path": "tests/integration/test_scene_seven_day_witness_load.gd",
+    "bytes": 203,
+    "sha256": "ac8e7007f0ca198e173ce885c1d604a64e80444cc80e6d681e0453f440696b1a",
+    "blob": "e39f0bc3deb836762b39b1c9302a3ad949add6bc"
+  }
+]

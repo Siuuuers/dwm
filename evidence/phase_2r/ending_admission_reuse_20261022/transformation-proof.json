@@ -1,0 +1,9 @@
+{
+  "original_sha256": "e4b6562355bf5e58a575a272c228be557102b08f65ad9ab35dbe4a0c754253fc",
+  "candidate_sha256": "0ed73a5e8a1e691f1712d90cb75b45905b48e83535f9dd244b281369cb6c1eae",
+  "exact_original_reconstruction": true,
+  "public_prefix_unchanged": true,
+  "private_body_byte_equivalent": true,
+  "one_internal_call_replaced": true,
+  "all_other_bytes_unchanged": true
+}
