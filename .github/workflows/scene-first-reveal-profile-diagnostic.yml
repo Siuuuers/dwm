@@ -17,11 +17,11 @@ jobs:
       run:
         shell: pwsh
     env:
-      SOURCE_SHA: 93f99eefd346b4dc698f21ce98fc90b9a135d8db
+      SOURCE_SHA: 6bbce95bba70fa87e49b2ae88c555c5b8ccf93e8
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: 93f99eefd346b4dc698f21ce98fc90b9a135d8db
+          ref: 6bbce95bba70fa87e49b2ae88c555c5b8ccf93e8
           persist-credentials: true
       - name: Verify immutable source and prepare disposable checkout
         run: |
