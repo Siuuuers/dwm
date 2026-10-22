@@ -1,3 +1,0 @@
-# Marker boundary diagnostic
-
-Run39815647276 failed at Day2 as before. Reconstruct original ZIP by binary concatenation of part1, part2; 603912 bytes, SHA256 88ba7238586bb079be527fd83f7b88a9adaf8d10adb35806f3741f1d087d9d44. Native generation, validation and unit tests passed. Before Day1.two Accept: pending marker and raw source boundary both accepted, native index4 and marker5, expected standalone path. Immediately after: old source path/index remain, pending marker unavailable. No demonstrated native-index drift. Follow-up sourcebede2256ac689d23523f65b65df23ac72e7c0eab logs actual request result without changing return/arguments/owners. Run39816619795. No gameplay fix or export acceptance yet.

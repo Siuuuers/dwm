@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="GutTests" failures="0" tests="1" >
-  <testsuite name="tests/unit/test_template_music_assets.gd" tests="1" failures="0" skipped="0" time="0.575518" >
-      <testcase name="test_title_and_scene_tracks_are_separate_imported_loops_with_authored_binding" assertions="26" status="pass" classname="tests/unit/test_template_music_assets.gd" time="0.575518" >
-      </testcase>
-  </testsuite>
-</testsuites>

@@ -1,9 +1,0 @@
-[gd_scene load_steps=2 format=3]
-
-[ext_resource type="Script" path="res://scripts/ui/SceneChallengePanel.gd" id="1"]
-
-[node name="SceneChallengePanel" type="Control"]
-layout_mode = 0
-offset_right = 960.0
-offset_bottom = 656.0
-script = ExtResource("1")

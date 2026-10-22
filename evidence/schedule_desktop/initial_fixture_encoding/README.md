@@ -1,1 +1,0 @@
-These first-run captures are rejected fixture evidence. The Chinese ordinary-action names were corrupted to question marks during shell authoring. The final renders directory contains corrected UTF-8 fixture names; no production catalog claim follows from either set.
