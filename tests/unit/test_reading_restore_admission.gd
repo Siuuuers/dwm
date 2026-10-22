@@ -29,6 +29,7 @@ func before_each() -> void:
 		"dating.solo.priscilla.day2.pre_challenge",
 		"dating.solo.priscilla.day2.post_challenge",
 		"hospital.faint.day1",
+		"contact.invitation.solo.sylvia.day1.offer",
 	])
 	assert_true(installed.get("ok", false), str(installed))
 

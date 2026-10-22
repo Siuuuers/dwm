@@ -50,7 +50,7 @@ func test_ending_seed_detaches_facts_and_has_no_future_step_identity() -> void:
 	assert_false(built.value.has("prerequisite_receipt_ids"))
 
 func test_later_step_requires_actual_preceding_completion_and_keeps_frozen_variant() -> void:
-	var installed := _retained_contexts.install(["ending.priscilla.sweet", "ending.priscilla.observer.residue"])
+	var installed: Dictionary = _retained_contexts.install(["ending.priscilla.sweet", "ending.priscilla.observer.residue"])
 	assert_true(installed.ok, str(installed))
 	if not installed.ok: return
 	var plan := _plan([{"ending_id": "ending.priscilla.sweet", "role": "core"},
@@ -69,7 +69,7 @@ func test_later_step_requires_actual_preceding_completion_and_keeps_frozen_varia
 	assert_eq(later.value.presentation.fields.ending_form, "observer_residue")
 
 func test_special_forced_dark_retains_stored_tone_and_alone_pair_omit_solo_fields() -> void:
-	var installed := _retained_contexts.install(["ending.sylvia.dark", "ending.alone.normal", "ending.priscilla_lavinia.sweet"])
+	var installed: Dictionary = _retained_contexts.install(["ending.sylvia.dark", "ending.alone.normal", "ending.priscilla_lavinia.sweet"])
 	assert_true(installed.ok, str(installed))
 	if not installed.ok: return
 	var plan := _plan([{"ending_id": "ending.sylvia.special", "role": "special_prefix"}, {"ending_id": "ending.sylvia.dark", "role": "core"}])
@@ -85,7 +85,7 @@ func test_special_forced_dark_retains_stored_tone_and_alone_pair_omit_solo_field
 		if step.ending_id == "ending.alone": assert_eq(built.value.presentation.fields.alone_cause, "hospital_faint")
 
 func test_cache_rejects_missing_reached_step_and_changed_seed_or_context() -> void:
-	var installed := _retained_contexts.install(["ending.priscilla.sweet", "ending.priscilla_lavinia.sweet"])
+	var installed: Dictionary = _retained_contexts.install(["ending.priscilla.sweet", "ending.priscilla_lavinia.sweet"])
 	assert_true(installed.ok, str(installed))
 	if not installed.ok: return
 	var plan := _plan([{"ending_id": "ending.priscilla.sweet", "role": "core"}, {"ending_id": "ending.priscilla_lavinia.sweet", "role": "pair_coda"}])
