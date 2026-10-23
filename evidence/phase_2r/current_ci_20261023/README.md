@@ -41,4 +41,20 @@ The earlier candidate preflight failure was not accepted. Diagnostic controllers
 
 [Run 39979681421](https://github.com/Siuuuers/dwm/actions/runs/39979681421) uses the same forty-file root and helpers, with instrumentation only. Its 112-assertion native journey passed. Twenty seed preparations across 57 bundles consumed 180.881935s inclusive: 111.575281s during Load and 69.306654s during Save. These figures include required work and do not predict an optimization's savings. The archive and summary are retained in `run39979681421/`.
 
-These completed diagnostics do not qualify the pending Settings suite or the separate, unaccepted scene-seed reuse experiment. No master merge is established by this evidence directory.
+## Current Settings and first-reveal qualification
+
+[Run39989387087](https://github.com/Siuuuers/dwm/actions/runs/39989387087), source `d74663635f04f63d3bb3e12f1811fee175cadbf7`, passed 366 Settings primary cases/21,934 assertions, both expected invalid-root refusal censuses, 61,180 manual storage assertions and three rendered captures. Its separate ordinary-board first-reveal creator/loader pair passed two cases/143 assertions. The legacy seven-case first-reveal file remains byte-preserved; four compatible adapter cases and the current paired journey are the selected coverage, not an identical reproduction of the retired legacy crash-injection matrix.
+
+## Measured scene seed reuse
+
+[Run39988834004](https://github.com/Siuuuers/dwm/actions/runs/39988834004), source `8ced88776993efecf3229b603dbd9671d7584549`, passed 66 focused/public cases/2188 assertions and the matched native journey's 112 assertions. It reuses detached current-scene admission material only while document and selected bundle remain exactly equal; legacy, recovery and changed inputs use generic validation. Both measured runs use the same four helper hashes, authentic input root and profiling flags.
+
+| Complete phase | Previous candidate seconds | Seed reuse seconds |
+|---|---:|---:|
+| Boot | 67.238331 | 60.130351 |
+| Load | 543.462862 | 397.534697 |
+| Save | 363.537523 | 246.436326 |
+
+Load improved 26.85% and Save 32.21% in this single matched pair. Multi-minute pauses remain; no statistical guarantee or smooth-gameplay acceptance is claimed. The original native archive SHA-256 is `c49053565e4b9430f2e9f0157eea9c1602898156de13df2837ca714235279670`.
+
+The combined source preserves current master Steam changes. Final combined inventories and canonical acceptance are tracked in the current qualification handoff. This evidence does not itself establish a master merge.

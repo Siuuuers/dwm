@@ -1,34 +1,36 @@
 # Current qualification checkpoint — 2026-10-24 (Hong Kong)
 
-Status: pending final acceptance; do not infer a master merge from this checkpoint.
+Status: final composed acceptance pending. This record does not claim a master merge.
 
-## Candidate and current checks
+## Final composition
 
-- Candidate `e5cf80a5417c05bd0bb7fa2f60f59e8905e839a6`, PR #52.
-- Full current verification: https://github.com/Siuuuers/dwm/actions/runs/39978867976
-- Focused fixture repair and native inventories: https://github.com/Siuuuers/dwm/actions/runs/39977776938 — passed 43 cases / 2030 assertions, plus public-surface validation. Artifact12511743877 SHA-256 `7c12d05f84c5ddf6876b7d8001eba5c6823e9453f60a77c64f5a2909e7f8f823`.
-- Uninterrupted authored-week: https://github.com/Siuuuers/dwm/actions/runs/39973922887 — passed 1 case / 7615 assertions; all 836 ordered captions, 835 transitions, durable completion, exactly one Gallery receipt, and return to Title. Source `0493deb8` has identical game runtime to the consolidated candidate. Elapsed 45m55.8s; worst transition 216.631s. This proves the default authored path, not smooth performance or all branches.
-- Journal-seed timing: https://github.com/Siuuuers/dwm/actions/runs/39979681421 — passed the same 112-assertion native journey. Twenty seed preparations covered 57 bundles and consumed 180.881935s inclusive. Necessary selection/copy work is included; this is not a predicted saving.
-- Final visual recheck: https://github.com/Siuuuers/dwm/actions/runs/39981619080 — all 133 captures passed after the delivery pixel probe was aligned with the actual caption boundary. Source `d2e737d2`, no runtime change.
-- Current retained-evidence head `2a413330f8c38d2da56356e4a5bdf509a3f91f94` descends from that visual fix and includes original archives and reports. PR #52 has not yet advanced to this head.
-- Isolated seed-reuse experiment: source `84f0f57437041efa169e7b17ff2317dfe58d743e`; https://github.com/Siuuuers/dwm/actions/runs/39985666398. Independent static review passed. Focused cloud tests, inventories, and matched native timing remain pending. Do not merge or claim a speedup yet.
+Source `1ca4b17e49dd487fd57aa80b4a8d7fb3b2c17d1e` combines PR52, current Settings fixtures and first-reveal selection, measured scene seed reuse, and master `894a9f2f2df65b5b87b0562ea1a2e7bc5fb5b1ef`. The two concurrent Steam files are preserved byte-for-byte. Steam export/upload is a separate workflow; this task neither dispatches nor claims it.
 
-Current full run `39978867976` passed 23 jobs, including 20 regression suites / 2366 cases / zero skips. Its renderer failure was separately repaired and requalified by the complete 133-capture campaign above. Settings eventually became cancelled without retrievable job logs; it is not accepted. Split-phase diagnostic `39982453145` is still in primary tests. Heartbeat diagnostic `39984200188` failed with missing child exit status and empty output, so it provides no failing-test attribution. A launcher investigation is pending.
+The player outcome is unchanged durable Save/Load behavior with less repeated validation and no hidden Backup inspection before its first preview. SaveDocumentSchema owns admission; SaveManager consumes call-local detached proof only while the document and selected bundle remain exactly equal. Drift, legacy admission and recovery retain generic validation. There is no global proof cache. Hidden previews, actual opening/reopening, and action execution retain their respective freshness checks.
 
-The prior full run39974551776 passed20jobs but had four known test/renderer failures; its Settings job remained running beyond configured budgets with logs unavailable. It was force-cancelled only after normal cancellation left the new run queued (maintenance run39979223962). That prior run is not acceptance evidence. Settings now has bounded helper termination/output draining and UTC phase markers, preserving all refusal counts, repository hashing and child budgets.
+## Completed verification
 
-## Changes
+- Settings [39989387087](https://github.com/Siuuuers/dwm/actions/runs/39989387087): 366 primary cases, 21,934 assertions, no failures/skips. Each invalid-root mode reports 80 expected refusals plus three storage-free passes and unchanged repository snapshots. Manual storage checks: 61,180 assertions. Three rendered Settings captures passed.
+- Current ordinary-board first-reveal in the same run: two separate creator/loader processes, two cases, 143 assertions. Durable paid board, selected Load on a different branch, no extra round charge or history replay. This does not reproduce the retired legacy post-checkpoint/pre-live-adoption crash injection.
+- Seed reuse [39988834004](https://github.com/Siuuuers/dwm/actions/runs/39988834004): 66 focused/public cases, 2188 assertions, then the matched native ending Save/Load journey, one case and 112 assertions. The matched complete Load phase fell from 543.462862s to 397.534697s (26.85%); Save fell from 363.537523s to 246.436326s (32.21%). Boot fell from 67.238331s to 60.130351s. These are one matched pair, not a statistical guarantee. Complete-operation provenance is retained separately.
+- Earlier full run [39978867976](https://github.com/Siuuuers/dwm/actions/runs/39978867976): 20 primary suites/2366 cases passed. Its Settings cancellation and renderer failure are not represented as success; both were subsequently resolved in scoped checks. Final composed CI remains required.
+- Visual recheck [39981619080](https://github.com/Siuuuers/dwm/actions/runs/39981619080): all 133 captures passed after correcting a pixel probe boundary; no runtime change.
+- Uninterrupted default authored week [39973922887](https://github.com/Siuuuers/dwm/actions/runs/39973922887): 836 captions, 835 transitions, 7615 assertions, durable completion, one Gallery receipt and return to Title. This precedes seed reuse and is not a final-source uninterrupted rerun. It proves one authored path, not every branch.
 
-The only game runtime optimization is deferred inspection for a hidden Backup surface. First preview prepares it once; actual activation/reopening still refreshes; action execution still rechecks. See [matched evidence](../evidence/phase_2r/current_ci_20261023/README.md) for the narrow measured benefit and regressions in other markers.
+## Minimal verification changes
 
-Canonical verification selects current behavior and keeps historical benchmark/story jobs on pinned historical sources. Three current suites are added. Legacy fixture bindings are supplied by test fixtures, not reintroduced into production. The nine obsolete health/pressure schedule tests remain byte-preserved in source and historical selection.
+GUT logging changed from all passing assertions to test/failure output. Matched Settings runs retained exactly the same 369 case results, 22,009 assertions and eight identified failures while reducing logs from 23,187,074 to 57,879 bytes. This proves quieter equivalent diagnostics, not the cause of earlier runner stalls.
 
-Current test repairs preserve existing behavior assertions: mocked dependency APIs, two simulated-process callback lifecycles, inherited-script provenance checks, exact UI literal ownership, Shop page expectations and the current two-row dialogue footer. Independent rendered checks run even when a sibling renderer fails, gated on their actual prerequisites; failures still make the job red.
+Those eight failures were stale fixtures: existing scene-validation scopes now isolate retained catalogues, Reset uses a current line ID, and four compatible first-reveal adapter cases are selected without the three retired motivation/schema cases. The original seven-case legacy file remains byte-preserved. Current transactional first-reveal coverage is selected as a separate creator/loader pair. No production legacy fallback was added.
 
-Frozen aliasing controls retain their four exact historical method hashes and behavioral isolation probes. The broad current-owner hash reconstruction and orphan refresh tool were removed. Inventories were regenerated by cloud Godot, not edited by hand.
+Canonical CI selects 22 primary regression suites plus exported startup, public surfaces and two rendered jobs. Historical benchmark and superseded story jobs remain on their pinned sources. The frozen four method hashes and behavioral alias probes remain; the broad current-owner hash reconstruction and orphan tool were removed. Public inventories must come from cloud Godot regeneration, never hand edits.
+
+## Remaining limits and next work
+
+Multi-minute authored and Save/Load pauses remain. The earlier uninterrupted path took 45m55.8s with a 216.631s worst transition. Single matched cloud timing pairs are not statistical guarantees or smooth-gameplay acceptance. Next optimization should start from one reproducible long transition and compare the whole operation; avoid removing copies or validation without understanding their ownership.
+
+Do not infer production Notes activation, Schedule removal, legacy save migration, every-branch acceptance, Steam installation or release acceptance. No new architecture decision is currently blocked on a user answer.
 
 ## Merge disposition
 
-Merge the qualified consolidated PR #52 with history preserved. Older exact-ancestor contributions need no separate code merge. Divergent composed branches must be reconciled as superseded after checking their retained contributions; do not blanket-merge old heads. Diagnostic PRs #30/#50 and historical protected sources remain separate. PR #53 was incorporated by ancestry into #52, not independently into master.
-
-No Steam release is authorized by this checkpoint. Cloud-only engine execution remains required.
+After final composed CI passes, merge PR52 preserving history, then refresh older PR state. Exact ancestors require no repeated code merge. Divergent incorporated proposals can be reconciled as superseded; preserve the pinned historical records from PR38/43 and all protected references. Diagnostic PR30/50 stay separate. Detailed exact heads and retained paths are in `evidence/phase_2r/current_ci_20261023/pr-reconciliation-provenance.json` and its Markdown companion. Status changes must be recorded only after they actually happen.
