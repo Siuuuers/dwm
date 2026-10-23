@@ -152,7 +152,10 @@ func _process(delta: float) -> void:
 	_thought_poll = 0.1
 	var button: Button = $SceneControlsLayer/Surface/ThoughtYes
 	var bridge := get_node_or_null("/root/DialogicBridge")
-	var marker: Dictionary = bridge.capture_scene_pending_marker() if bridge != null else {}
+	# A held control can offer manual continuation, never a Thought. Do not
+	# reconstruct its complete saved history on this periodic display query.
+	var held_control: bool = bridge != null and bridge.project_scene_optional_frontier(false).get("ok", false)
+	var marker: Dictionary = bridge.capture_scene_pending_marker() if bridge != null and not held_control else {}
 	var available: bool = not _busy and not _computer_open and marker.get("ok", false) and marker.value.kind in ["thought.pass", "thought.options"]
 	if available:
 		var game := get_node_or_null("/root/GameState")

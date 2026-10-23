@@ -232,7 +232,8 @@ func configure_scene_backup(port: Object, localization: Object = null,
 	return _ready_result.duplicate(true)
 
 func configure_backup(port: Object, localization: Object = null, profile: Object = null,
-		palette: StringName = &"after_hours", day: int = 1) -> Dictionary:
+		palette: StringName = &"after_hours", day: int = 1,
+		refresh_on_configure: bool = true) -> Dictionary:
 	if _scene_presentation:
 		return {"ok": false, "code": &"scene_presentation_active"}
 	for method in ["get_projection", "prepare_action", "commit_action", "cancel_action"]:
@@ -252,7 +253,7 @@ func configure_backup(port: Object, localization: Object = null, profile: Object
 		profile.connect("preference_changed", _on_preference_changed)
 	if port.has_signal("projection_changed") and not port.is_connected("projection_changed", _on_projection_changed):
 		port.connect("projection_changed", _on_projection_changed)
-	_ready_result = refresh_view() if is_node_ready() else {"ok": true}
+	_ready_result = refresh_view() if is_node_ready() and refresh_on_configure else {"ok": true}
 	return _ready_result
 
 func configure_run_presentation(palette: StringName, day: int) -> Dictionary:

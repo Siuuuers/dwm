@@ -261,6 +261,7 @@ func _install_scene_control(session: RefCounted, reading: Dictionary,
 	if not source_checked.ok: return source_checked
 	var source: Dictionary = _scene_source.boundary.reading.duplicate(true)
 	var marker: Dictionary = _scene_source.boundary.marker.duplicate(true)
+	var control_native_index: int = _scene_source.boundary.native_index
 	if source.boundary != "line" or marker.kind != "challenge.playable" \
 			or session == source_session or session.family != "scene" \
 			or session.ledger == _caption_ledger:
@@ -305,7 +306,8 @@ func _install_scene_control(session: RefCounted, reading: Dictionary,
 	_scene_source = {}
 	_caption_ledger = candidate_ledger
 	_marker_hold.ledger = candidate_ledger
-	_scene_control_restore = {"session": session, "reading": retained.duplicate(true)}
+	_scene_control_restore = {"session": session, "reading": retained.duplicate(true),
+		"marker": marker, "native_index": control_native_index}
 	var adopted := capture_scene_control_position(session)
 	if not adopted.ok:
 		halt_with_error(adopted)
@@ -363,11 +365,13 @@ func _install_scene_frontier(session: RefCounted, checkpoint: Dictionary, source
 		return _fail(&"scene_restore_native_invalid", "installed programme changed")
 	var native_program_index: int = saved.program_index
 	var restore_frontier: Dictionary = saved.frontier.duplicate(true)
+	var control_marker := {}
 	if saved.boundary == "control":
 		var predecessor := _scene_control_predecessor(saved, compiled.value, programme.markers)
 		if not predecessor.ok: return predecessor
 		native_program_index = predecessor.value.index
 		restore_frontier = predecessor.value.frontier
+		control_marker = predecessor.value.marker
 	var node: Dictionary = compiled.value.nodes[native_program_index]
 	if node.kind != "caption" or node.line_id != restore_frontier.line_id:
 		return _fail(&"scene_restore_native_invalid", "saved caption position changed")
@@ -387,7 +391,8 @@ func _install_scene_frontier(session: RefCounted, checkpoint: Dictionary, source
 	if not frozen.ok: return frozen
 	_scene_control_restore = {}
 	if saved.boundary == "control":
-		_scene_control_restore = {"session": session, "reading": saved.duplicate(true)}
+		_scene_control_restore = {"session": session, "reading": saved.duplicate(true),
+			"marker": control_marker, "native_index": int(compiled.value.native_indices[saved.program_index])}
 	_caption_restore_frontier = restore_frontier.duplicate(true)
 	_caption_restore_queued = false
 	var started := _start_held_scene_target(path, int(compiled.value.native_indices[native_program_index])) if source_token != null \
@@ -414,9 +419,50 @@ static func _scene_control_predecessor(saved: Dictionary, compiled: Dictionary, 
 		return {"ok": false, "code": &"scene_restore_control_invalid"}
 	for marker: Dictionary in markers:
 		if marker.marker_id == compiled.nodes[index].marker_id and marker.after_line_id == prior.line_id:
-			return {"ok": true, "value": {"index": index - 1,
+			return {"ok": true, "value": {"index": index - 1, "marker": marker.duplicate(true),
 				"frontier": {"line_id": prior.line_id, "publication_id": row.publication_id}}}
 	return {"ok": false, "code": &"scene_restore_control_invalid"}
+
+## Transient UI identity only. It checks the current held invocation and cursor
+## without copying or validating historical captions. Activation still requires
+## capture_scene_control_position's complete saved/native proof below.
+func project_scene_control_frontier(session: RefCounted) -> Dictionary:
+	if not _bound or not _qualified_runtime or session == null \
+			or _scene_control_restore.is_empty() or session != _scene_control_restore.session \
+			or not _marker_hold_identity_current():
+		return _fail(&"scene_restore_control_unproven", "")
+	var reading: Dictionary = _scene_control_restore.reading
+	if session.family != "scene" or session.boundary != "control" \
+			or session.ledger != _caption_ledger or session.command_id != _caption_token \
+			or session.latest_entry != _caption_entry or session.latest_entry != reading.entry_id \
+			or session.scene_occurrence != _scene_caption_occurrence or session.scene_occurrence != reading.occurrence_id \
+			or session.fingerprint != reading.registration_sha256 or session.scene_index != reading.program_index \
+			or not can_capture_reading_frontier() \
+			or _dialogic.Inputs.auto_skip.enabled or _dialogic.Inputs.auto_advance.is_enabled():
+		return _fail(&"scene_restore_control_changed", "")
+	var nodes: Array = session._scene_nodes.get(session.latest_entry, [])
+	var index: int = session.scene_index
+	var marker: Dictionary = _scene_control_restore.marker
+	if index < 1 or index >= nodes.size() or nodes[index].kind != "control" \
+			or nodes[index].marker_id != marker.marker_id or nodes[index - 1].kind != "caption" \
+			or nodes[index - 1].next != index or nodes[index - 1].line_id != _caption_line \
+			or marker.after_line_id != _caption_line:
+		return _fail(&"scene_restore_control_changed", "")
+	var native_index: int = _scene_control_restore.native_index
+	if native_index < 0 or native_index >= _dialogic.current_timeline_events.size():
+		return _fail(&"scene_restore_control_changed", "")
+	var native: DialogicEvent = _dialogic.current_timeline_events[native_index]
+	if not native.event_node_ready:
+		var detached: DialogicEvent = native.get_script().new()
+		detached._load_from_string(native.event_node_as_text)
+		native = detached
+	if not native is DialogicLabelEvent or native.name != marker.label:
+		return _fail(&"scene_restore_control_changed", "")
+	var identity: Dictionary = _marker_hold.identity.duplicate(true)
+	identity["session_instance"] = session.get_instance_id()
+	identity["execution_generation"] = _marker_hold.execution_generation
+	return {"ok": true, "value": {"marker_id": marker.marker_id, "occurrence_id": session.scene_occurrence,
+		"program_index": index, "native": identity}}
 
 func capture_scene_control_position(session: RefCounted) -> Dictionary:
 	if _scene_control_restore.is_empty() or session != _scene_control_restore.session \
@@ -1795,11 +1841,15 @@ func marker_source_identity() -> Dictionary:
 		"frontier": captured.value.duplicate(true)}}
 
 func _marker_hold_current() -> bool:
+	return _marker_hold_identity_current() and _marker_hold.snapshot == _caption_ledger.snapshot() \
+		and _marker_hold_identity_current()
+
+func _marker_hold_identity_current() -> bool:
 	return not _marker_hold.is_empty() and _caption_source_is_current() \
 		and _marker_hold.identity.request == _request_id and _marker_hold.identity.generation == _runtime_generation \
 		and _marker_hold.identity.session == _caption_token and _marker_hold.identity.entry == _caption_entry \
 		and _marker_hold.identity.event_index == int(_dialogic.current_event_idx) \
-		and _marker_hold.ledger == _caption_ledger and _marker_hold.snapshot == _caption_ledger.snapshot() \
+		and _marker_hold.ledger == _caption_ledger \
 		and _marker_hold.event == _caption_event and _caption_event == _current_skip_text(true) \
 		and _caption_event.state == DialogicTextEvent.States.DONE \
 		and _caption_event._execution_generation == _marker_hold.execution_generation \

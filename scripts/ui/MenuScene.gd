@@ -430,8 +430,10 @@ func _on_log_in_pressed() -> void:
 	_backup_app_host.add_child(_backup_app_instance)
 	_backup_app_instance.set_confirmation_host(self)
 	_backup_app_instance.configure_desktop_home(_title_home)
+	# show_window owns this opening's fresh projection, selection and focus.
 	_login_result = _backup_app_instance.configure_backup(_title_port,
-		get_node_or_null("/root/LocalizationManager"), get_node_or_null("/root/ProfileManager"))
+		get_node_or_null("/root/LocalizationManager"), get_node_or_null("/root/ProfileManager"),
+		&"after_hours", 1, false)
 	_title_status.hide()
 	_backup_app_instance.show_window()
 	_end_title_transition()

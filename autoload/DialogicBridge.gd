@@ -1989,7 +1989,7 @@ func can_skip_current_line() -> bool:
 ## checkpoint owner. Capability queries do not allocate History or write Profile.
 func can_next_current_line() -> bool:
 	if has_reading_session() and _reading_session.family == "scene" and _reading_session.boundary == "control":
-		return not _next_active and not _next_admitting and capture_scene_optional_frontier().get("ok", false)
+		return not _next_active and not _next_admitting and project_scene_optional_frontier().get("ok", false)
 	if _marker_entry_active():
 		return not _next_active and not _next_admitting and capture_next_frontier().get("ok", false)
 	if _next_active or _line_ack_in_progress or _auto_step_in_progress or _skip_step_in_progress \
@@ -2197,7 +2197,7 @@ func is_current_line_presentation_acknowledged() -> bool:
 ## Opaque proof of the rendered source, even while a transaction temporarily owns writes.
 func capture_current_line_presentation_frontier() -> Dictionary:
 	if has_reading_session() and _reading_session.family == "scene" and _reading_session.boundary == "control":
-		return capture_scene_optional_frontier(false)
+		return project_scene_optional_frontier(false)
 	if _reached_replay.has("caption_ledger"): return _reached_caption_frontier({}, false)
 	return _line_presentation_context({}, false)
 
@@ -2767,14 +2767,18 @@ func can_capture_reading_checkpoint() -> bool:
 				or _active_entry.get("entry_id") != _reading_session.latest_entry \
 				or _runtime_adapter == null or not _runtime_adapter.has_method("can_capture_reading_frontier"):
 			return false
+		if _reading_session.boundary == "control":
+			var control_frame: Dictionary = _reading_session.ledger.check_session(_reading_session.command_id,
+				_reading_session.latest_entry, _reading_session.scene_occurrence)
+			return control_frame.ok and _READING_TRAVERSAL._same(control_frame.value, _active_entry.get("frozen_context")) \
+				and _runtime_adapter.has_method("capture_scene_control_position") \
+				and _runtime_adapter.has_method("project_scene_control_frontier") \
+				and _runtime_adapter.project_scene_control_frontier(_reading_session).get("ok", false)
 		var retained: Dictionary = _reading_session.ledger.snapshot()
 		var frame := preload("res://scripts/narrative/NarrativeCaptionLedger.gd").resolve_scene_frame(
 			retained.entry_contexts, _reading_session.scene_occurrence, _reading_session.latest_entry)
 		if not frame.ok or not _READING_TRAVERSAL._same(frame.value, _active_entry.get("frozen_context")):
 			return false
-		if _reading_session.boundary == "control":
-			return _runtime_adapter.has_method("capture_scene_control_position") \
-				and _runtime_adapter.capture_scene_control_position(_reading_session).get("ok", false)
 		return _runtime_adapter.can_capture_reading_frontier()
 	if _marker_entry_active() and _runtime_adapter.is_marker_source_held():
 		return not _next_active and not _pause_changing and _reading_restore_pending.is_empty()
@@ -2797,7 +2801,10 @@ func capture_reading_checkpoint(complete_reveal: bool = false) -> Dictionary:
 			else _runtime_adapter.capture_reading_frontier()
 		if not native_frontier.ok: return native_frontier
 		frontier = native_frontier.value
-	var session_snapshot: Dictionary = _reading_session.capture(frontier)
+	# A capability projection is not Save authority. Held controls still require
+	# the current complete Reading5 and physical predecessor proof on activation.
+	var session_snapshot: Dictionary = _runtime_adapter.capture_scene_control_position(_reading_session) \
+		if _reading_session.family == "scene" and _reading_session.boundary == "control" else _reading_session.capture(frontier)
 	if not session_snapshot.ok: return session_snapshot
 	var entry_id: String = _reading_session.latest_entry
 	var context: Dictionary = {}
@@ -2867,6 +2874,9 @@ func get_scene_caption_memory(expected_presentation: Dictionary) -> Dictionary:
 func get_reading_history() -> Dictionary:
 	if not can_capture_reading_checkpoint(): return _command_failure(&"reading_frontier_unavailable")
 	var frontier := {}
+	if _reading_session.family == "scene" and _reading_session.boundary == "control":
+		var held: Dictionary = _runtime_adapter.capture_scene_control_position(_reading_session)
+		if not held.ok: return held
 	if _reading_session.boundary == "line":
 		var captured: Dictionary = _runtime_adapter.capture_reading_frontier()
 		if not captured.ok: return captured
@@ -4495,18 +4505,39 @@ func is_scene_challenge_departed(marker_id: String) -> bool:
 			return index < int(reading.program_index)
 	return false
 
-func capture_scene_optional_frontier(guard_mutation: bool = true) -> Dictionary:
+## Read-only presentation identity. This never grants persistence or continuation
+## authority; actual input must freshly capture the complete held control below.
+func project_scene_optional_frontier(guard_mutation: bool = true) -> Dictionary:
+	if not has_reading_session() or _reading_session.family != "scene" or _reading_session.boundary != "control":
+		return _command_failure(&"scene_challenge_control_required")
 	if guard_mutation and is_computer_caption_held(): return _command_failure(&"computer_caption_held")
 	if not _pause_handle.is_empty() or _pause_changing or is_pause_restore_pending() \
 			or not _active_transaction.is_empty() or (is_inside_tree() and get_tree().paused) \
 			or not _scene_event_context_provider.is_valid(): return _command_failure(&"narrative_suspended")
 	if guard_mutation:
+		if _mutation_gate == null: return _command_failure(&"narrative_suspended")
 		var guarded: Dictionary = _mutation_gate.guard_external(&"scene_challenge_continuation")
 		if not guarded.get("ok", false): return guarded
+	if not _computer_hold_frontier.is_empty() and (_computer_hold_changing or not _computer_frontier_matches(true)):
+		return _command_failure(&"computer_source_changed")
+	if not _marker_context.is_empty() and not _marker_source_valid():
+		return _command_failure(&"reading_marker_source_changed")
+	if _active_entry.get("execution_mode") != &"canonical" or not can_capture_reading_checkpoint():
+		return _command_failure(&"scene_challenge_control_required")
+	var projected: Dictionary = _runtime_adapter.project_scene_control_frontier(_reading_session)
+	if not projected.ok: return projected
+	projected.value["kind"] = "scene_optional_control"
+	projected.value["token"] = str(_active_entry.token)
+	return projected
+
+func capture_scene_optional_frontier(guard_mutation: bool = true) -> Dictionary:
+	var projected := project_scene_optional_frontier(guard_mutation)
+	if not projected.ok: return projected
 	var held := capture_scene_challenge_control()
 	if not held.get("ok", false): return held
-	return {"ok": true, "value": {"kind": "scene_optional_control", "token": str(_active_entry.token),
-		"marker_id": held.value.marker_id, "reading": held.value.checkpoint.reading_session}}
+	if project_scene_optional_frontier(guard_mutation) != projected:
+		return _command_failure(&"presentation_frontier_changed")
+	return projected
 
 func capture_scene_challenge_control() -> Dictionary:
 	var boundary := capture_scene_event_boundary()
