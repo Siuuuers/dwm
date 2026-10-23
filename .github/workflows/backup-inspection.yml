@@ -1,8 +1,5 @@
 name: Backup metadata retention qualification
 'on':
-  push:
-    branches:
-    - codex/backup-inspection-controller-20261023
   workflow_dispatch: null
 permissions:
   contents: read
