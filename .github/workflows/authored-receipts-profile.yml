@@ -16,19 +16,19 @@ jobs:
       with:
         fetch-depth: 2
         persist-credentials: true
-        ref: a1f2062e24312502aaaecc74bd92d173b50137ad
+        ref: 609f0f2be6957f6ee33b8b70cc6fbd06e0cb7207
     - name: Record pinned source
       run: '$ErrorActionPreference = ''Stop''
 
-        if ((git rev-parse HEAD) -cne ''a1f2062e24312502aaaecc74bd92d173b50137ad'') { throw ''Candidate
+        if ((git rev-parse HEAD) -cne ''609f0f2be6957f6ee33b8b70cc6fbd06e0cb7207'') { throw ''Candidate
         mismatch'' }
 
-        if ((git rev-parse ''HEAD^{tree}'') -cne ''e619b4600a96e7ece26547777d526874061c274c'') { throw
+        if ((git rev-parse ''HEAD^{tree}'') -cne ''cd0a235191abad8d370109e613866a432fa0708c'') { throw
         ''Candidate tree mismatch'' }
 
         New-Item -ItemType Directory -Force ''.godot/ci'' | Out-Null
 
-        @{candidate=''a1f2062e24312502aaaecc74bd92d173b50137ad''; tree=(git rev-parse ''HEAD^{tree}'');
+        @{candidate=''609f0f2be6957f6ee33b8b70cc6fbd06e0cb7207''; tree=(git rev-parse ''HEAD^{tree}'');
         controller=''${{ github.event.pull_request.head.sha }}''; workflow=''${{ github.workflow_sha }}'';
         event=''${{ github.sha }}''; run_id=''${{ github.run_id }}''; attempt=''${{ github.run_attempt
         }}''} | ConvertTo-Json | Set-Content ''.godot/ci/audit-origin.json''
@@ -84,28 +84,12 @@ jobs:
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
         '
-    - name: Verify receipt contract regressions
+    - name: Verify saved-event-anchor
       timeout-minutes: 12
-      run: './tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''receipt-contract'' -LogName ''receipt-contract.log''
-        -EvidenceLogPath ''.godot/ci/receipt-contract.jsonl'' -TimeoutSeconds 600 -KeepRoot -GodotArgs
-        @(''-s'', ''res://addons/gut/gut_cmdln.gd'', ''-gconfig='', ''-gtest=res://tests/unit/test_scene_event_contract.gd,res://tests/unit/test_scene_receipt_validation.gd'',
-        ''-gexit'', ''-glog=2'', ''-gjunit_xml_file=res://.godot/ci/receipt-contract.xml'')
-
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }'
-    - name: Verify initial-admission
-      timeout-minutes: 12
-      run: './tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''initial-admission'' -LogName ''initial-admission.log''
-        -EvidenceLogPath ''.godot/ci/initial-admission.jsonl'' -TimeoutSeconds 600 -KeepRoot -GodotArgs
-        @(''-s'', ''res://addons/gut/gut_cmdln.gd'', ''-gconfig='', ''-gtest=res://tests/integration/test_scene_initial_admission.gd'',
-        ''-gexit'', ''-glog=2'', ''-gjunit_xml_file=res://.godot/ci/initial-admission.xml'')
-
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }'
-    - name: Verify initial-candidate
-      timeout-minutes: 12
-      run: './tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''initial-candidate'' -LogName ''initial-candidate.log''
-        -EvidenceLogPath ''.godot/ci/initial-candidate.jsonl'' -TimeoutSeconds 600 -KeepRoot -GodotArgs
-        @(''-s'', ''res://addons/gut/gut_cmdln.gd'', ''-gconfig='', ''-gtest=res://tests/integration/test_scene_initial_candidate.gd'',
-        ''-gexit'', ''-glog=2'', ''-gjunit_xml_file=res://.godot/ci/initial-candidate.xml'')
+      run: './tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''saved-event-anchor'' -LogName ''saved-event-anchor.log''
+        -EvidenceLogPath ''.godot/ci/saved-event-anchor.jsonl'' -TimeoutSeconds 600 -KeepRoot -GodotArgs
+        @(''-s'', ''res://addons/gut/gut_cmdln.gd'', ''-gconfig='', ''-gtest=res://tests/integration/test_scene_saved_event_anchor.gd'',
+        ''-gexit'', ''-glog=2'', ''-gjunit_xml_file=res://.godot/ci/saved-event-anchor.xml'')
 
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }'
     - name: Verify joint-creation
@@ -136,14 +120,9 @@ jobs:
         assert proof['scope']=='fresh_title_first_32_captions' and len(proof['observed_lines'])==32 and\
         \ len(proof['timings'])==31\nlog=pathlib.Path('.godot/phase2r_logs/authored-profile.log').read_text(encoding='utf-8-sig')\n\
         assert log.count('DWM_SCENE_VALIDATION_PROFILE {')==31\nassert log.count('AUTHORED_MEMORY_TIMING\
-        \ {')==2\nassert not any(s in log for s in ['SCRIPT ERROR:', 'ERROR: Failed to load'])\nunit=ET.parse(p/'receipt-contract.xml').getroot();\
-        \ cases=list(unit.iter('testcase'))\nassert len(cases)==40 and all(c.attrib['status']=='pass'\
-        \ for c in cases)\nassert not any(list(unit.iter(t)) for t in ['failure','error','skipped'])\n\
-        unit_events=[json.loads(s) for s in (p/'receipt-contract.jsonl').read_text(encoding='utf-8-sig').splitlines()\
-        \ if s.strip()]\nassert len(unit_events)==1 and unit_events[0]['exit_code']==0\nunit_log=pathlib.Path('.godot/phase2r_logs/receipt-contract.log').read_text(encoding='utf-8-sig')\n\
-        assert not any(s in unit_log for s in ['SCRIPT ERROR:', 'ERROR: Failed to load'])\nfor suite in\
-        \ ['initial-admission','initial-candidate','joint-creation']:\n    report=ET.parse(p/(suite+'.xml')).getroot();\
-        \ cases=list(report.iter('testcase'))\n    assert len(cases)==4 and all(c.attrib['status']=='pass'\
+        \ {')==2\nassert not any(s in log for s in ['SCRIPT ERROR:', 'ERROR: Failed to load'])\nfor suite,\
+        \ expected in [('saved-event-anchor',10),('joint-creation',5)]:\n    report=ET.parse(p/(suite+'.xml')).getroot();\
+        \ cases=list(report.iter('testcase'))\n    assert len(cases)==expected and all(c.attrib['status']=='pass'\
         \ for c in cases),suite\n    assert not any(list(report.iter(t)) for t in ['failure','error','skipped']),suite\n\
         \    events=[json.loads(s) for s in (p/(suite+'.jsonl')).read_text(encoding='utf-8-sig').splitlines()\
         \ if s.strip()]\n    assert len(events)==1 and events[0]['exit_code']==0,suite\n    log=pathlib.Path('.godot/phase2r_logs',suite+'.log').read_text(encoding='utf-8-sig')\n\
@@ -165,7 +144,7 @@ jobs:
         records=[]\nfor p in pathlib.Path('tests/integration').glob('authored_week*.gd.uid'):\n    target=out/'native-uids'/p.name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(p.read_bytes())\n\
         \    tracked=subprocess.run(['git','ls-files','--error-unmatch','--',str(p)],capture_output=True).returncode==0\n\
         \    records.append({'path':p.as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'provenance':'candidate_tracked'\
-        \ if tracked else 'cloud_editor_import','source':'a1f2062e24312502aaaecc74bd92d173b50137ad','source_tree':'e619b4600a96e7ece26547777d526874061c274c'})\n\
+        \ if tracked else 'cloud_editor_import','source':'609f0f2be6957f6ee33b8b70cc6fbd06e0cb7207','source_tree':'cd0a235191abad8d370109e613866a432fa0708c'})\n\
         (out/'uid-provenance.json').write_text(json.dumps(records,indent=2))\n(out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))\n\
         manifest_source=subprocess.check_output(['git','ls-tree','-r','HEAD'],text=True)\n(out/'source-tree.txt').write_text(manifest_source)\n\
         files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts and p.name not\
