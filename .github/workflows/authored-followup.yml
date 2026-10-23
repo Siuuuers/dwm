@@ -1,8 +1,6 @@
 name: Authored week and Settings followup
 'on':
-  pull_request:
-    paths:
-    - .github/workflows/authored-followup.yml
+  workflow_dispatch:
 permissions:
   contents: read
   actions: read
