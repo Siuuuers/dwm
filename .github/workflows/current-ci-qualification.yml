@@ -1,0 +1,184 @@
+name: Current scene CI selection qualification
+'on':
+  push:
+    branches:
+    - codex/current-ci-controller-20261023
+  workflow_dispatch: null
+permissions:
+  contents: read
+jobs:
+  current-selection:
+    name: Windows / current scene selectors
+    runs-on: windows-2022
+    timeout-minutes: 75
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+    - name: Preserve source bytes
+      run: git config --global core.autocrlf false
+    - uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+        persist-credentials: true
+        ref: 149c5cde96f021385fa3e9a1789362e3989b75b9
+    - name: Record pinned source
+      run: '$ErrorActionPreference = ''Stop''
+
+        if ((git rev-parse HEAD) -cne ''149c5cde96f021385fa3e9a1789362e3989b75b9'') { throw ''Candidate mismatch''
+        }
+
+        if ((git rev-parse ''HEAD^{tree}'') -cne ''f8febce4a16552cf1a3ce239b02d9b7f0fd25c6e'') { throw ''Candidate
+        tree mismatch'' }
+
+        New-Item -ItemType Directory -Force ''.godot/ci'' | Out-Null
+
+        @{candidate=''149c5cde96f021385fa3e9a1789362e3989b75b9''; tree=(git rev-parse ''HEAD^{tree}''); controller=''${{
+        github.event.pull_request.head.sha }}''; workflow=''${{ github.workflow_sha }}''; event=''${{ github.sha
+        }}''; run_id=''${{ github.run_id }}''; attempt=''${{ github.run_attempt }}''} | ConvertTo-Json | Set-Content
+        ''.godot/ci/audit-origin.json''
+
+        '
+    - name: Prepare disposable checkout for credential cleanup
+      run: '$ErrorActionPreference = ''Stop''
+
+        # These legacy tooling gitlinks have no .gitmodules URLs. Git''s
+
+        # submodule foreach reads the index even with sparse checkout.
+
+        # The source commit and working files remain unchanged.
+
+        git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        git submodule foreach --recursive ''true''
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        '
+    - name: Install Godot 4.6.3 standard
+      run: "$ErrorActionPreference = 'Stop'\n$archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'\nInvoke-WebRequest\
+        \ -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip'\
+        \ -OutFile $archive\n# SHA256 published with the official 4.6.3-stable release asset.\n$expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'\n\
+        if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {\n  throw\
+        \ 'Godot archive checksum mismatch.'\n}\n$editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'\nExpand-Archive\
+        \ -LiteralPath $archive -DestinationPath $editor\n$console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'\n\
+        if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }\n\"GODOT_CONSOLE_PATH=$console\"\
+        \ | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8\n& $console --version\nif ($LASTEXITCODE -ne\
+        \ 0) { exit $LASTEXITCODE }\n"
+    - name: Import project
+      run: "$ErrorActionPreference = 'Stop'\n$output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'\n$env:APPDATA\
+        \ = Join-Path $output 'import-user/appdata'\n$env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'\n\
+        $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'\nNew-Item -ItemType Directory -Force -Path\
+        \ $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null\n& $env:GODOT_CONSOLE_PATH --headless\
+        \ --path $env:GITHUB_WORKSPACE --import --log-file \"$output/import.log\"\n$importExit = $LASTEXITCODE\n\
+        @{exit_code=$importExit} | ConvertTo-Json | Set-Content \"$output/import-process.json\"\nif ($importExit\
+        \ -ne 0) { exit $importExit }\nif (Select-String -Path \"$output/import.log\" -Pattern 'SCRIPT ERROR:|ERROR:\
+        \ Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {\n  throw 'Project import reported\
+        \ script errors; inspect import.log.'\n}\n"
+      timeout-minutes: 8
+    - name: Restore committed project settings after editor import
+      run: '# Dialogic''s editor scan rewrites its timeline lookup during import.
+
+        # Execute the committed configuration with the freshly imported assets.
+
+        git restore -- project.godot
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        '
+    - name: current-desktop
+      timeout-minutes: 12
+      run: './tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''current-desktop'' -LogName ''current-desktop.log''
+        -EvidenceLogPath ''.godot/ci/current-desktop.jsonl'' -TimeoutSeconds 600 -GodotArgs @(''-s'',''res://addons/gut/gut_cmdln.gd'',''-gconfig='',''-gtest=res://tests/integration/test_desktop_bootstrap_wiring.gd'',''-gexit'',''-glog=1'',''-gjunit_xml_file=res://.godot/ci/current-desktop.xml'')
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }'
+    - name: current-jako
+      timeout-minutes: 12
+      run: './tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''current-jako'' -LogName ''current-jako.log'' -EvidenceLogPath
+        ''.godot/ci/current-jako.jsonl'' -TimeoutSeconds 600 -GodotArgs @(''-s'',''res://addons/gut/gut_cmdln.gd'',''-gconfig='',''-gtest=res://tests/unit/test_japanese_korean_ui.gd'',''-gexit'',''-glog=1'',''-gjunit_xml_file=res://.godot/ci/current-jako.xml'')
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }'
+    - name: current-schedule-contract
+      timeout-minutes: 12
+      run: './tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''current-schedule-contract'' -LogName ''current-schedule-contract.log''
+        -EvidenceLogPath ''.godot/ci/current-schedule-contract.jsonl'' -TimeoutSeconds 600 -GodotArgs @(''-s'',''res://addons/gut/gut_cmdln.gd'',''-gconfig='',''-gtest=res://tests/unit/tooling/test_phase2r_schedule_gate.gd'',''-gexit'',''-glog=1'',''-gjunit_xml_file=res://.godot/ci/current-schedule-contract.xml'')
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }'
+    - name: current-dtl-validator
+      timeout-minutes: 12
+      run: './tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''current-dtl-validator'' -LogName ''current-dtl-validator.log''
+        -EvidenceLogPath ''.godot/ci/current-dtl-validator.jsonl'' -TimeoutSeconds 600 -GodotArgs @(''-s'',''res://addons/gut/gut_cmdln.gd'',''-gconfig='',''-gtest=res://tests/unit/test_dtl_master_structure.gd'',''-gexit'',''-glog=1'',''-gjunit_xml_file=res://.godot/ci/current-dtl-validator.xml'')
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }'
+    - name: scene_round_checkpoint
+      timeout-minutes: 18
+      run: './tools/testing/Invoke-CloudTests.ps1 -Suite scene_round_checkpoint
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }'
+    - name: scene_shop_checkpoint
+      timeout-minutes: 18
+      run: './tools/testing/Invoke-CloudTests.ps1 -Suite scene_shop_checkpoint
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }'
+    - name: scene_story_localization
+      timeout-minutes: 18
+      run: './tools/testing/Invoke-CloudTests.ps1 -Suite scene_story_localization
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }'
+    - name: scene_controls_localization
+      timeout-minutes: 18
+      run: './tools/testing/Invoke-CloudTests.ps1 -Suite scene_controls_localization
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }'
+    - name: scene_apps
+      timeout-minutes: 18
+      run: './tools/testing/Invoke-CloudTests.ps1 -Suite scene_apps
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }'
+    - name: current_title
+      timeout-minutes: 18
+      run: './tools/testing/Invoke-CloudTests.ps1 -Suite current_title
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }'
+    - name: Regenerate and qualify current inventories
+      timeout-minutes: 12
+      run: './tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        ./tools/testing/Invoke-CloudTests.ps1 -Suite public_surfaces
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        Copy-Item evidence/phase_2r/runtime/*_surface.json .godot/ci/'
+    - name: Verify complete focused census and clean exits
+      run: "@'\nimport pathlib,json,xml.etree.ElementTree as ET\np=pathlib.Path('.godot/ci')\nexpected={'current-desktop':20,'current-jako':9,'current-schedule-contract':33,'current-dtl-validator':12}\n\
+        for name,count in expected.items():\n cases=list(ET.parse(p/(name+'.xml')).getroot().iter('testcase'));assert\
+        \ len(cases)==count,(name,len(cases),count)\nfor report in p.glob('*.xml'):\n r=ET.parse(report).getroot();cases=list(r.iter('testcase'));assert\
+        \ cases,str(report)\n assert all(c.get('status')=='pass' and int(c.get('assertions','0'))>0 for c in cases),str(report)\n\
+        \ assert not any(list(r.iter(t)) for t in ['failure','error','skipped']),str(report)\nfor name in list(expected)+['scene_round_checkpoint','scene_shop_checkpoint','scene_story_localization','scene_controls_localization','scene_apps','current_title','public_surfaces']:\n\
+        \ events=[json.loads(s) for s in (p/(name+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]\n\
+        \ assert len(events)==(2 if name in ['scene_apps','current_title'] else 1),(name,len(events))\n assert all(e['exit_code']==0\
+        \ for e in events),name\n if len(events)==2: assert events[0]['test_root']==events[1]['test_root']\nfor\
+        \ log in pathlib.Path('.godot/phase2r_logs').glob('*.log'):\n t=log.read_text(encoding='utf-8-sig');assert\
+        \ not any(s in t for s in ['SCRIPT ERROR:','ERROR: Failed to load','[Failed]']),str(log)\n'@ | python -\n\
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\n"
+    - name: Collect original focused evidence
+      if: always()
+      run: 'New-Item -ItemType Directory -Force .godot/ci | Out-Null
+
+        Get-ChildItem .godot/phase2r_logs/*.log -ErrorAction SilentlyContinue | Copy-Item -Destination .godot/ci/
+
+        git diff HEAD -- autoload scripts scenes project.godot | Set-Content .godot/ci/final-runtime.patch
+
+        git status --porcelain | Set-Content .godot/ci/final-status.txt'
+    - name: Upload evidence
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: current-ci-selection-${{ github.run_id }}
+        path: .godot/ci/
+        include-hidden-files: true
+        retention-days: 30
