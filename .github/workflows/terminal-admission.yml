@@ -1,8 +1,5 @@
 name: Terminal admission paired qualification
 'on':
-  push:
-    branches:
-    - codex/terminal-admission-controller-20261023
   workflow_dispatch: null
 permissions:
   contents: read
@@ -390,3 +387,4 @@ jobs:
         if-no-files-found: error
         retention-days: 30
     needs: terminal-admission
+
