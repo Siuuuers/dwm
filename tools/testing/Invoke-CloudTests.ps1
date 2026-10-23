@@ -310,7 +310,7 @@ $arguments = @(
     '-gconfig='
     "-gtest=$($testPaths -join ',')"
     '-gexit'
-    '-glog=2'
+    '-glog=1'
     "-gjunit_xml_file=res://.godot/ci/$Suite.xml"
 )
 # Creator and loader must share storage but never a process/registration registry.
@@ -327,7 +327,7 @@ if ($loadScripts.ContainsKey($Suite)) {
     if (Test-Path -LiteralPath $loadReport) { Remove-Item -LiteralPath $loadReport -Force }
     $extra.NextLogName = "cloud-$Suite-load.log"
     $extra.NextGodotArgs = @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=',
-        "-gtest=res://$loadScript", '-gexit', '-glog=2', "-gjunit_xml_file=res://.godot/ci/$Suite-load.xml")
+        "-gtest=res://$loadScript", '-gexit', '-glog=1', "-gjunit_xml_file=res://.godot/ci/$Suite-load.xml")
 }
 # Refuse stale reports if a child exits before writing its result.
 $primaryReport = Join-Path $output "$Suite.xml"
