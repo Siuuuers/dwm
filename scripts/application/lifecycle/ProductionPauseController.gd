@@ -123,6 +123,7 @@ func configure(services: Dictionary, router: Object) -> Dictionary:
 	_layer.add_child(surface)
 	surface.continue_requested.connect(request_continue)
 	surface.return_confirmed.connect(request_return)
+	surface.preview_requested.connect(_preview_backup_host)
 	surface.entry_admission = _admit_surface_entry
 	_services.profile.preference_changed.connect(_preferences_changed)
 	_services.localization.locale_changed.connect(_locale_changed)
@@ -911,3 +912,11 @@ func _refresh_presentation() -> void:
 func _preferences_changed(_path: Variant, _value: Variant) -> void: _refresh_presentation()
 func _locale_changed(_locale: Variant) -> void: _refresh_presentation()
 static func _failure(code: StringName) -> Dictionary: return {"ok": false, "code": code}
+
+func _preview_backup_host(action: StringName) -> void:
+	if action != &"backup": return
+	var backup: Control = surface._hosts.get(&"backup")
+	# Preserve the root preview's first snapshot without entering or focusing it.
+	# Actual entry still takes a fresh projection through show_window().
+	if is_instance_valid(backup) and not backup._projection_valid:
+		backup.refresh_view()

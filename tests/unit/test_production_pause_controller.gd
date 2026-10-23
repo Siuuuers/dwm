@@ -1674,3 +1674,29 @@ func test_backup_first_open_defers_hidden_inspection_and_keeps_fresh_reopen_and_
 	assert_true(saves.pending.is_empty())
 	assert_eq(saves.loaded, 0)
 	assert_eq(saves.writes, 0)
+
+func test_first_backup_root_preview_populates_without_entry_and_activation_reads_fresh() -> void:
+	saves.populated = true
+	if not await _open_pause(): return
+	var backup: Control = controller.surface._hosts[&"backup"]
+	var origin := get_viewport().gui_get_focus_owner()
+	assert_eq(saves.inspections, 0)
+	controller.surface._preview(&"backup")
+	assert_eq(saves.inspections, 9, "first root preview populates all slots")
+	assert_true(backup.is_visible_in_tree())
+	assert_true(backup._records["slot:1"].actions.load)
+	assert_eq(controller.surface.entered_action, &"", "preview does not enter Backup")
+	assert_same(get_viewport().gui_get_focus_owner(), origin, "preview does not move focus")
+	assert_true(saves.pending.is_empty())
+	assert_eq(saves.loaded, 0)
+	assert_eq(saves.writes, 0)
+	controller.surface._preview(&"backup")
+	assert_eq(saves.inspections, 9, "repeated preview keeps the existing presentation")
+	saves.populated = false
+	controller.surface._activate(&"backup")
+	assert_eq(saves.inspections, 18, "explicit activation reads once despite its preview signal")
+	assert_eq(controller.surface.entered_action, &"backup")
+	assert_false(backup._records["slot:1"].actions.load, "entry observes the changed slot")
+	assert_true(saves.pending.is_empty())
+	assert_eq(saves.loaded, 0)
+	assert_eq(saves.writes, 0)
