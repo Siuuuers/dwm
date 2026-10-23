@@ -2231,7 +2231,8 @@ func _prepare_restore_seed(document: Dictionary, selected: Dictionary, material:
 	if not material.is_empty() and CANONICAL_JSON._deep_same(document, material.document):
 		for admitted: Dictionary in material.bundles:
 			if CANONICAL_JSON._deep_same(selected, admitted):
-				var seed: Dictionary = _journal._prepare_seed_from_valid_bundles(material.bundles, selected, [])
+				var diagnostics: Array[Dictionary] = []
+				var seed: Dictionary = _journal._prepare_seed_from_valid_bundles(material.bundles, selected, diagnostics)
 				# Generic seeding owns fresh validated bundles. Reuse must detach
 				# retained earlier bundles from the local admission material too.
 				if seed.get("ok", false):
