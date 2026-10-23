@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title')]
+    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes')]
     [string]$Suite
 )
 
@@ -30,6 +30,15 @@ $suites = @{
         'tests/integration/test_current_title_scene_create.gd'
     )
 
+    scene_backup_inspection = @(
+        'tests/integration/test_scene_backup_inspection.gd'
+    )
+    authored_week = @(
+        'tests/unit/test_authored_week.gd'
+    )
+    scene_five_outcomes = @(
+        'tests/unit/test_scene_five_outcomes.gd'
+    )
     public_surfaces = @(
         'tests/unit/tooling/test_public_surface_inventory.gd'
     )
@@ -387,7 +396,7 @@ if (-not (Test-Path -LiteralPath $report)) { throw 'GUT did not produce its JUni
 $executed = $xml.SelectNodes('//testcase').Count
 if ($executed -eq 0) { throw 'GUT did not report any executed tests.' }
 if ($xml.SelectNodes('//failure | //error').Count -ne 0) { throw 'GUT reported test failures.' }
-if ($Suite -in @('scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title')) {
+if ($Suite -in @('scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes')) {
     foreach ($case in $xml.SelectNodes('//testcase')) {
         if ($case.GetAttribute('classname') -cne $suites[$Suite][0] -or
             $case.GetAttribute('status') -cne 'pass' -or [int]$case.GetAttribute('assertions') -le 0) {
