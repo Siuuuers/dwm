@@ -289,7 +289,7 @@ func _caption_capture(name: String, language: String, percent: int, offset: int,
 		check(projection.get("dating_overlay", false), name + ": dating overlay selected automatically")
 		check(dating_art.size == Vector2(1280, 656), name + ": artwork extends behind every caption")
 		check(dating_art._background.texture != null, name + ": actual dating painting loaded")
-		check(projection.visible_leaf_rects.back().end.y == 656, name + ": captions meet bottom control strip")
+		check(projection.visible_leaf_rects.back().end.y == 592, name + ": captions meet the two-row control strip")
 
 	else:
 		check(not projection.get("dating_overlay", false), name + ": ordinary caption retains ordinary input admission")
@@ -299,12 +299,24 @@ func _caption_capture(name: String, language: String, percent: int, offset: int,
 		check(leaf.get_theme_constant("outline_size") == 2, name + ": dark outline remains visible")
 	var rail: Control = caption.transport_rail
 	var rail_geometry: Array[Dictionary] = []
-	for index: int in rail.get_child_count():
-		var button := rail.get_child(index) as Button
-		var left := floori(640.0 * index / 6.0) * 2
-		var right := floori(640.0 * (index + 1) / 6.0) * 2
-		var expected_bay := Rect2(left, 0, right - left, 64)
+	# The current footer has six commands in two rows and a noninteractive clock.
+	var bays := {"History": Rect2(0,64,212,64), "Skip": Rect2(640,0,212,64),
+		"Auto": Rect2(852,0,214,64), "Save": Rect2(212,64,214,64),
+		"Load": Rect2(426,64,214,64), "Next": Rect2(1066,0,214,64)}
+	check(rail.get_rect() == Rect2(0,592,1280,128), name + ": complete two-row footer fits viewport")
+	check(rail.get_child_count() == 7, name + ": six commands and one clock")
+	var clock: Label = rail.clock_label
+	check(clock.get_rect() == Rect2(1128,64,152,64), name + ": clock remains rightmost in bottom row")
+	check(clock.focus_mode == Control.FOCUS_NONE and clock.mouse_filter == Control.MOUSE_FILTER_IGNORE,
+		name + ": clock creates no input target")
+	for button_name: String in bays:
+		var button := rail.get_node(button_name) as Button
+		var expected_bay: Rect2 = bays[button_name]
 		check(button.get_rect() == expected_bay, name + ": fixed unclipped rail bay " + button.name)
+		check(not button.get_rect().intersects(clock.get_rect()), name + ": command does not overlap clock")
+		for other_name: String in bays:
+			if other_name != button_name:
+				check(not button.get_rect().intersects(rail.get_node(other_name).get_rect()), name + ": command bays do not overlap")
 		var font := button.get_theme_font("font")
 		var font_size := button.get_theme_font_size("font_size")
 		var plate := button.get_theme_stylebox("normal")

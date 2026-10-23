@@ -227,6 +227,15 @@ func _node_identities(nodes: Array[Node]) -> Array[int]:
 	ids.sort()
 	return ids
 
+func _retire_bridge_for_reconstruction() -> void:
+	# A real process retires its Text subsystem with the bridge. This fixture
+	# reuses Text, so remove only the retiring bridge's registered translator.
+	var modifier := {"method": Callable(_bridge, "_translate_story_text"), "type": 0, "order": 10}
+	assert_true(_runtime.Text.text_modifiers.has(modifier))
+	_runtime.Text.text_modifiers.erase(modifier)
+	_runtime.Text.load_parse_stack()
+	_bridge.free()
+
 func _settle() -> void:
 	for frame: int in 6: await get_tree().process_frame
 
@@ -411,7 +420,7 @@ func test_bridge_next_keeps_selected_label_and_fresh_resume_preserves_history_wi
 	var profile_before: Dictionary = _profile.get_profile_snapshot()
 	var old_adapter_id := _adapter.get_instance_id()
 	var old_bridge_id := _bridge.get_instance_id()
-	_bridge.free()
+	_retire_bridge_for_reconstruction()
 	_adapter.halt_with_error({"code": &"fixture_process_retired"})
 	await _settle()
 	_adapter = null

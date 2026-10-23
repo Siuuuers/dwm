@@ -12,11 +12,18 @@ class TextSubsystem extends Node:
 	signal about_to_show_text(info: Dictionary)
 	signal text_started(info: Dictionary)
 	signal text_finished(info: Dictionary)
+	var text_modifiers: Array = []
+
+	# These tests supply already-parsed native text; retain modifier registration
+	# without invoking the production parser or inventing an authored text event.
+	func load_parse_stack() -> void:
+		pass
 
 
 class Runtime extends Node:
 	var Text := TextSubsystem.new()
 	var current_event_idx := 0
+	var current_timeline_events: Array = []
 	var current_state_info := {"text_sub_idx": 0, "text_parsed": ""}
 	var generation := 1
 
@@ -41,6 +48,7 @@ class RuntimeAdapter extends RefCounted:
 
 
 class Localization extends Node:
+	signal locale_changed(locale: String)
 	var locale := "zh_CN"
 	func get_locale() -> String: return locale
 
@@ -73,6 +81,8 @@ func before_each() -> void:
 	bridge = BRIDGE.new()
 	add_child(bridge)
 	assert_true(bridge.initialize(null, RuntimeAdapter.new()).get("ok", false))
+	assert_true(runtime.Text.about_to_show_text.is_connected(bridge._on_speech_about_to_show_text))
+	assert_true(runtime.Text.text_started.is_connected(bridge._on_speech_text_started))
 
 
 func after_each() -> void:

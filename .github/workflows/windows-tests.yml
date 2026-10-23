@@ -508,6 +508,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
       - name: Import project
+        id: desktop-import
         timeout-minutes: 8
         run: |
           mkdir -p "$DWM_RENDER_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
@@ -518,6 +519,7 @@ jobs:
           # Dialogic's editor scan rewrites its timeline lookup during import.
           git restore -- project.godot
       - name: Render and verify desktop scaling
+        if: ${{ !cancelled() && steps.desktop-import.outcome == 'success' }}
         timeout-minutes: 5
         run: |
           xvfb-run -a -s '-screen 0 1920x1080x24' "$GODOT_CONSOLE_PATH" \
@@ -550,6 +552,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
       - name: Render and verify delivery and dialogue
+        if: ${{ !cancelled() && steps.desktop-import.outcome == 'success' }}
         timeout-minutes: 5
         env:
           XDG_DATA_HOME: ${{ github.workspace }}/.godot/ci/delivery-dialogue-user/data
@@ -587,6 +590,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
       - name: Render and verify HUD retirement and retained shell
+        if: ${{ !cancelled() && steps.desktop-import.outcome == 'success' }}
         timeout-minutes: 5
         env:
           XDG_DATA_HOME: ${{ github.workspace }}/.godot/ci/angela-overlay-user/data
@@ -627,8 +631,11 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
       - name: Validate Japanese and Korean catalogs
+        id: desktop-catalogs
+        if: ${{ !cancelled() && steps.desktop-import.outcome == 'success' }}
         run: python3 tools/localization/validate_japanese_korean_catalogs.py
       - name: Render and verify Japanese and Korean UI
+        if: ${{ !cancelled() && steps.desktop-import.outcome == 'success' && steps.desktop-catalogs.outcome == 'success' }}
         timeout-minutes: 5
         env:
           XDG_DATA_HOME: ${{ github.workspace }}/.godot/ci/japanese-korean-ui-user/data
@@ -666,6 +673,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
       - name: Render and verify font choices
+        if: ${{ !cancelled() && steps.desktop-import.outcome == 'success' && steps.desktop-catalogs.outcome == 'success' }}
         timeout-minutes: 5
         env:
           XDG_DATA_HOME: ${{ github.workspace }}/.godot/ci/font-choices-user/data
@@ -703,7 +711,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
       - name: Audit all UI literal ownership
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.desktop-import.outcome == 'success' }}
         timeout-minutes: 3
         run: |
           output="$GITHUB_WORKSPACE/.godot/ci/ui-literal-audit"

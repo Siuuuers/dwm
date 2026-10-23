@@ -133,8 +133,8 @@ func _assert_frozen_provenance() -> bool:
 	# Both controls reuse the current owner; the probes below must reproduce the
 	# old aliases while current capture/install/rollback retain isolation.
 	const LIVE_REFERENCE := preload("res://tests/support/LiveRunRollbackAliasingReference.gd")
-	assert_same(REFERENCE.get_base_script(), GAME_STATE, "restore control inherits the current owner")
-	assert_same(LIVE_REFERENCE.get_base_script(), GAME_STATE, "live rollback control inherits the current owner")
+	assert_same((REFERENCE as Script).get_base_script(), GAME_STATE, "restore control inherits the current owner")
+	assert_same((LIVE_REFERENCE as Script).get_base_script(), GAME_STATE, "live rollback control inherits the current owner")
 	var reference := FileAccess.get_file_as_string("res://tests/support/RunRestoreAliasingReference.gd").replace("\r\n", "\n")
 	var live_reference := FileAccess.get_file_as_string("res://tests/support/LiveRunRollbackAliasingReference.gd").replace("\r\n", "\n")
 	var capture := _source_method(reference, "capture_restore_state").sha256_text()
@@ -145,7 +145,7 @@ func _assert_frozen_provenance() -> bool:
 	assert_eq(install, REFERENCE.APPLY_GAMEPLAY_SILENT_SHA256, "exact historical installation control")
 	assert_eq(live_capture, LIVE_REFERENCE.CAPTURE_LIVE_RUN_STATE_SHA256, "exact historical active-run capture control")
 	assert_eq(live_rollback, LIVE_REFERENCE.RESTORE_LIVE_RUN_STATE_SHA256, "exact historical active-run rollback control")
-	return REFERENCE.get_base_script() == GAME_STATE and LIVE_REFERENCE.get_base_script() == GAME_STATE \
+	return (REFERENCE as Script).get_base_script() == GAME_STATE and (LIVE_REFERENCE as Script).get_base_script() == GAME_STATE \
 		and capture == REFERENCE.CAPTURE_RESTORE_STATE_SHA256 \
 		and install == REFERENCE.APPLY_GAMEPLAY_SILENT_SHA256 \
 		and live_capture == LIVE_REFERENCE.CAPTURE_LIVE_RUN_STATE_SHA256 \

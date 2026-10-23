@@ -393,9 +393,9 @@ func test_story_projection_owners_do_not_exempt_sibling_literals() -> void:
 		"res://scripts/ui/witnessed/WitnessedHistory.gd": 'preload("res://scripts/localization/StoryLocalization.gd").display_markup(_captions[index])',
 	}
 	for path: String in expressions:
-		var snippet := "extends Control\nfunc refresh():\n\tlabel.text = " + expressions[path] + "\n"
+		var snippet: String = "extends Control\nfunc refresh():\n\tlabel.text = " + expressions[path] + "\n"
 		var exact := _script(path, snippet)
 		assert_true(exact.get("ok", false), JSON.stringify(exact))
-		var sibling := snippet.replace(expressions[path], expressions[path] + ' + "Untranslated sibling"')
+		var sibling: String = snippet.replace(expressions[path], expressions[path] + ' + "Untranslated sibling"')
 		assert_false(_script(path, sibling).get("ok", true), "story projection does not own extra UI copy")
 		assert_false(_script("res://scripts/ui/Fixture.gd", snippet).get("ok", true), "ownership is path-specific")
