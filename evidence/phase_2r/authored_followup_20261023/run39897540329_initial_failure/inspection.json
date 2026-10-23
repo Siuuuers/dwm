@@ -1,0 +1,25 @@
+{
+  "run": 39897540329,
+  "conclusion": "failure",
+  "source": {
+    "event": "ff1349959d58f493c7216147a420212165840971",
+    "run_id": "39897540329",
+    "workflow": "ff1349959d58f493c7216147a420212165840971",
+    "attempt": "1",
+    "tree": "e619b4600a96e7ece26547777d526874061c274c",
+    "controller": "29e07604fe728125412e282fb484c8280ee6d144",
+    "candidate": "a1f2062e24312502aaaecc74bd92d173b50137ad"
+  },
+  "archives": {
+    "artifact.zip": "0bab113a8e083450a22e89eec9f1442454fb50a960acea6a8db135b76078e285",
+    "original-evidence.zip": "4d148c34b75778766c51c829228d3410571a5b52ccfcf0d45757fe03182fe862"
+  },
+  "both_zip_crc_ok": true,
+  "verified_manifest_members": 46,
+  "test_cases": 52,
+  "failed_cases": 4,
+  "case_assertions": 597,
+  "process_exit": 1,
+  "failure": "Multiple fixtures attempted to install process-wide registration in one process; before_all failures and four failed joint-creation cases. Runtime import succeeded. Profile skipped.",
+  "correction": "Controller isolates receipt unit, initial admission, initial candidate and joint creation into separate processes; runtime source unchanged."
+}

@@ -1,0 +1,253 @@
+{
+  "run": 39900441794,
+  "conclusion": "success",
+  "source": {
+    "candidate": "609f0f2be6957f6ee33b8b70cc6fbd06e0cb7207",
+    "workflow": "909576e770963c92b97dc1007bf8d2328837c568",
+    "attempt": "1",
+    "run_id": "39900441794",
+    "event": "909576e770963c92b97dc1007bf8d2328837c568",
+    "tree": "cd0a235191abad8d370109e613866a432fa0708c",
+    "controller": "dea0603f7059010b45b91f2681731f7bd8ad3ebb"
+  },
+  "archives": {
+    "artifact.zip": "4fcc0cc7f49f48d68fde12227f8b9935b1a817dd05d59deed6c3b0c6a7100b68",
+    "original-evidence.zip": "61a1daf9e267511344660bd7e63deef1eb816980bfb7ba93b17717ce95db74ea"
+  },
+  "both_zip_crc_ok": true,
+  "verified_manifest_members": 74,
+  "tests": 16,
+  "assertions": 582,
+  "process_exits": [
+    0,
+    0,
+    0
+  ],
+  "boundary": {
+    "bundle_validation_calls": 30,
+    "bundle_validation_failures": 0,
+    "bundle_validation_us": 5949304,
+    "compilation_calls": 2505,
+    "compilation_failures": 0,
+    "compilation_us": 2168125,
+    "configuration_calls": 27,
+    "configuration_failures": 0,
+    "configuration_us": 3007617,
+    "elapsed_us": 26469916,
+    "inclusive_nested": true,
+    "lifecycle_state": "PLAYING",
+    "next_step_index": 31,
+    "ok": true,
+    "operation": "authored_caption_31",
+    "physical_proof_calls": 23,
+    "physical_proof_failures": 0,
+    "physical_proof_us": 351066,
+    "playback_stage": "",
+    "receipt_validation_calls": 23,
+    "receipt_validation_failures": 0,
+    "receipt_validation_us": 5489492,
+    "snapshot_validations": [
+      {
+        "checkpoint_sequence": 2,
+        "elapsed_us": 1255718,
+        "guard_prepare_us": 95381,
+        "guard_verify_us": 87571,
+        "inclusive_nested": true,
+        "lifecycle_state": "PLAYING",
+        "ok": true,
+        "ordinal": 0,
+        "pre_semantic_us": 496227,
+        "semantic_us": 571617
+      },
+      {
+        "checkpoint_sequence": 2,
+        "elapsed_us": 1222768,
+        "guard_prepare_us": 88629,
+        "guard_verify_us": 90187,
+        "inclusive_nested": true,
+        "lifecycle_state": "PLAYING",
+        "ok": true,
+        "ordinal": 1,
+        "pre_semantic_us": 482572,
+        "semantic_us": 554331
+      },
+      {
+        "checkpoint_sequence": 1,
+        "elapsed_us": 1135985,
+        "guard_prepare_us": 92203,
+        "guard_verify_us": 88719,
+        "inclusive_nested": true,
+        "lifecycle_state": "PLAYING",
+        "ok": true,
+        "ordinal": 2,
+        "pre_semantic_us": 500947,
+        "semantic_us": 447914
+      },
+      {
+        "checkpoint_sequence": 1,
+        "elapsed_us": 1149907,
+        "guard_prepare_us": 94153,
+        "guard_verify_us": 87237,
+        "inclusive_nested": true,
+        "lifecycle_state": "PLAYING",
+        "ok": true,
+        "ordinal": 3,
+        "pre_semantic_us": 504475,
+        "semantic_us": 458874
+      },
+      {
+        "checkpoint_sequence": 2,
+        "elapsed_us": 1237300,
+        "guard_prepare_us": 92123,
+        "guard_verify_us": 87750,
+        "inclusive_nested": true,
+        "lifecycle_state": "PLAYING",
+        "ok": true,
+        "ordinal": 4,
+        "pre_semantic_us": 482262,
+        "semantic_us": 569962
+      },
+      {
+        "checkpoint_sequence": 1,
+        "elapsed_us": 1075532,
+        "guard_prepare_us": 93437,
+        "guard_verify_us": 85084,
+        "inclusive_nested": true,
+        "lifecycle_state": "PLAYING",
+        "ok": true,
+        "ordinal": 5,
+        "pre_semantic_us": 472814,
+        "semantic_us": 420085
+      },
+      {
+        "checkpoint_sequence": 2,
+        "elapsed_us": 1323248,
+        "guard_prepare_us": 92825,
+        "guard_verify_us": 110125,
+        "inclusive_nested": true,
+        "lifecycle_state": "PLAYING",
+        "ok": true,
+        "ordinal": 6,
+        "pre_semantic_us": 479122,
+        "semantic_us": 633443
+      },
+      {
+        "checkpoint_sequence": 1,
+        "elapsed_us": 1167129,
+        "guard_prepare_us": 95084,
+        "guard_verify_us": 86510,
+        "inclusive_nested": true,
+        "lifecycle_state": "PLAYING",
+        "ok": true,
+        "ordinal": 7,
+        "pre_semantic_us": 528121,
+        "semantic_us": 452546
+      },
+      {
+        "checkpoint_sequence": 3,
+        "elapsed_us": 1314625,
+        "guard_prepare_us": 90228,
+        "guard_verify_us": 93535,
+        "inclusive_nested": true,
+        "lifecycle_state": "PLAYING",
+        "ok": true,
+        "ordinal": 8,
+        "pre_semantic_us": 487105,
+        "semantic_us": 636956
+      },
+      {
+        "checkpoint_sequence": 3,
+        "elapsed_us": 1439436,
+        "guard_prepare_us": 92074,
+        "guard_verify_us": 92739,
+        "inclusive_nested": true,
+        "lifecycle_state": "PLAYING",
+        "ok": true,
+        "ordinal": 9,
+        "pre_semantic_us": 649904,
+        "semantic_us": 598108
+      },
+      {
+        "checkpoint_sequence": 1,
+        "elapsed_us": 1401526,
+        "guard_prepare_us": 130140,
+        "guard_verify_us": 88885,
+        "inclusive_nested": true,
+        "lifecycle_state": "PLAYING",
+        "ok": true,
+        "ordinal": 10,
+        "pre_semantic_us": 584526,
+        "semantic_us": 589601
+      },
+      {
+        "checkpoint_sequence": 2,
+        "elapsed_us": 1340562,
+        "guard_prepare_us": 98471,
+        "guard_verify_us": 98301,
+        "inclusive_nested": true,
+        "lifecycle_state": "PLAYING",
+        "ok": true,
+        "ordinal": 11,
+        "pre_semantic_us": 530632,
+        "semantic_us": 604596
+      },
+      {
+        "checkpoint_sequence": 3,
+        "elapsed_us": 1337059,
+        "guard_prepare_us": 95303,
+        "guard_verify_us": 94206,
+        "inclusive_nested": true,
+        "lifecycle_state": "PLAYING",
+        "ok": true,
+        "ordinal": 12,
+        "pre_semantic_us": 498039,
+        "semantic_us": 640734
+      },
+      {
+        "checkpoint_sequence": 1,
+        "elapsed_us": 1203459,
+        "guard_prepare_us": 98178,
+        "guard_verify_us": 92254,
+        "inclusive_nested": true,
+        "lifecycle_state": "PLAYING",
+        "ok": true,
+        "ordinal": 13,
+        "pre_semantic_us": 527514,
+        "semantic_us": 477245
+      },
+      {
+        "checkpoint_sequence": 2,
+        "elapsed_us": 1354792,
+        "guard_prepare_us": 99262,
+        "guard_verify_us": 93977,
+        "inclusive_nested": true,
+        "lifecycle_state": "PLAYING",
+        "ok": true,
+        "ordinal": 14,
+        "pre_semantic_us": 534453,
+        "semantic_us": 617849
+      },
+      {
+        "checkpoint_sequence": 3,
+        "elapsed_us": 1375256,
+        "guard_prepare_us": 101205,
+        "guard_verify_us": 93264,
+        "inclusive_nested": true,
+        "lifecycle_state": "PLAYING",
+        "ok": true,
+        "ordinal": 15,
+        "pre_semantic_us": 533255,
+        "semantic_us": 638667
+      }
+    ]
+  },
+  "ordinary_median_ms": 303.707,
+  "limitations": [
+    "First32 captions only; no full-week, late-history, Load or export acceptance.",
+    "Inclusive scopes overlap; do not add totals."
+  ],
+  "screenshot_inspection": {
+    "file": "ci/computer-authored-profile-32.png",
+    "result": "Inspected native 992x558 render: both paintings, Send it to me. caption, time04:30 visible."
+  }
+}
