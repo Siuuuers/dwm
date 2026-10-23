@@ -894,8 +894,21 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 	var detached_bundle := bundle.duplicate(true)
 	var bundle_before := _scene_hash(detached_bundle)
 	phase_tick = SCENE_VALIDATION_TIMING.snapshot_phase(observation, "guard_prepare_us", phase_tick)
+	var semantic_owner: Object = _scene_authority
 	_scene_semantic_busy = true
-	var semantic: Variant = _scene_authority.call("validate_scene_snapshot_semantics", detached, detached_bundle)
+	var semantic: Variant
+	if not terminal and reading.has("session") and _scene_can_reuse_reading():
+		semantic = semantic_owner.call("_prepare_scene_snapshot_semantics", detached, detached_bundle)
+		if semantic is Dictionary and semantic.get("ok", false):
+			var anchors: Array[Dictionary] = []
+			anchors.assign(semantic.pending_anchors)
+			# Receipt/Profile callbacks can replace the bridge. Recheck at the join.
+			if _scene_authority == semantic_owner and _scene_can_reuse_reading():
+				semantic = reading.session.validate_scene_event_anchors(anchors)
+			else:
+				semantic = semantic_owner.call("_validate_scene_snapshot_anchors", anchors, semantic.checkpoint)
+	else:
+		semantic = semantic_owner.call("validate_scene_snapshot_semantics", detached, detached_bundle)
 	_scene_semantic_busy = false
 	phase_tick = SCENE_VALIDATION_TIMING.snapshot_phase(observation, "semantic_us", phase_tick)
 	if _scene_hash(detached) != before or _scene_hash(detached_bundle) != bundle_before:
@@ -913,6 +926,11 @@ static func _scene_semantic_authenticates_receipts() -> bool:
 	var owner := _scene_authority as Node
 	return owner.get("_identity_issuer") == _scene_issuer \
 		and owner.get_node_or_null("/root/SaveManager") == _scene_creation_owner
+
+static func _scene_can_reuse_reading() -> bool:
+	if not _scene_semantic_authenticates_receipts(): return false
+	var bridge: Variant = _scene_authority.get("_scene_event_bridge")
+	return is_instance_valid(bridge) and bridge.get_script() == load("res://autoload/DialogicBridge.gd")
 
 static func is_scene_terminal(snapshot: Dictionary) -> bool:
 	var lifecycle: Variant = snapshot.get("lifecycle")
@@ -971,7 +989,7 @@ static func _validate_scene_reading(candidate: Dictionary) -> Dictionary:
 			or fields.get("entry_id") != checkpoint.entry_id \
 			or checkpoint.frozen_context.get("transaction_id") != checkpoint.transaction_id:
 		return _fail(&"reading_context_invalid", "active admission and frozen wrapper must agree")
-	return {"ok": true}
+	return {"ok": true, "session": session}
 
 ## For the actual GameState rollback/capture owner. This validates the complete
 ## captured input without inventing a narrative checkpoint. Full save admission

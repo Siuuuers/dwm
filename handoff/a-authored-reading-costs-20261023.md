@@ -1,5 +1,7 @@
 # Authored reading costs — 23 October 2026
 
+Later continuation: [qualified single reading admission and genuine Day7 recovery](a-authored-late-continuation-20261023.md).
+
 Continue cloud-only Windows / Godot 4.6.3 standard. Read AGENTS.md and CLAUDE.md. User requests smooth flow, minimal meaningful verification, autonomous progress and focused parallel review. No design question currently blocks the scoped changes. No master/PR51 changes, merge or Steam upload.
 
 ## Ownership and current source
