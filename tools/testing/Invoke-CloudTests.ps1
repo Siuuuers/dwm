@@ -333,6 +333,7 @@ if ($loadScripts.ContainsKey($Suite)) {
 $primaryReport = Join-Path $output "$Suite.xml"
 if (Test-Path -LiteralPath $primaryReport) { Remove-Item -LiteralPath $primaryReport -Force }
 $logName = "cloud-$Suite.log"
+if ($Suite -eq 'settings') { Write-Host "SETTINGS_PHASE $([DateTime]::UtcNow.ToString('o')) primary.begin" }
 & (Join-Path $PSScriptRoot 'Invoke-IsolatedGodot.ps1') `
     -SuiteId "cloud-$Suite" `
     -LogName $logName `
@@ -340,6 +341,7 @@ $logName = "cloud-$Suite.log"
     -TimeoutSeconds 480 `
     -GodotArgs $arguments @extra
 $result = $LASTEXITCODE
+if ($Suite -eq 'settings') { Write-Host "SETTINGS_PHASE $([DateTime]::UtcNow.ToString('o')) primary.end exit=$result" }
 $logPath = Join-Path $repositoryRoot ".godot/phase2r_logs/$logName"
 if ($result -ne 0) {
     if (Test-Path -LiteralPath $logPath) { Get-Content -LiteralPath $logPath }
@@ -420,16 +422,20 @@ Write-Host ('CLOUD_GUT_RESULT ' + ([ordered]@{
 
 if ($Suite -eq 'settings') {
     # Expected fixture refusals are reported separately from passing GUT cases.
+    Write-Host "SETTINGS_PHASE $([DateTime]::UtcNow.ToString('o')) refusal.begin"
     & (Join-Path $PSScriptRoot 'Invoke-StorageRefusalChecks.ps1')
+    Write-Host "SETTINGS_PHASE $([DateTime]::UtcNow.ToString('o')) refusal.complete"
 
     # The diagnostic uses the real revision protocol with deterministic FileOps
     # faults. Its standalone assertions are not counted as GUT test cases.
     $witnessLogName = 'cloud-manual-witness-revision-storage.log'
+    Write-Host "SETTINGS_PHASE $([DateTime]::UtcNow.ToString('o')) manual-witness.begin"
     & (Join-Path $PSScriptRoot 'Invoke-IsolatedGodot.ps1') `
         -SuiteId 'cloud-manual-witness-revision-storage' -LogName $witnessLogName `
         -EvidenceLogPath '.godot/ci/manual-witness-revision-storage.jsonl' -TimeoutSeconds 180 `
         -GodotArgs @('-s', 'res://tests/backup_storage/test_manual_witness_revision_storage.gd')
     $witnessResult = $LASTEXITCODE
+    Write-Host "SETTINGS_PHASE $([DateTime]::UtcNow.ToString('o')) manual-witness.end exit=$witnessResult"
     $witnessLog = Join-Path $repositoryRoot ".godot/phase2r_logs/$witnessLogName"
     if ($witnessResult -ne 0) {
         if (Test-Path -LiteralPath $witnessLog) { Get-Content -LiteralPath $witnessLog }

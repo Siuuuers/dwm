@@ -30,8 +30,10 @@ target.write_text(json.dumps(entries,sort_keys=True,separators=(',',':')),encodi
 
 function Write-RepositorySnapshot {
     param([string]$Path)
+    Write-Host "STORAGE_REFUSAL_PHASE $([DateTime]::UtcNow.ToString('o')) snapshot.begin $Path"
     python -c $snapshotCode $repositoryRoot $Path
     if ($LASTEXITCODE -ne 0) { throw 'Repository refusal snapshot failed.' }
+    Write-Host "STORAGE_REFUSAL_PHASE $([DateTime]::UtcNow.ToString('o')) snapshot.complete $Path"
 }
 
 function Invoke-RefusalChild {
@@ -50,20 +52,28 @@ function Invoke-RefusalChild {
     $process = [Diagnostics.Process]::new()
     $process.StartInfo = $start
     try {
+        Write-Host "STORAGE_REFUSAL_PHASE $([DateTime]::UtcNow.ToString('o')) child.begin $CaseRoot $($Arguments -join ' ')"
         if (-not $process.Start()) { throw 'Refusal Godot process failed to start.' }
         $stdout = $process.StandardOutput.ReadToEndAsync()
         $stderr = $process.StandardError.ReadToEndAsync()
-        if (-not $process.WaitForExit(120000)) {
+        $timedOut = -not $process.WaitForExit(120000)
+        if ($timedOut) {
             $process.Kill($true)
-            $process.WaitForExit()
-            throw 'Refusal Godot process exceeded 120 seconds.'
+            if (-not $process.WaitForExit(10000)) { throw 'REFUSAL_CHILD_TERMINATION_TIMEOUT' }
         }
+        # Descendants may retain pipe handles after the direct child exits.
+        # Match the isolated runner's bounded termination and output drain.
+        if (-not [Threading.Tasks.Task]::WaitAll([Threading.Tasks.Task[]]@($stdout, $stderr), 10000)) {
+            throw 'REFUSAL_CHILD_OUTPUT_DRAIN_TIMEOUT'
+        }
+        if ($timedOut) { throw 'Refusal Godot process exceeded 120 seconds.' }
         return [pscustomobject]@{
             ExitCode = $process.ExitCode
             Text = $stdout.GetAwaiter().GetResult() + "`n" + $stderr.GetAwaiter().GetResult()
         }
     } finally {
         $process.Dispose()
+        Write-Host "STORAGE_REFUSAL_PHASE $([DateTime]::UtcNow.ToString('o')) child.end $CaseRoot"
     }
 }
 
