@@ -160,6 +160,7 @@ var focus: Button
 var original: Node
 var input_backup: Dictionary = {}
 var _embed_subwindows_backup := false
+var _retained_context := preload("res://tests/support/RetainedFrozenContextFixture.gd").new()
 
 func before_each() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -219,6 +220,7 @@ func after_each() -> void:
 		InputMap.action_erase_events(action)
 		for event: InputEvent in input_backup[action].events: InputMap.action_add_event(action, event)
 	input_backup.clear()
+	_retained_context.restore()
 
 func _open_pause() -> bool:
 	var result: Dictionary = await controller.request_pause()
@@ -592,6 +594,13 @@ class DatingCapture extends RefCounted:
 
 
 func _dating_save_fixture(debug: bool = false) -> Dictionary:
+	# This historical dating fixture owns only its explicit frozen-context schemas.
+	var retained: Dictionary = _retained_context.install([
+		"dating.solo.priscilla.day1.pre_challenge",
+		"dating.solo.priscilla.day1.post_challenge",
+	])
+	assert_true(retained.get("ok", false), str(retained))
+	if not retained.get("ok", false): return {}
 	var snapshot_result: Dictionary = preload("res://tests/support/BackupSnapshotFixture.gd").make_snapshot()
 	assert_true(snapshot_result.get("ok", false), str(snapshot_result))
 	if not snapshot_result.get("ok", false): return {}
