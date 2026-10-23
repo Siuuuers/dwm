@@ -1,0 +1,90 @@
+name: Regenerate public surface inventories
+
+on:
+  push:
+    branches: [codex/regenerate-surfaces-20261024]
+
+permissions:
+  contents: read
+
+jobs:
+  regenerate:
+    name: Windows / regenerate inventories
+    runs-on: windows-2022
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        persist-credentials: true
+    - name: Prepare disposable checkout for credential cleanup
+      run: '$ErrorActionPreference = ''Stop''
+
+        # These legacy tooling gitlinks have no .gitmodules URLs. Git''s
+
+        # submodule foreach reads the index even with sparse checkout.
+
+        # The source commit and working files remain unchanged.
+
+        git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        git submodule foreach --recursive ''true''
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        '
+    - name: Install Godot 4.6.3 standard
+      run: "$ErrorActionPreference = 'Stop'\n$archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'\nInvoke-WebRequest\
+        \ -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip'\
+        \ -OutFile $archive\n# SHA256 published with the official 4.6.3-stable release asset.\n$expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'\n\
+        if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {\n  throw\
+        \ 'Godot archive checksum mismatch.'\n}\n$editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'\nExpand-Archive\
+        \ -LiteralPath $archive -DestinationPath $editor\n$console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'\n\
+        if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }\n\"GODOT_CONSOLE_PATH=$console\"\
+        \ | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8\n& $console --version\nif ($LASTEXITCODE -ne\
+        \ 0) { exit $LASTEXITCODE }\n"
+    - name: Import project
+      timeout-minutes: 8
+      run: "$ErrorActionPreference = 'Stop'\n$output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'\n$env:APPDATA\
+        \ = Join-Path $output 'import-user/appdata'\n$env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'\n\
+        $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'\nNew-Item -ItemType Directory -Force -Path\
+        \ $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null\n& $env:GODOT_CONSOLE_PATH --headless\
+        \ --path $env:GITHUB_WORKSPACE --import --log-file \"$output/import.log\"\nif ($LASTEXITCODE -ne 0) { exit\
+        \ $LASTEXITCODE }\nif (Select-String -Path \"$output/import.log\" -Pattern 'SCRIPT ERROR:|ERROR: Failed\
+        \ to load|Unicode parsing error|Unexpected NUL character' -Quiet) {\n  throw 'Project import reported script\
+        \ errors; inspect import.log.'\n}\n"
+    - name: Restore committed project settings after editor import
+      run: '# Dialogic''s editor scan rewrites its timeline lookup during import.
+
+        # Execute the committed configuration with the freshly imported assets.
+
+        git restore -- project.godot
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        '
+    - name: Regenerate and verify canonical inventories
+      run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate
+    - name: Upload regenerated inventories and logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: regenerated-surfaces-${{ github.run_id }}-${{ github.run_attempt }}
+        path: 'evidence/phase_2r/runtime/game_state_surface.json
+
+          evidence/phase_2r/runtime/save_manager_surface.json
+
+          .godot/ci/public-surfaces/
+
+          .godot/ci/import.log
+
+          .godot/phase2r_logs/cloud-public-surface-*.log
+
+          '
+        include-hidden-files: true
+        if-no-files-found: error
+        retention-days: 7
