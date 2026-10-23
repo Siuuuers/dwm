@@ -1,0 +1,186 @@
+name: Diagnostic Settings phases
+'on':
+  push:
+    branches:
+    - codex/settings-phase-diagnostic-20261023
+  workflow_dispatch: {}
+permissions:
+  contents: read
+concurrency:
+  group: settings-phase-diagnostic-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  settings-phases:
+    runs-on: windows-2022
+    timeout-minutes: 40
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      SETTINGS_SOURCE_SHA: e5cf80a5417c05bd0bb7fa2f60f59e8905e839a6
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        ref: e5cf80a5417c05bd0bb7fa2f60f59e8905e839a6
+        fetch-depth: 1
+        persist-credentials: true
+    - name: Prepare disposable checkout for credential cleanup
+      run: |
+        $ErrorActionPreference = 'Stop'
+        # These legacy tooling gitlinks have no .gitmodules URLs. Git's
+        # submodule foreach reads the index even with sparse checkout.
+        # The source commit and working files remain unchanged.
+        git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        git submodule foreach --recursive 'true'
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Install Godot 4.6.3 standard
+      run: |
+        $ErrorActionPreference = 'Stop'
+        $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
+        Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
+        # SHA256 published with the official 4.6.3-stable release asset.
+        $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
+        if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
+          throw 'Godot archive checksum mismatch.'
+        }
+        $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
+        Expand-Archive -LiteralPath $archive -DestinationPath $editor
+        $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
+        if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
+        "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+        & $console --version
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Import project
+      timeout-minutes: 8
+      run: |
+        $ErrorActionPreference = 'Stop'
+        $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
+        $env:APPDATA = Join-Path $output 'import-user/appdata'
+        $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
+        $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
+        New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
+        & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
+          throw 'Project import reported script errors; inspect import.log.'
+        }
+    - name: Restore committed project settings after editor import
+      run: |
+        # Dialogic's editor scan rewrites its timeline lookup during import.
+        # Execute the committed configuration with the freshly imported assets.
+        git restore -- project.godot
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Pin source and split only the Settings phase dispatch
+      run: |-
+        $ErrorActionPreference = 'Stop'
+        $env:DIAGNOSTIC_CONTROLLER_SHA = '${{ github.sha }}'
+        @'
+        import hashlib,json,os,pathlib,subprocess
+        root=pathlib.Path.cwd()
+        source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+        expected=os.environ['SETTINGS_SOURCE_SHA']
+        assert source==expected, (source,expected)
+        path=root/'tools/testing/Invoke-CloudTests.ps1'
+        original=path.read_bytes()
+        text=original.decode().replace('\r\n','\n')
+        anchor="if ($Suite -eq 'settings') {\n    # Expected fixture refusals are reported separately from passing GUT cases."
+        assert text.count(anchor)==1, 'Settings extras dispatch anchor changed'
+        manual_start='    # The diagnostic uses the real revision protocol with deterministic FileOps'
+        manual_end='\n    Get-Content -LiteralPath $witnessLog\n}'
+        assert text.count(manual_start)==1 and text.count(manual_end)==1
+        start=text.index(manual_start);end=text.index(manual_end,start)+len(manual_end)-2
+        manual=text[start:end]
+        assert '-TimeoutSeconds 180' in manual and 'MANUAL_WITNESS_REVISION_STORAGE_PASS' in manual
+        manual_header="$ErrorActionPreference = 'Stop'\n$repositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))\n"
+        manual_path=root/'tools/testing/Invoke-SettingsManualDiagnostic.ps1'
+        assert not manual_path.exists()
+        manual_path.write_text(manual_header+manual+'\n',encoding='utf-8',newline='\n')
+        replacement=anchor.replace("if ($Suite -eq 'settings')",'if ($false)')
+        patched=text.replace(anchor,replacement)
+        path.write_text(patched,encoding='utf-8',newline='\n')
+        assert patched.replace(replacement,anchor)==text
+        out=root/'.godot/ci/settings-phases';out.mkdir(parents=True,exist_ok=True)
+        (out/'dispatch.patch').write_bytes(subprocess.check_output(['git','diff','--','tools/testing/Invoke-CloudTests.ps1']))
+        (out/'original-Invoke-CloudTests.ps1').write_bytes(original)
+        (out/'manual-phase.ps1').write_bytes(manual_path.read_bytes())
+        proof={'source_sha':source,'source_tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip(),
+         'controller_sha':os.environ['DIAGNOSTIC_CONTROLLER_SHA'],'scope':'diagnostic dispatch split only; primary tests and phase assertions unchanged',
+         'anchor_count':text.count(anchor),'original_sha256':hashlib.sha256(original).hexdigest(),
+         'patched_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'manual_sha256':hashlib.sha256(manual_path.read_bytes()).hexdigest()}
+        (out/'source-proof.json').write_text(json.dumps(proof,indent=2)+'\n')
+        print(json.dumps(proof))
+        '@ | python -
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Retain source evidence
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: settings-source-${{ github.run_id }}-${{ github.run_attempt }}
+        path: |-
+          .godot/ci/
+          .godot/phase2r_logs/
+        include-hidden-files: true
+        if-no-files-found: error
+    - name: Primary Settings tests only
+      timeout-minutes: 10
+      run: ./tools/testing/Invoke-CloudTests.ps1 -Suite settings
+    - name: Retain primary evidence
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: settings-primary-${{ github.run_id }}-${{ github.run_attempt }}
+        path: |-
+          .godot/ci/
+          .godot/phase2r_logs/
+        include-hidden-files: true
+        if-no-files-found: error
+    - name: Missing-root storage refusals and repository snapshots
+      timeout-minutes: 10
+      run: ./tools/testing/Invoke-StorageRefusalChecks.ps1
+    - name: Retain refusal evidence
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: settings-refusal-${{ github.run_id }}-${{ github.run_attempt }}
+        path: |-
+          .godot/ci/
+          .godot/phase2r_logs/
+        include-hidden-files: true
+        if-no-files-found: error
+    - name: Manual revision-storage witness
+      timeout-minutes: 5
+      run: ./tools/testing/Invoke-SettingsManualDiagnostic.ps1
+    - name: Retain manual evidence
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: settings-manual-${{ github.run_id }}-${{ github.run_attempt }}
+        path: |-
+          .godot/ci/
+          .godot/phase2r_logs/
+        include-hidden-files: true
+        if-no-files-found: error
+    - name: Render Settings uncertain-write journey
+      timeout-minutes: 3
+      run: |
+        $ErrorActionPreference = 'Stop'
+        $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/settings-failure-render'
+        $env:APPDATA = Join-Path $output 'appdata'
+        $env:LOCALAPPDATA = Join-Path $output 'localappdata'
+        $env:DWM_TEST_ROOT = Join-Path $output 'test-root'
+        New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
+        & $env:GODOT_CONSOLE_PATH --path $env:GITHUB_WORKSPACE --rendering-method gl_compatibility --audio-driver Dummy --log-file "$output/render.log" --script res://tests/ui/render_settings_shared.gd -- --settings-write-failure
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        if (Select-String -Path "$output/render.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Settings journey reported script errors.' }
+        if (-not (Select-String -Path "$output/render.log" -Pattern 'SETTINGS_SHARED_RENDER_VERIFIED captures=3' -Quiet)) { throw 'Settings failure journey did not complete.' }
+    - name: Retain render evidence
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: settings-render-${{ github.run_id }}-${{ github.run_attempt }}
+        path: |-
+          .godot/ci/
+          .godot/phase2r_logs/
+        include-hidden-files: true
+        if-no-files-found: error
