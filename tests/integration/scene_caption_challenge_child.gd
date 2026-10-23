@@ -19,7 +19,23 @@ func create_caption_challenge() -> void:
 	await _click(_controls(host, "CheckComputer"))
 	assert_true(host.is_computer_open())
 	if not host.is_computer_open(): return
-	assert_true(bridge._runtime_adapter.is_current_line_complete())
+	assert_true(bridge.is_computer_caption_held(), "Computer owns the current caption")
+	assert_true(bridge._runtime_adapter._dialogic.paused, "Computer suspends native playback")
+	assert_false(get_tree().paused, "Computer leaves the scene tree running")
+	# The active-playback completion query excludes paused sources. Inspect the
+	# same held native cue to prove its reveal completed before Computer took it.
+	var cue_event: DialogicTextEvent = bridge._runtime_adapter._current_skip_text(true)
+	assert_not_null(cue_event, "The held cue remains available for read-only native inspection")
+	if cue_event == null: return
+	assert_eq(bridge._runtime_adapter._authored_line_id(cue_event), "line.scene.test.b.one",
+		"Computer retains the original cue")
+	assert_eq(cue_event.state, DialogicTextEvent.States.DONE, "Opening Computer completes the cue")
+	var cue_caption: Node = _caption()
+	assert_not_null(cue_caption, "Computer retains the native caption presentation")
+	if cue_caption == null: return
+	assert_false(cue_caption.caption_text.revealing, "The held cue has finished revealing")
+	assert_eq(float(cue_caption.caption_text.visible_ratio), 1.0, "The entire held cue is revealed")
+	assert_false(bridge.can_next_current_line(), "Computer custody blocks caption continuation")
 	if not _ok(game.capture_scene_challenge_command()): return
 	assert_true(game.capture_dating_challenge_state().value.is_empty())
 	await _click(_controls(host, "CheckComputer"))

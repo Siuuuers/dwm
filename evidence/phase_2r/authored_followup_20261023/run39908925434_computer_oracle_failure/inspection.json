@@ -1,0 +1,247 @@
+{
+  "origin": {
+    "workflow": "4d88547b118cbe576236a4028a0909ffb753d692",
+    "run_id": "39908925434",
+    "controller": "feac15227ffafbb88f812f1ed5af6ae70fc15310",
+    "tree": "2668ca1f4cc6a65d63ab21938455255c9ea5fa5a",
+    "event": "4d88547b118cbe576236a4028a0909ffb753d692",
+    "attempt": "1",
+    "candidate": "15308ecabea31b6fdebd0d5e28232cf93d833533"
+  },
+  "outer_sha256": "ef3670e4edca5265299d5ae519107037b728ae63a7c4c269fd673330e42d172c",
+  "inner_sha256": "1fdb84bd6eafd9dc6b5c0af08841b84e6d31d07cf339bfcad85b70b96d210a3e",
+  "verified_members": 131,
+  "reports": [
+    {
+      "file": "caption-challenge-create.xml",
+      "tests": 1,
+      "assertions": 41,
+      "cases": [
+        {
+          "name": "test_computer_admits_current_cue_and_continue_closes_without_an_extra_caption",
+          "assertions": "41",
+          "status": "fail",
+          "classname": "tests/integration/test_scene_caption_challenge.gd",
+          "time": "9.221738"
+        }
+      ],
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "file": "playable-native-control.xml",
+      "tests": 9,
+      "assertions": 255,
+      "cases": [
+        {
+          "name": "test_real_caption_installs_exact_control_without_replay_and_consumes_source_once",
+          "assertions": "35",
+          "status": "pass",
+          "classname": "tests/integration/test_scene_playable_native_control.gd",
+          "time": "0.586947"
+        },
+        {
+          "name": "test_unheld_and_forged_tokens_cannot_install_or_consume_the_real_source",
+          "assertions": "22",
+          "status": "pass",
+          "classname": "tests/integration/test_scene_playable_native_control.gd",
+          "time": "0.208378"
+        },
+        {
+          "name": "test_malformed_projection_and_valid_but_unplanned_control_refuse_without_consuming",
+          "assertions": "63",
+          "status": "pass",
+          "classname": "tests/integration/test_scene_playable_native_control.gd",
+          "time": "0.288668"
+        },
+        {
+          "name": "test_end_control_is_not_playable_adoption_authority",
+          "assertions": "22",
+          "status": "pass",
+          "classname": "tests/integration/test_scene_playable_native_control.gd",
+          "time": "0.2084"
+        },
+        {
+          "name": "test_contact_return_control_is_not_playable_adoption_authority",
+          "assertions": "20",
+          "status": "pass",
+          "classname": "tests/integration/test_scene_playable_native_control.gd",
+          "time": "0.224104"
+        },
+        {
+          "name": "test_changed_candidate_and_stale_native_identity_refuse_before_consumption",
+          "assertions": "27",
+          "status": "pass",
+          "classname": "tests/integration/test_scene_playable_native_control.gd",
+          "time": "0.272566"
+        },
+        {
+          "name": "test_callback_input_mutation_is_refused_without_consuming_source",
+          "assertions": "21",
+          "status": "pass",
+          "classname": "tests/integration/test_scene_playable_native_control.gd",
+          "time": "0.256527"
+        },
+        {
+          "name": "test_callback_candidate_mutation_is_refused_before_native_adoption",
+          "assertions": "21",
+          "status": "pass",
+          "classname": "tests/integration/test_scene_playable_native_control.gd",
+          "time": "0.256452"
+        },
+        {
+          "name": "test_callback_reentrant_install_refuses_without_consuming_outer_custody",
+          "assertions": "24",
+          "status": "pass",
+          "classname": "tests/integration/test_scene_playable_native_control.gd",
+          "time": "0.272332"
+        }
+      ],
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "file": "native-activation.xml",
+      "tests": 5,
+      "assertions": 265,
+      "cases": [
+        {
+          "name": "test_real_native_restores_saved_second_caption_without_executing_end_or_republishing",
+          "assertions": "27",
+          "status": "pass",
+          "classname": "tests/integration/test_scene_native_activation_runtime.gd",
+          "time": "0.387796"
+        },
+        {
+          "name": "test_real_native_restores_control_as_held_predecessor_and_consumes_source_once",
+          "assertions": "49",
+          "status": "pass",
+          "classname": "tests/integration/test_scene_native_activation_runtime.gd",
+          "time": "0.320486"
+        },
+        {
+          "name": "test_held_control_projection_is_detached_and_does_not_capture_or_copy_history",
+          "assertions": "105",
+          "status": "pass",
+          "classname": "tests/integration/test_scene_native_activation_runtime.gd",
+          "time": "0.191806"
+        },
+        {
+          "name": "test_held_control_projection_refuses_replaced_session_and_stale_native_source",
+          "assertions": "35",
+          "status": "pass",
+          "classname": "tests/integration/test_scene_native_activation_runtime.gd",
+          "time": "0.144367"
+        },
+        {
+          "name": "test_held_control_actions_revalidate_history_and_preserve_read_only_custody",
+          "assertions": "49",
+          "status": "pass",
+          "classname": "tests/integration/test_scene_native_activation_runtime.gd",
+          "time": "0.224476"
+        }
+      ],
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "processes": [
+    {
+      "file": "caption-challenge.jsonl",
+      "suite_id": "caption-challenge",
+      "argv": [
+        "--rendering-method",
+        "gl_compatibility",
+        "--audio-driver",
+        "Dummy",
+        "--path",
+        "D:\\a\\dwm\\dwm",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\caption-challenge-create.log",
+        "-s",
+        "res://addons/gut/gut_cmdln.gd",
+        "-gconfig=",
+        "-gtest=res://tests/integration/test_scene_caption_challenge.gd",
+        "-gexit",
+        "-glog=2",
+        "-gjunit_xml_file=res://.godot/ci/caption-challenge-create.xml"
+      ],
+      "exit_code": 1,
+      "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\caption-challenge-create.log",
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\dfbb5143-f0a5-4f11-ab36-26d695ee5e73",
+      "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\dfbb5143-f0a5-4f11-ab36-26d695ee5e73\\appdata\\Godot\\app_userdata\\DWM",
+      "started_at_utc": "2026-10-23T06:02:30.2301151Z",
+      "ended_at_utc": "2026-10-23T06:02:49.3455435Z"
+    },
+    {
+      "file": "playable-native-control.jsonl",
+      "suite_id": "playable-native-control",
+      "argv": [
+        "--rendering-method",
+        "gl_compatibility",
+        "--audio-driver",
+        "Dummy",
+        "--path",
+        "D:\\a\\dwm\\dwm",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\playable-native-control.log",
+        "-s",
+        "res://addons/gut/gut_cmdln.gd",
+        "-gconfig=",
+        "-gtest=res://tests/integration/test_scene_playable_native_control.gd",
+        "-gexit",
+        "-glog=2",
+        "-gjunit_xml_file=res://.godot/ci/playable-native-control.xml"
+      ],
+      "exit_code": 0,
+      "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\playable-native-control.log",
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\2582bb6b-16aa-4810-a18e-2cea60a15b14",
+      "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\2582bb6b-16aa-4810-a18e-2cea60a15b14\\appdata\\Godot\\app_userdata\\DWM",
+      "started_at_utc": "2026-10-23T06:01:50.9125341Z",
+      "ended_at_utc": "2026-10-23T06:02:03.5517005Z"
+    },
+    {
+      "file": "native-activation.jsonl",
+      "suite_id": "native-activation",
+      "argv": [
+        "--rendering-method",
+        "gl_compatibility",
+        "--audio-driver",
+        "Dummy",
+        "--path",
+        "D:\\a\\dwm\\dwm",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\native-activation.log",
+        "-s",
+        "res://addons/gut/gut_cmdln.gd",
+        "-gconfig=",
+        "-gtest=res://tests/integration/test_scene_native_activation_runtime.gd",
+        "-gexit",
+        "-glog=2",
+        "-gjunit_xml_file=res://.godot/ci/native-activation.xml"
+      ],
+      "exit_code": 0,
+      "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\native-activation.log",
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\7c3991e9-c881-47c9-b68d-428fabdb8010",
+      "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\7c3991e9-c881-47c9-b68d-428fabdb8010\\appdata\\Godot\\app_userdata\\DWM",
+      "started_at_utc": "2026-10-23T06:02:11.4074837Z",
+      "ended_at_utc": "2026-10-23T06:02:22.4372881Z"
+    }
+  ],
+  "profiles": [],
+  "operation_profiles": [],
+  "errors": [
+    {
+      "file": "caption-challenge-create.log",
+      "line": "    [Failed] "
+    },
+    {
+      "file": "caption-challenge-create.log",
+      "line": "    [Failed]:  "
+    }
+  ],
+  "screenshots": []
+}
