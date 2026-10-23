@@ -457,10 +457,9 @@ func verify_ui(desktop: Control, app: Control, port: FakeBackupPort, locale: Nod
 	desktop.open_app(&"backup")
 	await settle()
 	check(app.get_instance_id() == old_id and app.active_mode == "load" and app.selected_locator == "slot:2", "Same-day reopen preserves one mode and drawer selection")
-	var reopened_text := ""
-	for label in app.drawer_buttons["slot:2"].find_children("*", "Label", true, false):
-		reopened_text += label.text
-	check(reopened_text.contains("4") and reopened_text.contains("08:31"), "Cached presentation rereads changed owner metadata instead of retaining authority")
+	# This injected row has no family, so the UI must refresh its metadata without
+	# inferring a calendar label from the supplied day.
+	check(app._records["slot:2"].day == 4 and app.drawer_buttons["slot:2"].state_label.text == "08:31", "Cached presentation rereads changed owner metadata without inventing a calendar label")
 	check(app.status_label.text != "Saved" and not is_instance_valid(app.confirmation), "Reopen does not cache transient acknowledgment or consent")
 	app.mode_buttons["load"].grab_focus()
 	await press_key(KEY_ESCAPE)
