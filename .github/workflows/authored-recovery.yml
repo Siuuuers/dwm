@@ -7,7 +7,7 @@ jobs:
       run:
         shell: pwsh
     if: github.head_ref == 'codex/story-day-qualification-20261023' || github.ref == 'refs/heads/codex/story-day-qualification-20261023'
-    name: Windows / One reading admission and genuine Day2 recovery
+    name: Windows / Genuine Day7 recovery ending and replay
     runs-on: windows-2022
     steps:
     - name: Preserve source bytes
@@ -16,19 +16,19 @@ jobs:
       with:
         fetch-depth: 2
         persist-credentials: true
-        ref: 910027b4cfdd3ea8975a1b373db035b6c22d3488
+        ref: 7f353cbb7b85744d36e8871ab70c4adfc1d026d8
     - name: Record pinned source
       run: '$ErrorActionPreference = ''Stop''
 
-        if ((git rev-parse HEAD) -cne ''910027b4cfdd3ea8975a1b373db035b6c22d3488'') { throw ''Candidate mismatch''
+        if ((git rev-parse HEAD) -cne ''7f353cbb7b85744d36e8871ab70c4adfc1d026d8'') { throw ''Candidate mismatch''
         }
 
-        if ((git rev-parse ''HEAD^{tree}'') -cne ''99e432f78991518fa421cbda99adc38bd542837d'') { throw ''Candidate
+        if ((git rev-parse ''HEAD^{tree}'') -cne ''b284ed0971c051a0d46126c9f0f52ae4111cd9f5'') { throw ''Candidate
         tree mismatch'' }
 
         New-Item -ItemType Directory -Force ''.godot/ci'' | Out-Null
 
-        @{candidate=''910027b4cfdd3ea8975a1b373db035b6c22d3488''; tree=(git rev-parse ''HEAD^{tree}''); controller=''${{
+        @{candidate=''7f353cbb7b85744d36e8871ab70c4adfc1d026d8''; tree=(git rev-parse ''HEAD^{tree}''); controller=''${{
         github.event.pull_request.head.sha }}''; workflow=''${{ github.workflow_sha }}''; event=''${{ github.sha
         }}''; run_id=''${{ github.run_id }}''; attempt=''${{ github.run_attempt }}''} | ConvertTo-Json | Set-Content
         ''.godot/ci/audit-origin.json''
@@ -73,26 +73,6 @@ jobs:
         \ Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {\n  throw 'Project import reported\
         \ script errors; inspect import.log.'\n}\n"
       timeout-minutes: 8
-    - name: Verify saved receipt owner boundaries
-      timeout-minutes: 12
-      run: './tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''saved-event-anchor'' -LogName ''saved-event-anchor.log''
-        -EvidenceLogPath ''.godot/ci/saved-event-anchor.jsonl'' -TimeoutSeconds 600 -KeepRoot -Rendered -GodotArgs
-        @(''-s'', ''res://addons/gut/gut_cmdln.gd'', ''-gconfig='', ''-gtest=res://tests/integration/test_scene_saved_event_anchor.gd'',
-        ''-gexit'', ''-glog=2'', ''-gjunit_xml_file=res://.godot/ci/saved-event-anchor.xml'')
-
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-        '
-    - name: Verify public event anchor membership
-      timeout-minutes: 12
-      run: './tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''event-anchor-membership'' -LogName ''event-anchor-membership.log''
-        -EvidenceLogPath ''.godot/ci/event-anchor-membership.jsonl'' -TimeoutSeconds 600 -KeepRoot -Rendered -GodotArgs
-        @(''-s'', ''res://addons/gut/gut_cmdln.gd'', ''-gconfig='', ''-gtest=res://tests/integration/test_scene_event_anchor_membership.gd'',
-        ''-gexit'', ''-glog=2'', ''-gjunit_xml_file=res://.godot/ci/event-anchor-membership.xml'')
-
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-        '
     - name: Restore committed project settings after editor import
       run: '# Dialogic''s editor scan rewrites its timeline lookup during import.
 
@@ -103,11 +83,20 @@ jobs:
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
         '
-    - name: Authenticate and stage the genuine interrupted Day2 root
-      run: "$ErrorActionPreference = 'Stop'\n@'\nimport hashlib,io,json,pathlib,zipfile\narchive=pathlib.Path('evidence/phase_2r/authored_followup_20261023/run39888749357_journey/original-artifact.zip')\n\
-        raw=archive.read_bytes()\nassert hashlib.sha256(raw).hexdigest()=='2ef29456bcb6482c2206f530e286ff3973552eaba00c473efb7b4dcca4c7fdac'\n\
+    - name: Download retained full journey evidence
+      uses: actions/github-script@v7
+      with:
+        script: 'const fs = require(''fs'');
+
+          const artifact = await github.rest.actions.downloadArtifact({owner: context.repo.owner, repo: context.repo.repo,
+          artifact_id: 12489238097, archive_format: ''zip''});
+
+          fs.writeFileSync(''.godot/ci/source-journey.zip'', Buffer.from(artifact.data));'
+    - name: Authenticate and stage the genuine interrupted Day7 root
+      run: "$ErrorActionPreference = 'Stop'\n@'\nimport hashlib,io,json,pathlib,zipfile\narchive=pathlib.Path('.godot/ci/source-journey.zip')\n\
+        raw=archive.read_bytes()\nassert hashlib.sha256(raw).hexdigest()=='86bcc222c600c352cac163d57b9006b7f61e5b83fe227f321aafd163a2b8d42f'\n\
         with zipfile.ZipFile(io.BytesIO(raw)) as outer:\n    assert outer.testzip() is None\n    inner_raw=outer.read('original-evidence.zip')\n\
-        assert hashlib.sha256(inner_raw).hexdigest()=='f8349e2e332036f76b68c3dccb5d56da6e14bb90eafcfc5c0e9d43d4e3b34570'\n\
+        assert hashlib.sha256(inner_raw).hexdigest()=='a6945e7dff4bdde7180cf6a23c4f90a2672e0e0f1dfdf294178d60279ab92aba'\n\
         out=pathlib.Path('.godot/ci'); root=out/'recovery-source'; root.mkdir(parents=True,exist_ok=True)\nprefix='ci/native/authored-week/0/appdata/Godot/app_userdata/DWM/'\n\
         files={}\nwith zipfile.ZipFile(io.BytesIO(inner_raw)) as inner:\n    assert inner.testzip() is None\n  \
         \  manifest=json.loads(inner.read('ci/retained-hashes.json'))\n    for name,row in manifest.items():\n \
@@ -115,8 +104,8 @@ jobs:
         \    for item in inner.infolist():\n        if not item.filename.startswith(prefix) or item.is_dir(): continue\n\
         \        relative=item.filename[len(prefix):]; destination=(root/relative).resolve()\n        assert destination.is_relative_to(root.resolve()),relative\n\
         \        assert item.filename in manifest,relative\n        data=inner.read(item.filename); destination.parent.mkdir(parents=True,exist_ok=True);\
-        \ destination.write_bytes(data)\n        files[relative]=hashlib.sha256(data).hexdigest()\nassert len(files)==37,len(files)\n\
-        proof={'source_run':39888749357,'outer_sha256':hashlib.sha256(raw).hexdigest(),\n       'inner_sha256':hashlib.sha256(inner_raw).hexdigest(),'files':files}\n\
+        \ destination.write_bytes(data)\n        files[relative]=hashlib.sha256(data).hexdigest()\nassert len(files)==40,len(files)\n\
+        proof={'source_run':39920770730,'outer_sha256':hashlib.sha256(raw).hexdigest(),\n       'inner_sha256':hashlib.sha256(inner_raw).hexdigest(),'files':files}\n\
         (out/'recovery-source.json').write_text(json.dumps(proof,indent=2),encoding='utf-8')\n\n(out/\"seed-authored-recovery.gd\"\
         ).write_text('extends SceneTree\\n\\nfunc _initialize() -> void:\\n\\tvar parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(\"\
         res://.godot/ci/recovery-source.json\"))\\n\\tif not parsed is Dictionary or OS.get_environment(\"DWM_TEST_ROOT\"\
@@ -132,89 +121,47 @@ jobs:
         n\\t\\treturn\\n\\toutput.store_string(JSON.stringify(proof))\\n\\toutput.close()\\n\\tprint(\"RECOVERY_SEED_COMPLETE\
         \ files=\" + str(source.files.size()))\\n\\tquit(0)\\n',encoding=\"utf-8\")\n'@ | python -\nif ($LASTEXITCODE\
         \ -ne 0) { exit $LASTEXITCODE }\n"
-    - name: Recover and continue the genuine interrupted Day2 save
+    - name: Recover genuine Day7 then fresh ending replay and New Game
       env:
         DWM_SCENE_VALIDATION_PROFILE: '1'
         DWM_SAVE_LOAD_PROFILE: '1'
         DWM_CHECKPOINT_PROFILE: '1'
-      timeout-minutes: 12
+      timeout-minutes: 62
       run: './tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''authored-recovery'' -LogName ''authored-recovery-seed.log''
-        -EvidenceLogPath ''.godot/ci/authored-recovery.jsonl'' -TimeoutSeconds 600 -KeepRoot -Rendered -GodotArgs
+        -EvidenceLogPath ''.godot/ci/authored-recovery.jsonl'' -TimeoutSeconds 1800 -KeepRoot -Rendered -GodotArgs
         @(''-s'', ''res://.godot/ci/seed-authored-recovery.gd'') -NextLogName ''authored-recovery.log'' -NextGodotArgs
-        @(''-s'', ''res://addons/gut/gut_cmdln.gd'', ''-gconfig='', ''-gprefix=authored_week_'', ''-gtest=res://tests/integration/authored_week_recovery.gd'',
-        ''-gexit'', ''-glog=2'', ''-gjunit_xml_file=res://.godot/ci/authored-recovery.xml'')
+        @(''-s'', ''res://addons/gut/gut_cmdln.gd'', ''-gconfig='', ''-gprefix=authored_week_'', ''-gtest=res://tests/integration/authored_week_late_recovery.gd'',
+        ''-gexit'', ''-glog=2'', ''-gjunit_xml_file=res://.godot/ci/authored-recovery.xml'') -ThirdLogName ''authored-replay.log''
+        -ThirdGodotArgs @(''-s'', ''res://addons/gut/gut_cmdln.gd'', ''-gconfig='', ''-gprefix=authored_week_'',
+        ''-gtest=res://tests/integration/authored_week_replay.gd'', ''-gexit'', ''-glog=2'', ''-gjunit_xml_file=res://.godot/ci/authored-replay.xml'')
 
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
         '
-    - name: Verify genuine recovery evidence
-      run: '$ErrorActionPreference = ''Stop''
-
-        @''
-
-        import json,pathlib,xml.etree.ElementTree as ET
-
-        p=pathlib.Path(''.godot/ci'')
-
-        report=ET.parse(p/''authored-recovery.xml'').getroot(); cases=list(report.iter(''testcase''))
-
-        assert len(cases)==1 and cases[0].attrib[''name'']==''test_recover_interrupted_authored_day2''
-
-        assert cases[0].attrib[''status'']==''pass'' and not any(list(report.iter(t)) for t in [''failure'',''error'',''skipped''])
-
-        events=[json.loads(s) for s in (p/''authored-recovery.jsonl'').read_text(encoding=''utf-8-sig'').splitlines()
-        if s.strip()]
-
-        assert len(events)==2 and all(e[''exit_code'']==0 for e in events)
-
-        assert events[0][''test_root'']==events[1][''test_root'']
-
-        proof=json.loads((p/''authored-recovery.json'').read_text(encoding=''utf-8-sig''))
-
-        assert proof[''source_run'']==39888749357 and proof[''complete''] and proof[''pending_phase'']==''''
-
-        assert proof[''process_id'']!=proof[''seed_process_id'']
-
-        assert proof[''observed_lines'']==[''line.Day2.answer.019'',''line.Day2.result.A.001'',''line.Day2.result.A.002'',''line.Day2.result.A.003'']
-
-        assert len(proof[''timings''])==3 and len(proof[''phases''])==8 and all(row[''ok''] for row in proof[''phases''])
-
-        log=pathlib.Path(''.godot/phase2r_logs/authored-recovery.log'').read_text(encoding=''utf-8-sig'')
-
-        assert log.count(''DWM_SCENE_VALIDATION_PROFILE {'')==8
-
-        assert not any(s in log for s in [''SCRIPT ERROR:'', ''ERROR: Failed to load'', ''[Failed]''])
-
-        print(''Genuine Day2 recovery and bounded continuation passed; not whole-week acceptance'')
-
-        unit=ET.parse(p/''saved-event-anchor.xml'').getroot(); unit_cases=list(unit.iter(''testcase''))
-
-        assert len(unit_cases)==14 and all(c.attrib[''status'']==''pass'' for c in unit_cases)
-
-        assert not any(list(unit.iter(t)) for t in [''failure'',''error'',''skipped''])
-
-        unit_events=[json.loads(s) for s in (p/''saved-event-anchor.jsonl'').read_text(encoding=''utf-8-sig'').splitlines()
-        if s.strip()]
-
-        assert len(unit_events)==1 and unit_events[0][''exit_code'']==0
-
-        unit=ET.parse(p/''event-anchor-membership.xml'').getroot(); unit_cases=list(unit.iter(''testcase''))
-
-        assert len(unit_cases)==4 and all(c.attrib[''status'']==''pass'' for c in unit_cases)
-
-        assert not any(list(unit.iter(t)) for t in [''failure'',''error'',''skipped''])
-
-        unit_events=[json.loads(s) for s in (p/''event-anchor-membership.jsonl'').read_text(encoding=''utf-8-sig'').splitlines()
-        if s.strip()]
-
-        assert len(unit_events)==1 and unit_events[0][''exit_code'']==0
-
-
-        ''@ | python -
-
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-        '
+    - name: Verify genuine late recovery ending and replay evidence
+      run: "$ErrorActionPreference = 'Stop'\n@'\nimport json,pathlib,xml.etree.ElementTree as ET\np=pathlib.Path('.godot/ci')\n\
+        for name,test in [('authored-recovery','test_recover_interrupted_authored_day7_to_ending'),('authored-replay','test_replay_authored_ending')]:\n\
+        \ report=ET.parse(p/(name+'.xml')).getroot();cases=list(report.iter('testcase'))\n assert len(cases)==1\
+        \ and cases[0].get('name')==test and cases[0].get('status')=='pass' and int(cases[0].get('assertions',0))>0\n\
+        \ assert not any(list(report.iter(t)) for t in ['failure','error','skipped'])\nevents=[json.loads(s) for\
+        \ s in (p/'authored-recovery.jsonl').read_text(encoding='utf-8-sig').splitlines() if s.strip()]\nassert\
+        \ len(events)==3 and all(e['exit_code']==0 for e in events)\nassert len({e['test_root'] for e in events})==1\n\
+        r=json.loads((p/'authored-late-recovery.json').read_text(encoding='utf-8-sig'))\ne=json.loads((p/'authored-week-ending.json').read_text(encoding='utf-8-sig'))\n\
+        f=json.loads((p/'authored-week-replay.json').read_text(encoding='utf-8-sig'))\nassert r['complete'] and\
+        \ r['pending_phase']=='' and r['source_run']==39920770730\nassert len(r['phases'])==36 and all(x['ok'] for\
+        \ x in r['phases']) and len(r['timings'])==30\nassert len(r['observed_lines'])==31 and r['observed_lines'][:2]==['line.Day7.untouched.impulse.004','line.Day7.A.001']\n\
+        assert r['observed_lines'][9]=='line.ending.alone.normal.001'\nassert len(e['observed_lines'])==10 and e['checkpoint']==e['snapshot']['narrative_checkpoint']\n\
+        assert len(f['observed_lines'])==23 and f['observed_lines'][:22]==r['observed_lines'][9:]\nassert e['process_id']==r['process_id']==f['creator_process_id']\n\
+        assert len({r['seed_process_id'],r['process_id'],f['process_id']})==3\nfor proof in [r,f]:\n assert proof['completed_lifecycle']['state']=='COMPLETED'\n\
+        \ assert proof['completed_lifecycle']['ending_plan']['playback_stage']=='GALLERY_RECORDED'\nassert f['gallery_receipts']==r['completed_profile']['gallery_transaction_receipts']\n\
+        assert f['fresh_lifecycle']['state']=='PLAYING' and 'ending_plan' not in f['fresh_lifecycle']\nassert f['fresh_lifecycle']['run_id']!=r['completed_lifecycle']['run_id']\n\
+        for label in ['late-recovery-held-control','late-recovery-continued','ending','late-recovery-completed-title','restored-slot-2','replay-completed-title','fresh-day1']:\n\
+        \ path=p/('computer-authored-'+label+'.png');assert path.is_file() and path.stat().st_size>1000,str(path)\n\
+        log=pathlib.Path('.godot/phase2r_logs/authored-recovery.log').read_text(encoding='utf-8-sig')\nassert log.count('DWM_SCENE_VALIDATION_PROFILE\
+        \ {')==36\nfor path in pathlib.Path('.godot/phase2r_logs').glob('*.log'):\n text=path.read_text(encoding='utf-8-sig');assert\
+        \ not any(s in text for s in ['SCRIPT ERROR:','ERROR: Failed to load','[Failed]']),str(path)\nprint('Genuine\
+        \ Day7 recovery, ending save/completion, fresh replay and New Game passed; earlier full run remains timed\
+        \ out')\n'@ | python -\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\n"
     - if: always()
       name: Retain native evidence from isolated roots
       run: "$ErrorActionPreference = 'Stop'\n@'\nimport json,pathlib,shutil\nout=pathlib.Path('.godot/ci')\nfor\
@@ -239,7 +186,7 @@ jobs:
         \ if p.parent==pathlib.Path('tests/integration') else p);target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(p.read_bytes())\n\
         \    tracked=subprocess.run(['git','ls-files','--error-unmatch','--',str(p)],capture_output=True).returncode==0\n\
         \    records.append({'path':p.as_posix(),'retained_path':target.relative_to(out).as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'provenance':'candidate_tracked'\
-        \ if tracked else 'cloud_editor_import','source':'910027b4cfdd3ea8975a1b373db035b6c22d3488','source_tree':'99e432f78991518fa421cbda99adc38bd542837d'})\n\
+        \ if tracked else 'cloud_editor_import','source':'7f353cbb7b85744d36e8871ab70c4adfc1d026d8','source_tree':'b284ed0971c051a0d46126c9f0f52ae4111cd9f5'})\n\
         (out/'uid-provenance.json').write_text(json.dumps(records,indent=2))\n(out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))\n\
         manifest_source=subprocess.check_output(['git','ls-tree','-r','HEAD'],text=True)\n(out/'source-tree.txt').write_text(manifest_source)\n\
         files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts and p.name not in ['original-evidence.zip','retained-hashes.json']]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))\n\
@@ -258,8 +205,164 @@ jobs:
         name: authored-recovery-${{ github.run_id }}-${{ github.run_attempt }}
         path: .godot/ci/original-evidence.zip
         retention-days: 30
+    timeout-minutes: 75
+  windows-export:
+    name: Windows / exact candidate export startup
+    if: github.head_ref == 'codex/story-day-qualification-20261023' || github.ref == 'refs/heads/codex/story-day-qualification-20261023'
+    runs-on: windows-2022
     timeout-minutes: 35
-name: Fresh reading admission and genuine recovery
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+    - name: Preserve source bytes
+      run: git config --global core.autocrlf false
+    - uses: actions/checkout@v7
+      with:
+        ref: 7f353cbb7b85744d36e8871ab70c4adfc1d026d8
+        fetch-depth: 2
+        persist-credentials: true
+    - name: Record pinned source
+      run: '$ErrorActionPreference = ''Stop''
+
+        if ((git rev-parse HEAD) -cne ''7f353cbb7b85744d36e8871ab70c4adfc1d026d8'') { throw ''Candidate mismatch''
+        }
+
+        if ((git rev-parse ''HEAD^{tree}'') -cne ''b284ed0971c051a0d46126c9f0f52ae4111cd9f5'') { throw ''Candidate
+        tree mismatch'' }
+
+        New-Item -ItemType Directory -Force ''.godot/ci'' | Out-Null
+
+        @{candidate=''7f353cbb7b85744d36e8871ab70c4adfc1d026d8''; tree=(git rev-parse ''HEAD^{tree}''); controller=''${{
+        github.event.pull_request.head.sha }}''; workflow=''${{ github.workflow_sha }}''; event=''${{ github.sha
+        }}''; run_id=''${{ github.run_id }}''; attempt=''${{ github.run_attempt }}''} | ConvertTo-Json | Set-Content
+        ''.godot/ci/audit-origin.json''
+
+        '
+    - name: Prepare disposable checkout for credential cleanup
+      run: '$ErrorActionPreference = ''Stop''
+
+        # These legacy tooling gitlinks have no .gitmodules URLs. Git''s
+
+        # submodule foreach reads the index even with sparse checkout.
+
+        # The source commit and working files remain unchanged.
+
+        git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        git submodule foreach --recursive ''true''
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        '
+    - name: Install Godot 4.6.3 standard
+      run: "$ErrorActionPreference = 'Stop'\n$archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'\nInvoke-WebRequest\
+        \ -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip'\
+        \ -OutFile $archive\n# SHA256 published with the official 4.6.3-stable release asset.\n$expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'\n\
+        if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {\n  throw\
+        \ 'Godot archive checksum mismatch.'\n}\n$editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'\nExpand-Archive\
+        \ -LiteralPath $archive -DestinationPath $editor\n$console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'\n\
+        if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }\n\"GODOT_CONSOLE_PATH=$console\"\
+        \ | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8\n& $console --version\nif ($LASTEXITCODE -ne\
+        \ 0) { exit $LASTEXITCODE }\n"
+    - name: Import project
+      timeout-minutes: 8
+      run: "$ErrorActionPreference = 'Stop'\n$output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'\n$env:APPDATA\
+        \ = Join-Path $output 'import-user/appdata'\n$env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'\n\
+        $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'\nNew-Item -ItemType Directory -Force -Path\
+        \ $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null\n& $env:GODOT_CONSOLE_PATH --headless\
+        \ --path $env:GITHUB_WORKSPACE --import --log-file \"$output/import.log\"\n$importExit = $LASTEXITCODE\n\
+        @{exit_code=$importExit} | ConvertTo-Json | Set-Content \"$output/import-process.json\"\nif ($importExit\
+        \ -ne 0) { exit $importExit }\nif (Select-String -Path \"$output/import.log\" -Pattern 'SCRIPT ERROR:|ERROR:\
+        \ Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {\n  throw 'Project import reported\
+        \ script errors; inspect import.log.'\n}\n"
+    - name: Restore committed project settings after editor import
+      run: '# Dialogic''s editor scan rewrites its timeline lookup during import.
+
+        # Execute the committed configuration with the freshly imported assets.
+
+        git restore -- project.godot
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        '
+    - name: Cache pinned export templates
+      id: export-templates-cache
+      uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830
+      with:
+        path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
+        key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
+    - name: Download verified Godot export templates
+      timeout-minutes: 10
+      run: "$ErrorActionPreference = 'Stop'\n$folder = Join-Path $env:RUNNER_TEMP 'dwm-godot-templates'\nNew-Item\
+        \ -ItemType Directory -Force -Path $folder | Out-Null\n$archive = Join-Path $folder 'Godot_v4.6.3-stable_export_templates.tpz'\n\
+        if (-not (Test-Path -LiteralPath $archive)) {\n  Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_export_templates.tpz'\
+        \ -OutFile $archive\n}\n$expected = '3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8'\n\
+        if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {\n  throw\
+        \ 'Godot export templates checksum mismatch.'\n}\n\"GODOT_EXPORT_TEMPLATES_ARCHIVE=$archive\" | Out-File\
+        \ -FilePath $env:GITHUB_ENV -Append -Encoding utf8\n"
+    - name: Retain verified export templates for subsequent runs
+      if: steps.export-templates-cache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830
+      with:
+        path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
+        key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
+    - name: Export and launch isolated Windows executable
+      timeout-minutes: 12
+      run: ./tools/testing/Invoke-WindowsExportValidation.ps1
+    - name: Retain original export evidence and build hashes
+      if: always()
+      run: '$ErrorActionPreference = ''Stop''
+
+        @''
+
+        import hashlib,json,pathlib,subprocess
+
+        out=pathlib.Path(''.godot/ci'')
+
+        out.mkdir(parents=True,exist_ok=True)
+
+        paths=[out/''audit-origin.json'',out/''import-process.json'',out/''import.log'']
+
+        paths.extend(p for p in (out/''windows-export'').rglob(''*'') if p.is_file())
+
+        manifest={p.relative_to(out).as_posix():{''bytes'':p.stat().st_size,''sha256'':hashlib.sha256(p.read_bytes()).hexdigest()}
+        for p in paths if p.is_file()}
+
+        (out/''export-retained-hashes.json'').write_text(json.dumps(manifest,indent=2))
+
+        (out/''export-final-status.txt'').write_text(subprocess.check_output([''git'',''status'',''--porcelain''],text=True))
+
+        ''@ | python -
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        '
+    - name: Upload Windows validation build and original evidence
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: authored-followup-windows-export-${{ github.run_id }}-${{ github.run_attempt }}
+        path: '.godot/ci/audit-origin.json
+
+          .godot/ci/import-process.json
+
+          .godot/ci/import.log
+
+          .godot/ci/export-retained-hashes.json
+
+          .godot/ci/export-final-status.txt
+
+          .godot/ci/windows-export/
+
+          '
+        include-hidden-files: true
+        if-no-files-found: error
+        retention-days: 30
+    needs: authored-recovery
+name: Genuine Day7 recovery ending replay and Windows export
 'on':
   workflow_dispatch: null
   pull_request:
