@@ -1487,11 +1487,25 @@ func _profile_migration_text_validator(text: String) -> Dictionary:
 	return MIGRATION.prepare_document(parsed.value)
 
 
+const _PROFILE_PARSE_MAX_BYTES := 1024 * 1024
+var _profile_parsed_text := ""
+var _profile_parsed_document: Dictionary = {}
+
 func _profile_text_validator(text: String) -> Dictionary:
-	var parsed := STRICT_JSON.parse_object(text)
-	if not parsed.get("ok", false):
-		return parsed
-	return SCHEMA.validate(parsed["value"])
+	var parsed: Dictionary
+	if not _profile_parsed_document.is_empty() and text == _profile_parsed_text:
+		parsed = _profile_parsed_document
+	else:
+		parsed = STRICT_JSON.parse_object(text)
+		if not parsed.get("ok", false): return parsed
+		_profile_parsed_text = ""
+		_profile_parsed_document = {}
+		if text.to_utf8_buffer().size() <= _PROFILE_PARSE_MAX_BYTES:
+			_profile_parsed_text = text
+			_profile_parsed_document = parsed.duplicate(true)
+	# Only syntax is reused. Schema admission still observes current registries,
+	# and neither it nor a caller receives the private parsed tree.
+	return SCHEMA.validate(parsed["value"].duplicate(true))
 
 
 func _import_legacy_input_mappings() -> Dictionary:
