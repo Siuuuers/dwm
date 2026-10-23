@@ -282,13 +282,6 @@ jobs:
 name: Selected registration owner and genuine recovery
 'on':
   workflow_dispatch: null
-  pull_request:
-    types:
-    - opened
-    - synchronize
-    - reopened
-    paths:
-    - .github/workflows/authored-recovery.yml
 permissions:
   actions: read
   contents: read

@@ -1,6 +1,13 @@
-name: Authored week and Settings followup
+name: Authored week save load replay and final Windows export
 'on':
-  workflow_dispatch:
+  workflow_dispatch: null
+  pull_request:
+    types:
+    - opened
+    - synchronize
+    - reopened
+    paths:
+    - .github/workflows/authored-followup.yml
 permissions:
   contents: read
   actions: read
@@ -8,226 +15,9 @@ concurrency:
   group: authored-followup-${{ github.event.pull_request.number }}
   cancel-in-progress: false
 jobs:
-  settings:
-    name: Windows / Settings followup
-    if: github.head_ref == 'codex/story-day-qualification-20261023'
-    runs-on: windows-2022
-    timeout-minutes: 45
-    defaults:
-      run:
-        shell: pwsh
-    steps:
-    - name: Preserve source bytes
-      run: git config --global core.autocrlf false
-    - uses: actions/checkout@v7
-      with:
-        ref: 8783f46c5ad8417757a13755bc64ed6b0e7c84fd
-        fetch-depth: 2
-        persist-credentials: true
-    - name: Record pinned source
-      run: |
-        $ErrorActionPreference = 'Stop'
-        if ((git rev-parse HEAD) -cne '8783f46c5ad8417757a13755bc64ed6b0e7c84fd') { throw 'Candidate mismatch' }
-        if ((git rev-parse 'HEAD^{tree}') -cne 'c6bd6faaaae05e34d00c7c079108867576d19ebc') { throw 'Candidate tree mismatch' }
-        New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-        @{candidate='8783f46c5ad8417757a13755bc64ed6b0e7c84fd'; tree=(git rev-parse 'HEAD^{tree}'); controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
-    - name: Prepare disposable checkout for credential cleanup
-      run: |
-        $ErrorActionPreference = 'Stop'
-        # These legacy tooling gitlinks have no .gitmodules URLs. Git's
-        # submodule foreach reads the index even with sparse checkout.
-        # The source commit and working files remain unchanged.
-        git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-        git submodule foreach --recursive 'true'
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    - name: Install Godot 4.6.3 standard
-      run: |
-        $ErrorActionPreference = 'Stop'
-        $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
-        Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
-        # SHA256 published with the official 4.6.3-stable release asset.
-        $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
-        if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
-          throw 'Godot archive checksum mismatch.'
-        }
-        $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
-        Expand-Archive -LiteralPath $archive -DestinationPath $editor
-        $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
-        if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
-        "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-        & $console --version
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    - name: Import project
-      timeout-minutes: 8
-      run: |
-        $ErrorActionPreference = 'Stop'
-        $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
-        $env:APPDATA = Join-Path $output 'import-user/appdata'
-        $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
-        $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
-        New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
-        & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
-        $importExit = $LASTEXITCODE
-        @{exit_code=$importExit} | ConvertTo-Json | Set-Content "$output/import-process.json"
-        if ($importExit -ne 0) { exit $importExit }
-        if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
-          throw 'Project import reported script errors; inspect import.log.'
-        }
-    - name: Restore committed project settings after editor import
-      run: |
-        # Dialogic's editor scan rewrites its timeline lookup during import.
-        # Execute the committed configuration with the freshly imported assets.
-        git restore -- project.godot
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    - name: Settings owner interactions
-      timeout-minutes: 12
-      run: |-
-        ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'settings' -LogName 'settings.log' -EvidenceLogPath '.godot/ci/settings.jsonl' -TimeoutSeconds 600 -KeepRoot -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_settings_shared_hosts.gd,res://tests/scene/test_settings_window_mode_live.gd,res://tests/scene/test_settings_audio_live.gd,res://tests/scene/test_settings_reset_confirmation.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/settings.xml')
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    - name: Render ordinary Settings and Pause custody
-      timeout-minutes: 8
-      run: |-
-        ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'settings-render' -LogName 'settings-render.log' -EvidenceLogPath '.godot/ci/settings-render.jsonl' -TimeoutSeconds 360 -KeepRoot -Rendered -GodotArgs @('--script', 'res://tests/ui/render_settings_shared.gd')
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    - name: Refresh and independently check native caller inventories
-      timeout-minutes: 12
-      run: |-
-        ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    - name: Verify Settings census native captures and inventories
-      run: |
-        $ErrorActionPreference = 'Stop'
-        @'
-        import collections,json,pathlib,re,struct,subprocess,xml.etree.ElementTree as ET,zlib
-        out=pathlib.Path('.godot/ci')
-        assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='8783f46c5ad8417757a13755bc64ed6b0e7c84fd'
-        assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()=='c6bd6faaaae05e34d00c7c079108867576d19ebc'
-        assert json.loads((out/'import-process.json').read_text(encoding='utf-8-sig'))['exit_code']==0
-        reports=[]
-        def tests(path):
-            text=pathlib.Path(path).read_text(encoding='utf-8'); own=re.findall(r'^func (test_\w+)\(',text,re.M)
-            inherited=re.search(r'^extends "res://(tests/[^"\n]+)"',text,re.M)
-            if inherited: own.extend(x for x in tests(inherited[1]) if x not in own)
-            return own
-        def junit(name,paths):
-            report=ET.parse(out/(name+'.xml')).getroot();rows=list(report.iter('testcase'))
-            expected=[(p,n) for p in paths for n in tests(p)]
-            assert expected and collections.Counter((r.attrib['classname'],r.attrib['name']) for r in rows)==collections.Counter(expected),name
-            assert not any(list(report.iter(t)) for t in ['failure','error','skipped']),name
-            assert all(r.attrib.get('status')=='pass' and int(r.attrib.get('assertions',0))>0 for r in rows),name
-            reports.append({'suite':name,'tests':len(rows),'assertions':sum(int(r.attrib['assertions']) for r in rows)})
-        def processes(name,count):
-            events=[json.loads(x) for x in (out/(name+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if x.strip()]
-            assert len(events)==count and all(e['exit_code']==0 for e in events),(name,events)
-            return events
-        def png(path,dimensions=None):
-            data=path.read_bytes();assert len(data)>1000 and data[:8]==b'\x89PNG\r\n\x1a\n',str(path)
-            cursor=8;chunks=[];compressed=b'';actual=None
-            while cursor<len(data):
-                length=struct.unpack('>I',data[cursor:cursor+4])[0];kind=data[cursor+4:cursor+8];payload=data[cursor+8:cursor+8+length]
-                crc=struct.unpack('>I',data[cursor+8+length:cursor+12+length])[0]
-                assert zlib.crc32(kind+payload)&0xffffffff==crc,str(path)
-                chunks.append(kind)
-                if kind==b'IHDR': actual=struct.unpack('>II',payload[:8]);assert all(n>0 for n in actual)
-                if kind==b'IDAT': compressed+=payload
-                cursor+=12+length
-            assert chunks[0]==b'IHDR' and chunks[-1]==b'IEND' and cursor==len(data) and zlib.decompress(compressed),str(path)
-            if dimensions is not None: assert actual==tuple(dimensions),(str(path),actual,dimensions)
-            return {'path':str(path),'dimensions':actual,'bytes':len(data)}
-
-        junit('settings', ['tests/integration/test_settings_shared_hosts.gd', 'tests/scene/test_settings_window_mode_live.gd', 'tests/scene/test_settings_audio_live.gd', 'tests/scene/test_settings_reset_confirmation.gd'])
-        assert reports[0]['tests']==31
-        processes('settings',1)
-        events=processes('settings-render',1)
-
-        folder=pathlib.Path(events[0]['user_dir'])/'evidence/settings_shared'
-        m=json.loads((folder/'settings-shared-measurements.json').read_text(encoding='utf-8-sig'))
-        assert m['ok'] is True and not m['failure'] and m['captures']==11 and len(m['samples'])==11
-        expected={(locale,size,'desktop-accessibility') for locale in ['en','zh_CN','zh_HK'] for size in [100,125,150]}
-        expected.update({('en',100,'pause-preview'),('en',100,'pause-entered')})
-        assert {(s['locale'],s['text_percent'],s['state']) for s in m['samples']}==expected
-        assert {p.name for p in folder.glob('*.png')}=={s['file'] for s in m['samples']}
-        pngs=[png(folder/s['file'],s['native_size']) for s in m['samples']]
-        assert 'SETTINGS_SHARED_RENDER_VERIFIED captures=11' in pathlib.Path('.godot/phase2r_logs/settings-render.log').read_text(encoding='utf-8-sig')
-        inventory_outputs={'evidence/phase_2r/runtime/'+owner+'_surface.json' for owner in ['game_state','save_manager']}
-        for owner in ['game_state','save_manager']:
-            for mode in ['generate','check']:
-                processes('public-surfaces/'+owner+'-'+mode,1)
-                log=pathlib.Path('.godot/phase2r_logs/cloud-public-surface-'+owner+'-'+mode+'.log').read_text(encoding='utf-8-sig')
-                assert log.splitlines().count('SURFACE_INVENTORY: PASS')==1
-            generated=pathlib.Path('evidence/phase_2r/runtime/'+owner+'_surface.json')
-            assert generated.read_bytes()==(out/'public-surfaces'/(owner+'_surface.json')).read_bytes()
-            inventory=json.loads(generated.read_text());assert inventory['ok'] and not inventory['errors']
-
-        for p in [out/'import.log']+list(pathlib.Path('.godot/phase2r_logs').glob('*.log')):
-            assert not re.search(r'SCRIPT ERROR:|^\s*ERROR:|Unicode parsing error|Unexpected NUL character',p.read_text(encoding='utf-8-sig'),re.M),str(p)
-        allowed={'.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1'}
-        allowed.update(inventory_outputs)
-        changed=set(subprocess.check_output(['git','diff','HEAD','--name-only'],text=True).splitlines())
-        assert not changed-allowed,changed
-        untracked=subprocess.check_output(['git','ls-files','--others','--exclude-standard','--','autoload','scripts','scenes','tests'],text=True).splitlines()
-        assert not [p for p in untracked if pathlib.Path(p).suffix in {'.gd','.tscn'}],untracked
-        (out/'qualification-gate.json').write_text(json.dumps({'source':'8783f46c5ad8417757a13755bc64ed6b0e7c84fd','tree':'c6bd6faaaae05e34d00c7c079108867576d19ebc','reports':reports,'pngs':pngs,'changed':sorted(changed)},indent=2))
-        print(json.dumps(reports))
-        '@ | python -
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    - name: Retain native evidence from isolated roots
-      if: always()
-      run: |
-        $ErrorActionPreference = 'Stop'
-        @'
-        import json,pathlib,shutil
-        out=pathlib.Path('.godot/ci')
-        for p in sorted(out.glob('*.jsonl')):
-            events=[json.loads(x) for x in p.read_text(encoding='utf-8-sig').splitlines() if x.strip()]
-            for i,event in enumerate(events):
-                source=pathlib.Path(event['test_root']).resolve()
-                assert source.is_relative_to(pathlib.Path('.godot').resolve()),str(source)
-                if source.is_dir():
-                    destination=out/'native'/p.stem/str(i)
-                    if i and events[i-1]['test_root']==event['test_root']: continue
-                    shutil.copytree(source,destination,dirs_exist_ok=True)
-        '@ | python -
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    - name: Retain original evidence and native UID provenance
-      if: always()
-      run: |
-        $ErrorActionPreference = 'Stop'
-        @'
-        import hashlib,json,pathlib,subprocess,zipfile
-        out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
-        records=[]
-        for p in pathlib.Path('tests/integration').glob('authored_week*.gd.uid'):
-            target=out/'native-uids'/p.name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(p.read_bytes())
-            tracked=subprocess.run(['git','ls-files','--error-unmatch','--',str(p)],capture_output=True).returncode==0
-            records.append({'path':p.as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'provenance':'candidate_tracked' if tracked else 'cloud_editor_import','source':'8783f46c5ad8417757a13755bc64ed6b0e7c84fd','source_tree':'c6bd6faaaae05e34d00c7c079108867576d19ebc'})
-        (out/'uid-provenance.json').write_text(json.dumps(records,indent=2))
-        (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
-        manifest_source=subprocess.check_output(['git','ls-tree','-r','HEAD'],text=True)
-        (out/'source-tree.txt').write_text(manifest_source)
-        files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts and p.name not in ['original-evidence.zip','retained-hashes.json']]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))
-        manifest={p.relative_to('.godot').as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in files}
-        retained=out/'retained-hashes.json';retained.write_text(json.dumps(manifest,indent=2));files.append(retained)
-        archive=out/'original-evidence.zip'
-        with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z:
-            for p in files:z.write(p,p.relative_to('.godot').as_posix())
-        with zipfile.ZipFile(archive) as z:assert z.testzip() is None
-        print(json.dumps({'bytes':archive.stat().st_size,'sha256':hashlib.sha256(archive.read_bytes()).hexdigest()}))
-        '@ | python -
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    - name: Upload original evidence
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: Windows-Settings-followup-${{ github.run_id }}-${{ github.run_attempt }}
-        path: .godot/ci/original-evidence.zip
-        include-hidden-files: true
-        if-no-files-found: error
-        retention-days: 30
   authored-week:
     name: Windows / Authored week followup
-    if: github.head_ref == 'codex/story-day-qualification-20261023'
+    if: github.head_ref == 'codex/story-day-qualification-20261023' || github.ref == 'refs/heads/codex/story-day-qualification-20261023'
     runs-on: windows-2022
     timeout-minutes: 110
     defaults:
@@ -238,197 +28,150 @@ jobs:
       run: git config --global core.autocrlf false
     - uses: actions/checkout@v7
       with:
-        ref: 8783f46c5ad8417757a13755bc64ed6b0e7c84fd
+        ref: c27f94a1d6142f4b2e91722d1ee83269137f74c9
         fetch-depth: 2
         persist-credentials: true
     - name: Record pinned source
-      run: |
-        $ErrorActionPreference = 'Stop'
-        if ((git rev-parse HEAD) -cne '8783f46c5ad8417757a13755bc64ed6b0e7c84fd') { throw 'Candidate mismatch' }
-        if ((git rev-parse 'HEAD^{tree}') -cne 'c6bd6faaaae05e34d00c7c079108867576d19ebc') { throw 'Candidate tree mismatch' }
-        New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-        @{candidate='8783f46c5ad8417757a13755bc64ed6b0e7c84fd'; tree=(git rev-parse 'HEAD^{tree}'); controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
-    - name: Prepare disposable checkout for credential cleanup
-      run: |
-        $ErrorActionPreference = 'Stop'
-        # These legacy tooling gitlinks have no .gitmodules URLs. Git's
-        # submodule foreach reads the index even with sparse checkout.
-        # The source commit and working files remain unchanged.
-        git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-        git submodule foreach --recursive 'true'
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    - name: Install Godot 4.6.3 standard
-      run: |
-        $ErrorActionPreference = 'Stop'
-        $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
-        Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
-        # SHA256 published with the official 4.6.3-stable release asset.
-        $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
-        if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
-          throw 'Godot archive checksum mismatch.'
+      run: '$ErrorActionPreference = ''Stop''
+
+        if ((git rev-parse HEAD) -cne ''c27f94a1d6142f4b2e91722d1ee83269137f74c9'') { throw ''Candidate mismatch'' }
+
+        if ((git rev-parse ''HEAD^{tree}'') -cne ''8dcc2d5e9813795a0744fbca17df05a44c2d42ba'') { throw ''Candidate tree mismatch''
         }
-        $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
-        Expand-Archive -LiteralPath $archive -DestinationPath $editor
-        $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
-        if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
-        "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-        & $console --version
+
+        New-Item -ItemType Directory -Force ''.godot/ci'' | Out-Null
+
+        @{candidate=''c27f94a1d6142f4b2e91722d1ee83269137f74c9''; tree=(git rev-parse ''HEAD^{tree}''); controller=''${{ github.event.pull_request.head.sha
+        }}''; workflow=''${{ github.workflow_sha }}''; event=''${{ github.sha }}''; run_id=''${{ github.run_id }}''; attempt=''${{
+        github.run_attempt }}''} | ConvertTo-Json | Set-Content ''.godot/ci/audit-origin.json''
+
+        '
+    - name: Prepare disposable checkout for credential cleanup
+      run: '$ErrorActionPreference = ''Stop''
+
+        # These legacy tooling gitlinks have no .gitmodules URLs. Git''s
+
+        # submodule foreach reads the index even with sparse checkout.
+
+        # The source commit and working files remain unchanged.
+
+        git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        git submodule foreach --recursive ''true''
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        '
+    - name: Install Godot 4.6.3 standard
+      run: "$ErrorActionPreference = 'Stop'\n$archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'\nInvoke-WebRequest -Uri\
+        \ 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile\
+        \ $archive\n# SHA256 published with the official 4.6.3-stable release asset.\n$expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'\n\
+        if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {\n  throw 'Godot\
+        \ archive checksum mismatch.'\n}\n$editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'\nExpand-Archive -LiteralPath\
+        \ $archive -DestinationPath $editor\n$console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'\nif (-not\
+        \ (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }\n\"GODOT_CONSOLE_PATH=$console\"\
+        \ | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8\n& $console --version\nif ($LASTEXITCODE -ne 0) { exit\
+        \ $LASTEXITCODE }\n"
     - name: Import project
       timeout-minutes: 8
-      run: |
-        $ErrorActionPreference = 'Stop'
-        $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
-        $env:APPDATA = Join-Path $output 'import-user/appdata'
-        $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
-        $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
-        New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
-        & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
-        $importExit = $LASTEXITCODE
-        @{exit_code=$importExit} | ConvertTo-Json | Set-Content "$output/import-process.json"
-        if ($importExit -ne 0) { exit $importExit }
-        if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
-          throw 'Project import reported script errors; inspect import.log.'
-        }
+      run: "$ErrorActionPreference = 'Stop'\n$output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'\n$env:APPDATA = Join-Path\
+        \ $output 'import-user/appdata'\n$env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'\n$env:DWM_TEST_ROOT\
+        \ = Join-Path $output 'import-user/test-root'\nNew-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA,\
+        \ $env:DWM_TEST_ROOT | Out-Null\n& $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file\
+        \ \"$output/import.log\"\n$importExit = $LASTEXITCODE\n@{exit_code=$importExit} | ConvertTo-Json | Set-Content \"\
+        $output/import-process.json\"\nif ($importExit -ne 0) { exit $importExit }\nif (Select-String -Path \"$output/import.log\"\
+        \ -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {\n  throw\
+        \ 'Project import reported script errors; inspect import.log.'\n}\n"
     - name: Restore committed project settings after editor import
-      run: |
-        # Dialogic's editor scan rewrites its timeline lookup during import.
+      run: '# Dialogic''s editor scan rewrites its timeline lookup during import.
+
         # Execute the committed configuration with the freshly imported assets.
+
         git restore -- project.godot
+
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        '
     - name: Authored week create load and completed ending replay
       timeout-minutes: 95
-      run: |-
-        ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'authored-week' -LogName 'authored-create.log' -NextLogName 'authored-load.log' -ThirdLogName 'authored-replay.log' -EvidenceLogPath '.godot/ci/authored-week.jsonl' -TimeoutSeconds 1800 -KeepRoot -Rendered -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gprefix=authored_week_', '-gtest=res://tests/integration/authored_week_create.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/authored-create.xml') -NextGodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gprefix=authored_week_', '-gtest=res://tests/integration/authored_week_load.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/authored-load.xml') -ThirdGodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gprefix=authored_week_', '-gtest=res://tests/integration/authored_week_replay.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/authored-replay.xml')
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      run: './tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''authored-week'' -LogName ''authored-create.log'' -NextLogName
+        ''authored-load.log'' -ThirdLogName ''authored-replay.log'' -EvidenceLogPath ''.godot/ci/authored-week.jsonl'' -TimeoutSeconds
+        1800 -KeepRoot -Rendered -GodotArgs @(''-s'', ''res://addons/gut/gut_cmdln.gd'', ''-gconfig='', ''-gprefix=authored_week_'',
+        ''-gtest=res://tests/integration/authored_week_create.gd'', ''-gexit'', ''-glog=2'', ''-gjunit_xml_file=res://.godot/ci/authored-create.xml'')
+        -NextGodotArgs @(''-s'', ''res://addons/gut/gut_cmdln.gd'', ''-gconfig='', ''-gprefix=authored_week_'', ''-gtest=res://tests/integration/authored_week_load.gd'',
+        ''-gexit'', ''-glog=2'', ''-gjunit_xml_file=res://.godot/ci/authored-load.xml'') -ThirdGodotArgs @(''-s'', ''res://addons/gut/gut_cmdln.gd'',
+        ''-gconfig='', ''-gprefix=authored_week_'', ''-gtest=res://tests/integration/authored_week_replay.gd'', ''-gexit'',
+        ''-glog=2'', ''-gjunit_xml_file=res://.godot/ci/authored-replay.xml'')
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }'
     - name: Verify authored journey proof and process census
-      run: |
-        $ErrorActionPreference = 'Stop'
-        @'
-        import collections,json,pathlib,re,struct,subprocess,xml.etree.ElementTree as ET,zlib
-        out=pathlib.Path('.godot/ci')
-        assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='8783f46c5ad8417757a13755bc64ed6b0e7c84fd'
-        assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()=='c6bd6faaaae05e34d00c7c079108867576d19ebc'
-        assert json.loads((out/'import-process.json').read_text(encoding='utf-8-sig'))['exit_code']==0
-        reports=[]
-        def tests(path):
-            text=pathlib.Path(path).read_text(encoding='utf-8'); own=re.findall(r'^func (test_\w+)\(',text,re.M)
-            inherited=re.search(r'^extends "res://(tests/[^"\n]+)"',text,re.M)
-            if inherited: own.extend(x for x in tests(inherited[1]) if x not in own)
-            return own
-        def junit(name,paths):
-            report=ET.parse(out/(name+'.xml')).getroot();rows=list(report.iter('testcase'))
-            expected=[(p,n) for p in paths for n in tests(p)]
-            assert expected and collections.Counter((r.attrib['classname'],r.attrib['name']) for r in rows)==collections.Counter(expected),name
-            assert not any(list(report.iter(t)) for t in ['failure','error','skipped']),name
-            assert all(r.attrib.get('status')=='pass' and int(r.attrib.get('assertions',0))>0 for r in rows),name
-            reports.append({'suite':name,'tests':len(rows),'assertions':sum(int(r.attrib['assertions']) for r in rows)})
-        def processes(name,count):
-            events=[json.loads(x) for x in (out/(name+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if x.strip()]
-            assert len(events)==count and all(e['exit_code']==0 for e in events),(name,events)
-            return events
-        def png(path,dimensions=None):
-            data=path.read_bytes();assert len(data)>1000 and data[:8]==b'\x89PNG\r\n\x1a\n',str(path)
-            cursor=8;chunks=[];compressed=b'';actual=None
-            while cursor<len(data):
-                length=struct.unpack('>I',data[cursor:cursor+4])[0];kind=data[cursor+4:cursor+8];payload=data[cursor+8:cursor+8+length]
-                crc=struct.unpack('>I',data[cursor+8+length:cursor+12+length])[0]
-                assert zlib.crc32(kind+payload)&0xffffffff==crc,str(path)
-                chunks.append(kind)
-                if kind==b'IHDR': actual=struct.unpack('>II',payload[:8]);assert all(n>0 for n in actual)
-                if kind==b'IDAT': compressed+=payload
-                cursor+=12+length
-            assert chunks[0]==b'IHDR' and chunks[-1]==b'IEND' and cursor==len(data) and zlib.decompress(compressed),str(path)
-            if dimensions is not None: assert actual==tuple(dimensions),(str(path),actual,dimensions)
-            return {'path':str(path),'dimensions':actual,'bytes':len(data)}
-
-        paths=['tests/integration/authored_week_create.gd', 'tests/integration/authored_week_load.gd', 'tests/integration/authored_week_replay.gd']
-
-        for phase,path in zip(['create','load','replay'],paths): junit('authored-'+phase,[path])
-        assert [r['tests'] for r in reports]==[1,1,1]
-        events=processes('authored-week',3)
-        assert len({e['test_root'] for e in events})==1 and len({e['user_dir'] for e in events})==1
-        proof={label:json.loads((out/('authored-week-'+label+'.json')).read_text(encoding='utf-8-sig')) for label in ['day4','ending','load','replay']}
-        a,b,c,d=[proof[label] for label in ['day4','ending','load','replay']]
-        assert len(a['observed_lines'])==469 and len(c['observed_lines'])==368 and len(d['observed_lines'])==23
-        assert a['observed_lines'][-1]==c['observed_lines'][0]=='line.Day4.one'
-        assert len(a['observed_lines']+c['observed_lines'][1:])==836
-        assert c['creator_process_id']==a['process_id'] and d['creator_process_id']==b['process_id']==c['process_id']
-        assert len({a['process_id'],c['process_id'],d['process_id']})==3
-        assert len({p['registration_sha256'] for p in proof.values()})==1
-        assert re.fullmatch(r'[0-9a-f]{64}',a['registration_sha256'])
-        for p in [a,b]:
-            assert re.fullmatch(r'[0-9a-f]{64}',p['slot_sha256'])
-            assert p['snapshot']['narrative_checkpoint']==p['checkpoint']
-        for p in [c,d]:
-            assert p['completed_lifecycle']['state']=='COMPLETED'
-            assert p['completed_lifecycle']['ending_plan']['playback_stage']=='GALLERY_RECORDED'
-        assert d['fresh_lifecycle']['state']=='PLAYING' and 'ending_plan' not in d['fresh_lifecycle']
-        assert d['fresh_lifecycle']['run_id']!=a['snapshot']['lifecycle']['run_id']
-        assert d['gallery_receipts']==c['completed_profile']['gallery_transaction_receipts']
-        assert len(d['gallery_receipts'])==len(a['profile']['gallery_transaction_receipts'])+1
-        capture_owners={'Day2':a,'Day3':a,'Day4':a,'Day5':c,'Day6':c,'Day7':c,'day4':a,'restored-slot-1':c,'ending':b,'load-completed-title':c,'restored-slot-2':d,'replay-completed-title':d,'fresh-day1':d}
-        assert {p.name for p in out.glob('computer-authored-*.png')}=={'computer-authored-'+label+'.png' for label in capture_owners}
-        pngs=[png(out/('computer-authored-'+label+'.png'),p['window_size']) for label,p in capture_owners.items()]
-        inventory_outputs=set()
-
-        for p in [out/'import.log']+list(pathlib.Path('.godot/phase2r_logs').glob('*.log')):
-            assert not re.search(r'SCRIPT ERROR:|^\s*ERROR:|Unicode parsing error|Unexpected NUL character',p.read_text(encoding='utf-8-sig'),re.M),str(p)
-        allowed={'.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1'}
-        allowed.update(inventory_outputs)
-        changed=set(subprocess.check_output(['git','diff','HEAD','--name-only'],text=True).splitlines())
-        assert not changed-allowed,changed
-        untracked=subprocess.check_output(['git','ls-files','--others','--exclude-standard','--','autoload','scripts','scenes','tests'],text=True).splitlines()
-        assert not [p for p in untracked if pathlib.Path(p).suffix in {'.gd','.tscn'}],untracked
-        (out/'qualification-gate.json').write_text(json.dumps({'source':'8783f46c5ad8417757a13755bc64ed6b0e7c84fd','tree':'c6bd6faaaae05e34d00c7c079108867576d19ebc','reports':reports,'pngs':pngs,'changed':sorted(changed)},indent=2))
-        print(json.dumps(reports))
-        '@ | python -
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      run: "$ErrorActionPreference = 'Stop'\n@'\nimport collections,json,pathlib,re,struct,subprocess,xml.etree.ElementTree\
+        \ as ET,zlib\nout=pathlib.Path('.godot/ci')\nassert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='c27f94a1d6142f4b2e91722d1ee83269137f74c9'\n\
+        assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()=='8dcc2d5e9813795a0744fbca17df05a44c2d42ba'\n\
+        assert json.loads((out/'import-process.json').read_text(encoding='utf-8-sig'))['exit_code']==0\nreports=[]\ndef tests(path):\n\
+        \    text=pathlib.Path(path).read_text(encoding='utf-8'); own=re.findall(r'^func (test_\\w+)\\(',text,re.M)\n    inherited=re.search(r'^extends\
+        \ \"res://(tests/[^\"\\n]+)\"',text,re.M)\n    if inherited: own.extend(x for x in tests(inherited[1]) if x not in\
+        \ own)\n    return own\ndef junit(name,paths):\n    report=ET.parse(out/(name+'.xml')).getroot();rows=list(report.iter('testcase'))\n\
+        \    expected=[(p,n) for p in paths for n in tests(p)]\n    assert expected and collections.Counter((r.attrib['classname'],r.attrib['name'])\
+        \ for r in rows)==collections.Counter(expected),name\n    assert not any(list(report.iter(t)) for t in ['failure','error','skipped']),name\n\
+        \    assert all(r.attrib.get('status')=='pass' and int(r.attrib.get('assertions',0))>0 for r in rows),name\n    reports.append({'suite':name,'tests':len(rows),'assertions':sum(int(r.attrib['assertions'])\
+        \ for r in rows)})\ndef processes(name,count):\n    events=[json.loads(x) for x in (out/(name+'.jsonl')).read_text(encoding='utf-8-sig').splitlines()\
+        \ if x.strip()]\n    assert len(events)==count and all(e['exit_code']==0 for e in events),(name,events)\n    return\
+        \ events\ndef png(path,dimensions=None):\n    data=path.read_bytes();assert len(data)>1000 and data[:8]==b'\\x89PNG\\\
+        r\\n\\x1a\\n',str(path)\n    cursor=8;chunks=[];compressed=b'';actual=None\n    while cursor<len(data):\n        length=struct.unpack('>I',data[cursor:cursor+4])[0];kind=data[cursor+4:cursor+8];payload=data[cursor+8:cursor+8+length]\n\
+        \        crc=struct.unpack('>I',data[cursor+8+length:cursor+12+length])[0]\n        assert zlib.crc32(kind+payload)&0xffffffff==crc,str(path)\n\
+        \        chunks.append(kind)\n        if kind==b'IHDR': actual=struct.unpack('>II',payload[:8]);assert all(n>0 for\
+        \ n in actual)\n        if kind==b'IDAT': compressed+=payload\n        cursor+=12+length\n    assert chunks[0]==b'IHDR'\
+        \ and chunks[-1]==b'IEND' and cursor==len(data) and zlib.decompress(compressed),str(path)\n    if dimensions is not\
+        \ None: assert actual==tuple(dimensions),(str(path),actual,dimensions)\n    return {'path':str(path),'dimensions':actual,'bytes':len(data)}\n\
+        \npaths=['tests/integration/authored_week_create.gd', 'tests/integration/authored_week_load.gd', 'tests/integration/authored_week_replay.gd']\n\
+        \nfor phase,path in zip(['create','load','replay'],paths): junit('authored-'+phase,[path])\nassert [r['tests'] for\
+        \ r in reports]==[1,1,1]\nevents=processes('authored-week',3)\nassert len({e['test_root'] for e in events})==1 and\
+        \ len({e['user_dir'] for e in events})==1\nproof={label:json.loads((out/('authored-week-'+label+'.json')).read_text(encoding='utf-8-sig'))\
+        \ for label in ['day4','ending','load','replay']}\na,b,c,d=[proof[label] for label in ['day4','ending','load','replay']]\n\
+        assert len(a['observed_lines'])==469 and len(c['observed_lines'])==368 and len(d['observed_lines'])==23\nassert a['observed_lines'][-1]==c['observed_lines'][0]=='line.Day4.one'\n\
+        assert len(a['observed_lines']+c['observed_lines'][1:])==836\nassert c['creator_process_id']==a['process_id'] and\
+        \ d['creator_process_id']==b['process_id']==c['process_id']\nassert len({a['process_id'],c['process_id'],d['process_id']})==3\n\
+        assert len({p['registration_sha256'] for p in proof.values()})==1\nassert re.fullmatch(r'[0-9a-f]{64}',a['registration_sha256'])\n\
+        for p in [a,b]:\n    assert re.fullmatch(r'[0-9a-f]{64}',p['slot_sha256'])\n    assert p['snapshot']['narrative_checkpoint']==p['checkpoint']\n\
+        for p in [c,d]:\n    assert p['completed_lifecycle']['state']=='COMPLETED'\n    assert p['completed_lifecycle']['ending_plan']['playback_stage']=='GALLERY_RECORDED'\n\
+        assert d['fresh_lifecycle']['state']=='PLAYING' and 'ending_plan' not in d['fresh_lifecycle']\nassert d['fresh_lifecycle']['run_id']!=a['snapshot']['lifecycle']['run_id']\n\
+        assert d['gallery_receipts']==c['completed_profile']['gallery_transaction_receipts']\nassert len(d['gallery_receipts'])==len(a['profile']['gallery_transaction_receipts'])+1\n\
+        capture_owners={'Day2':a,'Day3':a,'Day4':a,'Day5':c,'Day6':c,'Day7':c,'day4':a,'restored-slot-1':c,'ending':b,'load-completed-title':c,'restored-slot-2':d,'replay-completed-title':d,'fresh-day1':d}\n\
+        assert {p.name for p in out.glob('computer-authored-*.png')}=={'computer-authored-'+label+'.png' for label in capture_owners}\n\
+        pngs=[png(out/('computer-authored-'+label+'.png'),p['window_size']) for label,p in capture_owners.items()]\ninventory_outputs=set()\n\
+        \nfor p in [out/'import.log']+list(pathlib.Path('.godot/phase2r_logs').glob('*.log')):\n    assert not re.search(r'SCRIPT\
+        \ ERROR:|^\\s*ERROR:|Unicode parsing error|Unexpected NUL character',p.read_text(encoding='utf-8-sig'),re.M),str(p)\n\
+        allowed={'.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1'}\nallowed.update(inventory_outputs)\n\
+        changed=set(subprocess.check_output(['git','diff','HEAD','--name-only'],text=True).splitlines())\nassert not changed-allowed,changed\n\
+        untracked=subprocess.check_output(['git','ls-files','--others','--exclude-standard','--','autoload','scripts','scenes','tests'],text=True).splitlines()\n\
+        assert not [p for p in untracked if pathlib.Path(p).suffix in {'.gd','.tscn'}],untracked\n(out/'qualification-gate.json').write_text(json.dumps({'source':'c27f94a1d6142f4b2e91722d1ee83269137f74c9','tree':'8dcc2d5e9813795a0744fbca17df05a44c2d42ba','reports':reports,'pngs':pngs,'changed':sorted(changed)},indent=2))\n\
+        print(json.dumps(reports))\n'@ | python -\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\n"
     - name: Retain native evidence from isolated roots
       if: always()
-      run: |
-        $ErrorActionPreference = 'Stop'
-        @'
-        import json,pathlib,shutil
-        out=pathlib.Path('.godot/ci')
-        for p in sorted(out.glob('*.jsonl')):
-            events=[json.loads(x) for x in p.read_text(encoding='utf-8-sig').splitlines() if x.strip()]
-            for i,event in enumerate(events):
-                source=pathlib.Path(event['test_root']).resolve()
-                assert source.is_relative_to(pathlib.Path('.godot').resolve()),str(source)
-                if source.is_dir():
-                    destination=out/'native'/p.stem/str(i)
-                    if i and events[i-1]['test_root']==event['test_root']: continue
-                    shutil.copytree(source,destination,dirs_exist_ok=True)
-        '@ | python -
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      run: "$ErrorActionPreference = 'Stop'\n@'\nimport json,pathlib,shutil\nout=pathlib.Path('.godot/ci')\nfor p in sorted(out.glob('*.jsonl')):\n\
+        \    events=[json.loads(x) for x in p.read_text(encoding='utf-8-sig').splitlines() if x.strip()]\n    for i,event\
+        \ in enumerate(events):\n        source=pathlib.Path(event['test_root']).resolve()\n        assert source.is_relative_to(pathlib.Path('.godot').resolve()),str(source)\n\
+        \        if source.is_dir():\n            destination=out/'native'/p.stem/str(i)\n            if i and events[i-1]['test_root']==event['test_root']:\
+        \ continue\n            shutil.copytree(source,destination,dirs_exist_ok=True)\n'@ | python -\nif ($LASTEXITCODE -ne\
+        \ 0) { exit $LASTEXITCODE }\n"
     - name: Retain original evidence and native UID provenance
       if: always()
-      run: |
-        $ErrorActionPreference = 'Stop'
-        @'
-        import hashlib,json,pathlib,subprocess,zipfile
-        out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
-        records=[]
-        for p in pathlib.Path('tests/integration').glob('authored_week*.gd.uid'):
-            target=out/'native-uids'/p.name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(p.read_bytes())
-            tracked=subprocess.run(['git','ls-files','--error-unmatch','--',str(p)],capture_output=True).returncode==0
-            records.append({'path':p.as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'provenance':'candidate_tracked' if tracked else 'cloud_editor_import','source':'8783f46c5ad8417757a13755bc64ed6b0e7c84fd','source_tree':'c6bd6faaaae05e34d00c7c079108867576d19ebc'})
-        (out/'uid-provenance.json').write_text(json.dumps(records,indent=2))
-        (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
-        manifest_source=subprocess.check_output(['git','ls-tree','-r','HEAD'],text=True)
-        (out/'source-tree.txt').write_text(manifest_source)
-        files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts and p.name not in ['original-evidence.zip','retained-hashes.json']]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))
-        manifest={p.relative_to('.godot').as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in files}
-        retained=out/'retained-hashes.json';retained.write_text(json.dumps(manifest,indent=2));files.append(retained)
-        archive=out/'original-evidence.zip'
-        with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z:
-            for p in files:z.write(p,p.relative_to('.godot').as_posix())
-        with zipfile.ZipFile(archive) as z:assert z.testzip() is None
-        print(json.dumps({'bytes':archive.stat().st_size,'sha256':hashlib.sha256(archive.read_bytes()).hexdigest()}))
-        '@ | python -
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      run: "$ErrorActionPreference = 'Stop'\n@'\nimport hashlib,json,pathlib,subprocess,zipfile\nout=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)\n\
+        records=[]\nfor p in pathlib.Path('tests/integration').glob('authored_week*.gd.uid'):\n    target=out/'native-uids'/p.name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(p.read_bytes())\n\
+        \    tracked=subprocess.run(['git','ls-files','--error-unmatch','--',str(p)],capture_output=True).returncode==0\n\
+        \    records.append({'path':p.as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'provenance':'candidate_tracked'\
+        \ if tracked else 'cloud_editor_import','source':'c27f94a1d6142f4b2e91722d1ee83269137f74c9','source_tree':'8dcc2d5e9813795a0744fbca17df05a44c2d42ba'})\n\
+        (out/'uid-provenance.json').write_text(json.dumps(records,indent=2))\n(out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))\n\
+        manifest_source=subprocess.check_output(['git','ls-tree','-r','HEAD'],text=True)\n(out/'source-tree.txt').write_text(manifest_source)\n\
+        files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts and p.name not in ['original-evidence.zip','retained-hashes.json']]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))\n\
+        manifest={p.relative_to('.godot').as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}\
+        \ for p in files}\nretained=out/'retained-hashes.json';retained.write_text(json.dumps(manifest,indent=2));files.append(retained)\n\
+        archive=out/'original-evidence.zip'\nwith zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z:\n    for p in files:z.write(p,p.relative_to('.godot').as_posix())\n\
+        with zipfile.ZipFile(archive) as z:assert z.testzip() is None\nprint(json.dumps({'bytes':archive.stat().st_size,'sha256':hashlib.sha256(archive.read_bytes()).hexdigest()}))\n\
+        '@ | python -\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\n"
     - name: Upload original evidence
       if: always()
       uses: actions/upload-artifact@v4
@@ -438,138 +181,156 @@ jobs:
         include-hidden-files: true
         if-no-files-found: error
         retention-days: 30
-
   windows-export:
     name: Windows / exact candidate export startup
-    if: github.head_ref == 'codex/story-day-qualification-20261023'
+    if: github.head_ref == 'codex/story-day-qualification-20261023' || github.ref == 'refs/heads/codex/story-day-qualification-20261023'
     runs-on: windows-2022
     timeout-minutes: 35
     defaults:
       run:
         shell: pwsh
     steps:
-      - name: Preserve source bytes
-        run: git config --global core.autocrlf false
-      - uses: actions/checkout@v7
-        with:
-          ref: 8783f46c5ad8417757a13755bc64ed6b0e7c84fd
-          fetch-depth: 2
-          # Defer credential removal until the post-job cleanup, after the
-          # malformed gitlinks are removed from this disposable runner's index.
-          persist-credentials: true
-      - name: Record pinned source
-        run: |
-          $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '8783f46c5ad8417757a13755bc64ed6b0e7c84fd') { throw 'Candidate mismatch' }
-          if ((git rev-parse 'HEAD^{tree}') -cne 'c6bd6faaaae05e34d00c7c079108867576d19ebc') { throw 'Candidate tree mismatch' }
-          New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='8783f46c5ad8417757a13755bc64ed6b0e7c84fd'; tree=(git rev-parse 'HEAD^{tree}'); controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
-      - name: Prepare disposable checkout for credential cleanup
-        run: |
-          $ErrorActionPreference = 'Stop'
-          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
-          # submodule foreach reads the index even with sparse checkout.
-          # The source commit and working files remain unchanged.
-          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git submodule foreach --recursive 'true'
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Install Godot 4.6.3 standard
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
-          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
-          # SHA256 published with the official 4.6.3-stable release asset.
-          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
-          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
-            throw 'Godot archive checksum mismatch.'
-          }
-          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
-          Expand-Archive -LiteralPath $archive -DestinationPath $editor
-          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
-          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
-          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          & $console --version
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Import project
-        timeout-minutes: 8
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
-          $env:APPDATA = Join-Path $output 'import-user/appdata'
-          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
-          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
-          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
-          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
-          $importExit = $LASTEXITCODE
-          @{exit_code=$importExit} | ConvertTo-Json | Set-Content "$output/import-process.json"
-          if ($importExit -ne 0) { exit $importExit }
-          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
-            throw 'Project import reported script errors; inspect import.log.'
-          }
-      - name: Restore committed project settings after editor import
-        run: |
-          # Dialogic's editor scan rewrites its timeline lookup during import.
-          # Execute the committed configuration with the freshly imported assets.
-          git restore -- project.godot
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Cache pinned export templates
-        id: export-templates-cache
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-        with:
-          path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
-          key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
-      - name: Download verified Godot export templates
-        timeout-minutes: 10
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $folder = Join-Path $env:RUNNER_TEMP 'dwm-godot-templates'
-          New-Item -ItemType Directory -Force -Path $folder | Out-Null
-          $archive = Join-Path $folder 'Godot_v4.6.3-stable_export_templates.tpz'
-          if (-not (Test-Path -LiteralPath $archive)) {
-            Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_export_templates.tpz' -OutFile $archive
-          }
-          $expected = '3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8'
-          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
-            throw 'Godot export templates checksum mismatch.'
-          }
-          "GODOT_EXPORT_TEMPLATES_ARCHIVE=$archive" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-      - name: Retain verified export templates for subsequent runs
-        if: steps.export-templates-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-        with:
-          path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
-          key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
-      - name: Export and launch isolated Windows executable
-        timeout-minutes: 12
-        run: ./tools/testing/Invoke-WindowsExportValidation.ps1
-      - name: Retain original export evidence and build hashes
-        if: always()
-        run: |
-          $ErrorActionPreference = 'Stop'
-          @'
-          import hashlib,json,pathlib,subprocess
-          out=pathlib.Path('.godot/ci')
-          out.mkdir(parents=True,exist_ok=True)
-          paths=[out/'audit-origin.json',out/'import-process.json',out/'import.log']
-          paths.extend(p for p in (out/'windows-export').rglob('*') if p.is_file())
-          manifest={p.relative_to(out).as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in paths if p.is_file()}
-          (out/'export-retained-hashes.json').write_text(json.dumps(manifest,indent=2))
-          (out/'export-final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
-          '@ | python -
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Upload Windows validation build and original evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: authored-followup-windows-export-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            .godot/ci/audit-origin.json
-            .godot/ci/import-process.json
-            .godot/ci/import.log
-            .godot/ci/export-retained-hashes.json
-            .godot/ci/export-final-status.txt
-            .godot/ci/windows-export/
-          include-hidden-files: true
-          if-no-files-found: error
-          retention-days: 30
+    - name: Preserve source bytes
+      run: git config --global core.autocrlf false
+    - uses: actions/checkout@v7
+      with:
+        ref: c27f94a1d6142f4b2e91722d1ee83269137f74c9
+        fetch-depth: 2
+        persist-credentials: true
+    - name: Record pinned source
+      run: '$ErrorActionPreference = ''Stop''
+
+        if ((git rev-parse HEAD) -cne ''c27f94a1d6142f4b2e91722d1ee83269137f74c9'') { throw ''Candidate mismatch'' }
+
+        if ((git rev-parse ''HEAD^{tree}'') -cne ''8dcc2d5e9813795a0744fbca17df05a44c2d42ba'') { throw ''Candidate tree mismatch''
+        }
+
+        New-Item -ItemType Directory -Force ''.godot/ci'' | Out-Null
+
+        @{candidate=''c27f94a1d6142f4b2e91722d1ee83269137f74c9''; tree=(git rev-parse ''HEAD^{tree}''); controller=''${{ github.event.pull_request.head.sha
+        }}''; workflow=''${{ github.workflow_sha }}''; event=''${{ github.sha }}''; run_id=''${{ github.run_id }}''; attempt=''${{
+        github.run_attempt }}''} | ConvertTo-Json | Set-Content ''.godot/ci/audit-origin.json''
+
+        '
+    - name: Prepare disposable checkout for credential cleanup
+      run: '$ErrorActionPreference = ''Stop''
+
+        # These legacy tooling gitlinks have no .gitmodules URLs. Git''s
+
+        # submodule foreach reads the index even with sparse checkout.
+
+        # The source commit and working files remain unchanged.
+
+        git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        git submodule foreach --recursive ''true''
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        '
+    - name: Install Godot 4.6.3 standard
+      run: "$ErrorActionPreference = 'Stop'\n$archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'\nInvoke-WebRequest -Uri\
+        \ 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile\
+        \ $archive\n# SHA256 published with the official 4.6.3-stable release asset.\n$expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'\n\
+        if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {\n  throw 'Godot\
+        \ archive checksum mismatch.'\n}\n$editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'\nExpand-Archive -LiteralPath\
+        \ $archive -DestinationPath $editor\n$console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'\nif (-not\
+        \ (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }\n\"GODOT_CONSOLE_PATH=$console\"\
+        \ | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8\n& $console --version\nif ($LASTEXITCODE -ne 0) { exit\
+        \ $LASTEXITCODE }\n"
+    - name: Import project
+      timeout-minutes: 8
+      run: "$ErrorActionPreference = 'Stop'\n$output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'\n$env:APPDATA = Join-Path\
+        \ $output 'import-user/appdata'\n$env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'\n$env:DWM_TEST_ROOT\
+        \ = Join-Path $output 'import-user/test-root'\nNew-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA,\
+        \ $env:DWM_TEST_ROOT | Out-Null\n& $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file\
+        \ \"$output/import.log\"\n$importExit = $LASTEXITCODE\n@{exit_code=$importExit} | ConvertTo-Json | Set-Content \"\
+        $output/import-process.json\"\nif ($importExit -ne 0) { exit $importExit }\nif (Select-String -Path \"$output/import.log\"\
+        \ -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {\n  throw\
+        \ 'Project import reported script errors; inspect import.log.'\n}\n"
+    - name: Restore committed project settings after editor import
+      run: '# Dialogic''s editor scan rewrites its timeline lookup during import.
+
+        # Execute the committed configuration with the freshly imported assets.
+
+        git restore -- project.godot
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        '
+    - name: Cache pinned export templates
+      id: export-templates-cache
+      uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830
+      with:
+        path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
+        key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
+    - name: Download verified Godot export templates
+      timeout-minutes: 10
+      run: "$ErrorActionPreference = 'Stop'\n$folder = Join-Path $env:RUNNER_TEMP 'dwm-godot-templates'\nNew-Item -ItemType\
+        \ Directory -Force -Path $folder | Out-Null\n$archive = Join-Path $folder 'Godot_v4.6.3-stable_export_templates.tpz'\n\
+        if (-not (Test-Path -LiteralPath $archive)) {\n  Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_export_templates.tpz'\
+        \ -OutFile $archive\n}\n$expected = '3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8'\nif ((Get-FileHash\
+        \ -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {\n  throw 'Godot export templates\
+        \ checksum mismatch.'\n}\n\"GODOT_EXPORT_TEMPLATES_ARCHIVE=$archive\" | Out-File -FilePath $env:GITHUB_ENV -Append\
+        \ -Encoding utf8\n"
+    - name: Retain verified export templates for subsequent runs
+      if: steps.export-templates-cache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830
+      with:
+        path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
+        key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
+    - name: Export and launch isolated Windows executable
+      timeout-minutes: 12
+      run: ./tools/testing/Invoke-WindowsExportValidation.ps1
+    - name: Retain original export evidence and build hashes
+      if: always()
+      run: '$ErrorActionPreference = ''Stop''
+
+        @''
+
+        import hashlib,json,pathlib,subprocess
+
+        out=pathlib.Path(''.godot/ci'')
+
+        out.mkdir(parents=True,exist_ok=True)
+
+        paths=[out/''audit-origin.json'',out/''import-process.json'',out/''import.log'']
+
+        paths.extend(p for p in (out/''windows-export'').rglob(''*'') if p.is_file())
+
+        manifest={p.relative_to(out).as_posix():{''bytes'':p.stat().st_size,''sha256'':hashlib.sha256(p.read_bytes()).hexdigest()}
+        for p in paths if p.is_file()}
+
+        (out/''export-retained-hashes.json'').write_text(json.dumps(manifest,indent=2))
+
+        (out/''export-final-status.txt'').write_text(subprocess.check_output([''git'',''status'',''--porcelain''],text=True))
+
+        ''@ | python -
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        '
+    - name: Upload Windows validation build and original evidence
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: authored-followup-windows-export-${{ github.run_id }}-${{ github.run_attempt }}
+        path: '.godot/ci/audit-origin.json
+
+          .godot/ci/import-process.json
+
+          .godot/ci/import.log
+
+          .godot/ci/export-retained-hashes.json
+
+          .godot/ci/export-final-status.txt
+
+          .godot/ci/windows-export/
+
+          '
+        include-hidden-files: true
+        if-no-files-found: error
+        retention-days: 30
+    needs: authored-week
