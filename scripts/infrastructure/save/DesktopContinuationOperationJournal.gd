@@ -1671,11 +1671,8 @@ func _validate_scene_source(operation: Dictionary) -> Dictionary:
 			return _failed(_schema_error, "retained recovery bundle is malformed")
 		var snapshot: Dictionary = bundle["snapshot"]
 		if snapshot.get("checkpoint_id") != locator["checkpoint_id"]: continue
-		if not _creation_storage_recovery:
-			var selected_ok: Dictionary = _SAVE_DOCUMENT._validate_bundle(bundle)
-			if not selected_ok.get("ok", false): return selected_ok
-			if not _CANONICAL_WRITER._deep_same(snapshot, selected_ok["value"]["candidate"]):
-				return _failed(_schema_error, "selected snapshot must already be validated")
+		# Normal Save9 admission above already validates all bundles; storage recovery
+		# keeps its existing identity-only check for the selected bundle here.
 		# A repeated checkpoint identity is ambiguous even when only one hash matches.
 		matches += 1
 		if _canonical_sha256(bundle) != locator["bundle_id"] \
