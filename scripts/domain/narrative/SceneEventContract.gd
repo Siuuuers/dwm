@@ -1264,6 +1264,12 @@ static func make_scene_terminal_admission(identity: Dictionary, root_issuer_rece
 		return _fail(&"scene_receipt_issuer_unbound")
 	var registered := validate_bundle_structure(bundle)
 	if not registered.ok: return registered
+	return _make_scene_terminal_admission_registered(identity, root_issuer_receipt, source_occurrence_id,
+		source_admission_receipt_id, trigger_receipt, source_checkpoint, target_id, registered, issuer)
+
+static func _make_scene_terminal_admission_registered(identity: Dictionary, root_issuer_receipt: Dictionary,
+		source_occurrence_id: String, source_admission_receipt_id: String, trigger_receipt: Dictionary,
+		source_checkpoint: Dictionary, target_id: String, registered: Dictionary, issuer: Object) -> Dictionary:
 	if not registered.value.targets.has(target_id): return _fail(&"scene_target_unregistered")
 	var target: Dictionary = registered.value.targets[target_id].target
 	if target.kind != "ending" or target.entry_id != "ending.alone.normal":
@@ -1374,6 +1380,32 @@ static func validate_scene_terminal_admission(record: Dictionary, bundle: Dictio
 	var rebuilt := make_scene_terminal_admission(record.source_identity, record.issuer_receipt,
 		record.source_occurrence_id, record.source_admission_receipt_id, trigger, record.source_checkpoint,
 		record.target_id, bundle, issuer)
+	if not rebuilt.ok: return rebuilt
+	if not _equal(rebuilt.value, record): return _fail(&"scene_terminal_admission_mismatch")
+	return {"ok": true}
+
+## Only the selected owner supplies structural tables; receipt and physical proofs stay fresh.
+static func validate_selected_scene_terminal_admission(record: Dictionary, issuer: Object,
+		receipts: Dictionary, creation_owner: Object = null, contacts: Dictionary = {}) -> Dictionary:
+	var shaped := validate_scene_terminal_admission_shape(record, issuer)
+	if not shaped.get("ok", false): return shaped
+	var ledger := validate_selected_scene_receipts(receipts, issuer, creation_owner, contacts)
+	if not ledger.ok: return ledger
+	var source: Dictionary = ledger.value.admissions.get(record.source_admission_receipt_id, {})
+	if source.is_empty() or source.get("return_to") != null:
+		return _fail(&"scene_terminal_source_invalid")
+	var trigger: Dictionary = ledger.value.commands.get(record.trigger_command_id, {})
+	if trigger.is_empty() or _sha(trigger) != record.trigger_sha256:
+		return _fail(&"scene_terminal_trigger_invalid")
+	var source_receipt: Dictionary = ledger.value.admission_receipts[record.source_admission_receipt_id]
+	if source_receipt.scene_admission.issuer_receipt.counter >= trigger.scene_event.semantic.issuer_receipt.counter:
+		return _fail(&"scene_terminal_issuer_order_invalid")
+	var manifest: Script = load("res://scripts/narrative/DialogicEntryManifest.gd")
+	var registered: Dictionary = manifest.scene_contract_tables()
+	if not registered.ok: return registered
+	var rebuilt := _make_scene_terminal_admission_registered(record.source_identity, record.issuer_receipt,
+		record.source_occurrence_id, record.source_admission_receipt_id, trigger, record.source_checkpoint,
+		record.target_id, registered, issuer)
 	if not rebuilt.ok: return rebuilt
 	if not _equal(rebuilt.value, record): return _fail(&"scene_terminal_admission_mismatch")
 	return {"ok": true}

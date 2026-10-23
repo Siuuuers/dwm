@@ -952,8 +952,8 @@ static func _validate_scene_reading(candidate: Dictionary) -> Dictionary:
 		source.narrative_checkpoint = plan.source_reading_checkpoint
 		var checked := _validate_scene_reading(source)
 		if not checked.ok: return checked
-		var admission := SCENE_EVENT_CONTRACT.validate_scene_terminal_admission(plan.admission,
-			SCENE_MANIFEST.scene_registration().value, _scene_issuer, candidate.command_receipts,
+		var admission := SCENE_EVENT_CONTRACT.validate_selected_scene_terminal_admission(plan.admission,
+			_scene_issuer, candidate.command_receipts,
 			_scene_creation_owner, candidate.contacts)
 		if not admission.ok: return admission
 		if plan.admission.source_occurrence_id != candidate.scene.active_occurrence_id \

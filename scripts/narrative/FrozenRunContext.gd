@@ -879,10 +879,10 @@ static func _validate_scene_terminal(snapshot: Dictionary) -> Dictionary:
 	if not projected.ok: return projected
 	if not plan.get("source_reading_checkpoint") is Dictionary or not plan.get("admission") is Dictionary:
 		return _fail(&"reading_scene_admission_invalid")
-	var registered := SCENE_ENTRIES.scene_registration()
+	var registered := SCENE_ENTRIES.scene_contract_tables()
 	if not registered.ok: return registered
-	var authenticated: Dictionary = SCENE_CONTRACT.validate_scene_terminal_admission(plan.admission,
-		registered.value, _scene_issuer, snapshot.command_receipts, _scene_creation_owner, snapshot.contacts)
+	var authenticated: Dictionary = SCENE_CONTRACT.validate_selected_scene_terminal_admission(plan.admission,
+		_scene_issuer, snapshot.command_receipts, _scene_creation_owner, snapshot.contacts)
 	if not authenticated.get("ok", false): return authenticated
 	if plan.admission.source_occurrence_id != snapshot.scene.get("active_occurrence_id") \
 			or plan.admission.source_admission_receipt_id != snapshot.scene.get("active_admission_receipt_id"):
