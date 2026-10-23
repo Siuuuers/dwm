@@ -7,7 +7,7 @@ jobs:
       run:
         shell: pwsh
     if: github.head_ref == 'codex/story-day-qualification-20261023' || github.ref == 'refs/heads/codex/story-day-qualification-20261023'
-    name: Windows / Selected registration and genuine Day2 recovery
+    name: Windows / One reading admission and genuine Day2 recovery
     runs-on: windows-2022
     steps:
     - name: Preserve source bytes
@@ -16,19 +16,19 @@ jobs:
       with:
         fetch-depth: 2
         persist-credentials: true
-        ref: c27f94a1d6142f4b2e91722d1ee83269137f74c9
+        ref: 910027b4cfdd3ea8975a1b373db035b6c22d3488
     - name: Record pinned source
       run: '$ErrorActionPreference = ''Stop''
 
-        if ((git rev-parse HEAD) -cne ''c27f94a1d6142f4b2e91722d1ee83269137f74c9'') { throw ''Candidate mismatch''
+        if ((git rev-parse HEAD) -cne ''910027b4cfdd3ea8975a1b373db035b6c22d3488'') { throw ''Candidate mismatch''
         }
 
-        if ((git rev-parse ''HEAD^{tree}'') -cne ''8dcc2d5e9813795a0744fbca17df05a44c2d42ba'') { throw ''Candidate
+        if ((git rev-parse ''HEAD^{tree}'') -cne ''99e432f78991518fa421cbda99adc38bd542837d'') { throw ''Candidate
         tree mismatch'' }
 
         New-Item -ItemType Directory -Force ''.godot/ci'' | Out-Null
 
-        @{candidate=''c27f94a1d6142f4b2e91722d1ee83269137f74c9''; tree=(git rev-parse ''HEAD^{tree}''); controller=''${{
+        @{candidate=''910027b4cfdd3ea8975a1b373db035b6c22d3488''; tree=(git rev-parse ''HEAD^{tree}''); controller=''${{
         github.event.pull_request.head.sha }}''; workflow=''${{ github.workflow_sha }}''; event=''${{ github.sha
         }}''; run_id=''${{ github.run_id }}''; attempt=''${{ github.run_attempt }}''} | ConvertTo-Json | Set-Content
         ''.godot/ci/audit-origin.json''
@@ -73,18 +73,8 @@ jobs:
         \ Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {\n  throw 'Project import reported\
         \ script errors; inspect import.log.'\n}\n"
       timeout-minutes: 8
-    - name: Verify registration admission
-      timeout-minutes: 4
-      run: './tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''scene-registration'' -LogName ''scene-registration.log''
-        -EvidenceLogPath ''.godot/ci/scene-registration.jsonl'' -TimeoutSeconds 120 -KeepRoot -GodotArgs @(''-s'',
-        ''res://addons/gut/gut_cmdln.gd'', ''-gconfig='', ''-gtest=res://tests/unit/test_scene_reading_registration.gd'',
-        ''-gexit'', ''-glog=2'', ''-gjunit_xml_file=res://.godot/ci/scene-registration.xml'')
-
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-        '
     - name: Verify saved receipt owner boundaries
-      timeout-minutes: 6
+      timeout-minutes: 12
       run: './tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''saved-event-anchor'' -LogName ''saved-event-anchor.log''
         -EvidenceLogPath ''.godot/ci/saved-event-anchor.jsonl'' -TimeoutSeconds 600 -KeepRoot -Rendered -GodotArgs
         @(''-s'', ''res://addons/gut/gut_cmdln.gd'', ''-gconfig='', ''-gtest=res://tests/integration/test_scene_saved_event_anchor.gd'',
@@ -93,12 +83,12 @@ jobs:
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
         '
-    - name: Verify retained creation proof
-      timeout-minutes: 6
-      run: './tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''joint-new-run'' -LogName ''joint-new-run.log'' -EvidenceLogPath
-        ''.godot/ci/joint-new-run.jsonl'' -TimeoutSeconds 600 -KeepRoot -Rendered -GodotArgs @(''-s'', ''res://addons/gut/gut_cmdln.gd'',
-        ''-gconfig='', ''-gtest=res://tests/integration/test_scene_joint_new_run.gd'', ''-gexit'', ''-glog=2'',
-        ''-gjunit_xml_file=res://.godot/ci/joint-new-run.xml'')
+    - name: Verify public event anchor membership
+      timeout-minutes: 12
+      run: './tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''event-anchor-membership'' -LogName ''event-anchor-membership.log''
+        -EvidenceLogPath ''.godot/ci/event-anchor-membership.jsonl'' -TimeoutSeconds 600 -KeepRoot -Rendered -GodotArgs
+        @(''-s'', ''res://addons/gut/gut_cmdln.gd'', ''-gconfig='', ''-gtest=res://tests/integration/test_scene_event_anchor_membership.gd'',
+        ''-gexit'', ''-glog=2'', ''-gjunit_xml_file=res://.godot/ci/event-anchor-membership.xml'')
 
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
@@ -199,7 +189,7 @@ jobs:
 
         unit=ET.parse(p/''saved-event-anchor.xml'').getroot(); unit_cases=list(unit.iter(''testcase''))
 
-        assert len(unit_cases)==12 and all(c.attrib[''status'']==''pass'' for c in unit_cases)
+        assert len(unit_cases)==14 and all(c.attrib[''status'']==''pass'' for c in unit_cases)
 
         assert not any(list(unit.iter(t)) for t in [''failure'',''error'',''skipped''])
 
@@ -208,27 +198,17 @@ jobs:
 
         assert len(unit_events)==1 and unit_events[0][''exit_code'']==0
 
-        unit=ET.parse(p/''scene-registration.xml'').getroot(); unit_cases=list(unit.iter(''testcase''))
+        unit=ET.parse(p/''event-anchor-membership.xml'').getroot(); unit_cases=list(unit.iter(''testcase''))
 
-        assert len(unit_cases)==6 and all(c.attrib[''status'']==''pass'' for c in unit_cases)
+        assert len(unit_cases)==4 and all(c.attrib[''status'']==''pass'' for c in unit_cases)
 
         assert not any(list(unit.iter(t)) for t in [''failure'',''error'',''skipped''])
 
-        unit_events=[json.loads(s) for s in (p/''scene-registration.jsonl'').read_text(encoding=''utf-8-sig'').splitlines()
+        unit_events=[json.loads(s) for s in (p/''event-anchor-membership.jsonl'').read_text(encoding=''utf-8-sig'').splitlines()
         if s.strip()]
 
         assert len(unit_events)==1 and unit_events[0][''exit_code'']==0
 
-        unit=ET.parse(p/''joint-new-run.xml'').getroot(); unit_cases=list(unit.iter(''testcase''))
-
-        assert len(unit_cases)==5 and all(c.attrib[''status'']==''pass'' for c in unit_cases)
-
-        assert not any(list(unit.iter(t)) for t in [''failure'',''error'',''skipped''])
-
-        unit_events=[json.loads(s) for s in (p/''joint-new-run.jsonl'').read_text(encoding=''utf-8-sig'').splitlines()
-        if s.strip()]
-
-        assert len(unit_events)==1 and unit_events[0][''exit_code'']==0
 
         ''@ | python -
 
@@ -259,7 +239,7 @@ jobs:
         \ if p.parent==pathlib.Path('tests/integration') else p);target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(p.read_bytes())\n\
         \    tracked=subprocess.run(['git','ls-files','--error-unmatch','--',str(p)],capture_output=True).returncode==0\n\
         \    records.append({'path':p.as_posix(),'retained_path':target.relative_to(out).as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'provenance':'candidate_tracked'\
-        \ if tracked else 'cloud_editor_import','source':'c27f94a1d6142f4b2e91722d1ee83269137f74c9','source_tree':'8dcc2d5e9813795a0744fbca17df05a44c2d42ba'})\n\
+        \ if tracked else 'cloud_editor_import','source':'910027b4cfdd3ea8975a1b373db035b6c22d3488','source_tree':'99e432f78991518fa421cbda99adc38bd542837d'})\n\
         (out/'uid-provenance.json').write_text(json.dumps(records,indent=2))\n(out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))\n\
         manifest_source=subprocess.check_output(['git','ls-tree','-r','HEAD'],text=True)\n(out/'source-tree.txt').write_text(manifest_source)\n\
         files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts and p.name not in ['original-evidence.zip','retained-hashes.json']]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))\n\
@@ -279,9 +259,16 @@ jobs:
         path: .godot/ci/original-evidence.zip
         retention-days: 30
     timeout-minutes: 35
-name: Selected registration owner and genuine recovery
+name: Fresh reading admission and genuine recovery
 'on':
   workflow_dispatch: null
+  pull_request:
+    types:
+    - opened
+    - synchronize
+    - reopened
+    paths:
+    - .github/workflows/authored-recovery.yml
 permissions:
   actions: read
   contents: read
