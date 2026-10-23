@@ -1,5 +1,14 @@
 extends "res://addons/gut/test.gd"
 
+# These retained contract fixtures choose their own historical registration scope.
+var _retained_scope := preload("res://tests/support/SceneValidationScope.gd").new()
+
+func before_each() -> void:
+	_retained_scope.install(true)
+
+func after_each() -> void:
+	_retained_scope.restore()
+
 const JOURNAL_PATH := "res://scripts/infrastructure/save/CheckpointJournal.gd"
 const SNAPSHOT_FIXTURE := "res://tests/fixtures/snapshots/valid_day3.json"
 const RETENTION_FIXTURE := "res://tests/fixtures/checkpoints/retention_40_lines.json"
