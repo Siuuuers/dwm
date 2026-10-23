@@ -74,11 +74,20 @@ jobs:
               return bodies[0] == bodies[1]
           focused = False
           comparison = False
+          previous = ""
           if os.environ["GITHUB_EVENT_NAME"] != "workflow_dispatch" and base and set(base) != {"0"}:
               diff = subprocess.run(["git", "diff", "--name-only", "-z", base, "HEAD"], capture_output=True)
               if diff.returncode == 0:
                   paths = set(diff.stdout.decode().strip("\0").split("\0"))
-                  comparison = bool(paths & {"autoload/SaveManager.gd", "scripts/application/backup/BackupPresentationPort.gd", "scripts/ui/BackupApp.gd"})
+                  comparison_paths = paths
+                  previous = event.get("before", "") if event.get("action") == "synchronize" else ""
+                  if re.fullmatch(r"[0-9a-f]{40}", previous):
+                      available = subprocess.run(["git", "cat-file", "-e", previous], capture_output=True)
+                      if available.returncode != 0:
+                          subprocess.run(["git", "fetch", "--no-tags", "--depth=1", "origin", previous], check=True)
+                      changed = subprocess.run(["git", "diff", "--name-only", "-z", previous, "HEAD"], capture_output=True, check=True)
+                      comparison_paths = set(changed.stdout.decode().strip("\0").split("\0"))
+                  comparison = bool(comparison_paths & {"autoload/SaveManager.gd", "autoload/ProfileManager.gd", "scripts/narrative/DialogicRuntimeAdapter.gd", "scripts/application/backup/BackupPresentationPort.gd", "scripts/ui/BackupApp.gd", "scripts/ui/desktop/DesktopQuickCommands.gd", "scripts/ui/desktop/QuickStatusEdge.gd", "scripts/ui/dating/DatingQuickCommands.gd", "scripts/ui/pause/PauseQuickCommands.gd"})
                   focused = bool(paths) and "" not in paths and paths <= allowed
                   if focused:
                       focused = all(unchanged_outside_method(path, method)
@@ -86,7 +95,7 @@ jobs:
           print("Selected " + ("runtime resource/Backup coverage" if focused else "full validation"))
           with open(os.environ["GITHUB_OUTPUT"], "a") as output:
               output.write("focused=" + str(focused).lower() + "\n")
-              output.write("comparison=" + str(comparison or focused).lower() + "\n")
+              output.write("comparison=" + str(comparison or (focused and not previous)).lower() + "\n")
 
   focused-tests:
     needs: [test-scope, public-surfaces]

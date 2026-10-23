@@ -22,7 +22,7 @@ class ObservedSaveManager extends "res://autoload/SaveManager.gd":
 
 var fixture: RefCounted
 var manager: ObservedSaveManager
-var ready := false
+var fixture_ready := false
 
 func before_all() -> void:
 	fixture = FIXTURE.new()
@@ -34,15 +34,15 @@ func before_all() -> void:
 	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
 	if started.get("code") != &"scene_activation_pending": return
 	fixture.confirm_activation()
-	ready = manager.capture_committed_scene_creation(started.transaction_id).get("ok", false)
-	assert_true(ready)
+	fixture_ready = manager.capture_committed_scene_creation(started.transaction_id).get("ok", false)
+	assert_true(fixture_ready)
 
 func after_all() -> void:
 	if fixture != null: fixture.close()
 
 func test_listing_save_and_delete_never_prepare_restoration() -> void:
-	assert_true(ready)
-	if not ready: return
+	assert_true(fixture_ready)
+	if not fixture_ready: return
 	manager.restore_documents = 0
 	manager.prepared_bundles.clear()
 	var source: Dictionary = fixture.read_autosave()
@@ -79,8 +79,8 @@ func test_listing_save_and_delete_never_prepare_restoration() -> void:
 	assert_true(manager.prepared_bundles.is_empty())
 
 func test_selected_load_prepares_current_state_once_without_older_substitution() -> void:
-	assert_true(ready)
-	if not ready: return
+	assert_true(fixture_ready)
+	if not fixture_ready: return
 	manager.restore_documents = 0
 	manager.prepared_bundles.clear()
 	var source: Dictionary = fixture.read_autosave()
@@ -105,8 +105,8 @@ func test_selected_load_prepares_current_state_once_without_older_substitution()
 	assert_eq(manager.prepared_bundles, [current], "only the explicitly selected current state is attempted")
 
 func test_refused_write_reports_failure_without_changing_live_state() -> void:
-	assert_true(ready)
-	if not ready: return
+	assert_true(fixture_ready)
+	if not fixture_ready: return
 	var before_game: Dictionary = fixture.game.capture_restore_state()
 	var before_profile: Dictionary = fixture.profile.get_profile_snapshot()
 	var before_journal: Dictionary = manager._journal.capture_state()

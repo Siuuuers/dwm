@@ -436,11 +436,11 @@ func test_load_context_reads_the_exact_retained_snapshot_without_mutation() -> v
 	assert_eq(f.manager._journal.capture_state(), before_journal)
 	_replace(f.ops, "pair/saves/slot_2.json", "{invalid")
 	var corrupt_bytes: Dictionary = f.ops.snapshot_persisted()
-	# Direct out-of-band bytes have no reconciliation lease. The real storage
-	# owner refuses them before SaveManager can parse or adopt a document.
+	# The source read has no reconciliation lease: SaveManager reads the selected
+	# bytes directly and reports a parse failure without adopting or rewriting them.
 	assert_eq(f.manager.load_context({"slot_id": "slot:2", "checkpoint_id": old.checkpoint_id}).get("code"),
-		&"reconcile_required")
-	assert_eq(f.ops.snapshot_persisted(), corrupt_bytes, "corrupt source stays available for recovery")
+		&"corrupt_save_document")
+	assert_eq(f.ops.snapshot_persisted(), corrupt_bytes, "a failed source read does not rewrite the file")
 	assert_eq(f.gs.capture_restore_state(), before_run)
 	assert_eq(f.profile.get_profile_snapshot(), before_profile)
 	assert_eq(f.manager._journal.capture_state(), before_journal)

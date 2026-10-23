@@ -2178,14 +2178,14 @@ func _prepare_restore(locator: Dictionary, expected_revision: String = "") -> Di
 	var relative_path := str(locator["relative_path"])
 	if not _storage.exists(relative_path):
 		return _fail(&"save_absent", relative_path)
-	var read: Dictionary = _storage.read_text(relative_path)
+	var read: Dictionary = _storage.inspect_revision(relative_path)
 	if not read.get("ok", false):
 		return read
 	# The selected bytes must match the metadata on which confirmation is based.
 	# This also binds preparation when another writer changes the slot between reads.
-	if not expected_revision.is_empty() and str(read["value"]).sha256_text() != expected_revision:
+	if not expected_revision.is_empty() and str(read["value"]["revision"]) != expected_revision:
 		return _fail(&"stale_backup_target", "")
-	var parsed: Dictionary = STRICT_JSON.parse_object(str(read["value"]))
+	var parsed: Dictionary = STRICT_JSON.parse_object(str(read["value"]["text"]))
 	if not parsed.get("ok", false):
 		return _fail(&"corrupt_save_document", relative_path)
 
@@ -2350,10 +2350,10 @@ func load_context(locator: Dictionary) -> Dictionary:
 	var relative_path := str(resolved["relative_path"])
 	if not _storage.exists(relative_path):
 		return _fail(&"save_absent", relative_path)
-	var read: Dictionary = _storage.read_text(relative_path)
+	var read: Dictionary = _storage.inspect_revision(relative_path)
 	if not read.get("ok", false):
 		return read
-	var parsed: Dictionary = STRICT_JSON.parse_object(str(read["value"]))
+	var parsed: Dictionary = STRICT_JSON.parse_object(str(read["value"]["text"]))
 	if not parsed.get("ok", false):
 		return _fail(&"corrupt_save_document", relative_path)
 	var migrated: Dictionary = SAVE_MIGRATIONS.migrate_document(parsed["value"],
@@ -2701,10 +2701,10 @@ func _reconstruct_restore_materials(operation: Dictionary) -> Dictionary:
 		var relative_path := str(resolved["relative_path"])
 		if not _storage.exists(relative_path):
 			return _fail(&"save_absent", relative_path)
-		var read: Dictionary = _storage.read_text(relative_path)
+		var read: Dictionary = _storage.inspect_revision(relative_path)
 		if not read.get("ok", false):
 			return read
-		var parsed: Dictionary = STRICT_JSON.parse_object(str(read["value"]))
+		var parsed: Dictionary = STRICT_JSON.parse_object(str(read["value"]["text"]))
 		if not parsed.get("ok", false):
 			return _fail(&"corrupt_save_document", relative_path)
 		migrated = SAVE_MIGRATIONS.migrate_document(parsed["value"],
