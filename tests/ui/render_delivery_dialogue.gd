@@ -454,8 +454,8 @@ func _check_challenge_art_pixels(pixels: Image, name: String) -> void:
 
 func _check_dating_art_pixels(pixels: Image, name: String) -> void:
 	# Alpha-only reference leaves native text, focus and timeline state untouched.
-	# Comparing blank margins across the old caption field catches opaque fills,
-	# horizontal seams and focus frames that node-level theme checks cannot detect.
+	# Compare the current caption field, ending above the two-row footer. The
+	# command plates at y592..656 intentionally cover artwork, unlike captions.
 	var before := _native_state()
 	var focus: Control = viewport.gui_get_focus_owner()
 	var visible_modulate: Color = caption.canvas.modulate
@@ -468,8 +468,9 @@ func _check_dating_art_pixels(pixels: Image, name: String) -> void:
 	var colors := {}
 	var mismatches := 0
 	var top: int = int(caption.get_caption_projection().field_rect.position.y)
+	check(caption.get_caption_projection().field_rect.end.y == 592, name + ": pixel sample field ends above commands")
 	for x: int in [8, 20, 100, 200, 1080, 1180, 1260]:
-		for y: int in range(top, 656, 4):
+		for y: int in range(top, 592, 4):
 			var point := Vector2i(x, y)
 			var expected := artwork.get_pixelv(point)
 			colors[expected.to_html()] = true
