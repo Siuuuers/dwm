@@ -16,14 +16,14 @@ jobs:
       with:
         fetch-depth: 2
         persist-credentials: true
-        ref: 15308ecabea31b6fdebd0d5e28232cf93d833533
+        ref: 27321f29754e7201cf1f445941e5ca687ecd4b64
     - name: Record pinned source
       run: |
         $ErrorActionPreference = 'Stop'
-        if ((git rev-parse HEAD) -cne '15308ecabea31b6fdebd0d5e28232cf93d833533') { throw 'Candidate mismatch' }
-        if ((git rev-parse 'HEAD^{tree}') -cne '2668ca1f4cc6a65d63ab21938455255c9ea5fa5a') { throw 'Candidate tree mismatch' }
+        if ((git rev-parse HEAD) -cne '27321f29754e7201cf1f445941e5ca687ecd4b64') { throw 'Candidate mismatch' }
+        if ((git rev-parse 'HEAD^{tree}') -cne 'ac36ef90f19e405e17411cbc35b9eb35d6768523') { throw 'Candidate tree mismatch' }
         New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-        @{candidate='15308ecabea31b6fdebd0d5e28232cf93d833533'; tree=(git rev-parse 'HEAD^{tree}'); controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+        @{candidate='27321f29754e7201cf1f445941e5ca687ecd4b64'; tree=(git rev-parse 'HEAD^{tree}'); controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
     - name: Prepare disposable checkout for credential cleanup
       run: |
         $ErrorActionPreference = 'Stop'
@@ -84,6 +84,10 @@ jobs:
             assert hashlib.sha256(raw).hexdigest()==row['sha256'],(suite,'source changed after workflow generation')
             assert re.findall(r'^func (test_[A-Za-z0-9_]+)\(',raw.decode('utf-8'),re.M)==row['tests'],suite
         pathlib.Path('.godot/ci/focused-source-census.json').write_text(json.dumps(expected,indent=2),encoding='utf-8')
+        supports = {'tests/integration/scene_caption_challenge_child.gd': 'f87464dcf1b5f731c131833a727d2339bc7b12fa9bd3f848acd291256aff97f7'}
+        for source_path,digest in supports.items():
+            assert hashlib.sha256(pathlib.Path(source_path).read_bytes()).hexdigest()==digest,source_path
+        pathlib.Path('.godot/ci/focused-support-sources.json').write_text(json.dumps(supports,indent=2),encoding='utf-8')
         print('Pinned source census: 18 cases across 6 test scripts')
         '@ | python -
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -193,6 +197,8 @@ jobs:
             assert hashlib.sha256(pathlib.Path(row['path']).read_bytes()).hexdigest()==row['sha256'],suite
             total+=len(cases)
         assert total==18,total
+        for source_path,digest in json.loads((p/'focused-support-sources.json').read_text(encoding='utf-8')).items():
+            assert hashlib.sha256(pathlib.Path(source_path).read_bytes()).hexdigest()==digest,source_path
 
         process_groups={
             'playable-native-control':['playable-native-control'],
@@ -282,7 +288,7 @@ jobs:
         out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
         records=[]
         uid_paths=set(pathlib.Path('tests/integration').glob('authored_week*.gd.uid'))
-        for source_path in ['tests/integration/test_scene_playable_native_control.gd', 'tests/integration/test_scene_native_activation_runtime.gd', 'tests/integration/test_scene_caption_challenge.gd', 'tests/integration/test_scene_caption_challenge_load.gd', 'tests/integration/test_scene_multiple_thoughts_create.gd', 'tests/integration/authored_week_recovery.gd', 'autoload/DialogicBridge.gd', 'autoload/GameState.gd', 'scripts/narrative/DialogicRuntimeAdapter.gd', 'scripts/ui/SceneHost.gd', 'scripts/ui/BackupApp.gd', 'scripts/ui/MenuScene.gd']:
+        for source_path in ['tests/integration/test_scene_playable_native_control.gd', 'tests/integration/test_scene_native_activation_runtime.gd', 'tests/integration/test_scene_caption_challenge.gd', 'tests/integration/test_scene_caption_challenge_load.gd', 'tests/integration/test_scene_multiple_thoughts_create.gd', 'tests/integration/authored_week_recovery.gd', 'tests/integration/scene_caption_challenge_child.gd', 'autoload/DialogicBridge.gd', 'autoload/GameState.gd', 'scripts/narrative/DialogicRuntimeAdapter.gd', 'scripts/ui/SceneHost.gd', 'scripts/ui/BackupApp.gd', 'scripts/ui/MenuScene.gd']:
             uid=pathlib.Path(source_path+'.uid')
             if uid.is_file(): uid_paths.add(uid)
         changed=subprocess.check_output(['git','diff-tree','--no-commit-id','--name-only','-r','HEAD'],text=True).splitlines()
@@ -292,7 +298,7 @@ jobs:
         for p in sorted(uid_paths):
             target=out/'native-uids'/(pathlib.Path(p.name) if p.parent==pathlib.Path('tests/integration') else p);target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(p.read_bytes())
             tracked=subprocess.run(['git','ls-files','--error-unmatch','--',str(p)],capture_output=True).returncode==0
-            records.append({'path':p.as_posix(),'retained_path':target.relative_to(out).as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'provenance':'candidate_tracked' if tracked else 'cloud_editor_import','source':'15308ecabea31b6fdebd0d5e28232cf93d833533','source_tree':'2668ca1f4cc6a65d63ab21938455255c9ea5fa5a'})
+            records.append({'path':p.as_posix(),'retained_path':target.relative_to(out).as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'provenance':'candidate_tracked' if tracked else 'cloud_editor_import','source':'27321f29754e7201cf1f445941e5ca687ecd4b64','source_tree':'ac36ef90f19e405e17411cbc35b9eb35d6768523'})
         (out/'uid-provenance.json').write_text(json.dumps(records,indent=2))
         (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
         manifest_source=subprocess.check_output(['git','ls-tree','-r','HEAD'],text=True)
