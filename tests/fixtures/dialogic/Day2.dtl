@@ -1,8 +1,0 @@
-# Replaceable Day2 template. Registration owns the next scene.
-return
-
-label Day2
-TEST Day2 opening. #id:line.Day2.one
-TEST Day2 closing. #id:line.Day2.two
-label Day2.next
-return

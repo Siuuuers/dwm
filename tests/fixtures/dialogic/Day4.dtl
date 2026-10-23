@@ -1,8 +1,0 @@
-# Replaceable Day4 template. Registration owns the next scene.
-return
-
-label Day4
-TEST Day4 opening. #id:line.Day4.one
-TEST Day4 closing. #id:line.Day4.two
-label Day4.next
-return

@@ -1,9 +1,0 @@
-{
-  "tree": "a5493c81b40398d06e824f3ff2cf630be15e2bdc",
-  "run_id": "39916362418",
-  "event": "d95ffbcee7e77bbb14e91cd2f5209fb2b950ccc4",
-  "workflow": "d95ffbcee7e77bbb14e91cd2f5209fb2b950ccc4",
-  "attempt": "1",
-  "controller": "cbe252e18e529ae2f93b41771958005a9b0266f7",
-  "candidate": "fceef00d715e67e68c7c806092359f012513300c"
-}

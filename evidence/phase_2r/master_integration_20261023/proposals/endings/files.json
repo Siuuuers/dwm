@@ -1,9 +1,0 @@
-{
-  "tests/support/GalleryEndingFixtureCatalog.gd": "GalleryEndingFixtureCatalog.gd",
-  "tests/integration/test_gallery_navigation.gd": "test_gallery_navigation.gd",
-  "tests/integration/test_gallery_replay_status.gd": "test_gallery_replay_status.gd",
-  "tests/integration/test_gallery_version_register.gd": "test_gallery_version_register.gd",
-  "tests/integration/test_gallery_art_placements.gd": "test_gallery_art_placements.gd",
-  "tests/integration/test_gallery_record_metadata.gd": "test_gallery_record_metadata.gd",
-  "tests/unit/test_ending_frozen_context.gd": "test_ending_frozen_context.gd"
-}

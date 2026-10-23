@@ -1,9 +1,0 @@
-{
-  "archive_bytes": 159196,
-  "archive_sha256": "506e10dc4f858df16118d73bcb4b56d6c02ae89046810601c8bf54802ebfaca7",
-  "crc_ok": true,
-  "exact_census": true,
-  "verified_manifest_payloads": 21,
-  "members": 22,
-  "git_blob": "ac36064bf39c2901aa02555dbc33ab7e257551ce"
-}

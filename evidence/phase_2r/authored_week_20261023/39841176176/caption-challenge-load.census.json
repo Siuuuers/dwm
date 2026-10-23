@@ -1,9 +1,0 @@
-{
-  "id": "caption-challenge-load",
-  "source": "0515b6cce1898f3ee9560d8554c3dd68fd605f65",
-  "test_names": [
-    "test_fresh_process_restores_cue_and_closed_save_without_duplicate_closure"
-  ],
-  "cases": 1,
-  "assertions": 36.0
-}

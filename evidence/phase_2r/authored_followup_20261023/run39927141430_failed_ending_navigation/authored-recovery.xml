@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="GutTests" failures="1" tests="1" >
-  <testsuite name="tests/integration/authored_week_late_recovery.gd" tests="1" failures="1" skipped="0" time="826.339757" >
-      <testcase name="test_recover_interrupted_authored_day7_to_ending" assertions="363" status="fail" classname="tests/integration/authored_week_late_recovery.gd" time="826.339757" >
-      <failure message="failed"><![CDATA[Authored journey requires a visible enabled control
-            at line -1]]></failure></testcase>
-  </testsuite>
-</testsuites>

@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="GutTests" failures="0" tests="1" >
-  <testsuite name="tests/integration/test_scene_multiple_thoughts_load.gd" tests="1" failures="0" skipped="0" time="27.225538" >
-      <testcase name="test_multiple_thoughts_fresh_load_and_default" assertions="42" status="pass" classname="tests/integration/test_scene_multiple_thoughts_load.gd" time="27.225538" >
-      </testcase>
-  </testsuite>
-</testsuites>

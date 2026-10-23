@@ -29,7 +29,7 @@ arbitrary bundle and physical Profile. Profile bytes restore immediately and in
 cleanup. The changed trigger hash test fails at the record fingerprint gate; it is
 record-tamper coverage, not an independent trigger-hash-join test.
 
-## Qualification in progress
+## First qualification passed
 
 Controller: `codex/terminal-admission-controller-20261023`, commit
 `1ea1607eab1dbcb9c625b9752bd77af310e26c12`.
@@ -39,9 +39,17 @@ Run39940270641 was intentionally superseded during import: review caught that th
 Save helper does not handle occupied-slot overwrite confirmation. The corrected
 paired helper saves to empty slot3 and preserves slots1/2. No product bug was inferred.
 
-The corrected run passed import, generic terminal lifecycle and genuine selected
-terminal authority steps. Baseline Load/Save also passed. At this draft's writing, candidate native ending/
-NewGame is active; candidate journey and exact-source export are not yet accepted.
+Run39940374828 passed all seven generic lifecycle tests, genuine selected authority
+(76 assertions), baseline Load/Save (112 assertions), candidate Load/Save/ending/NewGame
+(342 assertions), and exact-source Windows export with isolated headless startup.
+Original journey artifact and inspection are retained under
+`evidence/phase_2r/terminal_admission_20261023/run39940374828/`.
+The compact export evidence preserves original logs, validation, build hashes and
+origin; it omits the 110MB build archive. Export scope is not graphical release acceptance.
+Broad matched Load:659.310s to592.007s; Save:574.619s to504.624s. Structural calls
+Load1186 to848, Save1175 to835; receipt/physical counts470 and447 stayed unchanged.
+These are one-pair broad harness timings, not exact UI latency. Three native
+screenshots were inspected: ending restore, completed title, fresh Day1.
 
 Baseline uses the prior runtime from15a44213; candidate uses97c28899. Both use the
 same diagnostic helper and isolated byte-identical copies of the committed genuine
@@ -93,3 +101,21 @@ each, plus compact logs/JUnit/screenshots/results, including on failure. Do not
 reconstruct save authority from diagnostic snapshot JSON. First controller lacks
 root retention. Both push triggers must be retired after qualification. No new
 product adoption has happened yet.
+
+## Corrected second controller
+
+Run39943584240 failed in controller discovery: pair-next.gd overrode the inherited
+test name, and GUT collected both method descriptors. The first actual Load/Save
+passed, then duplicate startup failed with mutation_gate_already_configured. Do
+not accept its corrupt four-phase result as a qualified comparison.
+The controller-only correction removes the wrapper, checks GUT method discovery
+without instantiating services in seed.gd, and lowers passing-assertion verbosity
+from2 to1 for both variants. Candidate runtime is unchanged.
+Corrected controller4b6a1450698d04ab39836b620a327e0bd91594fb;
+run https://github.com/Siuuuers/dwm/actions/runs/39946595362 .
+It has passed discovery, focused authority and baseline; candidate Load/Save and
+fresh-process replay are active. Final comparison and export remain pending.
+
+First controller's push trigger retired at2fbe7eae1b2d4639175f4f035a436beb9caab73a.
+Second trigger remains active until qualification completes. Product adoption
+is still pending; master/PR51 remain untouched.

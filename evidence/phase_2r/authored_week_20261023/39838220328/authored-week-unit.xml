@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="GutTests" failures="0" tests="1" >
-  <testsuite name="tests/unit/test_authored_week.gd" tests="1" failures="0" skipped="0" time="6.188779" >
-      <testcase name="test_authored_week_compiles_and_preserves_conditional_branch_bindings" assertions="55" status="pass" classname="tests/unit/test_authored_week.gd" time="6.188779" >
-      </testcase>
-  </testsuite>
-</testsuites>

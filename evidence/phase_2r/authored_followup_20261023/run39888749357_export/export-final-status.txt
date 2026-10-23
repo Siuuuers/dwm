@@ -1,6 +1,0 @@
-D  .claude/skills/godot-prompter/1.10.0
-D  .claude/skills/superpowers/6.1.1
-?? tests/integration/authored_week_child.gd.uid
-?? tests/integration/authored_week_create.gd.uid
-?? tests/integration/authored_week_load.gd.uid
-?? tests/integration/authored_week_replay.gd.uid

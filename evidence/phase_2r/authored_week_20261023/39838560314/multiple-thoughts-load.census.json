@@ -1,9 +1,0 @@
-{
-  "id": "multiple-thoughts-load",
-  "source": "6da7d6bb3a217f00468d5be7d7421fd90536d87e",
-  "test_names": [
-    "test_multiple_thoughts_fresh_load_and_default"
-  ],
-  "cases": 1,
-  "assertions": 42.0
-}

@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="GutTests" failures="1" tests="1" >
-  <testsuite name="tests/integration/test_story_localization.gd" tests="1" failures="3" skipped="0" time="102.27109" >
-      <testcase name="test_authored_caption_languages_preserve_checkpoint_and_load" assertions="93" status="fail" classname="tests/integration/test_story_localization.gd" time="102.27109" >
-      <failure message="failed"><![CDATA[["line.Day1.one"] expected to equal ["line.Day1.002"]:  
-            at line 114]]></failure></testcase>
-  </testsuite>
-</testsuites>

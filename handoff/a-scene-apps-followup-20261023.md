@@ -1,7 +1,0 @@
-# Scene apps follow-up
-
-Source 90c95013 passed Shop run39846392448 (64 cases/883 assertions); evidence is retained in PR42 commit65914c0. Apps recovery run39847130810 retained original artifact12455409038, inner ZIP SHA25635b4cc3200cc58ffd06edb5df9b7187adcb9c1e09d98fbb0608ff65ffd383b4c. It ran259/260 planned cases:250 passed,9 failed, loader absent. Source/tree, CRC and663 retained hashes verified. Desktop39, Computer custody8, localization57 and rendered blank1 passed. This is not complete acceptance.
-
-Follow-up fixes preserve all original assertions: navigate through visible Home before app launcher clicks; allow Down to reach footer on a partial Shop page; allocate metadata width using actual availability text rather than a136px minimum; install explicit retained ending dependencies for six historical tests. Four app/render fixture UIDs and eight other missing sidecars were retained from genuine cloud editor imports in the above Apps run or accepted Shop run; no UID was invented. Shop evidence and concurrent export exclusion change50bb121 are preserved.
-
-Still unresolved: scene-native ordinary Minesweeper completion/recovery, authored-day renewal and unfinished-board policy; current owner inventories/provenance, full acceptance, and a qualified Windows build. Apps availability is approved. Daily reset/board disposition needs a product decision, not inheritance from retired calendar/health/Hospital behavior. Master remains unchanged by this work.

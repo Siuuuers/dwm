@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="GutTests" failures="1" tests="1" >
-  <testsuite name="tests/integration/test_story_localization.gd" tests="1" failures="1" skipped="0" time="205.965608" >
-      <testcase name="test_authored_caption_languages_preserve_checkpoint_and_load" assertions="89" status="fail" classname="tests/integration/test_story_localization.gd" time="205.965608" >
-      <failure message="failed"><![CDATA[[STRING_NAME(narrative_playback_active)] expected to equal [STRING_NAME(scene_activation_pending)]:  { "ok": false, "code": &"narrative_playback_active", "details": {  }, "receipt": {  } }
-            at line 99]]></failure></testcase>
-  </testsuite>
-</testsuites>
