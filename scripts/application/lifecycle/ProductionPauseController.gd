@@ -540,7 +540,7 @@ func _ensure_hosts() -> void:
 	_backup_port.configure_pause(_services.saves, self)
 	var backup: Control = BACKUP.instantiate()
 	surface.set_host(&"backup", backup)
-	backup.configure_backup(_backup_port, _services.localization, _services.profile)
+	backup.configure_backup(_backup_port, _services.localization, _services.profile, &"after_hours", 1, false)
 	var settings: Control = SETTINGS.instantiate()
 	var settings_services: Dictionary = _services.get("settings_services", {}).duplicate()
 	settings_services.merge({"profile": _services.profile, "localization": _services.localization,

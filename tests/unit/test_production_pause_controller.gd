@@ -1640,3 +1640,37 @@ func test_paused_settings_load_waits_for_detached_audio_and_tts_cleanup_then_fre
 	panel.set("_tts", null)
 	assert_eq(saves.loaded, 0)
 	assert_eq(saves.writes, 0)
+
+func test_backup_first_open_defers_hidden_inspection_and_keeps_fresh_reopen_and_action() -> void:
+	saves.populated = true
+	if not await _open_pause(): return
+	var backup: Control = controller.surface._hosts[&"backup"]
+	assert_eq(saves.inspections, 0, "constructing hidden production hosts does not inspect slots")
+	assert_true(controller.surface.open_backup_load())
+	assert_eq(saves.inspections, 9, "first visible opening reads each locator once")
+	assert_true(backup._records["slot:1"].actions.load)
+	backup.hide_window()
+	saves.populated = false
+	assert_true(controller.surface.open_backup_load())
+	assert_eq(saves.inspections, 18, "reopening reads fresh records rather than reusing the first view")
+	assert_false(backup._records["slot:1"].actions.load)
+	backup.hide_window()
+	saves.populated = true
+	assert_true(controller.surface.open_backup_load())
+	assert_eq(saves.inspections, 27)
+	assert_true(backup._records["slot:1"].actions.load)
+	# The displayed permission is not action authority: the owner inspects again.
+	saves.populated = false
+	var refused: Dictionary = controller._backup_port.prepare_action("load", "slot:1")
+	assert_false(refused.get("ok", true))
+	assert_eq(saves.inspections, 28)
+	assert_true(saves.pending.is_empty())
+	saves.populated = true
+	var prepared: Dictionary = controller._backup_port.prepare_action("load", "slot:1")
+	assert_true(prepared.get("ok", false), str(prepared))
+	assert_eq(saves.inspections, 29)
+	if prepared.get("ok", false):
+		controller._backup_port.cancel_action(prepared.value.token)
+	assert_true(saves.pending.is_empty())
+	assert_eq(saves.loaded, 0)
+	assert_eq(saves.writes, 0)
