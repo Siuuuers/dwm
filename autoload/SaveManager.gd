@@ -1560,6 +1560,11 @@ func get_all_save_metadata() -> Array[Dictionary]:
 func inspect_backup(locator_id: String) -> Dictionary:
 	var inspected := _inspect_backup(locator_id)
 	if inspected.get("ok", false):
+		# This synchronous inspection created a private plan that metadata never exposes.
+		# Release only its fresh token; selected actions and retained retry intents stay owned.
+		var prepared: Dictionary = inspected["value"].get("prepared_restore", {})
+		if prepared.has("scene_preparation_token"):
+			_scene_restore_preparations.erase(prepared["scene_preparation_token"])
 		inspected["value"].erase("prepared_restore")
 	return inspected
 
