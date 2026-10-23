@@ -38,7 +38,8 @@ func test_genuine_ending_load_save() -> void:
 	_end("load", started, succeeded)
 	if not succeeded: return
 	started = _begin("save")
-	var saved: Dictionary = await _save_authored(2, "terminal-pair")
+	assert_false(FileAccess.file_exists("user://saves/slot_3.json"))
+	var saved: Dictionary = await _save_authored(3, "terminal-pair")
 	_end("save", started, not saved.is_empty())
 	if saved.is_empty(): return
 	assert_eq(profile.get_profile_snapshot().gallery_transaction_receipts, before.gallery_transaction_receipts)
@@ -60,10 +61,11 @@ func test_genuine_ending_load_save() -> void:
 		assert_eq(bridge._reading_session.ledger.snapshot().captions.size(), 1)
 		assert_true(game.capture_dating_challenge_state().value.is_empty())
 		assert_eq(profile.get_profile_snapshot().gallery_transaction_receipts, before.gallery_transaction_receipts)
-		assert_eq(FileAccess.get_sha256("user://saves/slot_2.json"), saved.slot_sha256)
+		assert_eq(FileAccess.get_sha256("user://saves/slot_3.json"), saved.slot_sha256)
 		await _screenshot("authored-terminal-fresh-day1")
 		_pair_result.completed_lifecycle = finished
 		_pair_result.fresh_lifecycle = fresh.lifecycle
+	assert_eq(FileAccess.get_sha256("user://saves/slot_2.json"), proof.slot_sha256)
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), day4_hash)
 	_pair_result.complete = true
 	_pair_result.observed_lines = observed_lines

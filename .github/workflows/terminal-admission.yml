@@ -8,7 +8,7 @@ permissions:
   contents: read
 concurrency:
   group: terminal-admission-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   terminal-admission:
     name: Windows / focused terminal authority and paired native ending
