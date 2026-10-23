@@ -98,3 +98,13 @@ func test_batch_revalidates_changed_checkpoint_on_every_call() -> void:
 	assert_true(bridge.validate_scene_event_anchors(anchors, checkpoint.value).ok)
 	assert_true(bridge.validate_scene_event_anchor(anchors[0], checkpoint.value).ok,
 		"the existing single-anchor entry point remains compatible")
+
+func test_batch_empty_and_first_anchor_shape_precede_reading_admission() -> void:
+	var bridge: Node = BRIDGE.new()
+	autofree(bridge)
+	var invalid_checkpoint := {"reading_session": {"schema_version": 5}}
+	var empty: Array[Dictionary] = []
+	assert_true(bridge.validate_scene_event_anchors(empty, invalid_checkpoint).ok)
+	var malformed: Array[Dictionary] = [{}]
+	assert_eq(bridge.validate_scene_event_anchors(malformed, invalid_checkpoint).get("code"),
+		&"event_anchor_invalid", "first anchor shape precedes invalid saved reading")

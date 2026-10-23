@@ -514,6 +514,44 @@ func _validate_base_saved(saved: Dictionary, entry_id: String) -> Dictionary:
 			return _fail(&"reading_frontier_invalid")
 	return {"ok": true, "value": candidate, "programs": programs.value.entries, "registry": programs.value.registry}
 
+## Membership belongs to this freshly admitted session, never a caller-supplied proof.
+func validate_scene_event_anchors(anchors: Array[Dictionary]) -> Dictionary:
+	if anchors.is_empty(): return {"ok": true}
+	var retained := {}
+	for anchor: Dictionary in anchors:
+		var shape := validate_scene_anchor_shape(anchor)
+		if not shape.ok: return shape
+		if retained.is_empty():
+			if family != "scene" or ledger == null: return _scene_anchor_failure(&"event_anchor_invalid")
+			retained = ledger.snapshot()
+		if anchor.catalogue_fingerprint != fingerprint or not catalogue.has(anchor.entry_id) \
+				or catalogue[anchor.entry_id].content_version != anchor.content_version:
+			return _scene_anchor_failure(&"event_anchor_catalogue_mismatch")
+		var frame := LEDGER.resolve_scene_frame(retained.entry_contexts, anchor.session_id, anchor.entry_id)
+		if not frame.ok: return _scene_anchor_failure(&"event_anchor_invalid")
+		var found := false
+		for row: Dictionary in retained.captions:
+			if row.publication_id == anchor.publication_id and row.occurrence_id == anchor.session_id \
+					and row.beat.owning_entry_id == anchor.entry_id and row.beat.line_id == anchor.line_id:
+				found = true
+				break
+		if not found: return _scene_anchor_failure(&"event_anchor_invalid")
+	return {"ok": true}
+
+static func validate_scene_anchor_shape(anchor: Dictionary) -> Dictionary:
+	var keys := ["session_id", "entry_id", "content_version", "catalogue_fingerprint", "publication_id", "line_id"]
+	if anchor.size() != keys.size(): return _scene_anchor_failure(&"event_anchor_invalid")
+	for key: String in keys:
+		if not anchor.has(key): return _scene_anchor_failure(&"event_anchor_invalid")
+	if typeof(anchor.get("content_version")) != TYPE_INT or anchor.content_version <= 0:
+		return _scene_anchor_failure(&"event_anchor_invalid")
+	for key: String in ["session_id", "entry_id", "catalogue_fingerprint", "publication_id", "line_id"]:
+		if typeof(anchor[key]) != TYPE_STRING or anchor[key].strip_edges().is_empty(): return _scene_anchor_failure(&"event_anchor_invalid")
+	return {"ok": true}
+
+static func _scene_anchor_failure(code: StringName) -> Dictionary:
+	return {"ok": false, "code": code, "details": {}, "receipt": {}}
+
 func restore(saved: Dictionary, entry_id: String) -> Dictionary:
 	if family == "scene":
 		var scene_checked := _validate_scene_saved(saved, entry_id)

@@ -14,6 +14,37 @@ class PermissiveSceneAuthority:
 		calls += 1
 		return {"ok": true}
 
+class AnchorBridgeProxy:
+	extends RefCounted
+	var delegate: Object
+	var calls := 0
+	func validate_scene_event_anchor(anchor: Dictionary, checkpoint: Dictionary) -> Dictionary:
+		calls += 1
+		return delegate.validate_scene_event_anchor(anchor, checkpoint)
+	func validate_scene_event_anchors(anchors: Array[Dictionary], checkpoint: Dictionary) -> Dictionary:
+		calls += 1
+		return delegate.validate_scene_event_anchors(anchors, checkpoint)
+
+class MutatingAnchorBridge:
+	extends AnchorBridgeProxy
+	func validate_scene_event_anchors(_anchors: Array[Dictionary], checkpoint: Dictionary) -> Dictionary:
+		calls += 1
+		checkpoint.transaction_id += ".mutated"
+		return {"ok": false, "code": &"event_anchor_invalid"}
+
+class SwitchingProfile:
+	extends Node
+	var delegate: Object
+	var game: Object
+	var replacement_bridge: Object
+	var replacement_authority: Object
+	func get_pair_deck_draw(run_id: String) -> Dictionary:
+		game._scene_event_bridge = replacement_bridge
+		RUN._scene_authority = replacement_authority
+		return delegate.get_pair_deck_draw(run_id)
+	func get_dating_attempt(run_id: String, slot: String, attempt: String, branch: String) -> Dictionary:
+		return delegate.get_dating_attempt(run_id, slot, attempt, branch)
+
 var fixture: RefCounted
 var setup_result: Dictionary = {}
 
@@ -81,6 +112,70 @@ func test_selected_receipt_refusal_order_keeps_input_and_issuer_checks() -> void
 	assert_eq(CONTRACT.validate_selected_scene_receipts({"bad": Vector2.ZERO}, null).code,
 		&"scene_receipt_invalid")
 	assert_eq(CONTRACT.validate_selected_scene_receipts({}, null).code, &"scene_receipt_issuer_unbound")
+
+func test_one_run_reading_admission_and_custom_bridge_fallback() -> void:
+	if not _ready_fixture(): return
+	var timing := preload("res://scripts/narrative/SceneValidationTiming.gd")
+	var prior_environment := OS.get_environment("DWM_SCENE_VALIDATION_PROFILE")
+	var prior_creation: Object = RUN._scene_creation_owner
+	var bridge: Object = fixture.game._scene_event_bridge
+	RUN._scene_creation_owner = fixture.game.get_node_or_null("/root/SaveManager")
+	OS.set_environment("DWM_SCENE_VALIDATION_PROFILE", "1")
+	assert_true(RUN._scene_can_reuse_reading())
+	assert_true(timing.begin_scope("single_reading", "PLAYING", "", 0))
+	var admitted := RUN.validate(fixture.snapshot)
+	var single_count: int = timing._record.configuration_calls
+	timing.end_scope(admitted.ok)
+	var proxy := AnchorBridgeProxy.new()
+	proxy.delegate = bridge
+	fixture.game._scene_event_bridge = proxy
+	assert_false(RUN._scene_can_reuse_reading())
+	assert_true(timing.begin_scope("custom_reading", "PLAYING", "", 0))
+	var fallback := RUN.validate(fixture.snapshot)
+	var fallback_count: int = timing._record.configuration_calls
+	timing.end_scope(fallback.ok)
+	fixture.game._scene_event_bridge = bridge
+	OS.set_environment("DWM_SCENE_VALIDATION_PROFILE", prior_environment)
+	assert_true(admitted.ok, str(admitted))
+	assert_true(fallback.ok, str(fallback))
+	assert_eq(proxy.calls, 1, "custom bridge authority remains invoked")
+	assert_eq(fallback_count, single_count + 1, "normal Run reuses exactly one admitted reading")
+	var changed: Dictionary = fixture.snapshot.duplicate(true)
+	changed.narrative_checkpoint.reading_session.ledger.captions[0].beat.line_id = "TEST.absent"
+	assert_false(RUN.validate(changed).ok, "a second call admits its reading afresh")
+	assert_true(RUN.validate(fixture.snapshot).ok)
+	RUN._scene_creation_owner = prior_creation
+
+func test_prepare_callback_replacements_keep_mutation_over_anchor_refusal() -> void:
+	if not _ready_fixture(): return
+	var prior_authority: Object = RUN._scene_authority
+	var prior_creation: Object = RUN._scene_creation_owner
+	var bridge: Object = fixture.game._scene_event_bridge
+	var profile: Node = fixture.profile
+	var parent: Node = profile.get_parent()
+	var index := profile.get_index()
+	var changed_bridge := MutatingAnchorBridge.new()
+	var substitute := SwitchingProfile.new()
+	substitute.delegate = profile
+	substitute.game = fixture.game
+	substitute.replacement_bridge = changed_bridge
+	substitute.replacement_authority = PermissiveSceneAuthority.new()
+	parent.remove_child(profile)
+	substitute.name = "ProfileManager"
+	parent.add_child(substitute)
+	RUN._scene_creation_owner = fixture.game.get_node_or_null("/root/SaveManager")
+	assert_true(RUN._scene_can_reuse_reading(), "enter through the optimized production boundary")
+	var refused := RUN.validate(fixture.snapshot)
+	parent.remove_child(substitute)
+	substitute.free()
+	parent.add_child(profile)
+	parent.move_child(profile, index)
+	fixture.game._scene_event_bridge = bridge
+	RUN._scene_authority = prior_authority
+	RUN._scene_creation_owner = prior_creation
+	assert_eq(changed_bridge.calls, 1, "callback replacement uses the new bridge's fresh public path")
+	assert_eq(refused.get("code"), &"scene_validation_mutated", "mutation still overrides anchor refusal")
+	assert_true(RUN.validate(fixture.snapshot).ok)
 
 func test_rebuilt_authenticated_absent_publication_fails_full_run_and_save_anchor_join() -> void:
 	if not _ready_fixture(): return
@@ -160,6 +255,13 @@ func test_rebuilt_authenticated_wrong_catalogue_fails_full_run_and_save_anchor_j
 	_check_authenticated_anchor_refusal("catalogue_fingerprint", "b".repeat(64))
 
 func _check_authenticated_anchor_refusal(field: String, value: String) -> void:
+	var prior_creation: Object = RUN._scene_creation_owner
+	RUN._scene_creation_owner = fixture.game.get_node_or_null("/root/SaveManager")
+	assert_true(RUN._scene_can_reuse_reading(), "authenticated anchor refusals exercise the reused reading")
+	_check_authenticated_anchor_refusal_with_bound_owner(field, value)
+	RUN._scene_creation_owner = prior_creation
+
+func _check_authenticated_anchor_refusal_with_bound_owner(field: String, value: String) -> void:
 	assert_true(RUN.validate(fixture.snapshot).ok, "positive full Run prerequisite")
 	assert_true(SAVE.validate(fixture.document).ok, "positive full Save prerequisite")
 	var changed: Dictionary = fixture.anchor.duplicate(true)
