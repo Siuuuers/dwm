@@ -103,7 +103,7 @@ jobs:
     - name: Focused selected terminal authority
       run: './tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''terminal-checks'' -LogName ''terminal-checks-seed.log''
         -EvidenceLogPath ''.godot/ci/terminal-checks.jsonl'' -TimeoutSeconds 900 -KeepRoot -Rendered -GodotArgs
-        @(''-s'',''res://.godot/ci/seed.gd'') -NextLogName ''terminal-checks.log'' -NextGodotArgs @(''-s'',''res://addons/gut/gut_cmdln.gd'',''-gconfig='',''-gprefix=authored_terminal_'',''-gtest=res://tests/integration/authored_terminal_admission_checks.gd'',''-gexit'',''-glog=2'',''-gjunit_xml_file=res://.godot/ci/terminal-checks.xml'')
+        @(''-s'',''res://.godot/ci/seed.gd'') -NextLogName ''terminal-checks.log'' -NextGodotArgs @(''-s'',''res://addons/gut/gut_cmdln.gd'',''-gconfig='',''-gprefix=authored_terminal_'',''-gtest=res://tests/integration/authored_terminal_admission_checks.gd'',''-gexit'',''-glog=1'',''-gjunit_xml_file=res://.godot/ci/terminal-checks.xml'')
 
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
@@ -132,7 +132,7 @@ jobs:
 
         ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''terminal-baseline'' -LogName ''terminal-baseline-seed.log''
         -EvidenceLogPath ''.godot/ci/terminal-baseline.jsonl'' -TimeoutSeconds 1800 -KeepRoot -Rendered -GodotArgs
-        @(''-s'',''res://.godot/ci/seed.gd'') -NextLogName ''terminal-baseline.log'' -NextGodotArgs @(''-s'',''res://addons/gut/gut_cmdln.gd'',''-gconfig='',''-gprefix=pair'',''-gtest=res://.godot/ci/pair-next.gd'',''-gexit'',''-glog=2'',''-gjunit_xml_file=res://.godot/ci/terminal-baseline.xml'')
+        @(''-s'',''res://.godot/ci/seed.gd'') -NextLogName ''terminal-baseline.log'' -NextGodotArgs @(''-s'',''res://addons/gut/gut_cmdln.gd'',''-gconfig='',''-gprefix=pair'',''-gtest=res://.godot/ci/pair-next.gd'',''-gexit'',''-glog=1'',''-gjunit_xml_file=res://.godot/ci/terminal-baseline.xml'')
 
         $pairExit = $LASTEXITCODE
 
@@ -161,8 +161,8 @@ jobs:
 
         ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''terminal-candidate'' -LogName ''terminal-candidate-seed.log''
         -EvidenceLogPath ''.godot/ci/terminal-candidate.jsonl'' -TimeoutSeconds 1800 -KeepRoot -Rendered -GodotArgs
-        @(''-s'',''res://.godot/ci/seed.gd'') -NextLogName ''terminal-candidate.log'' -NextGodotArgs @(''-s'',''res://addons/gut/gut_cmdln.gd'',''-gconfig='',''-gprefix=pair'',''-gtest=res://.godot/ci/pair-next.gd'',''-gexit'',''-glog=2'',''-gjunit_xml_file=res://.godot/ci/terminal-candidate.xml'')
-        -ThirdLogName ''terminal-replay.log'' -ThirdGodotArgs @(''-s'',''res://addons/gut/gut_cmdln.gd'',''-gconfig='',''-gprefix=replay'',''-gtest=res://.godot/ci/replay.gd'',''-gexit'',''-glog=2'',''-gjunit_xml_file=res://.godot/ci/terminal-replay.xml'')
+        @(''-s'',''res://.godot/ci/seed.gd'') -NextLogName ''terminal-candidate.log'' -NextGodotArgs @(''-s'',''res://addons/gut/gut_cmdln.gd'',''-gconfig='',''-gprefix=pair'',''-gtest=res://.godot/ci/pair-next.gd'',''-gexit'',''-glog=1'',''-gjunit_xml_file=res://.godot/ci/terminal-candidate.xml'')
+        -ThirdLogName ''terminal-replay.log'' -ThirdGodotArgs @(''-s'',''res://addons/gut/gut_cmdln.gd'',''-gconfig='',''-gprefix=replay'',''-gtest=res://.godot/ci/replay.gd'',''-gexit'',''-glog=1'',''-gjunit_xml_file=res://.godot/ci/terminal-replay.xml'')
 
         $pairExit = $LASTEXITCODE
 

@@ -3,9 +3,6 @@ extends "res://.godot/ci/pair.gd"
 var _ui_timings: Array[Dictionary] = []
 var _load_pressed_us := 0
 
-func test_genuine_ending_load_save() -> void:
-	await super.test_genuine_ending_load_save()
-
 func _setup_authored() -> bool:
 	var succeeded := super._setup_authored()
 	if succeeded:
