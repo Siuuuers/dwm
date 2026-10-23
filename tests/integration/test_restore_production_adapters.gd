@@ -67,6 +67,33 @@ class Owner extends RefCounted:
 	func rollback_restore_silent(_b: Dictionary) -> Dictionary: return {"ok": true}
 	func finalize_restore() -> Dictionary: return {"ok": true}
 
+# Keep real participant behavior while observing which identities reach preparation.
+class DestinationPlanProbe extends RefCounted:
+	var inner: Object
+	var name: String
+	var events: Array
+	var inputs: Array[Dictionary] = []
+	var results: Array[Dictionary] = []
+	var applied: Array[Dictionary] = []
+	var refuse_prepare_call := 0
+	func _init(participant: Object, participant_name: String, shared_events: Array) -> void:
+		inner = participant
+		name = participant_name
+		events = shared_events
+	func prepare(input: Dictionary) -> Dictionary:
+		inputs.append(input.duplicate(true))
+		if inputs.size() == refuse_prepare_call: return {"ok": false, "code": &"fixture_destination_prepare_failed"}
+		var result: Dictionary = inner.prepare(input)
+		results.append(result.duplicate(true))
+		return result
+	func capture() -> Dictionary: return inner.capture()
+	func apply_silent(plan: Dictionary) -> Dictionary:
+		events.append(name)
+		applied.append(plan.duplicate(true))
+		return inner.apply_silent(plan)
+	func rollback_silent(backup: Dictionary) -> Dictionary: return inner.rollback_silent(backup)
+	func finalize() -> Dictionary: return inner.finalize()
+
 ## Test-authored v6 cases retain the source payload and explicitly choose Dark=false.
 ## This fixture construction is not a player-save migration.
 func _issuer_receipt(token: String) -> Dictionary:
@@ -155,7 +182,7 @@ func _manager(owner: Owner) -> Node:
 	})
 	return m
 
-func test_prepare_builds_nine_plans_and_commits() -> void:
+func test_legacy_prepare_keeps_source_validation_plans_and_commits() -> void:
 	var owner := Owner.new()
 	var m := _manager(owner)
 	if m == null:
@@ -182,6 +209,95 @@ func test_prepare_builds_nine_plans_and_commits() -> void:
 	assert_true(run_owner.capture_live_session().value.active)
 	assert_eq(str(m._journal.get_current_bundle()["value"]["bundle"]["snapshot"]["run_id"]), "run-a",
 		"the restored run replaced the live journal")
+
+func _destination_plan_fixture() -> Dictionary:
+	var m := _manager(Owner.new())
+	if m == null: return {}
+	var events: Array = []
+	var participants: Dictionary = m._restore_participants.duplicate()
+	var consequence := DestinationPlanProbe.new(participants.desktop_consequence, "consequence", events)
+	var board := DestinationPlanProbe.new(participants.desktop_board, "board", events)
+	participants.desktop_consequence = consequence
+	participants.desktop_board = board
+	assert_true(m.configure_restore_participants(participants).ok)
+	var built: Dictionary = preload("res://tests/support/BackupSnapshotFixture.gd").make_snapshot()
+	assert_true(built.get("ok", false), str(built))
+	if not built.get("ok", false): return {}
+	var snapshot: Dictionary = built.value.candidate
+	assert_true(m._journal.reset(snapshot.run_id).ok)
+	assert_true(m._journal.commit_prepared(m._journal.prepare_record(snapshot, &"day_start").value.candidate).ok)
+	assert_true(m.save_latest_to_slot(1).ok)
+	return {"manager": m, "consequence": consequence, "board": board,
+		"events": events, "snapshot": snapshot}
+
+func test_cancelled_legacy_load_validates_source_without_applying_plans() -> void:
+	var f := _destination_plan_fixture()
+	if f.is_empty(): return
+	var before_file: Dictionary = f.manager._storage.read_text("slot_1.json")
+	var before_run: Dictionary = f.manager.get_meta("run_owner").capture_restore_state()
+	var prepared: Dictionary = f.manager.prepare_backup_action("load", "slot:1")
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false): return
+	f.manager.cancel_backup_action(prepared.value.token)
+	assert_eq(f.consequence.inputs.size(), 1)
+	assert_eq(f.board.inputs.size(), 1)
+	assert_true(f.events.is_empty(), "cancelled preparation never applies owners")
+	assert_eq(f.manager._storage.read_text("slot_1.json"), before_file)
+	assert_eq(f.manager.get_meta("run_owner").capture_restore_state(), before_run)
+	assert_true(f.manager._continuation_journal.list_incomplete().value.is_empty())
+
+func test_legacy_commit_replaces_source_plans_and_applies_consequence_before_board() -> void:
+	var f := _destination_plan_fixture()
+	if f.is_empty(): return
+	var prepared: Dictionary = f.manager.prepare_restore_slot(1)
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false): return
+	assert_eq(f.consequence.inputs.size(), 1)
+	assert_eq(f.board.inputs.size(), 1)
+	var committed: Dictionary = f.manager.commit_prepared_restore(prepared.value.prepared)
+	assert_true(committed.get("ok", false), str(committed))
+	if not committed.get("ok", false): return
+	assert_eq(f.consequence.inputs.size(), 2)
+	assert_eq(f.board.inputs.size(), 2)
+	assert_eq(f.events, ["consequence", "board"])
+	assert_eq(f.consequence.applied, [f.consequence.results[1].value.consequence_plan])
+	assert_eq(f.board.applied, [f.board.results[1].value.board_plan])
+	var live: Dictionary = f.manager.get_meta("run_owner").capture_run_snapshot_input()
+	assert_ne(f.consequence.inputs[1].state.causal_day_instance, f.snapshot.desktop.consequence.causal_day_instance)
+	assert_eq(f.consequence.inputs[1].state.causal_day_instance, live.lifecycle.causal_day_instance)
+	assert_eq(f.board.applied[0].candidate.snapshot_after, f.board.inputs[1].state)
+	assert_ne(f.board.inputs[1].state.identity, f.snapshot.desktop.board.identity)
+	assert_eq(f.board.inputs[1].state.identity.causal_day_instance, live.lifecycle.causal_day_instance)
+	assert_eq(f.board.inputs[1].state.identity.desktop_timeline_generation, live.lifecycle.desktop_timeline_generation)
+
+func test_legacy_destination_prepare_failure_applies_nothing_and_remains_retryable() -> void:
+	for failed_owner: String in ["consequence", "board"]:
+		var f := _destination_plan_fixture()
+		if f.is_empty(): return
+		var before_run: Dictionary = f.manager.get_meta("run_owner").capture_restore_state()
+		var before_journal: Dictionary = f.manager._journal.capture_state()
+		f[failed_owner].refuse_prepare_call = 2
+		var prepared: Dictionary = f.manager.prepare_restore_slot(1)
+		assert_true(prepared.get("ok", false), str(prepared))
+		if not prepared.get("ok", false): return
+		var failed: Dictionary = f.manager.commit_prepared_restore(prepared.value.prepared)
+		assert_eq(failed.get("code"), &"fixture_destination_prepare_failed")
+		assert_true(f.events.is_empty(), "no gameplay owner applies before every destination plan exists")
+		assert_eq(f.manager.get_meta("run_owner").capture_restore_state(), before_run)
+		assert_eq(f.manager._journal.capture_state(), before_journal)
+		assert_false(f.manager.is_save_locked())
+		assert_false(f.manager._mutation_gate.is_active())
+		var pending: Dictionary = f.manager._continuation_journal.list_incomplete()
+		assert_true(pending.get("ok", false), str(pending))
+		if not pending.get("ok", false): return
+		assert_eq(pending.value.size(), 1, "allocation remains owned by the existing continuation")
+		assert_eq(pending.value[0].stage, f.manager.CONTINUATION_JOURNAL.STAGE_APPLYING)
+		assert_eq(pending.value[0].next_participant_index, 0)
+		f[failed_owner].refuse_prepare_call = 0
+		var resumed: Dictionary = f.manager._resume_operation(pending.value[0])
+		assert_true(resumed.get("ok", false), str(resumed))
+		assert_eq(f.events, ["consequence", "board"], "retry applies the same pending destination once")
+		assert_true(f.manager._continuation_journal.list_incomplete().value.is_empty())
 
 ## IMPORTANT 5 (brief line 209): a caller-authored prepared dictionary carrying any issuer/
 ## allocation/remap-shaped field must reject before durable allocation. Each stray key below is

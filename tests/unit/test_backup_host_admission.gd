@@ -12,13 +12,16 @@ class BackupOwner extends RefCounted:
 	var commits: Array[String] = []
 	var cancels: Array[String] = []
 	var _sequence := 0
+	var save_capability_calls := 0
+	var save_enabled := true
 
 	func inspect_backup(locator: String) -> Dictionary:
 		inspections.append(locator)
 		return {"ok": true, "value": _record(locator)}
 
 	func get_backup_save_capability() -> Dictionary:
-		return {"enabled": true, "reason": ""}
+		save_capability_calls += 1
+		return {"enabled": save_enabled, "reason": "" if save_enabled else "capture_unavailable"}
 
 	func prepare_backup_action(action: String, locator: String) -> Dictionary:
 		prepares.append({"action": action, "locator": locator})
@@ -49,6 +52,26 @@ class BackupOwner extends RefCounted:
 			"operation_allowed": true,
 			"loadable": true,
 		}
+
+
+class QuickOwner extends BackupOwner:
+	var quick_condition_current := true
+	func get_backup_quick_capability(action: String) -> Dictionary:
+		return {"ok": true, "value": {"enabled": true, "status_key": "",
+			"condition": {"action": action, "signature": "fixture"}}}
+	func prepare_quick_backup_action(action: String) -> Dictionary:
+		var prepared := prepare_backup_action(action, "quick")
+		prepared.value["condition"] = {"action": action, "signature": "fixture"}
+		return prepared
+	func is_quick_condition_current(_condition: Dictionary) -> bool:
+		return quick_condition_current
+
+
+class LoadMaskedPort extends "res://scripts/application/backup/BackupPresentationPort.gd":
+	func _project_record(source: Dictionary, capability: Dictionary, admitted: bool) -> Dictionary:
+		var record: Dictionary = super._project_record(source, capability, admitted)
+		record.actions.load = false
+		return record
 
 
 class Admission extends RefCounted:
@@ -233,3 +256,93 @@ func test_authoritative_preparation_cannot_bypass_projected_action_policy() -> v
 	assert_eq(owner.commits, [])
 	assert_eq(port._pending, {})
 	assert_eq(owner.cancels.size(), owner.prepares.size(), "any refused owner candidate is discarded")
+
+
+func test_title_metadata_does_not_query_live_save_capability() -> void:
+	var owner := BackupOwner.new()
+	owner.save_enabled = false
+	var port := PORT.new()
+	assert_true(port.configure(owner, "title").ok)
+	var projection: Dictionary = port.get_projection()
+	assert_eq(owner.save_capability_calls, 0)
+	assert_eq(projection.value.save_capability, {"enabled": false, "reason": "title_load_only"})
+	for record: Dictionary in projection.value.records:
+		assert_eq(record.actions, {"save": false, "load": true, "delete": true})
+	assert_eq(owner.inspections, PORT.LOCATORS)
+
+
+func test_load_delete_confirmations_do_not_require_save_capture() -> void:
+	for context: String in ["title", "in_run"]:
+		var owner := BackupOwner.new()
+		owner.save_enabled = false
+		var port := PORT.new()
+		assert_true(port.configure(owner, context).ok)
+		for action: String in ["load", "delete"]:
+			var prepared: Dictionary = port.prepare_action(action, "slot:1")
+			assert_true(prepared.ok)
+			if not prepared.ok: continue
+			assert_eq(prepared.value.record.saved_time, "12:34")
+			assert_eq(prepared.value.record.actions, {"save": false, "load": action == "load", "delete": action == "delete"})
+			port.cancel_action(prepared.value.token)
+		assert_eq(owner.save_capability_calls, 0)
+		assert_eq(owner.cancels.size(), 2)
+		assert_eq(owner.commits, [])
+
+
+func test_save_confirmation_still_requires_current_save_capability() -> void:
+	var owner := BackupOwner.new()
+	var port := PORT.new()
+	assert_true(port.configure(owner).ok)
+	var prepared: Dictionary = port.prepare_action("save", "slot:1")
+	assert_true(prepared.ok)
+	assert_eq(prepared.value.record.actions, {"save": true, "load": false, "delete": false})
+	port.cancel_action(prepared.value.token)
+	owner.save_enabled = false
+	assert_eq(port.prepare_action("save", "slot:1").get("code"), &"backup_action_unavailable")
+	assert_eq(owner.save_capability_calls, 2)
+	assert_eq(owner.cancels.size(), 2)
+	assert_true(port._pending.is_empty())
+	assert_eq(owner.commits, [])
+
+
+func test_quick_load_confirmation_skips_save_capability_and_keeps_admission() -> void:
+	var owner := QuickOwner.new()
+	owner.save_enabled = false
+	var admission := Admission.new()
+	var port := PORT.new()
+	assert_true(port.configure(owner, "in_run", admission.guard).ok)
+	var prepared: Dictionary = port.prepare_quick_action("load")
+	assert_true(prepared.ok)
+	assert_eq(prepared.value.record.actions, {"save": false, "load": true, "delete": false})
+	assert_eq(prepared.value.confirmation_kind, "replace_progress")
+	assert_true(prepared.value.confirmation_required)
+	assert_eq(owner.save_capability_calls, 0)
+	admission.allowed = false
+	assert_false(port.commit_action(prepared.value.token).ok)
+	assert_eq(owner.cancels, [prepared.value.token])
+	assert_eq(owner.commits, [])
+	admission.allowed = true
+	owner.quick_condition_current = false
+	assert_false(port.prepare_quick_action("load").ok)
+	assert_eq(owner.cancels.size(), 2, "stale preparation releases only its new token")
+	assert_eq(owner.save_capability_calls, 0)
+	assert_true(port._pending.is_empty())
+
+	owner.quick_condition_current = true
+	owner.save_enabled = true
+	var saved: Dictionary = port.prepare_quick_action("save")
+	assert_true(saved.ok)
+	assert_eq(saved.value.record.actions, {"save": true, "load": false, "delete": false})
+	assert_eq(owner.save_capability_calls, 1, "Quick Save still queries its own capability")
+	port.cancel_action(saved.value.token)
+
+
+func test_prepared_record_preserves_specialized_host_action_mask() -> void:
+	var owner := BackupOwner.new()
+	var port := LoadMaskedPort.new()
+	assert_true(port.configure(owner).ok)
+	assert_eq(port.prepare_action("load", "slot:1").get("code"), &"backup_action_unavailable")
+	assert_eq(owner.save_capability_calls, 0)
+	assert_eq(owner.cancels.size(), 1)
+	assert_true(port._pending.is_empty())
+	assert_eq(owner.commits, [])

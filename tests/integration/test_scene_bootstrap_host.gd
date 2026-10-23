@@ -94,12 +94,12 @@ func test_real_bootstrap_scene_text_and_selected_load_keep_owner_authority() -> 
 	if not _ok(prepared): return
 	var opaque: Dictionary = saves._backup_actions[prepared.value.token].prepared_restore
 	assert_true(saves._same_scene_preparation(opaque, opaque.duplicate(true)))
-	assert_eq(typeof(opaque.participant_plans.desktop_board.candidate.kind), TYPE_STRING_NAME)
+	assert_eq(typeof(opaque.participant_plans.run.snapshot.schema_version), TYPE_INT)
 	var altered: Dictionary = opaque.duplicate(true)
-	altered.participant_plans.desktop_board.candidate.kind = "restore"
-	assert_eq(saves.commit_prepared_restore(altered).get("code"), &"invalid_scene_restore_preparation", "same text with a changed Variant type is not the retained plan")
+	altered.participant_plans.run.snapshot.schema_version = 9.0
+	assert_eq(saves.commit_prepared_restore(altered).get("code"), &"invalid_scene_restore_preparation", "same number with a changed Variant type is not the retained plan")
 	altered = opaque.duplicate(true)
-	altered.participant_plans.desktop_board.candidate.kind = &"changed"
+	altered.participant_plans.run.snapshot.schema_version = -1
 	assert_eq(saves.commit_prepared_restore(altered).get("code"), &"invalid_scene_restore_preparation", "changed plan is refused before identity allocation")
 	assert_eq(game.capture_run_snapshot_input(), source)
 	assert_eq(profile.get_profile_snapshot(), profile_before)
