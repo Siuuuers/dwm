@@ -3,9 +3,13 @@ extends "res://addons/gut/test.gd"
 ## Proves saved caption installation, not Save9 persistence or issuer admission.
 const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 const BASE := preload("res://tests/support/SceneDayReadingFixture.gd")
-const BRIDGE := preload("res://autoload/DialogicBridge.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 const STYLE := "res://dialogic/styles/witnessed_caption_style.tres"
+
+class NativeBridge extends "res://autoload/DialogicBridge.gd":
+	var localization: Node
+	func _current_locale() -> String:
+		return localization.get_locale()
 
 class CountingSession extends "res://scripts/narrative/SoloReadingSession.gd":
 	var captures := 0
@@ -79,7 +83,9 @@ func before_each() -> void:
 	assert_true(_adapter.bind_runtime(_runtime).ok)
 	_adapter.caption_publication_recorded.connect(func(result: Dictionary) -> void: _results.append(result.duplicate(true)))
 
-	_bridge = BRIDGE.new()
+	_bridge = NativeBridge.new()
+	# The detached Bridge uses the actual locale owner without startup wiring.
+	_bridge.localization = get_node("/root/LocalizationManager")
 	autofree(_bridge)
 	_bridge._runtime_adapter = _adapter
 
