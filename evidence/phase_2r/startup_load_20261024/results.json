@@ -1,0 +1,862 @@
+{
+  "bundle_sha256": "995ab5831653ef1d5d1d19c16471ceade8ade14ab5027f66b52286931cbcbbbe",
+  "archives": [
+    {
+      "name": "reverse-profile-parse-39999976015-1.zip",
+      "sha256": "6d4ee65167baee7bec45185d8c0ce3503379f0795f483d0cf424594e38ba6a80"
+    },
+    {
+      "name": "startup-load-comparison-39996703616-1.zip",
+      "sha256": "0fda0dc93115df2e2433d1ce86a0a1597d1a2b05d57d58db691860758ad58396"
+    },
+    {
+      "name": "startup-load-comparison-39997322266-1.zip",
+      "sha256": "18b0e5b4307c48a480f20a9556e1dfc55df4cedd781cbb9dd3fd8ec26ed5e571"
+    },
+    {
+      "name": "windows-authored_week-39996703616-1.zip",
+      "sha256": "823721464ee8a64985d4ca5601bf117b056eb6e4e4ce55440cc40167a91e7bb7"
+    },
+    {
+      "name": "windows-authored_week-39997322266-1.zip",
+      "sha256": "4c42b18248355b718d49bd333b67d8bfbfdc7ae4669a3cda675b3beb9693e7f4"
+    },
+    {
+      "name": "windows-backup_presentation-39996703616-1.zip",
+      "sha256": "b35344e7fa20078bb1b9165b2b155ac225012d6c5e1da487d181c2e0052674f0"
+    },
+    {
+      "name": "windows-backup_presentation-39997322266-1.zip",
+      "sha256": "813bdd385ada42343f77c1f845781a5a82c574e13662ce857e02a361335a017a"
+    },
+    {
+      "name": "windows-current_title-39996703616-1.zip",
+      "sha256": "b9b7f981bce482c3752bb837820526e788f06a4320a59bd8d3d45a18050ac105"
+    },
+    {
+      "name": "windows-current_title-39997322266-1.zip",
+      "sha256": "80e4bd572e32ac6fbf202e96073c91abd56463af723168d7dcbe1b4d95a4cf47"
+    },
+    {
+      "name": "windows-profile_parse-39997322266-1.zip",
+      "sha256": "97189b4d3d3149162ae799990d2e8a01e78d6d8ef96f889ec64bbb7e9bf9abe2"
+    },
+    {
+      "name": "windows-scene_backup_inspection-39996703616-1.zip",
+      "sha256": "51b19abe28a1a756ce0bd96b96ab0fb06bf5c8dd29f525a0fcffa247ab5d0a9f"
+    },
+    {
+      "name": "windows-scene_backup_inspection-39997322266-1.zip",
+      "sha256": "691888bcb2a56ae5ad5039bad35f61e7b75499c506a55a6cd89a86aa20f29603"
+    },
+    {
+      "name": "windows-timeline_resources-39996703616-1.zip",
+      "sha256": "b87b728296d94520e11f5f7df45299ac3b26a93c3e64df00b5171957794128f8"
+    },
+    {
+      "name": "windows-timeline_resources-39997322266-1.zip",
+      "sha256": "a941e3cb6a0b6555bb495141446a5535dc064790ebaea5850e42b5b8f30a0cea"
+    }
+  ],
+  "reports": [
+    {
+      "archive": "reverse-profile-parse-39999976015-1.zip",
+      "path": "ci/startup-load-comparison/baseline/result.xml",
+      "cases": 1,
+      "assertions": 112,
+      "nonpassing": [],
+      "failures_errors_skips": 0
+    },
+    {
+      "archive": "reverse-profile-parse-39999976015-1.zip",
+      "path": "ci/startup-load-comparison/candidate/result.xml",
+      "cases": 1,
+      "assertions": 112,
+      "nonpassing": [],
+      "failures_errors_skips": 0
+    },
+    {
+      "archive": "startup-load-comparison-39996703616-1.zip",
+      "path": "ci/startup-load-comparison/baseline/result.xml",
+      "cases": 1,
+      "assertions": 112,
+      "nonpassing": [],
+      "failures_errors_skips": 0
+    },
+    {
+      "archive": "startup-load-comparison-39996703616-1.zip",
+      "path": "ci/startup-load-comparison/candidate/result.xml",
+      "cases": 1,
+      "assertions": 112,
+      "nonpassing": [],
+      "failures_errors_skips": 0
+    },
+    {
+      "archive": "startup-load-comparison-39997322266-1.zip",
+      "path": "ci/startup-load-comparison/baseline/result.xml",
+      "cases": 1,
+      "assertions": 112,
+      "nonpassing": [],
+      "failures_errors_skips": 0
+    },
+    {
+      "archive": "startup-load-comparison-39997322266-1.zip",
+      "path": "ci/startup-load-comparison/candidate/result.xml",
+      "cases": 1,
+      "assertions": 112,
+      "nonpassing": [],
+      "failures_errors_skips": 0
+    },
+    {
+      "archive": "windows-authored_week-39996703616-1.zip",
+      "path": "ci/authored_week.xml",
+      "cases": 1,
+      "assertions": 55,
+      "nonpassing": [],
+      "failures_errors_skips": 0
+    },
+    {
+      "archive": "windows-authored_week-39997322266-1.zip",
+      "path": "ci/authored_week.xml",
+      "cases": 1,
+      "assertions": 55,
+      "nonpassing": [],
+      "failures_errors_skips": 0
+    },
+    {
+      "archive": "windows-backup_presentation-39996703616-1.zip",
+      "path": "ci/backup_presentation.xml",
+      "cases": 63,
+      "assertions": 4783,
+      "nonpassing": [],
+      "failures_errors_skips": 0
+    },
+    {
+      "archive": "windows-backup_presentation-39997322266-1.zip",
+      "path": "ci/backup_presentation.xml",
+      "cases": 63,
+      "assertions": 4783,
+      "nonpassing": [],
+      "failures_errors_skips": 0
+    },
+    {
+      "archive": "windows-current_title-39996703616-1.zip",
+      "path": "ci/current_title-load.xml",
+      "cases": 1,
+      "assertions": 105,
+      "nonpassing": [],
+      "failures_errors_skips": 0
+    },
+    {
+      "archive": "windows-current_title-39996703616-1.zip",
+      "path": "ci/current_title.xml",
+      "cases": 1,
+      "assertions": 77,
+      "nonpassing": [],
+      "failures_errors_skips": 0
+    },
+    {
+      "archive": "windows-current_title-39997322266-1.zip",
+      "path": "ci/current_title-load.xml",
+      "cases": 1,
+      "assertions": 105,
+      "nonpassing": [],
+      "failures_errors_skips": 0
+    },
+    {
+      "archive": "windows-current_title-39997322266-1.zip",
+      "path": "ci/current_title.xml",
+      "cases": 1,
+      "assertions": 77,
+      "nonpassing": [],
+      "failures_errors_skips": 0
+    },
+    {
+      "archive": "windows-profile_parse-39997322266-1.zip",
+      "path": "ci/profile_parse.xml",
+      "cases": 44,
+      "assertions": 580,
+      "nonpassing": [],
+      "failures_errors_skips": 0
+    },
+    {
+      "archive": "windows-scene_backup_inspection-39996703616-1.zip",
+      "path": "ci/scene_backup_inspection.xml",
+      "cases": 4,
+      "assertions": 84,
+      "nonpassing": [],
+      "failures_errors_skips": 0
+    },
+    {
+      "archive": "windows-scene_backup_inspection-39997322266-1.zip",
+      "path": "ci/scene_backup_inspection.xml",
+      "cases": 4,
+      "assertions": 84,
+      "nonpassing": [],
+      "failures_errors_skips": 0
+    },
+    {
+      "archive": "windows-timeline_resources-39996703616-1.zip",
+      "path": "ci/timeline_resources.xml",
+      "cases": 2,
+      "assertions": 27,
+      "nonpassing": [],
+      "failures_errors_skips": 0
+    },
+    {
+      "archive": "windows-timeline_resources-39997322266-1.zip",
+      "path": "ci/timeline_resources.xml",
+      "cases": 2,
+      "assertions": 27,
+      "nonpassing": [],
+      "failures_errors_skips": 0
+    }
+  ],
+  "comparisons": [
+    {
+      "archive": "reverse-profile-parse-39999976015-1.zip",
+      "comparison": {
+        "base_ref": "04673e34cea3b90e7a137c639b29ec5737680137",
+        "candidate_ref": "8a90bec16706eefb7cd94429c6f3d9a251eb0a36",
+        "archive_sha256": "c49053565e4b9430f2e9f0157eea9c1602898156de13df2837ca714235279670",
+        "scope": "Same candidate checkout and retained 40-file input; only the named runtime files are replaced by base bytes for the baseline. Fresh processes and isolated roots per variant. Timings are one matched pair, not a latency distribution.",
+        "runtime_files": [
+          "scripts/narrative/DialogicRuntimeAdapter.gd",
+          "scripts/ui/BackupApp.gd",
+          "autoload/ProfileManager.gd"
+        ],
+        "helper_hashes": {
+          "pair.gd": "387f335b758d06ac1762302423151d47d57aa1df90adc933cdee3855cf04ff65",
+          "pair-next.gd": "ebf4e9380066cd769c10c64ae21bddf605c972a5955324c445654d8d959540c7",
+          "seed.gd": "1eeae3d5a83dc645758def40e371408187bca8009e5ef9c0916b3d489f36be3d",
+          "replay.gd": "945a7a75a9cae6e14e2e70e9b99866a929ba1cbe36d8249bb9f177f9b3026a20"
+        },
+        "variants": [
+          {
+            "variant": "candidate",
+            "runtime_sha256": {
+              "autoload/ProfileManager.gd": "0c60f5a45d3094944a210f9fbf027d6bbd03aaf332e224f1ebdc64a4c79c4d29",
+              "scripts/ui/BackupApp.gd": "09f445b674b8548f70621d4f965a36262b3e187fb9217e97433fa782a1635661",
+              "scripts/narrative/DialogicRuntimeAdapter.gd": "7c082ad4f2b0bd27b940a3f61e666d1c6dd464352f1b0a906120a44bdddbbc0f"
+            },
+            "wall_seconds": 600.5817025,
+            "assertions": 112,
+            "authored_day_resource_load_messages": 15,
+            "result": {
+              "complete": true,
+              "observed_lines": [
+                "line.ending.alone.normal.001"
+              ],
+              "pending_phase": "",
+              "phases": [
+                {
+                  "elapsed_us": 51988325,
+                  "ok": true,
+                  "phase": "boot"
+                },
+                {
+                  "elapsed_us": 317397474,
+                  "ok": true,
+                  "phase": "load"
+                },
+                {
+                  "elapsed_us": 207273877,
+                  "ok": true,
+                  "phase": "save"
+                }
+              ],
+              "process_id": 2340,
+              "source_slot_sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c",
+              "ui_timing_scope": "Press-return includes the existing five frame waits; Load Ready is the existing owner signal. No added validation, screenshot or wait.",
+              "ui_timings": [
+                {
+                  "elapsed_us": 40030750,
+                  "finished_us": 99832043,
+                  "ok": true,
+                  "operation": "title_backup_open_press_return",
+                  "started_us": 59801293
+                },
+                {
+                  "elapsed_us": 80046,
+                  "finished_us": 99912249,
+                  "ok": true,
+                  "operation": "load_slot_select_press_return",
+                  "started_us": 99832203
+                },
+                {
+                  "elapsed_us": 235182338,
+                  "finished_us": 335094634,
+                  "operation": "load_action_to_ready",
+                  "started_us": 99912296
+                },
+                {
+                  "elapsed_us": 276613911,
+                  "finished_us": 376526207,
+                  "ok": true,
+                  "operation": "load_action_press_return",
+                  "started_us": 99912296
+                },
+                {
+                  "elapsed_us": 48517599,
+                  "finished_us": 425586303,
+                  "ok": true,
+                  "operation": "ending_backup_open_press_return",
+                  "started_us": 377068704
+                },
+                {
+                  "elapsed_us": 78842,
+                  "finished_us": 425666215,
+                  "ok": true,
+                  "operation": "save_slot_select_press_return",
+                  "started_us": 425587373
+                },
+                {
+                  "elapsed_us": 157079504,
+                  "finished_us": 582746596,
+                  "ok": true,
+                  "operation": "save_action_press_return",
+                  "save_in_operation_at_return": false,
+                  "save_result_ok_at_return": true,
+                  "started_us": 425667092
+                },
+                {
+                  "elapsed_us": 94778,
+                  "finished_us": 582874934,
+                  "ok": true,
+                  "operation": "continue_press_return",
+                  "started_us": 582780156
+                }
+              ]
+            }
+          },
+          {
+            "variant": "baseline",
+            "runtime_sha256": {
+              "autoload/ProfileManager.gd": "225552c3141c3731566dda8bf40ba33667f6bc61fc4d448e6f495eaf7606c3c7",
+              "scripts/ui/BackupApp.gd": "09f445b674b8548f70621d4f965a36262b3e187fb9217e97433fa782a1635661",
+              "scripts/narrative/DialogicRuntimeAdapter.gd": "7c082ad4f2b0bd27b940a3f61e666d1c6dd464352f1b0a906120a44bdddbbc0f"
+            },
+            "wall_seconds": 639.1892949,
+            "assertions": 112,
+            "authored_day_resource_load_messages": 15,
+            "result": {
+              "complete": true,
+              "observed_lines": [
+                "line.ending.alone.normal.001"
+              ],
+              "pending_phase": "",
+              "phases": [
+                {
+                  "elapsed_us": 53034921,
+                  "ok": true,
+                  "phase": "boot"
+                },
+                {
+                  "elapsed_us": 338394938,
+                  "ok": true,
+                  "phase": "load"
+                },
+                {
+                  "elapsed_us": 225074200,
+                  "ok": true,
+                  "phase": "save"
+                }
+              ],
+              "process_id": 2644,
+              "source_slot_sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c",
+              "ui_timing_scope": "Press-return includes the existing five frame waits; Load Ready is the existing owner signal. No added validation, screenshot or wait.",
+              "ui_timings": [
+                {
+                  "elapsed_us": 43793865,
+                  "finished_us": 104346427,
+                  "ok": true,
+                  "operation": "title_backup_open_press_return",
+                  "started_us": 60552562
+                },
+                {
+                  "elapsed_us": 79808,
+                  "finished_us": 104426426,
+                  "ok": true,
+                  "operation": "load_slot_select_press_return",
+                  "started_us": 104346618
+                },
+                {
+                  "elapsed_us": 250372162,
+                  "finished_us": 354798637,
+                  "operation": "load_action_to_ready",
+                  "started_us": 104426475
+                },
+                {
+                  "elapsed_us": 293869001,
+                  "finished_us": 398295476,
+                  "ok": true,
+                  "operation": "load_action_press_return",
+                  "started_us": 104426475
+                },
+                {
+                  "elapsed_us": 52944848,
+                  "finished_us": 451776926,
+                  "ok": true,
+                  "operation": "ending_backup_open_press_return",
+                  "started_us": 398832078
+                },
+                {
+                  "elapsed_us": 78947,
+                  "finished_us": 451856882,
+                  "ok": true,
+                  "operation": "save_slot_select_press_return",
+                  "started_us": 451777935
+                },
+                {
+                  "elapsed_us": 170479339,
+                  "finished_us": 622337110,
+                  "ok": true,
+                  "operation": "save_action_press_return",
+                  "save_in_operation_at_return": false,
+                  "save_result_ok_at_return": true,
+                  "started_us": 451857771
+                },
+                {
+                  "elapsed_us": 94670,
+                  "finished_us": 622465180,
+                  "ok": true,
+                  "operation": "continue_press_return",
+                  "started_us": 622370510
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "archive": "startup-load-comparison-39996703616-1.zip",
+      "comparison": {
+        "base_ref": "f4d99627b8ada2b957c9f2ed2a4a886e14762ec3",
+        "candidate_ref": "b3d9f5a5c8ce347b3617e15ef12c30effa16b12c",
+        "archive_sha256": "c49053565e4b9430f2e9f0157eea9c1602898156de13df2837ca714235279670",
+        "scope": "Same candidate checkout and retained 40-file input; only the two named runtime files are replaced by base bytes for the baseline. Fresh processes and isolated roots per variant. Timings are one matched pair, not a latency distribution.",
+        "runtime_files": [
+          "scripts/narrative/DialogicRuntimeAdapter.gd",
+          "scripts/ui/BackupApp.gd"
+        ],
+        "helper_hashes": {
+          "pair.gd": "387f335b758d06ac1762302423151d47d57aa1df90adc933cdee3855cf04ff65",
+          "pair-next.gd": "ebf4e9380066cd769c10c64ae21bddf605c972a5955324c445654d8d959540c7",
+          "seed.gd": "1eeae3d5a83dc645758def40e371408187bca8009e5ef9c0916b3d489f36be3d",
+          "replay.gd": "945a7a75a9cae6e14e2e70e9b99866a929ba1cbe36d8249bb9f177f9b3026a20"
+        },
+        "variants": [
+          {
+            "variant": "baseline",
+            "runtime_sha256": {
+              "scripts/ui/BackupApp.gd": "b633d0707efd3e853827d13ebc81fa05cee22019ff77064cc163ee4e888ec6d8",
+              "scripts/narrative/DialogicRuntimeAdapter.gd": "c4d3ebacc0a469fddd3a29bb9ef7005cac568341e1fcf5468455feddcaddd09e"
+            },
+            "wall_seconds": 642.6135578,
+            "assertions": 112,
+            "authored_day_resource_load_messages": 20772,
+            "result": {
+              "complete": true,
+              "observed_lines": [
+                "line.ending.alone.normal.001"
+              ],
+              "pending_phase": "",
+              "phases": [
+                {
+                  "elapsed_us": 53521635,
+                  "ok": true,
+                  "phase": "boot"
+                },
+                {
+                  "elapsed_us": 343961081,
+                  "ok": true,
+                  "phase": "load"
+                },
+                {
+                  "elapsed_us": 221537486,
+                  "ok": true,
+                  "phase": "save"
+                }
+              ],
+              "process_id": 5132,
+              "source_slot_sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c",
+              "ui_timing_scope": "Press-return includes the existing five frame waits; Load Ready is the existing owner signal. No added validation, screenshot or wait.",
+              "ui_timings": [
+                {
+                  "elapsed_us": 45185403,
+                  "finished_us": 106300024,
+                  "ok": true,
+                  "operation": "title_backup_open_press_return",
+                  "started_us": 61114621
+                },
+                {
+                  "elapsed_us": 79475,
+                  "finished_us": 106379665,
+                  "ok": true,
+                  "operation": "load_slot_select_press_return",
+                  "started_us": 106300190
+                },
+                {
+                  "elapsed_us": 253091165,
+                  "finished_us": 359470878,
+                  "operation": "load_action_to_ready",
+                  "started_us": 106379713
+                },
+                {
+                  "elapsed_us": 298078087,
+                  "finished_us": 404457800,
+                  "ok": true,
+                  "operation": "load_action_press_return",
+                  "started_us": 106379713
+                },
+                {
+                  "elapsed_us": 52300743,
+                  "finished_us": 457305738,
+                  "ok": true,
+                  "operation": "ending_backup_open_press_return",
+                  "started_us": 405004995
+                },
+                {
+                  "elapsed_us": 78904,
+                  "finished_us": 457385670,
+                  "ok": true,
+                  "operation": "save_slot_select_press_return",
+                  "started_us": 457306766
+                },
+                {
+                  "elapsed_us": 167602602,
+                  "finished_us": 624989060,
+                  "ok": true,
+                  "operation": "save_action_press_return",
+                  "save_in_operation_at_return": false,
+                  "save_result_ok_at_return": true,
+                  "started_us": 457386458
+                },
+                {
+                  "elapsed_us": 94811,
+                  "finished_us": 625117104,
+                  "ok": true,
+                  "operation": "continue_press_return",
+                  "started_us": 625022293
+                }
+              ]
+            }
+          },
+          {
+            "variant": "candidate",
+            "runtime_sha256": {
+              "scripts/ui/BackupApp.gd": "09f445b674b8548f70621d4f965a36262b3e187fb9217e97433fa782a1635661",
+              "scripts/narrative/DialogicRuntimeAdapter.gd": "7c082ad4f2b0bd27b940a3f61e666d1c6dd464352f1b0a906120a44bdddbbc0f"
+            },
+            "wall_seconds": 619.2903957,
+            "assertions": 112,
+            "authored_day_resource_load_messages": 15,
+            "result": {
+              "complete": true,
+              "observed_lines": [
+                "line.ending.alone.normal.001"
+              ],
+              "pending_phase": "",
+              "phases": [
+                {
+                  "elapsed_us": 52624978,
+                  "ok": true,
+                  "phase": "boot"
+                },
+                {
+                  "elapsed_us": 333758040,
+                  "ok": true,
+                  "phase": "load"
+                },
+                {
+                  "elapsed_us": 210812016,
+                  "ok": true,
+                  "phase": "save"
+                }
+              ],
+              "process_id": 2520,
+              "source_slot_sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c",
+              "ui_timing_scope": "Press-return includes the existing five frame waits; Load Ready is the existing owner signal. No added validation, screenshot or wait.",
+              "ui_timings": [
+                {
+                  "elapsed_us": 43244285,
+                  "finished_us": 103204249,
+                  "ok": true,
+                  "operation": "title_backup_open_press_return",
+                  "started_us": 59959964
+                },
+                {
+                  "elapsed_us": 79768,
+                  "finished_us": 103284192,
+                  "ok": true,
+                  "operation": "load_slot_select_press_return",
+                  "started_us": 103204424
+                },
+                {
+                  "elapsed_us": 246446512,
+                  "finished_us": 349730750,
+                  "operation": "load_action_to_ready",
+                  "started_us": 103284238
+                },
+                {
+                  "elapsed_us": 289845315,
+                  "finished_us": 393129553,
+                  "ok": true,
+                  "operation": "load_action_press_return",
+                  "started_us": 103284238
+                },
+                {
+                  "elapsed_us": 49192475,
+                  "finished_us": 442850578,
+                  "ok": true,
+                  "operation": "ending_backup_open_press_return",
+                  "started_us": 393658103
+                },
+                {
+                  "elapsed_us": 79202,
+                  "finished_us": 442930534,
+                  "ok": true,
+                  "operation": "save_slot_select_press_return",
+                  "started_us": 442851332
+                },
+                {
+                  "elapsed_us": 159971264,
+                  "finished_us": 602902602,
+                  "ok": true,
+                  "operation": "save_action_press_return",
+                  "save_in_operation_at_return": false,
+                  "save_result_ok_at_return": true,
+                  "started_us": 442931338
+                },
+                {
+                  "elapsed_us": 95202,
+                  "finished_us": 603030822,
+                  "ok": true,
+                  "operation": "continue_press_return",
+                  "started_us": 602935620
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "archive": "startup-load-comparison-39997322266-1.zip",
+      "comparison": {
+        "base_ref": "04673e34cea3b90e7a137c639b29ec5737680137",
+        "candidate_ref": "17470eab9f46991c14fc2a31a50998256bbbc75b",
+        "archive_sha256": "c49053565e4b9430f2e9f0157eea9c1602898156de13df2837ca714235279670",
+        "scope": "Same candidate checkout and retained 40-file input; only the named runtime files are replaced by base bytes for the baseline. Fresh processes and isolated roots per variant. Timings are one matched pair, not a latency distribution.",
+        "runtime_files": [
+          "scripts/narrative/DialogicRuntimeAdapter.gd",
+          "scripts/ui/BackupApp.gd",
+          "autoload/ProfileManager.gd"
+        ],
+        "helper_hashes": {
+          "pair.gd": "387f335b758d06ac1762302423151d47d57aa1df90adc933cdee3855cf04ff65",
+          "pair-next.gd": "ebf4e9380066cd769c10c64ae21bddf605c972a5955324c445654d8d959540c7",
+          "seed.gd": "1eeae3d5a83dc645758def40e371408187bca8009e5ef9c0916b3d489f36be3d",
+          "replay.gd": "945a7a75a9cae6e14e2e70e9b99866a929ba1cbe36d8249bb9f177f9b3026a20"
+        },
+        "variants": [
+          {
+            "variant": "baseline",
+            "runtime_sha256": {
+              "autoload/ProfileManager.gd": "225552c3141c3731566dda8bf40ba33667f6bc61fc4d448e6f495eaf7606c3c7",
+              "scripts/ui/BackupApp.gd": "09f445b674b8548f70621d4f965a36262b3e187fb9217e97433fa782a1635661",
+              "scripts/narrative/DialogicRuntimeAdapter.gd": "7c082ad4f2b0bd27b940a3f61e666d1c6dd464352f1b0a906120a44bdddbbc0f"
+            },
+            "wall_seconds": 502.8594989,
+            "assertions": 112,
+            "authored_day_resource_load_messages": 15,
+            "result": {
+              "complete": true,
+              "observed_lines": [
+                "line.ending.alone.normal.001"
+              ],
+              "pending_phase": "",
+              "phases": [
+                {
+                  "elapsed_us": 40702025,
+                  "ok": true,
+                  "phase": "boot"
+                },
+                {
+                  "elapsed_us": 275353413,
+                  "ok": true,
+                  "phase": "load"
+                },
+                {
+                  "elapsed_us": 167240134,
+                  "ok": true,
+                  "phase": "save"
+                }
+              ],
+              "process_id": 2468,
+              "source_slot_sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c",
+              "ui_timing_scope": "Press-return includes the existing five frame waits; Load Ready is the existing owner signal. No added validation, screenshot or wait.",
+              "ui_timings": [
+                {
+                  "elapsed_us": 33925889,
+                  "finished_us": 80833070,
+                  "ok": true,
+                  "operation": "title_backup_open_press_return",
+                  "started_us": 46907181
+                },
+                {
+                  "elapsed_us": 79042,
+                  "finished_us": 80912264,
+                  "ok": true,
+                  "operation": "load_slot_select_press_return",
+                  "started_us": 80833222
+                },
+                {
+                  "elapsed_us": 207494822,
+                  "finished_us": 288407132,
+                  "operation": "load_action_to_ready",
+                  "started_us": 80912310
+                },
+                {
+                  "elapsed_us": 240857510,
+                  "finished_us": 321769820,
+                  "ok": true,
+                  "operation": "load_action_press_return",
+                  "started_us": 80912310
+                },
+                {
+                  "elapsed_us": 38670711,
+                  "finished_us": 360868033,
+                  "ok": true,
+                  "operation": "ending_backup_open_press_return",
+                  "started_us": 322197322
+                },
+                {
+                  "elapsed_us": 95282,
+                  "finished_us": 360963981,
+                  "ok": true,
+                  "operation": "save_slot_select_press_return",
+                  "started_us": 360868699
+                },
+                {
+                  "elapsed_us": 127137208,
+                  "finished_us": 488101805,
+                  "ok": true,
+                  "operation": "save_action_press_return",
+                  "save_in_operation_at_return": false,
+                  "save_result_ok_at_return": true,
+                  "started_us": 360964597
+                },
+                {
+                  "elapsed_us": 79251,
+                  "finished_us": 488213865,
+                  "ok": true,
+                  "operation": "continue_press_return",
+                  "started_us": 488134614
+                }
+              ]
+            }
+          },
+          {
+            "variant": "candidate",
+            "runtime_sha256": {
+              "autoload/ProfileManager.gd": "0c60f5a45d3094944a210f9fbf027d6bbd03aaf332e224f1ebdc64a4c79c4d29",
+              "scripts/ui/BackupApp.gd": "09f445b674b8548f70621d4f965a36262b3e187fb9217e97433fa782a1635661",
+              "scripts/narrative/DialogicRuntimeAdapter.gd": "7c082ad4f2b0bd27b940a3f61e666d1c6dd464352f1b0a906120a44bdddbbc0f"
+            },
+            "wall_seconds": 477.4081691,
+            "assertions": 112,
+            "authored_day_resource_load_messages": 15,
+            "result": {
+              "complete": true,
+              "observed_lines": [
+                "line.ending.alone.normal.001"
+              ],
+              "pending_phase": "",
+              "phases": [
+                {
+                  "elapsed_us": 38405799,
+                  "ok": true,
+                  "phase": "boot"
+                },
+                {
+                  "elapsed_us": 245603371,
+                  "ok": true,
+                  "phase": "load"
+                },
+                {
+                  "elapsed_us": 175062183,
+                  "ok": true,
+                  "phase": "save"
+                }
+              ],
+              "process_id": 7772,
+              "source_slot_sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c",
+              "ui_timing_scope": "Press-return includes the existing five frame waits; Load Ready is the existing owner signal. No added validation, screenshot or wait.",
+              "ui_timings": [
+                {
+                  "elapsed_us": 29491609,
+                  "finished_us": 73884112,
+                  "ok": true,
+                  "operation": "title_backup_open_press_return",
+                  "started_us": 44392503
+                },
+                {
+                  "elapsed_us": 80007,
+                  "finished_us": 73964253,
+                  "ok": true,
+                  "operation": "load_slot_select_press_return",
+                  "started_us": 73884246
+                },
+                {
+                  "elapsed_us": 181183663,
+                  "finished_us": 255147956,
+                  "operation": "load_action_to_ready",
+                  "started_us": 73964293
+                },
+                {
+                  "elapsed_us": 215503383,
+                  "finished_us": 289467676,
+                  "ok": true,
+                  "operation": "load_action_press_return",
+                  "started_us": 73964293
+                },
+                {
+                  "elapsed_us": 39786092,
+                  "finished_us": 329732688,
+                  "ok": true,
+                  "operation": "ending_backup_open_press_return",
+                  "started_us": 289946596
+                },
+                {
+                  "elapsed_us": 79010,
+                  "finished_us": 329812655,
+                  "ok": true,
+                  "operation": "save_slot_select_press_return",
+                  "started_us": 329733645
+                },
+                {
+                  "elapsed_us": 133786029,
+                  "finished_us": 463599624,
+                  "ok": true,
+                  "operation": "save_action_press_return",
+                  "save_in_operation_at_return": false,
+                  "save_result_ok_at_return": true,
+                  "started_us": 329813595
+                },
+                {
+                  "elapsed_us": 94750,
+                  "finished_us": 463727692,
+                  "ok": true,
+                  "operation": "continue_press_return",
+                  "started_us": 463632942
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
