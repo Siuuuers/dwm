@@ -293,7 +293,8 @@ func test_f5_commits_current_quick_through_real_owner_without_displacing_backup_
 		"the shell voice does not change Backup's selected record, mode, or local status")
 	var inspected: Dictionary = _manager.inspect_backup("quick")
 	assert_true(inspected.ok)
-	assert_eq(inspected.value.state, "occupied")
+	assert_eq(inspected.value.state, "unavailable")
+	assert_eq(inspected.value.reason, "older_version")
 	var edge: Label = _desktop._quick_commands.edge
 	edge.set_process(false)
 	watch_signals(edge)

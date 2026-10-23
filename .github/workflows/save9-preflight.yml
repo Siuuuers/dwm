@@ -75,6 +75,8 @@ jobs:
         run: ./tools/testing/Invoke-CloudTests.ps1 -Suite scene_backup_inspection
       - name: Verify current Backup storage
         run: ./tools/testing/Invoke-CloudTests.ps1 -Suite backup_current_build
+      - name: Verify current Quick Load
+        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite current_quick_load
       - name: Measure fresh Save9 and fresh-process Load
         timeout-minutes: 25
         run: ./tools/testing/Invoke-FreshSaveLoad.ps1

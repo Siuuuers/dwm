@@ -113,8 +113,8 @@ func _run() -> void:
 	_check(files.snapshot_persisted() == before, "preparation creates no save")
 	_check(port.commit_action(initial["value"]["token"]).get("ok", false), "real atomic save")
 	var record: Dictionary = port.get_projection()["value"]["records"][2]
-	_check(record["state"] == "occupied" and record["day"] == 1 and str(record["saved_time"]).length() == 5, "validated Day and frozen time")
-	_check(record["family"] == "legacy_day", "admitted legacy family is explicit")
+	_check(record["state"] == "unavailable" and record["reason"] == "older_version", "retained Save8 is unavailable to player Load")
+	_check(record["family"] == null and record["day"] == null and record["saved_time"] == null, "unsupported format exposes no admitted display facts")
 	var document: Dictionary = JSON.parse_string(storage.read_text("slot_1.json")["value"])
 	_check(SCHEMA.validate(document).get("ok", false), "saved time binds instant and original offset")
 	var invalid_time: Dictionary = document["saved_time"].duplicate(true)
@@ -135,11 +135,11 @@ func _run() -> void:
 	var stale_result := port.commit_action(stale["value"]["token"])
 	_check(not stale_result.get("ok", false) and stale_result.get("code") == &"stale_backup_target", "changed document invalidates confirmation")
 	record = port.get_projection()["value"]["records"][2]
-	_check(record["state"] == "occupied" and record["saved_time"] == null, "legacy missing time stays readable")
+	_check(record["state"] == "unavailable" and record["reason"] == "older_version" and record["saved_time"] == null, "legacy missing time remains unsupported")
 	var quick := port.prepare_action("save", "quick")
 	_check(port.commit_action(quick["value"]["token"]).get("ok", false), "quick save")
 	quick = port.prepare_action("save", "quick")
-	_check(not quick["value"]["confirmation_required"], "readable quick direct replacement")
+	_check(quick["value"]["confirmation_required"] and quick["value"]["confirmation_kind"] == "overwrite", "unsupported Quick replacement confirms")
 	port.cancel_action(quick["value"]["token"])
 	manager.acquire_save_lock(&"scene_transition")
 	_check(not port.prepare_action("save", "slot:2").get("ok", false), "locked save refused")
@@ -327,14 +327,14 @@ func _test_unavailable(manager: Node, port: RefCounted, files: RefCounted) -> vo
 	files._persisted["memory/backup/slot_3.json"] = '{"schema_version":999}'.to_utf8_buffer()
 	var records: Array = port.get_projection()["value"]["records"]
 	_check(records[3]["state"] == "unavailable" and records[3]["actions"]["delete"] and records[3]["actions"]["save"], "corrupt remains replaceable/deletable")
-	_check(records[4]["reason"] == "unreadable" and not records[4]["actions"]["load"], "missing display metadata is unavailable")
+	_check(records[4]["reason"] == "newer_version" and not records[4]["actions"]["load"], "future format is unavailable before display admission")
 	var deletion: Dictionary = port.prepare_action("delete", "slot:2")
 	_check(deletion.get("ok", false) and deletion["value"]["confirmation_required"], "corrupt delete confirms")
 	_check(port.commit_action(deletion["value"]["token"]).get("ok", false), "corrupt owner delete")
 	var overwrite: Dictionary = port.prepare_action("save", "slot:3")
 	_check(overwrite.get("ok", false) and overwrite["value"]["confirmation_kind"] == "overwrite", "future overwrite confirms")
 	_check(port.commit_action(overwrite["value"]["token"]).get("ok", false), "future overwrite becomes validated save")
-	_check(manager.inspect_backup("slot:3")["value"]["state"] == "occupied", "replacement metadata real")
+	_check(manager.inspect_backup("slot:3")["value"]["reason"] == "older_version", "legacy fixture replacement remains unsupported")
 
 func _test_restore(manager: Node, port: RefCounted) -> void:
 	var state: Node = GS.new()
