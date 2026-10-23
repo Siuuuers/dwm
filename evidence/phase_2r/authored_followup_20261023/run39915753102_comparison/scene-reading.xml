@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="15" >
+  <testsuite name="tests/integration/test_scene_day_reading.gd" tests="15" failures="0" skipped="0" time="0.204043" >
+      <testcase name="test_simulated_configuration_reentrancy_refuses_nested_owners_and_releases_refusal_guard" assertions="19" status="pass" classname="tests/integration/test_scene_day_reading.gd" time="0.020139" >
+      </testcase>
+      <testcase name="test_simulated_checkpoint_authority_binds_private_candidate_and_call_phase" assertions="28" status="pass" classname="tests/integration/test_scene_day_reading.gd" time="0.011456" >
+      </testcase>
+      <testcase name="test_simulated_staging_requires_exact_candidate_and_confirmation_then_installs_once" assertions="17" status="pass" classname="tests/integration/test_scene_day_reading.gd" time="0.007555" >
+      </testcase>
+      <testcase name="test_simulated_wrong_acknowledgement_and_uncertainty_keep_fatal_custody" assertions="18" status="pass" classname="tests/integration/test_scene_day_reading.gd" time="0.00917" >
+      </testcase>
+      <testcase name="test_simulated_confirmed_save_then_native_failure_never_retries_adoption" assertions="9" status="pass" classname="tests/integration/test_scene_day_reading.gd" time="0.006267" >
+      </testcase>
+      <testcase name="test_synchronous_restore_then_native_failure_retains_committed_target_without_adoption" assertions="42" status="pass" classname="tests/integration/test_scene_day_reading.gd" time="0.021597" >
+      </testcase>
+      <testcase name="test_selected_registration_rejects_late_or_changed_configuration" assertions="5" status="pass" classname="tests/integration/test_scene_day_reading.gd" time="0.001992" >
+      </testcase>
+      <testcase name="test_reentry_loop_snapshot_restore_and_history_keep_all_publications" assertions="19" status="pass" classname="tests/integration/test_scene_day_reading.gd" time="0.038625" >
+      </testcase>
+      <testcase name="test_fully_witnessed_next_stops_at_revisited_backward_caption" assertions="19" status="pass" classname="tests/integration/test_scene_day_reading.gd" time="0.022363" >
+      </testcase>
+      <testcase name="test_next_planning_is_detached_and_stops_at_registered_control" assertions="9" status="pass" classname="tests/integration/test_scene_day_reading.gd" time="0.014455" >
+      </testcase>
+      <testcase name="test_scene_operation_path_returns_exact_detached_opposite_for_both_phases" assertions="19" status="pass" classname="tests/integration/test_scene_day_reading.gd" time="0.030611" >
+      </testcase>
+      <testcase name="test_scene_restore_still_refuses_invalid_opposite_endpoint_without_installing" assertions="11" status="pass" classname="tests/integration/test_scene_day_reading.gd" time="0.008998" >
+      </testcase>
+      <testcase name="test_forged_path_and_historical_frame_refuse_without_installation" assertions="6" status="pass" classname="tests/integration/test_scene_day_reading.gd" time="0.004073" >
+      </testcase>
+      <testcase name="test_full_run_validation_stays_closed_without_scene_receipt_owner" assertions="7" status="pass" classname="tests/integration/test_scene_day_reading.gd" time="0.003936" >
+      </testcase>
+      <testcase name="test_actual_dialogic_resource_compiles_to_registered_finite_programmes" assertions="14" status="pass" classname="tests/integration/test_scene_day_reading.gd" time="0.002806" >
+      </testcase>
+  </testsuite>
+</testsuites>

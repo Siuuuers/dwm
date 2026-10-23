@@ -1,0 +1,95 @@
+{
+  "source": {
+    "tree": "a5493c81b40398d06e824f3ff2cf630be15e2bdc",
+    "run_id": "39916362418",
+    "event": "d95ffbcee7e77bbb14e91cd2f5209fb2b950ccc4",
+    "workflow": "d95ffbcee7e77bbb14e91cd2f5209fb2b950ccc4",
+    "attempt": "1",
+    "controller": "cbe252e18e529ae2f93b41771958005a9b0266f7",
+    "candidate": "fceef00d715e67e68c7c806092359f012513300c"
+  },
+  "run_url": "https://github.com/Siuuuers/dwm/actions/runs/39916362418",
+  "artifact_sha256": "50d2a5a27b35aa5824954daec138fef3fa70a56c348912abc18ce92086599f4b",
+  "phases": [
+    {
+      "elapsed_us": 8352149,
+      "ok": true,
+      "phase": "boot"
+    },
+    {
+      "elapsed_us": 16080652,
+      "ok": true,
+      "phase": "title_backup"
+    },
+    {
+      "elapsed_us": 71156,
+      "ok": true,
+      "phase": "select_autosave"
+    },
+    {
+      "elapsed_us": 60168413,
+      "ok": true,
+      "phase": "load"
+    },
+    {
+      "elapsed_us": 84396783,
+      "ok": true,
+      "phase": "control_departure"
+    },
+    {
+      "elapsed_us": 709904,
+      "ok": true,
+      "phase": "ordinary_caption_291"
+    },
+    {
+      "elapsed_us": 731088,
+      "ok": true,
+      "phase": "ordinary_caption_292"
+    },
+    {
+      "elapsed_us": 93235,
+      "ok": true,
+      "phase": "caption_memory"
+    }
+  ],
+  "retained_files": {
+    "ci/audit-origin.json": {
+      "sha256": "9b199af43e21534e2c475b933d56d55f7f48adf6386da4674a5a8e10d93a714e",
+      "retained_as": "audit-origin.json"
+    },
+    "ci/authored-recovery.json": {
+      "sha256": "4062e2f5cd89dd267e9820a19ba799235d5a5a8801b813f522457382dfc7484c",
+      "retained_as": "authored-recovery.json"
+    },
+    "phase2r_logs/authored-recovery.log": {
+      "sha256": "b66059668ee6465206c2fbc8e210492bfa5fac13ceff183b34df7c16c957800a",
+      "retained_as": "authored-recovery.log"
+    },
+    "ci/authored-recovery.xml": {
+      "sha256": "ec786ae8d4b5ea9092b5da05449122334287d9395a1dddf232380e75797ea88f",
+      "retained_as": "authored-recovery.xml"
+    },
+    "ci/scene-reading.xml": {
+      "sha256": "877338551df898ceb9a283eeb458cb095f92960a2f010fdf5c352bd55f920472",
+      "retained_as": "scene-reading.xml"
+    },
+    "ci/caption-ledger.xml": {
+      "sha256": "28dd4f8cbf3f810b9b640d59d5ea1d31c1428525da9c75ce6a3404310a5d8e57",
+      "retained_as": "caption-ledger.xml"
+    },
+    "ci/caption-ledger.jsonl": {
+      "sha256": "0645aa4d917ab6f1723fef9e2f3022569db5d5360b24e6648a258c3c6a086126",
+      "retained_as": "caption-ledger.jsonl"
+    },
+    "ci/authored-recovery.jsonl": {
+      "sha256": "ef60243fa451152ab582c9dc6564f0803a7e90126c0f2836ce56bae6ea60c386",
+      "retained_as": "authored-recovery.jsonl"
+    },
+    "ci/scene-reading.jsonl": {
+      "sha256": "89a1ccb79713c4aa5fb701b207f4bd0f2a893dd7b36b31cb462b7dc36b71f0ba",
+      "retained_as": "scene-reading.jsonl"
+    }
+  },
+  "scope": "bounded authentic Day2 recovery, not full-week acceptance",
+  "original_archive": "GitHub Actions artifact; durable seed remains in repository run39888749357_journey/original-artifact.zip"
+}
