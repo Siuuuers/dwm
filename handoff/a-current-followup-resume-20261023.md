@@ -2,6 +2,18 @@
 
 This is a recovery/handoff candidate, not release acceptance. Continue cloud-only Godot/PowerShell. Read AGENTS.md and CLAUDE.md. No merge or Steam upload is authorized by this record.
 
+## Live resume checkpoint
+
+- Recovered product/test candidate: `a8d9838207db24a7837417eb895a5b1ed656262b`; tree `0b50482e5881c92511354dead9f1db629a8b7e28`.
+- Candidate/evidence branch: `codex/current-followup-handoff-20261023`. This handoff's documentation descendant is not a different tested runtime.
+- Active diagnostic controller: `c5cfa46b63b4f148d50d47dc25863ece721f771e` on PR50; controller tree `073f1b118203d72090f6dabd3c90718812101d08`.
+- [Current cloud run39888007872](https://github.com/Siuuuers/dwm/actions/runs/39888007872), job120200658624: **in progress at this checkpoint**, not passed. Retrieve the original artifact and final gate before accepting anything. Intended exact census135 tests: geometry33, current fixtures18, display65, negative13, three pause cases, one rendered story localization, two title processes; plus95 Gallery captures.
+- This smaller current scope omits the whole historical-dependent Japanese/Korean and desktop test files; it does not certify their other methods. Original failures remain retained. The actual current story localization and controls tests are included. Do not claim a complete canonical integration result from this subset.
+- Historical and inventory workflows on the controller now use manual triggers, preventing their accidental repetition on subsequent PR updates. Keep workflow overrides out of the product branch.
+- Static checks on reconstructed source: `git diff --check`, YAML and all embedded Python parse; bundled font cmap coverage across all30 locale/style/size tuples. These do not replace native test results.
+
+First action next session: collect run39888007872, verify API digest/ZIP CRC/retained member hashes, exact source/tree and135-case census, all process exits, actual proof and screenshot dimensions, then inspect unobscured screenshots. Preserve failures. If there is a demonstrated regression, repair only its owner and rerun its affected scope. If clean, continue the authored-week journey and fresh Settings work below.
+
 ## Verified results
 
 - Historical controller `149440ef3e774b20919b18dbe9c7de0ba43f09f6` on PR50 ran [39882273467](https://github.com/Siuuuers/dwm/actions/runs/39882273467), job120182169603, artifact12470773983. **78 cases / 3370 assertions**, both isolated processes exit0. Source `a24f71766a624b57601814dda487b53c66518c39`, tree `173218aacfb79c580f2a593d864fb625a84aa076`, authenticated by prior accepted run37048318182 and 11392 tracked blob identities. The 137-entry registration and health owners are historical only. No current-game or later timed-hold claim.
