@@ -1,8 +1,8 @@
 extends GutTest
 ## Actual Desktop input, Backup status and SaveManager transactions. Legacy Quick Load
 ## is refused; current scene Quick Load consent is covered by test_scene_pause_quick_load.
-## The confirmed-load row composes all eight production restore participants over real owners;
-## only storage, native audio/window-independent playback, and the live capture adapter are bounded.
+## The fixture configures the production restore graph; legacy Load must refuse before it runs.
+## Storage, native audio/window-independent playback, and the live capture adapter are bounded.
 
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const DESKTOP := preload("res://scenes/desktop/ComputerDesktop.tscn")
@@ -405,9 +405,9 @@ func test_duplicate_echo_and_pause_held_contact_do_not_repeat_quick_save() -> vo
 func test_existing_backup_confirmation_and_token_are_not_displaced_by_f5() -> void:
 	_seed_quick()
 	var backup: Control = _desktop._cached_app_windows[&"backup"]
-	backup._set_mode("load")
+	backup._set_mode("save")
 	backup._select_drawer("quick")
-	backup._action_pressed("load")
+	backup._action_pressed("save")
 	var sheet: Control = _desktop._confirmation
 	var token: String = str(backup._pending_token)
 	assert_not_null(sheet)
