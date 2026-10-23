@@ -1,6 +1,8 @@
 # Startup and Load efficiency handoff — 2026-10-24 (Hong Kong)
 
-## Latest approved policy — implementation pending
+## Latest approved policy — implementations accepted in PRs #59–#61
+
+Current acceptance and remaining work are in [the final current-save handoff](c-current-save-final-handoff-20261024.md). The measurements and implementation plan below are retained as historical context from before PR #59.
 
 The user approved a current-build-only save contract for this unshipped game. Valid saves produced by the current build are the supported input; older development saves may be discarded when development changes the format or state model. Backward compatibility, legacy migration, repair, recovery and searching older checkpoints are not product requirements. Incomplete files, unsupported formats and state the current game cannot restore are outside this contract.
 

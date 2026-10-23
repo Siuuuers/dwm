@@ -1,0 +1,717 @@
+{
+  "status": "accepted_and_merged",
+  "pull_request": "https://github.com/Siuuuers/dwm/pull/61",
+  "qualified_source": "524d6fe1cbf524384348b248f327c79a09ea177f",
+  "qualified_product_tree": "070aa3bdff9f2696ca36a17a8405d62ae4a6b35a",
+  "baseline_source": "1e1ff7be7ff84a0e57a3ece9f8064ed6cc17e854",
+  "full_ci": {
+    "run": 40020424693,
+    "url": "https://github.com/Siuuuers/dwm/actions/runs/40020424693",
+    "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+    "conclusion": "success",
+    "jobs": 32,
+    "job_conclusions": {
+      "success": 32
+    }
+  },
+  "junit_groups": {
+    "final_primary": {
+      "cases": 2826,
+      "assertions": 155753,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "final_fresh_process_load": {
+      "cases": 3,
+      "assertions": 206,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "intentional_storage_refusal_children": {
+      "cases": 166,
+      "assertions": 198,
+      "failures": 160,
+      "errors": 0,
+      "skipped": 0
+    },
+    "native_comparison": {
+      "cases": 2,
+      "assertions": 224,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "retained_historical_input": {
+      "cases": 0,
+      "assertions": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "native_reverse_comparison": {
+      "cases": 0,
+      "assertions": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "counting_note": "26 matrix suites plus public contracts form 2826 primary cases. Three fresh-process Load cases, 2 matched native cases, intentional storage-refusal children, and retained historical input XML are separate groups. Historical input XML is never current coverage; final artifacts contain none, while preflight supplemental explicitly records one historical112-assertion case exclusion. Each storage-refusal child expects80 root refusals and3 storage-free passes.",
+  "backup_checks": {
+    "ui_checks": 17011,
+    "font_styles": [
+      "pixel",
+      "readable"
+    ],
+    "ui_passed": true,
+    "operations_passed": true
+  },
+  "native_pairs": [
+    {
+      "artifact_id": 12530947360,
+      "sha256": "sha256:d28e09a6eac70677d57ee5883da1720c5c7b92b1870501922ad1f474fcf14de6",
+      "baseline_ref": "1e1ff7be7ff84a0e57a3ece9f8064ed6cc17e854",
+      "candidate_event_ref": "43cce02398621e86b2258d20a08ef46825c93628",
+      "runtime_files": [
+        "autoload/GameState.gd",
+        "scripts/infrastructure/save/CheckpointJournal.gd",
+        "scripts/narrative/FrozenRunContext.gd"
+      ],
+      "scope": "Same candidate checkout and retained 40-file input; only the named runtime files are replaced by base bytes for the baseline. Fresh processes and isolated roots per variant. Timings are one matched pair, not a latency distribution.",
+      "variants": [
+        {
+          "variant": "baseline",
+          "runtime_sha256": {
+            "autoload/GameState.gd": "ac280a8aabc138d7d19719dab32e716e22e637681d9ae4579a14ee41731595c0",
+            "scripts/infrastructure/save/CheckpointJournal.gd": "0ce53239bdacd4de573c137061b08732970327d4b00fce640deaca35bfc9cb5f",
+            "scripts/narrative/FrozenRunContext.gd": "0997cb6fea97a12e84a7ecab8dc285507c2917e7d053cd9744a35f926812ea47"
+          },
+          "wall_seconds": 275.8343974,
+          "assertions": 112,
+          "authored_day_resource_load_messages": 12,
+          "result": {
+            "complete": true,
+            "observed_lines": [
+              "line.ending.alone.normal.001"
+            ],
+            "pending_phase": "",
+            "phases": [
+              {
+                "elapsed_us": 42011553,
+                "ok": true,
+                "phase": "boot"
+              },
+              {
+                "elapsed_us": 125175229,
+                "ok": true,
+                "phase": "load"
+              },
+              {
+                "elapsed_us": 83229983,
+                "ok": true,
+                "phase": "save"
+              }
+            ],
+            "process_id": 4780,
+            "source_slot_sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c",
+            "ui_timing_scope": "Press-return includes the existing five frame waits; Load Ready is the existing owner signal. No added validation, screenshot or wait.",
+            "ui_timings": [
+              {
+                "elapsed_us": 1053941,
+                "finished_us": 51537581,
+                "ok": true,
+                "operation": "title_backup_open_press_return",
+                "started_us": 50483640
+              },
+              {
+                "elapsed_us": 79609,
+                "finished_us": 51617365,
+                "ok": true,
+                "operation": "load_slot_select_press_return",
+                "started_us": 51537756
+              },
+              {
+                "elapsed_us": 122235155,
+                "finished_us": 173852553,
+                "operation": "load_action_to_ready",
+                "started_us": 51617398
+              },
+              {
+                "elapsed_us": 123326220,
+                "finished_us": 174943618,
+                "ok": true,
+                "operation": "load_action_press_return",
+                "started_us": 51617398
+              },
+              {
+                "elapsed_us": 7555984,
+                "finished_us": 183074107,
+                "ok": true,
+                "operation": "ending_backup_open_press_return",
+                "started_us": 175518123
+              },
+              {
+                "elapsed_us": 111122,
+                "finished_us": 183185914,
+                "ok": true,
+                "operation": "save_slot_select_press_return",
+                "started_us": 183074792
+              },
+              {
+                "elapsed_us": 73794799,
+                "finished_us": 256982453,
+                "ok": true,
+                "operation": "save_action_press_return",
+                "save_in_operation_at_return": false,
+                "save_result_ok_at_return": true,
+                "started_us": 183187654
+              },
+              {
+                "elapsed_us": 110252,
+                "finished_us": 257158175,
+                "ok": true,
+                "operation": "continue_press_return",
+                "started_us": 257047923
+              }
+            ]
+          }
+        },
+        {
+          "variant": "candidate",
+          "runtime_sha256": {
+            "autoload/GameState.gd": "a7122b8cbb258ce10b02550414af5934f6662bc4c7ea2c807f298b2452844c03",
+            "scripts/infrastructure/save/CheckpointJournal.gd": "841e641348b5afb5f64e90334098557d787efc043f9a6ee8cb54f5ab83a46542",
+            "scripts/narrative/FrozenRunContext.gd": "541225d59ac04c627b20aeedd4b29f04f0972c22daf9dbf1a609923244225b5e"
+          },
+          "wall_seconds": 247.9685798,
+          "assertions": 112,
+          "authored_day_resource_load_messages": 12,
+          "result": {
+            "complete": true,
+            "observed_lines": [
+              "line.ending.alone.normal.001"
+            ],
+            "pending_phase": "",
+            "phases": [
+              {
+                "elapsed_us": 41498765,
+                "ok": true,
+                "phase": "boot"
+              },
+              {
+                "elapsed_us": 123297095,
+                "ok": true,
+                "phase": "load"
+              },
+              {
+                "elapsed_us": 59192789,
+                "ok": true,
+                "phase": "save"
+              }
+            ],
+            "process_id": 3804,
+            "source_slot_sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c",
+            "ui_timing_scope": "Press-return includes the existing five frame waits; Load Ready is the existing owner signal. No added validation, screenshot or wait.",
+            "ui_timings": [
+              {
+                "elapsed_us": 1060793,
+                "finished_us": 50674442,
+                "ok": true,
+                "operation": "title_backup_open_press_return",
+                "started_us": 49613649
+              },
+              {
+                "elapsed_us": 79762,
+                "finished_us": 50754355,
+                "ok": true,
+                "operation": "load_slot_select_press_return",
+                "started_us": 50674593
+              },
+              {
+                "elapsed_us": 120320636,
+                "finished_us": 171075027,
+                "operation": "load_action_to_ready",
+                "started_us": 50754391
+              },
+              {
+                "elapsed_us": 121441594,
+                "finished_us": 172195985,
+                "ok": true,
+                "operation": "load_action_press_return",
+                "started_us": 50754391
+              },
+              {
+                "elapsed_us": 7573706,
+                "finished_us": 180355319,
+                "ok": true,
+                "operation": "ending_backup_open_press_return",
+                "started_us": 172781613
+              },
+              {
+                "elapsed_us": 159589,
+                "finished_us": 180515653,
+                "ok": true,
+                "operation": "save_slot_select_press_return",
+                "started_us": 180356064
+              },
+              {
+                "elapsed_us": 50342934,
+                "finished_us": 230859438,
+                "ok": true,
+                "operation": "save_action_press_return",
+                "save_in_operation_at_return": false,
+                "save_result_ok_at_return": true,
+                "started_us": 180516504
+              },
+              {
+                "elapsed_us": 111047,
+                "finished_us": 231035601,
+                "ok": true,
+                "operation": "continue_press_return",
+                "started_us": 230924554
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "root_native_verification": {
+    "run": 40020424693,
+    "artifact": 12530947360,
+    "archive_sha256": "d28e09a6eac70677d57ee5883da1720c5c7b92b1870501922ad1f474fcf14de6",
+    "qualified_source": "524d6fe1cbf524384348b248f327c79a09ea177f",
+    "recorded_candidate_event_ref": "43cce02398621e86b2258d20a08ef46825c93628",
+    "baseline_source": "1e1ff7be7ff84a0e57a3ece9f8064ed6cc17e854",
+    "runtime_files": [
+      "autoload/GameState.gd",
+      "scripts/infrastructure/save/CheckpointJournal.gd",
+      "scripts/narrative/FrozenRunContext.gd"
+    ],
+    "runtime_hashes_match_qualified_sources": true,
+    "equal_reported_fields": {
+      "snapshot": true,
+      "checkpoint": true,
+      "profile": true,
+      "saved_native": true,
+      "profile_sha256": true,
+      "registration_sha256": true,
+      "autosave_sha256": true
+    },
+    "slot_bytes_equal": false,
+    "rendered_review": "Root inspected all four post-Load/post-Save PNGs: same fully revealed courtyard/rain caption and expected post-Save focus.",
+    "limits": [
+      "One baseline-first matched pair; not a latency distribution.",
+      "Save helper 83.229983 to59.192789 seconds (28.9% less); Load helper125.175229 to123.297095 seconds (1.5% less), too small for a broad Load speed claim.",
+      "Ready120.320636 seconds and Save press50.342934 seconds remain substantial.",
+      "Input retains old history; this does not measure only freshly-written history-free inputs.",
+      "Complete helpers include verification and capture; nested profiling clocks overlap."
+    ]
+  },
+  "bundle": {
+    "archives": 38,
+    "included_members": 221,
+    "excluded_members": 326,
+    "objects": 198,
+    "zip_bytes": 2755756,
+    "sha256": "cbcc7e77ce2eae1d11da599130f48f00680cf25b1a6923e2eaaea1c44a3c3b6b",
+    "junit_totals": {
+      "final_primary": {
+        "cases": 2826,
+        "assertions": 155753,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "final_fresh_process_load": {
+        "cases": 3,
+        "assertions": 206,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "intentional_storage_refusal_children": {
+        "cases": 166,
+        "assertions": 198,
+        "failures": 160,
+        "errors": 0,
+        "skipped": 0
+      },
+      "native_comparison": {
+        "cases": 2,
+        "assertions": 224,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "retained_historical_input": {
+        "cases": 0,
+        "assertions": 0,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "native_reverse_comparison": {
+        "cases": 0,
+        "assertions": 0,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "file": "compact-exact-evidence.zip"
+  },
+  "exclusions": [
+    {
+      "metadata": {
+        "id": 12529689756,
+        "name": "windows-export-40020424693-1",
+        "size_in_bytes": 110865414,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12529689756",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12529689756/zip",
+        "expired": false,
+        "created_at": "2026-10-23T20:45:02Z",
+        "expires_at": "2026-10-30T20:44:57Z",
+        "updated_at": "2026-10-23T20:45:02Z",
+        "digest": "sha256:c9286eeaf394b0a258ffcf2f4ff5cd8237ddddc252ccce95ba1edfa18160eeee",
+        "workflow_run": {
+          "id": 40020424693,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/current-save-final-20261024",
+          "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f"
+        }
+      },
+      "reason": "Export binary distribution excluded; job success and job log retained (line endings normalized)."
+    }
+  ],
+  "scope_limits": [
+    "One baseline-first native pair does not establish a latency distribution or universal speed guarantee.",
+    "Save helper dropped28.9%; Load helper1.5% is too small for a broad speed claim.",
+    "Nested profile times overlap and must not be summed.",
+    "Output slot bytes differ; preserved snapshot/checkpoint/Profile/native witnesses are independently verified.",
+    "Retained terminal fixture does not establish lifecycle COMPLETED/DONE coverage.",
+    "Preflight is supplemental and not added to final counts."
+  ],
+  "archive_provenance": [
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12531270284,
+      "name": "cloud-speech-rendered-desktop-40020424693-1",
+      "bytes": 385958,
+      "sha256": "sha256:ab7cc7e652b0ae8589e995ac6a82de602c158f3166d7ab9f276e841931a6161a"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12531145374,
+      "name": "public-surfaces-40020424693-1",
+      "bytes": 241980,
+      "sha256": "sha256:d24a8f4bf8d452af6c1983b3dbe4927b050118e3fea86c068d0206d20b21c83a"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12529619699,
+      "name": "cloud-speech-rendered-journeys-40020424693-1",
+      "bytes": 385979,
+      "sha256": "sha256:9b16f9668682c3f23dc412fac31bdffb9c400ddf0acabe34995e47f988cdb571"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12529609467,
+      "name": "windows-audio-40020424693-1",
+      "bytes": 11688,
+      "sha256": "sha256:5dcc0b72a3ecd767865fce852d740ac8e94ec4831c2d6e2eed4744d9ac3c374b"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12531355080,
+      "name": "windows-scene_story_localization-40020424693-1",
+      "bytes": 9659,
+      "sha256": "sha256:bb4b569416a06c776bbe45b79a52cd155670c06c2d51460189442061b9fc98f5"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12531280255,
+      "name": "windows-minesweeper-40020424693-1",
+      "bytes": 40547,
+      "sha256": "sha256:4778d19dadb1b80d7ebf106de7cd95404ba1e8f31e076135e5aa84bef358a05a"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12530781987,
+      "name": "windows-authored_week-40020424693-1",
+      "bytes": 9234,
+      "sha256": "sha256:a97a0eaea97c2ffeae276f6de516081eb5bbaec8a389861a238515d6f041832c"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12530567554,
+      "name": "windows-new_account-40020424693-1",
+      "bytes": 21457,
+      "sha256": "sha256:832381fa980bc0e9fa6c7f445b8959f909ab605170a643df8e9b74fe85f9c657"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12530502656,
+      "name": "windows-scene_desktop_first_reveal-40020424693-1",
+      "bytes": 19007,
+      "sha256": "sha256:686a9f6b0c179478e7d987a85579373ee575a7531ce131cee8590f24b6b30cbc"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12530502566,
+      "name": "windows-scene_backup_inspection-40020424693-1",
+      "bytes": 9762,
+      "sha256": "sha256:fbfe3220447a1c06aa981342294c05282bee5fcf48ce48f46c7f749c0842b9dc"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12530393005,
+      "name": "windows-endings-40020424693-1",
+      "bytes": 19838,
+      "sha256": "sha256:d008d178e1cdf070ef6320e067269cd967223b8c4d67082e15ec103ce91c05da"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12530328176,
+      "name": "gallery-version-register-40020424693-1",
+      "bytes": 85691,
+      "sha256": "sha256:7da29e244273563f2069380aefe41be88e221522dd68878539bb8e23ed6aede1"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12530058917,
+      "name": "desktop-scaling-render-40020424693-1",
+      "bytes": 13190463,
+      "sha256": "sha256:e48fe984938af29814124ca2155d8b7b8aea8f4fc47f7186fd39067698694f36"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12529854130,
+      "name": "windows-scene_apps-40020424693-1",
+      "bytes": 19533,
+      "sha256": "sha256:1a623e973fc190eb3993d555ebc4edf72ca5c46fbb92923a46fac3575bc4f650"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12529789141,
+      "name": "gallery-caption-collection-40020424693-1",
+      "bytes": 8867287,
+      "sha256": "sha256:a181fafd71b295ee72712f7b2df13caa2301c4ce4ca14869099dbaf0b5599793"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12529744294,
+      "name": "windows-scene_five_outcomes-40020424693-1",
+      "bytes": 9535,
+      "sha256": "sha256:266541c0906274b31ee2db3c1ee1449735fcecccf33de91b1a40a45ce66b4b1b"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12529684842,
+      "name": "windows-checkpoint_diagnostics-40020424693-1",
+      "bytes": 13044,
+      "sha256": "sha256:496195f82c426e6ae8dc9f505b8f464135b9d8a79be4d2de8697b50ba18da8cd"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12531510184,
+      "name": "windows-scene_controls_localization-40020424693-1",
+      "bytes": 9632,
+      "sha256": "sha256:45be05ce8d624aa03577f74fe0fb940ab898fbd697d3b2782a0d40b707ef9f42"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12531430472,
+      "name": "windows-localization-40020424693-1",
+      "bytes": 24736,
+      "sha256": "sha256:1312390394ab4f9b745ed057e12792e60fe8460df574b454e782d7a0ea8d63c5"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12531320307,
+      "name": "windows-scene_shop_checkpoint-40020424693-1",
+      "bytes": 10354,
+      "sha256": "sha256:97aba63364b89868636ea294a4f2f728cc41eca09d58abbdf76d9ca1b2f8a01b"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12531055966,
+      "name": "windows-profile_parse-40020424693-1",
+      "bytes": 12164,
+      "sha256": "sha256:c6f35f226b02d416514a6ce6cd1a7174698ab7f8a431191ad9d8814203d538ef"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12530947360,
+      "name": "startup-load-comparison-40020424693-1",
+      "bytes": 2547917,
+      "sha256": "sha256:d28e09a6eac70677d57ee5883da1720c5c7b92b1870501922ad1f474fcf14de6"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12530567682,
+      "name": "angela-overlay-render-40020424693-1",
+      "bytes": 3576926,
+      "sha256": "sha256:9ed3a9a966e1ec1147f6c3092e7155302d7e3889e0d2d412a5cfa38d2509ef0f"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12530557719,
+      "name": "windows-scene_round_checkpoint-40020424693-1",
+      "bytes": 9414,
+      "sha256": "sha256:8fed0a2bb46dc5cf19671e7847b067d38df6a3b980150934fb2eb5d4040dcca0"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12530527980,
+      "name": "delivery-dialogue-render-40020424693-1",
+      "bytes": 15066710,
+      "sha256": "sha256:fa2d986a4d9015da8b064fafa1eac5d270d8a72897d1ae8bc9ab1815e051616f"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12530487950,
+      "name": "windows-timeline_resources-40020424693-1",
+      "bytes": 9399,
+      "sha256": "sha256:2472719b536dfdf134a964114b4eec0155e86832e847ab5333408fb9f334d029"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12530213754,
+      "name": "windows-current_title-40020424693-1",
+      "bytes": 17276,
+      "sha256": "sha256:8ab7a9bf415f39ad2063f80b78ebf88e50ce4624fe6d69c9338cfd23f683e06b"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12530199728,
+      "name": "windows-backup_current_build-40020424693-1",
+      "bytes": 62985,
+      "sha256": "sha256:3d079fc9f238c09d635ebd78efbfee82a8b45d59aa80993e4c68da08eea52926"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12530144172,
+      "name": "windows-shop-40020424693-1",
+      "bytes": 18805,
+      "sha256": "sha256:f3509bcf27bcc8bc363e63ea6be7f8f9da8b5a29301e01b332a565bea8545578"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12530098845,
+      "name": "japanese-korean-ui-render-40020424693-1",
+      "bytes": 8399934,
+      "sha256": "sha256:0abad797c77556897d8fcc931be26231ced3413178ca3007bffcde83d235de9e"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12530003884,
+      "name": "windows-desktop-40020424693-1",
+      "bytes": 30532,
+      "sha256": "sha256:c1220e555c2651ed34d7c17328ed4a8e87ce5d50b8ab2aeb6361a6fae83cf0db"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12531066191,
+      "name": "font-choices-render-40020424693-1",
+      "bytes": 7115197,
+      "sha256": "sha256:0d2b173881155aba21f9d609812abb4f43e722756930c1c45704f99833135ac6"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12530782336,
+      "name": "windows-terminal_admission-40020424693-1",
+      "bytes": 14008,
+      "sha256": "sha256:c3be83d92373057d0df63e4a95fa890a04e3c6743583f6713974fd886ddc98af"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12530683416,
+      "name": "ui-literal-audit-40020424693-1",
+      "bytes": 30771,
+      "sha256": "sha256:bf2f01ef19ae05d03d496ed80a899d1e9a83f9cc5a4da3cfbc4abfb7f285bff1"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12531350440,
+      "name": "windows-dating-40020424693-1",
+      "bytes": 20366,
+      "sha256": "sha256:d78a19c484c193a17ea8b6b8fc7c266f06b85783d3d93a384882b09988898625"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12530483047,
+      "name": "windows-reading_delivery-40020424693-1",
+      "bytes": 49413,
+      "sha256": "sha256:85078dd081fb62ab1b73b66740c07b060e40d9bec658e94268e721d1bce41668"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12529959136,
+      "name": "windows-persistence-40020424693-1",
+      "bytes": 25343,
+      "sha256": "sha256:5dbeeba2f59b5c4f44dd15654882fb32c56e59ba7149875fce7b50efb634db75"
+    },
+    {
+      "run": 40020424693,
+      "head_sha": "524d6fe1cbf524384348b248f327c79a09ea177f",
+      "id": 12531176539,
+      "name": "windows-settings-40020424693-1",
+      "bytes": 2977708,
+      "sha256": "sha256:6c8d05777ac6854eddeb97c9e7e2b08892490eff272bb2769c4a24fcbecdd8e3"
+    }
+  ],
+  "merge_commit": "47adfe8d0ba7edde4bd073a05f7cf0405cfca302",
+  "merged_tree": "070aa3bdff9f2696ca36a17a8405d62ae4a6b35a",
+  "merge_proof": {
+    "pull_request": "https://github.com/Siuuuers/dwm/pull/61",
+    "merge_commit": "47adfe8d0ba7edde4bd073a05f7cf0405cfca302",
+    "merged_tree": "070aa3bdff9f2696ca36a17a8405d62ae4a6b35a",
+    "parents": [
+      "1e1ff7be7ff84a0e57a3ece9f8064ed6cc17e854",
+      "524d6fe1cbf524384348b248f327c79a09ea177f"
+    ],
+    "qualified_source": "524d6fe1cbf524384348b248f327c79a09ea177f",
+    "verification": "Root fetched merge commit and verified exact tree and parents."
+  }
+}
