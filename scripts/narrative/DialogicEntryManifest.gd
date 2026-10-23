@@ -88,6 +88,7 @@ const WITNESS_SIGNAL := "history.line.witness"
 const SCENE_SCHEMA_PATH := "res://schemas/manifests/dialogic-scene-entries.schema.json"
 static var _scene_bundle: Dictionary = {}
 static var _scene_bundle_fingerprint := ""
+static var _scene_contract_tables: Dictionary = {}
 static var _registration_used := false
 static var _startup_selection_checked := false
 static var _startup_selection_error: Dictionary = {}
@@ -145,9 +146,13 @@ static func _configure_scene_registration(bundle: Dictionary) -> Dictionary:
 		return _scene_fail("registration_already_selected")
 	var checked := validate_scene_registration(bundle)
 	if not checked.ok: return checked
+	var structural := SCENE_EVENTS.validate_bundle_structure(bundle)
+	if not structural.ok: return structural
+	_scene_contract_tables = structural.value
+	_scene_freeze(_scene_contract_tables)
 	_scene_bundle = bundle.duplicate(true)
 	_scene_freeze(_scene_bundle)
-	_scene_bundle_fingerprint = _scene_hash(_scene_bundle)
+	_scene_bundle_fingerprint = structural.value.fingerprint
 	return {"ok": true, "value": _scene_bundle_fingerprint}
 
 static func scene_registration() -> Dictionary:
@@ -156,6 +161,15 @@ static func scene_registration() -> Dictionary:
 	_registration_used = true
 	if _scene_bundle.is_empty(): return _fail(&"scene_registration_absent", "no scene registration selected")
 	return {"ok": true, "value": _scene_bundle.duplicate(true)}
+
+## The selected registration owns this recursively immutable derived projection.
+## Callers with arbitrary bundles must still validate those inputs independently.
+static func scene_contract_tables() -> Dictionary:
+	var startup := _select_startup_fixture()
+	if not startup.ok: return startup
+	_registration_used = true
+	if _scene_bundle.is_empty(): return _fail(&"scene_registration_absent", "no scene registration selected")
+	return {"ok": true, "value": _scene_contract_tables}
 
 static func scene_registration_fingerprint() -> String:
 	if not _select_startup_fixture().ok: return ""

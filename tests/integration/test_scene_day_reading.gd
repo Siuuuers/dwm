@@ -10,14 +10,6 @@ const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 const JSON_WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const BRIDGE := preload("res://autoload/DialogicBridge.gd")
 
-class PermissiveReadingSession:
-	extends "res://scripts/narrative/SoloReadingSession.gd"
-	var base_calls := 0
-	var base_candidate: NarrativeCaptionLedger
-	func _validate_scene_base(_saved: Dictionary, _entry_id: String) -> Dictionary:
-		base_calls += 1
-		return {"ok": true, "value": base_candidate}
-
 class SimulatedCheckpointPort:
 	extends RefCounted
 	var binding: Dictionary = {}
@@ -517,124 +509,6 @@ func test_scene_shape_rechecks_frames_and_keeps_source_suffix_publications_uniqu
 			&"reading_next_sequence_invalid" if location == "suffix" else &"reading_next_destination_invalid")
 		assert_eq(OP.project(changed, "destination").code, code, location)
 	assert_true(OP.project(plan, "destination").ok, "failed calls cannot contaminate the next validation")
-
-func _cached_reading_fixture() -> Dictionary:
-	var created := FIXTURE.create_session()
-	assert_true(created.ok, str(created))
-	if not created.ok: return {}
-	var session: RefCounted = created.value
-	var entered := FIXTURE.enter(session, FIXTURE.A, "a:1")
-	assert_true(entered.ok, str(entered))
-	if not entered.ok: return {}
-	var planned: Dictionary = session.prepare_next(FIXTURE.frontier(session),
-		func(_beat: Dictionary) -> bool: return false)
-	assert_true(planned.ok, str(planned))
-	if not planned.ok: return {}
-	var projected := OP.project(planned.value, "source")
-	assert_true(projected.ok, str(projected))
-	if not projected.ok: return {}
-	SESSION._scene_reading_cache.clear()
-	return {"session": session, "reading": projected.value, "plain": planned.value.source_reading}
-
-func test_reading_cache_hits_across_fresh_configuration_return_independent_ledgers() -> void:
-	var fixture := _cached_reading_fixture()
-	if fixture.is_empty(): return
-	var first: Dictionary = fixture.session._validate_scene_saved(fixture.reading, FIXTURE.A)
-	assert_true(first.ok, str(first))
-	if not first.ok: return
-	assert_eq(SESSION._scene_reading_cache.size(), 1)
-	var prototype: RefCounted = SESSION._scene_reading_cache[0].ledger
-	assert_true(first.value.publish_line(FIXTURE.TOKEN, "extra:miss", FIXTURE.A,
-		"line.scene.test.a.one", "a:1").ok)
-	var fresh := SESSION.new()
-	assert_true(fresh.configure_scene().ok, "fresh physical programme compilation still precedes a hit")
-	var second: Dictionary = fresh._validate_scene_saved(fixture.reading, FIXTURE.A)
-	assert_true(second.ok, str(second))
-	if not second.ok: return
-	assert_eq(SESSION._scene_reading_cache[0].ledger, prototype, "same key reuses its private prototype")
-	assert_ne(second.value, first.value)
-	assert_ne(second.value, prototype)
-	assert_eq(second.value.snapshot(), fixture.reading.ledger)
-	assert_true(second.value.admit_entry_context(FIXTURE.TOKEN, FIXTURE.A,
-		FIXTURE.frame(FIXTURE.A, "a:extra"), "a:extra").ok)
-	assert_true(second.value.allocate_publication(FIXTURE.TOKEN, FIXTURE.A, "a:1").ok)
-	assert_true(second.value.publish_line(FIXTURE.TOKEN, "extra:hit", FIXTURE.A,
-		"line.scene.test.a.one", "a:extra").ok)
-	var third: Dictionary = fresh._validate_scene_saved(fixture.reading, FIXTURE.A)
-	assert_true(third.ok, str(third))
-	assert_eq(third.value.snapshot(), fixture.reading.ledger)
-	assert_eq(third.value.allocate_publication(FIXTURE.TOKEN, FIXTURE.A, "a:1").value, "caption:2")
-
-func test_reading_cache_rechecks_changed_saved_and_configured_inputs() -> void:
-	var fixture := _cached_reading_fixture()
-	if fixture.is_empty(): return
-	assert_true(fixture.session._validate_scene_saved(fixture.reading, FIXTURE.A).ok)
-	for change: String in ["frame", "plan", "registry", "nodes", "fingerprint", "string_name", "float"]:
-		var session := SESSION.new()
-		assert_true(session.configure_scene().ok)
-		var changed: Dictionary = fixture.reading.duplicate(true)
-		var key := LEDGER.scene_frame_key("a:1", FIXTURE.A)
-		match change:
-			"frame": changed.ledger.entry_contexts[key].transaction_id = ""
-			"plan": changed.next_operation.operation_id = "0".repeat(64)
-			"registry":
-				session.registry = session.registry.duplicate(true)
-				for beat: Dictionary in session.registry.beats:
-					if beat.beat_id == changed.ledger.captions[0].beat.beat_id:
-						beat.presentation_signature["changed"] = true
-			"nodes":
-				session._scene_nodes = session._scene_nodes.duplicate(true)
-				session._scene_nodes[FIXTURE.A][0].line_id = "changed"
-			"fingerprint": session.fingerprint = "0".repeat(64)
-			"string_name": changed.ledger.entry_contexts[key].transaction_id = StringName(changed.ledger.entry_contexts[key].transaction_id)
-			"float": changed.program_index = float(changed.program_index)
-		assert_false(session._validate_scene_saved(changed, FIXTURE.A).ok, change)
-		assert_eq(SESSION._scene_reading_cache.size(), 1, "refusal is never cached: " + change)
-	assert_true(fixture.session._validate_scene_saved(fixture.reading, FIXTURE.A).ok)
-
-func test_reading_cache_subclasses_cannot_consume_or_supply_shared_proof() -> void:
-	var fixture := _cached_reading_fixture()
-	if fixture.is_empty(): return
-	var permissive := PermissiveReadingSession.new()
-	assert_true(permissive.configure_scene().ok)
-	permissive.base_candidate = fixture.session.ledger
-	var bad: Dictionary = fixture.plain.duplicate(true)
-	bad.program_index = -1
-	assert_true(permissive._validate_scene_saved(bad, FIXTURE.A).ok, "test override is intentionally permissive")
-	assert_eq(SESSION._scene_reading_cache.size(), 0, "subclass success cannot populate shared proof")
-	assert_false(fixture.session._validate_scene_saved(bad, FIXTURE.A).ok)
-	assert_true(fixture.session._validate_scene_saved(fixture.plain, FIXTURE.A).ok)
-	assert_eq(SESSION._scene_reading_cache.size(), 1)
-	var calls: int = permissive.base_calls
-	assert_true(permissive._validate_scene_saved(fixture.plain, FIXTURE.A).ok)
-	assert_eq(permissive.base_calls, calls + 1, "subclass still executes its own validation on an existing key")
-
-func test_reading_cache_bounds_entries_and_total_key_bytes() -> void:
-	var fixture := _cached_reading_fixture()
-	if fixture.is_empty(): return
-	for index: int in 4:
-		var reading: Dictionary = fixture.plain.duplicate(true)
-		reading.ledger.captions[0].publication_id = "test:bounded:%d" % index
-		reading.frontier.publication_id = reading.ledger.captions[0].publication_id
-		assert_true(fixture.session._validate_scene_saved(reading, FIXTURE.A).ok)
-	assert_eq(SESSION._scene_reading_cache.size(), 3)
-	SESSION._scene_reading_cache.clear()
-	var original_manifest: Dictionary = fixture.session.manifest.duplicate(true)
-	for index: int in 2:
-		fixture.session.manifest = original_manifest.duplicate(true)
-		fixture.session.manifest["test_unused_padding"] = str(index) + "x".repeat(1100 * 1024)
-		assert_true(fixture.session._validate_scene_saved(fixture.plain, FIXTURE.A).ok)
-		assert_eq(SESSION._scene_reading_cache.size(), 1, "total key budget evicts a preceding large key")
-	var bytes := 0
-	for retained: Dictionary in SESSION._scene_reading_cache: bytes += (retained.key as PackedByteArray).size()
-	assert_lte(bytes, SESSION._SCENE_READING_CACHE_BYTES)
-	fixture.session.manifest["test_unused_padding"] = "x".repeat(SESSION._SCENE_READING_CACHE_BYTES)
-	var prototype: RefCounted = SESSION._scene_reading_cache[0].ledger
-	assert_true(fixture.session._validate_scene_saved(fixture.plain, FIXTURE.A).ok,
-		"oversized otherwise-valid input keeps the original validation path")
-	assert_eq(SESSION._scene_reading_cache.size(), 1)
-	assert_eq(SESSION._scene_reading_cache[0].ledger, prototype, "oversized key does not displace retained proof")
-	SESSION._scene_reading_cache.clear()
 
 func test_forged_path_and_historical_frame_refuse_without_installation() -> void:
 	var created := FIXTURE.create_session()

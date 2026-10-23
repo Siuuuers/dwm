@@ -14,9 +14,6 @@ static func begin_scope(operation: String, state: String, stage: String, step: i
 		"physical_proof_failures": 0, "receipt_validation_calls": 0, "receipt_validation_us": 0,
 		"receipt_validation_failures": 0, "bundle_validation_calls": 0, "bundle_validation_us": 0,
 		"bundle_validation_failures": 0, "inclusive_nested": true, "snapshot_validations": []}
-	for kind: String in ["reading_cache_key", "reading_cache_hit", "reading_cache_miss",
-			"reading_cache_bypass", "reading_cache_oversize"]:
-		for metric: String in ["calls", "us", "failures"]: _record[kind + "_" + metric] = 0
 	_started_us = Time.get_ticks_usec()
 	_active = true
 	return true

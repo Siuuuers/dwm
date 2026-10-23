@@ -41,6 +41,45 @@ func test_real_issuer_profile_reading_and_storage_pass_full_run_and_save_apis() 
 	assert_true(fixture.setup_complete, "setup included real Profile and Save9 disk rereads")
 	assert_eq(fixture.observed_state(), before, "admission does not mutate actual live owners")
 
+func test_selected_receipt_projection_is_owned_frozen_and_matches_fresh_validation() -> void:
+	if not _ready_fixture(): return
+	var manifest := preload("res://scripts/narrative/DialogicEntryManifest.gd")
+	var selected: Dictionary = manifest.scene_contract_tables()
+	assert_true(selected.ok)
+	if not selected.ok: return
+	assert_true(selected.value.is_read_only())
+	assert_true(selected.value.entries.is_read_only())
+	assert_true(selected.value.entries.values()[0].is_read_only())
+	assert_true(is_same(selected.value, manifest.scene_contract_tables().value), "one immutable selected projection")
+	var fresh := CONTRACT.validate_bundle_structure(fixture.bundle)
+	assert_true(fresh.ok)
+	assert_eq(selected.value, fresh.value)
+	fresh.value.entries.clear()
+	assert_false(manifest.scene_contract_tables().value.entries.is_empty())
+	var owner: Object = fixture.game.get_node_or_null("/root/SaveManager")
+	var expected := CONTRACT.validate_scene_receipts(fixture.snapshot.command_receipts, fixture.bundle,
+		fixture.issuer, owner, fixture.snapshot.contacts)
+	var actual := CONTRACT.validate_selected_scene_receipts(fixture.snapshot.command_receipts,
+		fixture.issuer, owner, fixture.snapshot.contacts)
+	assert_true(expected.ok, str(expected))
+	assert_eq(actual, expected)
+	if not actual.ok: return
+	actual.value.commands.clear()
+	assert_eq(CONTRACT.validate_selected_scene_receipts(fixture.snapshot.command_receipts,
+		fixture.issuer, owner, fixture.snapshot.contacts), expected, "returned receipts are detached")
+	var changed: Dictionary = fixture.bundle.duplicate(true)
+	changed.caption_registry.entries[0].lines[0].text = "Different registered caption."
+	var changed_tables := CONTRACT.validate_bundle_structure(changed)
+	assert_true(changed_tables.ok)
+	assert_ne(changed_tables.value.fingerprint, selected.value.fingerprint, "arbitrary input is freshly derived")
+	assert_false(CONTRACT.validate_scene_receipts(fixture.snapshot.command_receipts, changed,
+		fixture.issuer, owner, fixture.snapshot.contacts).ok, "selected proof cannot authenticate changed registration")
+
+func test_selected_receipt_refusal_order_keeps_input_and_issuer_checks() -> void:
+	assert_eq(CONTRACT.validate_selected_scene_receipts({"bad": Vector2.ZERO}, null).code,
+		&"scene_receipt_invalid")
+	assert_eq(CONTRACT.validate_selected_scene_receipts({}, null).code, &"scene_receipt_issuer_unbound")
+
 func test_rebuilt_authenticated_absent_publication_fails_full_run_and_save_anchor_join() -> void:
 	if not _ready_fixture(): return
 	_check_authenticated_anchor_refusal("publication_id", "TEST.publication.not.retained")

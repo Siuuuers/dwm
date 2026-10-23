@@ -669,6 +669,24 @@ static func validate_scene_receipts(receipts: Dictionary, bundle: Dictionary, is
 	_VALIDATION_TIMING.finish_sample("receipt_validation", started_us, bool(result.get("ok", false)))
 	return result
 
+## Bound callers select the canonical owner directly; no caller-supplied proof.
+static func validate_selected_scene_receipts(receipts: Dictionary, issuer: Object,
+		creation_owner: Object = null, contacts: Dictionary = {}) -> Dictionary:
+	var started_us: int = _VALIDATION_TIMING.start_sample()
+	var result := _validate_selected_scene_receipts(receipts, issuer, creation_owner, contacts)
+	_VALIDATION_TIMING.finish_sample("receipt_validation", started_us, bool(result.get("ok", false)))
+	return result
+
+static func _validate_selected_scene_receipts(receipts: Dictionary, issuer: Object,
+		creation_owner: Object, contacts: Dictionary) -> Dictionary:
+	if not _json_data(receipts): return _fail(&"scene_receipt_invalid")
+	if issuer == null or issuer.get_script() != SCENE_RECEIPT_ISSUER:
+		return _fail(&"scene_receipt_issuer_unbound")
+	var manifest: Script = load("res://scripts/narrative/DialogicEntryManifest.gd")
+	var registered: Dictionary = manifest.scene_contract_tables()
+	if not registered.ok: return registered
+	return _validate_scene_receipts_registered(receipts, registered, issuer, creation_owner, contacts)
+
 static func _validate_scene_receipts_observed_body(receipts: Dictionary, bundle: Dictionary, issuer: Object,
 		creation_owner: Object = null, contacts: Dictionary = {}) -> Dictionary:
 	if not _json_data(receipts): return _fail(&"scene_receipt_invalid")
@@ -676,6 +694,10 @@ static func _validate_scene_receipts_observed_body(receipts: Dictionary, bundle:
 		return _fail(&"scene_receipt_issuer_unbound")
 	var registered := validate_bundle_structure(bundle)
 	if not registered.ok: return registered
+	return _validate_scene_receipts_registered(receipts, registered, issuer, creation_owner, contacts)
+
+static func _validate_scene_receipts_registered(receipts: Dictionary, registered: Dictionary, issuer: Object,
+		creation_owner: Object, contacts: Dictionary) -> Dictionary:
 	var occurrences := {}
 	var commands := {}
 	var admissions := {}

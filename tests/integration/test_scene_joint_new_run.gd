@@ -126,6 +126,12 @@ func test_rebuilt_other_initial_target_is_valid_preparation_but_not_committed_au
 	var proof: Dictionary = fixture.manager.capture_committed_scene_creation(transaction)
 	assert_true(proof.ok, str(proof))
 	if not proof.ok: return
+	if OS.get_environment("DWM_SAVE_PARSE_CACHE_DISABLED") != "1":
+		var retained_text: String = proof.value.operation.new_run_materials.autosave.outgoing_text
+		var retained_parse := false
+		for entry: Dictionary in fixture.manager._document_parse_cache:
+			if entry.text == retained_text: retained_parse = true
+		assert_true(retained_parse, "committed creation shares the existing strict document parser")
 	var bundle: Dictionary = MANIFEST.scene_registration().value
 	var allocation: Dictionary = proof.value.allocation_candidate
 	var material: Dictionary = proof.value.profile_material

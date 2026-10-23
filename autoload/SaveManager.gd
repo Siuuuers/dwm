@@ -3295,7 +3295,7 @@ func capture_committed_scene_creation(transaction_id: String) -> Dictionary:
 	if not profile.get("ok", false): return profile
 	# The retained canonical initial document fixes the actual first scene. Never
 	# read today's mutable Autosave or require later snapshots to equal this one.
-	var initial: Dictionary = STRICT_JSON.parse_object(materials.autosave.outgoing_text)
+	var initial: Dictionary = _parse_document_text(materials.autosave.outgoing_text)
 	if not initial.get("ok", false): return initial
 	var initial_receipt: Variant = initial.value.current_snapshot.snapshot.command_receipts.get(transaction_id)
 	if not initial_receipt is Dictionary:

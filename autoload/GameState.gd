@@ -4273,7 +4273,7 @@ func validate_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary)
 		if not frozen.get("ok", false): return frozen
 		commands = frozen.scene_commands
 	else:
-		var checked: Dictionary = _SCENE_EVENT.validate_scene_receipts(snapshot.command_receipts, bundle, _identity_issuer, get_node_or_null("/root/SaveManager"), snapshot.contacts)
+		var checked: Dictionary = _SCENE_EVENT.validate_selected_scene_receipts(snapshot.command_receipts, _identity_issuer, get_node_or_null("/root/SaveManager"), snapshot.contacts)
 		if not checked.get("ok", false): return checked
 		commands = checked.value.commands
 	var profile: Node = get_node_or_null("/root/ProfileManager")
@@ -4354,9 +4354,9 @@ func _scene_runtime_event_context() -> Dictionary:
 		return _transaction_failure(&"event_dependency_invalid", "")
 	var live := capture_desktop_identity_context()
 	if not live.ok: return live
-	var registration := _SCENE_MANIFEST.scene_registration()
+	var registration := _SCENE_MANIFEST.scene_contract_tables()
 	if not registration.ok: return registration
-	var ledger := _SCENE_EVENT.validate_scene_receipts(_command_receipts, registration.value, _identity_issuer, get_node_or_null("/root/SaveManager"), contacts)
+	var ledger := _SCENE_EVENT.validate_selected_scene_receipts(_command_receipts, _identity_issuer, get_node_or_null("/root/SaveManager"), contacts)
 	if not ledger.ok: return ledger
 	var boundary: Dictionary = _scene_event_bridge.capture_scene_event_boundary()
 	if not boundary.get("ok", false): return boundary
@@ -4654,7 +4654,7 @@ func _accept_scene_runtime_event(event: Dictionary, digest: String, lease: Strin
 	if prior.has(event.command_id): return lookup_scene_event(event.command_id, digest)
 	var candidate := capture_run_snapshot_input()
 	candidate.command_receipts[event.command_id] = receipt.value.duplicate(true)
-	var ledger := _SCENE_EVENT.validate_scene_receipts(candidate.command_receipts, registered.value,
+	var ledger := _SCENE_EVENT.validate_selected_scene_receipts(candidate.command_receipts,
 		_identity_issuer, _scene_save_owner, candidate.contacts)
 	if not ledger.ok: return ledger
 	var committed: Dictionary = _narrative_checkpoint_port.commit_scene_event(candidate, current.value.checkpoint)
@@ -4699,7 +4699,7 @@ func capture_scene_challenge_command() -> Dictionary:
 		return _transaction_failure(&"scene_challenge_source_changed", "")
 	var registered := _SCENE_MANIFEST.scene_registration()
 	if not registered.ok: return registered
-	var ledger := _SCENE_EVENT.validate_scene_receipts(_command_receipts, registered.value,
+	var ledger := _SCENE_EVENT.validate_selected_scene_receipts(_command_receipts,
 		_identity_issuer, _scene_save_owner, contacts)
 	if not ledger.ok: return ledger
 	var found := {}
@@ -4725,7 +4725,7 @@ func _capture_retained_scene_challenge_command(expected_context: Dictionary = {}
 	if held.get("ok", false): return held
 	var registered := _SCENE_MANIFEST.scene_registration()
 	if not registered.ok: return registered
-	var ledger := _SCENE_EVENT.validate_scene_receipts(_command_receipts, registered.value, _identity_issuer, _scene_save_owner, contacts)
+	var ledger := _SCENE_EVENT.validate_selected_scene_receipts(_command_receipts, _identity_issuer, _scene_save_owner, contacts)
 	if not ledger.ok: return ledger
 	var live := capture_run_snapshot_input()
 	var context := expected_context.duplicate(true)
@@ -5022,7 +5022,7 @@ func commit_scene_challenge_closure(command: Dictionary, result: Dictionary) -> 
 	if made.value.request_fingerprint != operation.digest: return _transaction_failure(&"event_digest_mismatch", "")
 	var candidate := capture_run_snapshot_input().duplicate(true)
 	candidate.command_receipts[operation.event.command_id] = made.value
-	var validated := _SCENE_EVENT.validate_scene_receipts(candidate.command_receipts, registration.value, _identity_issuer, _scene_save_owner, candidate.contacts)
+	var validated := _SCENE_EVENT.validate_selected_scene_receipts(candidate.command_receipts, _identity_issuer, _scene_save_owner, candidate.contacts)
 	if not validated.ok: return validated
 	var committed: Dictionary
 	if current.value.checkpoint.reading_session.get("boundary") == "control":
@@ -5331,7 +5331,7 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 	if not identity.ok: return identity
 	var registration := _SCENE_MANIFEST.scene_registration()
 	if not registration.ok: return registration
-	var ledger := _SCENE_EVENT.validate_scene_receipts(_command_receipts, registration.value, _identity_issuer, get_node_or_null("/root/SaveManager"), contacts)
+	var ledger := _SCENE_EVENT.validate_selected_scene_receipts(_command_receipts, _identity_issuer, get_node_or_null("/root/SaveManager"), contacts)
 	if not ledger.ok: return ledger
 	var trigger: Variant = ledger.value.commands.get(trigger_command_id)
 	if not trigger is Dictionary or trigger.scene_event.result.get("kind") not in ["scene_transition_accepted", "challenge_closed", "contact_entry_accepted", "contact_returned", "thought_resolved", "challenge_recalled"] \
