@@ -1,0 +1,233 @@
+name: Diagnostic Settings supervised primary
+'on':
+  push:
+    branches:
+    - codex/settings-supervised-diagnostic-20261023
+  workflow_dispatch: {}
+permissions:
+  contents: read
+concurrency:
+  group: settings-supervised-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  settings-supervised:
+    runs-on: windows-2022
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      SETTINGS_SOURCE_SHA: e5cf80a5417c05bd0bb7fa2f60f59e8905e839a6
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        ref: e5cf80a5417c05bd0bb7fa2f60f59e8905e839a6
+        fetch-depth: 1
+        persist-credentials: true
+    - name: Prepare disposable checkout for credential cleanup
+      run: |
+        $ErrorActionPreference = 'Stop'
+        # These legacy tooling gitlinks have no .gitmodules URLs. Git's
+        # submodule foreach reads the index even with sparse checkout.
+        # The source commit and working files remain unchanged.
+        git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        git submodule foreach --recursive 'true'
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Install Godot 4.6.3 standard
+      run: |
+        $ErrorActionPreference = 'Stop'
+        $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
+        Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
+        # SHA256 published with the official 4.6.3-stable release asset.
+        $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
+        if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
+          throw 'Godot archive checksum mismatch.'
+        }
+        $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
+        Expand-Archive -LiteralPath $archive -DestinationPath $editor
+        $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
+        if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
+        "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+        & $console --version
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Import project
+      timeout-minutes: 8
+      run: |
+        $ErrorActionPreference = 'Stop'
+        $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
+        $env:APPDATA = Join-Path $output 'import-user/appdata'
+        $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
+        $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
+        New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
+        & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
+          throw 'Project import reported script errors; inspect import.log.'
+        }
+    - name: Restore committed project settings after editor import
+      run: |
+        # Dialogic's editor scan rewrites its timeline lookup during import.
+        # Execute the committed configuration with the freshly imported assets.
+        git restore -- project.godot
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Pin source and split only the Settings phase dispatch
+      run: |-
+        $ErrorActionPreference = 'Stop'
+        $env:DIAGNOSTIC_CONTROLLER_SHA = '${{ github.sha }}'
+        @'
+        import hashlib,json,os,pathlib,subprocess
+        root=pathlib.Path.cwd()
+        source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+        expected=os.environ['SETTINGS_SOURCE_SHA']
+        assert source==expected, (source,expected)
+        path=root/'tools/testing/Invoke-CloudTests.ps1'
+        original=path.read_bytes()
+        text=original.decode().replace('\r\n','\n')
+        anchor="if ($Suite -eq 'settings') {\n    # Expected fixture refusals are reported separately from passing GUT cases."
+        assert text.count(anchor)==1, 'Settings extras dispatch anchor changed'
+        manual_start='    # The diagnostic uses the real revision protocol with deterministic FileOps'
+        manual_end='\n    Get-Content -LiteralPath $witnessLog\n}'
+        assert text.count(manual_start)==1 and text.count(manual_end)==1
+        start=text.index(manual_start);end=text.index(manual_end,start)+len(manual_end)-2
+        manual=text[start:end]
+        assert '-TimeoutSeconds 180' in manual and 'MANUAL_WITNESS_REVISION_STORAGE_PASS' in manual
+        manual_header="$ErrorActionPreference = 'Stop'\n$repositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))\n"
+        manual_path=root/'tools/testing/Invoke-SettingsManualDiagnostic.ps1'
+        assert not manual_path.exists()
+        manual_path.write_text(manual_header+manual+'\n',encoding='utf-8',newline='\n')
+        replacement=anchor.replace("if ($Suite -eq 'settings')",'if ($false)')
+        patched=text.replace(anchor,replacement)
+        path.write_text(patched,encoding='utf-8',newline='\n')
+        assert patched.replace(replacement,anchor)==text
+        out=root/'.godot/ci/settings-phases';out.mkdir(parents=True,exist_ok=True)
+        (out/'dispatch.patch').write_bytes(subprocess.check_output(['git','diff','--','tools/testing/Invoke-CloudTests.ps1']))
+        (out/'original-Invoke-CloudTests.ps1').write_bytes(original)
+        (out/'manual-phase.ps1').write_bytes(manual_path.read_bytes())
+        proof={'source_sha':source,'source_tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip(),
+         'controller_sha':os.environ['DIAGNOSTIC_CONTROLLER_SHA'],'scope':'diagnostic dispatch split only; primary tests and phase assertions unchanged',
+         'anchor_count':text.count(anchor),'original_sha256':hashlib.sha256(original).hexdigest(),
+         'patched_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'manual_sha256':hashlib.sha256(manual_path.read_bytes()).hexdigest()}
+        (out/'source-proof.json').write_text(json.dumps(proof,indent=2)+'\n')
+        print(json.dumps(proof))
+        '@ | python -
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Retain source evidence
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: settings-source-${{ github.run_id }}-${{ github.run_attempt }}
+        path: |-
+          .godot/ci/
+          .godot/phase2r_logs/
+        include-hidden-files: true
+        if-no-files-found: error
+    - name: Supervise primary Settings with live thirty-second tails
+      timeout-minutes: 10
+      run: |
+        $ErrorActionPreference = 'Stop'
+        $folder = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/settings-supervised'
+        New-Item -ItemType Directory -Force -Path $folder | Out-Null
+        @'
+        $ErrorActionPreference = 'Stop'
+        $folder = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/settings-supervised'
+        [IO.File]::WriteAllText((Join-Path $folder 'wrapper-entered.txt'), [DateTime]::UtcNow.ToString('o'))
+        $code = 1
+        try {
+            & (Join-Path $env:GITHUB_WORKSPACE 'tools/testing/Invoke-CloudTests.ps1') -Suite settings
+            $code = $LASTEXITCODE
+        } catch {
+            $_ | Out-String | Write-Output
+        } finally {
+            @{ exit_code = $code; completed_utc = [DateTime]::UtcNow.ToString('o') } |
+                ConvertTo-Json | Set-Content (Join-Path $folder 'exit-status.tmp') -Encoding utf8
+            Move-Item (Join-Path $folder 'exit-status.tmp') (Join-Path $folder 'exit-status.json')
+        }
+        exit $code
+        '@ | Set-Content (Join-Path $folder 'primary.ps1') -Encoding utf8
+        $env:SETTINGS_PWSH_PATH = (Get-Command pwsh).Source
+        @'
+        import datetime,hashlib,json,os,pathlib,subprocess,time,xml.etree.ElementTree as ET
+        root=pathlib.Path(os.environ['GITHUB_WORKSPACE']);folder=root/'.godot/ci/settings-supervised'
+        started=time.monotonic();deadline=started+600
+        pwsh=os.environ['SETTINGS_PWSH_PATH']
+        report={'source_sha':os.environ['SETTINGS_SOURCE_SHA'],'pwsh':pwsh,'outer_seconds':600,'inner_godot_seconds':480,
+         'started_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+         'wrapper_sha256':hashlib.sha256((folder/'primary.ps1').read_bytes()).hexdigest()}
+        process=None;timed_out=False
+        logs=[folder/'primary.stdout.log',folder/'primary.stderr.log',root/'.godot/phase2r_logs/cloud-settings.log']
+        def heartbeat():
+         print('SETTINGS_SUPERVISOR_HEARTBEAT '+json.dumps({'elapsed_seconds':round(time.monotonic()-started,3),
+          'pid':process.pid if process else None,'returncode':process.poll() if process else None,
+          'wrapper_entered':(folder/'wrapper-entered.txt').exists()}),flush=True)
+         for path in logs:
+          if path.exists():
+           # Read only a bounded trailing window, retaining the complete on-disk logs.
+           with path.open('rb') as stream:
+            stream.seek(max(0,path.stat().st_size-65536));tail=stream.read().decode('utf-8',errors='replace').splitlines()[-20:]
+           print('SETTINGS_LOG_TAIL '+str(path)+'\n'+'\n'.join(tail),flush=True)
+        try:
+         # Capture executable startup evidence before running any product tests.
+         probe=subprocess.run([pwsh,'-NoLogo','-NoProfile','-NonInteractive','-Command',"Write-Output 'SETTINGS_PWSH_READY'"],
+          stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=20,creationflags=subprocess.CREATE_NO_WINDOW)
+         report['pwsh_probe']={'returncode':probe.returncode,'stdout':probe.stdout.decode(errors='replace'),'stderr':probe.stderr.decode(errors='replace')}
+         (folder/'pwsh-probe.json').write_text(json.dumps(report['pwsh_probe'],indent=2))
+         assert probe.returncode==0 and probe.stdout.decode().strip()=='SETTINGS_PWSH_READY','pwsh startup proof failed'
+         with logs[0].open('wb') as out,logs[1].open('wb') as err:
+          process=subprocess.Popen([pwsh,'-NoLogo','-NoProfile','-NonInteractive','-File',str(folder/'primary.ps1')],
+           cwd=root,stdin=subprocess.DEVNULL,stdout=out,stderr=err,close_fds=True,creationflags=subprocess.CREATE_NO_WINDOW)
+          report['pid']=process.pid
+          print('SETTINGS_SUPERVISOR_STARTED '+json.dumps(report),flush=True)
+          next_heartbeat=time.monotonic()
+          while process.poll() is None:
+           now=time.monotonic()
+           # Reserve the final15seconds inside the600second absolute cap for tree cleanup.
+           if now>=deadline-15:
+            timed_out=True
+            killed=subprocess.run(['taskkill','/PID',str(process.pid),'/T','/F'],capture_output=True,timeout=10)
+            report['tree_cleanup']={'returncode':killed.returncode,'stdout':killed.stdout.decode(errors='replace'),'stderr':killed.stderr.decode(errors='replace')}
+            process.wait(timeout=max(0.1,deadline-time.monotonic()))
+            break
+           if now>=next_heartbeat:
+            heartbeat();next_heartbeat=now+30
+           time.sleep(min(1,max(0.01,deadline-15-now)))
+          report['returncode']=process.poll();report['timed_out']=timed_out
+         heartbeat()
+         assert not timed_out,'primary exceeded bounded diagnostic operation window'
+         assert process.returncode==0,'primary pwsh exited unsuccessfully'
+         status_path=folder/'exit-status.json';assert status_path.exists(),'primary never published its finally status'
+         status=json.loads(status_path.read_text(encoding='utf-8-sig'));report['wrapper_status']=status
+         assert status['exit_code']==0,'primary suite failed'
+         xml=ET.parse(root/'.godot/ci/settings.xml');cases=xml.findall('.//testcase')
+         assert cases and not any(xml.findall('.//'+tag) for tag in ['failure','error','skipped']),'missing/failed/skipped primary JUnit'
+         report['cases']=len(cases);report['ok']=True
+         print('SETTINGS_SUPERVISED_PRIMARY_PASS cases='+str(len(cases)),flush=True)
+        except BaseException as error:
+         report['ok']=False;report['error']=repr(error)
+         if process is not None and process.poll() is None:
+          # The retained process handle prevents PID reuse while tree cleanup is requested.
+          try:
+           cleanup=subprocess.run(['taskkill','/PID',str(process.pid),'/T','/F'],capture_output=True,timeout=max(0.1,min(5,deadline-time.monotonic())))
+           report['fallback_tree_cleanup_returncode']=cleanup.returncode
+          except BaseException as cleanup_error:report['cleanup_error']=repr(cleanup_error)
+         heartbeat()
+         raise
+        finally:
+         report['elapsed_seconds']=time.monotonic()-started
+         report['completed_utc']=datetime.datetime.now(datetime.timezone.utc).isoformat()
+         if process is not None:report['returncode']=process.poll()
+         (folder/'supervisor-result.json').write_text(json.dumps(report,indent=2)+'\n')
+         print('SETTINGS_SUPERVISOR_RESULT '+json.dumps(report),flush=True)
+        '@ | Set-Content (Join-Path $folder 'supervise.py') -Encoding utf8
+        python -u (Join-Path $folder 'supervise.py')
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Retain supervised primary source and complete logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: settings-supervised-${{ github.run_id }}-${{ github.run_attempt }}
+        path: |-
+          .godot/ci/
+          .godot/phase2r_logs/
+        include-hidden-files: true
+        if-no-files-found: error
