@@ -79,7 +79,7 @@ func test_uncached_backup_uses_real_desktop_consent_and_reuses_the_view() -> voi
 	assert_same(sheet.get_script(), CONFIRMATION)
 	assert_same(sheet, desktop._confirmation)
 	assert_same(sheet.get_parent(), desktop.desktop_canvas)
-	assert_eq(sheet.request.body, app._t("fallback") + "\n--:--\n\n" + app._t("replace_progress"))
+	assert_eq(sheet.request.body, app._record_time(app._records[app.selected_locator]) + "\n\n" + app._t("replace_progress"))
 	assert_true(save_owner.committed.is_empty())
 	var before: Dictionary = host.get_state()
 	assert_eq(desktop.return_home().code, &"desktop_modal_active")

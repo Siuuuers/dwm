@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse')]
+    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build')]
     [string]$Suite
 )
 
@@ -10,6 +10,9 @@ $ErrorActionPreference = 'Stop'
 # Deliberate, bounded UI and input regression coverage. Each path must actually
 # execute; Invoke-IsolatedGodot also rejects GUT's silent suite-load failures.
 $suites = @{
+    backup_current_build = @(
+        'tests/integration/test_backup_current_build.gd'
+    )
     profile_parse = @(
         'tests/unit/test_profile_parse_reuse.gd'
         'tests/unit/test_profile_manager.gd'
@@ -20,6 +23,7 @@ $suites = @{
     )
     backup_presentation = @(
         'tests/unit/test_backup_presentation.gd'
+        'tests/integration/test_scene_app_preparation.gd'
         'tests/unit/test_production_pause_controller.gd'
     )
     scene_desktop_first_reveal = @(
@@ -306,6 +310,7 @@ $suites = @{
         'tests/unit/test_controls_binding_rules.gd'
         'tests/unit/test_backup_panel_resize.gd'
         'tests/unit/test_backup_presentation.gd'
+        'tests/integration/test_scene_app_preparation.gd'
         'tests/integration/test_desktop_crash_recovery.gd'
         'tests/scene/test_ending_recovery_localization.gd'
         'tests/unit/tooling/test_ui_literal_audit.gd'
@@ -415,7 +420,7 @@ if (-not (Test-Path -LiteralPath $report)) { throw 'GUT did not produce its JUni
 $executed = $xml.SelectNodes('//testcase').Count
 if ($executed -eq 0) { throw 'GUT did not report any executed tests.' }
 if ($xml.SelectNodes('//failure | //error').Count -ne 0) { throw 'GUT reported test failures.' }
-if ($Suite -in @('scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse')) {
+if ($Suite -in @('scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build')) {
     foreach ($case in $xml.SelectNodes('//testcase')) {
         if ($case.GetAttribute('classname') -cnotin $suites[$Suite] -or
             $case.GetAttribute('status') -cne 'pass' -or [int]$case.GetAttribute('assertions') -le 0) {
@@ -487,3 +492,12 @@ if ($Suite -eq 'persistence') {
 
 # The retired desktop-startup latency probe is retained on the pinned historical
 # source in canonical-test-disposition.json; current_title covers authored startup.
+
+if ($Suite -eq 'backup_current_build') {
+    # These standalone scene scripts require a dependency-only project without
+    # application autoloads. Reuse the existing isolated fixture runner.
+    python -c "import runpy; runpy.run_path('tools/backup_ui/verify.py', init_globals={'TEST_SCRIPT':'tests/backup_operations/test_backup_operations.gd','PASS_MARKER':'BACKUP_OPERATIONS_PASS','SCRATCH_PREFIX':'backup-operations-','EVIDENCE_DIR':'.godot/ci/backup-operations','SCOPE':'Real Backup operations over isolated FileOps and diagnostic restore owners.'})"
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    python -c "import runpy; runpy.run_path('tools/backup_ui/verify.py', init_globals={'EVIDENCE_DIR':'.godot/ci/backup-ui'})"
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+}

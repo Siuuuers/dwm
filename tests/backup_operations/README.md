@@ -1,3 +1,5 @@
+> Current contract (24 October 2026): Backup lists metadata without restore preparation; Save/Delete do not require restorable prior contents; Load uses the selected current snapshot only. The active tests now verify this behavior. Earlier fallback and compatibility descriptions below are historical, not acceptance requirements. See [current policy](../../docs/design/2026-09-29-unshipped-development-save-policy.md).
+
 # Backup owner verification
 
 Run `python tests/backup_operations/verify.py` from this isolated worktree. The runner copies tested source bytes into a disposable `.godot/backup-operations-*` project, redirects APPDATA/LOCALAPPDATA and DWM_TEST_ROOT there, and hashes those copied bytes in its receipt. The new suite uses real SaveManager, schema, checkpoint journal, storage, identity issuer/root, and restore participant adapters over FakeFileOps. External audio/profile/locale/narrative/route presentation owners are fixtures. Actual SceneRouter preparation/apply/rollback is tested separately without scene navigation. Existing save-schema, SaveManager and production-restore adapter GUT suites also run with isolated storage.

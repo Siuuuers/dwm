@@ -17,7 +17,7 @@ func test_saved_and_refusal_expire_on_exact_eligible_lifetime() -> void:
 	var edge := _edge()
 	edge.set_eligible(true)
 	for status: StringName in [&"saved",&"unavailable",&"please_wait",&"no_quick_save",
-			&"older_version",&"newer_version",&"unreadable",&"no_compatible_checkpoint",&"restore_unavailable"]:
+			&"unreadable"]:
 		edge.publish_status(status,{"revision":1},func(): return true)
 		var duration := 2.0 if status == &"saved" else 4.0
 		assert_eq(edge.remaining_seconds,duration)
@@ -122,11 +122,7 @@ func test_quick_absence_and_inspected_reasons_localize_once_and_retire_when_stal
 	edge.set_eligible(true)
 	var expected := {
 		&"no_quick_save": "No Quick Save",
-		&"older_version": "This save is from an older build and cannot be loaded.",
-		&"newer_version": "Newer game version required.",
 		&"unreadable": "Can't read this save.",
-		&"no_compatible_checkpoint": "No compatible checkpoint is available.",
-		&"restore_unavailable": "This save cannot currently be loaded.",
 	}
 	var announcements := 0
 	for status: StringName in expected:

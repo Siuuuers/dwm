@@ -11,7 +11,7 @@ $ci = Join-Path $repositoryRoot '.godot/ci'
 $output = Join-Path $ci 'startup-load-comparison'
 $archive = Join-Path $repositoryRoot 'evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip'
 $archiveHash = 'c49053565e4b9430f2e9f0157eea9c1602898156de13df2837ca714235279670'
-$runtimePaths = @('scripts/narrative/DialogicRuntimeAdapter.gd', 'scripts/ui/BackupApp.gd', 'autoload/ProfileManager.gd')
+$runtimePaths = @()
 $helpers = @('seed.gd', 'pair.gd', 'pair-next.gd', 'replay.gd')
 $generated = @('terminal-pair.json', 'authored-week-terminal-pair.json',
     'computer-authored-restored-slot-2.png', 'computer-authored-terminal-pair.png')
@@ -20,13 +20,22 @@ $savedEnvironment = @{}
 $comparison = [ordered]@{
     base_ref = $BaseRef; candidate_ref = ''; archive_sha256 = $archiveHash
     scope = 'Same candidate checkout and retained 40-file input; only the named runtime files are replaced by base bytes for the baseline. Fresh processes and isolated roots per variant. Timings are one matched pair, not a latency distribution.'
-    runtime_files = $runtimePaths; helper_hashes = @{}; variants = @()
+    runtime_files = @(); helper_hashes = @{}; variants = @()
 }
 
 Push-Location $repositoryRoot
 try {
     git cat-file -e "$BaseRef^{commit}"
     if ($LASTEXITCODE -ne 0) { throw 'Baseline commit is unavailable.' }
+    # Compare every changed runtime file, not a hard-coded subset from an earlier optimization.
+    $runtimePaths = @(git diff --name-only $BaseRef HEAD -- autoload scripts scenes dialogic localization project.godot)
+    if ($LASTEXITCODE -ne 0 -or $runtimePaths.Count -eq 0) { throw 'No runtime comparison paths found.' }
+    foreach ($path in $runtimePaths) {
+        if (-not (Test-Path -LiteralPath (Join-Path $repositoryRoot $path))) { throw "Deleted runtime path requires a separate baseline checkout: $path" }
+        git cat-file -e "${BaseRef}:$path"
+        if ($LASTEXITCODE -ne 0) { throw "Added runtime path requires a separate baseline checkout: $path" }
+    }
+    $comparison.runtime_files = $runtimePaths
     git diff --exit-code -- @runtimePaths
     if ($LASTEXITCODE -ne 0) { throw 'Comparison requires clean runtime files.' }
     $comparison.candidate_ref = (git rev-parse HEAD).Trim()

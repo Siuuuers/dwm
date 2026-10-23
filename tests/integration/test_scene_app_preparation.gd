@@ -224,7 +224,7 @@ func assert_backup_unchanged(app: Control, prior: Dictionary) -> void:
 	assert_same(app.theme, prior.theme)
 	assert_eq(backup_snapshot(app), prior)
 
-func test_backup_scene_records_keep_explicit_families_and_fallback_times() -> void:
+func test_backup_scene_records_keep_explicit_families_and_current_times() -> void:
 	var f := backup_fixture()
 	var app: Control = f.app
 	assert_true(app.configure_scene_backup(f.port, locale, profile).ok)
@@ -237,20 +237,20 @@ func test_backup_scene_records_keep_explicit_families_and_fallback_times() -> vo
 	assert_eq(app.drawer_buttons["slot:1"].state_label.text, "13:57")
 	assert_eq(app.drawer_buttons["slot:5"].state_label.text, "12:34")
 	assert_eq(app.drawer_buttons["slot:6"].state_label.text, "Empty")
-	assert_eq(app._info_text.text, "Slot 1\n\n13:57\n\n" + app._t("fallback") + "\n\n--:--")
+	assert_eq(app._info_text.text, "Slot 1\n\n13:57")
 	app.show_window()
 	app._set_mode("load")
 	app._select_drawer("slot:2")
 	assert_true(app._info_text.text.contains("Day 6 · 14:30"))
-	assert_true(app._info_text.text.contains("Day 3 · --:--"))
+	assert_false(app._info_text.text.contains("Day 3 · --:--"))
 	app._select_drawer("slot:3")
-	assert_true(app._info_text.text.contains(app._t("load_unavailable")))
+	assert_true(app._info_text.text.contains(app._t("unreadable")))
 	assert_true(app.action_buttons.load.disabled)
 	assert_false(app.action_buttons.delete.disabled)
 	app._select_drawer("slot:4")
 	assert_true(app._info_text.text.contains(app._t("unreadable")))
 	app._select_drawer("slot:7")
-	assert_true(app._info_text.text.contains(app._t("no_compatible")))
+	assert_true(app._info_text.text.contains(app._t("unreadable")))
 	assert_false(app._info_text.text.contains("Day"))
 	app._set_mode("save")
 	assert_false(app.action_buttons.save.disabled, "Only A's explicit permission enables replacement")
@@ -289,7 +289,7 @@ func test_backup_scene_invalid_setup_is_nonmutating_and_valid_rebind_detaches_ol
 	var false_day := valid.duplicate(true)
 	false_day.value.records[2].day = 1
 	var false_time := valid.duplicate(true)
-	false_time.value.records[2].load_saved_time = "13:57"
+	false_time.value.records[2].saved_time = 1357
 	var wrong_permission := valid.duplicate(true)
 	wrong_permission.value.records[2].actions.load = 1
 	var private_field := valid.duplicate(true)
@@ -314,22 +314,21 @@ func test_backup_scene_invalid_setup_is_nonmutating_and_valid_rebind_detaches_ol
 	assert_eq(app._locale, "en")
 	assert_false(app.visible)
 
-func test_backup_scene_prepared_fallback_confirmation_preserves_pending_custody() -> void:
+func test_backup_scene_current_confirmation_preserves_pending_custody() -> void:
 	var f := backup_fixture()
 	var app: Control = f.app
 	assert_true(app.configure_scene_backup(f.port, locale, profile).ok)
 	app.show_window()
 	app._set_mode("load")
-	# Current record stays scene/13:57; only prepared selected-bundle fields change.
+	# Retired selected-bundle metadata cannot replace the current record.
 	for family in ["scene", "legacy_day", null]:
 		f.port.prepared_patch = {"load_family": family, "load_day": 4 if family == "legacy_day" else null}
 		app.action_buttons.load.pressed.emit()
 		assert_not_null(app.confirmation)
 		if app.confirmation == null: return
 		var sheet: Control = app.confirmation
-		var expected_time := "Day 4 · --:--" if family == "legacy_day" else "--:--"
-		assert_eq(sheet.request.body, app._t("fallback") + "\n" + expected_time + "\n\n" + app._t("replace_progress"))
-		assert_false(sheet.request.body.contains("13:57"))
+		assert_eq(sheet.request.body, "13:57\n\n" + app._t("replace_progress"))
+		assert_true(sheet.request.body.contains("13:57"))
 		assert_eq(sheet.confirm_button.risk, "danger")
 		assert_eq(app.focus_behavior_recursive, Control.FOCUS_BEHAVIOR_DISABLED)
 		var token: String = app._pending_token
@@ -346,8 +345,8 @@ func test_backup_scene_prepared_fallback_confirmation_preserves_pending_custody(
 		assert_eq(f.owner.cancelled.back(), token)
 		assert_eq(f.owner.cancelled.count(token), 1)
 	assert_true(f.owner.committed.is_empty())
-	# A nonfallback Load also describes the selected bundle, not the display row.
-	f.port.prepared_patch = {"fallback": false, "load_family": "scene", "load_day": null, "load_saved_time": "08:42"}
+	# The preparation response owns the current timestamp displayed for consent.
+	f.port.prepared_patch = {"saved_time": "08:42"}
 	app.action_buttons.load.pressed.emit()
 	assert_not_null(app.confirmation)
 	if app.confirmation == null: return
@@ -356,20 +355,14 @@ func test_backup_scene_prepared_fallback_confirmation_preserves_pending_custody(
 	app.confirmation.cancel_button.pressed.emit()
 	await get_tree().process_frame
 
-func test_backup_scene_title_fallback_uses_real_neutral_confirmation() -> void:
+func test_backup_scene_title_load_uses_current_record_without_confirmation() -> void:
 	var f := backup_fixture(true, true)
 	var app: Control = f.app
 	app.show_window()
 	app._select_drawer("slot:1")
 	app.action_buttons.load.pressed.emit()
-	assert_not_null(app.confirmation)
-	if app.confirmation == null: return
-	assert_eq(app._confirmation_kind, "fallback")
-	assert_eq(app.confirmation.request.body, app._t("fallback") + "\n--:--")
-	assert_eq(app.confirmation.confirm_button.risk, "neutral")
-	app.confirmation.cancel_button.pressed.emit()
-	await get_tree().process_frame
-	assert_true(f.owner.committed.is_empty())
+	assert_null(app.confirmation)
+	assert_eq(f.owner.committed.size(), 1)
 	assert_true(app.mode_buttons.is_empty())
 
 func test_backup_scene_action_refusal_retry_and_malformed_preparation_never_bypass_port() -> void:

@@ -638,7 +638,7 @@ func test_logout_is_neither_a_valid_saved_workspace_nor_a_buildable_checkpoint()
 		candidate.active_app_id = id
 		assert_true(schema.validate(candidate).get("ok", false), "%s remains restorable" % id)
 
-func test_legacy_logout_autosave_is_unavailable_without_rewriting_or_guessing_journal_fallback() -> void:
+func test_logout_workspace_cannot_pass_document_validation() -> void:
 	var document_schema: Script = load("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 	var snapshot := _fixture(VALID_FIXTURE)
 	var earlier := snapshot.duplicate(true)
@@ -654,19 +654,6 @@ func test_legacy_logout_autosave_is_unavailable_without_rewriting_or_guessing_jo
 	var source := JSON.stringify(legacy)
 	assert_false(document_schema.validate(legacy).get("ok", true), "invalid current workspace refuses before valid earlier bundles")
 	assert_eq(JSON.stringify(legacy), source, "validation never rewrites the supplied save")
-	var files: RefCounted = load("res://tests/support/FakeFileOps.gd").new({"memory/legacy-logout/autosave.json": source})
-	var storage: RefCounted = load("res://scripts/infrastructure/storage/JsonFileStorage.gd").new("memory/legacy-logout", files)
-	var manager: Node = load("res://autoload/SaveManager.gd").new()
-	add_child_autofree(manager)
-	assert_true(manager.initialize(storage).ok)
-	var before: Dictionary = files.snapshot_persisted()
-	var inspected: Dictionary = manager.inspect_backup("autosave")
-	assert_true(inspected.get("ok", false))
-	assert_eq(inspected.value.state, "unavailable")
-	assert_eq(inspected.value.reason, "unreadable")
-	assert_false(inspected.value.loadable)
-	assert_false(inspected.value.fallback)
-	assert_eq(files.snapshot_persisted(), before, "inspection preserves old data for an explicit compatibility disposition")
 
 
 func test_note_counts_saved_integral_numbers_normalize_and_detach() -> void:

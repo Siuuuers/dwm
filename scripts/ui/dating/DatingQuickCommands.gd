@@ -216,13 +216,12 @@ func _refresh_edge() -> void:
 
 func _load_copy(record: Dictionary) -> Dictionary:
 	var copy: Dictionary = BACKUP_COPY.get(_desktop._locale, BACKUP_COPY.en)
-	var fallback: bool = record.get("fallback", false)
-	var day: Variant = record.get("load_day" if fallback else "day")
-	var time: Variant = record.get("load_saved_time" if fallback else "saved_time")
-	var stamp: String = copy.day.replace("{day}", str(day)).replace("{time}", str(time) if time != null else "--:--")
-	var body: String = copy.fallback + "\n" + stamp if fallback else stamp
-	body += "\n\n" + copy.replace_progress
-	return {"title": copy.fallback_title if fallback else copy.load_title.replace("{record}", copy.quick),
+	var time: Variant = record.get("saved_time")
+	var stamp := str(time) if time != null else "--:--"
+	if record.get("family") == "legacy_day":
+		stamp = copy.day.replace("{day}", str(record.get("day"))).replace("{time}", stamp)
+	var body: String = stamp + "\n\n" + copy.replace_progress
+	return {"title": copy.load_title.replace("{record}", copy.quick),
 		"body": body, "cancel": copy.cancel, "confirm": copy.load, "risk": "danger",
 		"theme": BACKUP_THEME.build(_desktop._locale, _desktop._percent, _desktop._palette,
 			int(_desktop._presentation_command.context.day), _desktop._high_contrast,

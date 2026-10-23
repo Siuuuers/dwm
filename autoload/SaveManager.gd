@@ -1556,17 +1556,9 @@ func get_all_save_metadata() -> Array[Dictionary]:
 	records.append(get_save_metadata(&"autosave", -1))
 	return records
 
-## Read-only Backup projection. Revision is custody evidence, never UI copy or save validity.
+## Read-only slot information. Listing does not prepare or certify restoration.
 func inspect_backup(locator_id: String) -> Dictionary:
-	var inspected := _inspect_backup(locator_id)
-	if inspected.get("ok", false):
-		# This synchronous inspection created a private plan that metadata never exposes.
-		# Release only its fresh token; selected actions and retained retry intents stay owned.
-		var prepared: Dictionary = inspected["value"].get("prepared_restore", {})
-		if prepared.has("scene_preparation_token"):
-			_scene_restore_preparations.erase(prepared["scene_preparation_token"])
-		inspected["value"].erase("prepared_restore")
-	return inspected
+	return _inspect_backup(locator_id)
 
 func get_backup_save_capability() -> Dictionary:
 	var allowed := _backup_guard()
@@ -1580,7 +1572,7 @@ func get_backup_save_capability() -> Dictionary:
 			return {"enabled": false, "reason": str(captured.get("code", "backup_capture_unavailable"))}
 	return {"enabled": true, "reason": ""}
 
-## Quick commands share Backup tokens but cannot silently overwrite an unproved target.
+## Quick commands share Backup tokens and the same current-build save contract.
 ## Conditions are opaque, detached evidence; they are never display copy or save data.
 func get_backup_quick_capability(action: String) -> Dictionary:
 	if action not in ["save", "load"]:
@@ -1662,7 +1654,7 @@ func _quick_failure(action: String, status: String = "") -> Dictionary:
 		"status_key": "unavailable" if status == "" else status, "condition": _quick_condition(action)}
 
 static func _quick_save_record_allowed(record: Dictionary) -> bool:
-	return record.get("state") in ["empty", "occupied"] and not record.get("fallback", false) and record.get("reason", "") == ""
+	return record.get("state") in ["empty", "occupied", "unavailable"]
 
 static func _quick_load_record_status(record: Dictionary) -> String:
 	if record.get("state") == "empty":
@@ -1703,47 +1695,24 @@ func _inspect_backup_profiled(locator_id: String, profile: Dictionary) -> Dictio
 	if not parsed.get("ok", false):
 		record["reason"] = "unreadable"
 		return {"ok": true, "value": record}
-	# Admission validates the original evidence, including its version and locator, and
-	# returns a detached candidate. It does not reconstruct or relabel outer fields.
-	var scene_seed_material := {}
-	var migrated := SAVE_MIGRATIONS.migrate_document(parsed["value"],
-		{"kind": locator["kind"], "slot_id": locator["slot_id"]},
-		_capture_scene_seed_material.bind(scene_seed_material))
-	_save_load_profile_phase(profile, "admission_us")
-	if not migrated.get("ok", false):
-		var version: Variant = parsed["value"].get("schema_version")
+	# Current-build saves are the supported input. Read only presentation fields;
+	# Load owns participant preparation after the player chooses a slot.
+	var document: Dictionary = parsed["value"]
+	var bundle: Variant = document.get("current_snapshot")
+	if typeof(bundle) != TYPE_DICTIONARY or typeof(bundle.get("snapshot")) != TYPE_DICTIONARY:
 		record["reason"] = "unreadable"
-		if typeof(version) == TYPE_INT and version > 0:
-			if version > SAVE_DOCUMENT_SCHEMA.SCENE_DOCUMENT_VERSION: record["reason"] = "newer_version"
-			elif version < SAVE_DOCUMENT_SCHEMA.DOCUMENT_VERSION: record["reason"] = "older_version"
 		return {"ok": true, "value": record}
-	var document: Dictionary = migrated["value"]["document"]
-	var snapshot: Dictionary = document["current_snapshot"]["snapshot"]
+	var snapshot: Dictionary = bundle["snapshot"]
 	record["state"] = "occupied"
-	# Only admitted schemas establish presentation family. Missing day is never
-	# a mode discriminator, and scene saves must not acquire a fictional day.
-	record["family"] = "scene" if snapshot["schema_version"] == RUN_SNAPSHOT_SCHEMA.SCENE_SCHEMA_VERSION else "legacy_day"
+	record["family"] = "scene" if snapshot.get("schema_version") == RUN_SNAPSHOT_SCHEMA.SCENE_SCHEMA_VERSION else "legacy_day"
 	if record["family"] == "legacy_day":
-		record["day"] = int(snapshot["lifecycle"]["day"])
+		var day: Variant = snapshot.get("lifecycle", {}).get("day")
+		record["day"] = int(day) if day != null else null
 	record["saved_time"] = document.get("saved_time", {}).get("hhmm")
-	var prepared := _prepare_restore_document(locator, document, migrated["value"], scene_seed_material)
-	_save_load_profile_phase(profile, "restore_prepare_us")
-	if prepared.get("ok", false):
-		var target: Dictionary = prepared["value"]["prepared"]
-		record["loadable"] = true
-		record["fallback"] = str(target["checkpoint_id"]) != str(snapshot["checkpoint_id"])
-		var load_snapshot: Dictionary = target["bundle"]["snapshot"]
-		record["load_family"] = "scene" if load_snapshot["schema_version"] == RUN_SNAPSHOT_SCHEMA.SCENE_SCHEMA_VERSION else "legacy_day"
-		if record["load_family"] == "legacy_day":
-			record["load_day"] = int(load_snapshot["lifecycle"]["day"])
-		record["load_saved_time"] = null if record["fallback"] else record["saved_time"]
-		record["prepared_restore"] = target
-	else:
-		record["reason"] = "no_compatible_checkpoint" if prepared.get("code") == &"NO_COMPATIBLE_BUNDLE" else "restore_unavailable"
-		if prepared.get("code") != &"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED":
-			record["state"] = "unavailable"
-			record["day"] = null
-			record["saved_time"] = null
+	record["loadable"] = true
+	record["load_family"] = record["family"]
+	record["load_day"] = record["day"]
+	record["load_saved_time"] = record["saved_time"]
 	return {"ok": true, "value": record}
 
 ## Detached candidates remain owner-private; tokens convey consent to exactly one candidate.
@@ -1794,10 +1763,13 @@ func _prepare_backup_action_profiled(action: String, locator_id: String, profile
 	elif action == "load":
 		if not record["loadable"]:
 			return _fail(&"backup_load_unavailable", "")
-		candidate["prepared_restore"] = record["prepared_restore"]
+		var prepared := _prepare_restore(locator, str(record["revision"]))
+		_save_load_profile_phase(profile, "restore_prepare_us")
+		if not prepared.get("ok", false):
+			return prepared
+		candidate["prepared_restore"] = prepared["value"]["prepared"]
 	elif record["state"] == "empty":
 		return _fail(&"save_absent", "")
-	record.erase("prepared_restore")
 	_backup_action_sequence += 1
 	var token := "backup-%d" % _backup_action_sequence
 	_backup_actions[token] = candidate.duplicate(true)
@@ -1805,11 +1777,22 @@ func _prepare_backup_action_profiled(action: String, locator_id: String, profile
 	return {"ok": true, "value": {"token": token, "record": record}}
 
 func cancel_backup_action(token: String) -> void:
+	_release_backup_preparation(_backup_actions.get(token, {}))
 	_backup_actions.erase(token)
 
+func _release_backup_preparation(candidate: Dictionary) -> void:
+	var token: String = candidate.get("prepared_restore", {}).get("scene_preparation_token", "")
+	# Once an intent exists, the continuation owns its retry materials. A cancelled
+	# selection or refusal before commit has no such owner and releases its plan.
+	if _scene_restore_preparations.has(token) and not _scene_restore_preparations[token].has("intent"):
+		_scene_restore_preparations.erase(token)
+
 func commit_backup_action(token: String) -> Dictionary:
+	var candidate: Dictionary = _backup_actions.get(token, {})
 	var profile := _save_load_profile_begin("backup_commit", "", "")
-	return _save_load_profile_finish(profile, _commit_backup_action_profiled(token, profile))
+	var result := _commit_backup_action_profiled(token, profile)
+	_release_backup_preparation(candidate)
+	return _save_load_profile_finish(profile, result)
 
 
 func _commit_backup_action_profiled(token: String, profile: Dictionary) -> Dictionary:
@@ -1836,14 +1819,6 @@ func _commit_backup_action_profiled(token: String, profile: Dictionary) -> Dicti
 		return _fail(&"stale_backup_target", "")
 	match str(candidate["action"]):
 		"load":
-			var reconciled: Dictionary = _storage.reconcile(path, _document_text_validator)
-			_save_load_profile_phase(profile, "reconcile_us")
-			if not reconciled.get("ok", false):
-				return reconciled
-			current = _storage.inspect_revision(path)
-			_save_load_profile_phase(profile, "revision_recheck_us")
-			if not current.get("ok", false) or current["value"]["revision"] != candidate["revision"]:
-				return _fail(&"stale_backup_target", "")
 			var restored := commit_prepared_restore(candidate["prepared_restore"])
 			_save_load_profile_phase(profile, "restore_commit_us")
 			return restored
@@ -2193,7 +2168,7 @@ func _write_latest(locator: Dictionary, save_reason: String, session_exit: bool 
 	slot_metadata_changed.emit()
 	return result
 
-func _prepare_restore(locator: Dictionary) -> Dictionary:
+func _prepare_restore(locator: Dictionary, expected_revision: String = "") -> Dictionary:
 	if locator.is_empty():
 		return _fail(&"INVALID_SAVE_REFERENCE", "")
 	if _storage == null:
@@ -2206,12 +2181,15 @@ func _prepare_restore(locator: Dictionary) -> Dictionary:
 	var read: Dictionary = _storage.read_text(relative_path)
 	if not read.get("ok", false):
 		return read
+	# The selected bytes must match the metadata on which confirmation is based.
+	# This also binds preparation when another writer changes the slot between reads.
+	if not expected_revision.is_empty() and str(read["value"]).sha256_text() != expected_revision:
+		return _fail(&"stale_backup_target", "")
 	var parsed: Dictionary = STRICT_JSON.parse_object(str(read["value"]))
 	if not parsed.get("ok", false):
 		return _fail(&"corrupt_save_document", relative_path)
 
-	# Migrate the document and every retained bundle. Structural/future-schema
-	# failures are frozen and never fall back to compatibility selection.
+	# Normalize the selected current-build document for the existing restore owners.
 	var scene_seed_material := {}
 	var migrated: Dictionary = SAVE_MIGRATIONS.migrate_document(parsed["value"],
 		{"kind": str(locator["kind"]), "slot_id": locator["slot_id"]},
@@ -2242,7 +2220,7 @@ func _prepare_restore_seed(document: Dictionary, selected: Dictionary, material:
 	# validation/diagnostics whenever either document or selected bundle drifts.
 	return _journal.prepare_seed(document, selected)
 
-## Pure shared preparation: Backup inspections do not reconcile files or acquire leases.
+## Prepare the selected Load for the existing restore transaction.
 func _prepare_restore_document(locator: Dictionary, document: Dictionary, migration_output: Dictionary,
 		scene_seed_material: Dictionary = {}) -> Dictionary:
 	var profile := _save_load_profile_begin("restore_prepare", "", locator)
@@ -2254,33 +2232,17 @@ func _prepare_restore_document_profiled(locator: Dictionary, document: Dictionar
 	if _restore_participants.is_empty():
 		return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", "")
 
-	# Order candidates: current bundle first, then earlier journal bundles by
-	# descending checkpoint_sequence. No field is ever combined across bundles.
-	var candidates: Array[Dictionary] = [document["current_snapshot"]]
-	var earlier: Array = (document["recovery_journal"] as Array).duplicate(true)
-	earlier.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return int(a["snapshot"]["checkpoint_sequence"]) > int(b["snapshot"]["checkpoint_sequence"]))
-	for entry: Dictionary in earlier:
-		candidates.append(entry)
-	_save_load_profile_phase(profile, "candidate_order_us")
-
-	var causes: Array = []
-	for bundle: Dictionary in candidates:
-		var prepared := _prepare_bundle_with_all_participants(bundle, migration_output, document, locator, scene_seed_material)
-		_save_load_profile_phase(profile, "participant_prepare_us")
-		if prepared.get("ok", false):
-			return {"ok": true, "code": &"ok", "value": {"prepared": prepared["value"]}}
-		if prepared.get("code") == &"BUNDLE_CONTENT_INCOMPATIBLE":
-			causes.append(prepared.get("details", {}))
-			continue
-		# Structural/primitive/migration failures never fall back.
+	# Load the selected saved state only. An older checkpoint is never substituted.
+	var prepared := _prepare_bundle_with_all_participants(document["current_snapshot"],
+		migration_output, document, locator, scene_seed_material)
+	_save_load_profile_phase(profile, "participant_prepare_us")
+	if not prepared.get("ok", false):
 		return prepared
-	return {"ok": false, "code": &"NO_COMPATIBLE_BUNDLE", "message": "", "details": {"causes": causes}}
+	return {"ok": true, "code": &"ok", "value": {"prepared": prepared["value"]}}
 
 func _prepare_bundle_with_all_participants(bundle: Dictionary, migration_output: Dictionary, document: Dictionary,
 		locator: Dictionary, scene_seed_material: Dictionary = {}) -> Dictionary:
 	var snapshot: Dictionary = bundle["snapshot"]
-	var sequence := int(snapshot["checkpoint_sequence"])
 	var plans := {}
 
 	var run_prep: Dictionary = _restore_participants["run"].prepare({"snapshot": snapshot})
@@ -2323,13 +2285,13 @@ func _prepare_bundle_with_all_participants(bundle: Dictionary, migration_output:
 	var loc_prep: Dictionary = _restore_participants["localization"].prepare({"locale_id": locale_id,
 		"font_style": profile_prep["value"].get("font_style", "pixel"), "text_size": profile_prep["value"].get("text_size", 100)})
 	if not loc_prep.get("ok", false):
-		return _content_incompatible_or_fail("localization", sequence, loc_prep)
+		return loc_prep
 	plans["localization"] = loc_prep["value"]["localization_plan"]
 
 	var audio_prep: Dictionary = _restore_participants["audio"].prepare(
 		{"preferences": preferences, "audio_context": snapshot["audio_context"]})
 	if not audio_prep.get("ok", false):
-		return _content_incompatible_or_fail("audio", sequence, audio_prep)
+		return audio_prep
 	plans["audio"] = audio_prep["value"]["audio_plan"]
 
 	var route_context := RUN_SNAPSHOT_SCHEMA.derive_route_restore_context(snapshot)
@@ -2338,14 +2300,14 @@ func _prepare_bundle_with_all_participants(bundle: Dictionary, migration_output:
 	var route_prep: Dictionary = _restore_participants["route"].prepare(
 		{"route_id": str(snapshot["route_id"]), "route_context": route_context["value"]})
 	if not route_prep.get("ok", false):
-		return _content_incompatible_or_fail("route", sequence, route_prep)
+		return route_prep
 	plans["route"] = route_prep["value"]["route_plan"]
 
 	var narr_prep: Dictionary = _restore_participants["narrative"].prepare(
 		{"narrative_checkpoint": snapshot["narrative_checkpoint"], "content_version": int(snapshot["content_version"]),
 		"snapshot": snapshot})
 	if not narr_prep.get("ok", false):
-		return _content_incompatible_or_fail("narrative", sequence, narr_prep)
+		return narr_prep
 	plans["narrative"] = narr_prep["value"]["narrative_plan"]
 
 	var seed: Dictionary = _prepare_restore_seed(document, bundle, scene_seed_material)
@@ -2371,16 +2333,6 @@ func _prepare_bundle_with_all_participants(bundle: Dictionary, migration_output:
 		prepared["scene_preparation_token"] = token
 		_scene_restore_preparations[token] = {"prepared": prepared.duplicate(true), "selected_document": document.duplicate(true)}
 	return {"ok": true, "code": &"ok", "value": prepared}
-
-static func _content_incompatible_or_fail(participant_id: String, sequence: int, failure: Dictionary) -> Dictionary:
-	# A typed content-unavailability becomes a recoverable BUNDLE_CONTENT_INCOMPATIBLE so
-	# _prepare_restore can try an earlier whole bundle; anything else is a hard failure.
-	var content_codes := ["NARRATIVE_CONTENT_UNAVAILABLE", "LOCALIZATION_CONTENT_UNAVAILABLE",
-		"AUDIO_CONTENT_UNAVAILABLE", "ROUTE_CONTENT_UNAVAILABLE", "BUNDLE_CONTENT_INCOMPATIBLE"]
-	if str(failure.get("code", "")) in content_codes:
-		return {"ok": false, "code": &"BUNDLE_CONTENT_INCOMPATIBLE", "message": "",
-			"details": {"participant_id": participant_id, "cause": failure.get("details", {}), "checkpoint_sequence": sequence}}
-	return failure
 
 ## Plan 02 Task 6 (dwm-p2r.32), Phase C2: SaveManager's own `source_loader` implementation, bound as
 ## `DesktopContinuationOperationJournal.configure(storage, self)` (initialize() above) and as
@@ -2447,8 +2399,7 @@ func _find_bundle_by_checkpoint_id(document: Dictionary, checkpoint_id: String) 
 
 ## Builds this restore's `source_locator` (Plan 02 Task 6, dwm-p2r.32, Phase C2 -- own design choice,
 ## not literally frozen by the brief). `bundle_id` distinguishes exactly WHICH bundle within a
-## document was selected (current vs. an earlier recovery_journal entry): the canonical hash of the
-## whole `{checkpoint_kind,snapshot}` bundle record. `document_sha256` is the canonical hash of the
+## document was selected: the canonical hash of the whole `{checkpoint_kind,snapshot}` bundle record. `document_sha256` is the canonical hash of the
 ## bundle's OWN snapshot -- the same value `load_context()` reproduces as `context_sha256`, so a
 ## reload can prove it landed on the exact same bytes.
 func _build_source_locator(kind: String, slot_id: Variant, bundle: Dictionary) -> Dictionary:
@@ -2729,9 +2680,8 @@ func _resume_restore(operation: Dictionary, gate_token: String) -> Dictionary:
 
 ## Reconstructs the exact `prepared`/plan bytes `_prepare_restore()` would have produced for this
 ## operation's retained `source_locator`, by re-reading, re-migrating, and re-validating the SAME
-## save document and selecting the SAME specific bundle by `checkpoint_id` (never the "try every
-## candidate" search `_prepare_restore()` runs for a caller with no fixed locator -- the locator here
-## already names the exact bundle that was originally selected). `existing_run_id`/`source_desktop_
+## save document and selecting the SAME specific bundle by `checkpoint_id`. The locator names
+## the exact saved bundle that was originally selected; no substitute checkpoint is tried. `existing_run_id`/`source_desktop_
 ## timeline_generation`/`remap_source_transaction_ids` are re-derived from the reloaded document,
 ## byte-for-byte the same way `_prepare_bundle_with_all_participants()` derives them live; calling
 ## `_identity_allocation_participant.prepare()` again is safe and mutation-free (its own doc comment:
@@ -2881,9 +2831,6 @@ func _delete(locator: Dictionary) -> Dictionary:
 	var removed: Dictionary = _storage.remove(relative_path)
 	if not removed.get("ok", false):
 		return removed
-	var reconciled: Dictionary = _storage.reconcile(relative_path, _document_text_validator)
-	if not reconciled.get("ok", false):
-		return reconciled
 	if _storage.exists(relative_path):
 		return _fail(&"delete_incomplete", relative_path)
 	slot_metadata_changed.emit()
