@@ -1,0 +1,189 @@
+name: Backup metadata retention qualification
+'on':
+  push:
+    branches:
+    - codex/backup-inspection-controller-20261023
+  workflow_dispatch: null
+permissions:
+  contents: read
+concurrency:
+  group: backup-inspection-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  backup-inspection:
+    name: Windows / Backup metadata retention
+    runs-on: windows-2022
+    timeout-minutes: 75
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      DWM_SCENE_VALIDATION_PROFILE: '1'
+      DWM_SAVE_LOAD_PROFILE: '1'
+    steps:
+    - name: Preserve source bytes
+      run: git config --global core.autocrlf false
+    - uses: actions/checkout@v7
+      with:
+        fetch-depth: 4
+        persist-credentials: true
+        ref: 6dc50fb01d6dfb99bba2a5456a7c5fa5b559cdff
+    - name: Record pinned source
+      run: '$ErrorActionPreference = ''Stop''
+
+        if ((git rev-parse HEAD) -cne ''6dc50fb01d6dfb99bba2a5456a7c5fa5b559cdff'') { throw ''Candidate mismatch''
+        }
+
+        if ((git rev-parse ''HEAD^{tree}'') -cne ''10f02b9e02aeec0633b24d58eb5630b667a8399a'') { throw ''Candidate
+        tree mismatch'' }
+
+        New-Item -ItemType Directory -Force ''.godot/ci'' | Out-Null
+
+        @{candidate=''6dc50fb01d6dfb99bba2a5456a7c5fa5b559cdff''; tree=(git rev-parse ''HEAD^{tree}''); controller=''${{
+        github.event.pull_request.head.sha }}''; workflow=''${{ github.workflow_sha }}''; event=''${{ github.sha
+        }}''; run_id=''${{ github.run_id }}''; attempt=''${{ github.run_attempt }}''} | ConvertTo-Json | Set-Content
+        ''.godot/ci/audit-origin.json''
+
+        '
+    - name: Prepare disposable checkout for credential cleanup
+      run: '$ErrorActionPreference = ''Stop''
+
+        # These legacy tooling gitlinks have no .gitmodules URLs. Git''s
+
+        # submodule foreach reads the index even with sparse checkout.
+
+        # The source commit and working files remain unchanged.
+
+        git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        git submodule foreach --recursive ''true''
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        '
+    - name: Install Godot 4.6.3 standard
+      run: "$ErrorActionPreference = 'Stop'\n$archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'\nInvoke-WebRequest\
+        \ -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip'\
+        \ -OutFile $archive\n# SHA256 published with the official 4.6.3-stable release asset.\n$expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'\n\
+        if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {\n  throw\
+        \ 'Godot archive checksum mismatch.'\n}\n$editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'\nExpand-Archive\
+        \ -LiteralPath $archive -DestinationPath $editor\n$console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'\n\
+        if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }\n\"GODOT_CONSOLE_PATH=$console\"\
+        \ | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8\n& $console --version\nif ($LASTEXITCODE -ne\
+        \ 0) { exit $LASTEXITCODE }\n"
+    - name: Import project
+      run: "$ErrorActionPreference = 'Stop'\n$output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'\n$env:APPDATA\
+        \ = Join-Path $output 'import-user/appdata'\n$env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'\n\
+        $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'\nNew-Item -ItemType Directory -Force -Path\
+        \ $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null\n& $env:GODOT_CONSOLE_PATH --headless\
+        \ --path $env:GITHUB_WORKSPACE --import --log-file \"$output/import.log\"\n$importExit = $LASTEXITCODE\n\
+        @{exit_code=$importExit} | ConvertTo-Json | Set-Content \"$output/import-process.json\"\nif ($importExit\
+        \ -ne 0) { exit $importExit }\nif (Select-String -Path \"$output/import.log\" -Pattern 'SCRIPT ERROR:|ERROR:\
+        \ Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {\n  throw 'Project import reported\
+        \ script errors; inspect import.log.'\n}\n"
+      timeout-minutes: 8
+    - name: Restore committed project settings after editor import
+      run: '# Dialogic''s editor scan rewrites its timeline lookup during import.
+
+        # Execute the committed configuration with the freshly imported assets.
+
+        git restore -- project.godot
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        '
+    - name: Reproduce retained-plan growth on baseline
+      timeout-minutes: 12
+      run: "$ErrorActionPreference = 'Stop'\ngit checkout 46bc029f5219fdc39d5d6859765c0fd412f91252 -- autoload/SaveManager.gd\n\
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\n./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'backup-baseline'\
+        \ -LogName 'backup-baseline.log' -EvidenceLogPath '.godot/ci/backup-baseline.jsonl' -TimeoutSeconds 600\
+        \ -GodotArgs @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_backup_inspection.gd','-gexit','-glog=1','-gjunit_xml_file=res://.godot/ci/backup-baseline.xml')\n\
+        $observedExit = $LASTEXITCODE\n@{exit_code=$observedExit} | ConvertTo-Json | Set-Content .godot/ci/backup-baseline-expected-failure.json\n\
+        if ($observedExit -eq 0) { throw 'Baseline unexpectedly passed the retention regression' }\n@'\nimport pathlib,xml.etree.ElementTree\
+        \ as ET\np=pathlib.Path('.godot/ci/backup-baseline.xml');r=ET.parse(p).getroot();cases=list(r.iter('testcase'))\n\
+        assert len(cases)==2\nfailed=[c for c in cases if c.get('status')!='pass']\nassert len(failed)==1 and failed[0].get('name')=='test_admitted_scene_inspection_and_cancelled_consent_preserve_physical_and_live_state'\n\
+        failures=list(r.iter('failure'));assert len(failures)>0\nallowed=['metadata inspection releases','listing\
+        \ nine slots retains','selected Load retains','neither grows retained plans']\nfor f in failures:\n text=ET.tostring(f,encoding='unicode')\n\
+        \ assert any(x in text for x in allowed),text\nlog=pathlib.Path('.godot/phase2r_logs/backup-baseline.log').read_text(encoding='utf-8-sig')\n\
+        assert 'SCRIPT ERROR:' not in log\nprint('EXPECTED_RETENTION_REGRESSION',len(failures))\n'@ | python -\n\
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\ngit restore --source=HEAD --staged --worktree -- autoload/SaveManager.gd\n\
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\n"
+    - name: backup-inspection
+      timeout-minutes: 12
+      run: './tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''backup-inspection'' -LogName ''backup-inspection.log''
+        -EvidenceLogPath ''.godot/ci/backup-inspection.jsonl'' -TimeoutSeconds 600 -GodotArgs @(''-s'',''res://addons/gut/gut_cmdln.gd'',''-gconfig='',''-gtest=res://tests/integration/test_scene_backup_inspection.gd'',''-gexit'',''-glog=1'',''-gjunit_xml_file=res://.godot/ci/backup-inspection.xml'')
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }'
+    - name: backup-host
+      timeout-minutes: 12
+      run: './tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''backup-host'' -LogName ''backup-host.log'' -EvidenceLogPath
+        ''.godot/ci/backup-host.jsonl'' -TimeoutSeconds 600 -GodotArgs @(''-s'',''res://addons/gut/gut_cmdln.gd'',''-gconfig='',''-gtest=res://tests/unit/test_backup_host_admission.gd'',''-gexit'',''-glog=1'',''-gjunit_xml_file=res://.godot/ci/backup-host.xml'')
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }'
+    - name: Regenerate and check affected inventory coordinates
+      timeout-minutes: 12
+      run: './tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        ./tools/testing/Invoke-CloudTests.ps1 -Suite public_surfaces
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        Copy-Item evidence/phase_2r/runtime/*_surface.json .godot/ci/
+
+        '
+    - uses: actions/checkout@v7
+      with:
+        path: .godot/controller
+        persist-credentials: true
+        ref: ${{ github.sha }}
+        sparse-checkout: tools/testing/terminal-admission
+    - name: Stage identical paired helper and authentic ending root
+      run: "$ErrorActionPreference = 'Stop'\ngit -C .godot/controller update-index --force-remove -- .claude/skills/godot-prompter/1.10.0\
+        \ .claude/skills/superpowers/6.1.1\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\nCopy-Item .godot/controller/tools/testing/terminal-admission/*.gd\
+        \ .godot/ci/\n@'\nimport hashlib,json,pathlib,zipfile\np=pathlib.Path('evidence/phase_2r/authored_followup_20261023/run39929612232_late_success/genuine-post-replay-root.zip')\n\
+        assert hashlib.sha256(p.read_bytes()).hexdigest()=='82251bc333baaccdc4c1de38fb175f72b411466b8c4583d41e8fc7fc09edc029'\n\
+        out=pathlib.Path('.godot/ci/terminal-root');out.mkdir(parents=True,exist_ok=True)\nfiles={}\nwith zipfile.ZipFile(p)\
+        \ as z:\n assert z.testzip() is None\n for name in z.namelist():\n  target=(out/name).resolve();assert target.is_relative_to(out.resolve())\n\
+        \  data=z.read(name);target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data)\n  files[name]=hashlib.sha256(data).hexdigest()\n\
+        assert len(files)==40\npathlib.Path('.godot/ci/terminal-root-hashes.json').write_text(json.dumps(files,indent=2))\n\
+        '@ | python -\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\n"
+    - env:
+        DWM_TERMINAL_COMPLETE: '0'
+      name: Affected native ending Load and Save
+      run: "Remove-Item .godot/ci/terminal-pair.json -ErrorAction SilentlyContinue\n./tools/testing/Invoke-IsolatedGodot.ps1\
+        \ -SuiteId 'terminal-candidate' -LogName 'terminal-candidate-seed.log' -EvidenceLogPath '.godot/ci/terminal-candidate.jsonl'\
+        \ -TimeoutSeconds 1800 -KeepRoot -Rendered -GodotArgs @('-s','res://.godot/ci/seed.gd') -NextLogName 'terminal-candidate.log'\
+        \ -NextGodotArgs @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gprefix=pair','-gtest=res://.godot/ci/pair-next.gd','-gexit','-glog=1','-gjunit_xml_file=res://.godot/ci/terminal-candidate.xml')\
+        \ \n$journeyExit = $LASTEXITCODE\nif ($journeyExit -ne 0) { exit $journeyExit }\n"
+      timeout-minutes: 33
+    - name: Check successful candidate results
+      run: "@'\nimport json,pathlib,xml.etree.ElementTree as ET\np=pathlib.Path('.godot/ci')\nfor name,minimum in\
+        \ [('backup-inspection',2),('backup-host',1),('terminal-candidate',1)]:\n r=ET.parse(p/(name+'.xml')).getroot();cases=list(r.iter('testcase'))\n\
+        \ assert len(cases)>=minimum and all(c.get('status')=='pass' for c in cases)\n assert not any(list(r.iter(t))\
+        \ for t in ['failure','error','skipped'])\n events=[json.loads(s) for s in (p/(name+'.jsonl')).read_text(encoding='utf-8-sig').splitlines()\
+        \ if s.strip()]\n assert events and all(e['exit_code']==0 for e in events)\nr=json.loads((p/'terminal-pair.json').read_text());assert\
+        \ r['complete'] and len(r['phases'])==3 and all(x['ok'] for x in r['phases'])\nfor name in ['backup-inspection','backup-host','terminal-candidate']:\n\
+        \ text=pathlib.Path('.godot/phase2r_logs/'+name+'.log').read_text(encoding='utf-8-sig')\n assert not any(s\
+        \ in text for s in ['SCRIPT ERROR:','ERROR: Failed to load','[Failed]'])\n'@ | python -\nif ($LASTEXITCODE\
+        \ -ne 0) { exit $LASTEXITCODE }\n"
+    - name: Collect evidence
+      if: always()
+      run: 'New-Item -ItemType Directory -Force .godot/ci | Out-Null
+
+        Get-ChildItem .godot/phase2r_logs/*.log -ErrorAction SilentlyContinue | Copy-Item -Destination .godot/ci/
+
+        git diff HEAD -- autoload scripts scenes project.godot | Set-Content .godot/ci/final-runtime.patch
+
+        git status --porcelain | Set-Content .godot/ci/final-status.txt'
+    - name: Upload evidence
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: backup-inspection-${{ github.run_id }}
+        path: .godot/ci/
+        include-hidden-files: true
+        retention-days: 30
