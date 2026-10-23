@@ -893,13 +893,19 @@ func test_paused_quick_save_uses_real_dating_capture_without_changing_focus_or_b
 	assert_same(get_viewport().gui_get_focus_owner(), focused)
 	assert_eq(controller.surface.entered_action, &"")
 	assert_eq(controller._quick_commands.edge.key, &"saved")
-	# This fixture deliberately has no restore graph. Once the file exists, the
-	# real owner refuses a further overwrite of that unproved target.
+	# This fixture deliberately has no restore graph. Replacing its existing
+	# Quick save still succeeds because Save does not prepare restoration.
 	var written := _quick_write_count(fixture.files)
 	controller._quick_commands.last_result = {}
 	_quick_native_key(KEY_F5, true)
-	assert_eq(controller._quick_commands.last_result.get("code"), &"backup_action_unavailable")
-	assert_eq(controller._quick_commands.edge.key, &"unavailable")
+	assert_true(controller._quick_commands.last_result.get("ok", false))
+	assert_eq(controller._quick_commands.edge.key, &"saved")
+	assert_gt(_quick_write_count(fixture.files), written, "a fresh press writes the replacement")
+	written = _quick_write_count(fixture.files)
+	assert_eq(controller._handle, held)
+	assert_eq(backup.selected_locator, selected)
+	assert_eq(backup.active_mode, mode)
+	assert_same(get_viewport().gui_get_focus_owner(), focused)
 	controller._quick_commands.last_result = {}
 	_quick_native_key(KEY_F5, true, true)
 	_quick_native_key(KEY_F5, true)
