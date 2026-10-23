@@ -1,9 +1,6 @@
 name: Separate frozen historical contracts
 on:
-  pull_request:
-    paths:
-      - '.github/workflows/historical-contracts.yml'
-      - 'tools/testing/verify_historical_contracts.py'
+  workflow_dispatch:
 permissions:
   contents: read
 concurrency:

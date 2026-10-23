@@ -23,7 +23,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: d69a61a3afa37272b1cab17fd7400ea3a1543538
+          ref: a8d9838207db24a7837417eb895a5b1ed656262b
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -31,10 +31,10 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne 'd69a61a3afa37272b1cab17fd7400ea3a1543538') { throw 'Candidate mismatch' }
-          if ((git rev-parse 'HEAD^{tree}') -cne 'de453ce4084cff924294e3fccd71f56a960224a3') { throw 'Candidate tree mismatch' }
+          if ((git rev-parse HEAD) -cne 'a8d9838207db24a7837417eb895a5b1ed656262b') { throw 'Candidate mismatch' }
+          if ((git rev-parse 'HEAD^{tree}') -cne '0b50482e5881c92511354dead9f1db629a8b7e28') { throw 'Candidate tree mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{candidate='d69a61a3afa37272b1cab17fd7400ea3a1543538'; tree=(git rev-parse 'HEAD^{tree}'); controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{candidate='a8d9838207db24a7837417eb895a5b1ed656262b'; tree=(git rev-parse 'HEAD^{tree}'); controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -89,7 +89,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
           @'
           import hashlib,json,pathlib,subprocess
-          paths=['tests/unit/test_witnessed_transport_rail.gd', 'tests/unit/test_minesweeper_view_controls.gd', 'tests/unit/test_japanese_korean_ui.gd', 'tests/unit/test_gallery_typography.gd', 'tests/unit/test_font_styles.gd', 'tests/integration/test_application_bootstrap.gd', 'tests/integration/test_cold_run_rollback.gd', 'tests/integration/test_desktop_bootstrap_wiring.gd', 'tests/unit/test_witnessed_reading_rail.gd', 'tests/integration/test_witnessed_caption_runtime.gd', 'tests/integration/test_hospital_dating_adapter_negative_contract.gd', 'tests/integration/test_scene_pause_load.gd', 'tests/integration/test_scene_pause_quick_load.gd', 'tests/integration/test_scene_pause_write_refusal.gd', 'tests/integration/test_current_title_scene_create.gd', 'tests/integration/test_current_title_scene_load.gd', 'tests/integration/current_title_scene_child.gd', 'tests/ui/render_gallery_caption_collection.gd']
+          paths=['tests/unit/test_witnessed_transport_rail.gd', 'tests/unit/test_minesweeper_view_controls.gd', 'tests/unit/test_gallery_typography.gd', 'tests/unit/test_font_styles.gd', 'tests/integration/test_application_bootstrap.gd', 'tests/integration/test_cold_run_rollback.gd', 'tests/unit/test_witnessed_reading_rail.gd', 'tests/integration/test_witnessed_caption_runtime.gd', 'tests/integration/test_hospital_dating_adapter_negative_contract.gd', 'tests/integration/test_scene_pause_load.gd', 'tests/integration/test_scene_pause_quick_load.gd', 'tests/integration/test_scene_pause_write_refusal.gd', 'tests/integration/test_current_title_scene_create.gd', 'tests/integration/test_current_title_scene_load.gd', 'tests/integration/current_title_scene_child.gd', 'tests/ui/render_gallery_caption_collection.gd']
           records=[]
           for source in paths:
               p=pathlib.Path(source+'.uid');assert p.is_file(),str(p)
@@ -103,14 +103,14 @@ jobs:
         timeout-minutes: 12
         run: |
           $ErrorActionPreference = 'Stop'
-          ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'geometry' -LogName 'geometry.log' -EvidenceLogPath '.godot/ci/geometry.jsonl' -TimeoutSeconds 600 -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/unit/test_witnessed_transport_rail.gd,res://tests/unit/test_minesweeper_view_controls.gd,res://tests/unit/test_japanese_korean_ui.gd,res://tests/unit/test_gallery_typography.gd,res://tests/unit/test_font_styles.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/geometry.xml')
+          ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'geometry' -LogName 'geometry.log' -EvidenceLogPath '.godot/ci/geometry.jsonl' -TimeoutSeconds 600 -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/unit/test_witnessed_transport_rail.gd,res://tests/unit/test_minesweeper_view_controls.gd,res://tests/unit/test_gallery_typography.gd,res://tests/unit/test_font_styles.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/geometry.xml')
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Qualify fixture-scope
         continue-on-error: true
         timeout-minutes: 12
         run: |
           $ErrorActionPreference = 'Stop'
-          ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'fixture-scope' -LogName 'fixture-scope.log' -EvidenceLogPath '.godot/ci/fixture-scope.jsonl' -TimeoutSeconds 600 -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_application_bootstrap.gd,res://tests/integration/test_cold_run_rollback.gd,res://tests/integration/test_desktop_bootstrap_wiring.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/fixture-scope.xml')
+          ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'fixture-scope' -LogName 'fixture-scope.log' -EvidenceLogPath '.godot/ci/fixture-scope.jsonl' -TimeoutSeconds 600 -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_application_bootstrap.gd,res://tests/integration/test_cold_run_rollback.gd,res://tests/integration/test_scene_controls_localization.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/fixture-scope.xml')
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Qualify display
         continue-on-error: true
@@ -147,6 +147,12 @@ jobs:
           $ErrorActionPreference = 'Stop'
           ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'pause-write-refusal' -LogName 'pause-write-refusal.log' -EvidenceLogPath '.godot/ci/pause-write-refusal.jsonl' -TimeoutSeconds 600 -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_scene_pause_write_refusal.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/pause-write-refusal.xml')
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Render actual authored-story localization and glyph coverage
+        continue-on-error: true
+        timeout-minutes: 15
+        run: |
+          ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'story-localization' -LogName 'story-localization.log' -EvidenceLogPath '.godot/ci/story-localization.jsonl' -TimeoutSeconds 800 -Rendered -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_story_localization.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/story-localization.xml')
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Render current title creator and fresh loader in shared isolated root
         continue-on-error: true
         timeout-minutes: 22
@@ -170,7 +176,7 @@ jobs:
           @'
           import collections,json,pathlib,re,subprocess,xml.etree.ElementTree as ET
           out=pathlib.Path('.godot/ci')
-          suites={'geometry': ['tests/unit/test_witnessed_transport_rail.gd', 'tests/unit/test_minesweeper_view_controls.gd', 'tests/unit/test_japanese_korean_ui.gd', 'tests/unit/test_gallery_typography.gd', 'tests/unit/test_font_styles.gd'], 'fixture-scope': ['tests/integration/test_application_bootstrap.gd', 'tests/integration/test_cold_run_rollback.gd', 'tests/integration/test_desktop_bootstrap_wiring.gd'], 'display': ['tests/unit/test_witnessed_reading_rail.gd', 'tests/integration/test_witnessed_caption_runtime.gd'], 'negative': ['tests/integration/test_hospital_dating_adapter_negative_contract.gd'], 'pause-load': ['tests/integration/test_scene_pause_load.gd'], 'pause-quick-load': ['tests/integration/test_scene_pause_quick_load.gd'], 'pause-write-refusal': ['tests/integration/test_scene_pause_write_refusal.gd'], 'current-title-create': ['tests/integration/test_current_title_scene_create.gd'], 'current-title-load': ['tests/integration/test_current_title_scene_load.gd']}
+          suites={'geometry': ['tests/unit/test_witnessed_transport_rail.gd', 'tests/unit/test_minesweeper_view_controls.gd', 'tests/unit/test_gallery_typography.gd', 'tests/unit/test_font_styles.gd'], 'fixture-scope': ['tests/integration/test_application_bootstrap.gd', 'tests/integration/test_cold_run_rollback.gd', 'tests/integration/test_scene_controls_localization.gd'], 'display': ['tests/unit/test_witnessed_reading_rail.gd', 'tests/integration/test_witnessed_caption_runtime.gd'], 'negative': ['tests/integration/test_hospital_dating_adapter_negative_contract.gd'], 'pause-load': ['tests/integration/test_scene_pause_load.gd'], 'pause-quick-load': ['tests/integration/test_scene_pause_quick_load.gd'], 'pause-write-refusal': ['tests/integration/test_scene_pause_write_refusal.gd'], 'story-localization': ['tests/integration/test_story_localization.gd'], 'current-title-create': ['tests/integration/test_current_title_scene_create.gd'], 'current-title-load': ['tests/integration/test_current_title_scene_load.gd']}
           def effective_tests(script):
               text=pathlib.Path(script).read_text(encoding='utf-8')
               own=re.findall(r'^func (test_\w+)\(',text,re.M)
@@ -189,7 +195,7 @@ jobs:
               assert all(r.attrib.get('status')=='pass' and int(r.attrib.get('assertions','0'))>0 for r in rows),suite
               reports.append({'suite':suite,'tests':len(rows),'assertions':sum(int(r.attrib['assertions']) for r in rows)})
           processes={}
-          for suite,count in {'geometry': 1, 'fixture-scope': 1, 'display': 1, 'negative': 1, 'pause-load': 1, 'pause-quick-load': 1, 'pause-write-refusal': 1, 'current-title': 2, 'gallery-render': 1}.items():
+          for suite,count in {'geometry': 1, 'fixture-scope': 1, 'display': 1, 'negative': 1, 'pause-load': 1, 'pause-quick-load': 1, 'pause-write-refusal': 1, 'story-localization': 1, 'current-title': 2, 'gallery-render': 1}.items():
               events=[json.loads(x) for x in (out/(suite+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if x.strip()]
               assert len(events)==count and all(e['exit_code']==0 for e in events),(suite,events)
               processes[suite]=events
@@ -210,7 +216,7 @@ jobs:
           assert created['visible_text']==json.loads(pathlib.Path('localization/story/en.json').read_text(encoding='utf-8'))['line.Day1.one']
           import struct,zlib
           pngs=[]
-          def check_png(path):
+          def check_png(path, expected_dimensions=(1280,720)):
               data=path.read_bytes();assert len(data)>1000 and data[:8]==b'\x89PNG\r\n\x1a\n',str(path)
               cursor=8;chunks=[];compressed=b'';dimensions=None
               while cursor<len(data):
@@ -219,13 +225,15 @@ jobs:
                   assert zlib.crc32(kind+payload)&0xffffffff==crc,str(path)
                   chunks.append(kind)
                   if kind==b'IHDR':
-                      dimensions=struct.unpack('>II',payload[:8]);assert dimensions==(1280,720),(str(path),dimensions)
+                      dimensions=struct.unpack('>II',payload[:8]);assert dimensions==expected_dimensions,(str(path),dimensions)
                   if kind==b'IDAT':compressed+=payload
                   cursor+=12+length
               assert chunks[0]==b'IHDR' and chunks[-1]==b'IEND' and cursor==len(data) and zlib.decompress(compressed),str(path)
               pngs.append({'path':str(path),'dimensions':dimensions,'bytes':len(data)})
           for label in ['menu','day1','computer','save','loaded-day1','loaded-computer']:
-              check_png(out/('computer-current-title-'+label+'.png'))
+              proof=loaded if label.startswith('loaded-') else created
+              assert len(proof['window_size'])==2 and all(0 < n <= limit for n,limit in zip(proof['window_size'],[1280,720]))
+              check_png(out/('computer-current-title-'+label+'.png'),tuple(proof['window_size']))
           gallery=out/'gallery-caption-collection'
           measurements=json.loads((gallery/'measurements.json').read_text(encoding='utf-8-sig'))
           assert measurements['ok'] is True and not measurements['failures'] and measurements['checks']>0
@@ -243,7 +251,7 @@ jobs:
           assert not changed-allowed,changed
           untracked=subprocess.check_output(['git','ls-files','--others','--exclude-standard','--','autoload','scripts','scenes','tests'],text=True).splitlines()
           assert not [p for p in untracked if pathlib.Path(p).suffix in {'.gd','.tscn'}],untracked
-          for script in ['tests/unit/test_witnessed_transport_rail.gd', 'tests/unit/test_minesweeper_view_controls.gd', 'tests/unit/test_japanese_korean_ui.gd', 'tests/unit/test_gallery_typography.gd', 'tests/unit/test_font_styles.gd', 'tests/integration/test_application_bootstrap.gd', 'tests/integration/test_cold_run_rollback.gd', 'tests/integration/test_desktop_bootstrap_wiring.gd', 'tests/unit/test_witnessed_reading_rail.gd', 'tests/integration/test_witnessed_caption_runtime.gd', 'tests/integration/test_hospital_dating_adapter_negative_contract.gd', 'tests/integration/test_scene_pause_load.gd', 'tests/integration/test_scene_pause_quick_load.gd', 'tests/integration/test_scene_pause_write_refusal.gd', 'tests/integration/test_current_title_scene_create.gd', 'tests/integration/test_current_title_scene_load.gd', 'tests/integration/current_title_scene_child.gd', 'tests/ui/render_gallery_caption_collection.gd']:
+          for script in ['tests/integration/test_story_localization.gd', 'tests/integration/test_scene_controls_localization.gd', 'tests/unit/test_witnessed_transport_rail.gd', 'tests/unit/test_minesweeper_view_controls.gd', 'tests/unit/test_gallery_typography.gd', 'tests/unit/test_font_styles.gd', 'tests/integration/test_application_bootstrap.gd', 'tests/integration/test_cold_run_rollback.gd', 'tests/unit/test_witnessed_reading_rail.gd', 'tests/integration/test_witnessed_caption_runtime.gd', 'tests/integration/test_hospital_dating_adapter_negative_contract.gd', 'tests/integration/test_scene_pause_load.gd', 'tests/integration/test_scene_pause_quick_load.gd', 'tests/integration/test_scene_pause_write_refusal.gd', 'tests/integration/test_current_title_scene_create.gd', 'tests/integration/test_current_title_scene_load.gd', 'tests/integration/current_title_scene_child.gd', 'tests/ui/render_gallery_caption_collection.gd']:
               uid=pathlib.Path(script+'.uid');assert uid.is_file(),str(uid)
               assert re.fullmatch(r'uid://[a-z0-9]+\s*',uid.read_text()),str(uid)
           report={'source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'reports':reports,'tests':sum(x['tests'] for x in reports),'processes':processes,'gallery_captures':len(measurements['samples']),'pngs':pngs,'changed':sorted(changed)}
@@ -260,7 +268,7 @@ jobs:
           out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
           missing=[]
           omitted_assets=[]
-          pending=['tests/unit/test_witnessed_transport_rail.gd', 'tests/unit/test_minesweeper_view_controls.gd', 'tests/unit/test_japanese_korean_ui.gd', 'tests/unit/test_gallery_typography.gd', 'tests/unit/test_font_styles.gd', 'tests/integration/test_application_bootstrap.gd', 'tests/integration/test_cold_run_rollback.gd', 'tests/integration/test_desktop_bootstrap_wiring.gd', 'tests/unit/test_witnessed_reading_rail.gd', 'tests/integration/test_witnessed_caption_runtime.gd', 'tests/integration/test_hospital_dating_adapter_negative_contract.gd', 'tests/integration/test_scene_pause_load.gd', 'tests/integration/test_scene_pause_quick_load.gd', 'tests/integration/test_scene_pause_write_refusal.gd', 'tests/integration/test_current_title_scene_create.gd', 'tests/integration/test_current_title_scene_load.gd', 'tests/integration/current_title_scene_child.gd', 'tests/ui/render_gallery_caption_collection.gd', 'tools/testing/Invoke-IsolatedGodot.ps1', 'project.godot']
+          pending=['tests/integration/test_story_localization.gd', 'tests/integration/test_scene_controls_localization.gd', 'tests/unit/test_witnessed_transport_rail.gd', 'tests/unit/test_minesweeper_view_controls.gd', 'tests/unit/test_gallery_typography.gd', 'tests/unit/test_font_styles.gd', 'tests/integration/test_application_bootstrap.gd', 'tests/integration/test_cold_run_rollback.gd', 'tests/unit/test_witnessed_reading_rail.gd', 'tests/integration/test_witnessed_caption_runtime.gd', 'tests/integration/test_hospital_dating_adapter_negative_contract.gd', 'tests/integration/test_scene_pause_load.gd', 'tests/integration/test_scene_pause_quick_load.gd', 'tests/integration/test_scene_pause_write_refusal.gd', 'tests/integration/test_current_title_scene_create.gd', 'tests/integration/test_current_title_scene_load.gd', 'tests/integration/current_title_scene_child.gd', 'tests/ui/render_gallery_caption_collection.gd', 'tools/testing/Invoke-IsolatedGodot.ps1', 'project.godot']
           sources=set()
           while pending:
               source=pending.pop()

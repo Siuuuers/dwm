@@ -1,8 +1,6 @@
 name: Public inventory refresh preparation
 on:
-  pull_request:
-    paths:
-      - '.github/workflows/public-inventory-refresh.yml'
+  workflow_dispatch:
 permissions:
   contents: read
   actions: read
