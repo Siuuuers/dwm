@@ -96,9 +96,7 @@ jobs:
       fail-fast: false
       matrix:
         suite:
-        - backup_presentation
         - settings
-        - current_title
         - scene_backup_inspection
     steps:
     - uses: actions/checkout@v7

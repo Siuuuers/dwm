@@ -75,14 +75,14 @@ class DestinationPlanProbe extends RefCounted:
 	var inputs: Array[Dictionary] = []
 	var results: Array[Dictionary] = []
 	var applied: Array[Dictionary] = []
-	var refuse_prepare := false
+	var refuse_prepare_call := 0
 	func _init(participant: Object, participant_name: String, shared_events: Array) -> void:
 		inner = participant
 		name = participant_name
 		events = shared_events
 	func prepare(input: Dictionary) -> Dictionary:
 		inputs.append(input.duplicate(true))
-		if refuse_prepare: return {"ok": false, "code": &"fixture_destination_prepare_failed"}
+		if inputs.size() == refuse_prepare_call: return {"ok": false, "code": &"fixture_destination_prepare_failed"}
 		var result: Dictionary = inner.prepare(input)
 		results.append(result.duplicate(true))
 		return result
@@ -182,7 +182,7 @@ func _manager(owner: Owner) -> Node:
 	})
 	return m
 
-func test_prepare_defers_destination_plans_and_commits() -> void:
+func test_legacy_prepare_keeps_source_validation_plans_and_commits() -> void:
 	var owner := Owner.new()
 	var m := _manager(owner)
 	if m == null:
@@ -196,10 +196,8 @@ func test_prepare_defers_destination_plans_and_commits() -> void:
 	var prepared: Dictionary = m.prepare_restore_slot(1)
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
 	var value: Dictionary = prepared["value"]["prepared"]
-	for key: String in ["run", "schedule_view", "profile", "localization", "audio", "route", "narrative"]:
+	for key: String in ["run", "desktop_consequence", "desktop_board", "schedule_view", "profile", "localization", "audio", "route", "narrative"]:
 		assert_true(value["participant_plans"].has(key), "plan built for " + key)
-	assert_false(value["participant_plans"].has("desktop_consequence"))
-	assert_false(value["participant_plans"].has("desktop_board"))
 	assert_true(value.has("source_locator"), "prepare embeds the identity-continuation source locator")
 	assert_eq(value["route_id"], "main", "route id derived from the one selected bundle")
 	var committed: Dictionary = m.commit_prepared_restore(value)
@@ -232,7 +230,7 @@ func _destination_plan_fixture() -> Dictionary:
 	return {"manager": m, "consequence": consequence, "board": board,
 		"events": events, "snapshot": snapshot}
 
-func test_cancelled_load_never_prepares_discarded_source_plans() -> void:
+func test_cancelled_legacy_load_validates_source_without_applying_plans() -> void:
 	var f := _destination_plan_fixture()
 	if f.is_empty(): return
 	var before_file: Dictionary = f.manager._storage.read_text("slot_1.json")
@@ -241,44 +239,44 @@ func test_cancelled_load_never_prepares_discarded_source_plans() -> void:
 	assert_true(prepared.get("ok", false), str(prepared))
 	if not prepared.get("ok", false): return
 	f.manager.cancel_backup_action(prepared.value.token)
-	assert_true(f.consequence.inputs.is_empty())
-	assert_true(f.board.inputs.is_empty())
+	assert_eq(f.consequence.inputs.size(), 1)
+	assert_eq(f.board.inputs.size(), 1)
 	assert_true(f.events.is_empty(), "cancelled preparation never applies owners")
 	assert_eq(f.manager._storage.read_text("slot_1.json"), before_file)
 	assert_eq(f.manager.get_meta("run_owner").capture_restore_state(), before_run)
 	assert_true(f.manager._continuation_journal.list_incomplete().value.is_empty())
 
-func test_commit_builds_only_destination_plans_and_applies_consequence_before_board() -> void:
+func test_legacy_commit_replaces_source_plans_and_applies_consequence_before_board() -> void:
 	var f := _destination_plan_fixture()
 	if f.is_empty(): return
 	var prepared: Dictionary = f.manager.prepare_restore_slot(1)
 	assert_true(prepared.get("ok", false), str(prepared))
 	if not prepared.get("ok", false): return
-	assert_true(f.consequence.inputs.is_empty())
-	assert_true(f.board.inputs.is_empty())
+	assert_eq(f.consequence.inputs.size(), 1)
+	assert_eq(f.board.inputs.size(), 1)
 	var committed: Dictionary = f.manager.commit_prepared_restore(prepared.value.prepared)
 	assert_true(committed.get("ok", false), str(committed))
 	if not committed.get("ok", false): return
-	assert_eq(f.consequence.inputs.size(), 1)
-	assert_eq(f.board.inputs.size(), 1)
+	assert_eq(f.consequence.inputs.size(), 2)
+	assert_eq(f.board.inputs.size(), 2)
 	assert_eq(f.events, ["consequence", "board"])
-	assert_eq(f.consequence.applied, [f.consequence.results[0].value.consequence_plan])
-	assert_eq(f.board.applied, [f.board.results[0].value.board_plan])
+	assert_eq(f.consequence.applied, [f.consequence.results[1].value.consequence_plan])
+	assert_eq(f.board.applied, [f.board.results[1].value.board_plan])
 	var live: Dictionary = f.manager.get_meta("run_owner").capture_run_snapshot_input()
-	assert_ne(f.consequence.inputs[0].state.causal_day_instance, f.snapshot.desktop.consequence.causal_day_instance)
-	assert_eq(f.consequence.inputs[0].state.causal_day_instance, live.lifecycle.causal_day_instance)
-	assert_eq(f.board.applied[0].candidate.snapshot_after, f.board.inputs[0].state)
-	assert_ne(f.board.inputs[0].state.identity, f.snapshot.desktop.board.identity)
-	assert_eq(f.board.inputs[0].state.identity.causal_day_instance, live.lifecycle.causal_day_instance)
-	assert_eq(f.board.inputs[0].state.identity.desktop_timeline_generation, live.lifecycle.desktop_timeline_generation)
+	assert_ne(f.consequence.inputs[1].state.causal_day_instance, f.snapshot.desktop.consequence.causal_day_instance)
+	assert_eq(f.consequence.inputs[1].state.causal_day_instance, live.lifecycle.causal_day_instance)
+	assert_eq(f.board.applied[0].candidate.snapshot_after, f.board.inputs[1].state)
+	assert_ne(f.board.inputs[1].state.identity, f.snapshot.desktop.board.identity)
+	assert_eq(f.board.inputs[1].state.identity.causal_day_instance, live.lifecycle.causal_day_instance)
+	assert_eq(f.board.inputs[1].state.identity.desktop_timeline_generation, live.lifecycle.desktop_timeline_generation)
 
-func test_destination_prepare_failure_applies_nothing_and_remains_retryable() -> void:
+func test_legacy_destination_prepare_failure_applies_nothing_and_remains_retryable() -> void:
 	for failed_owner: String in ["consequence", "board"]:
 		var f := _destination_plan_fixture()
 		if f.is_empty(): return
 		var before_run: Dictionary = f.manager.get_meta("run_owner").capture_restore_state()
 		var before_journal: Dictionary = f.manager._journal.capture_state()
-		f[failed_owner].refuse_prepare = true
+		f[failed_owner].refuse_prepare_call = 2
 		var prepared: Dictionary = f.manager.prepare_restore_slot(1)
 		assert_true(prepared.get("ok", false), str(prepared))
 		if not prepared.get("ok", false): return
@@ -295,7 +293,7 @@ func test_destination_prepare_failure_applies_nothing_and_remains_retryable() ->
 		assert_eq(pending.value.size(), 1, "allocation remains owned by the existing continuation")
 		assert_eq(pending.value[0].stage, f.manager.CONTINUATION_JOURNAL.STAGE_APPLYING)
 		assert_eq(pending.value[0].next_participant_index, 0)
-		f[failed_owner].refuse_prepare = false
+		f[failed_owner].refuse_prepare_call = 0
 		var resumed: Dictionary = f.manager._resume_operation(pending.value[0])
 		assert_true(resumed.get("ok", false), str(resumed))
 		assert_eq(f.events, ["consequence", "board"], "retry applies the same pending destination once")

@@ -2250,9 +2250,20 @@ func _prepare_bundle_with_all_participants(bundle: Dictionary, migration_output:
 		return run_prep
 	plans["run"] = run_prep["value"]["run_plan"]
 
-	# Board and consequence plans are built after continuation allocation, against
-	# the destination identities. Source plans would be discarded before apply.
+	# Run9 admission fully validates the desktop aggregate, so its source plans
+	# would only be discarded after allocation. Legacy admission still needs
+	# these participant checks before allocating destination identities.
 	if snapshot.get("schema_version") != 9:
+		var consequence_prep: Dictionary = _restore_participants["desktop_consequence"].prepare(
+			{"state": snapshot["desktop"]["consequence"]})
+		if not consequence_prep.get("ok", false):
+			return consequence_prep
+		plans["desktop_consequence"] = consequence_prep["value"]["consequence_plan"]
+		var board_prep: Dictionary = _restore_participants["desktop_board"].prepare(
+			{"state": snapshot["desktop"]["board"], "schema_version": snapshot.get("schema_version")})
+		if not board_prep.get("ok", false):
+			return board_prep
+		plans["desktop_board"] = board_prep["value"]["board_plan"]
 		var view_prep: Dictionary = _restore_participants["schedule_view"].prepare(_schedule_view_input(snapshot))
 		if not view_prep.get("ok", false):
 			return view_prep

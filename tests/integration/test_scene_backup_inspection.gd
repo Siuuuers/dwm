@@ -77,7 +77,9 @@ func test_admitted_scene_inspection_and_cancelled_consent_preserve_physical_and_
 	var consent: Dictionary = port.prepare_action("load", "autosave")
 	assert_true(consent.ok, str(consent))
 	if not consent.ok: return
-	assert_eq(consent.value.record, shown)
+	var expected_consent := shown.duplicate(true)
+	expected_consent.actions = {"save": false, "load": true, "delete": false}
+	assert_eq(consent.value.record, expected_consent)
 	assert_false(consent.value.confirmation_required, "Title loads the selected current state without extra confirmation")
 	var held: Dictionary = fixture.manager._backup_actions[consent.value.token].prepared_restore.duplicate(true)
 	var retained: Dictionary = fixture.manager._scene_restore_preparations.duplicate(true)
@@ -232,5 +234,5 @@ func test_current_scene_source_admission_preserves_state_and_rejects_changed_has
 	changed.request_fingerprint = fixture.manager._canonical_sha256(request)
 	var refused: Dictionary = journal._validate_scene_source(changed)
 	assert_false(refused.get("ok", true))
-	assert_eq(refused.get("message"), "selected checkpoint identity or content conflicts")
+	assert_eq(refused.get("message"), "DesktopContinuationOperationJournal: selected checkpoint identity or content conflicts")
 	assert_eq(_observed(), before, "source admission changes no saved or live gameplay state")
