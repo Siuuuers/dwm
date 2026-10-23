@@ -4295,11 +4295,18 @@ func validate_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary)
 		if not is_instance_valid(_scene_event_bridge) \
 				or not _scene_event_bridge.has_method("validate_scene_event_anchor"):
 			return _transaction_failure(&"event_dependency_invalid", "scene reading anchor validator required")
+		var anchors: Array[Dictionary] = []
 		for receipt: Dictionary in commands.values():
-			var anchored: Dictionary = _scene_event_bridge.validate_scene_event_anchor(
-				receipt.scene_event.reading_anchor, snapshot.lifecycle.ending_plan.source_reading_checkpoint
-				if snapshot.lifecycle.get("ending_plan") is Dictionary and snapshot.lifecycle.ending_plan.get("source_kind") == "scene" else snapshot.narrative_checkpoint)
+			anchors.append(receipt.scene_event.reading_anchor)
+		var checkpoint: Dictionary = snapshot.lifecycle.ending_plan.source_reading_checkpoint \
+			if snapshot.lifecycle.get("ending_plan") is Dictionary and snapshot.lifecycle.ending_plan.get("source_kind") == "scene" else snapshot.narrative_checkpoint
+		if _scene_event_bridge.has_method("validate_scene_event_anchors"):
+			var anchored: Dictionary = _scene_event_bridge.validate_scene_event_anchors(anchors, checkpoint)
 			if not anchored.get("ok", false): return anchored
+		else:
+			for anchor: Dictionary in anchors:
+				var anchored: Dictionary = _scene_event_bridge.validate_scene_event_anchor(anchor, checkpoint)
+				if not anchored.get("ok", false): return anchored
 	return {"ok": true}
 
 func _install_scene_snapshot_silent(snapshot: Dictionary) -> Dictionary:
