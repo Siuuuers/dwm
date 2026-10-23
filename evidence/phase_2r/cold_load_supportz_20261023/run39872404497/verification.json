@@ -1,0 +1,25 @@
+{
+  "run_id": 39872404497,
+  "job_id": 120149743257,
+  "artifact_id": 12467102430,
+  "source": "4b554dbbf39c6532b7f38f5c20ae482c8b77752a",
+  "tree": "0e146677ae8e04f011493d5ba3bd5717c54aaf66",
+  "controller": "166733fee1a388450efa0a74f88a3ba4062969f4",
+  "outer_artifact_sha256": "fca92db0f3cde4756727bee5bf46ff544b4b6b74d17f507bb84cc97234119112",
+  "original_zip_bytes": 2076087,
+  "original_zip_sha256": "93a03a4bcfee961b4598f502ab70ccef76c546a07342b378877803f0462f4a49",
+  "retained_hashes_verified": 699,
+  "tests": 37,
+  "assertions": 971,
+  "exact_retained_source_census": true,
+  "zero_exit_processes": 4,
+  "fresh_process_proof_equal": true,
+  "clean_runtime_logs": true,
+  "screenshots_present": 8,
+  "visually_inspected": [
+    "computer-ordinary-fresh-load-new-board.png",
+    "computer-ordinary-fresh-load-shop.png",
+    "computer-ordinary-supportz-purchased.png"
+  ],
+  "accepted": true
+}

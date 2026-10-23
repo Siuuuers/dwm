@@ -24,7 +24,7 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 4b554dbbf39c6532b7f38f5c20ae482c8b77752a
+          ref: d69a61a3afa37272b1cab17fd7400ea3a1543538
           fetch-depth: 2
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -32,10 +32,10 @@ jobs:
       - name: Record pinned source
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '4b554dbbf39c6532b7f38f5c20ae482c8b77752a') { throw 'Candidate mismatch' }
-          if ((git rev-parse 'HEAD^{tree}') -cne '0e146677ae8e04f011493d5ba3bd5717c54aaf66') { throw 'Candidate tree mismatch' }
+          if ((git rev-parse HEAD) -cne 'd69a61a3afa37272b1cab17fd7400ea3a1543538') { throw 'Candidate mismatch' }
+          if ((git rev-parse 'HEAD^{tree}') -cne 'de453ce4084cff924294e3fccd71f56a960224a3') { throw 'Candidate tree mismatch' }
           New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-          @{mode='inventory-preparation-not-release-acceptance'; predecessor_controller='fe3d7614777f364010cb97c9ac94c075e181de7f'; candidate='4b554dbbf39c6532b7f38f5c20ae482c8b77752a'; tree=(git rev-parse 'HEAD^{tree}'); controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+          @{mode='inventory-preparation-not-release-acceptance'; candidate='d69a61a3afa37272b1cab17fd7400ea3a1543538'; tree=(git rev-parse 'HEAD^{tree}'); controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
       - name: Prepare disposable checkout for credential cleanup
         run: |
           $ErrorActionPreference = 'Stop'
@@ -85,6 +85,22 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Record native UID provenance for new qualification scripts
+        run: |
+          $ErrorActionPreference = 'Stop'
+          @'
+          import hashlib,json,pathlib,re,subprocess
+          paths=['tests/integration/current_title_scene_child.gd', 'tests/integration/test_current_title_scene_create.gd', 'tests/integration/test_current_title_scene_load.gd', 'tests/support/SceneValidationScope.gd']
+          records=[]
+          for source in paths:
+              assert subprocess.run(['git','ls-files','--error-unmatch','--',source],capture_output=True).returncode==0,source
+              p=pathlib.Path(source+'.uid');assert p.is_file(),str(p)
+              assert subprocess.run(['git','cat-file','-e','d69a61a3afa37272b1cab17fd7400ea3a1543538:'+str(p)],capture_output=True).returncode!=0,('new sidecar must originate in cloud editor import',str(p))
+              assert re.fullmatch(r'uid://[a-z0-9]+\s*',p.read_text()),str(p)
+              records.append({'path':str(p),'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'source_sha256':hashlib.sha256(pathlib.Path(source).read_bytes()).hexdigest(),'provenance':'cloud_editor_import','source':'d69a61a3afa37272b1cab17fd7400ea3a1543538','source_tree':'de453ce4084cff924294e3fccd71f56a960224a3'})
+          pathlib.Path('.godot/ci/uid-sidecar-provenance.json').write_text(json.dumps(records,indent=2))
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Preserve inventory inputs and prior outputs
         run: |
           $ErrorActionPreference = 'Stop'
@@ -108,7 +124,8 @@ jobs:
           import json,pathlib,re,subprocess,xml.etree.ElementTree as ET
           root=pathlib.Path.cwd();out=root/'.godot/ci'
           source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
-          assert source=='4b554dbbf39c6532b7f38f5c20ae482c8b77752a'
+          assert source=='d69a61a3afa37272b1cab17fd7400ea3a1543538'
+          assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()=='de453ce4084cff924294e3fccd71f56a960224a3'
           assert json.loads((out/'import-process.json').read_text(encoding='utf-8-sig'))['exit_code']==0
           processes=[]
           for owner in ['game_state','save_manager']:
@@ -129,6 +146,9 @@ jobs:
           xml=ET.parse(out/'public_surfaces.xml');cases=xml.findall('.//testcase')
           assert sorted(c.attrib['name'] for c in cases)==sorted(expected)
           assert all(c.find(tag) is None for c in cases for tag in ['failure','error','skipped']), 'failed/skipped/error test case'
+          assert all(c.attrib.get('status')=='pass' and int(c.attrib.get('assertions','0'))>0 for c in cases), 'vacuous test case'
+          uids=json.loads((out/'uid-sidecar-provenance.json').read_text());assert len(uids)==4
+          assert all(row['provenance']=='cloud_editor_import' and row['source']==source and row['source_tree']=='de453ce4084cff924294e3fccd71f56a960224a3' for row in uids)
           for log in (root/'.godot/phase2r_logs').glob('*.log'):
               assert not re.search(r'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character',log.read_text(encoding='utf-8-sig')),str(log)
           changed=set(subprocess.check_output(['git','diff','HEAD','--name-only'],text=True).splitlines())
@@ -136,7 +156,7 @@ jobs:
           assert not changed-allowed,changed
           untracked=subprocess.check_output(['git','ls-files','--others','--exclude-standard','--','autoload','scripts','scenes','tests','tools'],text=True).splitlines()
           assert not [n for n in untracked if pathlib.Path(n).suffix in {'.gd','.tscn','.ps1'}],untracked
-          (out/'inventory-preparation-gate.json').write_text(json.dumps({'mode':'preparation-not-release-acceptance','source':source,'processes':processes,'test_cases':len(cases),'changed':sorted(changed)},indent=2))
+          (out/'inventory-preparation-gate.json').write_text(json.dumps({'mode':'preparation-not-release-acceptance','source':source,'processes':processes,'test_cases':len(cases),'assertions':sum(int(c.attrib['assertions']) for c in cases),'native_uid_sidecars':uids,'changed':sorted(changed)},indent=2))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Retain original evidence even on failure
@@ -146,6 +166,7 @@ jobs:
           import hashlib,json,pathlib,subprocess,zipfile
           root=pathlib.Path.cwd();out=root/'.godot/ci';out.mkdir(parents=True,exist_ok=True)
           sources=['autoload/GameState.gd','autoload/SaveManager.gd','tools/runtime/PublicSurfaceInventory.gd','tools/runtime/generate_public_surface_inventory.gd','tools/testing/Invoke-PublicSurfaceValidation.ps1','tools/testing/Invoke-IsolatedGodot.ps1','tools/testing/Invoke-CloudTests.ps1','tests/unit/tooling/test_public_surface_inventory.gd','evidence/phase_2r/runtime/game_state_required_surface.json','evidence/phase_2r/runtime/save_manager_required_surface.json','evidence/phase_2r/runtime/game_state_surface.json','evidence/phase_2r/runtime/save_manager_surface.json','project.godot']
+          sources.extend(['tests/integration/current_title_scene_child.gd', 'tests/integration/current_title_scene_child.gd.uid', 'tests/integration/test_current_title_scene_create.gd', 'tests/integration/test_current_title_scene_create.gd.uid', 'tests/integration/test_current_title_scene_load.gd', 'tests/integration/test_current_title_scene_load.gd.uid', 'tests/support/SceneValidationScope.gd', 'tests/support/SceneValidationScope.gd.uid'])
           for name in sources:
               src=root/name
               if src.is_file():

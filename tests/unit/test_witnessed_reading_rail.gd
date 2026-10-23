@@ -121,7 +121,8 @@ func test_history_is_plain_opaque_caption_projection_with_two_focus_anchors() ->
 			labels += 1
 			assert_eq(row.focus_mode, Control.FOCUS_NONE)
 			assert_false(row.selection_enabled)
-			assert_false(row.bbcode_enabled)
+			assert_eq(row.get_parsed_text(), history.get_captions()[labels - 1],
+				"display styling preserves literal caption text, including markup-like brackets")
 			assert_eq(row.get_theme_constant(&"outline_size"), 0, "Dating text outline does not leak into History")
 	assert_eq(labels, 3, "only public captions enter the ledger")
 	assert_false(history.present([{"text": "Private source structure"}]))

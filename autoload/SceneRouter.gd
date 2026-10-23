@@ -27,6 +27,7 @@ signal restore_publication_released()
 signal scene_activation_confirmed(operation_id: String)
 var _scene_host_path := ""
 var _scene_activation: Dictionary = {}
+var _scene_pause_restore_validator: Callable
 
 ## Bootstrap selects the genuine scene shell; this is not saved routing input.
 func configure_scene_host(path: String) -> Dictionary:
@@ -46,16 +47,15 @@ func begin_scene_publication_hold(operation_id: String) -> Dictionary:
 			and _scene_pause_publication.handle == _restore_publication_handle \
 			and _mutation_gate != null and _mutation_gate.is_internal_owner_active(&"restore") else _startup_failure("restore_publication_busy")
 	if is_restore_publication_held():
-		var bridge := get_node_or_null("/root/DialogicBridge")
 		var current := get_tree().current_scene
 		if _restore_publication_publishing or _restore_publication_published or current == null \
 				or not _restore_publication_scene_id.is_empty() \
 				or current.get_instance_id() != _restore_publication_source_id \
 				or _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore") \
-				or bridge == null or not bridge.has_method("validate_scene_pause_restore_handle"):
+				or not _scene_pause_restore_validator.is_valid():
 			return _startup_failure("restore_publication_busy")
 		var retained := _restore_publication_handle.duplicate(true)
-		var suspended: Dictionary = bridge.validate_scene_pause_restore_handle(retained)
+		var suspended: Dictionary = _scene_pause_restore_validator.call(retained)
 		if not suspended.get("ok", false): return suspended
 		if retained != _restore_publication_handle or get_tree().current_scene != current \
 				or not _mutation_gate.is_internal_owner_active(&"restore"):
@@ -185,6 +185,10 @@ func configure_pause_services(services: Dictionary) -> Dictionary:
 		host.queue_free()
 		return configured
 	_production_pause = host
+	_scene_pause_restore_validator = Callable()
+	var bridge: Object = services.get("bridge")
+	if bridge != null and bridge.has_method("validate_scene_pause_restore_handle"):
+		_scene_pause_restore_validator = Callable(bridge, "validate_scene_pause_restore_handle")
 	return {"ok": true}
 
 func capture_pause_backup_checkpoint_inputs() -> Dictionary:

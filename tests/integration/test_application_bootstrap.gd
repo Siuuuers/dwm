@@ -1,5 +1,7 @@
 extends "res://addons/gut/test.gd"
 
+var _scene_validation_scope := preload("res://tests/support/SceneValidationScope.gd").new()
+
 const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 
 # Task 2 (dwm-p2r.9 Plan 06) freezes the FINAL production bootstrap graph.
@@ -124,6 +126,7 @@ func _isolated_root(label: String) -> String:
 ## injected exactly as the production stages do. Profile, Audio, and WindowMode then run in their
 ## production order so WindowMode retains Audio's exact shared Settings transaction owner.
 func _make_graph(label: String) -> Dictionary:
+	_scene_validation_scope.clear_validation_bindings()
 	var root: String = _isolated_root(label)
 	if root.is_empty():
 		return {}
@@ -139,6 +142,7 @@ func _make_graph(label: String) -> Dictionary:
 		&"AccessibilityManager": autofree(ACCESSIBILITY_MANAGER.new()),
 		&"DialogicBridge": autofree(DIALOGIC_BRIDGE.new()),
 	}
+	add_child(targets[&"GameState"])
 	targets[&"GameState"].call(&"reset_game")
 	var bootstrap: Node = autofree(InjectableBootstrap.new())
 	bootstrap.injected_targets = targets
@@ -502,6 +506,10 @@ class RecoveryProfile extends Node:
 
 
 class RecoverySaves extends Node:
+	func configure_scene_new_run(_bridge: Object) -> Dictionary:
+		return {"ok": true}
+	func configure_scene_title_new_run(_target: String) -> Dictionary:
+		return {"ok": true}
 	var trace: Array = []
 	var fail_settlement := false
 	var profile: Object
@@ -560,3 +568,9 @@ func test_new_acc_storage_settles_before_profile_and_failure_stops_all_consumers
 			assert_signal_not_emitted(bootstrap, "application_ready")
 		assert_eq(trace, expected)
 		assert_eq(bootstrap.get_startup_state().ready, not fail_settlement)
+
+func before_each() -> void:
+	_scene_validation_scope.install()
+
+func after_each() -> void:
+	_scene_validation_scope.restore()

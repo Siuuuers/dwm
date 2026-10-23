@@ -690,8 +690,12 @@ func _set_replay_status(key: String) -> void:
 	_refresh_record_copy()
 	if replay_had_focus and _replay_button.disabled: _on_paper_focus_removed(hide_focus)
 	if key.begins_with("gallery.history.") or _canvas.replay_start_failed or _canvas.replay_unavailable or (not _selected_id.is_empty() and key.begins_with("gallery.replay.")):
-		_replay_status.position = Vector2(408, 568)
-		_replay_status.size = Vector2(360, 64)
+		_replay_status.size = Vector2(360, 0)
+		# The fixed 80px dock can hold the enlarged fallback line without
+		# changing the paper or Replay action. Keep placement on native pixels.
+		var status_height := maxf(64.0, ceilf(_replay_status.get_minimum_size().y / 4.0) * 4.0)
+		_replay_status.position = Vector2(408, 600 - status_height / 2.0)
+		_replay_status.size = Vector2(360, status_height)
 		_replay_status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		_replay_status.add_theme_color_override("font_color", theme.get_color("ink" if key == "gallery.history.added" else "error_ink", "Gallery"))
 		_canvas.queue_redraw()

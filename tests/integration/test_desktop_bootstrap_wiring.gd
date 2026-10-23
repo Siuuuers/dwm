@@ -1,5 +1,7 @@
 extends "res://addons/gut/test.gd"
 
+var _scene_validation_scope := preload("res://tests/support/SceneValidationScope.gd").new()
+
 const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 
 # Same-boot desktop/Schedule foundation identity (Plan 01 Task 8 Step 8.1, dwm-p2r.14).
@@ -127,6 +129,7 @@ class UnavailableWindowOutput extends RefCounted:
 
 
 func before_each() -> void:
+	_scene_validation_scope.install()
 	_root = ""
 	var result: Dictionary = TEMPORARY_STORAGE.create("desktop-bootstrap-wiring")
 	assert_true(result.get("ok", false), result.get("message", ""))
@@ -141,7 +144,7 @@ func before_each() -> void:
 	assert_true(_issuer.configure(root_store).get("ok", false))
 
 	_game_state = load(GAME_STATE_PATH).new()
-	autofree(_game_state)
+	add_child_autofree(_game_state)
 	_game_state.reset_game()
 	_state_port = STATE_PORT.new(_game_state)
 	_coordinator = COORDINATOR.new()
@@ -770,7 +773,7 @@ func _activate_gameplay_fixture(graph: Dictionary, day: int = 1) -> Dictionary:
 	if not identity.get("ok", false): return {}
 	assert_true(_game_state.frozen_contacts_contexts_enabled())
 	assert_true(_bootstrap.call(&"_configure_day_resolution_providers", _state_port).get("ok", false))
-	add_child(_game_state)
+	if _game_state.get_parent() == null: add_child(_game_state)
 	if not _bootstrap.has_method("configure_gameplay_desktop"):
 		fail_test("Bootstrap must mount the real gameplay ports")
 		return {}
@@ -882,6 +885,7 @@ func _assert_fresh_graph_preserves_last_saved_action(departure: bool, shop_item:
 	var old_game_id: int = _game_state.get_instance_id()
 	var old_round_id: int = _bootstrap.get("_retained_minesweeper_round_coordinator_app").get_instance_id()
 	# Fresh owners share only disk: no live source/coordinator/state objects or callback caches.
+	_scene_validation_scope.clear_validation_bindings()
 	_storage = JSON_STORAGE.new(issuer_root)
 	var roots: RefCounted = ROOT_STORE.new()
 	assert_true(roots.configure(_storage, NAMESPACE_SOURCE.new()).get("ok", false))
@@ -993,3 +997,6 @@ func test_shop_batch_and_public_gift_alias_commit_authored_values_and_inventory(
 	assert_eq(saved.value.snapshot.gameplay.money, 140)
 	assert_eq(saved.value.snapshot.gameplay.coins, 1)
 	assert_eq(int(saved.value.snapshot.gameplay.inventory.get("priscilla_gift", 0)), 1)
+
+func after_each() -> void:
+	_scene_validation_scope.restore()

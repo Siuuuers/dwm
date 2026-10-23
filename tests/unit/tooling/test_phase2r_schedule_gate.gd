@@ -636,6 +636,7 @@ func test_derive_child_census_at_head_attributes_every_call_site_to_a_matrix_pro
 	var direct_calls: Array[Dictionary] = [
 		{"path": "autoload/GameState.gd", "call": "_identity_issuer.derive_child({\"child_kind\": \"terminal_intent\"", "kind": "terminal_intent"},
 		{"path": "autoload/GameState.gd", "call": "_identity_issuer.derive_child(request.value)", "kind": "scene_day_completion"},
+		{"path": "autoload/GameState.gd", "call": "_identity_issuer.derive_child(_SCENE_EVENT.scene_day_renewal_request(trigger, identity))", "kind": "continuation_operation"},
 		{"path": "scripts/application/run/ConditionHospitalContactsAdapter.gd", "call": "issuer.derive_child({\"child_kind\": \"hospital_miss\"", "kind": "hospital_miss"},
 		{"path": "scripts/application/run/ConditionHospitalContactsAdapter.gd", "call": "issuer.derive_child({\"child_kind\": \"sylvia_hospital_witness\"", "kind": "sylvia_hospital_witness"},
 		{"path": "scripts/application/run/GameStateConditionHospitalPort.gd", "call": "_issuer.derive_child({\"child_kind\": \"day_resolution_stage\"", "kind": "day_resolution_stage"},
@@ -645,6 +646,9 @@ func test_derive_child_census_at_head_attributes_every_call_site_to_a_matrix_pro
 		{"path": "scripts/domain/narrative/SceneEventContract.gd", "call": "issuer.derive_child({\"parent_receipt_id\": root.receipt_id,", "kind": "continuation_operation"},
 		{"path": "scripts/domain/narrative/SceneEventContract.gd", "call": "issuer.derive_child(request)", "kind": "continuation_operation"},
 		{"path": "scripts/domain/narrative/SceneEventContract.gd", "call": "issuer.derive_child(_scene_terminal_child_request(record.issuer_receipt, record.request_fingerprint))", "kind": "continuation_operation"},
+		{"path": "scripts/domain/narrative/SceneEventContract.gd", "call": "issuer.derive_child({\"parent_receipt_id\": root_issuer_receipt.receipt_id,", "kind": "continuation_operation"},
+		{"path": "scripts/domain/narrative/SceneEventContract.gd", "call": "issuer.derive_child({\"parent_receipt_id\": root_issuer_receipt.receipt_id,", "kind": "continuation_operation"},
+		{"path": "scripts/domain/narrative/SceneEventContract.gd", "call": "issuer.derive_child(scene_day_renewal_request(trigger, source))", "kind": "continuation_operation"},
 	]
 	assert_eq((value["dynamic"] as Array).size(), direct_calls.size(),
 		"only the identified, statically named issuer calls remain outside the Plan-01 classifier")

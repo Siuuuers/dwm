@@ -1,6 +1,5 @@
 name: Windows automated tests
 
-# Diagnostic controller only: canonical run39871056249 qualifies the unchanged source.
 on:
   workflow_dispatch:
 

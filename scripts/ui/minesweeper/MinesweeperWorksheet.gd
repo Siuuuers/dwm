@@ -399,15 +399,23 @@ func _configure_view_controls() -> void:
 		cell_size_menu.add_theme_stylebox_override(state, face)
 		if state != "normal":
 			cell_size_menu.add_theme_color_override("font_" + state + "_color", theme.get_color(&"secondary_dark_copy" if state == "disabled" else &"primary_dark_copy", &"Minesweeper"))
+	# Keep the OptionButton's actual shaped line inside the same footer as Fit.
+	# Fallback glyphs can make its native minimum taller than the primary face.
+	var popup_face: StyleBoxFlat = face.duplicate()
+	face.content_margin_top = 0
+	face.content_margin_bottom = 0
+	var padding := minf(6.0, floorf(maxf(0.0, view_controls_height(_locale, theme, _large) - cell_size_menu.get_minimum_size().y) / 2.0))
+	face.content_margin_top = padding
+	face.content_margin_bottom = padding
 	var focus_face: StyleBoxFlat = face.duplicate()
 	focus_face.draw_center = false
 	focus_face.border_color = theme.get_color(&"dark_focus_outer", &"Minesweeper")
 	cell_size_menu.add_theme_stylebox_override("focus", focus_face)
 	var popup := cell_size_menu.get_popup()
 	popup.max_size = Vector2i(0, 360)
-	popup.add_theme_stylebox_override("panel", face)
+	popup.add_theme_stylebox_override("panel", popup_face)
 	popup.add_theme_color_override("font_color", theme.get_color(&"primary_dark_copy", &"Minesweeper"))
-	var selected_face: StyleBoxFlat = face.duplicate()
+	var selected_face: StyleBoxFlat = popup_face.duplicate()
 	selected_face.bg_color = theme.get_color(&"selected_plane", &"Minesweeper")
 	popup.add_theme_stylebox_override("hover", selected_face)
 	popup.add_theme_color_override("font_hover_color", theme.get_color(&"selected_ink", &"Minesweeper"))
