@@ -515,9 +515,6 @@ static func _compile_scene_programme_observed_body(path: String, entry_label: St
 		callable_labels: Array, markers: Array = []) -> Dictionary:
 	if not path.begins_with("res://") or not ResourceLoader.exists(path) or entry_label not in callable_labels:
 		return {"ok": false, "code": &"scene_programme_unavailable"}
-	var resource := load(path)
-	if not resource is DialogicTimeline:
-		return {"ok": false, "code": &"scene_programme_unavailable"}
 	var source := FileAccess.open(path, FileAccess.READ)
 	if source == null: return {"ok": false, "code": &"scene_programme_unavailable"}
 	var bytes := source.get_buffer(source.get_length())
@@ -527,6 +524,11 @@ static func _compile_scene_programme_observed_body(path: String, entry_label: St
 	var cacheable: bool = not ProjectSettings.get_setting("dialogic/translation/enabled", false)
 	var cached: Dictionary = _scene_compile_cache.get(path, {})
 	if cached.is_empty() or cached.bytes != bytes:
+		# Entries can share one DTL. Check its loader once per physical revision;
+		# retaining the loaded resource would also retain mutable playback events.
+		var resource := load(path)
+		if not resource is DialogicTimeline:
+			return {"ok": false, "code": &"scene_programme_unavailable"}
 		cached = {"bytes": bytes, "results": {}}
 		_scene_compile_cache[path] = cached
 	var key: String = arguments.value

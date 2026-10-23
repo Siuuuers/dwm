@@ -305,6 +305,11 @@ func _on_projection_changed() -> void:
 	var revision := _projection_revision(_port)
 	if _projection_valid and revision >= 0 and revision == _displayed_projection_revision:
 		return
+	if not is_visible_in_tree():
+		# Hidden cabinets have no reader. Keep the next preview/entry fresh without
+		# preparing every saved slot in response to background capability changes.
+		_projection_valid = false
+		return
 	refresh_view()
 
 func _projection_revision(port: Object) -> int:

@@ -100,6 +100,28 @@ func test_getterless_port_keeps_signal_refresh() -> void:
 	port.projection_changed.emit()
 	assert_eq(port.projections, before + 1)
 
+func test_hidden_cabinet_defers_notifications_until_fresh_entry() -> void:
+	var port := UnversionedPort.new()
+	var host := Control.new()
+	add_child_autofree(host)
+	var app: BackupApp = load("res://scenes/apps/BackupApp.tscn").instantiate()
+	host.add_child(app)
+	assert_true(app.configure_backup(port).ok)
+	var before := port.projections
+	host.hide()
+	port.projection_changed.emit()
+	port.projection_changed.emit()
+	assert_eq(port.projections, before, "a hidden ancestor also defers slot inspection")
+	assert_false(app._projection_valid, "the next preview cannot reuse a stale view")
+	assert_eq(port.preparations, 0)
+	assert_eq(port.commits, 0)
+	host.show()
+	app.show_window()
+	assert_eq(port.projections, before + 1, "entry obtains one fresh projection")
+	assert_true(app._projection_valid)
+	port.projection_changed.emit()
+	assert_eq(port.projections, before + 2, "visible cabinets still follow notifications")
+
 func test_real_port_counts_each_invalidation_while_publication_is_queued() -> void:
 	var port := BackupPresentationPort.new()
 	var publications := [0]
