@@ -90,6 +90,7 @@ func _day_timings() -> Dictionary:
 func _walk_authored(first: int, last: int) -> bool:
 	for index: int in range(first, last + 1):
 		var started := Time.get_ticks_msec()
+		print("AUTHORED_WEEK_ADVANCE_BEGIN index=", index, " line=", _expected[index].line_id, " ticks_ms=", started)
 		await _accept()
 		if not await _wait_line(_expected[index].line_id): return false
 		assert_eq(bridge._reading_session.latest_entry, _expected[index].entry_id, "shipped route entry")
@@ -97,6 +98,7 @@ func _walk_authored(first: int, last: int) -> bool:
 		# distort the journey being measured. Boundary captures carry full state.
 		_timings.append({"entry_id": _expected[index].entry_id, "line_id": _expected[index].line_id,
 			"elapsed_ms": Time.get_ticks_msec() - started})
+		print("AUTHORED_WEEK_TIMING " + JSON.stringify(_timings.back()))
 		if str(_expected[index].line_id).ends_with(".one"):
 			await _screenshot("authored-" + str(_expected[index].entry_id))
 			print("AUTHORED_WEEK_BOUNDARY ", _expected[index].entry_id, " ticks_ms=", Time.get_ticks_msec())
