@@ -1,0 +1,18 @@
+{
+  "source": "8783f46c5ad8417757a13755bc64ed6b0e7c84fd",
+  "tree": "c6bd6faaaae05e34d00c7c079108867576d19ebc",
+  "controller": "afb9d438436dc5589d8cc77b015641d6f28dd962",
+  "artifact_id": 12474846876,
+  "outer_sha256": "2ef29456bcb6482c2206f530e286ff3973552eaba00c473efb7b4dcca4c7fdac",
+  "zip_crc_verified": true,
+  "retained_members_verified": 52,
+  "exit_code": 124,
+  "timeout_seconds": 1800,
+  "verified_captions": 290,
+  "last_verified_line": "line.Day2.answer.019",
+  "passed_assertion_records_before_timeout": 2661,
+  "completed_test_census": null,
+  "load_replay_started": false,
+  "day2_boundary_ticks_ms": 836353,
+  "scope": "Failed creator; no full-week acceptance or established bottleneck"
+}

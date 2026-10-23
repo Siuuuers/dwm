@@ -17,3 +17,11 @@ Export evidence files are retained exactly as extracted from the verified origin
 Visual inspection: all6 current-title captures and4 story/glyph samples were inspected. Title captures disclosed missing artwork on initial start and fresh Load; passing text/state assertions do not cover that defect. Gallery failed/uncertain real captures and Japanese readable/Korean pixel150% samples were inspected; not all95 Gallery images were visually inspected. All11 corrected Settings captures were inspected. These layout fixtures do not certify full authored content or every language.
 
 The current qualification verifier in run39888007872/inspect.py records an offline corrected size check, not a rewritten successful cloud result. It was executed against the original retained source tree.
+
+## Collected artwork retry and authored timeout
+
+Artwork retry39891351724 passed:25 tests,558 case assertions plus2 setup assertions,8 clean child exits. Both ZIP CRCs and85 member hashes verified. All6 native992x558 screenshots inspected: initial and loaded artwork appears. The two cloud-generated caller inventories were adopted byte-for-byte in e6b3adf657b37bcac07c0d6d219978c8bf34a2c7.
+
+Authored job120203110074 in39888749357 failed by1800-second creator timeout (exit124). It checked290 captions through line.Day2.answer.019;2661 passed assertion records are not a completed-test result. Load/replay never started. Both ZIP CRCs and52 member hashes verified. Original artifacts and inspection summaries are in run39891351724_art and run39888749357_journey.
+
+The next bounded profile is run39895040994, source e6b3adf657b37bcac07c0d6d219978c8bf34a2c7, tree9f007fab92e9f43284c123ab9f79b50ae37a1b3d, controller b1c07d1697c36ec92234e5f2fab778cbdf78ff3b. It measures first32 captions only; consult the continuation handoff for current status. No production optimization is claimed.
