@@ -1,0 +1,19 @@
+{
+  "observed_lines": 836,
+  "transitions": 835,
+  "elapsed_ms": 2755800,
+  "assertions": 7615,
+  "lifecycle": "COMPLETED",
+  "playback_stage": "GALLERY_RECORDED",
+  "gallery_receipts": 1,
+  "day_elapsed_ms": {
+    "Day1": 234507,
+    "Day2": 227579,
+    "Day3": 317393,
+    "Day4": 336047,
+    "Day5": 348972,
+    "Day6": 562104,
+    "Day7": 451153,
+    "ending": 87368
+  }
+}
