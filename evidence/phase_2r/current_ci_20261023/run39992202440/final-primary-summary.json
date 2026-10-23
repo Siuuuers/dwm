@@ -1,0 +1,3683 @@
+{
+  "run_id": 39992202440,
+  "head_sha": "3e016116ecac40ea5ce8186332261927a4959d16",
+  "tested_merge_sha": "0646d42ef054318c18863fee087c19b3efdad476",
+  "tested_tree": "2321e4bc8ab0157101275e0a491aaac20bc1ee0e",
+  "head_tree_equals_tested_tree": true,
+  "checkout_evidence_job_id": 120548840799,
+  "expected_focused_suites": 22,
+  "observed_focused_suites": 22,
+  "suites": [
+    {
+      "suite": "audio",
+      "artifact_id": 12519006535,
+      "artifact_sha256": "412081a0bee82e7cbf883da700b573fbd41e28fd516f86d0ebf9e070caccab29",
+      "artifact_digest_match": true,
+      "crc_ok": true,
+      "cases": 44,
+      "assertions": 493,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmls": [
+        {
+          "path": "ci/audio.xml",
+          "sha256": "976cc529e4648828e7fd2e4410687103e55678fc29b81867eee2d7a5c1db74fd",
+          "cases": 44
+        }
+      ],
+      "scripts": [
+        {
+          "script": "tests/unit/test_audio_manager.gd",
+          "cases": 23,
+          "assertions": 191,
+          "statuses": {
+            "pass": 23
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_audio_settings_transactions.gd",
+          "cases": 21,
+          "assertions": 302,
+          "statuses": {
+            "pass": 21
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "job": {
+        "id": 120548840799,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "eligible_for_acceptance": true,
+      "run_id": 39992202440,
+      "source_sha": "0646d42ef054318c18863fee087c19b3efdad476",
+      "source_tree": "2321e4bc8ab0157101275e0a491aaac20bc1ee0e"
+    },
+    {
+      "suite": "authored_week",
+      "artifact_id": 12517609648,
+      "artifact_sha256": "41358068a892a7cb671b2e49510980c4ba6b7883b9f934a278a4d462db061888",
+      "artifact_digest_match": true,
+      "crc_ok": true,
+      "cases": 1,
+      "assertions": 55,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmls": [
+        {
+          "path": "ci/authored_week.xml",
+          "sha256": "9db3da4f76549bc378529c4193e2e30781e908dcbc2d07d17646d98d007fe277",
+          "cases": 1
+        }
+      ],
+      "scripts": [
+        {
+          "script": "tests/unit/test_authored_week.gd",
+          "cases": 1,
+          "assertions": 55,
+          "statuses": {
+            "pass": 1
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "job": {
+        "id": 120548840924,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "eligible_for_acceptance": true,
+      "run_id": 39992202440,
+      "source_sha": "0646d42ef054318c18863fee087c19b3efdad476",
+      "source_tree": "2321e4bc8ab0157101275e0a491aaac20bc1ee0e"
+    },
+    {
+      "suite": "checkpoint_diagnostics",
+      "artifact_id": 12519130721,
+      "artifact_sha256": "1c4d0eebb65f6e7b919deb55bb75a0df254f94156e9f1c76d995cd9b192594f0",
+      "artifact_digest_match": true,
+      "crc_ok": true,
+      "cases": 22,
+      "assertions": 3604,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmls": [
+        {
+          "path": "ci/checkpoint_diagnostics.xml",
+          "sha256": "f0a0bb888cfa935d4e063e784614d0b9f818446d5f3b8b25da8d00509f607a26",
+          "cases": 22
+        }
+      ],
+      "scripts": [
+        {
+          "script": "tests/integration/test_warm_outgoing_proof_commits.gd",
+          "cases": 5,
+          "assertions": 2687,
+          "statuses": {
+            "pass": 5
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_checkpoint_history_region_search.gd",
+          "cases": 7,
+          "assertions": 404,
+          "statuses": {
+            "pass": 7
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_checkpoint_phase_diagnostics.gd",
+          "cases": 4,
+          "assertions": 212,
+          "statuses": {
+            "pass": 4
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_normalization_identity.gd",
+          "cases": 6,
+          "assertions": 301,
+          "statuses": {
+            "pass": 6
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "job": {
+        "id": 120548840698,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "eligible_for_acceptance": true,
+      "run_id": 39992202440,
+      "source_sha": "0646d42ef054318c18863fee087c19b3efdad476",
+      "source_tree": "2321e4bc8ab0157101275e0a491aaac20bc1ee0e"
+    },
+    {
+      "suite": "current_title",
+      "artifact_id": 12517819030,
+      "artifact_sha256": "544b276ee56863e01c9295c4d532d7c3ad54a35628edcc66125e9f3d11b51695",
+      "artifact_digest_match": true,
+      "crc_ok": true,
+      "cases": 2,
+      "assertions": 182,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmls": [
+        {
+          "path": "ci/current_title-load.xml",
+          "sha256": "a11cd78fb9c42209f2aa1f52a2b6d62ae10d2dc9d4c39255fede750f43a59953",
+          "cases": 1
+        },
+        {
+          "path": "ci/current_title.xml",
+          "sha256": "15a887c822a5817c0e78f273b6da6bcf9c5daead8a5f94859a3fe4796d3ce140",
+          "cases": 1
+        }
+      ],
+      "scripts": [
+        {
+          "script": "tests/integration/test_current_title_scene_create.gd",
+          "cases": 1,
+          "assertions": 77,
+          "statuses": {
+            "pass": 1
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_current_title_scene_load.gd",
+          "cases": 1,
+          "assertions": 105,
+          "statuses": {
+            "pass": 1
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "job": {
+        "id": 120548840864,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "eligible_for_acceptance": true,
+      "run_id": 39992202440,
+      "source_sha": "0646d42ef054318c18863fee087c19b3efdad476",
+      "source_tree": "2321e4bc8ab0157101275e0a491aaac20bc1ee0e"
+    },
+    {
+      "suite": "dating",
+      "artifact_id": 12518826889,
+      "artifact_sha256": "1f5b777eb12302484d6db9b169ddc6ece1eb429dbb133f6e7a8e5c76254fab69",
+      "artifact_digest_match": true,
+      "crc_ok": true,
+      "cases": 175,
+      "assertions": 7468,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmls": [
+        {
+          "path": "ci/dating.xml",
+          "sha256": "5cc26282d23bfa39e80ab632cca1811648526d9b50460faaa2de983a7705b4c9",
+          "cases": 175
+        }
+      ],
+      "scripts": [
+        {
+          "script": "tests/integration/test_dating_quick_commands.gd",
+          "cases": 12,
+          "assertions": 233,
+          "statuses": {
+            "pass": 12
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+          "cases": 12,
+          "assertions": 312,
+          "statuses": {
+            "pass": 12
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_active_dating_backup_capture.gd",
+          "cases": 18,
+          "assertions": 113,
+          "statuses": {
+            "pass": 18
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_canonical_dating_mastery.gd",
+          "cases": 9,
+          "assertions": 154,
+          "statuses": {
+            "pass": 9
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_attempt_runtime.gd",
+          "cases": 45,
+          "assertions": 1157,
+          "statuses": {
+            "pass": 45
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_capability_envelope.gd",
+          "cases": 6,
+          "assertions": 1414,
+          "statuses": {
+            "pass": 6
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_narrative_playback.gd",
+          "cases": 18,
+          "assertions": 194,
+          "statuses": {
+            "pass": 18
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_physical_owner.gd",
+          "cases": 15,
+          "assertions": 985,
+          "statuses": {
+            "pass": 15
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_presentation_port.gd",
+          "cases": 21,
+          "assertions": 233,
+          "statuses": {
+            "pass": 21
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_rehearsal_owner.gd",
+          "cases": 7,
+          "assertions": 521,
+          "statuses": {
+            "pass": 7
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_frozen_presentation_context.gd",
+          "cases": 6,
+          "assertions": 2101,
+          "statuses": {
+            "pass": 6
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_evidence_v8.gd",
+          "cases": 6,
+          "assertions": 51,
+          "statuses": {
+            "pass": 6
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "job": {
+        "id": 120548841034,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "eligible_for_acceptance": true,
+      "run_id": 39992202440,
+      "source_sha": "0646d42ef054318c18863fee087c19b3efdad476",
+      "source_tree": "2321e4bc8ab0157101275e0a491aaac20bc1ee0e"
+    },
+    {
+      "suite": "desktop",
+      "artifact_id": 12518666699,
+      "artifact_sha256": "4b5496ffaec380340b136158c5994b31847aeb0a29309e20dd93a388b2cd66a2",
+      "artifact_digest_match": true,
+      "crc_ok": true,
+      "cases": 325,
+      "assertions": 25319,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmls": [
+        {
+          "path": "ci/desktop.xml",
+          "sha256": "66574b52b8c9acd151522cc9724e67730711403fbfd23608028aaf21703d85e7",
+          "cases": 325
+        }
+      ],
+      "scripts": [
+        {
+          "script": "tests/desktop_shell/test_desktop_split_touch.gd",
+          "cases": 13,
+          "assertions": 21156,
+          "statuses": {
+            "pass": 13
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_application_bootstrap.gd",
+          "cases": 11,
+          "assertions": 255,
+          "statuses": {
+            "pass": 11
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_contacts_run_presentation.gd",
+          "cases": 8,
+          "assertions": 303,
+          "statuses": {
+            "pass": 8
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_desktop_bootstrap_wiring.gd",
+          "cases": 20,
+          "assertions": 376,
+          "statuses": {
+            "pass": 20
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_desktop_day_change_fatal.gd",
+          "cases": 4,
+          "assertions": 29,
+          "statuses": {
+            "pass": 4
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_desktop_logout_consent.gd",
+          "cases": 4,
+          "assertions": 47,
+          "statuses": {
+            "pass": 4
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_desktop_quick_commands.gd",
+          "cases": 17,
+          "assertions": 405,
+          "statuses": {
+            "pass": 17
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_phase2r_schedule_desktop_handoff.gd",
+          "cases": 111,
+          "assertions": 572,
+          "statuses": {
+            "pass": 111
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_scene_backup_desktop_entry.gd",
+          "cases": 3,
+          "assertions": 78,
+          "statuses": {
+            "pass": 3
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_scene_day_commit_ordering.gd",
+          "cases": 2,
+          "assertions": 71,
+          "statuses": {
+            "pass": 2
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_schedule_desktop_host.gd",
+          "cases": 15,
+          "assertions": 399,
+          "statuses": {
+            "pass": 15
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_ui_art_placements.gd",
+          "cases": 5,
+          "assertions": 47,
+          "statuses": {
+            "pass": 5
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_controls_input_contact_release.gd",
+          "cases": 1,
+          "assertions": 24,
+          "statuses": {
+            "pass": 1
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_angela_stat_overlay.gd",
+          "cases": 4,
+          "assertions": 90,
+          "statuses": {
+            "pass": 4
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_application_runtime_lifetime.gd",
+          "cases": 3,
+          "assertions": 69,
+          "statuses": {
+            "pass": 3
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_contacts_frozen_context.gd",
+          "cases": 8,
+          "assertions": 143,
+          "statuses": {
+            "pass": 8
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_desktop_accessibility_contract.gd",
+          "cases": 6,
+          "assertions": 128,
+          "statuses": {
+            "pass": 6
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_desktop_app_host_state.gd",
+          "cases": 12,
+          "assertions": 87,
+          "statuses": {
+            "pass": 12
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_desktop_cold_recovery_preparation.gd",
+          "cases": 7,
+          "assertions": 176,
+          "statuses": {
+            "pass": 7
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_desktop_panel_split.gd",
+          "cases": 12,
+          "assertions": 164,
+          "statuses": {
+            "pass": 12
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_desktop_touch_navigation.gd",
+          "cases": 10,
+          "assertions": 51,
+          "statuses": {
+            "pass": 10
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_scene_day_renewal.gd",
+          "cases": 4,
+          "assertions": 51,
+          "statuses": {
+            "pass": 4
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_schedule_app.gd",
+          "cases": 40,
+          "assertions": 545,
+          "statuses": {
+            "pass": 40
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_session_exit_coordinator.gd",
+          "cases": 5,
+          "assertions": 53,
+          "statuses": {
+            "pass": 5
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "job": {
+        "id": 120548840675,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "eligible_for_acceptance": true,
+      "run_id": 39992202440,
+      "source_sha": "0646d42ef054318c18863fee087c19b3efdad476",
+      "source_tree": "2321e4bc8ab0157101275e0a491aaac20bc1ee0e"
+    },
+    {
+      "suite": "endings",
+      "artifact_id": 12518816516,
+      "artifact_sha256": "6fe82096ad8d9aa1df4c283c19624fca8a5f226a910358c4f8dbb42a48c9e266",
+      "artifact_digest_match": true,
+      "crc_ok": true,
+      "cases": 169,
+      "assertions": 2540,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmls": [
+        {
+          "path": "ci/endings.xml",
+          "sha256": "b413d9642986f8f883bdff2786dc58b32fabc35c1a771505e0aba20d916191c9",
+          "cases": 169
+        }
+      ],
+      "scripts": [
+        {
+          "script": "tests/integration/test_ending_dialogic_wiring.gd",
+          "cases": 11,
+          "assertions": 61,
+          "statuses": {
+            "pass": 11
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_gallery_art_placements.gd",
+          "cases": 3,
+          "assertions": 104,
+          "statuses": {
+            "pass": 3
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_gallery_navigation.gd",
+          "cases": 11,
+          "assertions": 185,
+          "statuses": {
+            "pass": 11
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_gallery_record_metadata.gd",
+          "cases": 3,
+          "assertions": 136,
+          "statuses": {
+            "pass": 3
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_gallery_replay_status.gd",
+          "cases": 6,
+          "assertions": 172,
+          "statuses": {
+            "pass": 6
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_gallery_version_register.gd",
+          "cases": 9,
+          "assertions": 237,
+          "statuses": {
+            "pass": 9
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_ordered_ending_playback.gd",
+          "cases": 3,
+          "assertions": 34,
+          "statuses": {
+            "pass": 3
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scenario/test_day7_endings.gd",
+          "cases": 6,
+          "assertions": 147,
+          "statuses": {
+            "pass": 6
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scenario/test_day7_schedule_provenance.gd",
+          "cases": 15,
+          "assertions": 373,
+          "statuses": {
+            "pass": 15
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_ending_rules.gd",
+          "cases": 18,
+          "assertions": 47,
+          "statuses": {
+            "pass": 18
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_ending_rules_migration.gd",
+          "cases": 5,
+          "assertions": 20,
+          "statuses": {
+            "pass": 5
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_day7_condition_ending.gd",
+          "cases": 8,
+          "assertions": 328,
+          "statuses": {
+            "pass": 8
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dialogic_ending_playback_port.gd",
+          "cases": 12,
+          "assertions": 37,
+          "statuses": {
+            "pass": 12
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_ending_completion_durability.gd",
+          "cases": 3,
+          "assertions": 71,
+          "statuses": {
+            "pass": 3
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_ending_frozen_context.gd",
+          "cases": 6,
+          "assertions": 74,
+          "statuses": {
+            "pass": 6
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_ending_presentation_signature.gd",
+          "cases": 5,
+          "assertions": 49,
+          "statuses": {
+            "pass": 5
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_gallery_record_catalog.gd",
+          "cases": 14,
+          "assertions": 98,
+          "statuses": {
+            "pass": 14
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_gallery_record_paper.gd",
+          "cases": 11,
+          "assertions": 135,
+          "statuses": {
+            "pass": 11
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_gallery_version_register.gd",
+          "cases": 6,
+          "assertions": 62,
+          "statuses": {
+            "pass": 6
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_run_lifecycle.gd",
+          "cases": 14,
+          "assertions": 170,
+          "statuses": {
+            "pass": 14
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "job": {
+        "id": 120548840643,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "eligible_for_acceptance": true,
+      "run_id": 39992202440,
+      "source_sha": "0646d42ef054318c18863fee087c19b3efdad476",
+      "source_tree": "2321e4bc8ab0157101275e0a491aaac20bc1ee0e"
+    },
+    {
+      "suite": "localization",
+      "artifact_id": 12518088224,
+      "artifact_sha256": "3e92a661f12da12bf4757013f1864ebdac25a94065bd384251c4804c033365c6",
+      "artifact_digest_match": true,
+      "crc_ok": true,
+      "cases": 153,
+      "assertions": 27738,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmls": [
+        {
+          "path": "ci/localization.xml",
+          "sha256": "b63393b95dc14dd96f6aa0c14dc8d6d0faf7f942add3be500eea511412b8cbfa",
+          "cases": 153
+        }
+      ],
+      "scripts": [
+        {
+          "script": "tests/integration/test_desktop_crash_recovery.gd",
+          "cases": 6,
+          "assertions": 218,
+          "statuses": {
+            "pass": 6
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_ending_recovery_localization.gd",
+          "cases": 9,
+          "assertions": 110,
+          "statuses": {
+            "pass": 9
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_backup_panel_resize.gd",
+          "cases": 3,
+          "assertions": 48,
+          "statuses": {
+            "pass": 3
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_backup_presentation.gd",
+          "cases": 11,
+          "assertions": 3458,
+          "statuses": {
+            "pass": 11
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_controls_binding_rules.gd",
+          "cases": 12,
+          "assertions": 134,
+          "statuses": {
+            "pass": 12
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_font_styles.gd",
+          "cases": 7,
+          "assertions": 1531,
+          "statuses": {
+            "pass": 7
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_gallery_registrar.gd",
+          "cases": 10,
+          "assertions": 317,
+          "statuses": {
+            "pass": 10
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_gallery_typography.gd",
+          "cases": 3,
+          "assertions": 8995,
+          "statuses": {
+            "pass": 3
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_japanese_korean_ui.gd",
+          "cases": 9,
+          "assertions": 3282,
+          "statuses": {
+            "pass": 9
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_locale_font_preparation.gd",
+          "cases": 3,
+          "assertions": 17,
+          "statuses": {
+            "pass": 3
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_localization.gd",
+          "cases": 20,
+          "assertions": 275,
+          "statuses": {
+            "pass": 20
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_localization_extraction.gd",
+          "cases": 5,
+          "assertions": 125,
+          "statuses": {
+            "pass": 5
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_provisional_correspondence_catalog.gd",
+          "cases": 4,
+          "assertions": 1190,
+          "statuses": {
+            "pass": 4
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_system_tts_coordinator.gd",
+          "cases": 12,
+          "assertions": 75,
+          "statuses": {
+            "pass": 12
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_witnessed_speech_status.gd",
+          "cases": 4,
+          "assertions": 142,
+          "statuses": {
+            "pass": 4
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_witnessed_transport_rail.gd",
+          "cases": 13,
+          "assertions": 7547,
+          "statuses": {
+            "pass": 13
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/tooling/test_ui_literal_audit.gd",
+          "cases": 22,
+          "assertions": 274,
+          "statuses": {
+            "pass": 22
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "job": {
+        "id": 120548840640,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "eligible_for_acceptance": true,
+      "run_id": 39992202440,
+      "source_sha": "0646d42ef054318c18863fee087c19b3efdad476",
+      "source_tree": "2321e4bc8ab0157101275e0a491aaac20bc1ee0e"
+    },
+    {
+      "suite": "minesweeper",
+      "artifact_id": 12518861403,
+      "artifact_sha256": "39c31288edf5d32d8a01f885f9f3cdbf84db65343f8fe96360f34e9186249ed6",
+      "artifact_digest_match": true,
+      "crc_ok": true,
+      "cases": 213,
+      "assertions": 30998,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmls": [
+        {
+          "path": "ci/minesweeper.xml",
+          "sha256": "42702e807ab2008713dc8f1acd7fc898bba58e6339f29382c93bd14c7150ff44",
+          "cases": 213
+        }
+      ],
+      "scripts": [
+        {
+          "script": "tests/integration/test_minesweeper_desktop_host.gd",
+          "cases": 11,
+          "assertions": 258,
+          "statuses": {
+            "pass": 11
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_minesweeper_challenge_controls.gd",
+          "cases": 8,
+          "assertions": 1330,
+          "statuses": {
+            "pass": 8
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_minesweeper_new_board_bindings.gd",
+          "cases": 5,
+          "assertions": 84,
+          "statuses": {
+            "pass": 5
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_minesweeper_toggle_bindings.gd",
+          "cases": 12,
+          "assertions": 163,
+          "statuses": {
+            "pass": 12
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_minesweeper_view_gestures.gd",
+          "cases": 4,
+          "assertions": 68,
+          "statuses": {
+            "pass": 4
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_gallery_rehearsal_host.gd",
+          "cases": 4,
+          "assertions": 68,
+          "statuses": {
+            "pass": 4
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_app.gd",
+          "cases": 22,
+          "assertions": 298,
+          "statuses": {
+            "pass": 22
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_cell.gd",
+          "cases": 7,
+          "assertions": 84,
+          "statuses": {
+            "pass": 7
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_dock.gd",
+          "cases": 6,
+          "assertions": 4005,
+          "statuses": {
+            "pass": 6
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_information_sheet.gd",
+          "cases": 9,
+          "assertions": 762,
+          "statuses": {
+            "pass": 9
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_palette_components.gd",
+          "cases": 5,
+          "assertions": 758,
+          "statuses": {
+            "pass": 5
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_panel.gd",
+          "cases": 23,
+          "assertions": 2939,
+          "statuses": {
+            "pass": 23
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_register.gd",
+          "cases": 9,
+          "assertions": 1822,
+          "statuses": {
+            "pass": 9
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_scroll_rail.gd",
+          "cases": 9,
+          "assertions": 57,
+          "statuses": {
+            "pass": 9
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_sheet_controls.gd",
+          "cases": 10,
+          "assertions": 343,
+          "statuses": {
+            "pass": 10
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_theme.gd",
+          "cases": 5,
+          "assertions": 4730,
+          "statuses": {
+            "pass": 5
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_view_controls.gd",
+          "cases": 10,
+          "assertions": 7442,
+          "statuses": {
+            "pass": 10
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_view_preferences.gd",
+          "cases": 6,
+          "assertions": 232,
+          "statuses": {
+            "pass": 6
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_worksheet.gd",
+          "cases": 19,
+          "assertions": 1290,
+          "statuses": {
+            "pass": 19
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_worksheet_layout.gd",
+          "cases": 4,
+          "assertions": 53,
+          "statuses": {
+            "pass": 4
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_worksheet_view_layout.gd",
+          "cases": 5,
+          "assertions": 4047,
+          "statuses": {
+            "pass": 5
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_zoom_input.gd",
+          "cases": 17,
+          "assertions": 134,
+          "statuses": {
+            "pass": 17
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_scene_round_completion.gd",
+          "cases": 3,
+          "assertions": 31,
+          "statuses": {
+            "pass": 3
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "job": {
+        "id": 120548840752,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "eligible_for_acceptance": true,
+      "run_id": 39992202440,
+      "source_sha": "0646d42ef054318c18863fee087c19b3efdad476",
+      "source_tree": "2321e4bc8ab0157101275e0a491aaac20bc1ee0e"
+    },
+    {
+      "suite": "new_account",
+      "artifact_id": 12517853789,
+      "artifact_sha256": "4e013351c5c266511f149fd7f91e4fac068cbae8d537710e4861bfd047ce48f9",
+      "artifact_digest_match": true,
+      "crc_ok": true,
+      "cases": 181,
+      "assertions": 4559,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmls": [
+        {
+          "path": "ci/new_account.xml",
+          "sha256": "d380ef36ae8b5d67c8eabeefe3bd1f9fd0c269b1d79131c4ac38fce336693b6e",
+          "cases": 181
+        }
+      ],
+      "scripts": [
+        {
+          "script": "tests/integration/test_new_run_pair_durability.gd",
+          "cases": 8,
+          "assertions": 270,
+          "statuses": {
+            "pass": 8
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_new_run_startup_publication.gd",
+          "cases": 3,
+          "assertions": 154,
+          "statuses": {
+            "pass": 3
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_new_run_transaction.gd",
+          "cases": 12,
+          "assertions": 329,
+          "statuses": {
+            "pass": 12
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_prepared_new_run.gd",
+          "cases": 10,
+          "assertions": 261,
+          "statuses": {
+            "pass": 10
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_canonical_writer_compatibility.gd",
+          "cases": 17,
+          "assertions": 921,
+          "statuses": {
+            "pass": 17
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_continuation_serialization_cache.gd",
+          "cases": 9,
+          "assertions": 42,
+          "statuses": {
+            "pass": 9
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_json_file_storage.gd",
+          "cases": 14,
+          "assertions": 178,
+          "statuses": {
+            "pass": 14
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_new_acc_title_lifetime.gd",
+          "cases": 6,
+          "assertions": 41,
+          "statuses": {
+            "pass": 6
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_new_run_durability_journal.gd",
+          "cases": 6,
+          "assertions": 68,
+          "statuses": {
+            "pass": 6
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_run_dark_configuration.gd",
+          "cases": 7,
+          "assertions": 166,
+          "statuses": {
+            "pass": 7
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_run_snapshot_schema.gd",
+          "cases": 30,
+          "assertions": 197,
+          "statuses": {
+            "pass": 30
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_save_document_schema.gd",
+          "cases": 21,
+          "assertions": 272,
+          "statuses": {
+            "pass": 21
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_temporary_storage.gd",
+          "cases": 4,
+          "assertions": 18,
+          "statuses": {
+            "pass": 4
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/tooling/test_phase2r_closeout_sentinel.gd",
+          "cases": 1,
+          "assertions": 10,
+          "statuses": {
+            "pass": 1
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/tooling/test_phase2r_schedule_gate.gd",
+          "cases": 33,
+          "assertions": 1632,
+          "statuses": {
+            "pass": 33
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "job": {
+        "id": 120548840710,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "eligible_for_acceptance": true,
+      "run_id": 39992202440,
+      "source_sha": "0646d42ef054318c18863fee087c19b3efdad476",
+      "source_tree": "2321e4bc8ab0157101275e0a491aaac20bc1ee0e"
+    },
+    {
+      "suite": "persistence",
+      "artifact_id": 12519290701,
+      "artifact_sha256": "dd8ac3a6fc0082a163a30f2a822f879d33186de0f154657e876ee5ce81b7eeeb",
+      "artifact_digest_match": true,
+      "crc_ok": true,
+      "cases": 249,
+      "assertions": 5735,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmls": [
+        {
+          "path": "ci/persistence.xml",
+          "sha256": "5d00931e8b6359069a05e29553f2492c09073e2499f40b6c108d1abc1bc8a196",
+          "cases": 249
+        }
+      ],
+      "scripts": [
+        {
+          "script": "tests/integration/test_cold_run_rollback.gd",
+          "cases": 3,
+          "assertions": 41,
+          "statuses": {
+            "pass": 3
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_live_run_rollback_isolation.gd",
+          "cases": 3,
+          "assertions": 536,
+          "statuses": {
+            "pass": 3
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_restore_transaction.gd",
+          "cases": 13,
+          "assertions": 149,
+          "statuses": {
+            "pass": 13
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_run_restore_isolation.gd",
+          "cases": 5,
+          "assertions": 810,
+          "statuses": {
+            "pass": 5
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_save_capability.gd",
+          "cases": 4,
+          "assertions": 48,
+          "statuses": {
+            "pass": 4
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_save_manager_journal.gd",
+          "cases": 6,
+          "assertions": 61,
+          "statuses": {
+            "pass": 6
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_save_manager_public_boundaries.gd",
+          "cases": 6,
+          "assertions": 262,
+          "statuses": {
+            "pass": 6
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_unified_restore_contract.gd",
+          "cases": 3,
+          "assertions": 29,
+          "statuses": {
+            "pass": 3
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_contact_invitation_state.gd",
+          "cases": 42,
+          "assertions": 659,
+          "statuses": {
+            "pass": 42
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_desktop_consequence_source_port.gd",
+          "cases": 14,
+          "assertions": 185,
+          "statuses": {
+            "pass": 14
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_frozen_run_context.gd",
+          "cases": 24,
+          "assertions": 177,
+          "statuses": {
+            "pass": 24
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_pair_deck_draw.gd",
+          "cases": 4,
+          "assertions": 181,
+          "statuses": {
+            "pass": 4
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_pair_deck_draw_port.gd",
+          "cases": 11,
+          "assertions": 233,
+          "statuses": {
+            "pass": 11
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_dating_attempts.gd",
+          "cases": 14,
+          "assertions": 144,
+          "statuses": {
+            "pass": 14
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_dating_branches.gd",
+          "cases": 7,
+          "assertions": 87,
+          "statuses": {
+            "pass": 7
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_new_run_consumption.gd",
+          "cases": 12,
+          "assertions": 663,
+          "statuses": {
+            "pass": 12
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_pair_form_witness.gd",
+          "cases": 3,
+          "assertions": 16,
+          "statuses": {
+            "pass": 3
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_presentation_chronology.gd",
+          "cases": 9,
+          "assertions": 135,
+          "statuses": {
+            "pass": 9
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_v4_upgrade.gd",
+          "cases": 10,
+          "assertions": 127,
+          "statuses": {
+            "pass": 10
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_reading_next_checkpoint.gd",
+          "cases": 9,
+          "assertions": 179,
+          "statuses": {
+            "pass": 9
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_reading_restore_admission.gd",
+          "cases": 22,
+          "assertions": 317,
+          "statuses": {
+            "pass": 22
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_save_migrations.gd",
+          "cases": 13,
+          "assertions": 345,
+          "statuses": {
+            "pass": 13
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_scene_runtime_remap.gd",
+          "cases": 5,
+          "assertions": 92,
+          "statuses": {
+            "pass": 5
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_seven_day_calendar.gd",
+          "cases": 7,
+          "assertions": 259,
+          "statuses": {
+            "pass": 7
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "job": {
+        "id": 120548840843,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "eligible_for_acceptance": true,
+      "run_id": 39992202440,
+      "source_sha": "0646d42ef054318c18863fee087c19b3efdad476",
+      "source_tree": "2321e4bc8ab0157101275e0a491aaac20bc1ee0e"
+    },
+    {
+      "suite": "reading_delivery",
+      "artifact_id": 12518887393,
+      "artifact_sha256": "e2f061fb5a93899310080cc639525f662c7264b864a6d4275d2cc12e454b798a",
+      "artifact_digest_match": true,
+      "crc_ok": true,
+      "cases": 647,
+      "assertions": 17439,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmls": [
+        {
+          "path": "ci/reading_delivery.xml",
+          "sha256": "b804c16830a9898a549ab6ae1b5cba21a22d7939ae67a6fc1d8e0b1429f1becc",
+          "cases": 647
+        }
+      ],
+      "scripts": [
+        {
+          "script": "tests/integration/test_committed_schedule_presentation_resume.gd",
+          "cases": 13,
+          "assertions": 673,
+          "statuses": {
+            "pass": 13
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_dating_caption_style.gd",
+          "cases": 20,
+          "assertions": 760,
+          "statuses": {
+            "pass": 20
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_dialogic_caption_variant_witness.gd",
+          "cases": 7,
+          "assertions": 208,
+          "statuses": {
+            "pass": 7
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_dialogic_live_admission.gd",
+          "cases": 21,
+          "assertions": 501,
+          "statuses": {
+            "pass": 21
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_dialogic_next_traversal.gd",
+          "cases": 11,
+          "assertions": 353,
+          "statuses": {
+            "pass": 11
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_dialogic_skip.gd",
+          "cases": 23,
+          "assertions": 237,
+          "statuses": {
+            "pass": 23
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_dialogic_timed_hold_runtime.gd",
+          "cases": 10,
+          "assertions": 333,
+          "statuses": {
+            "pass": 10
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_gallery_caption_collection.gd",
+          "cases": 20,
+          "assertions": 472,
+          "statuses": {
+            "pass": 20
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_hospital_dating_adapter_negative_contract.gd",
+          "cases": 13,
+          "assertions": 321,
+          "statuses": {
+            "pass": 13
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_hospital_reading_session_runtime.gd",
+          "cases": 5,
+          "assertions": 398,
+          "statuses": {
+            "pass": 5
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_narrative_caption_ledger_runtime.gd",
+          "cases": 14,
+          "assertions": 299,
+          "statuses": {
+            "pass": 14
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_narrative_pause_frontier.gd",
+          "cases": 22,
+          "assertions": 672,
+          "statuses": {
+            "pass": 22
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_narrative_reading_frontier_runtime.gd",
+          "cases": 13,
+          "assertions": 336,
+          "statuses": {
+            "pass": 13
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_solo_authored_selector_runtime.gd",
+          "cases": 3,
+          "assertions": 459,
+          "statuses": {
+            "pass": 3
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_solo_authored_selector_witness.gd",
+          "cases": 9,
+          "assertions": 367,
+          "statuses": {
+            "pass": 9
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_witnessed_caption_runtime.gd",
+          "cases": 55,
+          "assertions": 4185,
+          "statuses": {
+            "pass": 55
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_witnessed_speech_projection.gd",
+          "cases": 8,
+          "assertions": 89,
+          "statuses": {
+            "pass": 8
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_hospital_scene.gd",
+          "cases": 9,
+          "assertions": 45,
+          "statuses": {
+            "pass": 9
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_witnessed_transport_recovery.gd",
+          "cases": 11,
+          "assertions": 255,
+          "statuses": {
+            "pass": 11
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_day7_font_preferences.gd",
+          "cases": 3,
+          "assertions": 40,
+          "statuses": {
+            "pass": 3
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_day_resolution_coordinator.gd",
+          "cases": 39,
+          "assertions": 629,
+          "statuses": {
+            "pass": 39
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dialogic_pause_recovery.gd",
+          "cases": 9,
+          "assertions": 109,
+          "statuses": {
+            "pass": 9
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dialogic_presentation_owner_adapter.gd",
+          "cases": 20,
+          "assertions": 237,
+          "statuses": {
+            "pass": 20
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dtl_master_structure.gd",
+          "cases": 12,
+          "assertions": 35,
+          "statuses": {
+            "pass": 12
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_frozen_replay_context.gd",
+          "cases": 3,
+          "assertions": 32,
+          "statuses": {
+            "pass": 3
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_gallery_replay_owner.gd",
+          "cases": 15,
+          "assertions": 261,
+          "statuses": {
+            "pass": 15
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_hospital_frozen_context.gd",
+          "cases": 7,
+          "assertions": 86,
+          "statuses": {
+            "pass": 7
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_hospital_presentation_port.gd",
+          "cases": 27,
+          "assertions": 418,
+          "statuses": {
+            "pass": 27
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_delivery_notice.gd",
+          "cases": 10,
+          "assertions": 115,
+          "statuses": {
+            "pass": 10
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_narrative_caption_ledger.gd",
+          "cases": 18,
+          "assertions": 193,
+          "statuses": {
+            "pass": 18
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_pause_surface.gd",
+          "cases": 8,
+          "assertions": 769,
+          "statuses": {
+            "pass": 8
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_production_pause_controller.gd",
+          "cases": 51,
+          "assertions": 1310,
+          "statuses": {
+            "pass": 51
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_reading_pause_save.gd",
+          "cases": 21,
+          "assertions": 462,
+          "statuses": {
+            "pass": 21
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_scene_art_bindings.gd",
+          "cases": 13,
+          "assertions": 228,
+          "statuses": {
+            "pass": 13
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_scene_art_hold.gd",
+          "cases": 6,
+          "assertions": 135,
+          "statuses": {
+            "pass": 6
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_schedule_done_dispatcher.gd",
+          "cases": 12,
+          "assertions": 60,
+          "statuses": {
+            "pass": 12
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_solo_reading_catalogue.gd",
+          "cases": 10,
+          "assertions": 76,
+          "statuses": {
+            "pass": 10
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_solo_reading_session.gd",
+          "cases": 20,
+          "assertions": 540,
+          "statuses": {
+            "pass": 20
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_startup_route_publication.gd",
+          "cases": 8,
+          "assertions": 96,
+          "statuses": {
+            "pass": 8
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_witnessed_auto_controller.gd",
+          "cases": 13,
+          "assertions": 85,
+          "statuses": {
+            "pass": 13
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_witnessed_pause_view.gd",
+          "cases": 11,
+          "assertions": 236,
+          "statuses": {
+            "pass": 11
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_witnessed_reading_rail.gd",
+          "cases": 10,
+          "assertions": 174,
+          "statuses": {
+            "pass": 10
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_witnessed_skip_controller.gd",
+          "cases": 10,
+          "assertions": 83,
+          "statuses": {
+            "pass": 10
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_witnessed_timed_hold.gd",
+          "cases": 4,
+          "assertions": 67,
+          "statuses": {
+            "pass": 4
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "job": {
+        "id": 120548840919,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "eligible_for_acceptance": true,
+      "run_id": 39992202440,
+      "source_sha": "0646d42ef054318c18863fee087c19b3efdad476",
+      "source_tree": "2321e4bc8ab0157101275e0a491aaac20bc1ee0e"
+    },
+    {
+      "suite": "scene_apps",
+      "artifact_id": 12518222287,
+      "artifact_sha256": "e5074249d2eecae9c51bb54550910fca5c55792f94675fce30f8bffe819a8b1c",
+      "artifact_digest_match": true,
+      "crc_ok": true,
+      "cases": 2,
+      "assertions": 125,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmls": [
+        {
+          "path": "ci/scene_apps-load.xml",
+          "sha256": "495b338bafc5490c6b5e47f00391b8ea52b118c62b1c5147c04fdfb0f73c4b5c",
+          "cases": 1
+        },
+        {
+          "path": "ci/scene_apps.xml",
+          "sha256": "828cab2d0c0ca54c49d3b0b0779084800f0bdd73320b0ae1086ae0466fd1a017",
+          "cases": 1
+        }
+      ],
+      "scripts": [
+        {
+          "script": "tests/integration/test_scene_apps_connected_create.gd",
+          "cases": 1,
+          "assertions": 86,
+          "statuses": {
+            "pass": 1
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_scene_apps_connected_load.gd",
+          "cases": 1,
+          "assertions": 39,
+          "statuses": {
+            "pass": 1
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "job": {
+        "id": 120548840763,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "eligible_for_acceptance": true,
+      "run_id": 39992202440,
+      "source_sha": "0646d42ef054318c18863fee087c19b3efdad476",
+      "source_tree": "2321e4bc8ab0157101275e0a491aaac20bc1ee0e"
+    },
+    {
+      "suite": "scene_backup_inspection",
+      "artifact_id": 12519051299,
+      "artifact_sha256": "e0111b5511d28eb1396255a1cb9560be2f289f4b0a66b1c7cd702f2caa65f868",
+      "artifact_digest_match": true,
+      "crc_ok": true,
+      "cases": 4,
+      "assertions": 84,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmls": [
+        {
+          "path": "ci/scene_backup_inspection.xml",
+          "sha256": "f3ceeacc2d6960308410d5ef6c785b8a2cc81198d096c4a0df7a879cb95d9dc6",
+          "cases": 4
+        }
+      ],
+      "scripts": [
+        {
+          "script": "tests/integration/test_scene_backup_inspection.gd",
+          "cases": 4,
+          "assertions": 84,
+          "statuses": {
+            "pass": 4
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "job": {
+        "id": 120548840692,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "eligible_for_acceptance": true,
+      "run_id": 39992202440,
+      "source_sha": "0646d42ef054318c18863fee087c19b3efdad476",
+      "source_tree": "2321e4bc8ab0157101275e0a491aaac20bc1ee0e"
+    },
+    {
+      "suite": "scene_controls_localization",
+      "artifact_id": 12518771198,
+      "artifact_sha256": "aa9f737397e15f2ee2f23611a7798365a8d6e87fe79301daf792b28092b20233",
+      "artifact_digest_match": true,
+      "crc_ok": true,
+      "cases": 4,
+      "assertions": 132,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmls": [
+        {
+          "path": "ci/scene_controls_localization.xml",
+          "sha256": "fda5024e3873889079a3f27e8971d77804e2c9881770422335274bc5442d5b26",
+          "cases": 4
+        }
+      ],
+      "scripts": [
+        {
+          "script": "tests/integration/test_scene_controls_localization.gd",
+          "cases": 4,
+          "assertions": 132,
+          "statuses": {
+            "pass": 4
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "job": {
+        "id": 120548840657,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "eligible_for_acceptance": true,
+      "run_id": 39992202440,
+      "source_sha": "0646d42ef054318c18863fee087c19b3efdad476",
+      "source_tree": "2321e4bc8ab0157101275e0a491aaac20bc1ee0e"
+    },
+    {
+      "suite": "scene_desktop_first_reveal",
+      "artifact_id": 12519046115,
+      "artifact_sha256": "bbdec1404af08b8089d99f8cee7ba13185acbdfed2e377497f27d55819c8a0bb",
+      "artifact_digest_match": true,
+      "crc_ok": true,
+      "cases": 2,
+      "assertions": 143,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmls": [
+        {
+          "path": "ci/scene_desktop_first_reveal-load.xml",
+          "sha256": "c85fcac747465f3d067e812475f503cb944117ba82b6ed09943e0b5dfb50683d",
+          "cases": 1
+        },
+        {
+          "path": "ci/scene_desktop_first_reveal.xml",
+          "sha256": "e4c71692c75181e726619783d1a08382296326816b08361a35c58e706d449cb5",
+          "cases": 1
+        }
+      ],
+      "scripts": [
+        {
+          "script": "tests/integration/test_scene_desktop_first_reveal_create.gd",
+          "cases": 1,
+          "assertions": 92,
+          "statuses": {
+            "pass": 1
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_scene_desktop_first_reveal_load.gd",
+          "cases": 1,
+          "assertions": 51,
+          "statuses": {
+            "pass": 1
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "job": {
+        "id": 120548840795,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "eligible_for_acceptance": true,
+      "run_id": 39992202440,
+      "source_sha": "0646d42ef054318c18863fee087c19b3efdad476",
+      "source_tree": "2321e4bc8ab0157101275e0a491aaac20bc1ee0e"
+    },
+    {
+      "suite": "scene_five_outcomes",
+      "artifact_id": 12518152960,
+      "artifact_sha256": "1c482e6a9f3b50859982e06410a32c0fc98f2fae28bd7e8fc020a61c7ec5de2e",
+      "artifact_digest_match": true,
+      "crc_ok": true,
+      "cases": 6,
+      "assertions": 88,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmls": [
+        {
+          "path": "ci/scene_five_outcomes.xml",
+          "sha256": "6cebef2d3fc997cb68bac1de9b3d438d46e0d586288b8c7c44148db921249d81",
+          "cases": 6
+        }
+      ],
+      "scripts": [
+        {
+          "script": "tests/unit/test_scene_five_outcomes.gd",
+          "cases": 6,
+          "assertions": 88,
+          "statuses": {
+            "pass": 6
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "job": {
+        "id": 120548840925,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "eligible_for_acceptance": true,
+      "run_id": 39992202440,
+      "source_sha": "0646d42ef054318c18863fee087c19b3efdad476",
+      "source_tree": "2321e4bc8ab0157101275e0a491aaac20bc1ee0e"
+    },
+    {
+      "suite": "scene_round_checkpoint",
+      "artifact_id": 12518088126,
+      "artifact_sha256": "0d299f9c462525e73ddcd34172c841566e16f55c56a9ef587ad40a749f338149",
+      "artifact_digest_match": true,
+      "crc_ok": true,
+      "cases": 1,
+      "assertions": 70,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmls": [
+        {
+          "path": "ci/scene_round_checkpoint.xml",
+          "sha256": "576df4c3013c9c984548eb6a4b2bb314327d747a8bc023cc3c517e345e533eb3",
+          "cases": 1
+        }
+      ],
+      "scripts": [
+        {
+          "script": "tests/integration/test_scene_round_checkpoint_transaction.gd",
+          "cases": 1,
+          "assertions": 70,
+          "statuses": {
+            "pass": 1
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "job": {
+        "id": 120548840815,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "eligible_for_acceptance": true,
+      "run_id": 39992202440,
+      "source_sha": "0646d42ef054318c18863fee087c19b3efdad476",
+      "source_tree": "2321e4bc8ab0157101275e0a491aaac20bc1ee0e"
+    },
+    {
+      "suite": "scene_shop_checkpoint",
+      "artifact_id": 12519095910,
+      "artifact_sha256": "84ecc89447c814bb58893bb200b1a64c12b654acfe4b528cd4dfac5043daf10c",
+      "artifact_digest_match": true,
+      "crc_ok": true,
+      "cases": 1,
+      "assertions": 66,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmls": [
+        {
+          "path": "ci/scene_shop_checkpoint.xml",
+          "sha256": "32a617da73db3ad3eb7ae2b83b52af7213fa04de62bf2ff11b4648e4ce1c36cc",
+          "cases": 1
+        }
+      ],
+      "scripts": [
+        {
+          "script": "tests/integration/test_scene_shop_checkpoint_transaction.gd",
+          "cases": 1,
+          "assertions": 66,
+          "statuses": {
+            "pass": 1
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "job": {
+        "id": 120548840758,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "eligible_for_acceptance": true,
+      "run_id": 39992202440,
+      "source_sha": "0646d42ef054318c18863fee087c19b3efdad476",
+      "source_tree": "2321e4bc8ab0157101275e0a491aaac20bc1ee0e"
+    },
+    {
+      "suite": "scene_story_localization",
+      "artifact_id": 12517794636,
+      "artifact_sha256": "c283e9ebdc239d019c2c6269b7f9babf16a6d667b10550b3e9f1679fa6274486",
+      "artifact_digest_match": true,
+      "crc_ok": true,
+      "cases": 1,
+      "assertions": 93,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmls": [
+        {
+          "path": "ci/scene_story_localization.xml",
+          "sha256": "dd6c6dd737373286c99310c8d705c42ef71e16d7ab28de413dedad5da64eea7f",
+          "cases": 1
+        }
+      ],
+      "scripts": [
+        {
+          "script": "tests/integration/test_story_localization.gd",
+          "cases": 1,
+          "assertions": 93,
+          "statuses": {
+            "pass": 1
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "job": {
+        "id": 120548840701,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "eligible_for_acceptance": true,
+      "run_id": 39992202440,
+      "source_sha": "0646d42ef054318c18863fee087c19b3efdad476",
+      "source_tree": "2321e4bc8ab0157101275e0a491aaac20bc1ee0e"
+    },
+    {
+      "suite": "settings",
+      "run_id": 39993602893,
+      "source_sha": "69cca3f965e065c708eac87b5723d744e2be7787",
+      "source_tree": "b1b980b548e88e424f356b96bcdd06fb998f6af6",
+      "controller": "d8677751b96dfb239f4944785cb285595e8e8171",
+      "job_id": 120551305436,
+      "job_conclusion": "success",
+      "artifact_id": 12519501708,
+      "artifact_sha256": "e570121ea38bce27133877d7c6f7a1b4ed4ab90afdbd3142b4348002f9bfb71b",
+      "artifact_digest_match": true,
+      "crc_ok": true,
+      "eligible_for_acceptance": true,
+      "xmls": [
+        {
+          "path": "ci/settings.xml",
+          "sha256": "16d8bf919e24479f165c73215ca2abbe53397942620a98db180736a368b4a0f4",
+          "cases": 366
+        }
+      ],
+      "scripts": [
+        {
+          "script": "tests/integration/test_desktop_board_persistence.gd",
+          "cases": 5,
+          "assertions": 87,
+          "statuses": {
+            "pass": 5
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_desktop_first_reveal_adapter.gd",
+          "cases": 4,
+          "assertions": 23,
+          "statuses": {
+            "pass": 4
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_restore_preserves_current_profile.gd",
+          "cases": 4,
+          "assertions": 68,
+          "statuses": {
+            "pass": 4
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_restore_production_adapters.gd",
+          "cases": 13,
+          "assertions": 106,
+          "statuses": {
+            "pass": 13
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_settings_shared_hosts.gd",
+          "cases": 12,
+          "assertions": 290,
+          "statuses": {
+            "pass": 12
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_audio_live.gd",
+          "cases": 5,
+          "assertions": 76,
+          "statuses": {
+            "pass": 5
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_folio.gd",
+          "cases": 8,
+          "assertions": 6853,
+          "statuses": {
+            "pass": 8
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_host_geometry.gd",
+          "cases": 5,
+          "assertions": 441,
+          "statuses": {
+            "pass": 5
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_localization_scene.gd",
+          "cases": 34,
+          "assertions": 531,
+          "statuses": {
+            "pass": 34
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_reset_confirmation.gd",
+          "cases": 8,
+          "assertions": 2659,
+          "statuses": {
+            "pass": 8
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_window_mode_live.gd",
+          "cases": 6,
+          "assertions": 95,
+          "statuses": {
+            "pass": 6
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_backup_quick_actions.gd",
+          "cases": 23,
+          "assertions": 721,
+          "statuses": {
+            "pass": 23
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_bootstrap_window_output.gd",
+          "cases": 6,
+          "assertions": 93,
+          "statuses": {
+            "pass": 6
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_checkpoint_journal.gd",
+          "cases": 20,
+          "assertions": 448,
+          "statuses": {
+            "pass": 20
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_checkpoint_phase_diagnostics.gd",
+          "cases": 4,
+          "assertions": 212,
+          "statuses": {
+            "pass": 4
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_checkpoint_preparation_retry.gd",
+          "cases": 6,
+          "assertions": 140,
+          "statuses": {
+            "pass": 6
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_checkpoint_validation_reuse.gd",
+          "cases": 21,
+          "assertions": 567,
+          "statuses": {
+            "pass": 21
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_controls_binding_import.gd",
+          "cases": 12,
+          "assertions": 172,
+          "statuses": {
+            "pass": 12
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_caption_witnesses.gd",
+          "cases": 17,
+          "assertions": 339,
+          "statuses": {
+            "pass": 17
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_manager.gd",
+          "cases": 23,
+          "assertions": 207,
+          "statuses": {
+            "pass": 23
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_quick_status_edge.gd",
+          "cases": 11,
+          "assertions": 450,
+          "statuses": {
+            "pass": 11
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_restore_participants.gd",
+          "cases": 8,
+          "assertions": 40,
+          "statuses": {
+            "pass": 8
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_save_manager_checkpoint_port.gd",
+          "cases": 42,
+          "assertions": 1268,
+          "statuses": {
+            "pass": 42
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_save_manager_parse_cache.gd",
+          "cases": 18,
+          "assertions": 670,
+          "statuses": {
+            "pass": 18
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_settings_panel_resize.gd",
+          "cases": 3,
+          "assertions": 54,
+          "statuses": {
+            "pass": 3
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_settings_preference_registry.gd",
+          "cases": 5,
+          "assertions": 452,
+          "statuses": {
+            "pass": 5
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_settings_window_transactions.gd",
+          "cases": 13,
+          "assertions": 200,
+          "statuses": {
+            "pass": 13
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_shared_week_tint.gd",
+          "cases": 2,
+          "assertions": 4314,
+          "statuses": {
+            "pass": 2
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_steady_interface_profile.gd",
+          "cases": 3,
+          "assertions": 62,
+          "statuses": {
+            "pass": 3
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_window_mode_manager.gd",
+          "cases": 13,
+          "assertions": 183,
+          "statuses": {
+            "pass": 13
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_window_mode_port.gd",
+          "cases": 12,
+          "assertions": 113,
+          "statuses": {
+            "pass": 12
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "cases": 366,
+      "assertions": 21934,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "shop",
+      "artifact_id": 12517988353,
+      "artifact_sha256": "7c052bad1c681feb687789a95c4961ee647d4d9c97cef100686cae3ea0cd97c4",
+      "artifact_digest_match": true,
+      "crc_ok": true,
+      "cases": 171,
+      "assertions": 5538,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmls": [
+        {
+          "path": "ci/shop.xml",
+          "sha256": "a950b8bf41914aa1edd205b716b23209c1e03496332a2c1a328f93b3136e400e",
+          "cases": 171
+        }
+      ],
+      "scripts": [
+        {
+          "script": "tests/integration/test_minesweeper_shop_transaction.gd",
+          "cases": 4,
+          "assertions": 83,
+          "statuses": {
+            "pass": 4
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_shop_desktop_host.gd",
+          "cases": 15,
+          "assertions": 332,
+          "statuses": {
+            "pass": 15
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_shop_card.gd",
+          "cases": 16,
+          "assertions": 600,
+          "statuses": {
+            "pass": 16
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_shop_plate.gd",
+          "cases": 38,
+          "assertions": 2874,
+          "statuses": {
+            "pass": 38
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_shop_purchase_participant.gd",
+          "cases": 41,
+          "assertions": 547,
+          "statuses": {
+            "pass": 41
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_scene_shop_checkpoint_custody.gd",
+          "cases": 11,
+          "assertions": 188,
+          "statuses": {
+            "pass": 11
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_scene_shop_purchase_rules.gd",
+          "cases": 13,
+          "assertions": 79,
+          "statuses": {
+            "pass": 13
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_shop_app_purchase_bridge.gd",
+          "cases": 13,
+          "assertions": 95,
+          "statuses": {
+            "pass": 13
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_shop_catalog_projection.gd",
+          "cases": 8,
+          "assertions": 37,
+          "statuses": {
+            "pass": 8
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_shop_presentation_port.gd",
+          "cases": 12,
+          "assertions": 703,
+          "statuses": {
+            "pass": 12
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "job": {
+        "id": 120548840832,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "eligible_for_acceptance": true,
+      "run_id": 39992202440,
+      "source_sha": "0646d42ef054318c18863fee087c19b3efdad476",
+      "source_tree": "2321e4bc8ab0157101275e0a491aaac20bc1ee0e"
+    }
+  ],
+  "excluded_canonical_settings": [
+    {
+      "suite": "settings",
+      "artifact_id": 12517789445,
+      "artifact_sha256": "e7f947e203041779f42f736873ef8c6edc82f052c7cc53fff1db437842943e29",
+      "artifact_digest_match": true,
+      "crc_ok": true,
+      "cases": 343,
+      "assertions": 21213,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xmls": [
+        {
+          "path": "ci/settings.xml",
+          "sha256": "f58b7bfeb8a63cb4875100dab4596edf0dcfb004ac45de219b0860599be26ca6",
+          "cases": 343
+        }
+      ],
+      "scripts": [
+        {
+          "script": "tests/integration/test_desktop_board_persistence.gd",
+          "cases": 5,
+          "assertions": 87,
+          "statuses": {
+            "pass": 5
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_desktop_first_reveal_adapter.gd",
+          "cases": 4,
+          "assertions": 23,
+          "statuses": {
+            "pass": 4
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_restore_preserves_current_profile.gd",
+          "cases": 4,
+          "assertions": 68,
+          "statuses": {
+            "pass": 4
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_restore_production_adapters.gd",
+          "cases": 13,
+          "assertions": 106,
+          "statuses": {
+            "pass": 13
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_settings_shared_hosts.gd",
+          "cases": 12,
+          "assertions": 290,
+          "statuses": {
+            "pass": 12
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_audio_live.gd",
+          "cases": 5,
+          "assertions": 76,
+          "statuses": {
+            "pass": 5
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_folio.gd",
+          "cases": 8,
+          "assertions": 6853,
+          "statuses": {
+            "pass": 8
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_host_geometry.gd",
+          "cases": 5,
+          "assertions": 441,
+          "statuses": {
+            "pass": 5
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_localization_scene.gd",
+          "cases": 34,
+          "assertions": 531,
+          "statuses": {
+            "pass": 34
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_reset_confirmation.gd",
+          "cases": 8,
+          "assertions": 2659,
+          "statuses": {
+            "pass": 8
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_window_mode_live.gd",
+          "cases": 6,
+          "assertions": 95,
+          "statuses": {
+            "pass": 6
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_bootstrap_window_output.gd",
+          "cases": 6,
+          "assertions": 93,
+          "statuses": {
+            "pass": 6
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_checkpoint_journal.gd",
+          "cases": 20,
+          "assertions": 448,
+          "statuses": {
+            "pass": 20
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_checkpoint_phase_diagnostics.gd",
+          "cases": 4,
+          "assertions": 212,
+          "statuses": {
+            "pass": 4
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_checkpoint_preparation_retry.gd",
+          "cases": 6,
+          "assertions": 140,
+          "statuses": {
+            "pass": 6
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_checkpoint_validation_reuse.gd",
+          "cases": 21,
+          "assertions": 567,
+          "statuses": {
+            "pass": 21
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_controls_binding_import.gd",
+          "cases": 12,
+          "assertions": 172,
+          "statuses": {
+            "pass": 12
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_caption_witnesses.gd",
+          "cases": 17,
+          "assertions": 339,
+          "statuses": {
+            "pass": 17
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_manager.gd",
+          "cases": 23,
+          "assertions": 207,
+          "statuses": {
+            "pass": 23
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_quick_status_edge.gd",
+          "cases": 11,
+          "assertions": 450,
+          "statuses": {
+            "pass": 11
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_restore_participants.gd",
+          "cases": 8,
+          "assertions": 40,
+          "statuses": {
+            "pass": 8
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_save_manager_checkpoint_port.gd",
+          "cases": 42,
+          "assertions": 1268,
+          "statuses": {
+            "pass": 42
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_save_manager_parse_cache.gd",
+          "cases": 18,
+          "assertions": 670,
+          "statuses": {
+            "pass": 18
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_settings_panel_resize.gd",
+          "cases": 3,
+          "assertions": 54,
+          "statuses": {
+            "pass": 3
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_settings_preference_registry.gd",
+          "cases": 5,
+          "assertions": 452,
+          "statuses": {
+            "pass": 5
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_settings_window_transactions.gd",
+          "cases": 13,
+          "assertions": 200,
+          "statuses": {
+            "pass": 13
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_shared_week_tint.gd",
+          "cases": 2,
+          "assertions": 4314,
+          "statuses": {
+            "pass": 2
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_steady_interface_profile.gd",
+          "cases": 3,
+          "assertions": 62,
+          "statuses": {
+            "pass": 3
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_window_mode_manager.gd",
+          "cases": 13,
+          "assertions": 183,
+          "statuses": {
+            "pass": 13
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_window_mode_port.gd",
+          "cases": 12,
+          "assertions": 113,
+          "statuses": {
+            "pass": 12
+          },
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "job": {
+        "id": 120548840655,
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      "eligible_for_acceptance": false,
+      "exclusion_reason": "Script import failure in test_backup_quick_actions.gd: both overrides omit new optional fourth parameter; 343 of 366 expected cases executed. Superseded only after replacement full Settings passes."
+    }
+  ],
+  "acceptance_kind": "composed: 21 canonical focused suites plus full Settings replacement; not an all-green single canonical run",
+  "replacement_scope": "Only two test override signatures add optional _scene_seed_material argument; all test bodies and runtime files unchanged.",
+  "totals": {
+    "cases": 2739,
+    "assertions": 154403,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+}

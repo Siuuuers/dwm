@@ -1,0 +1,393 @@
+{
+  "integration_pr": 52,
+  "merge": "5e3f1e0bb3ac251e88ea8a7b87c5a0616e3f7d5a",
+  "merge_tree": "edbb28ef90f0e111e325e898be98e0464a8c153f",
+  "qualified_game_source": "3e016116ecac40ea5ce8186332261927a4959d16",
+  "fixture_fix_source": "69cca3f965e065c708eac87b5723d744e2be7787",
+  "preserved_master": "7d64dd644a466292d42d3446e16558d963dc2b89",
+  "status_only_closures": 29,
+  "records": [
+    {
+      "n": 4,
+      "reason": "incorporated_exact_ancestors",
+      "head": "85f29f832dfa627ec128a413922e0daf9dff69f5",
+      "head_ref": "codex/combined-history-native-20261006",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 5,
+      "reason": "incorporated_exact_ancestors",
+      "head": "e5db010715c187cc775341d204391f527dc334ea",
+      "head_ref": "codex/final-fixture-repair-20261006",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 6,
+      "reason": "incorporated_exact_ancestors",
+      "head": "feb39dd0d72af169ccf640bf747b1e370f24f178",
+      "head_ref": "codex/scene-event-foundation-20261007",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 7,
+      "reason": "incorporated_exact_ancestors",
+      "head": "af9440207e0b0f7672c4b13eacd3aa904f4416f7",
+      "head_ref": "codex/durable-scene-events-20261007",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 10,
+      "reason": "incorporated_exact_ancestors",
+      "head": "ab33586a3e10aed1e853c6f3e9469022df2150b0",
+      "head_ref": "codex/scene-next-notification-20261008",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 16,
+      "reason": "incorporated_exact_ancestors",
+      "head": "c8e07e4a1215097506d5483ee9d0d436e5b8021c",
+      "head_ref": "codex/dtl-reading-foundation-20261009",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 18,
+      "reason": "incorporated_exact_ancestors",
+      "head": "90a7319072a6c5c0703f093d16edf52e2cb04e73",
+      "head_ref": "codex/dtl-foundations-combined-20261009",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 20,
+      "reason": "incorporated_exact_ancestors",
+      "head": "d2aacc316920a4198763b4835333b6535e601001",
+      "head_ref": "codex/scene-held-source-reading-20261009",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 23,
+      "reason": "incorporated_exact_ancestors",
+      "head": "4c6752829a412f82349fa546f0e022df7ff6e7ec",
+      "head_ref": "codex/scene-owners-combined-20261009",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 27,
+      "reason": "incorporated_exact_ancestors",
+      "head": "3ae6d9138fb53c388380c78550cf6082eafc0ea3",
+      "head_ref": "codex/scene-runtime-integration-20261009",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 36,
+      "reason": "incorporated_exact_ancestors",
+      "head": "c8358870d3ece92d5f8cc7ba65aefe34a746be5c",
+      "head_ref": "codex/a-optional-challenge-20261015",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 42,
+      "reason": "incorporated_exact_ancestors",
+      "head": "e8ab9c99473a207e3a455a3fb1af1ceb05d182fb",
+      "head_ref": "codex/playable-master-integration-20261023",
+      "prior_state": "closed",
+      "prior_merged_at": "2026-10-23T17:23:40Z",
+      "action": "already_closed",
+      "final_state": "closed",
+      "merged_at": "2026-10-23T17:23:40Z"
+    },
+    {
+      "n": 47,
+      "reason": "incorporated_exact_ancestors",
+      "head": "a226f61115e739972df3ec7e7eca47a03b5bac13",
+      "head_ref": "codex/scene-shop-qualification-20261023",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 49,
+      "reason": "incorporated_exact_ancestors",
+      "head": "fe3d7614777f364010cb97c9ac94c075e181de7f",
+      "head_ref": "codex/cold-load-supportz-followup-20261023",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 51,
+      "reason": "incorporated_exact_ancestors",
+      "head": "328edfe082c84bd9f6ca0a9d45e6603e0902695c",
+      "head_ref": "codex/scene-apps-integrated-20261023",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 8,
+      "reason": "superseded_divergent",
+      "head": "e7fbf747cf501f7010253af3d07f38fe3ea0c83c",
+      "head_ref": "codex/notes-pure-rules-20261008",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 9,
+      "reason": "superseded_divergent",
+      "head": "452ab34e39f6a3d6e91c4125954b092d9a499e87",
+      "head_ref": "codex/notes-purchase-adoption-20261008",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 11,
+      "reason": "superseded_divergent",
+      "head": "544780814217bb7935c58b5a7b7f5885cc0f77ef",
+      "head_ref": "codex/scene-day-progression-20261008",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 12,
+      "reason": "superseded_divergent",
+      "head": "5269dc80a1b66bebd49f13482ee5d13a0a986d98",
+      "head_ref": "codex/hud-retirement-20261008",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 17,
+      "reason": "superseded_divergent",
+      "head": "08a2caa3108c625e890cf1a1c802d7529be6d54b",
+      "head_ref": "codex/dtl-event-identity-foundation-20261009",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 22,
+      "reason": "superseded_divergent",
+      "head": "1185f44539c52b9e8085ef51743056f92ac704d1",
+      "head_ref": "codex/scene-challenge-owner-20261009",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 26,
+      "reason": "superseded_divergent",
+      "head": "45dc2df466d52f79a03bf2a4a640b1a160e8c257",
+      "head_ref": "codex/scene-retirement-20261009",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 28,
+      "reason": "superseded_divergent",
+      "head": "b29005cc989033092881942ddcd6203d0e1e07fb",
+      "head_ref": "codex/scene-absence-contacts-20261009",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 31,
+      "reason": "superseded_divergent",
+      "head": "94f79da0c46e94a28155635b7a9d32c8471031fe",
+      "head_ref": "codex/scene-desktop-consumer-20261009",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 32,
+      "reason": "superseded_divergent",
+      "head": "424e0a917e77c13c143088a1e018e01a8cac0c31",
+      "head_ref": "codex/scene-app-presentation-20261009",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 37,
+      "reason": "superseded_divergent",
+      "head": "91824fbf5628959cc8a4c389660f140b8793a0a1",
+      "head_ref": "codex/b-partner-fork-template-20261015",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 39,
+      "reason": "superseded_divergent",
+      "head": "9db56fd4144de9be63615b4dbaad56bd8187beeb",
+      "head_ref": "codex/b-scene-sequence-20261016",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 40,
+      "reason": "superseded_divergent",
+      "head": "d45d12f52abc56c43f331d8ca1e83621265408c1",
+      "head_ref": "codex/c-ending-connection-20261016",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 43,
+      "reason": "superseded_divergent",
+      "head": "e2d1cd5c3500d2178fcbc483495010a1922d3f0f",
+      "head_ref": "codex/seven-day-story-20261023",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_as_incorporated",
+      "final_state": "closed",
+      "merged_at": null
+    },
+    {
+      "n": 38,
+      "reason": "historical_preserved",
+      "head": "63e0738fbc786a8f8c7bd66e9f7b27f4e3ede5a9",
+      "head_ref": "codex/c-work-reconciliation-20261016",
+      "prior_state": "open",
+      "prior_merged_at": null,
+      "action": "closed_historical_record_preserved",
+      "final_state": "closed",
+      "merged_at": null
+    }
+  ],
+  "automatic_ancestry_closures": [
+    {
+      "pr": 1,
+      "state": "closed",
+      "merged_at": "2026-10-23T17:23:40Z",
+      "branch_preserved": true
+    },
+    {
+      "pr": 42,
+      "state": "closed",
+      "merged_at": "2026-10-23T17:23:40Z",
+      "branch_preserved": true
+    }
+  ],
+  "remaining_open": [
+    14,
+    30,
+    50
+  ],
+  "preserved_refs": [
+    {
+      "pr": 1,
+      "ref": "refs/heads/codex/windows-cloud-ux",
+      "sha": "a6decec3693ee4d57df9f879b90ace3e118c9d1d"
+    },
+    {
+      "pr": 14,
+      "ref": "refs/heads/codex/scene-foundation-combined-20261008",
+      "sha": "b37d662403398139fc2b1029853b236c334f59a0"
+    },
+    {
+      "pr": 30,
+      "ref": "refs/heads/codex/scene-runtime-integration-controller-20261009",
+      "sha": "7d96a2487821a35464ee7852ed495aba2e0b60c7"
+    },
+    {
+      "pr": 50,
+      "ref": "refs/heads/codex/story-day-qualification-20261023",
+      "sha": "7dab26a826b8fc2c5929625fe3d70d4d90c1ed84"
+    },
+    {
+      "pr": 38,
+      "ref": "refs/heads/codex/c-work-reconciliation-20261016",
+      "sha": "63e0738fbc786a8f8c7bd66e9f7b27f4e3ede5a9"
+    },
+    {
+      "pr": 43,
+      "ref": "refs/heads/codex/seven-day-story-20261023",
+      "sha": "e2d1cd5c3500d2178fcbc483495010a1922d3f0f"
+    }
+  ],
+  "note": "No branches deleted; older source implementations were not reapplied. PR1 closed automatically by ancestry when PR52 merged; it was not explicitly closed."
+}

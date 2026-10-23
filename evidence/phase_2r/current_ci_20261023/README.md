@@ -57,4 +57,11 @@ The earlier candidate preflight failure was not accepted. Diagnostic controllers
 
 Load improved 26.85% and Save 32.21% in this single matched pair. Multi-minute pauses remain; no statistical guarantee or smooth-gameplay acceptance is claimed. The original native archive SHA-256 is `c49053565e4b9430f2e9f0157eea9c1602898156de13df2837ca714235279670`.
 
-The combined source preserves current master Steam changes. Final combined inventories and canonical acceptance are tracked in the current qualification handoff. This evidence does not itself establish a master merge.
+The combined source preserves current master Steam changes. Final combined inventories and canonical acceptance are tracked in the current qualification handoff. The final integration status is recorded below.
+
+
+## Final integration and acceptance
+
+PR #52 merged as `5e3f1e0bb3ac251e88ea8a7b87c5a0616e3f7d5a`. The [final handoff](../../../handoff/a-integrated-ci-handoff-20261024.md) records 2,739 passing primary cases/154,403 assertions across 21 canonical suites and the corrected Settings suite. Canonical run39992202440 passed 25 jobs; its Settings script-load failure is superseded by full replacement run39993602893 after a two-line test-double signature fix. Game/tool code is unchanged by that fix. Both runs and the later preserved Steam-only master changes are distinguished in the handoff.
+
+`run39992202440/` contains compact summaries, exact JUnit and auxiliary report bundles, original artifact/member hashes, the PR reconciliation record and residual performance analysis. Diagnostics and excluded attempts remain labeled; do not count them as accepted tests. The exported Windows startup, 133 desktop/dialogue captures and 113 Gallery captures passed. Multi-minute late-game pauses remain.
