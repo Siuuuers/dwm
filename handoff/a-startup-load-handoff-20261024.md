@@ -1,5 +1,11 @@
 # Startup and Load efficiency handoff — 2026-10-24 (Hong Kong)
 
+## Latest approved policy — implementation pending
+
+The user approved a current-build-only save contract for this unshipped game. Valid saves produced by the current build are the supported input; older development saves may be discarded when development changes the format or state model. Backward compatibility, legacy migration, repair, recovery and searching older checkpoints are not product requirements. Incomplete files, unsupported formats and state the current game cannot restore are outside this contract.
+
+This decision supersedes the previous question about when Backup should perform a full compatibility check, and earlier guidance to preserve compatibility/recovery machinery for future save work. It does **not** remove Save/Load: Load must still apply the selected saved state correctly. The code and measurements below describe the accepted implementation before this simplification; they are not acceptance evidence for the proposed design. This handoff update changes documentation only.
+
 ## Accepted source
 
 PR [#55](https://github.com/Siuuuers/dwm/pull/55) merged as `153f17bbe7ed8d6b4080e8c7991a06658108202b`, tree `3f3a43fc892fd078c4b6bfae6d1a5be9d716f96a`. PR [#56](https://github.com/Siuuuers/dwm/pull/56) merged as `10a4dae0ae50ddc4f28158347261ec9be558a49a`, tree `2f69e073325c111a634ba440a4e964eaa8cd8573`. Both merged trees equal their qualified source trees. Duplicate post-merge CI was skipped; this did not bypass an unpassed test.
@@ -36,15 +42,31 @@ The native helper verifies restored caption visibility/full reveal/DONE state, e
 
 See [`results.json`](../evidence/phase_2r/startup_load_20261024/results.json) and [`exact-evidence.zip`](../evidence/phase_2r/startup_load_20261024/exact-evidence.zip). The ZIP preserves exact uncompressed bytes of every member of all 14 original Actions artifacts, deduplicated as `objects/<sha256>`. Its `manifest.json` maps each original member path to the object, records original archive hashes and GitHub artifact metadata, and permits member-by-member verification. Original ZIP container bytes are not preserved in this compact bundle. Bundle SHA-256: `995ab5831653ef1d5d1d19c16471ceade8ade14ab5027f66b52286931cbcbbbe`.
 
-## Next product decision
+## Approved minimal Backup behavior
 
-Backup currently performs full admission and restore-participant preparation for every displayed slot before presenting the list. Proposed next outcome: present basic save details before those expensive checks, and fully validate the chosen save before restoration.
+Observable outcome: opening Backup presents basic slot information without preparing restoration; loading a valid current-build save restores the selected gameplay state without replaying its consequences. SaveManager remains the canonical owner of save/load behavior.
 
-Choose whether clicking Load should begin that check, or selecting a slot should automatically check it while Load remains disabled. Click-time validation is the smaller route to browsable metadata. Selected-slot checking preserves the current button promise, but the synchronous check must be sliced to avoid freezing browsing; `call_deferred` alone does not solve this. Title currently selects the first proven-loadable slot, so initial selection and honest unverified/incompatible labels need explicit treatment. Never describe unadmitted scene-shaped bytes as an admitted scene save.
+| Operation | Required behavior |
+| --- | --- |
+| Open Backup | Read only the basic slot information needed for display; do not build restore plans or run full compatibility preflight for listed slots. |
+| Save | Write the current game state. An existing save being overwritten does not need to pass a restoration check. |
+| Load | Read the selected current-format save and apply its state. Do not search for an older compatible checkpoint or introduce a separate full compatibility preflight. |
+| Delete | Remove the selected save without preparing restoration or checking compatibility. |
+| File operation fails | Report failure simply; no repair or recovery framework is required. |
 
-Keep `prepare_backup_action` and commit freshness authoritative. A restore lease alone cannot justify caching every proof: Profile adoption and issuer allocation change state within that lease, and it does not freeze physical files or mutable registries. Further reuse should be within an unchanged owner phase and should follow attribution, not deletion of expensive checks.
+The decision to omit malformed/incompatible-save support does not claim such files are physically impossible. It deliberately excludes them from the supported product contract while the game is unshipped. Permission to discard old development saves is a policy, not an instruction for this documentation update to delete any files.
 
-No unresolved internal implementation choice blocked the accepted changes. This Backup presentation choice is the next user-facing design boundary. No new session is required merely to answer it.
+## Next implementation and acceptance
+
+Replace the shared full-inspection path with operation-specific work. Today, list inspection prepares restore participants and then discards the plan, while action preparation performs full inspection before choosing Save, Load or Delete. Remove obsolete compatibility/recovery behavior together with its dependent callers and tests; do not leave the normal current-save path dependent on preparation that was removed. Update Title selection and Backup labels/buttons to match the supported current-save contract rather than retaining a promise of full compatibility certification.
+
+Keep one owner for each fact, with no additional manager or global “already safe” cache. Preserve ordinary gameplay correctness: board state, flags/reveals, dialogue position and complete-line presentation, choices, and exactly-once rewards/consequences. Checks or copies retained in the simplified flow should have a concrete purpose in that contract rather than preserve retired compatibility obligations.
+
+Use the smallest meaningful automatic coverage: verify that listing and Save/Delete do not prepare restoration; verify a current-build Save → Load round trip across cooperating owners; cover simple file-operation failure where relevant; and verify the connected rendered journey preserves the visible beat and does not repeat consequences. Retire tests for excluded compatibility/recovery behavior coherently with the code. Complete compatible caller/test reviews before final acceptance, then run one coherent candidate rather than overlapping acceptance batches.
+
+All Godot execution remains on cloud runners. Measure the complete operation with a matched comparison before claiming a performance gain; shorter code alone does not establish less lag. Existing evidence remains historical and must not be relabeled as acceptance of this pending implementation.
+
+The policy question is resolved. Proceed with this scope without asking again about selection-time versus click-time full compatibility validation. Ask only if a newly discovered design choice would materially change the supported gameplay contract. No new session is required solely to continue this work.
 
 ## Branch and PR preservation
 
