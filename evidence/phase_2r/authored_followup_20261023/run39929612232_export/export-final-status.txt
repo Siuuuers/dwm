@@ -1,0 +1,2 @@
+D  .claude/skills/godot-prompter/1.10.0
+D  .claude/skills/superpowers/6.1.1
