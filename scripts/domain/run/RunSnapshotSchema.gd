@@ -952,9 +952,15 @@ static func _validate_scene_reading(candidate: Dictionary) -> Dictionary:
 		source.narrative_checkpoint = plan.source_reading_checkpoint
 		var checked := _validate_scene_reading(source)
 		if not checked.ok: return checked
-		var admission := SCENE_EVENT_CONTRACT.validate_selected_scene_terminal_admission(plan.admission,
-			_scene_issuer, candidate.command_receipts,
-			_scene_creation_owner, candidate.contacts)
+		var frozen := preload("res://scripts/narrative/FrozenRunContext.gd")
+		# The following public frame check proves the same terminal ledger when its
+		# owners match. Keep shape/issuer checks here before reading admission fields.
+		var admission: Dictionary
+		if not candidate.narrative_checkpoint.is_empty() and frozen.scene_validation_uses(_scene_issuer, _scene_creation_owner):
+			admission = SCENE_EVENT_CONTRACT.validate_scene_terminal_admission_shape(plan.get("admission"), _scene_issuer)
+		else:
+			admission = SCENE_EVENT_CONTRACT.validate_selected_scene_terminal_admission(plan.admission,
+				_scene_issuer, candidate.command_receipts, _scene_creation_owner, candidate.contacts)
 		if not admission.ok: return admission
 		if plan.admission.source_occurrence_id != candidate.scene.active_occurrence_id \
 				or plan.admission.source_admission_receipt_id != candidate.scene.active_admission_receipt_id:
@@ -963,8 +969,7 @@ static func _validate_scene_reading(candidate: Dictionary) -> Dictionary:
 			return {"ok": true} if candidate.lifecycle.state == "ENDING" \
 				and plan.next_step_index == 0 and plan.playback_stage == "PRIMARY_PENDING" \
 				else _fail(&"reading_checkpoint_invalid", "only the admitted pre-playback boundary can be empty")
-		return preload("res://scripts/narrative/FrozenRunContext.gd").validate_reading_checkpoint(
-			candidate.narrative_checkpoint, candidate)
+		return frozen.validate_reading_checkpoint(candidate.narrative_checkpoint, candidate)
 	var checkpoint: Variant = candidate.narrative_checkpoint
 	if not _scene_keys(checkpoint, SCENE_CHECKPOINT_KEYS) or checkpoint.stage != "scene" \
 			or not _scene_id(checkpoint.entry_id) or not _scene_id(checkpoint.transaction_id) \

@@ -6,6 +6,7 @@ const TERMINAL_TIMING := preload("res://scripts/narrative/SceneValidationTiming.
 const TERMINAL_ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
 const OTHER_ROOT := preload("res://tests/support/FakeDesktopIssuerRootStore.gd")
 const TERMINAL_FROZEN := preload("res://scripts/narrative/FrozenRunContext.gd")
+const TERMINAL_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 var _profile_bytes := PackedByteArray()
 
 func _selected(record: Dictionary, receipts: Dictionary, contacts: Dictionary) -> Dictionary:
@@ -22,6 +23,58 @@ func _restore_profile_bytes() -> bool:
 
 func after_all() -> void:
 	assert_true(_restore_profile_bytes(), "restore original Profile bytes even after an early test return")
+
+func _schema_reading_checks(source: Dictionary, frozen_counts: Dictionary) -> Dictionary:
+	var before := source.duplicate(true)
+	assert_true(TERMINAL_TIMING.begin_scope("terminal_schema_reading", "ENDING", "PRIMARY_PENDING", 0))
+	var reading: Dictionary = TERMINAL_SCHEMA._validate_scene_reading(source)
+	var counts: Dictionary = TERMINAL_TIMING._record.duplicate(true)
+	TERMINAL_TIMING.end_scope(bool(reading.get("ok", false)))
+	if not _ok(reading): return {}
+	assert_eq(counts.receipt_validation_calls, frozen_counts.receipt_validation_calls,
+		"Run reading delegates one complete terminal ledger proof to the matching frame owner")
+	assert_eq(counts.physical_proof_calls, frozen_counts.physical_proof_calls,
+		"delegation keeps the frame validator's fresh physical proofs")
+	assert_gt(int(counts.physical_proof_calls), 0)
+	assert_eq(source, before)
+	var owner: Object = TERMINAL_SCHEMA._scene_creation_owner
+	TERMINAL_SCHEMA._scene_creation_owner = null
+	var unbound: Dictionary = TERMINAL_SCHEMA._validate_scene_reading(source)
+	TERMINAL_SCHEMA._scene_creation_owner = owner
+	assert_false(unbound.ok, "a mismatched creation owner cannot borrow the frame owner's proof")
+	var original_issuer: Object = TERMINAL_SCHEMA._scene_issuer
+	var other_issuer := TERMINAL_ISSUER.new()
+	if not _ok(other_issuer.configure(OTHER_ROOT.new("eb".repeat(32), 1))): return {}
+	TERMINAL_SCHEMA._scene_issuer = other_issuer
+	var wrong_issuer: Dictionary = TERMINAL_SCHEMA._validate_scene_reading(source)
+	TERMINAL_SCHEMA._scene_issuer = original_issuer
+	assert_false(wrong_issuer.ok, "another issuer retains independent admission validation")
+	var changed := source.duplicate(true)
+	changed.narrative_checkpoint = {}
+	assert_true(TERMINAL_SCHEMA._validate_scene_reading(changed).ok, "admitted pre-playback may have no current checkpoint")
+	changed.command_receipts.erase(changed.lifecycle.ending_plan.admission.trigger_command_id)
+	assert_false(TERMINAL_SCHEMA._validate_scene_reading(changed).ok, "empty checkpoint still requires the terminal trigger")
+	changed = source.duplicate(true)
+	changed.narrative_checkpoint = {}
+	changed.lifecycle.state = "COMPLETED"
+	assert_false(TERMINAL_SCHEMA._validate_scene_reading(changed).ok, "completed playback cannot use the empty-checkpoint exception")
+	changed = source.duplicate(true)
+	changed.command_receipts.erase(changed.lifecycle.ending_plan.admission.trigger_command_id)
+	assert_false(TERMINAL_SCHEMA._validate_scene_reading(changed).ok, "delegated validation still requires the trigger")
+	changed = source.duplicate(true)
+	changed.lifecycle.ending_plan.admission.trigger_sha256 = "f".repeat(64)
+	assert_false(TERMINAL_SCHEMA._validate_scene_reading(changed).ok, "changed trigger proof is refused")
+	changed = source.duplicate(true)
+	changed.lifecycle.ending_plan.admission = {}
+	assert_false(TERMINAL_SCHEMA._validate_scene_reading(changed).ok, "malformed admission never reaches unchecked field access")
+	changed = source.duplicate(true)
+	changed.lifecycle.ending_plan.source_reading_checkpoint = {}
+	assert_false(TERMINAL_SCHEMA._validate_scene_reading(changed).ok, "source reading remains required")
+	changed = source.duplicate(true)
+	changed.scene.active_admission_receipt_id = "TEST.changed.admission"
+	assert_false(TERMINAL_SCHEMA._validate_scene_reading(changed).ok, "source admission remains joined to the active scene")
+	assert_true(TERMINAL_SCHEMA._validate_scene_reading(source).ok, "later valid call is independent of rejected inputs")
+	return counts
 
 func _frozen_checks(source: Dictionary) -> Dictionary:
 	assert_true(TERMINAL_FROZEN.scene_validation_uses(game._identity_issuer, saves))
@@ -156,6 +209,8 @@ func test_selected_terminal_admission_rechecks_genuine_saved_authority() -> void
 	assert_gt(int(selected_counts.physical_proof_calls), 0, "actual current Profile proof is exercised")
 	var frozen_counts := _frozen_checks(source)
 	if frozen_counts.is_empty(): return
+	var schema_reading_counts := _schema_reading_checks(source, frozen_counts.checkpoint_counts)
+	if schema_reading_counts.is_empty(): return
 
 	var changed: Dictionary = receipts.duplicate(true)
 	changed.erase(record.trigger_command_id)
@@ -190,12 +245,14 @@ func test_selected_terminal_admission_rechecks_genuine_saved_authority() -> void
 	var full_physical_refusal: Dictionary = TERMINAL_FROZEN.validate(source)
 	var checkpoint_physical_refusal: Dictionary = TERMINAL_FROZEN.validate_reading_checkpoint(source.narrative_checkpoint, source)
 	var semantic_physical_refusal: Dictionary = game._prepare_scene_snapshot_semantics(source, bundle)
+	var schema_physical_refusal: Dictionary = TERMINAL_SCHEMA._validate_scene_reading(source)
 	var restored := _restore_profile_bytes()
 	assert_true(restored, "original Profile bytes restored immediately")
 	assert_false(physical_refusal.ok, "later changed physical Profile is not replaced by cached proof")
 	assert_false(full_physical_refusal.ok, "full validation rechecks physical Profile on each call")
 	assert_false(checkpoint_physical_refusal.ok, "standalone checkpoint validation rechecks physical Profile on each call")
 	assert_false(semantic_physical_refusal.ok, "semantic reuse never caches physical Profile proof")
+	assert_false(schema_physical_refusal.ok, "Run reading delegation rechecks changed physical Profile")
 	if not restored: return
 	assert_true(_selected(record, receipts, contacts).ok, "original valid inputs remain admissible after all mutations")
 	assert_true(TERMINAL_FROZEN.validate(source).ok, "valid full context recovers after physical bytes are restored")
@@ -205,5 +262,6 @@ func test_selected_terminal_admission_rechecks_genuine_saved_authority() -> void
 		"process_id": OS.get_process_id(), "slot_sha256": slot_hash,
 		"generic_counts": generic_counts, "selected_counts": selected_counts,
 		"frozen_counts": frozen_counts,
+		"schema_reading_counts": schema_reading_counts,
 		"physical_refusal_code": str(physical_refusal.get("code", "")),
 		"profile_restored": restored})
