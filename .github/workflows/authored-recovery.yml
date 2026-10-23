@@ -365,13 +365,6 @@ jobs:
 name: Genuine Day7 recovery ending replay and Windows export
 'on':
   workflow_dispatch: null
-  pull_request:
-    types:
-    - opened
-    - synchronize
-    - reopened
-    paths:
-    - .github/workflows/authored-recovery.yml
 permissions:
   actions: read
   contents: read
