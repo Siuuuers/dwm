@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation')]
+    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse')]
     [string]$Suite
 )
 
@@ -10,6 +10,11 @@ $ErrorActionPreference = 'Stop'
 # Deliberate, bounded UI and input regression coverage. Each path must actually
 # execute; Invoke-IsolatedGodot also rejects GUT's silent suite-load failures.
 $suites = @{
+    profile_parse = @(
+        'tests/unit/test_profile_parse_reuse.gd'
+        'tests/unit/test_profile_manager.gd'
+        'tests/unit/test_profile_caption_witnesses.gd'
+    )
     timeline_resources = @(
         'tests/unit/test_scene_compiler_cache.gd'
     )
@@ -410,7 +415,7 @@ if (-not (Test-Path -LiteralPath $report)) { throw 'GUT did not produce its JUni
 $executed = $xml.SelectNodes('//testcase').Count
 if ($executed -eq 0) { throw 'GUT did not report any executed tests.' }
 if ($xml.SelectNodes('//failure | //error').Count -ne 0) { throw 'GUT reported test failures.' }
-if ($Suite -in @('scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation')) {
+if ($Suite -in @('scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse')) {
     foreach ($case in $xml.SelectNodes('//testcase')) {
         if ($case.GetAttribute('classname') -cnotin $suites[$Suite] -or
             $case.GetAttribute('status') -cne 'pass' -or [int]$case.GetAttribute('assertions') -le 0) {
