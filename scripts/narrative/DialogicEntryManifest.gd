@@ -169,7 +169,7 @@ static func scene_contract_tables() -> Dictionary:
 	if not startup.ok: return startup
 	_registration_used = true
 	if _scene_bundle.is_empty(): return _fail(&"scene_registration_absent", "no scene registration selected")
-	return {"ok": true, "value": _scene_contract_tables}
+	return {"ok": true, "value": _scene_contract_tables, "bundle": _scene_bundle}
 
 static func scene_registration_fingerprint() -> String:
 	if not _select_startup_fixture().ok: return ""

@@ -685,7 +685,7 @@ static func _validate_selected_scene_receipts(receipts: Dictionary, issuer: Obje
 	var manifest: Script = load("res://scripts/narrative/DialogicEntryManifest.gd")
 	var registered: Dictionary = manifest.scene_contract_tables()
 	if not registered.ok: return registered
-	return _validate_scene_receipts_registered(receipts, registered, issuer, creation_owner, contacts)
+	return _validate_scene_receipts_registered(receipts, registered.bundle, registered, issuer, creation_owner, contacts)
 
 static func _validate_scene_receipts_observed_body(receipts: Dictionary, bundle: Dictionary, issuer: Object,
 		creation_owner: Object = null, contacts: Dictionary = {}) -> Dictionary:
@@ -694,9 +694,9 @@ static func _validate_scene_receipts_observed_body(receipts: Dictionary, bundle:
 		return _fail(&"scene_receipt_issuer_unbound")
 	var registered := validate_bundle_structure(bundle)
 	if not registered.ok: return registered
-	return _validate_scene_receipts_registered(receipts, registered, issuer, creation_owner, contacts)
+	return _validate_scene_receipts_registered(receipts, bundle, registered, issuer, creation_owner, contacts)
 
-static func _validate_scene_receipts_registered(receipts: Dictionary, registered: Dictionary, issuer: Object,
+static func _validate_scene_receipts_registered(receipts: Dictionary, bundle: Dictionary, registered: Dictionary, issuer: Object,
 		creation_owner: Object, contacts: Dictionary) -> Dictionary:
 	var occurrences := {}
 	var commands := {}

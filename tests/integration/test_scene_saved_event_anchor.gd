@@ -50,6 +50,8 @@ func test_selected_receipt_projection_is_owned_frozen_and_matches_fresh_validati
 	assert_true(selected.value.is_read_only())
 	assert_true(selected.value.entries.is_read_only())
 	assert_true(selected.value.entries.values()[0].is_read_only())
+	assert_true(selected.bundle.is_read_only())
+	assert_true(selected.bundle.scene_programme.entries.is_read_only())
 	assert_true(is_same(selected.value, manifest.scene_contract_tables().value), "one immutable selected projection")
 	var fresh := CONTRACT.validate_bundle_structure(fixture.bundle)
 	assert_true(fresh.ok)
