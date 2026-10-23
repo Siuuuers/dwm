@@ -1,0 +1,46 @@
+name: Preserve verified qualification archives
+on:
+  push:
+    branches: [codex/preserve-current-evidence-20261023]
+permissions:
+  actions: read
+  contents: write
+jobs:
+  preserve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: 0aee64b4d0a7c728ec9bce1517407ff0114149a1
+          persist-credentials: true
+      - name: Download and verify exact artifact archives
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const crypto = require('crypto');
+            const items = [
+              [39971355500,12510875398,'a25e91659753fccff245fe20283e2a2d30bd1751d7099c2fa8ca5c0c694f38e1'],
+              [39972595648,12511341510,'02be21c52386372cfc97aca769881350846f2b6a7f0a48bc2fb47fb552a53f1c'],
+              [39973757077,12509554340,'2cb1566f62a3773b8ecc5c55b94cdd742d2e4a540fcae770bb6e1eb8556e4838']
+            ];
+            for (const [run,id,expected] of items) {
+              const a = await github.rest.actions.downloadArtifact({owner:context.repo.owner,repo:context.repo.repo,artifact_id:id,archive_format:'zip'});
+              const bytes = Buffer.from(a.data);
+              if(crypto.createHash('sha256').update(bytes).digest('hex') !== expected) throw new Error('Archive hash mismatch: '+id);
+              fs.writeFileSync('evidence/phase_2r/current_ci_20261023/run'+run+'/original.zip',bytes);
+            }
+      - name: Verify CRC and publish evidence-only descendant
+        run: |
+          python - <<'PY'
+          import pathlib,zipfile
+          for p in pathlib.Path('evidence/phase_2r/current_ci_20261023').glob('run*/original.zip'):
+              with zipfile.ZipFile(p) as z:
+                  assert z.testzip() is None, p
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add evidence/phase_2r/current_ci_20261023/run*/original.zip
+          git commit -m 'Retain exact verified cloud qualification archives [skip ci]'
+          git push origin HEAD:refs/heads/codex/current-evidence-result-20261023
