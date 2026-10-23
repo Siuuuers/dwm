@@ -4,7 +4,8 @@ extends RefCounted
 ## run configuration and are unsupported. Never repair, strip, or convert their fields.
 const SAVE_DOCUMENT_SCHEMA := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 
-static func migrate_document(raw: Dictionary, expected_locator: Dictionary) -> Dictionary:
+static func migrate_document(raw: Dictionary, expected_locator: Dictionary,
+		scene_seed_receiver: Callable = Callable()) -> Dictionary:
 	var locator_error := _validate_expected_locator(expected_locator)
 	if locator_error != "": return _fail(&"invalid_expected_locator", locator_error)
 	var version: Variant = raw.get("schema_version")
@@ -12,9 +13,9 @@ static func migrate_document(raw: Dictionary, expected_locator: Dictionary) -> D
 	if typeof(version) != TYPE_INT: return _fail(&"invalid_schema_version", "Document version must be integral")
 	if version < SAVE_DOCUMENT_SCHEMA.DOCUMENT_VERSION:
 		return _fail(&"unsupported_run_configuration_schema", "Captured run configuration is required")
-	if version > SAVE_DOCUMENT_SCHEMA.DOCUMENT_VERSION:
+	if version > SAVE_DOCUMENT_SCHEMA.SCENE_DOCUMENT_VERSION:
 		return _fail(&"unsupported_future_schema", str(version))
-	var validated := SAVE_DOCUMENT_SCHEMA.validate(raw)
+	var validated := SAVE_DOCUMENT_SCHEMA.validate(raw, {}, scene_seed_receiver)
 	if not validated.get("ok", false): return validated
 	var document: Dictionary = validated["value"]["candidate"]
 	if document.kind != expected_locator.kind or document.slot_id != expected_locator.slot_id:
@@ -40,3 +41,4 @@ static func _validate_expected_locator(locator: Dictionary) -> String:
 
 static func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message}
+

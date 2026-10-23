@@ -1,0 +1,31 @@
+{
+  "archive_bytes": 84945,
+  "archive_sha256": "4bf76fc2fb43204813056ee0d1dae44194d835a23bad9881bb292f24399cbfe9",
+  "verified_members": 22,
+  "origin": {
+    "candidate": "8a431447b3fffa180b4cdd22fdc8f74a40e95d77",
+    "controller": "1817a808e390030850d42eba086189ad8676f45f",
+    "base": "8a431447b3fffa180b4cdd22fdc8f74a40e95d77",
+    "tree": "8aa17066accfc5ae8877780b50007acc16df0aea"
+  },
+  "suites": {
+    "test_backup_presentation": {
+      "tests": 11,
+      "assertions": 3458,
+      "exit_code": 0
+    },
+    "test_scene_backup_inspection": {
+      "tests": 2,
+      "assertions": 46,
+      "exit_code": 0
+    },
+    "test_pause_backup_host": {
+      "tests": 13,
+      "assertions": 320,
+      "exit_code": 0
+    }
+  },
+  "baseline_failure": {
+    "message": "failed"
+  }
+}

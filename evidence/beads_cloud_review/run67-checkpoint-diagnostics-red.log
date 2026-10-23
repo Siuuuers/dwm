@@ -1,0 +1,30 @@
+Run67 source 8cd17c2d5cb5eea2cb223ef1af92d47170ff1f78; tested merge 308241be85557a0965af8ae82c254b1038ad8234
+Job 109046990339 (Windows / checkpoint_diagnostics) FAILED; new seven-case script did not execute.
+Ten existing cases passing does not accept the requested three-script suite.
+
+2026-09-28T17:21:02.7728081Z   DWM_CI_SUITE: checkpoint_diagnostics
+2026-09-28T17:21:02.7728363Z ##[endgroup]
+2026-09-28T17:21:16.2581703Z SCRIPT_LOAD_FAILED: ERROR: Failed to load script "res://tests/unit/test_checkpoint_history_region_search.gd" with error "Parse error".
+2026-09-28T17:21:16.2582734Z SUITE_NOT_EXECUTED: res://tests/unit/test_checkpoint_history_region_search.gd
+2026-09-28T17:21:16.3215193Z {"suite_id":"cloud-checkpoint_diagnostics","argv":["--headless","--path","D:\\a\\dwm\\dwm","--log-file","D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-checkpoint_diagnostics.log","-s","res://addons/gut/gut_cmdln.gd","-gconfig=","-gtest=res://tests/unit/test_checkpoint_phase_diagnostics.gd,res://tests/unit/test_normalization_identity.gd,res://tests/unit/test_checkpoint_history_region_search.gd","-gexit","-glog=2","-gjunit_xml_file=res://.godot/ci/checkpoint_diagnostics.xml"],"exit_code":126,"log_path":"D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-checkpoint_diagnostics.log","test_root":"D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\0e94d0f3-b2ae-45fb-a5aa-9eb66d8647aa","user_dir":"D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\0e94d0f3-b2ae-45fb-a5aa-9eb66d8647aa\\appdata\\Godot\\app_userdata\\DWM","started_at_utc":"2026-09-28T17:21:08.8872991Z","ended_at_utc":"2026-09-28T17:21:16.1930674Z"}
+2026-09-28T17:21:16.3264672Z Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+2026-09-28T17:21:16.3266424Z
+2026-09-28T17:21:16.3272406Z Godot version:  4.6.3
+2026-09-28T17:21:16.3273954Z GUT version:  9.6.1
+2026-09-28T17:21:16.3276036Z SCRIPT ERROR: Parse Error: Member "_compare" is not a function.
+2026-09-28T17:21:16.3283637Z    at: GDScript::reload (res://tests/unit/test_checkpoint_history_region_search.gd:61)
+2026-09-28T17:21:16.3284491Z    GDScript backtrace (most recent call first):
+2026-09-28T17:21:16.3285732Z        [0] load_script_using_custom_warnings (res://addons/gut/warnings_manager.gd:173)
+2026-09-28T17:21:16.4373748Z
+2026-09-28T17:21:16.4375643Z Scripts               2
+2026-09-28T17:21:16.4377428Z Tests                10
+2026-09-28T17:21:16.4379297Z Passing Tests        10
+2026-09-28T17:21:16.4381443Z Asserts             511
+2026-09-28T17:21:16.4383108Z Time              0.65s
+2026-09-28T17:21:16.4385026Z
+2026-09-28T17:21:16.4392890Z Results saved to res://.godot/ci/checkpoint_diagnostics.xml
+2026-09-28T17:21:16.4394673Z [INFO]:  Exiting with code 0
+2026-09-28T17:21:16.4611323Z ##[error]Process completed with exit code 1.
+2026-09-28T17:21:16.4817521Z ##[group]Run actions/upload-artifact@v4
+2026-09-28T17:21:16.4818062Z with:
+2026-09-28T17:21:16.4818325Z   name: windows-checkpoint_diagnostics-36456923792-1

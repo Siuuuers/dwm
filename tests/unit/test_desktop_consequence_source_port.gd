@@ -255,6 +255,42 @@ func _bind_condition_owner(owner: Node) -> Object:
 	return port
 
 
+func _remap_condition_owner(owner: Node, suffix: String) -> Dictionary:
+	var source: Dictionary = owner._run_lifecycle.to_dict()
+	var replacement: Dictionary = _root_store.mint(&"causal_day_instance")
+	var issued: Dictionary = _issuer.issue(&"transaction_id")
+	assert_true(issued.get("ok", false), str(issued))
+	if not issued.get("ok", false): return issued
+	var root: Dictionary = issued["value"]["issuer_receipt"]
+	var remap: Dictionary = _issuer.derive_child({
+		"parent_receipt_id": root["receipt_id"], "child_kind": "continuation_operation",
+		"ordinal": 0, "source_ids": []})
+	assert_true(remap.get("ok", false), str(remap))
+	if not remap.get("ok", false): return remap
+	var prepared: Dictionary = owner._run_lifecycle.prepare_continuation_remap(
+		str(root["token"]), {
+			"allocation_receipt_id": root["receipt_id"],
+			"branch_id": "branch-restored-" + suffix,
+			"causal_day_instance": replacement["token"],
+			"causal_day_instance_issuer_receipt": replacement,
+			"desktop_timeline_generation": int(source["desktop_timeline_generation"]) + 1,
+			"remap_receipt_id": remap["value"]["child_id"],
+			"remap_receipt_provenance": remap["value"]["provenance"],
+			"run_id": source["run_id"],
+			"transaction_remap": {},
+		}, {
+			"branch_id": source["branch_id"],
+			"causal_day_instance": source["causal_day_instance"],
+			"causal_day_instance_issuer_receipt": source["causal_day_instance_issuer_receipt"],
+			"desktop_timeline_generation": source["desktop_timeline_generation"],
+		})
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false): return prepared
+	var committed: Dictionary = owner._run_lifecycle.commit_continuation_remap(prepared["value"]["candidate"])
+	assert_true(committed.get("ok", false), str(committed))
+	return committed
+
+
 func test_condition_receipt_uses_committed_current_run_outcome_and_ignores_old_action_history() -> void:
 	var owner := _condition_owner()
 	var port := _bind_condition_owner(owner)
@@ -295,6 +331,84 @@ func test_condition_receipt_reconstructs_from_restored_gameplay_and_resolution_w
 	assert_true(reconstructed.get("ok", false), str(reconstructed))
 	assert_eq(reconstructed.get("value"), first.get("value"), "the persisted issuer root reproduces exact condition ancestry")
 	assert_eq(restored.to_save_dict(), before)
+
+
+func test_condition_receipt_uses_retained_plan_after_live_continuation_identity_is_remapped() -> void:
+	var owner := _condition_owner()
+	var port := _bind_condition_owner(owner)
+	var request := _condition_request(owner)
+	var first: Dictionary = port.resolve_condition_receipt(request)
+	assert_true(first.get("ok", false), str(first))
+	if not first.get("ok", false): return
+	var retained_plan: Dictionary = owner._run_lifecycle.to_dict()["active_resolution_plan"].duplicate(true)
+	if not _remap_condition_owner(owner, "one").get("ok", false): return
+	if not _remap_condition_owner(owner, "two").get("ok", false): return
+	var remapped: Dictionary = owner._run_lifecycle.to_dict()
+	assert_eq(owner._run_lifecycle.to_dict()["day"], request["source_day"])
+	assert_ne(owner._run_lifecycle.to_dict()["causal_day_instance"], request["causal_day_instance"])
+	assert_ne(remapped["restore_provenance"]["source_causal_day_instance"], request["causal_day_instance"],
+		"the second Load proof names its immediate source while the plan retains the original")
+	assert_eq(owner._run_lifecycle.to_dict()["active_resolution_plan"], retained_plan,
+		"fresh-load continuation remapping retains the unfinished source plan")
+	var reconstructed: Dictionary = port.resolve_condition_receipt(request)
+	assert_true(reconstructed.get("ok", false), str(reconstructed))
+	assert_eq(reconstructed.get("value"), first.get("value"),
+		"the retained plan start and root reproduce the exact condition receipt")
+	var foreign := request.duplicate(true)
+	foreign["causal_day_instance"] = str(remapped["causal_day_instance"])
+	assert_false(port.resolve_condition_receipt(foreign).get("ok", true),
+		"the remapped live identity cannot replace the retained plan's source request")
+
+
+func test_condition_receipt_refuses_unproven_identity_remap_and_mismatched_start_day() -> void:
+	var owner := _condition_owner()
+	var port := _bind_condition_owner(owner)
+	var request := _condition_request(owner)
+	var unproven: Dictionary = owner._run_lifecycle.to_dict()
+	var replacement: Dictionary = _root_store.mint(&"causal_day_instance")
+	unproven["causal_day_instance"] = replacement["token"]
+	unproven["causal_day_instance_issuer_receipt"] = replacement
+	unproven["restore_provenance"] = null
+	var prepared: Dictionary = owner._run_lifecycle.prepare_restore(unproven)
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false): return
+	assert_true(owner._run_lifecycle.commit_restore(prepared["value"]["candidate"]).get("ok", false))
+	assert_false(port.resolve_condition_receipt(request).get("ok", true),
+		"a same-day identity mismatch without restore provenance is not a Load continuation")
+	var forged: Dictionary = owner._run_lifecycle.to_dict()
+	forged["restore_provenance"] = {
+		"identity_allocation_receipt_id": "fixture:foreign-root",
+		"remap_receipt_id": "fixture:foreign-child",
+		"remap_receipt_provenance": {
+			"schema_version": 1, "parent_receipt_id": "fixture:foreign-root",
+			"child_kind": "continuation_operation", "ordinal": 0, "source_ids": [],
+			"child_id": "fixture:foreign-child",
+		},
+		"restore_transaction_id": "fixture:foreign-restore",
+		"source_branch_id": "branch-source",
+		"source_causal_day_instance": request["causal_day_instance"],
+		"source_desktop_timeline_generation": 0,
+		"source_issuer_observed_counter": 1,
+		"transaction_remap_sha256": "fixture:foreign-remap",
+	}
+	prepared = owner._run_lifecycle.prepare_restore(forged)
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false): return
+	assert_true(owner._run_lifecycle.commit_restore(prepared["value"]["candidate"]).get("ok", false))
+	assert_false(port.resolve_condition_receipt(request).get("ok", true),
+		"well-shaped but unauthenticated restore provenance cannot unlock the retained plan")
+
+	owner = _condition_owner()
+	port = _bind_condition_owner(owner)
+	request = _condition_request(owner)
+	var wrong_start_day: Dictionary = owner._run_lifecycle.to_dict()
+	wrong_start_day["active_resolution_plan"]["day_resolution_start_receipt"]["source_day"] = 2
+	prepared = owner._run_lifecycle.prepare_restore(wrong_start_day)
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false): return
+	assert_true(owner._run_lifecycle.commit_restore(prepared["value"]["candidate"]).get("ok", false))
+	assert_false(port.resolve_condition_receipt(request).get("ok", true),
+		"the retained start receipt must name the same source day as its plan and request")
 
 
 func test_condition_receipt_refuses_stale_continuation_and_an_unresolved_current_day() -> void:

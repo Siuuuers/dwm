@@ -76,13 +76,20 @@ static func build() -> Dictionary:
 		for source_day: int in _CALENDAR.solo_days_for(friend):
 			var id := "missed_question:%s:day%d" % [friend, source_day + 1]
 			catalog[id]["hospital_followup"] = {
-				"explanation": {"outgoing": true, "texts": _COPY.hospital_explanation.duplicate(true)},
-				"reaction": {"outgoing": false, "texts": _COPY["hospital_" + friend].duplicate(true)}}
+				"explanation": {"outgoing": true, "texts": _texts("hospital_explanation")},
+				"reaction": {"outgoing": false, "texts": _texts("hospital_" + friend)}}
 	return catalog.duplicate(true)
 
 
 static func _put(catalog: Dictionary, message_id: String, kind: String) -> void:
 	catalog[message_id] = {
 		"outgoing": false,
-		"texts": (_COPY[kind] as Dictionary).duplicate(true),
+		"texts": _texts(kind),
 	}
+
+
+static func _texts(kind: String) -> Dictionary:
+	var texts: Dictionary = (_COPY[kind] as Dictionary).duplicate(true)
+	# UI-only drafts keep the exact authored English correspondence.
+	for locale: String in ["ja", "ko"]: texts[locale] = texts.en
+	return texts

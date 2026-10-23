@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "scope": "Existing Settings primary runs; quiet output preserves case names, statuses, assertion counts and failure text. Timing fields excluded. No claim that logging caused earlier apparent stalls.",
+  "records": [
+    {
+      "mode": "verbose",
+      "run_id": 39986683788,
+      "artifact_id": 12516600493,
+      "artifact_sha256": "9d045c1cfefc3ab9884531606196d8045f3efddcbf7886282e8a1ac7c21978b5",
+      "artifact_bytes": 4168614,
+      "zip_crc_verified": true,
+      "godot_log_bytes": 23187074,
+      "junit_sha256": "871c36078f4ce414721550a248ee5825ad94f14d541d2026dd28d5aa589eb51a",
+      "cases": 369,
+      "assertions": 22009,
+      "passed": 361,
+      "failed": 8
+    },
+    {
+      "mode": "quiet",
+      "run_id": 39987157781,
+      "artifact_id": 12516316488,
+      "artifact_sha256": "8d34da6116d1e8d905d18e7dd4c833cfea1341ab95c2f9d72cb5118e2b95f78c",
+      "artifact_bytes": 3193245,
+      "zip_crc_verified": true,
+      "godot_log_bytes": 57879,
+      "junit_sha256": "ec652ba036ed7e6253a40d02b7911ffb8a7a4de6f126e37ed85b44472931b40b",
+      "cases": 369,
+      "assertions": 22009,
+      "passed": 361,
+      "failed": 8
+    }
+  ],
+  "exact_case_outcome_assertion_failure_equivalence": true,
+  "compared_case_map_sha256": "2422b784a8928980808882f364180088e6da18d1686cbcd5cd39652081054918"
+}

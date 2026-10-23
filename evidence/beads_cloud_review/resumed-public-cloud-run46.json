@@ -1,0 +1,284 @@
+{
+  "head_sha": "00c7c262fc42a7f02756888e975ca3abee81e9bf",
+  "run_id": 35634359705,
+  "run_url": "https://github.com/Siuuuers/dwm/actions/runs/35634359705",
+  "attempt": 3,
+  "recovery": {
+    "owner_action": "repository made public",
+    "attempt2_runner_and_import_verified": 106471954204,
+    "attempt3_jobs_allocated": 17
+  },
+  "jobs": [
+    {
+      "job_id": 106472606405,
+      "name": "Windows / public API surface contracts",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Regenerate and verify complete public inventories"
+      ]
+    },
+    {
+      "job_id": 106472606539,
+      "name": "Windows / reading_delivery",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Run focused regression suite"
+      ]
+    },
+    {
+      "job_id": 106472606605,
+      "name": "Windows / seven-day retained history",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Measure seven days and saturated retained history"
+      ]
+    },
+    {
+      "job_id": 106472606627,
+      "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Exercise complete rendered journeys in fresh isolated profiles"
+      ]
+    },
+    {
+      "job_id": 106472606629,
+      "name": "Windows / paired checkpoint performance",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Measure localized journeys and matched payloads"
+      ]
+    },
+    {
+      "job_id": 106472606713,
+      "name": "Rendered desktop and dialogue / Linux software OpenGL",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Verify rendered startup and Logout consent"
+      ]
+    },
+    {
+      "job_id": 106472606749,
+      "name": "Windows / exported release startup",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Export and launch isolated Windows executable"
+      ]
+    },
+    {
+      "job_id": 106472606871,
+      "name": "Windows / minesweeper",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "job_id": 106472606880,
+      "name": "Windows / desktop",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "job_id": 106472606917,
+      "name": "Windows / new_account",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "job_id": 106472606919,
+      "name": "Windows / endings",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "job_id": 106472606931,
+      "name": "Windows / settings",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "job_id": 106472606942,
+      "name": "Windows / audio",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "job_id": 106472606963,
+      "name": "Windows / dating",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "job_id": 106472606975,
+      "name": "Windows / shop",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "job_id": 106472607004,
+      "name": "Windows / persistence",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "job_id": 106472607310,
+      "name": "Windows / localization",
+      "conclusion": "success",
+      "failed_steps": []
+    }
+  ],
+  "passed_focused_suites": {
+    "new_account": {
+      "tests": 136,
+      "scripts": 13,
+      "job_id": 106472606917
+    },
+    "audio": {
+      "tests": 44,
+      "scripts": 2,
+      "job_id": 106472606942
+    },
+    "shop": {
+      "tests": 144,
+      "scripts": 8,
+      "job_id": 106472606975
+    },
+    "localization": {
+      "tests": 152,
+      "scripts": 18,
+      "job_id": 106472607310
+    },
+    "minesweeper": {
+      "tests": 210,
+      "scripts": 22,
+      "job_id": 106472606871
+    },
+    "desktop": {
+      "tests": 173,
+      "scripts": 17,
+      "job_id": 106472606880
+    },
+    "dating": {
+      "tests": 137,
+      "scripts": 10,
+      "job_id": 106472606963
+    },
+    "endings": {
+      "tests": 105,
+      "scripts": 12,
+      "job_id": 106472606919
+    },
+    "persistence": {
+      "tests": 164,
+      "scripts": 16,
+      "job_id": 106472607004
+    },
+    "settings": {
+      "tests": 269,
+      "scripts": 22,
+      "job_id": 106472606931
+    }
+  },
+  "passed_focused_tests": 1534,
+  "passed_focused_scripts": 140,
+  "reading_delivery": {
+    "tests": 209,
+    "passed": 205,
+    "failed": 4,
+    "causes": [
+      "Two Hospital tests encounter HospitalScene.art_participants untyped conditional Array return.",
+      "Ending/Gallery fixture replaced cached timeline only; production art-hold probe read original return-only source, so real prose and completion never started. Fix aligns temporary file bytes with the injected resource and restores original bytes."
+    ]
+  },
+  "rendered_desktop": {
+    "preview_captures": 133,
+    "preview_passes": 5,
+    "ui_literal_audit": "passed",
+    "startup_logout": "failed: actual Day 1 round settlement refused"
+  },
+  "rendered_journeys": {
+    "cases": 5,
+    "passed": 0,
+    "cause": "Day 1 round settlement refused, including two Practice timeouts waiting for that settlement.",
+    "lifetime_acceptance": false
+  },
+  "public_inventory": {
+    "retired_symbols": 6,
+    "source_files": 902,
+    "remaining_references": 0,
+    "unclassified_new_game_state_methods": 7,
+    "canonical_payload_emitted": false
+  },
+  "export": {
+    "cause": "GUT editor plugin optional version fetch returned HTTP403 during export; strict ERROR scan failed.",
+    "native_exe_executed": false,
+    "release_zip_accepted": false
+  },
+  "cache_and_performance": {
+    "head_sha": "00c7c262fc42a7f02756888e975ca3abee81e9bf",
+    "run_id": 35634359705,
+    "attempt": 3,
+    "scope": "Exact-text parse-cache correctness plus unsuccessful performance attempts; no end-to-end speed conclusion.",
+    "settings": {
+      "job_id": 106472606931,
+      "job_url": "https://github.com/Siuuuers/dwm/actions/runs/35634359705/job/106472606931",
+      "conclusion": "success",
+      "suite_id": "cloud-settings",
+      "exit_code": 0,
+      "started_at_utc": "2026-09-21T18:59:02.6363276Z",
+      "ended_at_utc": "2026-09-21T19:01:26.8873444Z",
+      "duration_seconds": 144.251,
+      "test_cases": 269,
+      "requested_script_count": 22,
+      "parse_cache_requested": true,
+      "parse_cache_test_count": 7,
+      "storage_refusal_verified": true
+    },
+    "performance_lanes": [
+      {
+        "job_id": 106472606605,
+        "name": "seven-day retained history",
+        "conclusion": "failure",
+        "measurement_complete": false,
+        "failure": "Day 1 physical Minesweeper round settlement refused: minesweeper_panel_command_refused.",
+        "notes": "Real first reveal and Slot 1 save completed; no seven-day/cold-Login paired evidence."
+      },
+      {
+        "job_id": 106472606629,
+        "name": "paired checkpoint performance",
+        "conclusion": "failure",
+        "measurement_complete": false,
+        "failure": "First fresh zh-CN ordinary reply prepare refused: contacts_frozen_relationship_unavailable.",
+        "notes": "No valid localized journey or matched payload report."
+      }
+    ],
+    "source_files": [
+      {
+        "path": "autoload/SaveManager.gd",
+        "sha256": "abc55fbfc11cb8f882b7e6dda9030ccd9af09dc1a6db59b1cb0b179216143a27",
+        "bytes": 143544
+      },
+      {
+        "path": "tests/unit/test_save_manager_parse_cache.gd",
+        "sha256": "2b8bcaf4a929fbbf362d50569dd2202fae74b0f6d168e51d33947bf803df0b98",
+        "bytes": 9694
+      },
+      {
+        "path": "tools/testing/Invoke-SevenDayHistoryPerformance.ps1",
+        "sha256": "02abcded8f9f186e046bbd514558f1801c380e39b2785e83a9b58923117069ed",
+        "bytes": 12829
+      },
+      {
+        "path": "tests/manual/benchmark_seven_day_history.gd",
+        "sha256": "8fd1ab24fa7cae45bfc1abffad093ca71ad009075283280a5becf0932c6ce220",
+        "bytes": 14025
+      }
+    ],
+    "interpretation": "Seven new cache tests and existing save/load integration tests passed. Performance jobs fail at new Contacts context admission; successful parser-hit instrumentation is not an end-to-end speedup claim."
+  },
+  "scopes": [
+    "No full green or release acceptance.",
+    "Cache correctness is verified; no completed end-to-end timing or causal speedup.",
+    "RunSave remains v6 with present-context validation; strict successor completeness is not implemented.",
+    "Published fixes after this head require a fresh run."
+  ]
+}

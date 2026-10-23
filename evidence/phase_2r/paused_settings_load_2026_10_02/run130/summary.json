@@ -1,0 +1,30 @@
+{
+  "acceptance_join": {
+    "bytes": 14378,
+    "file": "acceptance-summary.json",
+    "sha256": "b73bc395b632e8e66b5c58ba4feddd58187bb8c95fcbfb3f3f0b8e9a19915373"
+  },
+  "bounded_settings_f9_acceptance": true,
+  "canonical_jobs": 23,
+  "counts": {
+    "case_executions": 2313,
+    "script_executions": 196,
+    "unique_cases": 2309,
+    "unique_scripts": 195,
+    "xml_count": 13
+  },
+  "limits": [
+    "This is the bounded successful Settings F9 canonical increment, not completion of all Beads tasks or every native/platform behavior.",
+    "The omitted oversized Windows export is explicitly scoped to cloud startup receipts.",
+    "Actual arbitrary-filesystem/OS-crash behavior, native accessibility completeness, production replay and final visual polish remain outside this proof."
+  ],
+  "oversized_export_scope": {
+    "bytes": 2412,
+    "file": "artifact-exclusions.json",
+    "sha256": "d140cd0b13640013a854d32019c5b4406f86f6fb8b43472f260f972bc73ce32a"
+  },
+  "run_id": 36980559297,
+  "schema_version": 1,
+  "source": "41cc51992b74ec9472f7912e0eb8e1c39679af44",
+  "tested_checkout": "705ea660b4d6ee9f3376ae4660a3d50e65fe5502"
+}

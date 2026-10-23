@@ -1,0 +1,119 @@
+{
+  "source": {
+    "candidate": "27321f29754e7201cf1f445941e5ca687ecd4b64",
+    "tree": "ac36ef90f19e405e17411cbc35b9eb35d6768523",
+    "workflow": "8fef85b0809819f242385a1d0bc4ffe6eb811f52",
+    "event": "8fef85b0809819f242385a1d0bc4ffe6eb811f52",
+    "run_id": "39909557197",
+    "attempt": "1",
+    "controller": "fc5cc734a779e54d81e8c02bf173ab0bc54dd63f"
+  },
+  "run_url": "https://github.com/Siuuuers/dwm/actions/runs/39909557197",
+  "artifact_sha256": "fe53be584917a9e7c6814beec817b349eb2b08e95b363b996a0c504322f646db",
+  "phases": [
+    {
+      "elapsed_us": 6998440,
+      "ok": true,
+      "phase": "boot"
+    },
+    {
+      "elapsed_us": 18845493,
+      "ok": true,
+      "phase": "title_backup"
+    },
+    {
+      "elapsed_us": 69437,
+      "ok": true,
+      "phase": "select_autosave"
+    },
+    {
+      "elapsed_us": 79192844,
+      "ok": true,
+      "phase": "load"
+    },
+    {
+      "elapsed_us": 141578243,
+      "ok": true,
+      "phase": "control_departure"
+    },
+    {
+      "elapsed_us": 1021002,
+      "ok": true,
+      "phase": "ordinary_caption_291"
+    },
+    {
+      "elapsed_us": 956329,
+      "ok": true,
+      "phase": "ordinary_caption_292"
+    },
+    {
+      "elapsed_us": 119589,
+      "ok": true,
+      "phase": "caption_memory"
+    }
+  ],
+  "retained_files": {
+    "ci/audit-origin.json": {
+      "sha256": "0be9e1d881d8790b3d98d939d0fe1e4c8bfce6aac04788eb04e470f7b619fe16",
+      "retained_as": "audit-origin.json"
+    },
+    "ci/authored-recovery.json": {
+      "sha256": "fd3b3008ae2390b96d7a571b4d67d2f3db50be796635bdba0db8f89cead05d0e",
+      "retained_as": "authored-recovery.json"
+    },
+    "phase2r_logs/authored-recovery.log": {
+      "sha256": "deebf1cd0d890c9d62aef7bc75b5ad9926e08b00c7b056b9efe0082fbea607e5",
+      "retained_as": "authored-recovery.log"
+    },
+    "ci/authored-recovery.xml": {
+      "sha256": "848df4154ec77e925f55646a946c8916f52c9f01446d52cc1c5cb8395b000e50",
+      "retained_as": "authored-recovery.xml"
+    },
+    "ci/caption-challenge-load.xml": {
+      "sha256": "59131b84a6ae2943007b769013ee679d0db1efb2a00eb6aa8082dac2f47f3c83",
+      "retained_as": "caption-challenge-load.xml"
+    },
+    "ci/caption-challenge-create.xml": {
+      "sha256": "65925c5f077ca2839278db7963f402e1db9665a2bf7b494d9ba9d7108fe075d5",
+      "retained_as": "caption-challenge-create.xml"
+    },
+    "ci/playable-native-control.xml": {
+      "sha256": "3ff9b3e8fc788f51f97970c14d1677d944be4c97d019b8985fe940478ff10736",
+      "retained_as": "playable-native-control.xml"
+    },
+    "ci/native-activation.xml": {
+      "sha256": "028991534a76b1c3c969d226b4d7541964b3de27fac856a580dd39cddd5de697",
+      "retained_as": "native-activation.xml"
+    },
+    "ci/multiple-thoughts-create.xml": {
+      "sha256": "5735eaa0fdc30ee37dd76ecaf833a632a918ade4a6b442047a454c73b1d98122",
+      "retained_as": "multiple-thoughts-create.xml"
+    },
+    "ci/caption-challenge.jsonl": {
+      "sha256": "24cdc689f551005b4363dba4a1a557764c372648a16e1caaa1fb40f5d178bdb3",
+      "retained_as": "caption-challenge.jsonl"
+    },
+    "ci/playable-native-control.jsonl": {
+      "sha256": "d737ba7917572c2888121b1a37a8f10b547a05a58f1f5913123a777b125bcb71",
+      "retained_as": "playable-native-control.jsonl"
+    },
+    "ci/authored-recovery.jsonl": {
+      "sha256": "d630ade827de93e9cf333ddf29dd469e412f01a54e04b8802685f0306addf0b2",
+      "retained_as": "authored-recovery.jsonl"
+    },
+    "ci/public-inventory.jsonl": {
+      "sha256": "59af2563b1c415a8a8c5b9158e1b609abe73478c0d6024996c65373dec2814aa",
+      "retained_as": "public-inventory.jsonl"
+    },
+    "ci/native-activation.jsonl": {
+      "sha256": "32477c7f9c72b83afd64d17dfb62e6f19cb4a24ee2d8297796b1cca7e7d92365",
+      "retained_as": "native-activation.jsonl"
+    },
+    "ci/multiple-thoughts-create.jsonl": {
+      "sha256": "2eb932c70d0cc18b41f7aa3ff779934b36196e39ca69fb0ef6c3a2e073be90e0",
+      "retained_as": "multiple-thoughts-create.jsonl"
+    }
+  },
+  "scope": "bounded authentic Day2 recovery, not full-week acceptance",
+  "original_archive": "GitHub Actions artifact; durable seed remains in repository run39888749357_journey/original-artifact.zip"
+}

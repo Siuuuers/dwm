@@ -1,0 +1,19 @@
+{
+  "source": "d74663635f04f63d3bb3e12f1811fee175cadbf7",
+  "tree": "137a4d9976c2438c863816634d71a1dda7a4184a",
+  "controller": "15f55f3569467fdcbfc3ebac3f4cf9d8887c6b16",
+  "workflow": "15f55f3569467fdcbfc3ebac3f4cf9d8887c6b16",
+  "run_id": "39989387087",
+  "sha256": {
+    ".github/workflows/windows-tests.yml": "2fc1340895b317813f1a22f60c1840320a96690f669b9aad1de7107fc957ffff",
+    "tools/testing/Invoke-CloudTests.ps1": "41315a473c12a4c77d4fddcb627fa893dfded782ab8a855fc02bd81fedcf0822",
+    "tools/testing/Invoke-IsolatedGodot.ps1": "1fe67f2db677fb869ee82126834a83d519b77888328a690ec55bbb3fbda7fa5f",
+    "tools/testing/Invoke-StorageRefusalChecks.ps1": "a834df68acc0e57347df29c928b4190791ec72354d6084263b440cf1426c3219",
+    "tools/testing/Invoke-PublicSurfaceValidation.ps1": "de02f5eb28b087fe858622dbcae5e45aa38293de694c4df284ae487443e3f11a",
+    "tools/testing/canonical-test-disposition.json": "6552764260b39a6b5643b200ec0c6ec063b92382bbec0fe370be4b513007ce82",
+    "tests/unit/test_bootstrap_window_output.gd": "b6319f4757822c40a45e4428748a5e9291bb93b1f1d23c11b22a15356b9ff1bd",
+    "tests/unit/test_checkpoint_journal.gd": "6daff35c14ee9b7cac000936c260594ff0c307ddcb27a3fed208b61410f44b37",
+    "tests/integration/test_restore_production_adapters.gd": "4e9079c75f9e7cb5baaa2542fd96e59af1423a3bd8a59aab19f4a54c207c6f64",
+    "tests/scene/test_settings_localization_scene.gd": "ee528d120f08b59ec7894de5eb0dc20a24500ecdedd7546b43ba94de5cbf7a42"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "kind": "additive_erratum",
+  "target": {
+    "audit": "/workspace/scratch/e58f796fe7a3/hospital-broad1-export-audit/windows-export-audit.json",
+    "sha256": "c12e0dbfe59b14d373f65c5785a726fe517098fe0ed77688dace10e1a46f6382",
+    "readme": "/workspace/scratch/e58f796fe7a3/hospital-broad1-export-audit/README.md",
+    "readme_sha256": "ca899cd3997a50662aae3caccb7e8c8a2f9d87c44aaf6d2ba4e2736de21add3e"
+  },
+  "omission": "The prior audit did not enumerate the exact ObjectDB cleanup warning found once at export.console.log line 2086, followed by the cleanup location at line 2087.",
+  "exact_diagnostic": "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+  "correction": [
+    "Read the prior `forbidden_diagnostic_scan_clear` field only as clear of the committed validator's error/parse/Unicode/startup pattern, not as a warning-free or leak-free claim.",
+    "Add the ObjectDB cleanup warning to the retained nonfatal observations for the canonical validator contract.",
+    "Qualify the prior accepted claim as export/package/headless-startup evidence with unresolved exporter cleanup warning; remove any implied leak-free exporter shutdown claim."
+  ],
+  "unchanged_findings": [
+    "Original artifact API identity, ZIP CRC, nested archive membership and payload hashes remain verified.",
+    "The unsigned x86_64 export was created, 111 packaged runtime data files were verified, and isolated headless startup completed 240 iterations with a created Profile.",
+    "No graphical Windows, UIA, screen-reader, signing, release, whole-reading-rail or whole-gate acceptance was established."
+  ],
+  "status_after_erratum": "qualified_bounded_export_startup_pass_with_unresolved_exporter_cleanup_warning",
+  "cause": "unknown",
+  "whole_gate_acceptance": false,
+  "prior_files_modified": false
+}

@@ -1,0 +1,7 @@
+# NONCANONICAL cloud fixture only. No production duration or narrative admission.
+return
+
+label timed_hold
+[wait time="2.0" hide_text="true" skippable="false"]
+The timed hold has finished. This is the first real caption in an explicitly noncanonical cloud fixture, with enough text to observe its ordinary reveal, focus and speech before a fresh input continues. #id:fixture.timed_hold.after
+return

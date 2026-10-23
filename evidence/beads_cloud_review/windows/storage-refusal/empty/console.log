@@ -1,0 +1,518 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+---  GUT  ---
+[1m[INFO]:  [0musing [D:/a/dwm/dwm/.godot/ci/storage-refusal/empty/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+[4m
+
+res://tests/unit/test_minesweeper_shop_purchase_participant.gd
+[0m* test_dynamic_script_probe_proves_every_preload_loads
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_configure_publication_ledger_is_idempotent_and_rejects_replacement
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_configure_requires_publication_ledger_first
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_configure_is_idempotent_and_rejects_replacement_owner
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_prepare_purchase_fails_closed_before_configure
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_quote_produces_the_exact_frozen_shape_and_derives_shop_quote_child_id
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_quote_is_idempotent_on_identical_replay
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_quote_a_second_item_under_the_same_transaction_conflicts
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_quote_rejects_an_unregistered_item
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_quote_rejects_a_transaction_receipt_that_does_not_verify
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_prepare_purchase_lucky_charm_produces_the_frozen_action_shape_and_is_pending
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_prepare_purchase_leaves_live_economy_board_sequence_and_outbox_byte_equal
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_prepare_purchase_durably_checkpoints_before_live_pending_is_adopted
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_prepare_purchase_acquires_and_retains_the_causal_transaction_lease
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_prepare_purchase_rejects_when_no_quote_was_retained
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_prepare_purchase_rejects_a_wrong_member_set
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_prepare_purchase_rejects_a_stale_run_revision
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_prepare_purchase_rejects_a_stale_causal_day_instance
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_prepare_purchase_rejects_insufficient_funds
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_prepare_purchase_rejects_lucky_charm_a_second_time_on_the_same_branch
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_prepare_purchase_rejects_a_second_pending_transaction_while_one_is_already_pending
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_prepare_purchase_duplicate_replay_is_idempotent_and_a_changed_payload_conflicts
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_prepare_purchase_recognizes_a_durable_pending_purchase_after_a_fresh_participant_instance
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_prepare_purchase_a_capability_purchase_is_invisible_to_an_already_frozen_board_capability_ids
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_supportz_purchase_rejects_without_two_base_completions_today
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_supportz_purchase_succeeds_with_two_base_completions_and_decrements_the_floor_on_commit
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_supportz_purchase_rejects_a_second_time_the_same_causal_day
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_supportz_purchase_rejects_a_fourth_time_on_the_same_branch
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_supportz_purchase_rejects_when_the_live_floor_no_longer_matches_the_branch_count
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_commit_rejects_without_the_gate_lease
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_commit_rejects_before_sequence_committed
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_commit_succeeds_after_sequence_committed_and_grants_the_capability
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_commit_is_idempotent_on_identical_replay_and_conflicts_on_changed_bytes
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_rollback_reverts_the_prepared_pending_and_releases_the_gate
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_publish_records_through_the_action_source_kind_and_releases_the_gate
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_publish_rejects_an_invalid_publication_shape
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_validate_recovery_action_is_mutation_free_and_returns_the_frozen_publication_shape
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_commit_recovery_action_grants_the_capability_and_is_idempotent
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_commit_recovery_action_rejects_changed_bytes_at_the_same_identity
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_publish_recovery_action_records_through_action_source_and_retains_the_gate
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+* test_prepare_purchase_result_is_detached_from_internal_state
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+[1m0/41 passed.
+[0m[4m
+
+res://tests/unit/test_save_manager_checkpoint_port.gd
+[0m* test_prepare_consequence_checkpoint_builds_a_candidate_and_receipt
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 133
+* test_prepare_consequence_checkpoint_attaches_the_receipt_to_the_admission_candidate
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 162
+* test_commit_consequence_checkpoint_retains_and_rereads_in_same_process
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 182
+* test_issued_transient_record_cache_is_bounded_and_cleared_with_transient_state
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 201
+* test_commit_consequence_checkpoint_rejects_a_receipt_mismatch
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 218
+* test_known_issued_checkpoint_rejects_equal_float_payload_before_first_commit
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 235
+* test_supplied_checkpoint_receipt_rejects_equal_float_ordinal
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 259
+* test_known_issued_checkpoint_accepts_string_name_aliases_after_normalization
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 275
+* test_cache_evicted_prepared_checkpoint_still_commits_through_cold_validation
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 298
+* test_evicted_checkpoints_accept_each_legitimate_recovery_stage
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 316
+* test_evicted_checkpoint_rejects_inconsistent_fields_before_insertion
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 380
+* test_evicted_reprepared_admission_preserves_its_older_admission_receipt
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 424
+* test_evicted_preadmission_checkpoints_preserve_receipt_free_state
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 456
+* test_commit_consequence_checkpoint_rejects_malformed_or_uncanonicalizable_records
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 492
+* test_commit_consequence_checkpoint_replays_an_identical_rewrite_at_an_occupied_slot
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 515
+* test_commit_consequence_checkpoint_rejects_a_different_rewrite_at_an_occupied_slot
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 533
+* test_a_committed_admission_checkpoint_reads_back_and_validates
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 555
+* test_abandon_pending_consequence_checkpoint_marks_a_pre_admission_checkpoint_abandoned
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 582
+* test_abandon_pending_consequence_checkpoint_rejects_a_nonexistent_transaction
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 615
+* test_abandon_pending_consequence_checkpoint_rejects_an_already_admitted_transaction
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 627
+* test_read_pending_consequence_checkpoint_finds_nothing_when_no_checkpoint_exists
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 642
+* test_clear_transient_consequence_checkpoints_is_explicit_and_complete
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 652
+* test_clear_transient_consequence_checkpoints_does_not_depend_on_storage_readiness
+[32m    [Passed]:  [0m{"code":"ok","ok":true,"value":{"abandoned_cleared":1,"records_cleared":1}}
+[32m    [Passed]:  [0m[1] expected to equal [1]:  
+[32m    [Passed]:  [0m[1] expected to equal [1]:  
+[32m    [Passed] [0m
+[32m    [Passed] [0m
+* test_fresh_port_ignores_and_preserves_every_legacy_sidecar_artifact
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 681
+* test_prepare_consequence_checkpoint_requires_configuration
+[32m    [Passed]:  [0m{"code":"ok","ok":true,"receipt":{},"value":{"candidate":{"kind":"action_handoff","pre_run_revision":0,"request_fingerprint":"c31f90fe41dbf0b323019baed2672aacc9778c0e872f8a63ca6d84e3a669d76c","state_after":{"causal_day_instance":"causal-day-1","causal_day_instance_issuer_receipt":{"counter":1,"namespace":"fixturenamespace","numeric_value":null,"purpose":"causal_day_instance","receipt_id":"issuer_receipt.fixture-causal-day-1","token":"causal-day-1"},"causal_sequence":0,"outbox":{},"pending":{"admission_checkpoint_receipt":null,"checkpoint_receipt":null,"destination_intent":null,"expected_run_revision":0,"notification_intent":null,"participant_receipts":{},"publication_progress":null,"recovery_payload":{"action_receipt":{"result":"completed"},"participant_snapshot_ids":{"marker":1},"run_revision_before":0,"source_kind":"minesweeper_round"},"recovery_payload_sha256":"a9c8d4a19a22a918991ee4a83871cd1c8c72ba091dbdf379786155a6fc821882","source_commit_receipt_id":"commit-receipt-1","source_commit_receipt_provenance":{"child_kind":"board_fate"},"source_kind":"minesweeper_round","stage":"action_prepared","transaction_id":"txn-1","transaction_issuer_receipt":{"counter":1,"namespace":"fixturenamespace","numeric_value":null,"purpose":"causal_day_instance","receipt_id":"issuer_receipt.fixture-txn-1","token":"txn-1"}},"run_revision":0,"schema_version":1,"shop_ledger":{"base_completion_receipts":[],"supportz_branch_purchase_count":0,"supportz_last_purchase_causal_day_instance":""}},"transaction_id":"txn-1"}}}
+[32m    [Passed]:  [0m{"code":"ok","ok":true,"receipt":{},"value":{"candidate":{"kind":"sequence_reservation","pre_run_revision":0,"request_fingerprint":"eb7a2b2ea59e4a3a9bd711300174d8ca0806fa2e2d91082921f27b3d474336b5","state_after":{"causal_day_instance":"causal-day-1","causal_day_instance_issuer_receipt":{"counter":1,"namespace":"fixturenamespace","numeric_value":null,"purpose":"causal_day_instance","receipt_id":"issuer_receipt.fixture-causal-day-1","token":"causal-day-1"},"causal_sequence":1,"outbox":{},"pending":{"admission_checkpoint_receipt":null,"checkpoint_receipt":null,"destination_intent":null,"expected_run_revision":0,"notification_intent":null,"participant_receipts":{},"publication_progress":null,"recovery_payload":{"action_receipt":{"result":"completed"},"participant_snapshot_ids":{"marker":1},"run_revision_before":0,"source_kind":"minesweeper_round"},"recovery_payload_sha256":"a9c8d4a19a22a918991ee4a83871cd1c8c72ba091dbdf379786155a6fc821882","source_commit_receipt_id":"commit-receipt-1","source_commit_receipt_provenance":{"child_kind":"board_fate"},"source_kind":"minesweeper_round","stage":"sequence_committed","transaction_id":"txn-1","transaction_issuer_receipt":{"counter":1,"namespace":"fixturenamespace","numeric_value":null,"purpose":"causal_day_instance","receipt_id":"issuer_receipt.fixture-txn-1","token":"txn-1"}},"run_revision":1,"schema_version":1,"shop_ledger":{"base_completion_receipts":[],"supportz_branch_purchase_count":0,"supportz_last_purchase_causal_day_instance":""}},"transaction_id":"txn-1"}}}
+[32m    [Passed] [0m
+[32m    [Passed]:  [0m[STRING_NAME(fatal_latch_not_configured)] expected to equal [STRING_NAME(fatal_latch_not_configured)]:  
+* test_checkpoint_content_preimage_is_the_sole_builder
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 717
+* test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_ordinal_0
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 737
+* test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_ordinal_9
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 753
+* test_restart_drops_unfinished_action_but_preserves_completed_post_result_autosave
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 812
+* test_autosave_bytes_equal_the_full_canonical_writer_across_three_commits
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 910
+* test_autosave_bytes_survive_snapshot_strings_equal_to_splice_sentinels
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 952
+* test_seeded_journal_without_remembered_texts_writes_full_writer_bytes
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 977
+* test_autosave_bytes_equal_the_full_writer_when_an_earlier_bundle_is_not_native_eligible
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 1016
+* test_committed_autosave_remembers_the_document_bundle_under_the_texts_own_gate
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 1051
+* test_prepare_composes_the_autosave_journal_from_the_journals_own_proofs
+[32m    [Passed]:  [0mthe port source must be readable
+[32m    [Passed]:  [0mprepare() asks the journal for each retained bundle's proven document bundle
+[32m    [Passed]:  [0m...and hands them to SaveDocumentSchema.build() as its trailing proven journal
+* test_normalized_preimage_is_deep_equal_and_never_aliases_the_callers_stage_candidate
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 1146
+* test_prepare_emits_a_permanent_env_gated_profile_record
+[32m    [Passed]:  [0mthe port source must be readable
+[32m    [Passed]:  [0mprepare() builds a profile record scoped save_checkpoint_prepare
+[32m    [Passed]:  [0mprepare() stamps the view_capture_us phase through _profile_phase
+[32m    [Passed]:  [0mprepare() stamps the run_snapshot_build_us phase through _profile_phase
+[32m    [Passed]:  [0mprepare() stamps the journal_prepare_us phase through _profile_phase
+[32m    [Passed]:  [0mprepare() stamps the document_build_us phase through _profile_phase
+[32m    [Passed]:  [0mprepare() stamps the backup_us phase through _profile_phase
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 1265
+[1m3/37 passed.
+[0m
+
+
+
+[33m==============================================
+[0m[33m= Run Summary
+[0m[33m==============================================
+[0m[4m
+res://tests/unit/test_minesweeper_shop_purchase_participant.gd
+[0m- test_dynamic_script_probe_proves_every_preload_loads
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_configure_publication_ledger_is_idempotent_and_rejects_replacement
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_configure_requires_publication_ledger_first
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_configure_is_idempotent_and_rejects_replacement_owner
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_prepare_purchase_fails_closed_before_configure
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_quote_produces_the_exact_frozen_shape_and_derives_shop_quote_child_id
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_quote_is_idempotent_on_identical_replay
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_quote_a_second_item_under_the_same_transaction_conflicts
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_quote_rejects_an_unregistered_item
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_quote_rejects_a_transaction_receipt_that_does_not_verify
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_prepare_purchase_lucky_charm_produces_the_frozen_action_shape_and_is_pending
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_prepare_purchase_leaves_live_economy_board_sequence_and_outbox_byte_equal
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_prepare_purchase_durably_checkpoints_before_live_pending_is_adopted
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_prepare_purchase_acquires_and_retains_the_causal_transaction_lease
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_prepare_purchase_rejects_when_no_quote_was_retained
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_prepare_purchase_rejects_a_wrong_member_set
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_prepare_purchase_rejects_a_stale_run_revision
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_prepare_purchase_rejects_a_stale_causal_day_instance
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_prepare_purchase_rejects_insufficient_funds
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_prepare_purchase_rejects_lucky_charm_a_second_time_on_the_same_branch
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_prepare_purchase_rejects_a_second_pending_transaction_while_one_is_already_pending
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_prepare_purchase_duplicate_replay_is_idempotent_and_a_changed_payload_conflicts
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_prepare_purchase_recognizes_a_durable_pending_purchase_after_a_fresh_participant_instance
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_prepare_purchase_a_capability_purchase_is_invisible_to_an_already_frozen_board_capability_ids
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_supportz_purchase_rejects_without_two_base_completions_today
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_supportz_purchase_succeeds_with_two_base_completions_and_decrements_the_floor_on_commit
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_supportz_purchase_rejects_a_second_time_the_same_causal_day
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_supportz_purchase_rejects_a_fourth_time_on_the_same_branch
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_supportz_purchase_rejects_when_the_live_floor_no_longer_matches_the_branch_count
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_commit_rejects_without_the_gate_lease
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_commit_rejects_before_sequence_committed
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_commit_succeeds_after_sequence_committed_and_grants_the_capability
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_commit_is_idempotent_on_identical_replay_and_conflicts_on_changed_bytes
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_rollback_reverts_the_prepared_pending_and_releases_the_gate
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_publish_records_through_the_action_source_kind_and_releases_the_gate
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_publish_rejects_an_invalid_publication_shape
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_validate_recovery_action_is_mutation_free_and_returns_the_frozen_publication_shape
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_commit_recovery_action_grants_the_capability_and_is_idempotent
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_commit_recovery_action_rejects_changed_bytes_at_the_same_identity
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_publish_recovery_action_records_through_action_source_and_retains_the_gate
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+- test_prepare_purchase_result_is_detached_from_internal_state
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+[4m
+res://tests/unit/test_save_manager_checkpoint_port.gd
+[0m- test_prepare_consequence_checkpoint_builds_a_candidate_and_receipt
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 133
+- test_prepare_consequence_checkpoint_attaches_the_receipt_to_the_admission_candidate
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 162
+- test_commit_consequence_checkpoint_retains_and_rereads_in_same_process
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 182
+- test_issued_transient_record_cache_is_bounded_and_cleared_with_transient_state
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 201
+- test_commit_consequence_checkpoint_rejects_a_receipt_mismatch
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 218
+- test_known_issued_checkpoint_rejects_equal_float_payload_before_first_commit
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 235
+- test_supplied_checkpoint_receipt_rejects_equal_float_ordinal
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 259
+- test_known_issued_checkpoint_accepts_string_name_aliases_after_normalization
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 275
+- test_cache_evicted_prepared_checkpoint_still_commits_through_cold_validation
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 298
+- test_evicted_checkpoints_accept_each_legitimate_recovery_stage
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 316
+- test_evicted_checkpoint_rejects_inconsistent_fields_before_insertion
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 380
+- test_evicted_reprepared_admission_preserves_its_older_admission_receipt
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 424
+- test_evicted_preadmission_checkpoints_preserve_receipt_free_state
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 456
+- test_commit_consequence_checkpoint_rejects_malformed_or_uncanonicalizable_records
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 492
+- test_commit_consequence_checkpoint_replays_an_identical_rewrite_at_an_occupied_slot
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 515
+- test_commit_consequence_checkpoint_rejects_a_different_rewrite_at_an_occupied_slot
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 533
+- test_a_committed_admission_checkpoint_reads_back_and_validates
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 555
+- test_abandon_pending_consequence_checkpoint_marks_a_pre_admission_checkpoint_abandoned
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 582
+- test_abandon_pending_consequence_checkpoint_rejects_a_nonexistent_transaction
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 615
+- test_abandon_pending_consequence_checkpoint_rejects_an_already_admitted_transaction
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 627
+- test_read_pending_consequence_checkpoint_finds_nothing_when_no_checkpoint_exists
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 642
+- test_clear_transient_consequence_checkpoints_is_explicit_and_complete
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 652
+- test_fresh_port_ignores_and_preserves_every_legacy_sidecar_artifact
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 681
+- test_checkpoint_content_preimage_is_the_sole_builder
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 717
+- test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_ordinal_0
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 737
+- test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_ordinal_9
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 753
+- test_restart_drops_unfinished_action_but_preserves_completed_post_result_autosave
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 812
+- test_autosave_bytes_equal_the_full_canonical_writer_across_three_commits
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 910
+- test_autosave_bytes_survive_snapshot_strings_equal_to_splice_sentinels
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 952
+- test_seeded_journal_without_remembered_texts_writes_full_writer_bytes
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 977
+- test_autosave_bytes_equal_the_full_writer_when_an_earlier_bundle_is_not_native_eligible
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 1016
+- test_committed_autosave_remembers_the_document_bundle_under_the_texts_own_gate
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 1051
+- test_normalized_preimage_is_deep_equal_and_never_aliases_the_callers_stage_candidate
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 1146
+- test_prepare_emits_a_permanent_env_gated_profile_record
+[31m    [Failed]:  [0m{ "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 1265
+
+Totals
+------
+Scripts               2
+Tests                78
+Passing Tests         3
+Failing Tests        75
+Asserts           19/94
+Time              0.463s
+
+
+[31m---- 75 failing tests ----
+[0m
+Results saved to D:\a\dwm\dwm\.godot\ci\storage-refusal\empty\tests.xml
+[1m[INFO]:  [0mExiting with code 1
+
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+   at: cleanup (core/object/object.cpp:2663)
+ERROR: 46 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+

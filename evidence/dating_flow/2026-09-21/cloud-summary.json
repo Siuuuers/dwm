@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "tested_commit": "fc6536a291a98c593a221fd899ccbfd88969b342",
+  "repository": "Siuuuers/dwm",
+  "pull_request": 1,
+  "workflow_run": 35595886531,
+  "workflow_url": "https://github.com/Siuuuers/dwm/actions/runs/35595886531",
+  "conclusion": "success",
+  "total_jobs": 10,
+  "windows_test_cases": 1340,
+  "windows_requested_scripts": 118,
+  "windows_suites": [
+    {
+      "name": "Windows / dating",
+      "id": 106320445292,
+      "conclusion": "success",
+      "tests": 119,
+      "scripts": 9
+    },
+    {
+      "name": "Windows / desktop",
+      "id": 106320445394,
+      "conclusion": "success",
+      "tests": 157,
+      "scripts": 15
+    },
+    {
+      "name": "Windows / localization",
+      "id": 106320445459,
+      "conclusion": "success",
+      "tests": 152,
+      "scripts": 18
+    },
+    {
+      "name": "Windows / minesweeper",
+      "id": 106320445202,
+      "conclusion": "success",
+      "tests": 198,
+      "scripts": 20
+    },
+    {
+      "name": "Windows / new_account",
+      "id": 106320445327,
+      "conclusion": "success",
+      "tests": 136,
+      "scripts": 13
+    },
+    {
+      "name": "Windows / reading_delivery",
+      "id": 106320445334,
+      "conclusion": "success",
+      "tests": 180,
+      "scripts": 14
+    },
+    {
+      "name": "Windows / settings",
+      "id": 106320445422,
+      "conclusion": "success",
+      "tests": 254,
+      "scripts": 21
+    },
+    {
+      "name": "Windows / shop",
+      "id": 106320445341,
+      "conclusion": "success",
+      "tests": 144,
+      "scripts": 8
+    }
+  ],
+  "rendered_checks": [
+    {
+      "marker": "DESKTOP_SCALING_RENDER_VERIFIED",
+      "ok": true,
+      "captures": 38,
+      "failures": []
+    },
+    {
+      "marker": "DELIVERY_DIALOGUE_RENDER_VERIFIED",
+      "ok": true,
+      "captures": 25,
+      "failures": []
+    },
+    {
+      "marker": "ANGELA_OVERLAY_RENDER_VERIFIED",
+      "ok": true,
+      "captures": 10,
+      "failures": []
+    },
+    {
+      "marker": "JAPANESE_KOREAN_UI_RENDER_VERIFIED",
+      "ok": true,
+      "captures": 30,
+      "failures": []
+    },
+    {
+      "marker": "FONT_CHOICES_RENDER_VERIFIED",
+      "ok": true,
+      "captures": 30,
+      "failures": []
+    },
+    {
+      "marker": "PLAYABLE_STARTUP_PASS: actual startup -> New Account -> visible desktop -> Minesweeper -> first Reveal"
+    },
+    {
+      "marker": "PLAYABLE_DAY_PASS: completed round -> Home -> Schedule -> acknowledged warning -> Day 2"
+    },
+    {
+      "marker": "PLAYABLE_LOGOUT_PASS: actual Logout confirmation -> saved title -> Login -> restored Day 2 desktop"
+    },
+    {
+      "marker": "UI_LITERAL_AUDIT_VERIFIED"
+    }
+  ],
+  "performance_checks": {
+    "marker": "CHECKPOINT_PERFORMANCE_VERIFIED: four localized journeys and four matched-payload probes.",
+    "runs": [
+      {
+        "suite_id": "cloud-performance-baseline-zh-CN",
+        "exit_code": 0
+      },
+      {
+        "suite_id": "cloud-performance-baseline-zh-CN-fixed",
+        "exit_code": 0
+      },
+      {
+        "suite_id": "cloud-performance-baseline-zh-HK",
+        "exit_code": 0
+      },
+      {
+        "suite_id": "cloud-performance-baseline-zh-HK-fixed",
+        "exit_code": 0
+      },
+      {
+        "suite_id": "cloud-performance-candidate-zh-CN",
+        "exit_code": 0
+      },
+      {
+        "suite_id": "cloud-performance-candidate-zh-CN-fixed",
+        "exit_code": 0
+      },
+      {
+        "suite_id": "cloud-performance-candidate-zh-HK",
+        "exit_code": 0
+      },
+      {
+        "suite_id": "cloud-performance-candidate-zh-HK-fixed",
+        "exit_code": 0
+      }
+    ]
+  },
+  "scope_limits": [
+    "Canonical narrative recovery resumes at the saved pre/post phase boundary, not the exact mid-line position.",
+    "Private Rehearsal admits only verified return-only entries until its private prose sandbox is composed.",
+    "Authored dating prose is still mostly empty; empty entries do not grant witnessed prose or Observer receipts.",
+    "The latency probe now observes automatic durable settlement/completion; this change is not a controlled before/after speed comparison.",
+    "22 original Beads records remain unfinished. This pass closes only dwm-6gk and dwm-cb1."
+  ]
+}

@@ -1,6 +1,7 @@
 class_name ShopPresentationPort
 extends RefCounted
 const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
+const ITEM_ART := preload("res://scripts/ui/shop/ShopItemArt.gd")
 
 ## Production Shop query/command boundary. The UI receives only presentation rows and item/quantity
 ## commands. Every purchase uses the retained durable participant: one debit and its authored
@@ -8,14 +9,16 @@ const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
 
 signal catalog_changed
 
+const _NOTE_RULES := preload("res://scripts/domain/shop/RunNotePurchaseRules.gd")
+
 const _COPY := preload("res://scripts/ui/shop/ShopCopy.gd")
 const _CAPABILITY_RULES := preload("res://scripts/domain/minesweeper/MinesweeperCapabilityRules.gd")
 
 const _SPECIAL_IDS: Array[String] = ["supportz", "lucky_charm", "debug_key"]
 const _PUBLIC_ORDER: Array[String] = [
-	"coffee", "wine", "pineapple_bun", "bandage_pack", "quiet_tea",
-	"soft_blanket", "weighted_plush", "spa_coupon", "healthy_meal", "protein_box",
-	"pep_note", "premium_care", "lucky_charm", "debug_key", "bookend_keepsake",
+	"wine", "pineapple_bun", "quiet_tea",
+	"soft_blanket", "weighted_plush", "spa_coupon",
+	"premium_care", "lucky_charm", "debug_key", "bookend_keepsake",
 	"metronome_keepsake", "pocket_calculator_keepsake",
 ]
 const _SOURCE_TO_PUBLIC := {
@@ -29,9 +32,9 @@ const _PUBLIC_TO_SOURCE := {
 	"pocket_calculator_keepsake": "sylvia_gift",
 }
 const _BATCHABLE_IDS: Array[String] = [
-	"coffee", "wine", "pineapple_bun", "bandage_pack", "quiet_tea",
-	"soft_blanket", "weighted_plush", "healthy_meal", "protein_box",
-	"pep_note", "premium_care",
+	"wine", "pineapple_bun", "quiet_tea",
+	"soft_blanket", "weighted_plush",
+	"premium_care",
 ]
 
 const _GAME_STATE_METHODS: Array[String] = [
@@ -43,6 +46,7 @@ const _PARTICIPANT_METHODS: Array[String] = [
 	"capture", "quote", "prepare_purchase", "release_recovery_lease",
 ]
 
+var _scene_mode := false
 var _game_state: Object
 var _data_catalog: Object
 var _purchase_participant: Object
@@ -76,7 +80,7 @@ func configure(game_state: Object, data_catalog: Object, purchase_participant: O
 	if int(game_state.call(&"get_mutation_gate_instance_id")) != mutation_gate.get_instance_id():
 		return _fail(&"shop_mutation_gate_mismatch")
 	if _game_state != null:
-		if _game_state != game_state or _data_catalog != data_catalog \
+		if _scene_mode or _game_state != game_state or _data_catalog != data_catalog \
 				or _purchase_participant != purchase_participant \
 				or _consequence_coordinator != consequence_coordinator \
 				or _round_coordinator != round_coordinator or _identity_issuer != identity_issuer \
@@ -99,15 +103,51 @@ func configure(game_state: Object, data_catalog: Object, purchase_participant: O
 	return _ok({"already_configured": false})
 
 
+## Scene purchases are owned and checkpointed by GameState; no legacy participant is involved.
+func configure_scene(game_state: Object, data_catalog: Object, identity_issuer: Object,
+		mutation_gate: Object) -> Dictionary:
+	if not _has_methods(game_state, ["get_mutation_gate_instance_id", "capture_live_session",
+			"validate_live_session", "capture_scene_shop_context", "preview_scene_shop_purchase", "commit_scene_shop_purchase"]):
+		return _fail(&"invalid_shop_game_state")
+	if not _has_methods(data_catalog, _CATALOG_METHODS):
+		return _fail(&"invalid_shop_data_catalog")
+	if not _has_methods(identity_issuer, ["issue", "verify_issued"]):
+		return _fail(&"invalid_shop_identity_issuer")
+	if not _has_methods(mutation_gate, ["guard_external"]):
+		return _fail(&"invalid_shop_mutation_gate")
+	if int(game_state.call(&"get_mutation_gate_instance_id")) != mutation_gate.get_instance_id():
+		return _fail(&"shop_mutation_gate_mismatch")
+	if _game_state != null:
+		if not _scene_mode or _game_state != game_state or _data_catalog != data_catalog \
+				or _identity_issuer != identity_issuer or _mutation_gate != mutation_gate:
+			return _fail(&"shop_presentation_port_already_configured")
+		return _ok({"already_configured": true})
+	var captured: Variant = game_state.call(&"capture_live_session")
+	if not captured is Dictionary or not captured.get("ok", false) \
+			or not captured.get("value") is Dictionary:
+		return _fail(&"shop_session_capture_malformed")
+	var admitted: Variant = game_state.call(&"validate_live_session", captured.value.duplicate(true))
+	if not admitted is Dictionary:
+		return _fail(&"shop_session_admission_malformed")
+	if not admitted.get("ok", false): return admitted.duplicate(true)
+	_session_handle = captured.value.duplicate(true)
+	_game_state = game_state
+	_data_catalog = data_catalog
+	_identity_issuer = identity_issuer
+	_mutation_gate = mutation_gate
+	_scene_mode = true
+	return _ok({"already_configured": false})
+
+
 func get_catalog(locale: String) -> Dictionary:
 	var admitted := _admit_session()
 	if not admitted.get("ok", false):
 		return admitted
 	var locale_id := locale.replace("-", "_")
-	if locale_id not in ["en", "zh_CN", "zh_HK"]:
+	if locale_id not in ["en", "zh_CN", "zh_HK", "ja", "ko"]:
 		return _fail(&"invalid_shop_locale")
 	var source_items: Variant = _data_catalog.call(&"get_shop_items")
-	if typeof(source_items) != TYPE_ARRAY or (source_items as Array).size() != 18:
+	if typeof(source_items) != TYPE_ARRAY or (source_items as Array).size() != _PUBLIC_ORDER.size() + 1:
 		return _fail(&"shop_catalog_unavailable")
 	var rows_by_id: Dictionary = {}
 	for item: Variant in source_items:
@@ -158,6 +198,10 @@ func can_purchase(item_id: String, quantity: int = 1) -> Dictionary:
 	if not resolved.get("ok", false):
 		return resolved
 	var item: ShopItemData = resolved["value"]
+	if _scene_mode:
+		var preview: Variant = _game_state.call(&"preview_scene_shop_purchase", item.id, quantity)
+		return preview.duplicate(true) if preview is Dictionary \
+			else _fail(&"shop_preview_result_malformed")
 	var checked := _validate_quantity(item_id, item, quantity)
 	if not checked.get("ok", false):
 		return checked
@@ -181,6 +225,9 @@ func has_pending_purchase() -> bool:
 
 
 func purchase(item_id: String, quantity: int) -> Dictionary:
+	if _scene_mode:
+		var admitted := _admit_session()
+		if not admitted.get("ok", false): return admitted
 	if not _pending_purchase.is_empty():
 		if item_id != str(_pending_purchase.get("item_id", "")) or quantity != int(_pending_purchase.get("quantity", 1)):
 			return _fail(&"shop_purchase_pending")
@@ -188,10 +235,27 @@ func purchase(item_id: String, quantity: int) -> Dictionary:
 	var eligible := can_purchase(item_id, quantity)
 	if not eligible.get("ok", false):
 		return eligible
+	var source_context: Dictionary = {}
+	if _scene_mode:
+		var source: Variant = _game_state.call(&"capture_scene_shop_context")
+		if not source is Dictionary or not source.get("ok", false):
+			return source.duplicate(true) if source is Dictionary else _fail(&"shop_source_context_malformed")
+		if not source.get("value") is Dictionary:
+			return _fail(&"shop_source_context_malformed")
+		source_context = source.value.duplicate(true)
 	var issued := _issue_transaction()
 	if not issued.get("ok", false):
 		return issued
 	var issue_value: Dictionary = issued["value"]
+	if _scene_mode:
+		_pending_purchase = {
+			"item_id": item_id, "quantity": quantity,
+			"source_id": str(_PUBLIC_TO_SOURCE.get(item_id, item_id)),
+			"source_context": source_context.duplicate(true),
+			"transaction_id": issue_value.transaction_id,
+			"issuer_receipt": issue_value.issuer_receipt.duplicate(true),
+		}
+		return _retry_purchase()
 	return _prepare_purchase(item_id, quantity, issue_value)
 
 
@@ -249,6 +313,22 @@ func _prepare_purchase(item_id: String, quantity: int, issue_value: Dictionary) 
 
 
 func _retry_purchase() -> Dictionary:
+	if _scene_mode:
+		var admitted := _admit_session()
+		if not admitted.get("ok", false): return admitted
+		var committed: Variant = _game_state.call(&"commit_scene_shop_purchase",
+			str(_pending_purchase.source_id), int(_pending_purchase.quantity),
+			str(_pending_purchase.transaction_id), _pending_purchase.issuer_receipt.duplicate(true),
+			_pending_purchase.source_context.duplicate(true))
+		if not committed is Dictionary:
+			return _fail(&"shop_scene_commit_result_malformed")
+		if committed.get("ok", false):
+			_pending_purchase.clear()
+			catalog_changed.emit()
+		elif committed.get("code") == &"scene_shop_source_changed":
+			# Owner guarantees this refusal happened before a durable commit.
+			_pending_purchase.clear()
+		return committed.duplicate(true)
 	var result: Variant = _consequence_coordinator.call(&"accept_prepared_action",
 		(_pending_purchase["accept_request"] as Dictionary).duplicate(true))
 	if typeof(result) != TYPE_DICTIONARY:
@@ -298,10 +378,15 @@ func _supportz_eligibility() -> Dictionary:
 
 
 func _resolve_item(public_id: String) -> Dictionary:
+	if public_id not in _PUBLIC_ORDER and public_id != "supportz":
+		return _fail(&"unregistered_shop_item")
 	var source_id := str(_PUBLIC_TO_SOURCE.get(public_id, public_id))
 	var raw: Variant = _data_catalog.call(&"get_shop_item", source_id)
 	if typeof(raw) != TYPE_DICTIONARY or (raw as Dictionary).is_empty():
 		return _fail(&"unregistered_shop_item")
+	if source_id in _NOTE_RULES.ITEM_IDS:
+		var checked := _validate_note_record(raw)
+		if not checked.get("ok", false): return checked
 	var item := ShopItemData.new()
 	item.id = source_id
 	item.price = int((raw as Dictionary).get("price", 0))
@@ -315,6 +400,8 @@ func _resolve_item(public_id: String) -> Dictionary:
 
 
 func _validate_quantity(public_id: String, item: ShopItemData, quantity: int) -> Dictionary:
+	if item.id in _NOTE_RULES.ITEM_IDS and quantity != 1:
+		return _fail(&"invalid_quantity")
 	if quantity < 1:
 		return _fail(&"invalid_shop_quantity")
 	if public_id in _SPECIAL_IDS and quantity != 1:
@@ -362,16 +449,7 @@ func _texture(item_id: String, size: int) -> Texture2D:
 	if placed != null:
 		_art[key] = placed
 		return placed
-	var image := Image.create(size, size, false, Image.FORMAT_RGBA8)
-	var hue := float(abs(item_id.hash()) % 360) / 360.0
-	image.fill(Color.from_hsv(hue, 0.28, 0.78, 1.0))
-	var edge := Color.from_hsv(hue, 0.5, 0.34, 1.0)
-	for coordinate: int in size:
-		image.set_pixel(coordinate, 0, edge)
-		image.set_pixel(coordinate, size - 1, edge)
-		image.set_pixel(0, coordinate, edge)
-		image.set_pixel(size - 1, coordinate, edge)
-	var texture := ImageTexture.create_from_image(image)
+	var texture := ITEM_ART.texture(item_id, size)
 	_art[key] = texture
 	return texture
 
@@ -403,3 +481,13 @@ static func _ok(value: Variant) -> Dictionary:
 
 static func _fail(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code, "message": "", "details": {}}
+
+
+static func _validate_note_record(raw: Dictionary) -> Dictionary:
+	if typeof(raw.get("currency")) != TYPE_STRING or raw.currency != "money" \
+			or typeof(raw.get("price")) != TYPE_INT or raw.price != 45 \
+			or typeof(raw.get("max_purchases")) != TYPE_INT or raw.max_purchases != 3 \
+			or not raw.get("effect_ids") is Array or not raw.effect_ids.is_empty():
+		return _fail(&"invalid_note_shop_record")
+	return _ok({})
+

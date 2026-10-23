@@ -1,6 +1,7 @@
 class_name LocalePresentationRoot
 extends Node
 
+const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const CATALOG := preload("res://scripts/localization/LocalizationCatalog.gd")
 
 @export var target_path: NodePath = NodePath("..")
@@ -9,6 +10,8 @@ var _localization: Node
 var _target: Control
 var _runtime_backup: Dictionary = {}
 var _registration_result: Dictionary = {}
+var _project_font: Font
+var _locale_font_active := false
 
 
 func _ready() -> void:
@@ -44,21 +47,37 @@ func prepare_presentation(profile: Dictionary) -> Dictionary:
 		font_paths = _font_paths_for_profile(loaded["value"]["manifest"], str(profile["font_profile"]))
 	if not font_paths.get("ok", false):
 		return font_paths
-	var theme := _target.theme.duplicate(true) as Theme if _target.theme != null else Theme.new()
+	var theme := _target.theme.duplicate() as Theme if _target.theme != null else Theme.new()
 	var fonts: Array[Font] = []
-	for relative_path in font_paths["value"]:
-		var font: Font = load("res://localization/%s" % relative_path) as Font
-		if font == null:
-			return _fail(&"font_load_failed")
-		fonts.append(font)
-	if not fonts.is_empty():
+	if not profile.has("font_style"):
+		for relative_path in font_paths["value"]:
+			var font: Font = load("res://localization/%s" % relative_path) as Font
+			if font == null:
+				return _fail(&"font_load_failed")
+			fonts.append(font)
+	var project_font := _project_font if _locale_font_active else theme.default_font
+	if profile.has("font_style"):
+		if profile["font_style"] not in ["pixel", "readable"]:
+			return _fail(&"invalid_font_style")
+		var face := TYPOGRAPHY.font(str(profile["locale_id"]), int(profile.get("text_size", 100)), str(profile["font_style"]))
+		if face == null: return _fail(&"font_load_failed")
+		fonts.assign([face])
+	if profile.has("font_style"):
+		# Shared faces are immutable; the detached Theme owns only the selection.
+		theme.default_font = fonts[0]
+	elif not fonts.is_empty():
 		var primary: Font = fonts[0].duplicate(true)
 		var fallbacks: Array[Font] = []
 		for index in range(1, fonts.size()):
 			fallbacks.append(fonts[index].duplicate(true))
 		primary.fallbacks = fallbacks
 		theme.default_font = primary
+	elif _locale_font_active:
+		# An empty profile restores the target font, including an inherited default.
+		theme.default_font = project_font
 	return _success({
+		"project_font": project_font,
+		"locale_font_active": not fonts.is_empty(),
 		"theme": theme,
 		"layout_direction": Control.LAYOUT_DIRECTION_LTR if direction == "ltr" else Control.LAYOUT_DIRECTION_RTL,
 	})
@@ -68,8 +87,9 @@ func capture_presentation_state() -> Dictionary:
 	var target_result := _resolve_target()
 	if not target_result.get("ok", false):
 		return target_result
-	var theme_copy: Theme = _target.theme.duplicate(true) as Theme if _target.theme != null else null
-	return _success({"theme": theme_copy, "layout_direction": _target.layout_direction})
+	var theme_copy: Theme = _target.theme.duplicate() as Theme if _target.theme != null else null
+	return _success({"theme": theme_copy, "layout_direction": _target.layout_direction,
+		"project_font": _project_font, "locale_font_active": _locale_font_active})
 
 
 func apply_presentation_silent(plan: Dictionary) -> Dictionary:
@@ -79,8 +99,10 @@ func apply_presentation_silent(plan: Dictionary) -> Dictionary:
 	if not plan.has_all(["theme", "layout_direction"]) or not plan["theme"] is Theme:
 		return _fail(&"invalid_presentation_plan")
 	_runtime_backup = capture_presentation_state()["value"]
-	_target.theme = (plan["theme"] as Theme).duplicate(true)
+	_target.theme = (plan["theme"] as Theme).duplicate()
 	_target.layout_direction = int(plan["layout_direction"]) as Control.LayoutDirection
+	_project_font = plan.get("project_font")
+	_locale_font_active = bool(plan.get("locale_font_active", false))
 	return _success()
 
 
@@ -91,8 +113,10 @@ func rollback_presentation_silent(backup: Dictionary) -> Dictionary:
 	var value: Dictionary = backup.get("value", backup)
 	if not value.has_all(["theme", "layout_direction"]):
 		return _fail(&"invalid_presentation_backup")
-	_target.theme = (value["theme"] as Theme).duplicate(true) if value["theme"] != null else null
+	_target.theme = (value["theme"] as Theme).duplicate() if value["theme"] != null else null
 	_target.layout_direction = int(value["layout_direction"]) as Control.LayoutDirection
+	_project_font = value.get("project_font")
+	_locale_font_active = bool(value.get("locale_font_active", false))
 	_runtime_backup = {}
 	return _success()
 

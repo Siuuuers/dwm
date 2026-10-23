@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "review_kind": "independent_corrective_inventory_adoption_review",
+  "reviewer": "f9_contract_review",
+  "reviewed_at_utc": "2026-10-02T07:00:36.718038+00:00",
+  "source": "78cb263f8e0d82ad1f1274c0e84915397cd071b0",
+  "source_pin_provenance": "Parent supplied pinned tested-source identity; output delta independently checked against that exact local git blob. ZIP command manifests carry execution argv but no checkout SHA.",
+  "run_id": 36975542531,
+  "run_attempt": 1,
+  "workflow_head": "63e0315231da928c5addddc5730b26dd47f747bd",
+  "artifact_id": 11212798270,
+  "artifact_name": "public-surfaces-36975542531-1",
+  "artifact_transport": {
+    "metadata_path": "/workspace/scratch/e169b180163f/settings-f9-focus2-public-artifact.json",
+    "metadata_identity": {
+      "bytes": 1450,
+      "sha256": "8cf56838af94db211bdb76c8ddd8cb03a39e989bfdb046e3f53ba65fdf15e15c"
+    },
+    "zip_path": "/workspace/scratch/e58f796fe7a3/attachments/e1736736-cb38-4532-a78e-2b06444c12f1/public-surfaces-36975542531-1.zip",
+    "zip_identity": {
+      "bytes": 143547,
+      "sha256": "6663cd39476edfe621fc0ddc1d58357eddbde4c04c9223b7fc6cfb52ec1a2699"
+    },
+    "zip_matches_api_digest_and_size": true,
+    "inspected_member_payloads_match_extracted_files": true
+  },
+  "inventories": [
+    {
+      "stem": "game_state",
+      "record_count": 236,
+      "focus1_identity": {
+        "bytes": 561431,
+        "sha256": "53a0a6a11a88cc8008b0ac0e98d3772096f6326eca8f3ae5e927e42f1f46a1e6"
+      },
+      "focus2_identity": {
+        "bytes": 561543,
+        "sha256": "ba26f2341c39ff3d6b679f711e0936226386142c63791f9020e70b0301793cf2"
+      },
+      "focus2_file": "/workspace/scratch/e169b180163f/settings-f9-focus2-inventory-review/artifacts/public-surfaces-36975542531-1/ci/public-surfaces/game_state_surface.json",
+      "repository_destination": "evidence/phase_2r/runtime/game_state_surface.json",
+      "raw_bytes_equal_zip_member": true,
+      "all_records_declarations_signatures_call_sites_dispositions_contract_mappings_unchanged": true,
+      "dynamic_references_added": {
+        "contacts": [
+          "tests/integration/verify_reading_rail_journey.gd:1644",
+          "tests/integration/verify_reading_rail_journey.gd:1670"
+        ]
+      },
+      "dynamic_references_removed": {},
+      "no_other_parsed_changes": true,
+      "bytes_identical_to_focus1": false,
+      "cloud_generate_and_check": [
+        {
+          "operation": "generate",
+          "source": "/workspace/scratch/e169b180163f/settings-f9-focus2-inventory-review/artifacts/public-surfaces-36975542531-1/ci/public-surfaces/game_state-generate.jsonl",
+          "identity": {
+            "bytes": 996,
+            "sha256": "687edeecb4f45a4ae587d9bcc285e6a4a37a7480eb92e69f5dec77d4a82134f3"
+          },
+          "argv": [
+            "--headless",
+            "--path",
+            "D:\\a\\dwm\\dwm",
+            "--log-file",
+            "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public-surface-game_state-generate.log",
+            "-s",
+            "res://tools/runtime/generate_public_surface_inventory.gd",
+            "--",
+            "--script=res://autoload/GameState.gd",
+            "--required=res://evidence/phase_2r/runtime/game_state_required_surface.json",
+            "--output=res://evidence/phase_2r/runtime/game_state_surface.json",
+            "--search-root=res://autoload",
+            "--search-root=res://scripts",
+            "--search-root=res://scenes",
+            "--search-root=res://tests"
+          ],
+          "exit_code": 0
+        },
+        {
+          "operation": "check",
+          "source": "/workspace/scratch/e169b180163f/settings-f9-focus2-inventory-review/artifacts/public-surfaces-36975542531-1/ci/public-surfaces/game_state-check.jsonl",
+          "identity": {
+            "bytes": 997,
+            "sha256": "ccc3bfeda4d54f8b5bc6d71bd538948a302cdb1746c76fc2a03cb4db8dcd403f"
+          },
+          "argv": [
+            "--headless",
+            "--path",
+            "D:\\a\\dwm\\dwm",
+            "--log-file",
+            "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public-surface-game_state-check.log",
+            "-s",
+            "res://tools/runtime/generate_public_surface_inventory.gd",
+            "--",
+            "--script=res://autoload/GameState.gd",
+            "--required=res://evidence/phase_2r/runtime/game_state_required_surface.json",
+            "--output=res://evidence/phase_2r/runtime/game_state_surface.json",
+            "--search-root=res://autoload",
+            "--search-root=res://scripts",
+            "--search-root=res://scenes",
+            "--search-root=res://tests",
+            "--check"
+          ],
+          "exit_code": 0
+        }
+      ]
+    },
+    {
+      "stem": "save_manager",
+      "record_count": 74,
+      "focus1_identity": {
+        "bytes": 149957,
+        "sha256": "1e41d762df99bcd3aa6a036445f21411b45b9b1e169258b8ba41848d85252440"
+      },
+      "focus2_identity": {
+        "bytes": 149957,
+        "sha256": "1e41d762df99bcd3aa6a036445f21411b45b9b1e169258b8ba41848d85252440"
+      },
+      "focus2_file": "/workspace/scratch/e169b180163f/settings-f9-focus2-inventory-review/artifacts/public-surfaces-36975542531-1/ci/public-surfaces/save_manager_surface.json",
+      "repository_destination": "evidence/phase_2r/runtime/save_manager_surface.json",
+      "raw_bytes_equal_zip_member": true,
+      "all_records_declarations_signatures_call_sites_dispositions_contract_mappings_unchanged": true,
+      "dynamic_references_added": {},
+      "dynamic_references_removed": {},
+      "no_other_parsed_changes": true,
+      "bytes_identical_to_focus1": true,
+      "cloud_generate_and_check": [
+        {
+          "operation": "generate",
+          "source": "/workspace/scratch/e169b180163f/settings-f9-focus2-inventory-review/artifacts/public-surfaces-36975542531-1/ci/public-surfaces/save_manager-generate.jsonl",
+          "identity": {
+            "bytes": 1008,
+            "sha256": "148574e7db277b367566d5fd59022402b5d5845e266b3a6a4e026b90c8f7d2f4"
+          },
+          "argv": [
+            "--headless",
+            "--path",
+            "D:\\a\\dwm\\dwm",
+            "--log-file",
+            "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public-surface-save_manager-generate.log",
+            "-s",
+            "res://tools/runtime/generate_public_surface_inventory.gd",
+            "--",
+            "--script=res://autoload/SaveManager.gd",
+            "--required=res://evidence/phase_2r/runtime/save_manager_required_surface.json",
+            "--output=res://evidence/phase_2r/runtime/save_manager_surface.json",
+            "--search-root=res://autoload",
+            "--search-root=res://scripts",
+            "--search-root=res://scenes",
+            "--search-root=res://tests"
+          ],
+          "exit_code": 0
+        },
+        {
+          "operation": "check",
+          "source": "/workspace/scratch/e169b180163f/settings-f9-focus2-inventory-review/artifacts/public-surfaces-36975542531-1/ci/public-surfaces/save_manager-check.jsonl",
+          "identity": {
+            "bytes": 1009,
+            "sha256": "629955497264313c8e2435785459cca12b8e9e9bfc1de27b9d4c56fa95248a33"
+          },
+          "argv": [
+            "--headless",
+            "--path",
+            "D:\\a\\dwm\\dwm",
+            "--log-file",
+            "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public-surface-save_manager-check.log",
+            "-s",
+            "res://tools/runtime/generate_public_surface_inventory.gd",
+            "--",
+            "--script=res://autoload/SaveManager.gd",
+            "--required=res://evidence/phase_2r/runtime/save_manager_required_surface.json",
+            "--output=res://evidence/phase_2r/runtime/save_manager_surface.json",
+            "--search-root=res://autoload",
+            "--search-root=res://scripts",
+            "--search-root=res://scenes",
+            "--search-root=res://tests",
+            "--check"
+          ],
+          "exit_code": 0
+        }
+      ]
+    }
+  ],
+  "exact_new_source_references": [
+    {
+      "path": "tests/integration/verify_reading_rail_journey.gd",
+      "line": 1644,
+      "text": "\t\t\t\t\"frame\": Engine.get_process_frames(), \"contacts\": input_owner.get_physical_contacts()})",
+      "why_dynamic": "Literal double-quoted contacts key matches the GameState public symbol under the scanner lexical rule."
+    },
+    {
+      "path": "tests/integration/verify_reading_rail_journey.gd",
+      "line": 1670,
+      "text": "\t\t\t\t\"frame\": Engine.get_process_frames(), \"contacts\": input_owner.get_physical_contacts()})",
+      "why_dynamic": "Literal double-quoted contacts key matches the GameState public symbol under the scanner lexical rule."
+    }
+  ],
+  "scanner_rule": "tools/runtime/PublicSurfaceInventory.gd:203-239: word-boundary symbol match; a line containing double-quoted symbol is dynamic. This is lexical evidence, not a semantic call graph.",
+  "corrective_disposition": "Adopt Focus2 game_state_surface.json bytes. SaveManager Focus2 is byte-identical to Focus1 and needs no byte change. This resolves the exact two missing dynamic refs identified after Run129 public-gate failure; a later committed read-only gate is still required.",
+  "prior_error_preserved_and_corrected_in": "/workspace/scratch/e169b180163f/settings-f9-final-source-supplemental-review.json",
+  "blocking_findings": [],
+  "adoption_review_pass": true,
+  "limitations": [
+    "Generated artifacts plus successful --check in the same job do not prove committed adoption; final canonical read-only broad job must run after adoption.",
+    "Rendered repaired F9 journey was still running when task assigned; this review makes no journey or full-run success claim.",
+    "No public declarations or contract mappings changed. The two additions are fixture evidence JSON keys classified lexically.",
+    "No repository files modified, no publication, no local Godot/PowerShell execution."
+  ]
+}

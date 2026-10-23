@@ -43,6 +43,7 @@ func _render() -> void:
 			quit(1)
 			return
 		var native_band := Vector2i(400 if desktop else 480,328-int((register.size.y+dock.size.y)/2))
+		native_band.y -= WORKSHEET.view_controls_height(sample[2], dock.theme, sample[4]) / 2
 		var public: Dictionary = _public_fixture(8 if desktop else 18,9 if desktop else 35)
 		if not worksheet.configure(sample[1],sample[2],sample[3],sample[4],sample[5],native_band) or not worksheet.present(public):
 			quit(1)
@@ -52,8 +53,13 @@ func _render() -> void:
 		register.position = Vector2(64,32)
 		worksheet.position = register.position+Vector2(0,register.size.y)
 		dock.position = worksheet.position+Vector2(0,worksheet.size.y)
-		dock.buttons.reveal.grab_focus()
+		dock.buttons.flag.grab_focus()
 		for frame in 4: await RenderingServer.frame_post_draw
+		for control: Control in worksheet.zoom_controls:
+			if not worksheet.get_global_rect().encloses(control.get_global_rect()):
+				push_error("View control clips outside worksheet: " + sample[0])
+				quit(1)
+				return
 		var pixels: Image = viewport.get_texture().get_image()
 		var file: String = folder.path_join(sample[0]+".png")
 		if pixels.save_png(file) != OK:
@@ -80,7 +86,7 @@ func _render() -> void:
 						push_error("Canonical blank register contains painted field at %s" % Vector2i(x,y))
 						quit(1)
 						return
-		print("CHROME_CAPTURE ",file," native_bands=",Vector3i(int(register.size.y/2),native_band.y,int(dock.size.y/2))," total=328")
+		print("CHROME_CAPTURE ",file," native_bands=",Vector3i(int(register.size.y/2),int(worksheet.size.y/2),int(dock.size.y/2))," total=328")
 		root.remove_child(viewport)
 		viewport.queue_free()
 	print("CHROME_RENDER_VERIFIED samples=6 canonical-blank=empty formatting-fixtures-not-owner-acceptance")

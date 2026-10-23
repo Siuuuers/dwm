@@ -1,0 +1,20 @@
+{
+  "source_sha": "e5cf80a5417c05bd0bb7fa2f60f59e8905e839a6",
+  "pwsh": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+  "outer_seconds": 600,
+  "inner_godot_seconds": 480,
+  "started_utc": "2026-10-23T16:27:01.201471+00:00",
+  "wrapper_sha256": "11a743cf9ada0d4147608f70fc6204c69dc4e3492208a4e5dfdb9088a103553e",
+  "pwsh_probe": {
+    "returncode": 0,
+    "stdout": "SETTINGS_PWSH_READY\r\n",
+    "stderr": ""
+  },
+  "pid": 7216,
+  "returncode": 1,
+  "timed_out": false,
+  "ok": false,
+  "error": "AssertionError('primary pwsh exited unsuccessfully')",
+  "elapsed_seconds": 204.46900000000005,
+  "completed_utc": "2026-10-23T16:30:25.680994+00:00"
+}

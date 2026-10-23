@@ -1,0 +1,1585 @@
+{
+  "schema_version": 1,
+  "audit_pass": true,
+  "scope": "Focused generated-inventory byte, declaration and reference review/adoption; not whole-gate or broad acceptance.",
+  "run_id": 36966651051,
+  "workflow_head": "5f932e45957e737b04cd4a7ae1ed3928da9b397d",
+  "generator_source": "8c4218cc880f16e69854115e7b5263a00982d1bb",
+  "accepted_baseline": "5a581fc89121864aead5202e01d6a82423b1b52d",
+  "candidate_inventory_generator_source": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b",
+  "artifact": {
+    "id": 11209993052,
+    "name": "public-surfaces-36966651051-1",
+    "bytes": 143126,
+    "sha256": "d5022ec8abdc7cf028d2b9050709ec00ca1d24dbbd4bd2d9a617d85fdc537c3f"
+  },
+  "public_gut": {
+    "cases": 11,
+    "all_passed": true,
+    "xml": {
+      "bytes": 2504,
+      "sha256": "cc60d42e27c04b74aa5bcdac30ec5288acaece907b743bf14de31a44e642afe7"
+    }
+  },
+  "inventories": {
+    "game_state": {
+      "record_count": 236,
+      "declarations_required_and_top_level_maps_unchanged": true,
+      "accepted_baseline": {
+        "bytes": 560994,
+        "sha256": "885ee737ccee60198daa4ca1212f9750112ad35afc6dc997cc3d86d6aa62626a"
+      },
+      "current_candidate": {
+        "bytes": 561313,
+        "sha256": "26af05a2d6f77599d9eed9a41a4b1c764cca2eb4b8bfd5728fca90a3e50dd52d"
+      },
+      "focus3_generated": {
+        "bytes": 561313,
+        "sha256": "8150aab178f554331fe916c344b10134d7755748465174bba815121d506a92d4"
+      },
+      "current_candidate_equals_focus2_generated": true,
+      "baseline_to_generated_deltas": [
+        {
+          "kind": "call_sites",
+          "symbol": "capture_dating_challenge_state",
+          "added": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:246",
+              "source_line": "\t_trace(\"automatic_board_handoff\", {\"record\": game.capture_dating_challenge_state().value})",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:248",
+              "source_line": "\tvar physical: Dictionary = game.capture_dating_challenge_state().value",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:256",
+              "source_line": "\tphysical = game.capture_dating_challenge_state().value",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:346",
+              "source_line": "\tif not _check(game.capture_dating_challenge_state().value == expected.value.physical_record,",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:366",
+              "source_line": "\t\t\"physical_record\": game.capture_dating_challenge_state().value.duplicate(true),",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:552",
+              "source_line": "\tvar observed_physical: Dictionary = game.capture_dating_challenge_state()",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:594",
+              "source_line": "\t\t\"physical_record\": game.capture_dating_challenge_state().value,",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:738",
+              "source_line": "\t\t\t\"physical_record\": game.capture_dating_challenge_state().value.duplicate(true),",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:898",
+              "source_line": "\t\t\t\t\"physical\": root.get_node(\"GameState\").capture_dating_challenge_state(),",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1216",
+              "source_line": "\tvar physical: Dictionary = game.capture_dating_challenge_state()",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1366",
+              "source_line": "\tvar physical: Dictionary = game.capture_dating_challenge_state()",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:706",
+              "source_line": "\tassert_eq(restored.capture_dating_challenge_state().value, exact_record)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:203",
+              "source_line": "\t_trace(\"automatic_board_handoff\", {\"record\": game.capture_dating_challenge_state().value})",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:205",
+              "source_line": "\tvar physical: Dictionary = game.capture_dating_challenge_state().value",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:213",
+              "source_line": "\tphysical = game.capture_dating_challenge_state().value",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:303",
+              "source_line": "\tif not _check(game.capture_dating_challenge_state().value == expected.value.physical_record,",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:323",
+              "source_line": "\t\t\"physical_record\": game.capture_dating_challenge_state().value.duplicate(true),",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:486",
+              "source_line": "\t\t\t\"physical_record\": game.capture_dating_challenge_state().value.duplicate(true),",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:646",
+              "source_line": "\t\t\t\t\"physical\": root.get_node(\"GameState\").capture_dating_challenge_state(),",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:964",
+              "source_line": "\tvar physical: Dictionary = game.capture_dating_challenge_state()",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1114",
+              "source_line": "\tvar physical: Dictionary = game.capture_dating_challenge_state()",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:698",
+              "source_line": "\tassert_eq(restored.capture_dating_challenge_state().value, exact_record)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "capture_live_session",
+          "added": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:342",
+              "source_line": "\t\tand game.capture_live_session().value.active, \"fresh Load remounts real active Dating\"): return",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:553",
+              "source_line": "\tvar observed_session: Dictionary = game.capture_live_session()",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:737",
+              "source_line": "\t\t\t\"live_session\": game.capture_live_session().value.duplicate(true), \"gameplay\": game.to_save_dict().duplicate(true),",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:748",
+              "source_line": "\tvar source: Dictionary = game.capture_live_session().value.duplicate(true)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:756",
+              "source_line": "\tif not _check(game.capture_live_session().value == source and game.to_save_dict() == gameplay,",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:765",
+              "source_line": "\t\tand current.value == checkpoint and game.capture_live_session().value == source",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:299",
+              "source_line": "\t\tand game.capture_live_session().value.active, \"fresh Load remounts real active Dating\"): return",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:485",
+              "source_line": "\t\t\t\"live_session\": game.capture_live_session().value.duplicate(true), \"gameplay\": game.to_save_dict().duplicate(true),",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:496",
+              "source_line": "\tvar source: Dictionary = game.capture_live_session().value.duplicate(true)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:504",
+              "source_line": "\tif not _check(game.capture_live_session().value == source and game.to_save_dict() == gameplay,",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:513",
+              "source_line": "\t\tand current.value == checkpoint and game.capture_live_session().value == source",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "capture_run_snapshot_input",
+          "added": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:562",
+              "source_line": "\tfunc capture_run_snapshot_input() -> Dictionary:",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:554",
+              "source_line": "\tfunc capture_run_snapshot_input() -> Dictionary:",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "configure_mutation_gate",
+          "added": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:163",
+              "source_line": "\tassert_true(input_owner.configure_mutation_gate(gate).ok)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:629",
+              "source_line": "\tassert_true(manager.configure_mutation_gate(gate).ok)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:156",
+              "source_line": "\tassert_true(input_owner.configure_mutation_gate(gate).ok)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:621",
+              "source_line": "\tassert_true(manager.configure_mutation_gate(gate).ok)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "contacts",
+          "added": [
+            {
+              "site": "scripts/ui/pause/PauseQuickCommands.gd:73",
+              "source_line": "\t# their observed contacts at the boundary, including internal option popups.",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:200",
+              "source_line": "\tcontacts.contacts_panel.open_requested.emit(\"priscilla\")",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:201",
+              "source_line": "\tif not _check(contacts.last_result.get(\"ok\", false)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:202",
+              "source_line": "\t\tand game.contacts.solo_actions.get(\"solo:priscilla:day1\", {}).get(\"state\") == \"ACCEPTED\",",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:880",
+              "source_line": "\tassert_true(controller._quick_commands.last_result.is_empty(), \"Held and echoed contacts never call the owner again\")",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:160",
+              "source_line": "\tcontacts.contacts_panel.open_requested.emit(\"priscilla\")",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:161",
+              "source_line": "\tif not _check(contacts.last_result.get(\"ok\", false)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:162",
+              "source_line": "\t\tand game.contacts.solo_actions.get(\"solo:priscilla:day1\", {}).get(\"state\") == \"ACCEPTED\",",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:861",
+              "source_line": "\tassert_true(controller._quick_commands.last_result.is_empty(), \"Held and echoed contacts never call the owner again\")",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "day",
+          "added": [
+            {
+              "site": "scripts/ui/pause/PauseQuickCommands.gd:293",
+              "source_line": "\tvar stamp: String = copy.day.replace(\"{day}\", str(day)).replace(\"{time}\", str(time) if time != null else \"--:--\")",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:195",
+              "source_line": "\tif not _check(game.day == 1, \"fresh Day 1 production run\"): return",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:257",
+              "source_line": "\tvar card := {\"title\": \"Priscilla\", \"body\": \"No worries. Maybe another day.\",",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:380",
+              "source_line": "\trun_owner.day = 6",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:406",
+              "source_line": "\trun_owner.day = 7",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:418",
+              "source_line": "\trun_owner.day = 3",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:421",
+              "source_line": "\tassert_eq(content.get(\"_run_day\"), 3, \"cached Settings host receives the new day on reopen\")",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "scripts/ui/pause/PauseQuickCommands.gd:264",
+              "source_line": "\tvar stamp: String = copy.day.replace(\"{day}\", str(day)).replace(\"{time}\", str(time) if time != null else \"--:--\")",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:155",
+              "source_line": "\tif not _check(game.day == 1, \"fresh Day 1 production run\"): return",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:249",
+              "source_line": "\tvar card := {\"title\": \"Priscilla\", \"body\": \"No worries. Maybe another day.\",",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:372",
+              "source_line": "\trun_owner.day = 6",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:398",
+              "source_line": "\trun_owner.day = 7",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:410",
+              "source_line": "\trun_owner.day = 3",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:413",
+              "source_line": "\tassert_eq(content.get(\"_run_day\"), 3, \"cached Settings host receives the new day on reopen\")",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "inventory",
+          "added": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:584",
+              "source_line": "\tif debug: dating_state.inventory = {\"debug_key\": 1, \"lucky_charm\": 1}",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:576",
+              "source_line": "\tif debug: dating_state.inventory = {\"debug_key\": 1, \"lucky_charm\": 1}",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "reset_game",
+          "added": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:695",
+              "source_line": "\trestored.reset_game()",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:687",
+              "source_line": "\trestored.reset_game()",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "route_context",
+          "added": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:500",
+              "source_line": "\t\tand snapshot.gameplay.route_context.active_dating_challenge == entered.source.physical_record,",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:694",
+              "source_line": "\t\tand snapshot.gameplay.route_context.active_dating_challenge == entered.source.physical_record,",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1243",
+              "source_line": "\t\tand snapshot.gameplay.route_context.active_dating_challenge == physical.value,",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:572",
+              "source_line": "\t\tcurrent.gameplay.route_context[\"active_dating_challenge\"] = state.saved.duplicate(true)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:691",
+              "source_line": "\tassert_eq(saved.gameplay.route_context.active_dating_challenge, exact_record)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:692",
+              "source_line": "\tassert_eq(saved.gameplay.route_context.dating_frozen_contexts_v1,",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:693",
+              "source_line": "\t\tfixture.state.route_context.dating_frozen_contexts_v1)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:707",
+              "source_line": "\tassert_eq(restored.route_context.dating_frozen_contexts_v1,",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:708",
+              "source_line": "\t\tfixture.state.route_context.dating_frozen_contexts_v1)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:806",
+              "source_line": "\tassert_eq(document.value.candidate.current_snapshot.snapshot.gameplay.route_context.active_dating_challenge, exact)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:995",
+              "source_line": "\tassert_eq(saved.gameplay.route_context.active_dating_challenge, exact)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:442",
+              "source_line": "\t\tand snapshot.gameplay.route_context.active_dating_challenge == entered.source.physical_record,",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:991",
+              "source_line": "\t\tand snapshot.gameplay.route_context.active_dating_challenge == physical.value,",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:564",
+              "source_line": "\t\tcurrent.gameplay.route_context[\"active_dating_challenge\"] = state.saved.duplicate(true)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:683",
+              "source_line": "\tassert_eq(saved.gameplay.route_context.active_dating_challenge, exact_record)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:684",
+              "source_line": "\tassert_eq(saved.gameplay.route_context.dating_frozen_contexts_v1,",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:685",
+              "source_line": "\t\tfixture.state.route_context.dating_frozen_contexts_v1)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:699",
+              "source_line": "\tassert_eq(restored.route_context.dating_frozen_contexts_v1,",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:700",
+              "source_line": "\t\tfixture.state.route_context.dating_frozen_contexts_v1)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:798",
+              "source_line": "\tassert_eq(document.value.candidate.current_snapshot.snapshot.gameplay.route_context.active_dating_challenge, exact)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "to_save_dict",
+          "added": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:737",
+              "source_line": "\t\t\t\"live_session\": game.capture_live_session().value.duplicate(true), \"gameplay\": game.to_save_dict().duplicate(true),",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:749",
+              "source_line": "\tvar gameplay: Dictionary = game.to_save_dict().duplicate(true)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:756",
+              "source_line": "\tif not _check(game.capture_live_session().value == source and game.to_save_dict() == gameplay,",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:766",
+              "source_line": "\t\tand game.to_save_dict() == gameplay and _speech_admissions == speech_before",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:786",
+              "source_line": "\tvar gameplay: Dictionary = game.to_save_dict().duplicate(true)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:800",
+              "source_line": "\tif not _check(game.to_save_dict() == gameplay and profile.get_profile_snapshot() == profile_before",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:811",
+              "source_line": "\tif not _check(game.to_save_dict() == gameplay and profile.get_profile_snapshot() == profile_before",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1274",
+              "source_line": "\tvar before_game: Dictionary = game.to_save_dict().duplicate(true)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1281",
+              "source_line": "\t\t\"disk_unchanged\": _witness_disk() == before_disk, \"game_unchanged\": game.to_save_dict() == before_game,",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1288",
+              "source_line": "\t\tand game.to_save_dict() == before_game and current_scene == dating",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:485",
+              "source_line": "\t\t\t\"live_session\": game.capture_live_session().value.duplicate(true), \"gameplay\": game.to_save_dict().duplicate(true),",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:497",
+              "source_line": "\tvar gameplay: Dictionary = game.to_save_dict().duplicate(true)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:504",
+              "source_line": "\tif not _check(game.capture_live_session().value == source and game.to_save_dict() == gameplay,",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:514",
+              "source_line": "\t\tand game.to_save_dict() == gameplay and _speech_admissions == speech_before",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:534",
+              "source_line": "\tvar gameplay: Dictionary = game.to_save_dict().duplicate(true)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:548",
+              "source_line": "\tif not _check(game.to_save_dict() == gameplay and profile.get_profile_snapshot() == profile_before",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:559",
+              "source_line": "\tif not _check(game.to_save_dict() == gameplay and profile.get_profile_snapshot() == profile_before",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1022",
+              "source_line": "\tvar before_game: Dictionary = game.to_save_dict().duplicate(true)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1029",
+              "source_line": "\t\t\"disk_unchanged\": _witness_disk() == before_disk, \"game_unchanged\": game.to_save_dict() == before_game,",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1036",
+              "source_line": "\t\tand game.to_save_dict() == before_game and current_scene == dating",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            }
+          ]
+        },
+        {
+          "kind": "dynamic_references",
+          "symbol": "contacts",
+          "added": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:196",
+              "source_line": "\tvar opened: Dictionary = desktop.open_app(&\"contacts\")",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:199",
+              "source_line": "\tvar contacts: Node = desktop.get(\"_cached_app_windows\")[&\"contacts\"]",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:638",
+              "source_line": "\tfor key: String in [\"lifecycle\", \"gameplay\", \"contacts\", \"committed_schedule\", \"desktop\", \"dating\",",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:766",
+              "source_line": "\t\t\"route_id\": \"main\", \"active_app_id\": \"contacts\", \"dialogic_checkpoint\": {}}",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:156",
+              "source_line": "\tvar opened: Dictionary = desktop.open_app(&\"contacts\")",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:159",
+              "source_line": "\tvar contacts: Node = desktop.get(\"_cached_app_windows\")[&\"contacts\"]",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:630",
+              "source_line": "\tfor key: String in [\"lifecycle\", \"gameplay\", \"contacts\", \"committed_schedule\", \"desktop\", \"dating\",",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:758",
+              "source_line": "\t\t\"route_id\": \"main\", \"active_app_id\": \"contacts\", \"dialogic_checkpoint\": {}}",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            }
+          ]
+        },
+        {
+          "kind": "dynamic_references",
+          "symbol": "day",
+          "added": [
+            {
+              "site": "scripts/ui/pause/PauseQuickCommands.gd:291",
+              "source_line": "\tvar day: Variant = record.get(\"load_day\" if fallback else \"day\")",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:599",
+              "source_line": "\tvar context := {\"day\": 1, \"kind\": \"solo\", \"participants\": [\"priscilla\"], \"schedule_entry_id\": \"pause-date\"}",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "scripts/ui/pause/PauseQuickCommands.gd:262",
+              "source_line": "\tvar day: Variant = record.get(\"load_day\" if fallback else \"day\")",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:591",
+              "source_line": "\tvar context := {\"day\": 1, \"kind\": \"solo\", \"participants\": [\"priscilla\"], \"schedule_entry_id\": \"pause-date\"}",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            }
+          ]
+        },
+        {
+          "kind": "dynamic_references",
+          "symbol": "route_context",
+          "added": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:571",
+              "source_line": "\t\tcurrent.gameplay[\"route_context\"] = state.route_context.duplicate(true)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:563",
+              "source_line": "\t\tcurrent.gameplay[\"route_context\"] = state.route_context.duplicate(true)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            }
+          ]
+        }
+      ],
+      "candidate_to_generated_deltas": [
+        {
+          "kind": "call_sites",
+          "symbol": "capture_dating_challenge_state",
+          "added": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:706",
+              "source_line": "\tassert_eq(restored.capture_dating_challenge_state().value, exact_record)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:701",
+              "source_line": "\tassert_eq(restored.capture_dating_challenge_state().value, exact_record)",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "capture_run_snapshot_input",
+          "added": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:562",
+              "source_line": "\tfunc capture_run_snapshot_input() -> Dictionary:",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:557",
+              "source_line": "\tfunc capture_run_snapshot_input() -> Dictionary:",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "configure_mutation_gate",
+          "added": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:163",
+              "source_line": "\tassert_true(input_owner.configure_mutation_gate(gate).ok)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:629",
+              "source_line": "\tassert_true(manager.configure_mutation_gate(gate).ok)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:158",
+              "source_line": "\tassert_true(input_owner.configure_mutation_gate(gate).ok)",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:624",
+              "source_line": "\tassert_true(manager.configure_mutation_gate(gate).ok)",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "contacts",
+          "added": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:880",
+              "source_line": "\tassert_true(controller._quick_commands.last_result.is_empty(), \"Held and echoed contacts never call the owner again\")",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:875",
+              "source_line": "\tassert_true(controller._quick_commands.last_result.is_empty(), \"Held and echoed contacts never call the owner again\")",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "day",
+          "added": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:257",
+              "source_line": "\tvar card := {\"title\": \"Priscilla\", \"body\": \"No worries. Maybe another day.\",",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:380",
+              "source_line": "\trun_owner.day = 6",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:406",
+              "source_line": "\trun_owner.day = 7",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:418",
+              "source_line": "\trun_owner.day = 3",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:421",
+              "source_line": "\tassert_eq(content.get(\"_run_day\"), 3, \"cached Settings host receives the new day on reopen\")",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:252",
+              "source_line": "\tvar card := {\"title\": \"Priscilla\", \"body\": \"No worries. Maybe another day.\",",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:375",
+              "source_line": "\trun_owner.day = 6",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:401",
+              "source_line": "\trun_owner.day = 7",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:413",
+              "source_line": "\trun_owner.day = 3",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:416",
+              "source_line": "\tassert_eq(content.get(\"_run_day\"), 3, \"cached Settings host receives the new day on reopen\")",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "inventory",
+          "added": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:584",
+              "source_line": "\tif debug: dating_state.inventory = {\"debug_key\": 1, \"lucky_charm\": 1}",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:579",
+              "source_line": "\tif debug: dating_state.inventory = {\"debug_key\": 1, \"lucky_charm\": 1}",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "reset_game",
+          "added": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:695",
+              "source_line": "\trestored.reset_game()",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:690",
+              "source_line": "\trestored.reset_game()",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "route_context",
+          "added": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:572",
+              "source_line": "\t\tcurrent.gameplay.route_context[\"active_dating_challenge\"] = state.saved.duplicate(true)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:691",
+              "source_line": "\tassert_eq(saved.gameplay.route_context.active_dating_challenge, exact_record)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:692",
+              "source_line": "\tassert_eq(saved.gameplay.route_context.dating_frozen_contexts_v1,",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:693",
+              "source_line": "\t\tfixture.state.route_context.dating_frozen_contexts_v1)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:707",
+              "source_line": "\tassert_eq(restored.route_context.dating_frozen_contexts_v1,",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:708",
+              "source_line": "\t\tfixture.state.route_context.dating_frozen_contexts_v1)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:806",
+              "source_line": "\tassert_eq(document.value.candidate.current_snapshot.snapshot.gameplay.route_context.active_dating_challenge, exact)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:995",
+              "source_line": "\tassert_eq(saved.gameplay.route_context.active_dating_challenge, exact)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:567",
+              "source_line": "\t\tcurrent.gameplay.route_context[\"active_dating_challenge\"] = state.saved.duplicate(true)",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:686",
+              "source_line": "\tassert_eq(saved.gameplay.route_context.active_dating_challenge, exact_record)",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:687",
+              "source_line": "\tassert_eq(saved.gameplay.route_context.dating_frozen_contexts_v1,",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:688",
+              "source_line": "\t\tfixture.state.route_context.dating_frozen_contexts_v1)",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:702",
+              "source_line": "\tassert_eq(restored.route_context.dating_frozen_contexts_v1,",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:703",
+              "source_line": "\t\tfixture.state.route_context.dating_frozen_contexts_v1)",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:801",
+              "source_line": "\tassert_eq(document.value.candidate.current_snapshot.snapshot.gameplay.route_context.active_dating_challenge, exact)",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:990",
+              "source_line": "\tassert_eq(saved.gameplay.route_context.active_dating_challenge, exact)",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            }
+          ]
+        },
+        {
+          "kind": "dynamic_references",
+          "symbol": "contacts",
+          "added": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:638",
+              "source_line": "\tfor key: String in [\"lifecycle\", \"gameplay\", \"contacts\", \"committed_schedule\", \"desktop\", \"dating\",",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:766",
+              "source_line": "\t\t\"route_id\": \"main\", \"active_app_id\": \"contacts\", \"dialogic_checkpoint\": {}}",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:633",
+              "source_line": "\tfor key: String in [\"lifecycle\", \"gameplay\", \"contacts\", \"committed_schedule\", \"desktop\", \"dating\",",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:761",
+              "source_line": "\t\t\"route_id\": \"main\", \"active_app_id\": \"contacts\", \"dialogic_checkpoint\": {}}",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            }
+          ]
+        },
+        {
+          "kind": "dynamic_references",
+          "symbol": "day",
+          "added": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:599",
+              "source_line": "\tvar context := {\"day\": 1, \"kind\": \"solo\", \"participants\": [\"priscilla\"], \"schedule_entry_id\": \"pause-date\"}",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:594",
+              "source_line": "\tvar context := {\"day\": 1, \"kind\": \"solo\", \"participants\": [\"priscilla\"], \"schedule_entry_id\": \"pause-date\"}",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            }
+          ]
+        },
+        {
+          "kind": "dynamic_references",
+          "symbol": "route_context",
+          "added": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:571",
+              "source_line": "\t\tcurrent.gameplay[\"route_context\"] = state.route_context.duplicate(true)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:566",
+              "source_line": "\t\tcurrent.gameplay[\"route_context\"] = state.route_context.duplicate(true)",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            }
+          ]
+        }
+      ],
+      "candidate_to_generated_only_unit_line_moves": true
+    },
+    "save_manager": {
+      "record_count": 74,
+      "declarations_required_and_top_level_maps_unchanged": true,
+      "accepted_baseline": {
+        "bytes": 149295,
+        "sha256": "e9c1ead377edea92f280a5f62974f12a585f33a15769a103ce05c59f590c85ef"
+      },
+      "current_candidate": {
+        "bytes": 149516,
+        "sha256": "8f4c7aee5e6f22c4504b174e9a9fdccd16efcf872f7ff33657022178d95242b5"
+      },
+      "focus3_generated": {
+        "bytes": 149516,
+        "sha256": "6d8dcda3b416bf9fc9814477733f4394ce1c41a6b59677ba43073173b9f38267"
+      },
+      "current_candidate_equals_focus2_generated": true,
+      "baseline_to_generated_deltas": [
+        {
+          "kind": "call_sites",
+          "symbol": "autosave",
+          "added": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:480",
+              "source_line": "\t\tand after_disk.profile == before_disk.profile and after_disk.autosave == before_disk.autosave",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1237",
+              "source_line": "\tvar disk: Dictionary = root.get_node(\"SaveManager\").get(\"_storage\").read_text(\"autosave.json\")",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1255",
+              "source_line": "\tif not _check(_write_text(\"next-autosave.json\", disk.value)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1340",
+              "source_line": "\tvar before_disk: Dictionary = saves.get(\"_storage\").inspect_revision(\"autosave.json\")",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1374",
+              "source_line": "\tvar after_disk: Dictionary = saves.get(\"_storage\").read_text(\"autosave.json\")",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:985",
+              "source_line": "\tvar disk: Dictionary = root.get_node(\"SaveManager\").get(\"_storage\").read_text(\"autosave.json\")",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1003",
+              "source_line": "\tif not _check(_write_text(\"next-autosave.json\", disk.value)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1088",
+              "source_line": "\tvar before_disk: Dictionary = saves.get(\"_storage\").inspect_revision(\"autosave.json\")",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1122",
+              "source_line": "\tvar after_disk: Dictionary = saves.get(\"_storage\").read_text(\"autosave.json\")",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "commit_backup_action",
+          "added": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:294",
+              "source_line": "\tvar committed: Dictionary = saves.commit_backup_action(manual.value.token)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:309",
+              "source_line": "\tvar refused: Dictionary = saves.commit_backup_action(stale.value.token)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:334",
+              "source_line": "\tvar restored: Dictionary = saves.commit_backup_action(prepared.value.token)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:544",
+              "source_line": "\tvar restored: Dictionary = saves.commit_backup_action(prepared.value.token)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1352",
+              "source_line": "\tvar restored: Dictionary = saves.commit_backup_action(prepared.value.token)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:251",
+              "source_line": "\tvar committed: Dictionary = saves.commit_backup_action(manual.value.token)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:266",
+              "source_line": "\tvar refused: Dictionary = saves.commit_backup_action(stale.value.token)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:291",
+              "source_line": "\tvar restored: Dictionary = saves.commit_backup_action(prepared.value.token)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1100",
+              "source_line": "\tvar restored: Dictionary = saves.commit_backup_action(prepared.value.token)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "configure_backup_capture_provider",
+          "added": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:648",
+              "source_line": "\tassert_true(manager.configure_backup_capture_provider(controller.capture_backup_checkpoint_inputs).ok)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:640",
+              "source_line": "\tassert_true(manager.configure_backup_capture_provider(controller.capture_backup_checkpoint_inputs).ok)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "configure_mutation_gate",
+          "added": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:163",
+              "source_line": "\tassert_true(input_owner.configure_mutation_gate(gate).ok)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:629",
+              "source_line": "\tassert_true(manager.configure_mutation_gate(gate).ok)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:156",
+              "source_line": "\tassert_true(input_owner.configure_mutation_gate(gate).ok)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:621",
+              "source_line": "\tassert_true(manager.configure_mutation_gate(gate).ok)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "initialize",
+          "added": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:144",
+              "source_line": "\tvar installed: Dictionary = bridge.initialize(FIXTURE_CATALOG)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:159",
+              "source_line": "\tassert_true(profile.initialize(STORAGE.new(\"pause-controller.memory\", FILES.new())).ok)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:160",
+              "source_line": "\tassert_true(localization.initialize(profile).ok)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:161",
+              "source_line": "\tassert_true(input_owner.initialize(profile).ok)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:162",
+              "source_line": "\tassert_true(audio_owner.initialize(profile).ok)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:628",
+              "source_line": "\tassert_true(manager.initialize(storage).ok)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:107",
+              "source_line": "\tvar installed: Dictionary = bridge.initialize(FIXTURE_CATALOG)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:152",
+              "source_line": "\tassert_true(profile.initialize(STORAGE.new(\"pause-controller.memory\", FILES.new())).ok)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:153",
+              "source_line": "\tassert_true(localization.initialize(profile).ok)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:154",
+              "source_line": "\tassert_true(input_owner.initialize(profile).ok)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:155",
+              "source_line": "\tassert_true(audio_owner.initialize(profile).ok)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:620",
+              "source_line": "\tassert_true(manager.initialize(storage).ok)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "is_quick_condition_current",
+          "added": [
+            {
+              "site": "scripts/ui/pause/PauseQuickCommands.gd:190",
+              "source_line": "\tif not _base_admitted() or _source_snapshot() != _source or not _port.is_quick_condition_current(_condition):",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "scripts/ui/pause/PauseQuickCommands.gd:258",
+              "source_line": "\t\t\tand (captured.is_empty() or _port.is_quick_condition_current(captured)))",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "scripts/ui/pause/PauseQuickCommands.gd:277",
+              "source_line": "\t\t\tstale = stale or not _port.is_quick_condition_current(_condition)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "scripts/ui/pause/PauseQuickCommands.gd:161",
+              "source_line": "\tif not _base_admitted() or _source_snapshot() != _source or not _port.is_quick_condition_current(_condition):",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "scripts/ui/pause/PauseQuickCommands.gd:229",
+              "source_line": "\t\t\tand (captured.is_empty() or _port.is_quick_condition_current(captured)))",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "scripts/ui/pause/PauseQuickCommands.gd:248",
+              "source_line": "\t\t\tstale = stale or not _port.is_quick_condition_current(_condition)",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "prepare_backup_action",
+          "added": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:292",
+              "source_line": "\tvar manual: Dictionary = saves.prepare_backup_action(\"save\", \"slot:1\")",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:304",
+              "source_line": "\tvar stale: Dictionary = saves.prepare_backup_action(\"save\", \"slot:2\")",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:331",
+              "source_line": "\tvar prepared: Dictionary = saves.prepare_backup_action(\"load\", \"quick\")",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:541",
+              "source_line": "\tvar prepared: Dictionary = saves.prepare_backup_action(\"load\", \"quick\")",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1350",
+              "source_line": "\tvar prepared: Dictionary = saves.prepare_backup_action(\"load\", \"autosave\")",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:249",
+              "source_line": "\tvar manual: Dictionary = saves.prepare_backup_action(\"save\", \"slot:1\")",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:261",
+              "source_line": "\tvar stale: Dictionary = saves.prepare_backup_action(\"save\", \"slot:2\")",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:288",
+              "source_line": "\tvar prepared: Dictionary = saves.prepare_backup_action(\"load\", \"quick\")",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1098",
+              "source_line": "\tvar prepared: Dictionary = saves.prepare_backup_action(\"load\", \"autosave\")",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            }
+          ]
+        },
+        {
+          "kind": "dynamic_references",
+          "symbol": "autosave",
+          "added": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:401",
+              "source_line": "\tfor key: String in [\"quick\", \"autosave\", \"profile\"]:",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1350",
+              "source_line": "\tvar prepared: Dictionary = saves.prepare_backup_action(\"load\", \"autosave\")",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1098",
+              "source_line": "\tvar prepared: Dictionary = saves.prepare_backup_action(\"load\", \"autosave\")",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            }
+          ]
+        },
+        {
+          "kind": "dynamic_references",
+          "symbol": "is_quick_condition_current",
+          "added": [
+            {
+              "site": "scripts/ui/pause/PauseQuickCommands.gd:52",
+              "source_line": "\tfor method: String in [\"get_quick_capability\", \"prepare_quick_action\", \"is_quick_condition_current\", \"commit_action\", \"cancel_action\"]:",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "scripts/ui/pause/PauseQuickCommands.gd:38",
+              "source_line": "\tfor method: String in [\"get_quick_capability\", \"prepare_quick_action\", \"is_quick_condition_current\", \"commit_action\", \"cancel_action\"]:",
+              "source_commit": "5a581fc89121864aead5202e01d6a82423b1b52d"
+            }
+          ]
+        }
+      ],
+      "candidate_to_generated_deltas": [
+        {
+          "kind": "call_sites",
+          "symbol": "configure_backup_capture_provider",
+          "added": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:648",
+              "source_line": "\tassert_true(manager.configure_backup_capture_provider(controller.capture_backup_checkpoint_inputs).ok)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:643",
+              "source_line": "\tassert_true(manager.configure_backup_capture_provider(controller.capture_backup_checkpoint_inputs).ok)",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "configure_mutation_gate",
+          "added": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:163",
+              "source_line": "\tassert_true(input_owner.configure_mutation_gate(gate).ok)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:629",
+              "source_line": "\tassert_true(manager.configure_mutation_gate(gate).ok)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:158",
+              "source_line": "\tassert_true(input_owner.configure_mutation_gate(gate).ok)",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:624",
+              "source_line": "\tassert_true(manager.configure_mutation_gate(gate).ok)",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "initialize",
+          "added": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:159",
+              "source_line": "\tassert_true(profile.initialize(STORAGE.new(\"pause-controller.memory\", FILES.new())).ok)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:160",
+              "source_line": "\tassert_true(localization.initialize(profile).ok)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:161",
+              "source_line": "\tassert_true(input_owner.initialize(profile).ok)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:162",
+              "source_line": "\tassert_true(audio_owner.initialize(profile).ok)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:628",
+              "source_line": "\tassert_true(manager.initialize(storage).ok)",
+              "source_commit": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:154",
+              "source_line": "\tassert_true(profile.initialize(STORAGE.new(\"pause-controller.memory\", FILES.new())).ok)",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:155",
+              "source_line": "\tassert_true(localization.initialize(profile).ok)",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:156",
+              "source_line": "\tassert_true(input_owner.initialize(profile).ok)",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:157",
+              "source_line": "\tassert_true(audio_owner.initialize(profile).ok)",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:623",
+              "source_line": "\tassert_true(manager.initialize(storage).ok)",
+              "source_commit": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+            }
+          ]
+        }
+      ],
+      "candidate_to_generated_only_unit_line_moves": true
+    }
+  },
+  "adopted_paths": [
+    "evidence/phase_2r/runtime/game_state_surface.json",
+    "evidence/phase_2r/runtime/save_manager_surface.json"
+  ],
+  "reference_semantics": "Scanner is lexical and includes comments. Before baseline means accepted5a inventories; current candidate carries exact Focus2/63 generated inventories; after means raw Focus3/8c generated inventories.",
+  "unchanged_owner_scanner_required_maps": {
+    "autoload/GameState.gd": {
+      "bytes": 191856,
+      "sha256": "02ed11392633e9ded43609d93977adb0805870880add55b67c483d5d305694bc"
+    },
+    "autoload/SaveManager.gd": {
+      "bytes": 144576,
+      "sha256": "4281556c8e8ae9fd2d87921aa89f91dbc579dcfbc7dcefa5722481afc6b89de8"
+    },
+    "tools/runtime/PublicSurfaceInventory.gd": {
+      "bytes": 11182,
+      "sha256": "9dcf035d10009180e6c2d1dcbe0df1d5f680cae0a66e1c9714312d377e423dc1"
+    },
+    "evidence/phase_2r/runtime/game_state_required_surface.json": {
+      "bytes": 65405,
+      "sha256": "4305818e24ea07d59512211eb09308bbbedf6b57d53e7e1c4b5bb220625095c5"
+    },
+    "evidence/phase_2r/runtime/save_manager_required_surface.json": {
+      "bytes": 15951,
+      "sha256": "a5c7a61201f254c8243adb26acca90a8f5036975f3a47140f6d6ccf22256f56b"
+    }
+  }
+}

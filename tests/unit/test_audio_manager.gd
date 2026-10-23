@@ -234,9 +234,13 @@ func test_committed_preference_apply_failure_latches_shared_gate() -> void:
 	assert_true(gate.is_fatal_latched())
 
 
-func test_semantic_restore_is_silent_and_rollback_restarts_prior_context() -> void:
+func test_semantic_restore_is_silent_and_rollback_preserves_exact_runtime() -> void:
 	assert_true(_manager.initialize(_profile).get("ok", false))
 	assert_true(_manager.set_music_context("menu").get("ok", false))
+	assert_true(_manager.set_ambience_context("rain").get("ok", false))
+	_port.players[&"MusicB"]["playback_position"] = 37.25
+	_port.players[&"AmbienceB"]["playback_position"] = 11.5
+	_port.players[&"AmbienceB"]["stream_paused"] = true
 	watch_signals(_manager)
 	var snapshot := {
 		"music_context_id": "ending",
@@ -259,8 +263,75 @@ func test_semantic_restore_is_silent_and_rollback_restarts_prior_context() -> vo
 	assert_signal_not_emitted(_manager, "music_context_changed")
 	assert_signal_not_emitted(_manager, "ambience_context_changed")
 	assert_true(_manager.rollback_restore_silent(backup).get("ok", false))
-	assert_eq(_manager.get_music_context_id(), "menu")
+	assert_eq(_manager.capture_restore_state()["value"], backup,
+		"Rollback preserves physical streams, playheads, fades, outputs and manager identities")
+	assert_signal_not_emitted(_manager, "audio_settings_applied")
+	assert_signal_not_emitted(_manager, "music_context_changed")
+	assert_signal_not_emitted(_manager, "ambience_context_changed")
+	var operations := _port.operations.size()
+	assert_true(_manager.set_music_context("menu").get("unchanged", false),
+		"The restored semantic record agrees with the restored stream")
+	assert_eq(_port.operations.size(), operations, "An unchanged context never restarts the old stream")
+	assert_true(_manager.set_music_context("hospital").get("ok", false))
+	assert_eq(_manager._active_players[&"music"], &"MusicA",
+		"The next fade selects the player opposite the original MusicB")
+	assert_same(_port.players[&"MusicB"].stream, backup.runtime.players[&"MusicB"].stream)
+	assert_eq(_port.players[&"MusicB"].playback_position, 37.25)
 	assert_true(_manager.finalize_restore().get("ok", false))
+
+
+func test_restore_capture_refusal_has_no_audio_side_effects() -> void:
+	assert_true(_manager.initialize(_profile).get("ok", false))
+	assert_true(_manager.set_music_context("menu").get("ok", false))
+	var before: Dictionary = _manager.capture_restore_state()["value"]
+	_port.fail_next(&"capture_runtime")
+	assert_eq(_manager.capture_restore_state().get("code"), &"injected_audio_failure")
+	assert_eq(_manager.capture_restore_state()["value"], before)
+	_port.fail_next(&"capture_runtime")
+	var failed: Dictionary = _manager.apply_restore_silent({"snapshot": {
+		"music_context_id": "hospital", "music_context": {},
+		"ambience_context_id": "room", "ambience_context": {},
+	}})
+	assert_eq(failed.get("code"), &"injected_audio_failure")
+	assert_eq(_manager.capture_restore_state()["value"], before)
+
+
+func test_partial_audio_restore_compensates_before_refusing() -> void:
+	assert_true(_manager.initialize(_profile).get("ok", false))
+	assert_true(_manager.set_music_context("menu").get("ok", false))
+	assert_true(_manager.set_ambience_context("rain").get("ok", false))
+	_port.players[&"MusicB"]["playback_position"] = 19.75
+	var before: Dictionary = _manager.capture_restore_state()["value"]
+	watch_signals(_manager)
+	_port.fail_next(&"assign_stream", &"AmbienceA")
+	var failed: Dictionary = _manager.apply_restore_silent({"snapshot": {
+		"music_context_id": "hospital", "music_context": {},
+		"ambience_context_id": "room", "ambience_context": {},
+	}})
+	assert_eq(failed.get("code"), &"injected_audio_failure")
+	assert_eq(_manager.capture_restore_state()["value"], before,
+		"The first channel cannot remain changed when the second channel refuses")
+	assert_signal_not_emitted(_manager, "music_context_changed")
+	assert_signal_not_emitted(_manager, "ambience_context_changed")
+	assert_signal_not_emitted(_manager, "audio_settings_applied")
+
+
+func test_failed_restore_compensation_latches_shared_recovery() -> void:
+	var gate: RefCounted = FAKE_GATE.new()
+	assert_true(_manager.configure_mutation_gate(gate).get("ok", false))
+	assert_true(_manager.initialize(_profile).get("ok", false))
+	assert_true(_manager.set_music_context("menu").get("ok", false))
+	var before: Dictionary = _manager.capture_restore_state()["value"]
+	assert_true(_manager.apply_restore_silent({"snapshot": {
+		"music_context_id": "hospital", "music_context": {},
+		"ambience_context_id": "room", "ambience_context": {},
+	}}).get("ok", false))
+	_port.fail_next(&"restore_runtime")
+	var failed: Dictionary = _manager.rollback_restore_silent(before)
+	assert_eq(failed.get("code"), &"audio_runtime_indeterminate")
+	assert_true(failed.get("fatal", false))
+	assert_true(gate.is_fatal_latched())
+	assert_eq(_manager.set_music_context("menu").get("code"), &"audio_runtime_indeterminate")
 
 
 func test_restore_can_clear_channels_and_force_restart_same_context() -> void:

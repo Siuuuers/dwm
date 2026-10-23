@@ -1,0 +1,247 @@
+{
+  "schema": "dwm_cloud_review_partial.v1",
+  "accepted": false,
+  "run_number": 69,
+  "run_id": 36471714121,
+  "run_url": "https://github.com/Siuuuers/dwm/actions/runs/36471714121",
+  "run_conclusion": "failure",
+  "run_status": "completed",
+  "updated_at": "2026-09-28T20:18:06Z",
+  "source_sha": "9ddc144a6a497e17bb3452c0046948011d980fc2",
+  "source_tree_sha": "b0325eae86827bb8d09308fc22758fa0f4f0d7a6",
+  "tested_merge_sha": "3a7e67b12cde1ba6d2bf14a891bdf0f9ddfb97ba",
+  "tested_merge_tree_sha": "b54263fe5c67223c470b2a22f97d7e8e12dcfaf5",
+  "tested_merge_parents": [
+    "2e8602d5f098eebbab18241f370b5f4d14adf99b",
+    "9ddc144a6a497e17bb3452c0046948011d980fc2"
+  ],
+  "source_to_merge_files": [
+    {
+      "path": "docs/design/2026-09-02-relationship-progression-runtime-behavior-record.md",
+      "status": "modified"
+    },
+    {
+      "path": "docs/story-auditions/2026-09-26-priscilla-lavinia-day-2-portrait-dark-love-read-through.md",
+      "status": "added"
+    },
+    {
+      "path": "docs/story-auditions/2026-09-26-priscilla-lavinia-portrait-and-intimacy-working-record.md",
+      "status": "added"
+    },
+    {
+      "path": "docs/story-auditions/2026-09-27-priscilla-lavinia-session-conversation-archive.md",
+      "status": "added"
+    },
+    {
+      "path": "docs/story-auditions/Our_PL.md",
+      "status": "added"
+    },
+    {
+      "path": "docs/story-auditions/README.md",
+      "status": "modified"
+    },
+    {
+      "path": "story/01-core-story-bible.md",
+      "status": "modified"
+    }
+  ],
+  "jobs": [
+    {
+      "id": 109095338908,
+      "name": "Windows / public API surface contracts",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-28T19:21:57Z",
+      "completed_at": "2026-09-28T19:25:38Z"
+    },
+    {
+      "id": 109096805007,
+      "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-28T19:25:41Z",
+      "completed_at": "2026-09-28T19:28:30Z"
+    },
+    {
+      "id": 109096805069,
+      "name": "Rendered desktop and dialogue / Linux software OpenGL",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-28T19:25:41Z",
+      "completed_at": "2026-09-28T19:29:53Z"
+    },
+    {
+      "id": 109096805174,
+      "name": "Windows / paired checkpoint performance",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-28T19:25:41Z",
+      "completed_at": "2026-09-28T19:28:37Z"
+    },
+    {
+      "id": 109096805370,
+      "name": "Windows / exported release startup",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-28T19:25:41Z",
+      "completed_at": "2026-09-28T19:27:43Z"
+    },
+    {
+      "id": 109096805590,
+      "name": "Windows / settings",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-28T19:25:41Z",
+      "completed_at": "2026-09-28T19:30:07Z"
+    },
+    {
+      "id": 109096805637,
+      "name": "Windows / checkpoint_diagnostics",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-28T19:25:42Z",
+      "completed_at": "2026-09-28T19:27:09Z"
+    },
+    {
+      "id": 109096805647,
+      "name": "Windows / desktop",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-28T19:25:42Z",
+      "completed_at": "2026-09-28T19:28:47Z"
+    },
+    {
+      "id": 109096805655,
+      "name": "Windows / new_account",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-28T19:25:41Z",
+      "completed_at": "2026-09-28T19:27:24Z"
+    },
+    {
+      "id": 109096805685,
+      "name": "Windows / localization",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-28T19:25:42Z",
+      "completed_at": "2026-09-28T19:28:02Z"
+    },
+    {
+      "id": 109096805701,
+      "name": "Windows / dating",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-28T19:25:41Z",
+      "completed_at": "2026-09-28T19:27:50Z"
+    },
+    {
+      "id": 109096805712,
+      "name": "Windows / minesweeper",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-28T19:25:41Z",
+      "completed_at": "2026-09-28T19:28:05Z"
+    },
+    {
+      "id": 109096805731,
+      "name": "Windows / shop",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-28T19:25:42Z",
+      "completed_at": "2026-09-28T19:27:12Z"
+    },
+    {
+      "id": 109096805769,
+      "name": "Windows / audio",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-28T19:25:41Z",
+      "completed_at": "2026-09-28T19:27:00Z"
+    },
+    {
+      "id": 109096805835,
+      "name": "Windows / persistence",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-09-28T19:25:42Z",
+      "completed_at": "2026-09-28T19:27:11Z"
+    },
+    {
+      "id": 109096805841,
+      "name": "Windows / endings",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-28T19:25:41Z",
+      "completed_at": "2026-09-28T19:26:40Z"
+    },
+    {
+      "id": 109096805847,
+      "name": "Windows / reading_delivery",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-09-28T19:25:41Z",
+      "completed_at": "2026-09-28T19:28:19Z"
+    },
+    {
+      "id": 109097964034,
+      "name": "Windows / seven-day retained history",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-28T19:28:40Z",
+      "completed_at": "2026-09-28T20:18:05Z"
+    }
+  ],
+  "job_totals": {
+    "total": 18,
+    "success": 16,
+    "failure": 2
+  },
+  "aggregate_gut_acceptance": false,
+  "failures": [
+    {
+      "job_id": 109096805835,
+      "suite": "persistence",
+      "reason": "The five new restore-isolation cases did not load: get_script_signal_list was called non-statically on the GameState script class. The guarded runner rejected the unloaded script.",
+      "full_log_sha256_lf": "0ce10418ef32db8456cf6b6b8e775a94ca4153e7d130c8b5047e8d3bfe664b8a",
+      "excerpt_path": "run69-restore-isolation-red.log",
+      "excerpt_full_log_lines": [
+        4200,
+        4242
+      ],
+      "correction": "Use the actual owner instance's get_signal_list; retain signal predicates."
+    },
+    {
+      "job_id": 109096805847,
+      "suite": "reading_delivery",
+      "tests": 229,
+      "passed": 228,
+      "failed": 1,
+      "reason": "The native multi-entry reconstruction fixture expected three publications and observed two. Natural completion freed the explicitly mounted Witnessed style; second entry did not explicitly remount that host.",
+      "full_log_sha256_lf": "fc2a88ed0b590cc525a1751062bdfc092dc5c5dfeaaf3b21d5862f5187cfd80c",
+      "excerpt_path": "run69-caption-ledger-red.log",
+      "excerpt_full_log_lines": [
+        12505,
+        12528
+      ],
+      "correction": "Remount and verify the intended style and viewport on every entry; prove old hosts freed, keep waits and all original assertions."
+    }
+  ],
+  "corrective_source_sha": "9958c66fd345ca8c30d7114fdff4c4bb1b356ec7",
+  "warm_experiment": {
+    "job_id": 109097964034,
+    "job_conclusion": "success",
+    "full_log_sha256_lf": "99532171b9c0986cadbb371e0dcf68e4c319b586a2aadae18c98a0c6fccd56de",
+    "artifact": "performance/run69-warm-outgoing-proof.json",
+    "pairs": 12,
+    "processes": 24,
+    "retained_timing_samples": 240,
+    "accepted": false,
+    "median_paired_candidate_minus_baseline_commit_us": {
+      "cold": 76134.5,
+      "mixed": 82426,
+      "warm": -49810.5
+    },
+    "decision": "Revise once and remeasure; no overall improvement or task closure claimed."
+  },
+  "audit_scope": "Final GitHub run/jobs, immutable source/merge parents and seven Markdown-only differences verified. All warm pair samples, medians, deltas, summaries, exact cross-variant JSON invariants and isolated process receipts independently checked. Native Variant/type/custody predicates remain source-bound cloud-engine assertions. The workspace went offline before the previously prepared local aggregate verifier ran; no claim that it completed."
+}

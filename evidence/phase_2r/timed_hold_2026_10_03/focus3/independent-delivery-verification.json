@@ -1,0 +1,29 @@
+{
+  "status": "DELIVERY_VERIFIED_WITH_EXPLICIT_STORAGE_LIMITS",
+  "run_id": 37093670324,
+  "source": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7",
+  "workflow_head": "d5652c4c8b9391cc57d5f5a7b1c1fc950a4db465",
+  "actual_checkout": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7",
+  "archive": {
+    "file": "timed-hold-focus3-evidence.tar.gz",
+    "bytes": 7161415,
+    "sha256": "15d4d4117d108fb98060ba5f7deaea79fb4daac8a05393db555d2d56fc13e4c8"
+  },
+  "archive_members_verified": 65,
+  "included_original_zips_verified": 4,
+  "extracted_files_reproduced": 63,
+  "binary_members_explicitly_excluded": 0,
+  "excluded_member_identities": [],
+  "delivery_only_verification": true,
+  "original_workspace_attachments_not_required": true,
+  "runtime_acceptance_inferred": false,
+  "limits": [
+    "Packaging does not create runtime, whole-game, release or PR test-merge acceptance.",
+    "Captionless hold evidence uses an authorized noncanonical fixture duration; no production-authored duration is established.",
+    "No durable mid-hold save/restore cursor, canonical no-Sylvia Hospital completion or production timeline registration is established.",
+    "No native hardware-input, OS accessibility-tree, screen-reader or audible speech-quality acceptance.",
+    "Windows export scope is unsigned cloud export, packaged data and isolated headless startup; known ObjectDB exporter warning remains an explicit unresolved lifetime exclusion.",
+    "No fixed performance threshold, universal speedup, physical-disk or input-to-paint guarantee.",
+    "Original Windows export binaries and transport wrapper/chunk bytes remain outside repository storage; exact identities are not permanent binary archival."
+  ]
+}

@@ -1,0 +1,72 @@
+[
+  {
+    "id": 11245601148,
+    "name": "hospital-export-original-part001-37047435988-1",
+    "digest": "sha256:482bdfd23356109d29c28a0687c322ff9dac9677ab95d2e8d8c40a63e0f4d28d",
+    "size_in_bytes": 26214554,
+    "workflow_run": {
+      "id": 37047435988,
+      "repository_id": 1302529453,
+      "head_repository_id": 1302529453,
+      "head_branch": "codex/hospital-export-evidence-20261003",
+      "head_sha": "35da7aad3d95253fa0530cdb664f1ef8773d78e9"
+    },
+    "local_zip": "/workspace/scratch/e58f796fe7a3/attachments/9e7b46f1-3721-4b75-aa46-b4f1f2344d93/hospital-export-original-part001-37047435988-1.zip"
+  },
+  {
+    "id": 11245591066,
+    "name": "hospital-export-transport-manifest-37047435988-1",
+    "digest": "sha256:28b0ca27c1ba5a8a333edf892b2be541737847798ff68b13398a1c10a6229298",
+    "size_in_bytes": 2386,
+    "workflow_run": {
+      "id": 37047435988,
+      "repository_id": 1302529453,
+      "head_repository_id": 1302529453,
+      "head_branch": "codex/hospital-export-evidence-20261003",
+      "head_sha": "35da7aad3d95253fa0530cdb664f1ef8773d78e9"
+    },
+    "local_zip": "/workspace/scratch/e58f796fe7a3/attachments/54a58b03-2345-4541-a419-9297a349b94b/hospital-export-transport-manifest-37047435988-1.zip"
+  },
+  {
+    "id": 11244688217,
+    "name": "hospital-export-original-part004-37047435988-1",
+    "digest": "sha256:7f96aa52645cfe03b76d2c38cf5658f2c39e1249d7d2f4843be3615721d04e96",
+    "size_in_bytes": 20207728,
+    "workflow_run": {
+      "id": 37047435988,
+      "repository_id": 1302529453,
+      "head_repository_id": 1302529453,
+      "head_branch": "codex/hospital-export-evidence-20261003",
+      "head_sha": "35da7aad3d95253fa0530cdb664f1ef8773d78e9"
+    },
+    "local_zip": "/workspace/scratch/e58f796fe7a3/attachments/7a1efad5-b654-4849-bf2e-a9cf11a60a4b/hospital-export-original-part004-37047435988-1.zip"
+  },
+  {
+    "id": 11244393370,
+    "name": "hospital-export-original-part002-37047435988-1",
+    "digest": "sha256:1dc4041bc7889a7d9863ec1e74b1b88509239c282c2daaffa09b28fe898d54c2",
+    "size_in_bytes": 26214554,
+    "workflow_run": {
+      "id": 37047435988,
+      "repository_id": 1302529453,
+      "head_repository_id": 1302529453,
+      "head_branch": "codex/hospital-export-evidence-20261003",
+      "head_sha": "35da7aad3d95253fa0530cdb664f1ef8773d78e9"
+    },
+    "local_zip": "/workspace/scratch/e58f796fe7a3/attachments/079d15e0-ca38-4af7-bc43-6ac1213f4027/hospital-export-original-part002-37047435988-1.zip"
+  },
+  {
+    "id": 11244298598,
+    "name": "hospital-export-original-part003-37047435988-1",
+    "digest": "sha256:7714ecb7cc047b57c6bbefe36fe97df01476de28dd630cf612a960d86cfaf8b7",
+    "size_in_bytes": 26214554,
+    "workflow_run": {
+      "id": 37047435988,
+      "repository_id": 1302529453,
+      "head_repository_id": 1302529453,
+      "head_branch": "codex/hospital-export-evidence-20261003",
+      "head_sha": "35da7aad3d95253fa0530cdb664f1ef8773d78e9"
+    },
+    "local_zip": "/workspace/scratch/e58f796fe7a3/attachments/18beea00-7516-4e96-885f-cdf56f243b10/hospital-export-original-part003-37047435988-1.zip"
+  }
+]

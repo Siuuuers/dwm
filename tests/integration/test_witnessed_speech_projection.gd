@@ -1,4 +1,7 @@
 extends GutTest
+
+# Retained semantic fixtures exercise current playback owners, not shipped story startup.
+var _scene_validation_scope := preload("res://tests/support/SceneValidationScope.gd").new()
 ## Transient speech presentation proof. These fixtures model Dialogic's native Text signals and
 ## current_state_info without creating a visited-line owner or a durable narrative receipt.
 
@@ -9,11 +12,18 @@ class TextSubsystem extends Node:
 	signal about_to_show_text(info: Dictionary)
 	signal text_started(info: Dictionary)
 	signal text_finished(info: Dictionary)
+	var text_modifiers: Array = []
+
+	# These tests supply already-parsed native text; retain modifier registration
+	# without invoking the production parser or inventing an authored text event.
+	func load_parse_stack() -> void:
+		pass
 
 
 class Runtime extends Node:
 	var Text := TextSubsystem.new()
 	var current_event_idx := 0
+	var current_timeline_events: Array = []
 	var current_state_info := {"text_sub_idx": 0, "text_parsed": ""}
 	var generation := 1
 
@@ -38,6 +48,7 @@ class RuntimeAdapter extends RefCounted:
 
 
 class Localization extends Node:
+	signal locale_changed(locale: String)
 	var locale := "zh_CN"
 	func get_locale() -> String: return locale
 
@@ -52,6 +63,7 @@ var _original_localization_index := 0
 
 
 func before_each() -> void:
+	_scene_validation_scope.install(true)
 	_original_runtime = get_node("/root/Dialogic")
 	_original_runtime_index = _original_runtime.get_index()
 	get_tree().root.remove_child(_original_runtime)
@@ -69,6 +81,8 @@ func before_each() -> void:
 	bridge = BRIDGE.new()
 	add_child(bridge)
 	assert_true(bridge.initialize(null, RuntimeAdapter.new()).get("ok", false))
+	assert_true(runtime.Text.about_to_show_text.is_connected(bridge._on_speech_about_to_show_text))
+	assert_true(runtime.Text.text_started.is_connected(bridge._on_speech_text_started))
 
 
 func after_each() -> void:
@@ -79,6 +93,7 @@ func after_each() -> void:
 	get_tree().root.move_child(_original_runtime, _original_runtime_index)
 	get_tree().root.add_child(_original_localization)
 	get_tree().root.move_child(_original_localization, _original_localization_index)
+	_scene_validation_scope.restore()
 
 
 func _has_projection_api() -> bool:

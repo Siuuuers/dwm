@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "archive": "next-run114-cloud-evidence.tar.gz",
+  "bytes": 18984433,
+  "sha256": "c583ba6c95ee7c76db6b34999499196adc3aa4a8598bef6d6b5a7f25fe922f17",
+  "parts": [
+    {
+      "file": "next-run114-cloud-evidence.tar.gz.part01",
+      "bytes": 8388608,
+      "sha256": "eabbf8e918f03f5bd20cdb5535db83487d3b6a0abcbdd56ddbac7aa239361c85"
+    },
+    {
+      "file": "next-run114-cloud-evidence.tar.gz.part02",
+      "bytes": 8388608,
+      "sha256": "5973060a6f28983038db9c85838b49821d9d043829137d3f28b9e79614b96adf"
+    },
+    {
+      "file": "next-run114-cloud-evidence.tar.gz.part03",
+      "bytes": 2207217,
+      "sha256": "2a1cbc073328c5fe73bd837bc1d1b777ecb815444eef2b0e696ba690300c231f"
+    }
+  ],
+  "concatenate_parts_in_list_order": true,
+  "reassembly_byte_verified": true
+}

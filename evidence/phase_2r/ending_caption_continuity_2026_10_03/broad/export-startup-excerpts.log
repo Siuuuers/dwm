@@ -1,0 +1,42 @@
+2026-10-03T15:58:53.2908585Z Complete job name: Windows / exported release startup
+2026-10-03T15:59:11.0618297Z HEAD is now at 1afa1be Merge cdee58fc9fe7a218df9a6b1dbd64f7fa44f5ea49 into 6a5ddf1564870b43aa9140cad7e0e5b12e43f399
+2026-10-03T15:59:14.5565417Z [36;1mif (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {[0m
+2026-10-03T15:59:40.3513622Z [  40% ] [90m[1m_update_scan_actions[22m | en-100-startup-retry.png[39m[0m
+2026-10-03T15:59:40.3517097Z [  41% ] [90m[1m_update_scan_actions[22m | en-100-startup-unavailable.png[39m[0m
+2026-10-03T15:59:40.3527491Z [  41% ] [90m[1m_update_scan_actions[22m | en-125-startup-retry.png[39m[0m
+2026-10-03T15:59:40.3530864Z [  41% ] [90m[1m_update_scan_actions[22m | en-125-startup-unavailable.png[39m[0m
+2026-10-03T15:59:40.3541085Z [  41% ] [90m[1m_update_scan_actions[22m | en-150-startup-retry.png[39m[0m
+2026-10-03T15:59:40.3544359Z [  41% ] [90m[1m_update_scan_actions[22m | en-150-startup-unavailable.png[39m[0m
+2026-10-03T15:59:40.3554752Z [  42% ] [90m[1m_update_scan_actions[22m | zh_CN-100-startup-retry.png[39m[0m
+2026-10-03T15:59:40.3558608Z [  42% ] [90m[1m_update_scan_actions[22m | zh_CN-100-startup-unavailable.png[39m[0m
+2026-10-03T15:59:40.3568641Z [  42% ] [90m[1m_update_scan_actions[22m | zh_CN-125-startup-retry.png[39m[0m
+2026-10-03T15:59:40.3571962Z [  42% ] [90m[1m_update_scan_actions[22m | zh_CN-125-startup-unavailable.png[39m[0m
+2026-10-03T15:59:40.3582603Z [  43% ] [90m[1m_update_scan_actions[22m | zh_CN-150-startup-retry.png[39m[0m
+2026-10-03T15:59:40.3586135Z [  43% ] [90m[1m_update_scan_actions[22m | zh_CN-150-startup-unavailable.png[39m[0m
+2026-10-03T15:59:40.3596956Z [  43% ] [90m[1m_update_scan_actions[22m | zh_HK-100-startup-retry.png[39m[0m
+2026-10-03T15:59:40.3600246Z [  43% ] [90m[1m_update_scan_actions[22m | zh_HK-100-startup-unavailable.png[39m[0m
+2026-10-03T15:59:40.3610187Z [  43% ] [90m[1m_update_scan_actions[22m | zh_HK-125-startup-retry.png[39m[0m
+2026-10-03T15:59:40.3613542Z [  43% ] [90m[1m_update_scan_actions[22m | zh_HK-125-startup-unavailable.png[39m[0m
+2026-10-03T15:59:40.3623982Z [  44% ] [90m[1m_update_scan_actions[22m | zh_HK-150-startup-retry.png[39m[0m
+2026-10-03T15:59:40.3627849Z [  44% ] [90m[1m_update_scan_actions[22m | zh_HK-150-startup-unavailable.png[39m[0m
+2026-10-03T15:59:57.5543949Z [  81% ] [90m[1mreimport[22m | zh_HK-125-startup-retry.png[39m[0m
+2026-10-03T15:59:57.5565625Z [  82% ] [90m[1mreimport[22m | zh_HK-125-startup-unavailable.png[39m[0m
+2026-10-03T15:59:57.5810238Z [  82% ] [90m[1mreimport[22m | zh_HK-150-startup-retry.png[39m[0m
+2026-10-03T15:59:57.5986339Z [  82% ] [90m[1mreimport[22m | zh_HK-150-startup-unavailable.png[39m[0m
+2026-10-03T15:59:59.9093331Z [  97% ] [90m[1mreimport[22m | en-100-startup-retry.png[39m[0m
+2026-10-03T15:59:59.9241635Z [  97% ] [90m[1mreimport[22m | en-100-startup-unavailable.png[39m[0m
+2026-10-03T15:59:59.9429447Z [  97% ] [90m[1mreimport[22m | en-125-startup-retry.png[39m[0m
+2026-10-03T15:59:59.9457908Z [  97% ] [90m[1mreimport[22m | en-125-startup-unavailable.png[39m[0m
+2026-10-03T15:59:59.9652497Z [  98% ] [90m[1mreimport[22m | en-150-startup-retry.png[39m[0m
+2026-10-03T15:59:59.9794996Z [  98% ] [90m[1mreimport[22m | en-150-startup-unavailable.png[39m[0m
+2026-10-03T15:59:59.9882966Z [  98% ] [90m[1mreimport[22m | zh_CN-100-startup-retry.png[39m[0m
+2026-10-03T16:00:00.0142099Z [  98% ] [90m[1mreimport[22m | zh_CN-100-startup-unavailable.png[39m[0m
+2026-10-03T16:00:00.0390083Z [  98% ] [90m[1mreimport[22m | zh_CN-125-startup-retry.png[39m[0m
+2026-10-03T16:00:00.0401182Z [  99% ] [90m[1mreimport[22m | zh_CN-125-startup-unavailable.png[39m[0m
+2026-10-03T16:00:01.5224306Z WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+2026-10-03T16:00:02.1446292Z (node:8048) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-03T16:00:02.5132252Z (node:8048) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-03T16:00:55.6561657Z (node:4564) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-03T16:00:56.3211609Z (node:4564) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-03T16:00:59.5428512Z Artifact windows-export-37134912094-1.zip successfully finalized. Artifact ID 11278691765
+2026-10-03T16:00:59.5429812Z Artifact windows-export-37134912094-1 has been successfully uploaded! Final size is 98890454 bytes. Artifact ID is 11278691765

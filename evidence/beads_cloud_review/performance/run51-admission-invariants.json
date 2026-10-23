@@ -1,0 +1,17 @@
+{
+  "samples": 16,
+  "pairs": 8,
+  "alternating_order": true,
+  "all_66": true,
+  "cache_enabled": true,
+  "same_gameplay": true,
+  "same_board": true,
+  "same_journal": true,
+  "same_autosave": true,
+  "source_variant_hashes": true,
+  "all_deltas_negative": true,
+  "delta_range_us": [
+    -1462648,
+    -1313411
+  ]
+}

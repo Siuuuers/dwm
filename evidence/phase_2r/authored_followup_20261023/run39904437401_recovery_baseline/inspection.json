@@ -1,0 +1,921 @@
+{
+  "origin": {
+    "workflow": "15e3b75e665b088dd5c1b22472a95d23ca461952",
+    "candidate": "21bb2f3ba91e92534192d963a20df713838b8367",
+    "event": "15e3b75e665b088dd5c1b22472a95d23ca461952",
+    "run_id": "39904437401",
+    "tree": "318c61a0b2e1ae5320397489591bcec1c04f9134",
+    "controller": "31ab9d4cfbe6917f53520484b25d723f650f9365",
+    "attempt": "1"
+  },
+  "outer_sha256": "7917dd7071827e0b293c935f6d9161578d475cd086c3c084be7d44de8d86a4c3",
+  "inner_sha256": "9d2af48c9fd7edcae2bb3f0076ab2767b56ebb8b87c7603ba81be7e0e42912c4",
+  "verified_members": 125,
+  "reports": [
+    {
+      "file": "authored-recovery.xml",
+      "tests": 1,
+      "assertions": 195,
+      "cases": [
+        {
+          "name": "test_recover_interrupted_authored_day2",
+          "assertions": "195",
+          "status": "pass",
+          "classname": "tests/integration/authored_week_recovery.gd",
+          "time": "516.055896"
+        }
+      ],
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "processes": [
+    {
+      "file": "authored-recovery.jsonl",
+      "suite_id": "authored-recovery",
+      "argv": [
+        "--rendering-method",
+        "gl_compatibility",
+        "--audio-driver",
+        "Dummy",
+        "--path",
+        "D:\\a\\dwm\\dwm",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\authored-recovery-seed.log",
+        "-s",
+        "res://.godot/ci/seed-authored-recovery.gd"
+      ],
+      "exit_code": 0,
+      "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\authored-recovery-seed.log",
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\600f95b2-a758-442b-99cb-2325caac367f",
+      "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\600f95b2-a758-442b-99cb-2325caac367f\\appdata\\Godot\\app_userdata\\DWM",
+      "started_at_utc": "2026-10-23T05:13:58.3331700Z",
+      "ended_at_utc": "2026-10-23T05:14:06.4590373Z"
+    },
+    {
+      "file": "authored-recovery.jsonl",
+      "suite_id": "authored-recovery",
+      "argv": [
+        "--rendering-method",
+        "gl_compatibility",
+        "--audio-driver",
+        "Dummy",
+        "--path",
+        "D:\\a\\dwm\\dwm",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\authored-recovery.log",
+        "-s",
+        "res://addons/gut/gut_cmdln.gd",
+        "-gconfig=",
+        "-gprefix=authored_week_",
+        "-gtest=res://tests/integration/authored_week_recovery.gd",
+        "-gexit",
+        "-glog=2",
+        "-gjunit_xml_file=res://.godot/ci/authored-recovery.xml"
+      ],
+      "exit_code": 0,
+      "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\authored-recovery.log",
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\600f95b2-a758-442b-99cb-2325caac367f",
+      "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\600f95b2-a758-442b-99cb-2325caac367f\\appdata\\Godot\\app_userdata\\DWM",
+      "started_at_utc": "2026-10-23T05:14:06.5300217Z",
+      "ended_at_utc": "2026-10-23T05:22:50.4752906Z"
+    }
+  ],
+  "profiles": [
+    {
+      "bundle_validation_calls": 3,
+      "bundle_validation_failures": 0,
+      "bundle_validation_us": 452913,
+      "compilation_calls": 462,
+      "compilation_failures": 0,
+      "compilation_us": 3180069,
+      "configuration_calls": 4,
+      "configuration_failures": 0,
+      "configuration_us": 329206,
+      "elapsed_us": 5694753,
+      "inclusive_nested": true,
+      "lifecycle_state": "PLAYING",
+      "next_step_index": 19,
+      "ok": true,
+      "operation": "authored_recovery_boot",
+      "physical_proof_calls": 0,
+      "physical_proof_failures": 0,
+      "physical_proof_us": 0,
+      "playback_stage": "",
+      "receipt_validation_calls": 0,
+      "receipt_validation_failures": 0,
+      "receipt_validation_us": 0,
+      "snapshot_count": 0,
+      "snapshot_elapsed_us": 0,
+      "snapshot_phase_us": {}
+    },
+    {
+      "bundle_validation_calls": 18,
+      "bundle_validation_failures": 0,
+      "bundle_validation_us": 2848770,
+      "compilation_calls": 14170,
+      "compilation_failures": 0,
+      "compilation_us": 9349935,
+      "configuration_calls": 154,
+      "configuration_failures": 0,
+      "configuration_us": 13383718,
+      "elapsed_us": 77337653,
+      "inclusive_nested": true,
+      "lifecycle_state": "PLAYING",
+      "next_step_index": 19,
+      "ok": true,
+      "operation": "authored_recovery_title_backup",
+      "physical_proof_calls": 18,
+      "physical_proof_failures": 0,
+      "physical_proof_us": 1105539,
+      "playback_stage": "",
+      "receipt_validation_calls": 18,
+      "receipt_validation_failures": 0,
+      "receipt_validation_us": 4635626,
+      "snapshot_count": 16,
+      "snapshot_elapsed_us": 73232395,
+      "snapshot_phase_us": {
+        "elapsed_us": 73232395,
+        "guard_prepare_us": 1653598,
+        "guard_verify_us": 1544832,
+        "pre_semantic_us": 10927343,
+        "semantic_us": 58981783
+      }
+    },
+    {
+      "bundle_validation_calls": 0,
+      "bundle_validation_failures": 0,
+      "bundle_validation_us": 0,
+      "compilation_calls": 0,
+      "compilation_failures": 0,
+      "compilation_us": 0,
+      "configuration_calls": 0,
+      "configuration_failures": 0,
+      "configuration_us": 0,
+      "elapsed_us": 72300,
+      "inclusive_nested": true,
+      "lifecycle_state": "PLAYING",
+      "next_step_index": 19,
+      "ok": true,
+      "operation": "authored_recovery_select_autosave",
+      "physical_proof_calls": 0,
+      "physical_proof_failures": 0,
+      "physical_proof_us": 0,
+      "playback_stage": "",
+      "receipt_validation_calls": 0,
+      "receipt_validation_failures": 0,
+      "receipt_validation_us": 0,
+      "snapshot_count": 0,
+      "snapshot_elapsed_us": 0,
+      "snapshot_phase_us": {}
+    },
+    {
+      "bundle_validation_calls": 29,
+      "bundle_validation_failures": 0,
+      "bundle_validation_us": 4549903,
+      "compilation_calls": 24655,
+      "compilation_failures": 0,
+      "compilation_us": 16479371,
+      "configuration_calls": 267,
+      "configuration_failures": 0,
+      "configuration_us": 23098024,
+      "elapsed_us": 208731318,
+      "inclusive_nested": true,
+      "lifecycle_state": "PLAYING",
+      "next_step_index": 19,
+      "ok": true,
+      "operation": "authored_recovery_load",
+      "physical_proof_calls": 29,
+      "physical_proof_failures": 0,
+      "physical_proof_us": 1799619,
+      "playback_stage": "",
+      "receipt_validation_calls": 29,
+      "receipt_validation_failures": 0,
+      "receipt_validation_us": 7453799,
+      "snapshot_count": 28,
+      "snapshot_elapsed_us": 123943417,
+      "snapshot_phase_us": {
+        "elapsed_us": 123943417,
+        "guard_prepare_us": 2849934,
+        "guard_verify_us": 2684982,
+        "pre_semantic_us": 18738077,
+        "semantic_us": 99473279
+      }
+    },
+    {
+      "bundle_validation_calls": 69,
+      "bundle_validation_failures": 0,
+      "bundle_validation_us": 10672332,
+      "compilation_calls": 22458,
+      "compilation_failures": 0,
+      "compilation_us": 14057539,
+      "configuration_calls": 243,
+      "configuration_failures": 0,
+      "configuration_us": 19444194,
+      "elapsed_us": 207414921,
+      "inclusive_nested": true,
+      "lifecycle_state": "PLAYING",
+      "next_step_index": 19,
+      "ok": true,
+      "operation": "authored_recovery_control_departure",
+      "physical_proof_calls": 62,
+      "physical_proof_failures": 0,
+      "physical_proof_us": 3888166,
+      "playback_stage": "",
+      "receipt_validation_calls": 62,
+      "receipt_validation_failures": 0,
+      "receipt_validation_us": 15932874,
+      "snapshot_count": 24,
+      "snapshot_elapsed_us": 106953597,
+      "snapshot_phase_us": {
+        "elapsed_us": 106953597,
+        "guard_prepare_us": 2435864,
+        "guard_verify_us": 2329379,
+        "pre_semantic_us": 15639915,
+        "semantic_us": 86407123
+      }
+    },
+    {
+      "bundle_validation_calls": 0,
+      "bundle_validation_failures": 0,
+      "bundle_validation_us": 0,
+      "compilation_calls": 4,
+      "compilation_failures": 0,
+      "compilation_us": 2138,
+      "configuration_calls": 0,
+      "configuration_failures": 0,
+      "configuration_us": 0,
+      "elapsed_us": 623015,
+      "inclusive_nested": true,
+      "lifecycle_state": "PLAYING",
+      "next_step_index": 19,
+      "ok": true,
+      "operation": "authored_recovery_ordinary_caption_291",
+      "physical_proof_calls": 0,
+      "physical_proof_failures": 0,
+      "physical_proof_us": 0,
+      "playback_stage": "",
+      "receipt_validation_calls": 0,
+      "receipt_validation_failures": 0,
+      "receipt_validation_us": 0,
+      "snapshot_count": 0,
+      "snapshot_elapsed_us": 0,
+      "snapshot_phase_us": {}
+    },
+    {
+      "bundle_validation_calls": 0,
+      "bundle_validation_failures": 0,
+      "bundle_validation_us": 0,
+      "compilation_calls": 4,
+      "compilation_failures": 0,
+      "compilation_us": 2180,
+      "configuration_calls": 0,
+      "configuration_failures": 0,
+      "configuration_us": 0,
+      "elapsed_us": 638406,
+      "inclusive_nested": true,
+      "lifecycle_state": "PLAYING",
+      "next_step_index": 19,
+      "ok": true,
+      "operation": "authored_recovery_ordinary_caption_292",
+      "physical_proof_calls": 0,
+      "physical_proof_failures": 0,
+      "physical_proof_us": 0,
+      "playback_stage": "",
+      "receipt_validation_calls": 0,
+      "receipt_validation_failures": 0,
+      "receipt_validation_us": 0,
+      "snapshot_count": 0,
+      "snapshot_elapsed_us": 0,
+      "snapshot_phase_us": {}
+    },
+    {
+      "bundle_validation_calls": 0,
+      "bundle_validation_failures": 0,
+      "bundle_validation_us": 0,
+      "compilation_calls": 0,
+      "compilation_failures": 0,
+      "compilation_us": 0,
+      "configuration_calls": 0,
+      "configuration_failures": 0,
+      "configuration_us": 0,
+      "elapsed_us": 93035,
+      "inclusive_nested": true,
+      "lifecycle_state": "PLAYING",
+      "next_step_index": 19,
+      "ok": true,
+      "operation": "authored_recovery_caption_memory",
+      "physical_proof_calls": 0,
+      "physical_proof_failures": 0,
+      "physical_proof_us": 0,
+      "playback_stage": "",
+      "receipt_validation_calls": 0,
+      "receipt_validation_failures": 0,
+      "receipt_validation_us": 0,
+      "snapshot_count": 0,
+      "snapshot_elapsed_us": 0,
+      "snapshot_phase_us": {}
+    }
+  ],
+  "operation_profiles": [
+    {
+      "file": "authored-recovery.log",
+      "phase": "title_backup",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "cache_enabled": true,
+        "cache_hit": false,
+        "code": "",
+        "context": "",
+        "elapsed_us": 234882,
+        "locator": "",
+        "ok": true,
+        "scope": "document_parse",
+        "unphased_us": 234882
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "title_backup",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "candidate_order_us": 3636,
+        "code": "ok",
+        "context": "",
+        "elapsed_us": 25329107,
+        "locator": "autosave.json",
+        "ok": true,
+        "participant_prepare_us": 25323581,
+        "scope": "restore_prepare",
+        "unphased_us": 1890
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "title_backup",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "admission_us": 12566975,
+        "code": "",
+        "context": "",
+        "elapsed_us": 38141239,
+        "locator": "autosave",
+        "ok": true,
+        "parse_us": 235018,
+        "restore_prepare_us": 25329248,
+        "revision_read_us": 3891,
+        "scope": "backup_inspection",
+        "unphased_us": 6107
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "title_backup",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "code": "",
+        "context": "",
+        "elapsed_us": 257,
+        "locator": "quick",
+        "ok": true,
+        "revision_read_us": 241,
+        "scope": "backup_inspection",
+        "unphased_us": 16
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "title_backup",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "code": "",
+        "context": "",
+        "elapsed_us": 120,
+        "locator": "slot:1",
+        "ok": true,
+        "revision_read_us": 114,
+        "scope": "backup_inspection",
+        "unphased_us": 6
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "title_backup",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "code": "",
+        "context": "",
+        "elapsed_us": 138,
+        "locator": "slot:2",
+        "ok": true,
+        "revision_read_us": 129,
+        "scope": "backup_inspection",
+        "unphased_us": 9
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "title_backup",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "code": "",
+        "context": "",
+        "elapsed_us": 118,
+        "locator": "slot:3",
+        "ok": true,
+        "revision_read_us": 111,
+        "scope": "backup_inspection",
+        "unphased_us": 7
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "title_backup",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "code": "",
+        "context": "",
+        "elapsed_us": 107,
+        "locator": "slot:4",
+        "ok": true,
+        "revision_read_us": 101,
+        "scope": "backup_inspection",
+        "unphased_us": 6
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "title_backup",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "code": "",
+        "context": "",
+        "elapsed_us": 104,
+        "locator": "slot:5",
+        "ok": true,
+        "revision_read_us": 98,
+        "scope": "backup_inspection",
+        "unphased_us": 6
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "title_backup",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "code": "",
+        "context": "",
+        "elapsed_us": 92,
+        "locator": "slot:6",
+        "ok": true,
+        "revision_read_us": 87,
+        "scope": "backup_inspection",
+        "unphased_us": 5
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "title_backup",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "code": "",
+        "context": "",
+        "elapsed_us": 88,
+        "locator": "slot:7",
+        "ok": true,
+        "revision_read_us": 83,
+        "scope": "backup_inspection",
+        "unphased_us": 5
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "title_backup",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "cache_enabled": true,
+        "cache_hit": true,
+        "code": "",
+        "context": "",
+        "elapsed_us": 7335,
+        "locator": "",
+        "ok": true,
+        "scope": "document_parse",
+        "unphased_us": 7335
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "title_backup",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "candidate_order_us": 3291,
+        "code": "ok",
+        "context": "",
+        "elapsed_us": 24764671,
+        "locator": "autosave.json",
+        "ok": true,
+        "participant_prepare_us": 24758113,
+        "scope": "restore_prepare",
+        "unphased_us": 3267
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "title_backup",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "admission_us": 13005680,
+        "code": "",
+        "context": "",
+        "elapsed_us": 37788741,
+        "locator": "autosave",
+        "ok": true,
+        "parse_us": 7455,
+        "restore_prepare_us": 24764827,
+        "revision_read_us": 3782,
+        "scope": "backup_inspection",
+        "unphased_us": 6997
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "title_backup",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "code": "",
+        "context": "",
+        "elapsed_us": 268,
+        "locator": "quick",
+        "ok": true,
+        "revision_read_us": 250,
+        "scope": "backup_inspection",
+        "unphased_us": 18
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "title_backup",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "code": "",
+        "context": "",
+        "elapsed_us": 152,
+        "locator": "slot:1",
+        "ok": true,
+        "revision_read_us": 145,
+        "scope": "backup_inspection",
+        "unphased_us": 7
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "title_backup",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "code": "",
+        "context": "",
+        "elapsed_us": 134,
+        "locator": "slot:2",
+        "ok": true,
+        "revision_read_us": 128,
+        "scope": "backup_inspection",
+        "unphased_us": 6
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "title_backup",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "code": "",
+        "context": "",
+        "elapsed_us": 107,
+        "locator": "slot:3",
+        "ok": true,
+        "revision_read_us": 101,
+        "scope": "backup_inspection",
+        "unphased_us": 6
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "title_backup",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "code": "",
+        "context": "",
+        "elapsed_us": 101,
+        "locator": "slot:4",
+        "ok": true,
+        "revision_read_us": 96,
+        "scope": "backup_inspection",
+        "unphased_us": 5
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "title_backup",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "code": "",
+        "context": "",
+        "elapsed_us": 94,
+        "locator": "slot:5",
+        "ok": true,
+        "revision_read_us": 88,
+        "scope": "backup_inspection",
+        "unphased_us": 6
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "title_backup",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "code": "",
+        "context": "",
+        "elapsed_us": 91,
+        "locator": "slot:6",
+        "ok": true,
+        "revision_read_us": 86,
+        "scope": "backup_inspection",
+        "unphased_us": 5
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "title_backup",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "code": "",
+        "context": "",
+        "elapsed_us": 91,
+        "locator": "slot:7",
+        "ok": true,
+        "revision_read_us": 86,
+        "scope": "backup_inspection",
+        "unphased_us": 5
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "load",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "cache_enabled": true,
+        "cache_hit": true,
+        "code": "",
+        "context": "",
+        "elapsed_us": 7255,
+        "locator": "",
+        "ok": true,
+        "scope": "document_parse",
+        "unphased_us": 7255
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "load",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "candidate_order_us": 3754,
+        "code": "ok",
+        "context": "",
+        "elapsed_us": 25269508,
+        "locator": "autosave.json",
+        "ok": true,
+        "participant_prepare_us": 25264123,
+        "scope": "restore_prepare",
+        "unphased_us": 1631
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "load",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "admission_us": 12956565,
+        "code": "",
+        "context": "",
+        "elapsed_us": 38244288,
+        "locator": "autosave",
+        "ok": true,
+        "parse_us": 7383,
+        "restore_prepare_us": 25269639,
+        "revision_read_us": 5519,
+        "scope": "backup_inspection",
+        "unphased_us": 5182
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "load",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "load",
+        "candidate_copy_us": 10767,
+        "code": "",
+        "context": "",
+        "elapsed_us": 38259707,
+        "inspection_us": 38244374,
+        "locator": "autosave",
+        "ok": true,
+        "scope": "backup_prepare",
+        "unphased_us": 4566
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "load",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "cache_enabled": true,
+        "cache_hit": true,
+        "code": "",
+        "context": "",
+        "elapsed_us": 5395,
+        "locator": "",
+        "ok": true,
+        "scope": "document_parse",
+        "unphased_us": 5395
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "load",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "cache_enabled": true,
+        "cache_hit": false,
+        "code": "",
+        "context": "",
+        "elapsed_us": 191589,
+        "locator": "",
+        "ok": true,
+        "scope": "document_parse",
+        "unphased_us": 191589
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "load",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "",
+        "code": "scene_activation_pending",
+        "context": "",
+        "elapsed_us": 15373263,
+        "locator": "",
+        "ok": false,
+        "scope": "restore_transaction",
+        "unphased_us": 15373263
+      }
+    },
+    {
+      "file": "authored-recovery.log",
+      "phase": "load",
+      "marker": "DWM_SAVE_LOAD_PROFILE",
+      "profile": {
+        "action": "load",
+        "code": "scene_activation_pending",
+        "context": "",
+        "elapsed_us": 93641335,
+        "locator": "autosave.json",
+        "ok": false,
+        "reconcile_us": 23517066,
+        "restore_commit_us": 70107195,
+        "revision_read_us": 3675,
+        "revision_recheck_us": 3586,
+        "scope": "backup_commit",
+        "unphased_us": 9813
+      }
+    }
+  ],
+  "errors": [],
+  "screenshots": [
+    "ci/computer-authored-recovery-held-control.png",
+    "ci/computer-authored-recovery-continued.png"
+  ],
+  "recovery": {
+    "complete": true,
+    "observed_lines": [
+      "line.Day2.answer.019",
+      "line.Day2.result.A.001",
+      "line.Day2.result.A.002",
+      "line.Day2.result.A.003"
+    ],
+    "pending_phase": "",
+    "phases": [
+      {
+        "elapsed_us": 5694683,
+        "ok": true,
+        "phase": "boot"
+      },
+      {
+        "elapsed_us": 77337571,
+        "ok": true,
+        "phase": "title_backup"
+      },
+      {
+        "elapsed_us": 72241,
+        "ok": true,
+        "phase": "select_autosave"
+      },
+      {
+        "elapsed_us": 208731248,
+        "ok": true,
+        "phase": "load"
+      },
+      {
+        "elapsed_us": 207414801,
+        "ok": true,
+        "phase": "control_departure"
+      },
+      {
+        "elapsed_us": 622924,
+        "ok": true,
+        "phase": "ordinary_caption_291"
+      },
+      {
+        "elapsed_us": 638323,
+        "ok": true,
+        "phase": "ordinary_caption_292"
+      },
+      {
+        "elapsed_us": 92931,
+        "ok": true,
+        "phase": "caption_memory"
+      }
+    ],
+    "process_id": 6244,
+    "seed_process_id": 2652,
+    "source_hashes": {
+      "desktop-issuer-root.json": "e98bdb6a3b9a7a83d7ece7ad36847474d1ec3a001e5e43367c961513dcf7275b",
+      "desktop-issuer-root.json.bak": "9331d55d19038214166936e2456c24429badbfe0fc02ea0599641b7796132a15",
+      "desktop-publications.json": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+      "profile.json": "b1ad82322f6da8b46cfc3d41235f2a07fc1fe905aabe41794a5ee9a9e88bc9f1",
+      "profile.json.bak": "94a903e9810582cc4b41b39aeb0fbcf7829ac46534f1f0a1b42e6ed60b12c0ae",
+      "saves/autosave.json": "7d51cb88854dc5e900a5a1a0501966849d13775ee015ca86cc7d09360599ee52",
+      "saves/autosave.json.bak": "b61fa6432af398871b9cbd004073d0eb74537f08a1dda1252d8ae6d91bccc59d",
+      "saves/desktop-continuation-operations.json": "5224f65aea4d7c761d60bd3b37e2e658c6fce9efbb12af302d5190ff39b5954f",
+      "saves/desktop-continuation-operations.json.bak": "3ed0df1cb732c3b4f370036112be033dbb1c2301061c9fd00a46d663d408f4cf",
+      "schedule-foundation-publications.json": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+    },
+    "source_run": 39888749357,
+    "timings": [
+      {
+        "elapsed_ms": 207415,
+        "entry_id": "Day2.result.A",
+        "line_id": "line.Day2.result.A.001"
+      },
+      {
+        "elapsed_ms": 623,
+        "entry_id": "Day2.result.A",
+        "line_id": "line.Day2.result.A.002"
+      },
+      {
+        "elapsed_ms": 638,
+        "entry_id": "Day2.result.A",
+        "line_id": "line.Day2.result.A.003"
+      }
+    ],
+    "user_dir": "D:/a/dwm/dwm/.godot/phase2r_tests/600f95b2-a758-442b-99cb-2325caac367f/appdata/Godot/app_userdata/DWM/",
+    "viewport_size": [
+      1280.0,
+      720.0
+    ],
+    "window_size": [
+      992,
+      558
+    ]
+  }
+}

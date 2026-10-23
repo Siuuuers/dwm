@@ -1,0 +1,11 @@
+{
+  "archive": "dwm-run122-physical-selector-cloud-evidence.tar.gz",
+  "archive_member_count": 634,
+  "bytes": 26248384,
+  "evidence_kind": "bounded-successful-run-audit",
+  "excluded_file_count": 170,
+  "manifest_sha256": "eda0cfda38aef79c5f676f1298c44480948c372884425466ddb28ecb8b20401d",
+  "payload_file_count": 632,
+  "round_trip_verified": true,
+  "sha256": "f2e0734c6e5ff0d63b6768fccdc20b50c17d2481fcec0a2d0c955c1427534559"
+}

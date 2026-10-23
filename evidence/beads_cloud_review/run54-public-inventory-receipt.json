@@ -1,0 +1,84 @@
+{
+  "schema": "dwm_public_surface_payload_receipt.v1",
+  "repository": "Siuuuers/dwm",
+  "pull_request": 1,
+  "head_sha": "217cc23cfe2018518e0d6037b9ea32ffc5b94957",
+  "tested_merge_sha": "8a328f52cdef7a0317e599ffcc4fa3639019acdd",
+  "run_id": 35710770852,
+  "run_number": 54,
+  "run_attempt": 1,
+  "job_id": 106690642708,
+  "job_url": "https://github.com/Siuuuers/dwm/actions/runs/35710770852/job/106690642708",
+  "log_sha256": "e14f7171bc62ddc47f316768f77d19f7cbc3791f71d2c67b638836fbafc26993",
+  "log_bytes": 766666,
+  "retired_symbol_proof": {
+    "marker": "PUBLIC_SURFACE_RETIRED_APIS_VERIFIED: 6 symbols; 906 source files; zero remaining references.",
+    "symbol_count": 6,
+    "source_files": 906,
+    "remaining_references": 0
+  },
+  "validation_marker": "PUBLIC_SURFACE_VALIDATION_VERIFIED: both complete-tree inventories reproduce canonical bytes.",
+  "payloads": [
+    {
+      "path": "evidence/phase_2r/runtime/game_state_surface.json",
+      "encoding": "gzip+base64",
+      "sha256": "4bb647f068a554c507d11a426f42495c9d241e3eb9e013dd1ff27951ec11683e",
+      "bytes": 547953,
+      "compressed_bytes": 61112,
+      "parts": 40,
+      "facade": "res://autoload/GameState.gd",
+      "records": 240,
+      "dynamic_references": 140,
+      "ok": true,
+      "errors": [],
+      "final_lf": true
+    },
+    {
+      "path": "evidence/phase_2r/runtime/save_manager_surface.json",
+      "encoding": "gzip+base64",
+      "sha256": "7f429412267ebbe32d68c3c5568d3ce2c7e5c17505377ce0923e5456bc6a9989",
+      "bytes": 140637,
+      "compressed_bytes": 16535,
+      "parts": 11,
+      "facade": "res://autoload/SaveManager.gd",
+      "records": 74,
+      "dynamic_references": 39,
+      "ok": true,
+      "errors": [],
+      "final_lf": true
+    }
+  ],
+  "checks": [
+    "identical BEGIN/END metadata",
+    "unique contiguous chunk indices",
+    "strict canonical base64",
+    "exact single gzip stream",
+    "compressed and raw byte counts",
+    "SHA-256",
+    "UTF-8 strict JSON without duplicate keys",
+    "final LF",
+    "expected facade",
+    "ok true and empty errors"
+  ],
+  "public_provenance": {
+    "run_id": 35710770852,
+    "run_number": 54,
+    "run_attempt": 1,
+    "event": "pull_request",
+    "head_branch": "codex/windows-cloud-ux",
+    "head_sha": "217cc23cfe2018518e0d6037b9ea32ffc5b94957",
+    "run_url": "https://github.com/Siuuuers/dwm/actions/runs/35710770852",
+    "public_job_id": 106690642708,
+    "public_job_status": "completed",
+    "public_job_conclusion": "success",
+    "tested_merge_sha": "8a328f52cdef7a0317e599ffcc4fa3639019acdd"
+  },
+  "gut_result": {
+    "suite": "public_surfaces",
+    "test_cases": 11,
+    "passed": 11,
+    "skipped": 0,
+    "requested_scripts": 1,
+    "reported_scripts": 1
+  }
+}

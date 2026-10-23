@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param()
+param([switch]$ActiveInstructionAuditOnly)
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $root = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
@@ -78,6 +78,18 @@ try {
         'Agents may reach for it BEFOREHAND.'
     )))
     Assert-ActiveInstructionAuditPass $auditRoot 'lexical near-matches must not be active instructions'
+
+    foreach ($navigationPath in @('README.md', 'docs/agent/2026-09-23-next-session-handoff.md', 'docs/agent/execution-map.md')) {
+        $navigationFile = Join-Path $auditRoot $navigationPath
+        Write-Utf8NoBomFile $navigationFile 'Agents must reach for it BEFORE ordinary text search.'
+        Assert-ActiveInstructionAuditRejects $auditRoot $navigationPath 'current navigation must be scanned'
+        Remove-Item -LiteralPath $navigationFile -Force
+    }
+    Assert-ActiveInstructionAuditPass $auditRoot 'retired entry files are not required'
+    if ($ActiveInstructionAuditOnly) {
+        Write-Output 'CODEGRAPH_ACTIVE_INSTRUCTION_FIXTURE: PASS'
+        return
+    }
 
     $validPrerequisite = Join-Path $scratch 'prerequisites.json'
     & $verify -EvidencePath $validPrerequisite

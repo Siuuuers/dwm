@@ -1,0 +1,81 @@
+{
+  "complete": true,
+  "scope": "Python validator controls only; generated reports are synthetic, not evidence of new cloud execution.",
+  "source_prior_save": "/workspace/scratch/e169b180163f/run127/artifacts/reading-rail-36960182145-1/30a5aa58-b18c-42b6-82d9-d45dcf91c60c/saved-pause-slot.json",
+  "prior_save_sha256": "a0b32206e13455ac151ae352e7479e13f974d3e752a85c12651407ea59ce7be6",
+  "cases": [
+    {
+      "case": "valid synthetic Settings route over source-bound existing first-line save",
+      "expected": "accepted",
+      "observed": "accepted",
+      "passed": true
+    },
+    {
+      "case": "Settings entry completes line early",
+      "expected": "SETTINGS_ENTRY_MUST_RETAIN_LITERAL_PARTIAL_READING",
+      "observed": "SETTINGS_ENTRY_MUST_RETAIN_LITERAL_PARTIAL_READING",
+      "passed": true
+    },
+    {
+      "case": "semantic advance during F5",
+      "expected": "SETTINGS_F5_MUST_COMPLETE_ONLY_CURRENT_REVEAL",
+      "observed": "SETTINGS_F5_MUST_COMPLETE_ONLY_CURRENT_REVEAL",
+      "passed": true
+    },
+    {
+      "case": "focus lost",
+      "expected": "SETTINGS_F5_MUST_RETAIN_EXACT_HOST_FOCUS_AND_SUSPENSION",
+      "observed": "SETTINGS_F5_MUST_RETAIN_EXACT_HOST_FOCUS_AND_SUSPENSION",
+      "passed": true
+    },
+    {
+      "case": "Profile bytes change",
+      "expected": "SETTINGS_QUICK_ONLY_DISK_CHANGE_REQUIRED",
+      "observed": "SETTINGS_QUICK_ONLY_DISK_CHANGE_REQUIRED",
+      "passed": true
+    },
+    {
+      "case": "Autosave bytes change",
+      "expected": "SETTINGS_QUICK_ONLY_DISK_CHANGE_REQUIRED",
+      "observed": "SETTINGS_QUICK_ONLY_DISK_CHANGE_REQUIRED",
+      "passed": true
+    },
+    {
+      "case": "extra Profile mutation",
+      "expected": "SETTINGS_NON_QUICK_FILE_MUTATION",
+      "observed": "SETTINGS_NON_QUICK_FILE_MUTATION",
+      "passed": true
+    },
+    {
+      "case": "missing physical Quick candidate",
+      "expected": "SETTINGS_ONE_EXACT_QUICK_CANDIDATE_REQUIRED",
+      "observed": "SETTINGS_ONE_EXACT_QUICK_CANDIDATE_REQUIRED",
+      "passed": true
+    },
+    {
+      "case": "candidate digest mismatch",
+      "expected": "SETTINGS_ONE_EXACT_QUICK_CANDIDATE_REQUIRED",
+      "observed": "SETTINGS_ONE_EXACT_QUICK_CANDIDATE_REQUIRED",
+      "passed": true
+    },
+    {
+      "case": "restored speech replay",
+      "expected": "SETTINGS_FRESH_EXACT_RESTORE_WITHOUT_SPEECH_REQUIRED",
+      "observed": "SETTINGS_FRESH_EXACT_RESTORE_WITHOUT_SPEECH_REQUIRED",
+      "passed": true
+    },
+    {
+      "case": "restored History mutation",
+      "expected": "SETTINGS_FRESH_EXACT_RESTORE_WITHOUT_SPEECH_REQUIRED",
+      "observed": "SETTINGS_FRESH_EXACT_RESTORE_WITHOUT_SPEECH_REQUIRED",
+      "passed": true
+    },
+    {
+      "case": "transient Settings saved as app",
+      "expected": "SETTINGS_TRANSIENT_HOST_ENTERED_CANONICAL_SAVE",
+      "observed": "SETTINGS_TRANSIENT_HOST_ENTERED_CANONICAL_SAVE",
+      "passed": true
+    }
+  ],
+  "local_engine_invocations": 0
+}

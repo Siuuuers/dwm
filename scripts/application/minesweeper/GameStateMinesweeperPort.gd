@@ -20,7 +20,7 @@ const CHECKPOINT_PROVIDER_KEYS: Array[String] = [
 const DEFAULT_ROUTE_ID := "main"
 const DEFAULT_CONTENT_VERSION := 1
 
-const COUNTER_KEYS: Array[String] = ["money", "motivation", "app_rounds", "health", "pressure"]
+const COUNTER_KEYS: Array[String] = ["money", "app_rounds", "pressure"]
 
 ## Task IDs each outcome records, by difficulty. `no_flag` and `foresight` keep the
 ## approved perfect-equivalent REWARD while recording their own distinct task IDs.
@@ -121,8 +121,6 @@ func prepare_begin(request: Dictionary, round_id: String) -> Dictionary:
 	if context == "app":
 		if not bool(_game_state.call(&"has_minesweeper_app_round_available")):
 			return _fail(&"NO_APP_ROUND_AVAILABLE", "no app round remains")
-		if int(_game_state.call(&"get_stat", "motivation")) <= 0:
-			return _fail(&"INSUFFICIENT_MOTIVATION", "motivation is exhausted")
 		if not bool(_game_state.call(&"can_start_minesweeper_app_round")):
 			return _fail(&"NO_APP_ROUND_AVAILABLE", "an app round is already unfinished")
 	else:
@@ -222,6 +220,13 @@ func prepare_complete(active_round: Dictionary, result: Dictionary, transaction_
 		"gameplay": clone.call(&"to_save_dict"),
 		"contacts": (clone.get("contacts") as Dictionary).duplicate(true),
 	}
+	if _game_state.has_method("frozen_contacts_contexts_enabled") and _game_state.frozen_contacts_contexts_enabled():
+		var frozen := preload("res://scripts/narrative/ContactsFrozenContext.gd").capture_candidate(
+			_game_state.contacts, candidate.contacts, candidate.gameplay, int(_game_state.day))
+		if not frozen.ok:
+			clone.free()
+			return frozen
+		candidate.gameplay = frozen.value
 	var claimed: Array = []
 	for tid: Variant in task_ids:
 		if (clone.get("minesweeper_task_rewards_claimed") as Dictionary).has(str(tid)):
@@ -231,7 +236,7 @@ func prepare_complete(active_round: Dictionary, result: Dictionary, transaction_
 	for key: String in COUNTER_KEYS:
 		deltas[key] = int(after[key]) - int(before[key])
 	if context != "app":
-		for key: String in ["money", "motivation", "app_rounds"]:
+		for key: String in ["money", "app_rounds"]:
 			deltas[key] = 0
 		claimed = []
 	var receipt := {
@@ -298,9 +303,6 @@ func prepare_abort(active_round: Dictionary, reason: StringName, transaction_id:
 	var restored: Dictionary = clone.call(&"to_save_dict")
 	if str(active_round.get("context", "")) == "app":
 		restored["minesweeper_rounds_left"] = int(restored.get("minesweeper_rounds_left", 0)) + 1
-		var stats: Dictionary = (restored.get("stats", {}) as Dictionary).duplicate()
-		stats["motivation"] = int(stats.get("motivation", 0)) + 1
-		restored["stats"] = stats
 	# The abort candidate is consumed by rollback() (the coordinator funnels it there), so it
 	# carries the ROLLBACK shape -- "save" beside "contacts" -- not the commit shape
 	# (dwm-p2r.17; the eleventh review's catch).
@@ -360,7 +362,7 @@ func publish_desktop_completion(receipt: Dictionary, events: Array) -> Dictionar
 	if not published.get("ok", false): return published
 	_game_state.emit_signal("money_changed", int(_game_state.money))
 	_game_state.emit_signal("coins_changed", int(_game_state.coins))
-	for stat_id in ["health", "pressure", "motivation"]:
+	for stat_id in ["pressure"]:
 		_game_state.emit_signal("stat_changed", stat_id, int(_game_state.get_stat(stat_id)),
 			int(_game_state.call(&"_stat_min", stat_id)), int(_game_state.call(&"_stat_max", stat_id)))
 	return published
@@ -486,9 +488,7 @@ func _detached_clone() -> Object:
 func _counters(target: Object) -> Dictionary:
 	return {
 		"money": int(target.get("money")),
-		"motivation": int(target.call(&"get_stat", "motivation")),
 		"app_rounds": int(target.get("minesweeper_app_rounds_finished_today")),
-		"health": int(target.call(&"get_stat", "health")),
 		"pressure": int(target.call(&"get_stat", "pressure")),
 	}
 
@@ -666,3 +666,30 @@ func _provided(key: String, fallback: Variant) -> Variant:
 
 func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": {}, "receipt": {}}
+
+
+
+## Scene completion shares the established money and task rules without invoking
+## legacy contact/calendar/condition consequences on the detached candidate.
+func prepare_scene_complete(difficulty: String, board: Dictionary) -> Dictionary:
+	if _game_state == null or difficulty not in ["beginner", "intermediate", "expert"] \
+			or not board.get("terminal", false) or board.get("outcome") not in ["cleared", "exploded"]:
+		return _fail(&"scene_round_reward_invalid", "terminal app board required")
+	var reasons: Array = preload("res://scripts/domain/minesweeper/BoardPerformance.gd").perfect_reasons(board)
+	var outcome: String = "perfect" if not reasons.is_empty() else str(board.outcome)
+	var tasks := _task_ids_for(outcome, difficulty)
+	if reasons.has("no_flag"): tasks.append("no_flag_finish")
+	if reasons.has("efficiency_gt_100") or reasons.has("efficiency_gte_100"): tasks.append("foresight_finish")
+	var clone: Object = _detached_clone()
+	if clone == null: return _fail(&"scene_round_reward_invalid", "detached owner required")
+	var result := {"context": "app", "difficulty": difficulty, "outcome": outcome, "task_ids": tasks}
+	clone.set("unfinished_minesweeper_result", {})
+	clone.set("minesweeper_app_rounds_finished_today", int(clone.get("minesweeper_app_rounds_finished_today")) + 1)
+	var reward: Dictionary = clone.call("apply_minesweeper_money_reward", result)
+	var claimed: Array = clone.call("check_and_claim_minesweeper_task_rewards", result)
+	var gameplay: Dictionary = {}
+	for key: String in _game_state.SCENE_GAMEPLAY_KEYS:
+		var value: Variant = _game_state._narrative_variables if key == "narrative_variables" else clone.get(key)
+		gameplay[key] = value.duplicate(true) if value is Dictionary or value is Array else value
+	clone.free()
+	return {"ok": true, "value": {"gameplay": gameplay, "reward": reward, "claimed": claimed, "outcome": outcome}}

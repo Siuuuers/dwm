@@ -1,0 +1,23 @@
+[
+  {
+    "run": 39986286408,
+    "id": 12515682818,
+    "phase": "refusal",
+    "sha": "f4a0470f034c4278eee573216ef88d21bb424c54fcf9387374ef0ab90837c4c6",
+    "size": 5808144
+  },
+  {
+    "run": 39986286408,
+    "id": 12515792286,
+    "phase": "manual",
+    "sha": "109862af46f5cd8689fe8c104f1ceb411f1839f3edf2e9f53785aaba907d2ec4",
+    "size": 3148077
+  },
+  {
+    "run": 39986286408,
+    "id": 12515876837,
+    "phase": "render",
+    "sha": "fa4b7fbfe09963f804e4eae467b9c52eb82a81be90e924d84a00521e46a75709",
+    "size": 3386627
+  }
+]

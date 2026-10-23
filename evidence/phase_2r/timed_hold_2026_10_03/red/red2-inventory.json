@@ -1,0 +1,235 @@
+{
+  "capture_file_count": 11,
+  "excluded_in_scope_files": [],
+  "extracted_artifact_file_count": 5,
+  "files": [
+    {
+      "bytes": 1944,
+      "origin": "bounded package explanation",
+      "path": "README.md",
+      "sha256": "43f6bc15e658c6d0aaeef8c12297f2dacfe52a2d4d2488ec9b3dfdfef7d8bdd3"
+    },
+    {
+      "bytes": 20324,
+      "origin": "attachments/b3a61190-0888-40d4-abb7-b189817e2664/timed-hold-fixture-37092157492-1.zip",
+      "path": "attachments/b3a61190-0888-40d4-abb7-b189817e2664/timed-hold-fixture-37092157492-1.zip",
+      "sha256": "715e148aca1cd7045278082629a6246308e0e8ef8fb469fd1814b248468d1036"
+    },
+    {
+      "bytes": 22543,
+      "origin": "hold-cloud-plan/build_timed_hold_workflow.py",
+      "path": "hold-cloud-plan/build_timed_hold_workflow.py",
+      "sha256": "091f042bcf389b848d9d9e7d4aac98df5c4ed5484fff21c49629c49866f98aa1"
+    },
+    {
+      "bytes": 1922,
+      "origin": "hold-cloud-plan/import_auxiliary_tree.py",
+      "path": "hold-cloud-plan/import_auxiliary_tree.py",
+      "sha256": "23cda6c681416c9f381d6da0febc6ceda761bebd29192dabba21f87916045a19"
+    },
+    {
+      "bytes": 1606,
+      "origin": "hold-cloud-plan/red2-api-commit.json",
+      "path": "hold-cloud-plan/red2-api-commit.json",
+      "sha256": "6ad06f7f837ff5ce66dbabe9d1029d7c9e20de4f7b6e74a8cdacd5fc56f4bce3"
+    },
+    {
+      "bytes": 287,
+      "origin": "hold-cloud-plan/red2-publication.json",
+      "path": "hold-cloud-plan/red2-publication.json",
+      "sha256": "3152804bdd39c7142200e223af40987a1625f78391685f844c9a13e3288c4fc0"
+    },
+    {
+      "bytes": 449,
+      "origin": "hold-cloud-plan/red2-tree-review.json",
+      "path": "hold-cloud-plan/red2-tree-review.json",
+      "sha256": "80f05f2baf2305f3ffd3c15ebfbdb8bfc91b2cfcf9a61a5cef5d61e80b6e32e4"
+    },
+    {
+      "bytes": 7420,
+      "origin": "hold-cloud-plan/timed-hold-red2.yml",
+      "path": "hold-cloud-plan/timed-hold-red2.yml",
+      "sha256": "d0545c7a0c72eb2afcb8fb8a10a64f4332ace2c7fc519d8a78ed552a75023986"
+    },
+    {
+      "bytes": 4839,
+      "origin": "hold-cloud-plan/timed-hold-red2.yml.manifest.json",
+      "path": "hold-cloud-plan/timed-hold-red2.yml.manifest.json",
+      "sha256": "233b39234a26683bd4eda122e4d4217d1192e93bf2adf876fbd402d79d4ad32b"
+    },
+    {
+      "bytes": 7899,
+      "origin": "hold-contract-review/audit_red2.py",
+      "path": "hold-contract-review/audit_red2.py",
+      "sha256": "244daed2dd89c429371cbd88abdbd2b11e7d6f5786937e505bb73ca5f9171fd2"
+    },
+    {
+      "bytes": 7524,
+      "origin": "hold-contract-review/red2-evidence-review.json",
+      "path": "hold-contract-review/red2-evidence-review.json",
+      "sha256": "fa1ac5d2d25151e15f99aed3eeb5d1cf7ca4c887eb9c5603f0f251dd2816f8b9"
+    },
+    {
+      "bytes": 25644,
+      "origin": "hold-evidence-stage/inputs/red2-source-workflow-api-compare.json",
+      "path": "hold-evidence-stage/inputs/red2-source-workflow-api-compare.json",
+      "sha256": "e64e4b8967d30f31a418ad54f4906b585e2765de0b28b5d0ca51d62c2b9f552f"
+    },
+    {
+      "bytes": 1607,
+      "origin": "hold-evidence-stage/inputs/red2-workflow-api-commit.json",
+      "path": "hold-evidence-stage/inputs/red2-workflow-api-commit.json",
+      "sha256": "607a3510d055efc484f879a0c21d941528cd00780fe57c3f3af5d85a2be3b221"
+    },
+    {
+      "bytes": 1326,
+      "origin": "hold-red2-source/api-commit.json",
+      "path": "hold-red2-source/api-commit.json",
+      "sha256": "dbf0af1e886f3ce70a1cbb2aabf5dbb95ad20447cc10f38c1c3c1f12cba4c5ee"
+    },
+    {
+      "bytes": 555,
+      "origin": "hold-red2-source/manifest.json",
+      "path": "hold-red2-source/manifest.json",
+      "sha256": "cc8a16021962f202a4b912072d4bc81cc52829d7d6ab5841498c4d31bd6b61ea"
+    },
+    {
+      "bytes": 200,
+      "origin": "hold-red2-source/publication.json",
+      "path": "hold-red2-source/publication.json",
+      "sha256": "db6b96e3bdb4fbd184393adf0fdb929ee89d88ef429e92a86baf56e885bdd287"
+    },
+    {
+      "bytes": 116,
+      "origin": "hold-red2-source/published-blobs.json",
+      "path": "hold-red2-source/published-blobs.json",
+      "sha256": "d78e771bfd0aa8a30aed0966623d6f68ac9a65bf363add544eb65c76ea0f58f2"
+    },
+    {
+      "bytes": 19375,
+      "origin": "hold-red2-source/tests/integration/test_dialogic_timed_hold_runtime.gd",
+      "path": "hold-red2-source/tests/integration/test_dialogic_timed_hold_runtime.gd",
+      "sha256": "f2dad6ca30a66d8173c378f9a58cd150d35c558118348c70a914afe16ec2e281"
+    },
+    {
+      "bytes": 583,
+      "origin": "hold-red2/artifact-manifest.json",
+      "path": "hold-red2/artifact-manifest.json",
+      "sha256": "1253751f8feaf952413cfa94bef761a86f264fae42d27eb3c27b75c9efc133a5"
+    },
+    {
+      "bytes": 918,
+      "origin": "hold-red2/artifacts-api.json",
+      "path": "hold-red2/artifacts-api.json",
+      "sha256": "9da4b7a9c567c8095eb2b224d3b33ab1b067871a9ac013f6e6a61c98e020362d"
+    },
+    {
+      "bytes": 203758,
+      "origin": "hold-red2/artifacts/timed-hold-fixture-37092157492-1/ci/import.log",
+      "path": "hold-red2/artifacts/timed-hold-fixture-37092157492-1/ci/import.log",
+      "sha256": "b9924da92b475156b526f36ea517956b7f15c12de206f2605aadb22247a83939"
+    },
+    {
+      "bytes": 544,
+      "origin": "hold-red2/artifacts/timed-hold-fixture-37092157492-1/ci/timed-hold-fixture-result.json",
+      "path": "hold-red2/artifacts/timed-hold-fixture-37092157492-1/ci/timed-hold-fixture-result.json",
+      "sha256": "b8de24df55c1d09fb29de08dda56da8e7a7922290b652cb9e9b9be12477dd5e8"
+    },
+    {
+      "bytes": 772,
+      "origin": "hold-red2/artifacts/timed-hold-fixture-37092157492-1/ci/timed-hold-fixture.jsonl",
+      "path": "hold-red2/artifacts/timed-hold-fixture-37092157492-1/ci/timed-hold-fixture.jsonl",
+      "sha256": "a8510fbf25c649495c3ea09e33b24056e6443813e902ec12ffdba0afab9a5e09"
+    },
+    {
+      "bytes": 1679,
+      "origin": "hold-red2/artifacts/timed-hold-fixture-37092157492-1/ci/timed-hold-fixture.xml",
+      "path": "hold-red2/artifacts/timed-hold-fixture-37092157492-1/ci/timed-hold-fixture.xml",
+      "sha256": "8119349afdf400c2c6514e21567aa43d19a09657f306d84df6619550abc8f218"
+    },
+    {
+      "bytes": 16594,
+      "origin": "hold-red2/artifacts/timed-hold-fixture-37092157492-1/phase2r_logs/cloud-timed-hold-fixture.log",
+      "path": "hold-red2/artifacts/timed-hold-fixture-37092157492-1/phase2r_logs/cloud-timed-hold-fixture.log",
+      "sha256": "0631adf1583a38582513948331a5e4333eba7d2803f52f53cf9bf3877165b551"
+    },
+    {
+      "bytes": 3794,
+      "origin": "hold-red2/jobs.json",
+      "path": "hold-red2/jobs.json",
+      "sha256": "9f6dee347937a1d668b5f934cf20cbb58bf992880c219bfcf5c2ac07e8366e6f"
+    },
+    {
+      "bytes": 482085,
+      "origin": "hold-red2/logs/111114589404.log",
+      "path": "hold-red2/logs/111114589404.log",
+      "sha256": "0b7acdd8c789212030977deb196cb4e236007808b31448c6bb1cf87515a49fb3"
+    },
+    {
+      "bytes": 3,
+      "origin": "hold-red2/omissions.json",
+      "path": "hold-red2/omissions.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "bytes": 12795,
+      "origin": "hold-red2/run.json",
+      "path": "hold-red2/run.json",
+      "sha256": "4006b07d671d347608c0ebc3494920edae7a715174c428333619aa2915975b18"
+    },
+    {
+      "bytes": 22609,
+      "origin": "hospital-tools/build_hospital_broad_workflow.py",
+      "path": "hospital-tools/build_hospital_broad_workflow.py",
+      "sha256": "4bbc908b107cec3f26e33a3b6405fa177044890e21b1103c3a950381b3b68aae"
+    },
+    {
+      "bytes": 6666,
+      "origin": "hospital-tools/build_layout_workflow.py",
+      "path": "hospital-tools/build_layout_workflow.py",
+      "sha256": "fbbe7088e7d09b4b55eadd6fd06fba277f10544d510252b33fa05def93815e86"
+    },
+    {
+      "bytes": 18498,
+      "origin": "hospital-tools/build_paused_settings_f9_workflow.py",
+      "path": "hospital-tools/build_paused_settings_f9_workflow.py",
+      "sha256": "716d807f6855bdbc86a58db33efba0518407e5f00e8d9cfb246fd91abd813fe0"
+    },
+    {
+      "bytes": 2702,
+      "origin": "git:95a514919ddd4abf44dbb26362e9d91e1ec0cdc0:addons/dialogic/Modules/Wait/event_wait.gd",
+      "path": "source-context/red2/addons/dialogic/Modules/Wait/event_wait.gd",
+      "sha256": "36615fe758680ee4efcacef4f9d244d1900b4b68e6806e1ac0ea6b8956b85fc8"
+    },
+    {
+      "bytes": 1463,
+      "origin": "derived from immutable Git objects",
+      "path": "source-context/red2/provenance.json",
+      "sha256": "33629b6f4343bf18cbdf7a25182b830825eab2e452155ad8179891c9ac5ebef1"
+    },
+    {
+      "bytes": 244,
+      "origin": "git:95a514919ddd4abf44dbb26362e9d91e1ec0cdc0:tests/fixtures/dialogic/timed_hold_runtime.dtl",
+      "path": "source-context/red2/tests/fixtures/dialogic/timed_hold_runtime.dtl",
+      "sha256": "6a4950a484c29c3a27b2c4f14fdab0d8b00abc68488b3a2060f30ac8ff68633f"
+    },
+    {
+      "bytes": 19375,
+      "origin": "git:95a514919ddd4abf44dbb26362e9d91e1ec0cdc0:tests/integration/test_dialogic_timed_hold_runtime.gd",
+      "path": "source-context/red2/tests/integration/test_dialogic_timed_hold_runtime.gd",
+      "sha256": "f2dad6ca30a66d8173c378f9a58cd150d35c558118348c70a914afe16ec2e281"
+    }
+  ],
+  "original_zip_count": 1,
+  "outside_scope": [
+    "green/fixed-runtime candidates and later executions",
+    "unpublished preliminary snapshots",
+    "unrelated workspace files"
+  ],
+  "run": 37092157492,
+  "schema_version": 1,
+  "scope": "complete failed-run capture plus explicit published source/workflow/audit context",
+  "self_identity_bound_by": "external package manifest and complete archive SHA256",
+  "source_snapshot_file_count": 5,
+  "stage": "red2"
+}

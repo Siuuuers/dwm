@@ -1,8 +1,8 @@
 extends "res://addons/gut/test.gd"
 ## Real installed Dialogic, Bridge, and runtime/physical adapters. All caption prose and
-## command provenance below are synthetic fixtures, not authored Hospital content.
-## The shipped Hospital timeline currently has no reading caption. A temporary resource-cache
-## override at its catalog-resolved path tests its real public start seam without editing content.
+## command provenance below are synthetic fixtures, not authored content. Hospital Pause
+## and Ending Load use their own catalog-resolved native timelines via temporary resource-cache
+## overrides. No production content or manual Save/Load admission is bypassed.
 
 const BRIDGE := preload("res://autoload/DialogicBridge.gd")
 const RUNTIME_ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
@@ -19,6 +19,7 @@ const HOSPITAL_SCENE := preload("res://scripts/ui/HospitalScene.gd")
 const CAPTION_SCENE := preload("res://scenes/ui/witnessed/WitnessedCaptionLayer.tscn")
 const LAYER := "res://scripts/ui/witnessed/WitnessedCaptionLayer.gd"
 const TIMELINE_ID := "hospital.faint"
+const LOAD_TIMELINE_ID := "ending.alone"
 const HANDLE := {"generation": 1, "handle_id": "synthetic-pause-frontier", "holder": &"pause_fixture", "reason": &"universal_pause"}
 
 class PauseScene extends Control:
@@ -62,6 +63,15 @@ class MountedSaves extends RefCounted:
 	var fail_load := true
 	var on_load := Callable()
 	var loads := 0
+	func get_backup_quick_capability(action: String) -> Dictionary:
+		return {"ok": true, "value": {"enabled": action == "load", "status_key": "",
+			"condition": {"action": action, "revision": "mounted-slot"}}}
+	func is_quick_condition_current(condition: Dictionary) -> bool:
+		return condition == {"action": "load", "revision": "mounted-slot"}
+	func prepare_quick_backup_action(action: String) -> Dictionary:
+		var prepared := prepare_backup_action(action, "quick")
+		if prepared.get("ok", false): prepared.value.condition = {"action": action, "revision": "mounted-slot"}
+		return prepared
 	func get_backup_save_capability() -> Dictionary:
 		return {"enabled": false, "reason": "mounted_load_only"}
 	func inspect_backup(locator: String) -> Dictionary:
@@ -294,7 +304,7 @@ func _find_caption() -> bool:
 	if is_instance_valid(layout):
 		for layer: Node in layout.get_layers():
 			if layer.get_script().resource_path == LAYER: _caption = layer
-	assert_not_null(_caption, "real Hospital style selection mounts the owned caption")
+	assert_not_null(_caption, "real native style selection mounts the owned caption")
 	return _caption != null
 
 func _start(copy: String) -> bool:
@@ -415,9 +425,15 @@ func test_no_playback_deferred_start_and_native_cleanup_have_no_frontier() -> vo
 	assert_false(_bridge.capture_pause_frontier().ok)
 	assert_eq(_bridge.get_state().value.state, &"Active")
 
-func test_native_nontext_wait_refuses_pause_without_changing_playback() -> void:
-	if not await _start('[wait time="0.5" hide_text="true"]\nSynthetic later caption.'): return
+func test_native_visible_wait_refuses_pause_without_changing_playback() -> void:
+	# Only a hidden, non-skippable Wait is an admitted silent-hold frontier.
+	# Preserve the refusal control with the real native visible Wait flavor.
+	if not await _start('[wait time="0.5" hide_text="false" skippable="false"]\nSynthetic later caption.'): return
 	assert_true(_runtime.current_timeline_events[_runtime.current_event_idx] is DialogicWaitEvent)
+	var wait_event := _runtime.current_timeline_events[_runtime.current_event_idx] as DialogicWaitEvent
+	assert_false(wait_event.hide_text, "this control actually executes a visible Wait")
+	assert_false(wait_event.skippable, "visibility alone makes this Wait ineligible for silent-hold Pause")
+	assert_almost_eq(wait_event.time, 0.5, 0.001)
 	assert_eq(_runtime.current_state, DialogicGameHandler.States.WAITING)
 	var generation := _runtime.get_timeline_generation()
 	var index := _runtime.current_event_idx
@@ -427,7 +443,7 @@ func test_native_nontext_wait_refuses_pause_without_changing_playback() -> void:
 	assert_eq(_runtime.get_timeline_generation(), generation)
 	assert_eq(_runtime.current_event_idx, index)
 	assert_eq(_bridge.get_state().value.state, &"Active")
-	# Let the real Wait's unbound native tween finish before fixture teardown.
+	# Let the actual visible Wait finish before fixture teardown.
 	await get_tree().create_timer(0.6).timeout
 
 func test_retained_physical_owner_publishes_same_source_without_a_completion() -> void:
@@ -456,7 +472,7 @@ func test_retained_physical_owner_publishes_same_source_without_a_completion() -
 	assert_eq(_reading_state(), before)
 	assert_eq(_receipts, [])
 
-func _start_combined_pause_fixture(isolated_reading_services: bool = false) -> bool:
+func _start_combined_pause_fixture(isolated_reading_services: bool = false, load_fixture: bool = false) -> bool:
 	# The replacement is the real InputManager script, mounted at the actual source-policy
 	# lookup. Its original autoload is restored after this isolated input experiment.
 	if isolated_reading_services:
@@ -485,27 +501,42 @@ func _start_combined_pause_fixture(isolated_reading_services: bool = false) -> b
 	_pause_scene = PauseScene.new()
 	get_tree().root.add_child(_pause_scene)
 	get_tree().current_scene = _pause_scene
+	if load_fixture:
+		# Generic Load remains lawful on Ending; Hospital has a separate manual-save policy.
+		# Override the actual Ending resource before starting its real native playback.
+		var located: Dictionary = DialogicTimelineCatalog.get_path_for_id(LOAD_TIMELINE_ID)
+		assert_true(located.get("ok", false))
+		if not located.get("ok", false): return false
+		_path = located.value.path
+		_original_timeline = load(_path)
+		_runtime.Styles.load_style("res://dialogic/styles/witnessed_caption_style.tres", null, true, false)
 	_fixture("Synthetic native Pause fixture preserves this overflowing current caption. ".repeat(30))
-	var context := _sylvia_hospital_context()
+	var context: Dictionary = {"kind": "ending", "ending_id": "alone"} if load_fixture else _sylvia_hospital_context()
 	var command := {"resolution_id": "synthetic-resolution", "resolution_issuer_receipt": {"receipt_id": "synthetic-root"},
-		"stage_id": "synthetic-stage", "substage_id": "synthetic-substage", "route_id": "hospital", "timeline_id": TIMELINE_ID,
+		"stage_id": "synthetic-stage", "substage_id": "synthetic-substage", "route_id": "ending" if load_fixture else "hospital",
+		"timeline_id": LOAD_TIMELINE_ID if load_fixture else TIMELINE_ID,
 		"context": context, "completion_transaction_id": "synthetic-pause-completion", "completion_transaction_provenance": {},
 		"command_sha256": "d".repeat(64)}
 	var started: Dictionary = _owner.begin_physical(command)
 	assert_true(started.ok, str(started))
 	await _settle()
 	if not started.ok or not _find_caption(): return false
-	var source: Dictionary = _owner.capture_pause_source()
-	assert_true(source.ok, str(source))
-	if not source.ok: return false
-	_pause_scene.projection = source.value.duplicate(true)
+	if load_fixture:
+		_pause_scene.projection = command.duplicate(true)
+		_pause_scene.projection["physical_token"] = started.value.physical_token
+	else:
+		var source: Dictionary = _owner.capture_pause_source()
+		assert_true(source.ok, str(source))
+		if not source.ok: return false
+		_pause_scene.projection = source.value.duplicate(true)
 	_pause_route = PauseRoute.new()
 	_pause_gate = PauseGate.new()
 	_pause_audio = AudioFixture.new()
-	_coordinator = COORDINATOR.new()
-	add_child(_coordinator)
-	assert_true(_coordinator.configure(_owner, _bridge, _input_owner, _pause_audio, _pause_gate, _pause_route).ok)
-	assert_true(_coordinator.bind_source(_pause_scene, _caption).ok)
+	if not load_fixture:
+		_coordinator = COORDINATOR.new()
+		add_child(_coordinator)
+		assert_true(_coordinator.configure(_owner, _bridge, _input_owner, _pause_audio, _pause_gate, _pause_route).ok)
+		assert_true(_coordinator.bind_source(_pause_scene, _caption).ok)
 	_caption.caption_text.active_speed = 10.0
 	_caption.caption_text.grab_focus()
 	await _settle()
@@ -521,12 +552,12 @@ func _native_pause_pointer(point: Vector2, pressed: bool) -> void:
 	Input.parse_input_event(event)
 	Input.flush_buffered_events()
 
-func _mount_production_reading_load() -> bool:
-	if not await _start_combined_pause_fixture(true): return false
+func _mount_production_reading_load(hospital: bool = false) -> bool:
+	if not await _start_combined_pause_fixture(true, not hospital): return false
 	if is_instance_valid(_coordinator):
 		_coordinator.free()
 		_coordinator = null
-	_pause_scene.scene_file_path = "res://scenes/hospital/HospitalScene.tscn"
+	_pause_scene.scene_file_path = "res://scenes/hospital/HospitalScene.tscn" if hospital else "res://scenes/ending/EndingScene.tscn"
 	_load_gate = MUTATION_GATE.new()
 	assert_true(_bridge.configure_mutation_gate(_load_gate).ok)
 	assert_true(_input_owner.configure_mutation_gate(_load_gate).ok)
@@ -534,7 +565,7 @@ func _mount_production_reading_load() -> bool:
 	_load_saves = MountedSaves.new()
 	_load_route = RestoreRoute.new()
 	add_child(_load_route)
-	_load_route._current_scene_id = "hospital"
+	_load_route._current_scene_id = "hospital" if hospital else "ending"
 	_load_controller = PRODUCTION_PAUSE.new()
 	add_child(_load_controller)
 	var configured: Dictionary = _load_controller.configure({
@@ -554,6 +585,28 @@ func _mount_production_reading_load() -> bool:
 	await get_tree().process_frame
 	if _caption.has_method("_sync_transport"): _caption.call("_sync_transport")
 	return true
+
+func test_mounted_hospital_refuses_direct_and_paused_load_without_changing_native_source() -> void:
+	if not await _mount_production_reading_load(true): return
+	var before := _reading_state()
+	var physical: Dictionary = _owner.capture_pause_source()
+	assert_false(_global_router.can_open_witnessed_backup_load(_caption))
+	assert_true(_caption.transport_rail.get_node("Load").disabled)
+	assert_false((await _global_router.open_witnessed_backup_load(_caption)).get("ok", true))
+	assert_false((await _global_router.open_witnessed_quick_load(_caption)).get("ok", true))
+	assert_false(get_tree().paused)
+	assert_eq(_load_saves.loads, 0)
+	assert_true(_load_saves.pending.is_empty())
+	assert_eq(_reading_state(), before)
+	assert_eq(_owner.capture_pause_source(), physical)
+	var paused: Dictionary = await _load_controller.request_pause()
+	assert_true(paused.get("ok", false), str(paused))
+	if not paused.get("ok", false): return
+	assert_false(_load_controller.can_load_backup())
+	assert_false(_load_controller.can_save_backup())
+	assert_true((await _load_controller.request_continue()).get("ok", false))
+	assert_eq(_reading_state(), before)
+	assert_eq(_owner.capture_pause_source(), physical)
 
 func test_witnessed_recovery_refuses_pause_and_backup_before_session_capture() -> void:
 	if not await _mount_production_reading_load(): return
@@ -690,8 +743,9 @@ func test_mounted_witnessed_load_is_cheap_then_opens_backup_and_continue_restore
 	bar.value = 100.0
 	load_button.grab_focus()
 	var before := _reading_state()
-	var source: Dictionary = _owner.capture_pause_source()
-	var source_frontier: Dictionary = _bridge.capture_pause_frontier(TIMELINE_ID)
+	var source: Dictionary = _load_controller.capture_pause_source()
+	var physical: Dictionary = _owner._in_flight.duplicate(true)
+	var source_frontier: Dictionary = _bridge.capture_pause_frontier(LOAD_TIMELINE_ID)
 	load_button.emit_signal("activated")
 	for frame in 30:
 		if is_instance_valid(_load_controller.surface) \
@@ -706,8 +760,9 @@ func test_mounted_witnessed_load_is_cheap_then_opens_backup_and_continue_restore
 	assert_eq(backup.active_mode, "load")
 	assert_true(backup.drawer_buttons["slot:1"].has_focus(), "direct Load starts at Slot 1")
 	assert_eq(_reading_state(), before, "opening Backup does not reveal, replay, acknowledge, or advance")
-	assert_eq(_owner.capture_pause_source(), source)
-	assert_eq(_bridge.capture_pause_frontier(TIMELINE_ID), source_frontier)
+	assert_eq(_load_controller.capture_pause_source(), source)
+	assert_eq(_owner._in_flight, physical, "physical command/token/revision remain exact")
+	assert_eq(_bridge.capture_pause_frontier(LOAD_TIMELINE_ID), source_frontier)
 	assert_false(_global_router.can_open_witnessed_backup_load(_caption),
 		"the retained source cannot open a duplicate Pause")
 	assert_true(_load_controller.surface.handle_back(), "Back returns from Backup to Pause")
@@ -718,8 +773,9 @@ func test_mounted_witnessed_load_is_cheap_then_opens_backup_and_continue_restore
 	assert_true(_caption.canvas.is_visible_in_tree())
 	assert_eq(bar.value, 100.0)
 	assert_eq(_reading_state(), before, "Continue restores the exact partial native reading frontier")
-	assert_eq(_owner.capture_pause_source(), source)
-	assert_eq(_bridge.capture_pause_frontier(TIMELINE_ID), source_frontier)
+	assert_eq(_load_controller.capture_pause_source(), source)
+	assert_eq(_owner._in_flight, physical, "physical command/token/revision remain exact")
+	assert_eq(_bridge.capture_pause_frontier(LOAD_TIMELINE_ID), source_frontier)
 	for frame in 3: await get_tree().process_frame
 	assert_true(load_button.has_focus(), "Load focus returns after the resume-frame quarantine")
 	assert_eq(bar.value, 100.0)
@@ -751,7 +807,8 @@ func test_mounted_witnessed_failed_load_keeps_suspension_and_exact_source() -> v
 	var bar: VScrollBar = _caption.get_scroll_bar()
 	bar.value = 100.0
 	var before := _reading_state()
-	var source: Dictionary = _owner.capture_pause_source()
+	var source: Dictionary = _load_controller.capture_pause_source()
+	var physical: Dictionary = _owner._in_flight.duplicate(true)
 	assert_true(await _open_mounted_backup_from_rail())
 	if _load_controller.surface.entered_action != &"backup": return
 	var result: Dictionary = await _commit_mounted_slot_one()
@@ -763,7 +820,8 @@ func test_mounted_witnessed_failed_load_keeps_suspension_and_exact_source() -> v
 	assert_false(_caption.canvas.is_visible_in_tree())
 	assert_eq(_reading_state(), before,
 		"failed Load neither reveals, replays, acknowledges, nor advances the old prose")
-	assert_eq(_owner.capture_pause_source(), source)
+	assert_eq(_load_controller.capture_pause_source(), source)
+	assert_eq(_owner._in_flight, physical, "physical command/token/revision remain exact")
 	var foreign := Node.new()
 	assert_false(_global_router.can_open_witnessed_backup_load(foreign))
 	foreign.free()
@@ -797,13 +855,64 @@ func test_mounted_witnessed_successful_changed_session_never_restores_old_reveal
 	# this cancellation signal is distinct from text completion or a physical receipt.
 	assert_eq(_ended, before.ended + 1)
 	assert_eq(_receipts, before.receipts,
-		"retiring the old source fabricates no Hospital completion or acknowledgement")
+		"retiring the old source fabricates no Ending completion or acknowledgement")
 	assert_false((await _load_controller.request_continue()).get("ok", false),
 		"the activated destination cannot resume old Pause custody")
 	var duplicate: Dictionary = await _global_router.open_witnessed_backup_load(_caption)
 	assert_false(duplicate.get("ok", false))
 	assert_eq(_load_route.publications, 1)
 	assert_eq(_load_saves.loads, 1)
+
+func test_direct_reading_quick_load_cancel_restores_exact_partial_source_and_focus() -> void:
+	if not await _mount_production_reading_load(): return
+	_caption.caption_text.grab_focus()
+	var before := _reading_state()
+	var opened: Dictionary = await _global_router.open_witnessed_quick_load(_caption)
+	assert_true(opened.get("ok", false), str(opened))
+	if not opened.get("ok", false): return
+	assert_true(get_tree().paused)
+	assert_true(_runtime.paused)
+	assert_false(_caption.canvas.is_visible_in_tree())
+	assert_eq(_reading_state(), before)
+	var sheet: Control = _load_controller.surface._host_confirmation
+	assert_not_null(sheet)
+	if sheet == null: return
+	sheet._finish(false)
+	for frame in 6: await get_tree().process_frame
+	assert_false(get_tree().paused)
+	assert_false(_runtime.paused)
+	assert_true(_caption.canvas.is_visible_in_tree())
+	assert_true(_caption.caption_text.has_focus())
+	assert_eq(_reading_state(), before, "Cancel does not reveal, replay, acknowledge or advance")
+	assert_true(_load_saves.pending.is_empty())
+	assert_eq(_load_saves.loads, 0)
+
+func test_direct_reading_quick_failed_load_keeps_original_suspension_and_continue() -> void:
+	if not await _mount_production_reading_load(): return
+	var before := _reading_state()
+	var opened: Dictionary = await _global_router.open_witnessed_quick_load(_caption)
+	assert_true(opened.get("ok", false), str(opened))
+	if not opened.get("ok", false): return
+	var held: Dictionary = _load_controller._handle.duplicate(true)
+	var sheet: Control = _load_controller.surface._host_confirmation
+	assert_not_null(sheet)
+	if sheet == null: return
+	sheet._finish(true)
+	for frame in 6: await get_tree().process_frame
+	assert_eq(_load_saves.loads, 1)
+	assert_true(get_tree().paused)
+	assert_true(_runtime.paused)
+	assert_eq(_load_controller._handle, held)
+	assert_eq(_reading_state(), before)
+	# Quick deliberately normalizes underlying Backup failures to its existing
+	# public Unavailable result; the load count and retained native source prove
+	# this was the compensated commit path rather than a preparation refusal.
+	assert_eq(_load_controller._quick_commands.last_result.get("code"), &"backup_action_unavailable")
+	assert_eq(_load_controller._quick_commands.last_result.get("status_key"), "unavailable")
+	assert_eq(_load_controller._quick_commands.edge.key, &"unavailable")
+	assert_true(_load_saves.pending.is_empty())
+	assert_true((await _load_controller.request_continue()).get("ok", false))
+	assert_eq(_reading_state(), before)
 
 func test_combined_native_pause_restores_caption_owner_and_quarantines_closing_contact() -> void:
 	if not await _start_combined_pause_fixture(): return
@@ -1025,3 +1134,63 @@ func test_witnessed_load_publishes_only_after_new_session_and_never_completes_ol
 	get_tree().current_scene = _pause_scene
 	if is_instance_valid(route.target): route.target.free()
 	route.free()
+
+
+func test_retiring_partial_native_text_releases_reveal_wait_without_completing_or_touching_fresh_caption() -> void:
+	# Retain the same owner on both sides: a stranded reveal await used to retain
+	# an extra AutoSkip evaluation reference even after its timeline was cleaned.
+	var skip: RefCounted = _runtime.Inputs.auto_skip
+	var references_before := skip.get_reference_count()
+	if not await _start("Synthetic partial caption retired without completing it. ".repeat(24)): return
+	_caption.caption_text.active_speed = 10.0
+	assert_true(_caption.caption_text.revealing)
+	var retired: DialogicTextEvent = _runtime.get_meta("previous_event")
+	var old_state: int = retired.state
+	var before := _reading_state()
+	var completions: Array = []
+	retired.event_finished.connect(func(_event: Resource): completions.append(true))
+	_adapter.halt_with_error({"ok": false, "code": &"fixture_partial_text_retired"})
+	await _settle()
+	assert_false(_adapter.has_active_playback())
+	assert_false(_runtime.Text.text_finished.is_connected(Callable(retired, "_on_text_reveal_finished")))
+	assert_eq(retired.get_signal_connection_list("_reveal_settled").size(), 0,
+		"retirement unwinds the event-owned waiter before timeline.clean disconnects it")
+	assert_eq(skip.get_reference_count(), references_before,
+		"retired partial text releases its retained AutoSkip evaluation reference")
+	assert_eq(_finished, before.finished, "retirement never emits global text completion")
+	assert_eq(completions, [], "retirement never completes its Dialogic event")
+	assert_eq(_receipts, before.receipts, "retirement never publishes a physical completion")
+	assert_eq(_runtime.History.simple_history_content, before.simple)
+	assert_eq(_runtime.History.visited_event_history_content, before.visited)
+	assert_eq(retired.state, old_state)
+	if not await _start("Synthetic independent destination caption. ".repeat(24)): return
+	_caption.caption_text.active_speed = 10.0
+	assert_true(_caption.caption_text.revealing)
+	var destination: DialogicTextEvent = _runtime.get_meta("previous_event")
+	assert_ne(destination, retired)
+	_caption.caption_text.finish_text()
+	await _settle()
+	assert_eq(_finished, before.finished + 1, "fresh destination still receives exactly its own native completion")
+	assert_eq(destination.state, DialogicTextEvent.States.DONE)
+	assert_eq(retired.state, old_state, "destination completion cannot resume the retired source coroutine")
+	assert_eq(_receipts, before.receipts)
+
+
+func test_synchronous_text_started_retirement_never_installs_a_late_reveal_wait() -> void:
+	var skip: RefCounted = _runtime.Inputs.auto_skip
+	var references_before := skip.get_reference_count()
+	var published: Array = []
+	_runtime.Text.text_started.connect(func(_info: Dictionary):
+		published.append(true)
+		_adapter.halt_with_error({"ok": false, "code": &"fixture_retired_during_publication"}), CONNECT_ONE_SHOT)
+	_fixture("Synthetic text retired synchronously as its publication begins. ".repeat(24))
+	var started: Dictionary = _bridge.start_timeline_id(TIMELINE_ID)
+	assert_true(started.ok, str(started))
+	await _settle()
+	assert_eq(published.size(), 1)
+	assert_false(_adapter.has_active_playback())
+	assert_eq(_finished, 0, "publication-time retirement cannot fabricate text completion")
+	assert_eq(_receipts, [])
+	assert_eq(skip.get_reference_count(), references_before,
+		"a synchronously retired publication never starts a late native reveal wait")
+	assert_eq(_runtime.History.simple_history_content, [], "retired publication cannot run subsequent native History credit")

@@ -1,0 +1,18 @@
+[
+  {
+    "case": "empty",
+    "exit_code": 1,
+    "tests": 78,
+    "expected_root_refusals": 75,
+    "storage_free_passes": 3,
+    "user_dir": "D:\\a\\dwm\\dwm\\.godot\\ci\\storage-refusal\\empty\\appdata\\Godot\\app_userdata\\DWM\\"
+  },
+  {
+    "case": "whitespace",
+    "exit_code": 1,
+    "tests": 78,
+    "expected_root_refusals": 75,
+    "storage_free_passes": 3,
+    "user_dir": "D:\\a\\dwm\\dwm\\.godot\\ci\\storage-refusal\\whitespace\\appdata\\Godot\\app_userdata\\DWM\\"
+  }
+]

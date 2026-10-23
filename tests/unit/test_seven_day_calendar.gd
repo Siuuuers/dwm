@@ -13,6 +13,14 @@ const SOLO_ORDERS := [["priscilla", "sylvia"], ["priscilla", "lavinia"],
 	["lavinia", "sylvia"], ["priscilla", "lavinia"]]
 const FRIEND_DAYS := {"priscilla": [1, 2, 4, 6], "lavinia": [2, 3, 5, 6], "sylvia": [1, 3, 4, 5]}
 
+const RETAINED_ORDINARY := preload("res://tests/support/RetainedOrdinaryRegistryFixture.gd")
+var _retained_ordinary: RefCounted
+
+func after_each() -> void:
+	if _retained_ordinary != null:
+		_retained_ordinary.restore()
+		_retained_ordinary = null
+
 func before_each() -> void:
 	GameState.reset_game()
 
@@ -37,6 +45,10 @@ func test_all_twelve_solo_windows_and_round_orders_match_each_live_facade() -> v
 	assert_eq(GameState.capture_restore_state().value.backup, before, "calendar queries never mutate the run")
 
 func test_all_six_ordinary_messages_keep_three_choices_and_day7_has_none() -> void:
+	_retained_ordinary = RETAINED_ORDINARY.new()
+	var historical: Dictionary = _retained_ordinary.install()
+	assert_true(historical.get("ok", false), str(historical))
+	if not historical.get("ok", false): return
 	var contacts := CONTACTS.make_defaults()
 	var before := contacts.duplicate(true)
 	var reply_ids := {}

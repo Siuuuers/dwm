@@ -19,11 +19,23 @@ class InputOwner extends RefCounted:
 
 class ScenePort extends RefCounted:
 	var physical: RefCounted
+	var narrative := preload("res://tests/support/FakeDatingNarrativePlayback.gd").new()
 	func begin(_command: Dictionary) -> Dictionary: return {"ok": true}
 	func complete(_request: Dictionary) -> Dictionary: return {"ok": false}
 	func pull_physical(command: Dictionary) -> Dictionary: return physical.pull_physical(command.physical_token)
+	func begin_narrative_phase(command: Dictionary, retry: bool = false) -> Dictionary:
+		return narrative.begin_phase(command, str(pull_physical(command).value.phase), retry)
+	func pull_narrative_phase(command: Dictionary) -> Dictionary:
+		return narrative.pull_phase(command, str(pull_physical(command).value.phase))
 	func dispatch_physical(command: Dictionary, action: String, index: int, revision: int) -> Dictionary:
-		return physical.dispatch_physical(command.physical_token, action, index, revision)
+		var phase: String = str(pull_physical(command).value.phase)
+		if action == "continue" and phase in ["pre_challenge", "post_challenge"]:
+			var playback: Dictionary = narrative.pull_phase(command, phase)
+			if not playback.ok or playback.value.status != "completed": return {"ok": false}
+		var result: Dictionary = physical.dispatch_physical(command.physical_token, action, index, revision)
+		if result.ok and action == "continue" and phase in ["pre_challenge", "post_challenge"]:
+			narrative.finish_phase(command, phase)
+		return result
 
 var game: RefCounted
 var profile: RefCounted
@@ -82,7 +94,9 @@ func test_shell_flags_survive_fresh_owner_and_materialize_with_exact_history() -
 	assert_true(_act("reveal", 323).ok)
 	assert_eq(game.saved.board.actions, saved.envelope.shell.actions)
 	assert_eq(game.saved.board.revision, 2)
-	assert_eq(game.saved.phase, "cleared_awaiting_terminal_choice")
+	assert_eq(game.saved.phase, "post_challenge")
+	assert_eq(game.saved.relationship_outcome, "loved")
+	assert_eq(game.applications, 1)
 	assert_eq(game.saved.perfect_reasons, [])
 
 func test_entry_freezes_real_lucky_debug_and_hidden_extra_inputs() -> void:
@@ -114,32 +128,39 @@ func test_perfect_settles_automatically_and_never_exposes_a_dark_choice() -> voi
 	assert_false(view.special_mine_visible)
 	for cell: Dictionary in view.board.cells: assert_eq(cell.actions, [])
 
-func test_nonperfect_marked_flag_binds_exact_cell_revision_and_first_terminal_winner() -> void:
+func test_nonperfect_flagged_clear_applies_loved_without_any_marked_or_actionable_cell() -> void:
 	if not _begin(): return
 	assert_true(_act("continue").ok)
-	var marked: int = ENVELOPE.special_cell(game.saved.spec, layout)
-	assert_true(_act("flag", marked).ok)
+	var retired_special: int = ENVELOPE.special_cell(game.saved.spec, layout)
+	assert_true(_act("flag", retired_special).ok)
 	assert_true(_act("reveal", 323).ok)
 	var view: Dictionary = physical.pull_physical(command.physical_token).value
-	assert_eq(view.board.cells[marked].mark, "marked_flag")
-	assert_eq(view.board.cells[marked].actions, ["activate"])
-	var actionable := 0
+	assert_eq(view.phase, "post_challenge")
+	assert_false(view.special_mine_visible)
+	assert_false(view.special_mine_enabled)
+	assert_false(view.actions.has("activate"))
+	assert_false(view.actions.has("special_mine"))
 	for cell: Dictionary in view.board.cells:
-		if not cell.actions.is_empty(): actionable += 1
-	assert_eq(actionable, 1)
+		assert_eq(cell.actions, [])
+		assert_false(cell.get("mark", "") in ["marked_mine", "marked_flag"])
+	assert_eq(game.saved.relationship_outcome, "loved")
+	assert_eq(game.applications, 1)
+	var settled: Dictionary = game.saved.duplicate(true)
 	assert_false(_act("activate", -1).ok)
-	assert_false(physical.dispatch_physical(command.physical_token, "activate", marked, int(view.board.revision) + 1).ok)
-	assert_eq(game.applications, 0)
-	assert_true(_act("activate", marked).ok)
-	assert_eq(game.saved.relationship_outcome, "dark")
-	assert_false(_act("activate", marked).ok)
+	assert_false(physical.dispatch_physical(command.physical_token, "activate", retired_special, int(view.board.revision) + 1).ok)
+	assert_false(_act("activate", retired_special).ok)
+	assert_false(_act("special_mine").ok)
+	assert_false(_act("settle").ok)
+	assert_eq(game.saved, settled)
 	assert_eq(game.applications, 1)
 
-func test_actual_grid_choice_waits_for_clearing_contact_release_and_ignores_mode() -> void:
+func test_post_scene_waits_for_all_contacts_to_release_without_any_choice_button() -> void:
 	if not _begin(): return
 	assert_true(_act("continue").ok)
 	assert_true(_act("flag", 0).ok)
 	assert_true(_act("reveal", 323).ok)
+	assert_eq(game.saved.relationship_outcome, "loved")
+	assert_eq(game.applications, 1)
 	var input := InputOwner.new()
 	input.contacts = {"key:0:13": 1}
 	var port := ScenePort.new(); port.physical = physical
@@ -147,24 +168,25 @@ func test_actual_grid_choice_waits_for_clearing_contact_release_and_ignores_mode
 	assert_true(scene.configure_presentation(port, command).ok)
 	assert_true(scene.configure_presentation_services(input).ok)
 	add_child_autofree(scene)
-	assert_true(scene.worksheet.grid.can_present(scene._physical_view.board), "the entire actual marked-cell projection must satisfy the existing cell contract")
+	assert_true(scene.worksheet.grid.can_present(scene._physical_view.board), "the cleared projection retains the actual cell contract")
 	assert_false(scene.worksheet.grid.projection.is_empty())
 	if scene.worksheet.grid.projection.is_empty(): return
-	assert_false(scene._choice_released)
+	assert_false(scene.worksheet.visible)
+	assert_false(scene._continue_button.visible)
+	scene._process(0.0)
+	assert_eq(port.narrative.started.size(), 0, "the clearing contact cannot enter or skip post dialogue")
 	scene._on_continue()
-	assert_eq(game.applications, 0)
+	assert_eq(game.saved.phase, "post_challenge", "a hidden confirmation is not an alternate advance path")
+	# Replacing the original contact still leaves a currently held input: wait for that too.
+	input.contacts = {"key:0:32": 2}
+	scene._process(0.0)
+	assert_eq(port.narrative.started.size(), 0)
 	input.contacts.clear()
-	await get_tree().process_frame
-	assert_true(scene._choice_released)
-	assert_true(scene._continue_button.has_focus())
-	var marked: int = int(game.saved.envelope.special_cell)
-	assert_true(scene.worksheet.grid.set_mode(&"drag"))
-	assert_eq(scene.worksheet.grid._mode_action(marked), &"activate")
-	assert_true(scene.worksheet.grid.focus_cell(marked))
-	assert_eq(scene.worksheet.grid.focus_next, scene.worksheet.grid.get_path_to(scene._continue_button))
-	scene._on_cell_action(&"activate", marked, int(game.saved.board.revision))
-	assert_eq(game.saved.relationship_outcome, "dark")
-	assert_false(scene.worksheet.visible, "the terminal pressure board withdraws into the post-scene card")
+	scene._process(0.0)
+	assert_eq(port.narrative.started.size(), 1)
+	assert_eq(port.narrative.started[0].phase, "post_challenge")
+	assert_eq(game.saved.phase, "completed")
+	assert_eq(game.applications, 1)
 
 func test_debug_preparation_and_shell_flags_resume_without_changing_the_certified_reveal() -> void:
 	game.inventory = {"debug_key": 1, "lucky_charm": 1}
@@ -227,3 +249,4 @@ func test_debug_preparation_and_shell_flags_resume_without_changing_the_certifie
 	assert_eq(game.saved.envelope.prepared_layout, certified)
 	assert_eq(game.saved.spec, saved.spec)
 	assert_true(ENVELOPE.validate(game.saved))
+

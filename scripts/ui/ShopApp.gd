@@ -12,12 +12,14 @@ const SHOP_THEME := preload("res://scripts/ui/shop/ShopTheme.gd")
 const SUPPORTZ_CONFIRMATION := preload("res://scripts/ui/shop/SupportzConfirmation.gd")
 const CONFIRMATION_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
 
+var _scene_presentation := false
 var cards: Dictionary = {}
 var page_index := 0
 var page_capacity := 9
 var page_count := 2
-var selected_id := "coffee"
+var selected_id := "wine"
 var quantity := 1
+var _item_quantities: Dictionary = {}
 var previous_button: Button
 var next_button: Button
 var page_label: Label
@@ -49,9 +51,10 @@ var _page_selection: Dictionary = {}
 var _measurement_revision := 0
 var _focus_after_layout := true
 var _palette: StringName = &"after_hours"
-var _day := 1
+var _day: Variant = 1
 var _high_contrast := false
 var _colour_preset := "standard"
+var _font_style := "pixel"
 var _roles: Dictionary = SHOP_THEME.resolve(&"after_hours")
 var _provider: Object
 var _localization: Object
@@ -67,7 +70,8 @@ var _focus_viewport: Viewport
 var _view_exiting := false
 var _catalog_layout_pending := false
 const PREFERENCE_KEYS := ["preferences.accessibility.text_size","preferences.accessibility.large_targets",
-	"preferences.accessibility.high_contrast","preferences.accessibility.colour_differentiation"]
+	"preferences.accessibility.high_contrast","preferences.accessibility.colour_differentiation",
+	"preferences.accessibility.font_style"]
 
 func _enter_tree() -> void:
 	_view_exiting = false
@@ -102,7 +106,14 @@ func _view_is_current() -> bool:
 	return true
 
 func configure_catalog(provider: Object, localization: Object = null, profile: Object = null, palette: StringName = &"after_hours", day: int = 1) -> Dictionary:
-	if SHOP_THEME.resolve(palette, day).is_empty(): return {"ok":false,"code":"invalid_shop_palette"}
+	return _configure_catalog_context(provider, localization, profile, palette, day, false)
+
+func configure_scene_catalog(provider: Object, localization: Object = null, profile: Object = null, palette: StringName = &"after_hours") -> Dictionary:
+	return _configure_catalog_context(provider, localization, profile, palette, null, true)
+
+func _configure_catalog_context(provider: Object, localization: Object = null, profile: Object = null, palette: StringName = &"after_hours", day: Variant = 1, scene: bool = false) -> Dictionary:
+	if _scene_presentation and not scene: return {"ok": false, "code": &"scene_calendar_configuration_forbidden"}
+	if SHOP_THEME._resolve_context(palette, day, false, "standard", scene).is_empty(): return {"ok":false,"code":"invalid_shop_palette"}
 	if not is_instance_valid(provider) or not provider.has_method("get_catalog") or Callable(provider,"get_catalog").get_argument_count() != 1 or not provider.has_signal("catalog_changed"):
 		return {"ok":false,"code":"invalid_shop_catalog_provider"}
 	if provider.has_method("purchase") and Callable(provider,"purchase").get_argument_count() != 2:
@@ -124,8 +135,9 @@ func configure_catalog(provider: Object, localization: Object = null, profile: O
 	if not preferences.ok: return preferences
 	if _provider == null:
 		_palette = palette
+		_scene_presentation = scene
 		_day = day
-		_roles = SHOP_THEME.resolve(palette, day, preferences.value[3], preferences.value[4])
+		_roles = SHOP_THEME._resolve_context(palette, day, preferences.value[3], preferences.value[4], scene)
 		_source_pending = true
 		_provider = provider
 		_provider.connect("catalog_changed",_on_catalog_changed)
@@ -147,10 +159,11 @@ func _read_preferences(localization: Object, profile: Object) -> Dictionary:
 	var large: Variant = profile.get_preference(PREFERENCE_KEYS[1],null) if profile != null else _large_targets
 	var high_contrast: Variant = profile.get_preference(PREFERENCE_KEYS[2], false) if profile != null else _high_contrast
 	var colour_preset: Variant = profile.get_preference(PREFERENCE_KEYS[3], "standard") if profile != null else _colour_preset
-	if typeof(locale) != TYPE_STRING or locale.replace("-","_") not in ["en","zh_CN","zh_HK"] or typeof(percent) != TYPE_INT or percent not in [100,125,150] or typeof(large) != TYPE_BOOL \
-		or typeof(high_contrast) != TYPE_BOOL or typeof(colour_preset) != TYPE_STRING or colour_preset not in ["standard","protan","deutan","tritan"]:
+	var font_style: Variant = profile.get_preference(PREFERENCE_KEYS[4], "pixel") if profile != null else _font_style
+	if typeof(locale) != TYPE_STRING or locale.replace("-","_") not in ["en","zh_CN","zh_HK", "ja", "ko"] or typeof(percent) != TYPE_INT or percent not in [100,125,150] or typeof(large) != TYPE_BOOL \
+		or typeof(high_contrast) != TYPE_BOOL or typeof(colour_preset) != TYPE_STRING or colour_preset not in ["standard","protan","deutan","tritan"] or font_style not in ["pixel","readable"]:
 		return {"ok":false,"code":"invalid_shop_preferences"}
-	return {"ok":true,"value":[locale.replace("-","_"),percent,large,high_contrast,colour_preset]}
+	return {"ok":true,"value":[locale.replace("-","_"),percent,large,high_contrast,colour_preset,font_style]}
 
 func _on_catalog_changed() -> void:
 	_source_pending = true
@@ -179,11 +192,11 @@ func refresh_view(on_open: bool = false, _presentation_only: bool = false, prepa
 	# Colour-only changes use the retained projection. Catalog refresh on show or after
 	# a purchase still reaches the owner, even when ordinary rows would look identical.
 	if _presentation_only and not on_open and not prepare_hidden and not _source_pending \
-		and last_result.ok and preferences.value.slice(0, 3) == [_locale,_percent,_large_targets]:
-		var unchanged: bool = preferences.value.slice(3) == [_high_contrast,_colour_preset]
+		and last_result.ok and preferences.value.slice(0, 3) == [_locale,_percent,_large_targets] and preferences.value[5] == _font_style:
+		var unchanged: bool = preferences.value.slice(3, 5) == [_high_contrast,_colour_preset]
 		_high_contrast = preferences.value[3]
 		_colour_preset = preferences.value[4]
-		_roles = SHOP_THEME.resolve(_palette, _day, _high_contrast, _colour_preset)
+		_roles = SHOP_THEME._resolve_context(_palette, _day, _high_contrast, _colour_preset, _scene_presentation)
 		if is_node_ready() and not unchanged: _apply_colours()
 		_refresh_pending = false
 		return {"ok":true,"code":"unchanged" if unchanged else "ok"}
@@ -201,11 +214,11 @@ func refresh_view(on_open: bool = false, _presentation_only: bool = false, prepa
 		return _catalog_failure(str(projected.code))
 	var changed: bool = rows != _catalog_rows
 	var source_changed: bool = (changed and _source_pending) or (not _catalog_rows.is_empty() and _catalog_facts(projected.value) != _catalog_facts(_records))
-	if not changed and last_result.ok and preferences.value.slice(0, 3) == [_locale,_percent,_large_targets]:
-		var colours_changed: bool = preferences.value.slice(3) != [_high_contrast,_colour_preset]
+	if not changed and last_result.ok and preferences.value.slice(0, 3) == [_locale,_percent,_large_targets] and preferences.value[5] == _font_style:
+		var colours_changed: bool = preferences.value.slice(3, 5) != [_high_contrast,_colour_preset]
 		_high_contrast = preferences.value[3]
 		_colour_preset = preferences.value[4]
-		_roles = SHOP_THEME.resolve(_palette, _day, _high_contrast, _colour_preset)
+		_roles = SHOP_THEME._resolve_context(_palette, _day, _high_contrast, _colour_preset, _scene_presentation)
 		if is_node_ready() and colours_changed: _apply_colours()
 		# Eligibility changes after rounds/day transitions even when all ordinary rows are identical.
 		if is_node_ready():
@@ -215,17 +228,19 @@ func refresh_view(on_open: bool = false, _presentation_only: bool = false, prepa
 		_source_pending = false
 		return {"ok":true,"code":"unchanged"}
 	var prior_quantity := quantity
+	var prior_item_quantities := _item_quantities.duplicate()
 	if is_node_ready():
 		_remember_focus()
 		var focused := get_viewport().gui_get_focus_owner()
 		if on_open or (focused != null and is_ancestor_of(focused)):
 			_host_anchor = {"focus":_remembered_focus,"scroll":info_scroll.scroll_vertical}
-	var result := configure_shop(rows,preferences.value[0],preferences.value[1],preferences.value[2],_palette,
-		_day,preferences.value[3],preferences.value[4])
+	var result := _configure_shop_context(rows,preferences.value[0],preferences.value[1],preferences.value[2],_palette,
+		_day,preferences.value[3],preferences.value[4],preferences.value[5], _scene_presentation)
 	_focus_after_layout = false
 	if result.ok:
 		_catalog_rows = rows.duplicate(true)
 		if not source_changed:
+			_item_quantities = prior_item_quantities
 			var maximum: int = _records[_index_of(selected_id)].legal_max
 			quantity = prior_quantity if prior_quantity <= maxi(1,maximum) else 1
 	else: _host_anchor.clear()
@@ -309,14 +324,21 @@ func _restore_host_view(revision: int) -> void:
 	if is_instance_valid(target) and target.get_focus_mode_with_override() == Control.FOCUS_ALL: target.grab_focus()
 	info_scroll.scroll_vertical = clampi(int(anchor.scroll),0,maxi(0,int(_document.size.y-info_scroll.size.y)))
 
-func configure_shop(items: Array, locale: String = "en", percent: int = 100, large_targets: bool = false, palette: StringName = &"after_hours", day: int = 1, high_contrast: bool = false, colour_preset: String = "standard") -> Dictionary:
+func configure_shop(items: Array, locale: String = "en", percent: int = 100, large_targets: bool = false, palette: StringName = &"after_hours", day: int = 1, high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> Dictionary:
+	return _configure_shop_context(items, locale, percent, large_targets, palette, day, high_contrast, colour_preset, font_style, false)
+
+func configure_scene_shop(items: Array, locale: String = "en", percent: int = 100, large_targets: bool = false, palette: StringName = &"after_hours", high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> Dictionary:
+	return _configure_shop_context(items, locale, percent, large_targets, palette, null, high_contrast, colour_preset, font_style, true)
+
+func _configure_shop_context(items: Array, locale: String = "en", percent: int = 100, large_targets: bool = false, palette: StringName = &"after_hours", day: Variant = 1, high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel", scene: bool = false) -> Dictionary:
+	if _scene_presentation and not scene: return {"ok": false, "code": &"scene_calendar_configuration_forbidden"}
 	if is_node_ready() and not _view_is_current(): return {"ok":false,"code":"shop_view_detached"}
 	# Refuse an unknown presentation before disturbing a valid mounted snapshot.
-	var candidate_roles: Dictionary = SHOP_THEME.resolve(palette, day, high_contrast, colour_preset)
+	var candidate_roles: Dictionary = SHOP_THEME._resolve_context(palette, day, high_contrast, colour_preset, scene)
 	if candidate_roles.is_empty():
 		return {"ok": false, "code": "invalid_shop_palette"}
 	var normalized_locale := locale.replace("-","_")
-	if normalized_locale not in ["en","zh_CN","zh_HK"] or percent not in [100,125,150]:
+	if normalized_locale not in ["en","zh_CN","zh_HK", "ja", "ko"] or percent not in [100,125,150] or font_style not in ["pixel","readable"]:
 		return {"ok":false,"code":"invalid_shop_presentation"}
 	var projected := PROJECTION.project(items)
 	if not projected.ok: return {"ok":false,"code":projected.code}
@@ -326,14 +348,17 @@ func configure_shop(items: Array, locale: String = "en", percent: int = 100, lar
 	_cancel_contacts()
 	# A new owner snapshot cannot retain a quantity against an expired maximum.
 	quantity = 1
+	_item_quantities.clear()
 	_locale = locale.replace("-", "_")
 	_percent = percent
 	_large_targets = large_targets
 	_large = large_targets or percent > 100
 	_palette = palette
+	_scene_presentation = scene
 	_day = day
 	_high_contrast = high_contrast
 	_colour_preset = colour_preset
+	_font_style = font_style
 	_roles = candidate_roles
 	# No hidden action is admitted before its real purchase owner is bound.
 	last_result = projected
@@ -404,6 +429,9 @@ func _ready() -> void:
 	info_scroll.focus_exited.connect(_information_overlay.queue_redraw)
 	_meta_price = _label(_body, Vector2(496, 400), Vector2(136, 48))
 	_meta_state = _label(_body, Vector2(632, 400), Vector2(136, 48))
+	# Pinned facts stay on one line; their exact bounds are checked before use.
+	_meta_price.autowrap_mode = TextServer.AUTOWRAP_OFF
+	_meta_state.autowrap_mode = TextServer.AUTOWRAP_OFF
 	_meta_state.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_quantity_label = _label(_body, Vector2(608, 456), Vector2(48, 48), false)
 	_quantity_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -431,9 +459,9 @@ func _ready() -> void:
 	_connect_focus_observer()
 
 func _apply_colours() -> void:
-	theme = SHOP_THEME.build(_locale, _percent, _palette, _day, _high_contrast, _colour_preset)
+	theme = SHOP_THEME._build_context(_locale, _percent, _palette, _day, _high_contrast, _colour_preset, _font_style, _scene_presentation)
 	for card: Button in cards.values():
-		card.apply_palette(_palette, _day, _high_contrast, _colour_preset)
+		card._apply_palette_context(_palette, _day, _high_contrast, _colour_preset, _scene_presentation)
 	for found: Node in find_children("*", "Label", true, false):
 		var label := found as Label
 		if label != null and label.has_meta("shop_color_role"):
@@ -468,9 +496,10 @@ func _rebuild_catalog() -> void:
 	for record: Dictionary in _records:
 		if record.blank: continue
 		var card: Button = CARD.instantiate()
-		card.apply_palette(_palette, _day, _high_contrast, _colour_preset)
+		card._apply_palette_context(_palette, _day, _high_contrast, _colour_preset, _scene_presentation)
 		card.configure(record, _price(record.unit_price, record.currency), _t("available" if record.available else "sold_out"))
 		card.pressed.connect(_select_item.bind(record.id))
+		card.inspection_requested.connect(_inspect_item.bind(record.id))
 		card.gui_input.connect(_card_input.bind(record.id))
 		_catalog.add_child(card)
 		cards[record.id] = card
@@ -513,7 +542,7 @@ func _show_page(focus_selection: bool = true) -> void:
 				if not _records[index].blank:
 					selected_id = _records[index].id
 					break
-		quantity = 1
+		quantity = _item_quantity(selected_id)
 	_page_selection[page_index] = selected_id
 	previous_button.disabled = page_index == 0
 	next_button.disabled = page_index == page_count - 1
@@ -524,13 +553,22 @@ func _show_page(focus_selection: bool = true) -> void:
 	_body.queue_redraw()
 	if focus_selection: _focus_selected.call_deferred()
 
+func _inspect_item(item_id: String) -> void:
+	# Hover/focus must not retarget an action whose press is already in progress.
+	if not can_return_home(): return
+	_select_item(item_id)
+
+func _item_quantity(item_id: String) -> int:
+	var record: Dictionary = _records[_index_of(item_id)]
+	return clampi(int(_item_quantities.get(item_id, 1)), 1, maxi(1, record.legal_max))
+
 func _select_item(item_id: String) -> void:
 	if not _has_host_custody(): return
 	if not cards.has(item_id) or not cards[item_id].is_visible_in_tree(): return
+	if selected_id == item_id: return
 	_cancel_contacts()
-	if selected_id != item_id:
-		quantity = 1
-		info_scroll.scroll_vertical = 0
+	quantity = _item_quantity(item_id)
+	info_scroll.scroll_vertical = 0
 	selected_id = item_id
 	_page_selection[page_index] = item_id
 	_render_selection()
@@ -547,7 +585,22 @@ func _render_selection() -> void:
 	_description_label.text = record.get("description", "")
 	_meta_price.text = _price(record.unit_price, record.currency)
 	_meta_state.text = _t("available" if record.available else "sold_out")
-	var meta_y := 336 if _large else 400
+	# Keep both exact facts in the pinned band. Enlarged localized copy may use
+	# its side padding, but never the information pane or transaction controls.
+	var state_width := 2 * ceili(_meta_state.get_theme_font("font").get_string_size(
+		_meta_state.text, HORIZONTAL_ALIGNMENT_LEFT, -1, _meta_state.get_theme_font_size("font_size")).x / 2.0)
+	var price_width := 2 * ceili(_meta_price.get_theme_font("font").get_string_size(
+		_meta_price.text, HORIZONTAL_ALIGNMENT_LEFT, -1, _meta_price.get_theme_font_size("font_size")).x / 2.0)
+	var meta_padding := clampi(2 * floori((304 - price_width - state_width - 16) / 4.0), 0, 16)
+	# Label line metrics can exceed get_string_size (including fallback ascent).
+	# Grow upward into scrollable information, keeping the dock boundary fixed.
+	var meta_height := maxi(48, 2 * ceili(maxf(_meta_price.get_minimum_size().y,
+		_meta_state.get_minimum_size().y) / 2.0))
+	_meta_price.position.x = 480 + meta_padding
+	_meta_price.size = Vector2(maxi(0, 304 - 2 * meta_padding - state_width - 16), meta_height)
+	_meta_state.position.x = 784 - meta_padding - state_width
+	_meta_state.size = Vector2(state_width, meta_height)
+	var meta_y := (384 if _large else 448) - meta_height
 	info_scroll.size.y = meta_y - 16
 	_meta_price.position.y = meta_y
 	_meta_state.position.y = meta_y
@@ -568,6 +621,8 @@ func _render_selection() -> void:
 	_quantity_label.visible = record.batchable and record.available
 	_quantity_label.text = str(quantity)
 	_total_label.text = _price(record.unit_price * quantity, record.currency)
+	_buy_button.accessibility_name = "%s: %s × %d" % [_t("buy"), record.name, quantity]
+	_buy_button.tooltip_text = _buy_button.accessibility_name
 	status_label.position = Vector2(496, 576)
 	status_label.size = Vector2(136, 64)
 	var has_purchase := _provider != null and _provider.has_method("purchase")
@@ -588,7 +643,7 @@ func _render_selection() -> void:
 
 func _verify_dock_fit() -> void:
 	if not _view_is_current(): return
-	if not last_result.ok: return
+	if _catalog_layout_pending or not last_result.ok: return
 	# Do not truncate exact amounts or invent a lower owner maximum to fit a key.
 	for label: Label in [_quantity_label, _total_label, _meta_price, _meta_state]:
 		if not label.visible: continue
@@ -597,6 +652,12 @@ func _verify_dock_fit() -> void:
 			last_result = {"ok": false, "code": "shop_dock_does_not_fit"}
 			_show_recovery()
 			return
+	var band_top := info_scroll.position.y + info_scroll.size.y
+	var meta_band := Rect2(480, band_top, 304, (384 if _large else 448) - band_top)
+	if not meta_band.encloses(_meta_price.get_rect()) or not meta_band.encloses(_meta_state.get_rect()) \
+			or _meta_price.position.x + _meta_price.size.x + 16 > _meta_state.position.x:
+		last_result = {"ok": false, "code": "shop_dock_does_not_fit"}
+		_show_recovery()
 
 func _measure_information() -> void:
 	if not _view_is_current(): return
@@ -625,6 +686,7 @@ func _quantity_action(key: String) -> void:
 		"minus": quantity = maxi(1, quantity - 1)
 		"plus": quantity = mini(record.legal_max, quantity + 1)
 		"maximum": quantity = record.legal_max
+	_item_quantities[selected_id] = quantity
 	_render_selection()
 	var focused := get_viewport().gui_get_focus_owner()
 	if focused == null or (focused is BaseButton and focused.disabled):
@@ -647,7 +709,8 @@ func _refresh_supportz() -> void:
 	var admitted: bool = page_index == 0 and _provider != null and _provider.has_method("purchase") \
 		and _provider_can_purchase("supportz", 1).get("ok", false)
 	var card_height: float = 176.0 if cards.is_empty() else (cards.values()[0] as Control).size.y
-	_supportz_button.position = Vector2(304, 2 * (card_height + 8))
+	var slot := _index_of("supportz") % page_capacity
+	_supportz_button.position = Vector2((slot % 3) * 152, (slot / 3) * (card_height + 8))
 	_supportz_button.size = Vector2(144, card_height)
 	_supportz_button.disabled = not admitted
 	_supportz_button.focus_mode = Control.FOCUS_ALL if admitted else Control.FOCUS_NONE
@@ -674,7 +737,7 @@ func _purchase_supportz() -> void:
 	_cancel_contacts()
 	_supportz_confirmation = SUPPORTZ_CONFIRMATION.new()
 	_supportz_confirmation.name = "ShopConfirmation"
-	_supportz_confirmation.theme = CONFIRMATION_THEME.build(_locale, _percent, _palette, _day, _high_contrast, _colour_preset)
+	_supportz_confirmation.theme = CONFIRMATION_THEME._build_context(_locale, _percent, _palette, _day, _high_contrast, _colour_preset, _font_style, _scene_presentation)
 	_supportz_confirmation.request = {"title": _price(45, "money"), "body": "", "warning": false,
 		"cancel": _t("no"), "confirm": _t("yes"), "risk": "neutral", "dialog_name": _t("confirmation")}
 	_supportz_confirmation.attempt_purchase = _attempt_supportz_purchase
@@ -717,6 +780,7 @@ func _dispatch_purchase(item_id: String, requested_quantity: int) -> void:
 		else {"ok": false, "code": &"shop_purchase_result_malformed"}
 	if _purchase_result.get("ok", false):
 		quantity = 1
+		_item_quantities.erase(item_id)
 		status_label.text = ""
 		refresh_view(true, true)
 	else:
@@ -748,7 +812,7 @@ func _card_input(event: InputEvent, item_id: String) -> void:
 	elif event.is_action_pressed("ui_up"):
 		if slot >= 3: target = index - 3
 	elif event.is_action_pressed("ui_down"):
-		if slot + 3 < page_capacity: target = index + 3
+		if slot + 3 < page_capacity and index + 3 < _records.size(): target = index + 3
 		else:
 			if slot % 3 == 2 and not next_button.disabled: next_button.grab_focus()
 			elif not previous_button.disabled: previous_button.grab_focus()
@@ -813,7 +877,7 @@ func _focus_selected() -> void:
 
 func _cancel_contacts() -> void:
 	for card in cards.values(): card.cancel_contact()
-	for button in quantity_buttons.values() + [previous_button, next_button, _supportz_button]:
+	for button in quantity_buttons.values() + [previous_button, next_button, _buy_button, _supportz_button]:
 		if not is_instance_valid(button): continue
 		var was_disabled: bool = button.disabled
 		button.disabled = true
@@ -853,7 +917,7 @@ func _index_of(item_id: String) -> int:
 	return 0
 
 func _t(key: String) -> String:
-	return COPY.text(_locale if _locale in ["en", "zh_CN", "zh_HK"] else "en", key)
+	return COPY.text(_locale if _locale in ["en", "zh_CN", "zh_HK", "ja", "ko"] else "en", key)
 
 func _price(amount: int, currency: String) -> String:
 	return COPY.price(_locale, amount, currency)
@@ -896,7 +960,7 @@ func _draw_plate() -> void:
 	if not last_result.ok: return
 	_body.draw_rect(Rect2(16, 16, 768, 624), _role("controlled_face"))
 	_body.draw_rect(Rect2(480, 16, 304, 368 if _large else 432), _role("laminate"))
-	var blank_index := 8 - page_index * page_capacity
+	var blank_index := _index_of("supportz") - page_index * page_capacity
 	if blank_index >= 0 and blank_index < page_capacity and not cards.is_empty():
 		var height: float = cards.values()[0].size.y
 		var at := Vector2(16 + (blank_index % 3) * 152, 16 + (blank_index / 3) * (height + 8))

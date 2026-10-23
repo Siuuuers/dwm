@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="1" >
+  <testsuite name="tests/integration/test_scene_caption_challenge.gd" tests="1" failures="0" skipped="0" time="13.570006" >
+      <testcase name="test_computer_admits_current_cue_and_continue_closes_without_an_extra_caption" assertions="41" status="pass" classname="tests/integration/test_scene_caption_challenge.gd" time="13.570006" >
+      </testcase>
+  </testsuite>
+</testsuites>

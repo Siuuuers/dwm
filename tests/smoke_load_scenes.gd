@@ -21,7 +21,6 @@ const REQUIRED_SCENE_PATHS := [
 	"res://scenes/dating/DatingScene.tscn",
 	"res://scenes/dating/MinesweeperChallengeOverlay.tscn",
 	"res://scenes/shared/BoxMeter.tscn",
-	"res://scenes/shared/StatHud.tscn",
 	"res://scenes/shared/AppWindowBase.tscn",
 	"res://scenes/shared/IconButton.tscn",
 	"res://scenes/shared/ContactBox.tscn",

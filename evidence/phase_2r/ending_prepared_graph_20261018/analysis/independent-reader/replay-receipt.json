@@ -1,0 +1,19 @@
+{
+  "scope": "Post-run prepared-graph replay of retained original trace; no native execution or acceptance",
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+    "-B",
+    "/workspace/scratch/948d7213d70d/publication-reanalysis/independent-reader/read_trace.py",
+    "--trace",
+    "/workspace/scratch/948d7213d70d/publication-retention/verified/original/ci/native-trace/trace-6124.jsonl",
+    "--target",
+    "0:108881715921047",
+    "--output",
+    "/workspace/scratch/948d7213d70d/publication-reanalysis/independent-reader/replay.json"
+  ],
+  "exit_code": 0,
+  "trace_path": "/workspace/scratch/948d7213d70d/publication-retention/verified/original/ci/native-trace/trace-6124.jsonl",
+  "trace_bytes": 1252458,
+  "trace_sha256": "81f84fce785d9630ec2a29790804665285ad0fc05c0258fcff354573679ec337",
+  "reader_sha256": "b4c21e1cf4c344246191be00cb435a4b55f683df2ee3d169a14496e9cc023a4b"
+}

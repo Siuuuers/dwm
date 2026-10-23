@@ -1,0 +1,29 @@
+{
+  "archive": {
+    "bytes": 142127,
+    "path": "timed-hold-red1-diagnostic-evidence.tar.gz",
+    "sha256": "d7617713cc2871e9ec68fe43753fa979a68499cb8d43acc66871d9e5470183b9"
+  },
+  "archive_member_count": 38,
+  "capture_files": 11,
+  "engine_or_powershell_executed": false,
+  "excluded_in_scope_files": [],
+  "inventory": {
+    "bytes": 9940,
+    "path": "red1-inventory.json",
+    "sha256": "32604adf047af109e96e6c9b7fbad5475998c3ffaf62d35a011f6b2425b0c53c"
+  },
+  "original_zip": {
+    "bytes": 20397,
+    "sha256": "938c51372fe80c0687c16455352ca57f4c3ad1095134dd0bc313780dae7eb6ef"
+  },
+  "payload_bytes_including_inventory": 921340,
+  "payload_file_count_excluding_inventory": 37,
+  "round_trip": "all members byte-equal; complete set; deterministic tar metadata and gzip mtime",
+  "run": 37091802987,
+  "schema_version": 1,
+  "source_commit": "cdd08426e5d7f43aa2ad43caa508ab0d353018f6",
+  "source_snapshot_files": 6,
+  "status": "complete_diagnostic_failure_archive_not_acceptance",
+  "workflow_commit": "ab49046d36679b1cca6f4c40766a7ff501ed9b21"
+}

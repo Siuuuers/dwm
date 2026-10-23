@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "review_kind": "independent_source_review_of_fixture_timing_repair",
+  "reviewer": "f9_contract_review",
+  "reviewed_at_utc": "2026-10-02T06:39:44.372921+00:00",
+  "tested_focus1_source": "4b951a555202be25d231448797e8eb8b7bc99019",
+  "focus1_run_id": 36973252334,
+  "reviewed_files": [
+    {
+      "path": "tests/integration/verify_reading_rail_journey.gd",
+      "tested_focus1": {
+        "bytes": 106063,
+        "sha256": "bd3f6e99a38b0a690fff1afa7e8b85f6b3edd7f30eccec55490700243c0267b5"
+      },
+      "reviewed_candidate": {
+        "bytes": 110050,
+        "sha256": "973b2efe4b51b1017ff45761b02c420487b25aea58b91a7fd801adbdecfb7097"
+      }
+    },
+    {
+      "path": "tools/testing/run_reading_rail_journey.py",
+      "tested_focus1": {
+        "bytes": 59615,
+        "sha256": "051683116b50dd099c522164c68fc1b3dd2bf2baab5bea8ed5508eb04d614a5f"
+      },
+      "reviewed_candidate": {
+        "bytes": 60878,
+        "sha256": "21dc758fd293b063fac0b46688a2e1f7055c9787bbe8f38d091217b81776c4a1"
+      }
+    }
+  ],
+  "failure_evidence": {
+    "path": "/workspace/scratch/e169b180163f/settings-f9-focus1/artifacts/reading-rail-36973252334-1/18ad3d32-a601-4be2-9128-feb80ca39059/settings-load/settings-load-advanced.json",
+    "identity": {
+      "bytes": 28281,
+      "sha256": "629a16919b19a10e089867aa5547cd3248cb81e5959b956fd9b3893c77a960d7"
+    },
+    "failed_checks": [
+      "different_partial_line"
+    ],
+    "native": {
+      "caption_id": 2214877727029,
+      "line_id": "fixture.solo.pre.b",
+      "reveal_generation": 5,
+      "revealing": false,
+      "text": "The challenge is ready.",
+      "total_characters": 23,
+      "visible_characters": -1,
+      "visible_ratio": 1.0
+    },
+    "pause_open": true,
+    "classification": "Fixture driver waited until the correctly advanced short line was fully revealed; no Settings/F9 stage had executed. This is neither a proven production defect nor F9 acceptance."
+  },
+  "diff_scope": {
+    "changed_paths_against_focus1": [
+      "tests/integration/verify_reading_rail_journey.gd",
+      "tools/testing/run_reading_rail_journey.py"
+    ],
+    "all_existing_gd_function_line_numbers_unchanged": true,
+    "existing_function_count": 44,
+    "added_private_functions": {
+      "_settings_load_advance_and_pause": 1615
+    },
+    "production_runtime_changed": false,
+    "fixture_text_catalogue_changed": false,
+    "original_seven_stages_retained": true,
+    "partial_reveal_acceptance_unchanged": true,
+    "ordinary_pause_check_strengthened_with_observed_admission": true
+  },
+  "review_findings": [
+    {
+      "id": "input_path",
+      "result": "no_semantic_shortcut",
+      "detail": "Focus/window preparation occurs on completed saved A. Exactly one Enter press and release are injected through Input.parse_input_event plus flush, across process frames. The helper reads the canonical successor and InputManager neutrality, checks the real Pause admission capture, then dispatches one Escape press/release. It does not invoke advance/complete/restart methods, alter reveal fields, stretch text, or directly call request_pause."
+    },
+    {
+      "id": "read_only_admission",
+      "result": "supported_by_source",
+      "references": [
+        "autoload/DialogicBridge.gd:1830",
+        "scripts/application/lifecycle/ProductionPauseController.gd:348",
+        "autoload/InputManager.gd:90"
+      ],
+      "detail": "capture_reading_checkpoint(false) selects capture_reading_frontier rather than reveal completion. capture_pause_source checks canonical session/route/frontier and gate admission; it does not acquire a Pause suspension. Physical Escape still reaches the production owner."
+    },
+    {
+      "id": "deterministic_control",
+      "result": "bounded_state_based_driver",
+      "detail": "The generic 12-frame delay on the short B line is removed. Required release/neutral process frame remains; B is paused at first observed canonical/admitted frontier. Polls are bounded120 frames. The same strict partial reveal check still rejects a completed line rather than relabeling it."
+    },
+    {
+      "id": "evidence_strength",
+      "result": "additional_transport_receipt",
+      "detail": "settings-load-input.json retains four ordered key packets, process frames, contact counts and admitted canonical frontier. Advanced stage binds that record; Python verifies exact Enter press/release then Escape press/release, strictly increasing frames, one contact on each press and zero on release, empty final contacts and equality to the preserved B frontier."
+    },
+    {
+      "id": "inventory_reuse_scope",
+      "result": "source_consistent",
+      "detail": "Only two fixture/runner files differ from Focus1; every pre-existing GDScript function retains its line. No public GameState/SaveManager symbol declaration or existing scanned call line is changed by this repair. This supports adoption of already reviewed Focus1 generated inventories; final read-only broad cloud gate remains authoritative."
+    }
+  ],
+  "blocking_findings": [],
+  "conclusion": "No blocking source defect found. Proceed to the already-required broad cloud gate; no source reason to rerun unchanged focused suites separately. The timing repair itself remains runtime-unverified.",
+  "limitations": [
+    "Godot InputEventKey injection is real engine input routing but not operating-system keyboard or hardware-device proof.",
+    "State-based prompt dispatch removes the demonstrated delay but does not establish cloud timing success before execution.",
+    "Rendered F9 Cancel/confirm stages did not run in Focus1; their acceptance remains pending.",
+    "This report reviews only the two-file delta against Focus1. The prior broader source review is preserved unchanged."
+  ],
+  "local_godot_or_powershell_executed": false,
+  "reviewer_source_edits": false
+}

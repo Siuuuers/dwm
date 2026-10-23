@@ -1,0 +1,78 @@
+{
+  "repository": "Siuuuers/dwm",
+  "workflow_run_id": 35577704852,
+  "workflow_run_attempt": 1,
+  "workflow_url": "https://github.com/Siuuuers/dwm/actions/runs/35577704852",
+  "candidate_commit": "e1d3428fbfc9de27a0f350f3a858478cd06c0978",
+  "checkout_commit": "e585dc45f4305add2c7c37b316cea74d7153efae",
+  "tested_tree": "47e601d2b235fca8eacf2a4389e26543330f1558",
+  "baseline_schema_commit": "681251dc832262c08826ce74d6a4480291eac4a8",
+  "artifact": {
+    "id": 10629225635,
+    "name": "checkpoint-performance-35577704852-1",
+    "archive_sha256": "971ccbea627eb59f70ea9633b208776d8e339e00c1843f5177c71de1f041384d",
+    "size_in_bytes": 255103
+  },
+  "schema_sha256": {
+    "candidate": "55ed13f55b42ef18c1c279202d01aa5ef8e973da6bab63985937cd2f3146daf3",
+    "baseline": "230374b25001d1d7751cce1696845fd6416e55f0d457374c6386086c6ebfba92"
+  },
+  "engine": "Godot 4.6.3.stable.official.7d41c59c4",
+  "runner": "windows-2022",
+  "ablation_scope": "Only scripts/infrastructure/save/SaveDocumentSchema.gd differs between baseline and candidate measurements; all other code is the candidate.",
+  "profile_environment": {
+    "DWM_CHECKPOINT_PROFILE": "1",
+    "DWM_CONSEQUENCE_PROFILE": "1"
+  },
+  "sample_policy": "Each locale uses identical fixed autosave bytes for five baseline and five candidate microbenchmark samples. Fresh journey boards can differ and are observational.",
+  "verification": {
+    "all_workflow_jobs": 9,
+    "all_jobs_success": true,
+    "candidate_tree_equals_checkout_tree": true,
+    "artifact_archive_sha256_verified": true,
+    "isolated_execution_records": 8,
+    "successful_real_journeys": 4,
+    "successful_fixed_payload_probes": 4,
+    "samples_per_phase_per_probe": 5,
+    "identical_input_and_output_hashes": true,
+    "preserved_journal_bundles_per_payload": 2
+  },
+  "payloads": {
+    "fixed-zh-CN-autosave.json": {
+      "bytes": 376091,
+      "sha256": "60915f103ffbbe72cbae500f7c0597185d787468e1fa03f4b09e7390d082c570",
+      "journal_bundles": 2
+    },
+    "fixed-zh-HK-autosave.json": {
+      "bytes": 362808,
+      "sha256": "314ef70a4ba5c696e7587eb0499722e704dbe66407f324a5bed7473d677b0692",
+      "journal_bundles": 2
+    }
+  },
+  "execution_records": [
+    "baseline-zh-CN.jsonl",
+    "baseline-zh-CN-fixed.jsonl",
+    "baseline-zh-HK.jsonl",
+    "baseline-zh-HK-fixed.jsonl",
+    "candidate-zh-CN.jsonl",
+    "candidate-zh-CN-fixed.jsonl",
+    "candidate-zh-HK.jsonl",
+    "candidate-zh-HK-fixed.jsonl"
+  ],
+  "outgoing_validation_comparison": [
+    {
+      "locale": "zh-CN",
+      "baseline_ms": 41.547,
+      "candidate_ms": 29.029,
+      "reduction_percent": 30.12973259200423,
+      "bytes": 376091
+    },
+    {
+      "locale": "zh-HK",
+      "baseline_ms": 39.366,
+      "candidate_ms": 26.876,
+      "reduction_percent": 31.727887009094147,
+      "bytes": 362808
+    }
+  ]
+}

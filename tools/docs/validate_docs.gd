@@ -37,7 +37,7 @@ func _init() -> void:
 		printerr(JSON.stringify(result.errors))
 		quit(1)
 		return
-	var workflow := preload("res://tools/docs/AgentWorkflowValidator.gd").new().validate_files("res://Prompt.md", snapshot)
+	var workflow := preload("res://tools/docs/AgentWorkflowValidator.gd").new().validate_files()
 	if not workflow.ok:
 		printerr(JSON.stringify(workflow.errors))
 		quit(1)

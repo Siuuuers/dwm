@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "archive": "dwm-run101-partial-diagnostic-evidence.tar.gz",
+  "bytes": 16258334,
+  "sha256": "f7566e4c891782aa0a12e80a1bf33b0f297946de160e5645828d2c9f2f3dc0a4",
+  "parts": [
+    {
+      "file": "dwm-run101-partial-diagnostic-evidence.tar.gz.part01",
+      "bytes": 8388608,
+      "sha256": "d0e40d6f57ee72e68766e56df2a4a19e463dab1be05d8ae44c1d25cd948b1ebd"
+    },
+    {
+      "file": "dwm-run101-partial-diagnostic-evidence.tar.gz.part02",
+      "bytes": 7869726,
+      "sha256": "a4dc144f6202c32cd027110d7040ea8f2f3ddc6283268ba728cb1769ceb43ba6"
+    }
+  ],
+  "concatenate_parts_in_list_order": true,
+  "reassembly_byte_verified": true,
+  "reason": "Bounded transfer parts preserve exact audited diagnostic archive within connector request limit."
+}

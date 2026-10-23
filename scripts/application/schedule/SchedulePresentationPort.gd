@@ -4,7 +4,7 @@ extends RefCounted
 const _SOURCE_QUERY := preload("res://scripts/application/schedule/ScheduleSourceQuery.gd")
 const _ART := preload("res://scripts/ui/schedule/ScheduleArtRegistry.gd")
 const _CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.gd")
-const _LOCALES := ["en", "zh-CN", "zh-HK"]
+const _LOCALES := ["en", "zh-CN", "zh-HK", "ja", "ko"]
 const _NAME_KEYS := ["en", "zh-CN", "zh-HK"]
 const _PROBE_ID := "schedule-presentation-availability-probe"
 
@@ -108,7 +108,7 @@ func _project(locale: String, modal_background: bool) -> Dictionary:
 					return probe
 				available = false
 		sources.append({
-			"id": source_id, "name": _names[source_id][locale],
+			"id": source_id, "name": _names[source_id].get(locale, _names[source_id]["en"]),
 			"compact": art["value"]["compact"], "folio": art["value"]["folio"],
 			"available": available,
 		})
@@ -123,7 +123,7 @@ func _project(locale: String, modal_background: bool) -> Dictionary:
 			return art
 		entries.append({
 			"id": entry["draft_entry_id"], "source_id": source_id,
-			"name": _names[source_id][locale], "folio": art["value"]["folio"],
+			"name": _names[source_id].get(locale, _names[source_id]["en"]), "folio": art["value"]["folio"],
 		})
 	return _ok({
 		"day_seven": int(view["day"]) == 7,
@@ -217,12 +217,10 @@ static func _validate_names(names: Dictionary, registry: Object,
 		if typeof(translations) != TYPE_DICTIONARY:
 			return _fail(&"invalid_schedule_names")
 		var table := translations as Dictionary
-		var keys: Array = table.keys()
-		keys.sort()
-		if keys != _NAME_KEYS:
+		if not table.has_all(_NAME_KEYS):
 			return _fail(&"invalid_schedule_names")
-		for locale: String in _LOCALES:
-			if typeof(table[locale]) != TYPE_STRING \
+		for locale: Variant in table:
+			if locale not in _LOCALES or typeof(table[locale]) != TYPE_STRING \
 					or str(table[locale]).strip_edges().is_empty():
 				return _fail(&"invalid_schedule_names")
 	return {}

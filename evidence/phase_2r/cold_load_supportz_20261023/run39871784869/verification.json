@@ -1,0 +1,28 @@
+{
+  "run_id": 39871784869,
+  "job_id": 120147684834,
+  "artifact_id": 12467096843,
+  "source": "103f7ad2e8c7acaf110abcd37232741de15fe811",
+  "tree": "36c7200f9fd69d61bdd8eee1825ce1b881243708",
+  "controller": "89df3ab5cfdf6762d6ad331cd247dd5b56635d29",
+  "test_cases": 11,
+  "assertions": 352,
+  "processes_exit_zero": 6,
+  "manifest_members_verified": 36,
+  "original_zip_bytes": 492607,
+  "original_zip_sha256": "dc91fa92879d9a4382e289734c7707d1e2f106599e84e515f3601c2080023a20",
+  "generated": {
+    "game_state": {
+      "bytes": 664923,
+      "sha256": "aefa7adb552b60e926969f91644fce93cb372fdff05be23654237f11b5d13495",
+      "records": 280
+    },
+    "save_manager": {
+      "bytes": 181693,
+      "sha256": "dacabd19788841ebf77435a2fe93ebf5839010ab99fbe3042fa924614d5b241c",
+      "records": 82
+    }
+  },
+  "adopted": false,
+  "reason": "new fixture correction pending; retain bounded evidence only"
+}

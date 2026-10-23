@@ -1047,6 +1047,12 @@ trusted recovery.
 
 ## 14. Hospital preset
 
+**Owner correction, 3 October 2026:** Hospital manual Save/Load and their Quick
+shortcuts are disabled, including from Pause and Settings. This overrides the
+generic manual-save clauses for Hospital only. History, ordinary progression and
+existing transaction integrity remain shared. See the
+[scoped correction](2026-08-22-hospital-ordered-ending-current-v1-ui-disposition.md#owner-correction--3-october-2026-hospital-manual-saveload).
+
 ### 14.1 Same host, distinct semantic route
 
 Hospital uses the same three-band host, portrait rules, tableau, captions,

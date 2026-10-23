@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "document_id": "phase_2r_hospital_reading_broad1_failed_diagnostic_2026_10_02",
+  "status": {
+    "focused_success": true,
+    "broad1_failed": true,
+    "broad1_diagnostic_only": true,
+    "broad2_pending": true,
+    "canonical_broad_acceptance": false,
+    "final_receipt_pending": true
+  },
+  "focused_records_immutable": {
+    "focused_receipt_sha256": "8bdd267cd123f217ec591d4bd41927a2e2a05c99f3dc9b151d0c3dea8ce49276",
+    "file_inventory_sha256": "25a4b5973bfb6a6f5fa1390f0058bf618eeaed5be65e124321565b5aa983f7a6"
+  },
+  "broad1": {
+    "run_id": 37044894986,
+    "source": "856520f09440d9b47cc272de3363009924ffedca",
+    "workflow_head_and_checkout": "1bc4f6afd759e969f82b9c2134eb178479c19d13",
+    "jobs": 24,
+    "artifacts": 35,
+    "job_conclusions": {
+      "success": 20,
+      "failure": 4
+    },
+    "failed_jobs": [
+      {
+        "id": 110965240440,
+        "name": "Windows / endings",
+        "diagnosis": "Godot 4.6.3 installation received a GitHub release error page; no engine or game test ran."
+      },
+      {
+        "id": 110971489537,
+        "name": "Windows / warm-outgoing-proof comparison",
+        "diagnosis": "Exact stale whole-port baseline guard caused by the reviewed cold-lease method."
+      },
+      {
+        "id": 110971489602,
+        "name": "Windows / history-region-search comparison",
+        "diagnosis": "Exact stale whole-port baseline guard caused by the reviewed cold-lease method."
+      },
+      {
+        "id": 110973853016,
+        "name": "Windows / seven-day retained history",
+        "diagnosis": "Checkout-free aggregate failure propagated from the two failed comparison jobs."
+      }
+    ]
+  },
+  "diagnostic_package": {
+    "archive": "hospital-broad1-diagnostic-evidence.tar.gz",
+    "archive_bytes": 28177357,
+    "archive_sha256": "b566782f3c8acd276968cc8dfc22eb9b610bc9a998ebcda75fb3554676d0096d",
+    "storage": "Four ordered raw parts described by packages/broad1-diagnostic/archive-parts-manifest.json.",
+    "generic_manifest_sha256": "bd0efa30ccd870beedb1b5f47ecf3c980e3cac5094868cc02eebc16e0d406346",
+    "payload_file_count": 661,
+    "archive_member_count": 663,
+    "excluded_file_count": 185,
+    "round_trip_verified": true,
+    "generic_exclusions": {
+      "nested_windows_binary_zip": {
+        "count": 1,
+        "bytes": 98898813,
+        "sha256": "a272f0da2b0421581b0c21d3310a6cbf16566c35d85c2dee66dbf5b926bcd5a4"
+      },
+      "non_reading_png": 176,
+      "duplicate_public_inventory": 2,
+      "large_native_speech_diagnostics": 6
+    }
+  },
+  "supplements": [
+    {
+      "archive": "packages/broad1-diagnostic/hospital-broad1-supplemental-audits.tar.gz",
+      "bytes": 416623,
+      "sha256": "7283455e16eb69971ea39c773284bb28a298c8eeb078a048b1df88e161e7151e",
+      "scope": "Independent bounded semantic, reading, selector, rendered, performance, retained-history producer, suite/negative-control, export, and visual reviews."
+    },
+    {
+      "archive": "packages/broad1-diagnostic/hospital-broad1-normalization-supplement.tar.gz",
+      "bytes": 9700,
+      "sha256": "e12d3168fc8c2dfd1bcbd2d76a3cff9794077fd5629255cdce348a5e7e7e7354",
+      "scope": "Outgoing/lazy normalization bounded passes; no universal speedup claim because one splice port_seam pair was 497 microseconds slower."
+    }
+  ],
+  "export_transport": {
+    "original_artifact_id": 11244640103,
+    "original_zip_bytes": 98850774,
+    "original_zip_sha256": "e2739823bc11ab4a336072c1a437af8711f54c3dee248a6e388b42c6947d8cc9",
+    "transport_run_id": 37047435988,
+    "reassembly_verified": true,
+    "zip_crc_verified": true,
+    "bounded_export_audit_in_supplement": true,
+    "durable_original_archive_in_repository": false,
+    "durable_original_archive_exclusion": "The 98 MB original GitHub artifact and its transport chunks/wrappers are not duplicated in the repository. Their API identity, transport manifest, corrected/invalid workflow records, logs, reassembly receipt and bounded export audit are retained; durable original-binary archiving remains an explicit unresolved publication decision."
+  },
+  "source9_guard_repair": {
+    "source": "a24f71766a624b57601814dda487b53c66518c39",
+    "parent": "856520f09440d9b47cc272de3363009924ffedca",
+    "static_review": "audit-records/source9/static-review.json",
+    "static_review_only": true,
+    "runtime_acceptance": false
+  },
+  "broad2_pending": {
+    "run_id": 37048318182,
+    "source": "a24f71766a624b57601814dda487b53c66518c39",
+    "workflow_head": "c9c013397f2e309b48fc1548490b401e54938c6c",
+    "status": "pending capture, independent audit and final receipt",
+    "acceptance": false
+  },
+  "limits": [
+    "Broad1 is a completed failed run and is retained as diagnostic/partial evidence only.",
+    "Passing Broad1 components retain only the scopes stated by their independent audits.",
+    "No original large GitHub artifact ZIP is embedded in this repository evidence directory.",
+    "Broad2 has no acceptance claim until its completed evidence is captured and independently audited.",
+    "No whole-game, whole-reading-rail or whole-gate acceptance is made by this receipt."
+  ]
+}

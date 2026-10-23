@@ -1,0 +1,211 @@
+{
+  "run_id": 39986286408,
+  "jobs": {
+    "manual": 120526201377,
+    "refusal": 120526201399,
+    "render": 120526201655
+  },
+  "qualification": "all three independent phases qualified; primary Settings GUT suite is separate and not qualified by this evidence",
+  "source_proofs": {
+    "refusal": {
+      "source_sha": "e5cf80a5417c05bd0bb7fa2f60f59e8905e839a6",
+      "source_tree": "6afbf06d54923667a9faed51ec198b6496c1dbd8",
+      "controller_sha": "07834edc087e44546f1451f30bdac8baa6051be9",
+      "phase": "refusal",
+      "source_hashes": {
+        "tools/testing/Invoke-CloudTests.ps1": "306441284e9220547ce9d7674285722acc8b308beb188d0d2a9e9e41e19a55e9",
+        "tools/testing/Invoke-StorageRefusalChecks.ps1": "a834df68acc0e57347df29c928b4190791ec72354d6084263b440cf1426c3219",
+        "tests/backup_storage/test_manual_witness_revision_storage.gd": "e31ef8d4624625ca14dd7a7188eafd119bebad52ff05887905d259aea6ee342c",
+        "tests/ui/render_settings_shared.gd": "48d9b0f76e14b90d39ed4b9fc24dab1f2f75681d4a8b62e53b224c5505d74360"
+      }
+    },
+    "manual": {
+      "source_sha": "e5cf80a5417c05bd0bb7fa2f60f59e8905e839a6",
+      "source_tree": "6afbf06d54923667a9faed51ec198b6496c1dbd8",
+      "controller_sha": "07834edc087e44546f1451f30bdac8baa6051be9",
+      "phase": "manual",
+      "source_hashes": {
+        "tools/testing/Invoke-CloudTests.ps1": "306441284e9220547ce9d7674285722acc8b308beb188d0d2a9e9e41e19a55e9",
+        "tools/testing/Invoke-StorageRefusalChecks.ps1": "a834df68acc0e57347df29c928b4190791ec72354d6084263b440cf1426c3219",
+        "tests/backup_storage/test_manual_witness_revision_storage.gd": "e31ef8d4624625ca14dd7a7188eafd119bebad52ff05887905d259aea6ee342c",
+        "tests/ui/render_settings_shared.gd": "48d9b0f76e14b90d39ed4b9fc24dab1f2f75681d4a8b62e53b224c5505d74360"
+      },
+      "manual_body_sha256": "44512887666027938297055bc27253cc922add3dac09eb0032222c094a439ee2",
+      "manual_script_sha256": "a753755ff2424e50918d89644e3c622a82c3c9fe6b097a9f8e75cbf180fd81f1",
+      "extraction_anchor_counts": [
+        1,
+        1
+      ]
+    },
+    "render": {
+      "source_sha": "e5cf80a5417c05bd0bb7fa2f60f59e8905e839a6",
+      "source_tree": "6afbf06d54923667a9faed51ec198b6496c1dbd8",
+      "controller_sha": "07834edc087e44546f1451f30bdac8baa6051be9",
+      "phase": "render",
+      "source_hashes": {
+        "tools/testing/Invoke-CloudTests.ps1": "306441284e9220547ce9d7674285722acc8b308beb188d0d2a9e9e41e19a55e9",
+        "tools/testing/Invoke-StorageRefusalChecks.ps1": "a834df68acc0e57347df29c928b4190791ec72354d6084263b440cf1426c3219",
+        "tests/backup_storage/test_manual_witness_revision_storage.gd": "e31ef8d4624625ca14dd7a7188eafd119bebad52ff05887905d259aea6ee342c",
+        "tests/ui/render_settings_shared.gd": "48d9b0f76e14b90d39ed4b9fc24dab1f2f75681d4a8b62e53b224c5505d74360"
+      }
+    }
+  },
+  "artifacts": [
+    {
+      "phase": "refusal",
+      "artifact_id": 12515682818,
+      "sha256": "f4a0470f034c4278eee573216ef88d21bb424c54fcf9387374ef0ab90837c4c6",
+      "size_bytes": 5808144
+    },
+    {
+      "phase": "manual",
+      "artifact_id": 12515792286,
+      "sha256": "109862af46f5cd8689fe8c104f1ceb411f1839f3edf2e9f53785aaba907d2ec4",
+      "size_bytes": 3148077
+    },
+    {
+      "phase": "render",
+      "artifact_id": 12515876837,
+      "sha256": "fa4b7fbfe09963f804e4eae467b9c52eb82a81be90e924d84a00521e46a75709",
+      "size_bytes": 3386627
+    }
+  ],
+  "artifact_download_verification": [
+    {
+      "name": "render",
+      "artifact_id": 12515876837,
+      "sha256": "fa4b7fbfe09963f804e4eae467b9c52eb82a81be90e924d84a00521e46a75709",
+      "members": 43,
+      "crc_ok": true
+    },
+    {
+      "name": "manual",
+      "artifact_id": 12515792286,
+      "sha256": "109862af46f5cd8689fe8c104f1ceb411f1839f3edf2e9f53785aaba907d2ec4",
+      "members": 11,
+      "crc_ok": true
+    },
+    {
+      "name": "refusal",
+      "artifact_id": 12515682818,
+      "sha256": "f4a0470f034c4278eee573216ef88d21bb424c54fcf9387374ef0ab90837c4c6",
+      "members": 32,
+      "crc_ok": true
+    }
+  ],
+  "refusal": {
+    "empty": {
+      "tests": 83,
+      "expected_root_refusals": 80,
+      "storage_free_passes": 3,
+      "errors": 0,
+      "skipped": 0,
+      "snapshots_byte_identical": true,
+      "snapshot_sha256": "6b725e0f16973f27a2005168219b6e1a7240d6860f533576bfcc067380563243"
+    },
+    "whitespace": {
+      "tests": 83,
+      "expected_root_refusals": 80,
+      "storage_free_passes": 3,
+      "errors": 0,
+      "skipped": 0,
+      "snapshots_byte_identical": true,
+      "snapshot_sha256": "6b725e0f16973f27a2005168219b6e1a7240d6860f533576bfcc067380563243"
+    }
+  },
+  "manual": {
+    "source_extraction_reconstructed_exactly": true,
+    "single_pass_marker": true,
+    "statistics": {
+      "assertions": 61180,
+      "distinct_snapshots": 94,
+      "failures": [],
+      "refusal_pairs": 30,
+      "restart_fault_pairs": 1604,
+      "restart_pairs": 2218,
+      "write_fault_pairs": 154,
+      "write_pairs": 14
+    }
+  },
+  "render": {
+    "captures": 3,
+    "ok": true,
+    "single_pass_marker": true,
+    "images_visually_inspected": true,
+    "png_sha256": {
+      "failure-refused.png": "2f62eeeadfa6d6bda374dd257e3b205128131b52f245e0eba33135e13cd76ec0",
+      "en-100-AfterHours-standard-failure-before.png": "53fee7a4e93db422514f4ed8da8dfd3dec32d408ea03b360c7b5f80db4bdf6f1",
+      "failure-uncertain.png": "2f62eeeadfa6d6bda374dd257e3b205128131b52f245e0eba33135e13cd76ec0"
+    },
+    "scope": "Actual Pause Settings keyboard journey with real Profile/Localization/Input and in-memory marker-cleanup refusal after durable promotion; no physical disk or OS-crash claim.",
+    "palette_scope": "AfterHours Standard ordinary targets only.",
+    "samples": [
+      {
+        "colour_preset": "standard",
+        "file": "en-100-AfterHours-standard-failure-before.png",
+        "focus": "AccessibilityHighContrastRowControl",
+        "high_contrast": false,
+        "large_targets": false,
+        "locale": "en",
+        "logical_size": [
+          1280,
+          720
+        ],
+        "native_size": [
+          640,
+          360
+        ],
+        "navigation": {
+          "category_keys": 5,
+          "file_operations": 45,
+          "focus_perimeter_visible": true,
+          "persisted_unchanged": true,
+          "profile_revision": 3,
+          "profile_unchanged": true,
+          "sheet_tabs": 3,
+          "target": "preferences.accessibility.high_contrast",
+          "target_rect": [
+            736.0,
+            405.0,
+            500.0,
+            52.0
+          ],
+          "transport": "Viewport key events"
+        },
+        "palette": "AfterHours",
+        "primary_font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "sheet_extent": 873.0,
+        "sheet_scroll": 206,
+        "state": "failure-before",
+        "text_percent": 100,
+        "workfield": [
+          480,
+          64,
+          800,
+          656
+        ]
+      },
+      {
+        "cancel": false,
+        "departure_blocked": true,
+        "file": "failure-uncertain.png",
+        "file_operations": 64,
+        "input_blocked": true,
+        "message": "Unable to confirm whether the change was saved. Further changes and leaving Settings are unavailable.",
+        "retry": false,
+        "state": "failure-uncertain"
+      },
+      {
+        "cancel": false,
+        "departure_blocked": true,
+        "file": "failure-refused.png",
+        "file_operations": 64,
+        "input_blocked": true,
+        "message": "Unable to confirm whether the change was saved. Further changes and leaving Settings are unavailable.",
+        "retry": false,
+        "state": "failure-refused"
+      }
+    ]
+  },
+  "script_unicode_error_logs": []
+}

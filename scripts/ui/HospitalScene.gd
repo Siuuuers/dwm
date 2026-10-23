@@ -8,21 +8,21 @@ class_name HospitalScene
 ## a Control node the owner of recovery, of the day, and of the ending -- three things a scene must
 ## never decide. All of it is gone.
 ##
-## Retains the coordinator-owned presentation command. Live captions are mounted by the existing
-## Dialogic playback owner for Sylvia-present scenes. Ordinary fainting shows a short notice
-## whose Continue button acknowledges the retained owner command. It starts no timeline, decides
-## no outcome, and mutates no stat, day, invitation, Schedule or ending. `SceneRouter` injects the
-## command while this scene is still OFF-TREE, so it cannot reach `_ready()` unconfigured.
-##
-## AN UNCONFIGURED SCENE DOES NOTHING. That is deliberate: a Hospital scene that appeared without a
-## committed presentation intent behind it would be a bug, and showing an empty room is a far better
-## failure than inventing a recovery.
+## Retains the coordinator-owned command. The existing Dialogic owner presents
+## the shared fainting DTL, with Sylvia art only when eligible. Normal dialogue
+## completion returns to the resolver; this host owns no controls or gameplay.
 
-const _PORT_METHODS: Array[String] = ["begin", "complete", "acknowledge_notice"]
+const _PORT_METHODS: Array[String] = ["begin", "complete"]
 const _CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.gd")
+const _FROZEN_CONTEXT := preload("res://scripts/narrative/HospitalFrozenContext.gd")
 
 ## Pure projection of already validated Run receipts. A different day/source never supplies art.
 static func art_participants(contacts: Dictionary, context: Dictionary, committed_schedule: Dictionary = {}) -> Array[String]:
+	if context.has("presentation"):
+		var checked := _FROZEN_CONTEXT.validate(context)
+		if checked.get("ok", false) and checked.value.presentation.fields.sylvia_eligible:
+			return ["sylvia"]
+		return []
 	if context.get("kind") != "hospital" or not context.get("source_entry_ids") is Array \
 			or not context.get("miss_receipt_ids") is Array or context.get("day") not in range(1, 8):
 		return []
@@ -57,48 +57,73 @@ static func art_participants(contacts: Dictionary, context: Dictionary, committe
 
 var _presentation_port: Object = null
 var _presentation_command: Dictionary = {}
+var _completion_recovery: WitnessedTransportRecovery
+var _completion_retry: Callable
+var _completion_admission: Callable
 
 
-@onready var _notice_panel: Control = %FaintNotice
-@onready var _continue_button: Button = %ContinueButton
-@onready var _message_label: Label = %Message
+## Technical recovery appears only after the retained coordinator reports a failed step.
+## It retries that coordinator; the scene never acknowledges or restarts narrative playback.
+func show_completion_recovery(retry: Callable, admission: Callable) -> bool:
+	if not retry.is_valid() or not admission.is_valid() or admission.call() != true:
+		return false
+	_completion_retry = retry
+	_completion_admission = admission
+	if not is_instance_valid(_completion_recovery):
+		var layer := CanvasLayer.new()
+		layer.layer = 90
+		add_child(layer)
+		_completion_recovery = preload("res://scenes/ui/witnessed/WitnessedTransportRecovery.tscn").instantiate()
+		layer.add_child(_completion_recovery)
+		if not _completion_recovery.bind_owners(get_node_or_null("/root/LocalizationManager"),
+				get_node_or_null("/root/InputManager"), _completion_retry_admitted):
+			layer.queue_free()
+			_completion_recovery = null
+			return false
+		_completion_recovery.retry_requested.connect(_retry_completion)
+		var profile := get_node_or_null("/root/ProfileManager")
+		var localization := get_node_or_null("/root/LocalizationManager")
+		if profile != null: profile.preference_changed.connect(_on_recovery_preference_changed)
+		if localization != null: localization.locale_changed.connect(_refresh_completion_recovery)
+	return _refresh_completion_recovery()
 
 
-func _ready() -> void:
-	if not is_presentation_configured(): return
-	var game: Node = get_node_or_null("/root/GameState")
-	var contacts: Dictionary = game.contacts if game != null and game.get("contacts") is Dictionary else {}
-	var schedule: Dictionary = game._canonical_committed_schedule() if game != null and game.has_method("_canonical_committed_schedule") else {}
-	var sylvia_present := art_participants(contacts, _presentation_command.get("context", {}), schedule) == ["sylvia"]
-	var locale_manager: Node = get_node_or_null("/root/LocalizationManager")
-	var locale := str(locale_manager.get_locale()).replace("_", "-") if locale_manager != null else "en"
-	if locale not in ["en", "zh-CN", "zh-HK"]: locale = "en"
-	var profile: Node = get_node_or_null("/root/ProfileManager")
-	var percent := int(profile.get_preference("preferences.accessibility.text_size", 100)) if profile != null else 100
-	var scale := float(percent) / 100.0
-	_message_label.text = {"en": "You fainted.", "zh-CN": "你晕倒了。", "zh-HK": "你暈倒了。"}[locale]
-	_continue_button.text = {"en": "Continue", "zh-CN": "继续", "zh-HK": "繼續"}[locale]
-	_message_label.add_theme_font_size_override("font_size", roundi(24.0 * scale))
-	_continue_button.add_theme_font_size_override("font_size", roundi(20.0 * scale))
-	_continue_button.custom_minimum_size.y = roundf(48.0 * scale)
-	_notice_panel.custom_minimum_size = Vector2(roundf(360.0 * scale), roundf(144.0 * scale))
-	_notice_panel.visible = not sylvia_present
-	if not sylvia_present:
-		_continue_button.pressed.connect(_acknowledge_notice)
-		_continue_button.grab_focus()
+func dismiss_completion_recovery() -> void:
+	_completion_retry = Callable()
+	_completion_admission = Callable()
+	if is_instance_valid(_completion_recovery): _completion_recovery.dismiss()
 
 
-func _acknowledge_notice() -> void:
-	_continue_button.disabled = true
-	var result: Variant = _presentation_port.call(&"acknowledge_notice", _presentation_command.duplicate(true))
-	if not result is Dictionary or not result.get("ok", false):
-		_continue_button.disabled = false
-	else:
-		_allow_notice_retry.call_deferred()
+func _completion_retry_admitted() -> bool:
+	return is_inside_tree() and get_tree().current_scene == self and _completion_retry.is_valid() \
+		and _completion_admission.is_valid() and _completion_admission.call() == true
 
 
-func _allow_notice_retry() -> void:
-	if is_inside_tree() and not is_queued_for_deletion() and get_tree().current_scene == self and not _presentation_command.is_empty(): _continue_button.disabled = false
+func _retry_completion() -> void:
+	if not _completion_retry_admitted(): return
+	var retry := _completion_retry
+	dismiss_completion_recovery()
+	retry.call()
+
+
+func _on_recovery_preference_changed(_path: StringName, _value: Variant) -> void:
+	_refresh_completion_recovery()
+
+
+func _refresh_completion_recovery(_locale: String = "") -> bool:
+	if not is_instance_valid(_completion_recovery) or not _completion_retry_admitted(): return false
+	var profile := get_node_or_null("/root/ProfileManager")
+	var localization := get_node_or_null("/root/LocalizationManager")
+	if profile == null or localization == null: return false
+	var presentation := preload("res://scripts/ui/witnessed/WitnessedRunPresentation.gd").read(get_node_or_null("/root/GameState"))
+	if not _completion_recovery.configure_presentation(str(localization.get_locale()),
+		int(profile.get_preference("preferences.accessibility.text_size", 100)),
+		str(presentation.get("palette", "AfterHours")),
+		bool(profile.get_preference("preferences.accessibility.high_contrast", false)),
+		str(profile.get_preference("preferences.accessibility.colour_differentiation", "standard")),
+		bool(profile.get_preference("preferences.accessibility.large_targets", false)),
+		str(profile.get_preference("preferences.accessibility.font_style", "pixel"))): return false
+	return _completion_recovery.present(true, false, &"hospital")
 
 
 ## The ONE injection seam. Called by `SceneRouter` before `add_child()`, so `_ready()` always runs
@@ -109,6 +134,9 @@ func configure_presentation(port: Object, presentation_command: Dictionary) -> D
 		return _fail(&"invalid_presentation_port", "the presentation port contract is incomplete")
 	if typeof(presentation_command) != TYPE_DICTIONARY or presentation_command.is_empty():
 		return _fail(&"invalid_presentation_command", "a presentation command is required")
+	if presentation_command.get("context") is Dictionary and presentation_command.context.has("presentation"):
+		var frozen := _FROZEN_CONTEXT.validate(presentation_command.context)
+		if not frozen.get("ok", false): return frozen
 	if _presentation_port != null and _presentation_port != port:
 		return _fail(&"presentation_port_already_configured",
 			"a configured scene never adopts a replacement port")

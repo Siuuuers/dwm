@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "source": "05b6ac61331b9d23ffe9cbd6a8faa3926aaa4f10",
+  "parent": "2e0de5d54a872ba5af8fd9cb4b2419d0de6008e0",
+  "tree": "dfa5508c93144cdb07a6ea6a755533a03f3bb250",
+  "files": [
+    {
+      "path": ".beads/issues.jsonl",
+      "bytes": 2024081,
+      "sha256": "1c7c6c8a16aca46257fdd00e6808afc5cd8d02ee28c48d92343d553629cc2716"
+    },
+    {
+      "path": "docs/agent/2026-09-23-next-session-handoff.md",
+      "bytes": 27179,
+      "sha256": "a2f6125f5899c0011b6f7c9a165f7e50389d0d6afd60d3fd07d181625d89009d"
+    },
+    {
+      "path": "docs/agent/execution-map.md",
+      "bytes": 24648,
+      "sha256": "57e8c9a717f87a914247a264142504e0f0f4892d37859e85ee0546fbf050fb2f"
+    },
+    {
+      "path": "docs/design/2026-08-13-narrative-scene-host-dating-hospital-challenge-ui-ux-amendment.md",
+      "bytes": 88083,
+      "sha256": "1d1001b6633091552a6faeb7ee28d4f0085455559a85c75985557dd23b27b2ed"
+    },
+    {
+      "path": "docs/design/2026-08-22-hospital-ordered-ending-current-v1-ui-disposition.md",
+      "bytes": 20679,
+      "sha256": "ca7de79b10dd56f9683a01d4ac1a1ba8fc79f79362cc15bf2428cefbe7b247ac"
+    },
+    {
+      "path": "docs/design/current-ui/witnessed-scene.md",
+      "bytes": 132148,
+      "sha256": "8705172a73d129bd1e60c29c93fa2fd014cfb1a5b0773b2de95487d0970bdac6"
+    },
+    {
+      "path": "scripts/application/lifecycle/ProductionPauseController.gd",
+      "bytes": 38806,
+      "sha256": "851182d786dfe326fd5ef9e21e16254e74db535e7ba6e5e74cb9f3a268eafb4e"
+    },
+    {
+      "path": "tests/integration/verify_hospital_reading_journey.gd",
+      "bytes": 50485,
+      "sha256": "2209d76f211fc1482f37ba50e7264d68d54395a04df35062b54fdc99b780c9ad"
+    },
+    {
+      "path": "tests/unit/test_reading_pause_save.gd",
+      "bytes": 28812,
+      "sha256": "8a56405d9d2eb9eab7727c81cb1f6892bc21420b81685ea4e57bb44503ac1f5b"
+    },
+    {
+      "path": "tools/testing/run_hospital_reading_journey.py",
+      "bytes": 43695,
+      "sha256": "0fbb6e385569b9afcff9ebebfa7a2d962a8e69f73868304cb6e948370baef39e"
+    }
+  ],
+  "review": {
+    "runtime": "Shared Pause command gates; common witnessed admission kept separate for History. Two private Hospital manual capture helpers retired after caller inspection. No new persistence owner.",
+    "tests": "Enabled Quick owner control proves Hospital refusals are not caused by absent Quick capability. Rendered negative proof seeds real Quick before Hospital; test-only saved fixture retains compatibility/forgery coverage.",
+    "independent_review": "No blocking issues found; corrected stale inspection comment before source commit.",
+    "beads": "All 191 record identities/statuses/dependencies retained; only dwm-vky.14 notes changed; 23 unfinished; no live Dolt query or sync."
+  }
+}

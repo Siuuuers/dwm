@@ -6,13 +6,13 @@ static var _ordinary_ascii := RegEx.create_from_string("\\A[\\x20-\\x21\\x23-\\x
 
 # Native escaping is byte-identical on printable ASCII, including quotes and backslashes.
 static var _printable_ascii := RegEx.create_from_string("\\A[\\x20-\\x7E]*\\z")
-# Native JSON preserves valid Unicode scalars and sorts their keys in UTF-8 order.
-# C0 controls retain the checked emitter: native escaping does not handle them uniformly.
-static var _native_string_range := RegEx.create_from_string("\\A[\\x20-\\x{D7FF}\\x{E000}-\\x{10FFFF}]*\\z")
+# Native JSON preserves valid Unicode scalars and the five standard short control escapes.
+# Other C0 controls retain the checked emitter (native vertical tab emits invalid JSON \\v).
+static var _native_string_range := RegEx.create_from_string("\\A[\\x08-\\x0A\\x0C-\\x0D\\x20-\\x{D7FF}\\x{E000}-\\x{10FFFF}]*\\z")
 
 static func stringify(value: Variant) -> Dictionary:
 	# Godot's native encoder is byte-identical for this complete, bounded domain:
-	# exact integers, valid scalar strings without C0, and unique string-like keys.
+	# exact integers, eligible scalar strings, and unique string-like keys.
 	# Floats, other strings/types, or deeper values retain the checked emitter below.
 	if _can_use_native_encoder(value):
 		return _ok(JSON.stringify(value, "", true))
@@ -112,9 +112,9 @@ static func _emit_string(value: String) -> Dictionary:
 	# Exact whole-string match: all excluded characters retain the original emitter.
 	if _ordinary_ascii.search(value) != null:
 		return _ok('"' + value + '"')
-	# String.json_escape also emits non-JSON \v for vertical tabs, so constrain this
-	# native path to printable ASCII. Controls and Unicode retain the checked emitter.
-	if _printable_ascii.search(value) != null:
+	# This includes retained JSON text ending in a newline, even when a surrounding
+	# float requires the checked container emitter. Unsafe controls still fall through.
+	if _native_string_range.search(value) != null:
 		return _ok('"' + value.json_escape() + '"')
 	var output := "\""
 	var round_trip_failed := false

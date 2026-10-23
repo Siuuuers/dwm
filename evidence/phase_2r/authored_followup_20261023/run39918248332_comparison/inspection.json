@@ -1,0 +1,22 @@
+{
+  "run": 39918248332,
+  "source": "6d91719f63077aa7ca917ae30c70c55998e54022",
+  "tree": "4e879d98b43189e688b954ad44abc5f5b2f1bcc7",
+  "artifact": 12485683329,
+  "artifact_sha256": "3acb5411ffc515d89a63f82c7612b3ef4563436fc78a6f9c92381f4703ed05d1",
+  "archive_crc_checked": true,
+  "cases": 39,
+  "result": "pass",
+  "decision": "Remove pure reading cache: full-input lookup cost is substantial, ordinary captions slower, and unrelated runner timings faster; total reduction is not causal evidence of a win.",
+  "scope": "Compact proof, extracted profiling and JUnit only. Full original archive/logs remain in Actions artifact; no full-week/export acceptance.",
+  "sha256": {
+    "authored-recovery.xml": "3b4f173a5465ec2f91ee5816ba56003849319d19728127d25e2a8bf52164c798",
+    "caption-ledger.jsonl": "520cdf4acfd7b90f6ec6524ac2888e307d12eb3e6024ccc327d2c252c296351a",
+    "scene-reading.xml": "4345e598f39a28c44e4b3e48e3a956fef9000c6e7d3f337fa12afc99fe3d242c",
+    "authored-recovery.jsonl": "c85458d264eb30865326caea27f7903ac61019f4b959a33a32e9a721ecd295bb",
+    "authored-recovery.json": "1913335d567af4fca776208324157102b9abaf3bc55f79cf1be0767f889b8e15",
+    "validation-profile.json": "5e5baa1566adc045e3610faa22bb1944e99c5124b3a16f0e5df86f8ef8eabe9c",
+    "caption-ledger.xml": "244f7a0059754333ea0190f343112a88342a2d0f315f04463021283106ad82f4",
+    "scene-reading.jsonl": "419ef41b554abd5b3b04b0ee248321f5b725fb23906d47d4e8a95312640ed24e"
+  }
+}

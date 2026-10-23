@@ -1,0 +1,11 @@
+{
+  "archive": "settings-f9-run130.tar.gz",
+  "archive_member_count": 648,
+  "bytes": 26633840,
+  "evidence_kind": "bounded-successful-run-audit",
+  "excluded_file_count": 170,
+  "manifest_sha256": "3e052c6eeadde8c4615f9c56fd7557541173f9476f3952eb98e5feafafee6c63",
+  "payload_file_count": 646,
+  "round_trip_verified": true,
+  "sha256": "e571c842fed73bd7640db0e294a5800842b9ac2d0bc3c46044a53a326e8a99be"
+}

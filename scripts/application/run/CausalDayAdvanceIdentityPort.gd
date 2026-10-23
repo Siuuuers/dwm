@@ -11,6 +11,8 @@ const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd
 
 const DISPOSITION_ALLOCATED := "causal_day_advance_identity_allocated"
 const SCHEMA_VERSION := 1
+const SCENE_RECEIPT_VERSION := 2
+const SCENE_RESOLUTION_KIND := "scene_day_complete"
 
 const REQUEST_KEYS: Array[String] = [
 	"branch_id",
@@ -52,9 +54,10 @@ const CANDIDATE_KEYS: Array[String] = ["day_advance_identity_receipt"]
 const EXPECTED_RESOLUTION_CHILD_KIND: Dictionary = {
 	"schedule_done": "day_resolution_stage",
 	"condition_hospital": "hospital_resolution",
+	"scene_day_complete": "scene_day_completion",
 }
 
-const ALLOWED_RESOLUTION_KIND: Array[String] = ["schedule_done", "condition_hospital"]
+const ALLOWED_RESOLUTION_KIND: Array[String] = ["schedule_done", "condition_hospital", "scene_day_complete"]
 
 var _identity_issuer: Object = null
 
@@ -82,7 +85,7 @@ func prepare_advance(request: Dictionary) -> Dictionary:
 	if not ready.get("ok", false):
 		return ready
 
-	var shaped := _exact_keys(request, REQUEST_KEYS)
+	var shaped := _exact_keys(request, _request_keys(request))
 	if not shaped.get("ok", false):
 		return shaped
 
@@ -90,7 +93,7 @@ func prepare_advance(request: Dictionary) -> Dictionary:
 	if not validated.get("ok", false):
 		return validated
 
-	var source_day := int(request["source_day"])
+	var scene := _is_scene(request)
 	var source_day_parent_id := str(request["source_causal_day_instance"])
 	var resolution_kind := str(request["resolution_kind"])
 	var source_resolution_receipt_id := str(
@@ -141,7 +144,7 @@ func prepare_advance(request: Dictionary) -> Dictionary:
 		var recorded: Dictionary = existing[allocation_key]
 		if str(recorded.get("request_sha256", "")) != str(request_sha256["value"]):
 			return _failed(&"causal_day_advance_identity_conflict", allocation_key)
-		var recorded_shape := _exact_keys(recorded, RECEIPT_KEYS)
+		var recorded_shape := _exact_keys(recorded, _receipt_keys(recorded))
 		if not recorded_shape.get("ok", false):
 			return _failed(&"causal_day_advance_identity_conflict", allocation_key)
 		return _prepared_result(recorded)
@@ -181,9 +184,8 @@ func prepare_advance(request: Dictionary) -> Dictionary:
 			"source_resolution_receipt.provenance")
 
 	var counter_start := int(root_candidate.get("root_next_counter", 0))
-	var target_day := source_day + 1
 	var requested_receipt := {
-		"schema_version": SCHEMA_VERSION,
+		"schema_version": SCENE_RECEIPT_VERSION if scene else SCHEMA_VERSION,
 		"allocation_key": str(
 			root_candidate.get(
 				"allocation_key",
@@ -197,8 +199,6 @@ func prepare_advance(request: Dictionary) -> Dictionary:
 		"run_id": str(request["run_id"]),
 		"branch_id": str(request["branch_id"]),
 		"desktop_timeline_generation": int(request["desktop_timeline_generation"]),
-		"source_day": source_day,
-		"target_day": target_day,
 		"source_causal_day_instance": source_day_parent_id,
 		"source_causal_day_instance_receipt_id": source_receipt_id,
 		"source_causal_day_instance_issuer_receipt": source_receipt.duplicate(true),
@@ -211,6 +211,9 @@ func prepare_advance(request: Dictionary) -> Dictionary:
 		"disposition": DISPOSITION_ALLOCATED,
 	}
 
+	if not scene:
+		requested_receipt["source_day"] = int(request["source_day"])
+		requested_receipt["target_day"] = int(request["source_day"]) + 1
 	return _prepared_result(requested_receipt)
 
 
@@ -224,7 +227,7 @@ func commit_advance(candidate: Dictionary) -> Dictionary:
 		return shaped
 
 	var receipt: Dictionary = candidate.get("day_advance_identity_receipt", {})
-	var same_shape := _exact_keys(receipt, RECEIPT_KEYS)
+	var same_shape := _exact_keys(receipt, _receipt_keys(receipt))
 	if not same_shape.get("ok", false):
 		return same_shape
 
@@ -250,10 +253,11 @@ func _validate_request(request: Dictionary) -> Dictionary:
 	var resolution_kind := str(request["resolution_kind"])
 	if not ALLOWED_RESOLUTION_KIND.has(resolution_kind):
 		return _failed(&"causal_day_advance_resolution_kind_invalid", resolution_kind)
-	if typeof(request["source_day"]) != TYPE_INT:
-		return _failed(&"causal_day_advance_source_day_invalid", str(request["source_day"]))
-	if int(request["source_day"]) < 1 or int(request["source_day"]) > 6:
-		return _failed(&"causal_day_advance_source_day_invalid", str(request["source_day"]))
+	if not _is_scene(request):
+		if typeof(request["source_day"]) != TYPE_INT:
+			return _failed(&"causal_day_advance_source_day_invalid", str(request["source_day"]))
+		if int(request["source_day"]) < 1 or int(request["source_day"]) > 6:
+			return _failed(&"causal_day_advance_source_day_invalid", str(request["source_day"]))
 
 	if typeof(request["desktop_timeline_generation"]) != TYPE_INT or int(request["desktop_timeline_generation"]) < 0:
 		return _failed(&"causal_day_advance_generation_invalid", str(request["desktop_timeline_generation"]))
@@ -315,27 +319,35 @@ func _ensure_source_tuple_uniqueness(request: Dictionary, document: Dictionary) 
 
 
 func _source_tuple_key(request: Dictionary) -> Array:
-	return [
+	var tuple: Array = [
 		str(request["run_id"]),
 		str(request["branch_id"]),
 		int(request["desktop_timeline_generation"]),
 		str(request["source_causal_day_instance"]),
-		int(request["source_day"]),
 	]
+	if not _is_scene(request):
+		tuple.append(int(request["source_day"]))
+	return tuple
 
 
 func _tuple_from_receipt(receipt: Dictionary) -> Array:
-	return [
+	var tuple: Array = [
 		str(receipt.get("run_id", "")),
 		str(receipt.get("branch_id", "")),
 		int(receipt.get("desktop_timeline_generation", 0)),
 		str(receipt.get("source_causal_day_instance", "")),
-		int(receipt.get("source_day", 0)),
 	]
+	if not _is_scene(receipt):
+		tuple.append(int(receipt.get("source_day", 0)))
+	return tuple
 
 
 func _tuple_equals(a: Array, b: Array) -> bool:
-	return a.size() == b.size() and a[0] == b[0] and a[1] == b[1] and a[2] == b[2] and a[3] == b[3] and a[4] == b[4]
+	# Four members identify scene occurrences; five identify legacy calendar days.
+	# Never compare across families, and never index a nonexistent day member.
+	if a.size() != b.size() or not a.size() in [4, 5]:
+		return false
+	return a == b
 
 
 func _map_prepare_failure(prepared: Dictionary) -> Dictionary:
@@ -420,3 +432,22 @@ func _map_verify_source_receipt(result: Dictionary) -> Dictionary:
 
 func _failed(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": "CausalDayAdvanceIdentityPort: " + message}
+
+
+func _is_scene(value: Dictionary) -> bool:
+	return value.get("resolution_kind", "") == SCENE_RESOLUTION_KIND
+
+
+func _request_keys(request: Dictionary) -> Array[String]:
+	var keys: Array[String] = REQUEST_KEYS.duplicate()
+	if _is_scene(request):
+		keys.erase("source_day")
+	return keys
+
+
+func _receipt_keys(receipt: Dictionary) -> Array[String]:
+	var keys: Array[String] = RECEIPT_KEYS.duplicate()
+	if _is_scene(receipt):
+		keys.erase("source_day")
+		keys.erase("target_day")
+	return keys

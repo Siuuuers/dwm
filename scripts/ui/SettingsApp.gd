@@ -16,6 +16,9 @@ func configure_pause() -> void:
 func configure_run_presentation(palette: StringName, day: int) -> Dictionary:
 	return $SettingsContent.configure_run_presentation(palette, day)
 
+func configure_scene_run_presentation(palette: StringName) -> Dictionary:
+	return $SettingsContent.configure_scene_run_presentation(palette)
+
 func set_interaction_enabled(enabled: bool) -> void:
 	if enabled == _host_interactive and settings_content.is_interaction_enabled() == enabled: return
 	_host_interactive = enabled
@@ -92,7 +95,7 @@ func show_window() -> void:
 
 
 func hide_window() -> void:
-	if _closing or not is_visible_in_tree() or settings_content.get_controller().is_commit_pending():
+	if _closing or not is_visible_in_tree() or settings_content.is_profile_write_uncertain() or settings_content.get_controller().is_commit_pending():
 		return
 	remember_focus()
 	_closing = true

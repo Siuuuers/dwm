@@ -19,7 +19,7 @@ Approved specifications, accepted scoped design amendments, accepted decision pa
 
 ## Rule req.docs.context_order
 
-An agent MUST load Prompt.md, Beads execution context, the active Phase 2R issue, the phase packet, referenced packets, transitive dependencies, and the generated index lookup in that order.
+An agent MUST start with `docs/agent/2026-09-23-next-session-handoff.md` and its execution map, inspect Beads execution context and the selected current issue, then load that issue's approved requirement packets, transitive dependencies, applicable approved design/plan, and generated index lookup. The handoff and map are navigation only; Beads owns status and dependencies. If live Beads is unavailable, the retained export may support continuation, with that limitation stated explicitly and no claim of Dolt synchronization. This owner-directed entry change retires the obsolete Prompt-first selection workflow without changing requirement IDs or task records.
 
 ## Rule req.docs.status_separation
 

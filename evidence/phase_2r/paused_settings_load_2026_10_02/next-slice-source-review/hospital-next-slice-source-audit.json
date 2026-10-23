@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "source": "78cb263f8e0d82ad1f1274c0e84915397cd071b0",
+  "review_kind": "bounded_read_only_next_slice_source_audit",
+  "report": "hospital-next-slice-source-audit.md",
+  "repository_or_remote_mutations": false,
+  "local_godot_or_powershell": false,
+  "runtime_acceptance": false,
+  "files": [
+    {
+      "path": "docs/design/current-ui/witnessed-scene.md",
+      "bytes": 131684,
+      "sha256": "93987f914b58e1a4bfc0a55016691d1b38c54aa78c87a8321fe3331c215f441c"
+    },
+    {
+      "path": "docs/design/2026-08-22-hospital-ordered-ending-current-v1-ui-disposition.md",
+      "bytes": 19303,
+      "sha256": "04d6bca2d6a353339c97292e8ac12dc5472fe141ab0a9b4f4df0add97f4ce523"
+    },
+    {
+      "path": "scripts/ui/HospitalScene.gd",
+      "bytes": 9446,
+      "sha256": "d44ea9ac6107605ac682e654afb6980ff759042c6d169db5ad28ff53b3e4fd10"
+    },
+    {
+      "path": "scripts/application/run/HospitalPresentationPort.gd",
+      "bytes": 23791,
+      "sha256": "89e0fa03bee35c1107584e070f3052f89856acbc39a1e9a0c8eabebbca9ffb48"
+    },
+    {
+      "path": "scripts/application/narrative/DialogicPresentationOwnerAdapter.gd",
+      "bytes": 17790,
+      "sha256": "76815da6c60adb1fe170de4c2fc1ec8a41ebc051f44b84cee75d8ecde2c10395"
+    },
+    {
+      "path": "autoload/DialogicBridge.gd",
+      "bytes": 143426,
+      "sha256": "e8be928a4e6e2b4ea480ed542c7540c2491b214a6180f0c2ca593fda23c38100"
+    },
+    {
+      "path": "scripts/narrative/SoloReadingSession.gd",
+      "bytes": 20145,
+      "sha256": "383ff6c276c9fc60dfd8dc7e34e35c3ae476069b3df12edad2757bcfb1069e8b"
+    },
+    {
+      "path": "scripts/narrative/HospitalFrozenContext.gd",
+      "bytes": 7587,
+      "sha256": "f1bdd5a8c23c1fe7e391a2c3a27c5f6accf4663f7a91fcdb5cceca21db884ea5"
+    },
+    {
+      "path": "scripts/narrative/FrozenRunContext.gd",
+      "bytes": 33183,
+      "sha256": "f77e872252042869922170adef40312929fff81faea47e5a991823faee1342a0"
+    },
+    {
+      "path": "scripts/application/restore/NarrativeRestoreParticipant.gd",
+      "bytes": 17275,
+      "sha256": "a6ec0952841761a50c295363b7e7b6259bc2b126824a2642ec6d437f30f70245"
+    },
+    {
+      "path": "scripts/application/run/DatingNarrativePlayback.gd",
+      "bytes": 8521,
+      "sha256": "622ce7a04b88ef0912fa3a49f09085602b107fe1b92c5e67e6a5ca54cb0af403"
+    },
+    {
+      "path": "scripts/application/run/DayResolutionCoordinator.gd",
+      "bytes": 47455,
+      "sha256": "b1d45c1ae1e9b8c7777c70ebf47c5192d376fb8b739cf077d2b383f2b600df2a"
+    },
+    {
+      "path": "scripts/application/run/GameStateConditionHospitalPort.gd",
+      "bytes": 19294,
+      "sha256": "ade856e98ae6e9cbe019c5b699322015f29efc2747727ad9a440faa074c13a26"
+    },
+    {
+      "path": "autoload/ApplicationBootstrap.gd",
+      "bytes": 146966,
+      "sha256": "ed3ad05f8e303b94cf484622b14edf63a237015337ef9c2571b4ab3472122983"
+    },
+    {
+      "path": "autoload/SceneRouter.gd",
+      "bytes": 36700,
+      "sha256": "189a7a48e3dae26a0f3dcaee4f7ec51c09dc4a14456b83c758e39203964276af"
+    },
+    {
+      "path": "scripts/application/lifecycle/ProductionPauseController.gd",
+      "bytes": 38360,
+      "sha256": "e03e48c1e518c9a024b502f2d6fcfdbe8568ddedd7ac937407bfa452a30af4b5"
+    },
+    {
+      "path": "tools/testing/Invoke-CloudTests.ps1",
+      "bytes": 20076,
+      "sha256": "3f57e035bbdec6e736cf41316b3c981596b50e06f3fa8df58415213cf6a6075f"
+    },
+    {
+      "path": "dialogic/timelines/en/core/hospital_faint.dtl",
+      "bytes": 1321,
+      "sha256": "966b8ff9b7f52959ae1bc7a96fef532cfdca07d852c5d3335a5c3557c339491d"
+    },
+    {
+      "path": "tests/scene/test_hospital_scene.gd",
+      "bytes": 9831,
+      "sha256": "8067f1dad531e8f16e6705ff369a1089e5b25f8dd3cdb7c7f8c5bc84bd055b23"
+    },
+    {
+      "path": "tests/unit/test_hospital_frozen_context.gd",
+      "bytes": 16312,
+      "sha256": "32935adde26e0fee4b121f90bb91ac49c87c9a634ac81d276fca4db0f5514361"
+    }
+  ],
+  "findings": [
+    "Hospital semantic reading/History and Save authority are not yet integrated; current new reading path is deliberately Solo-only.",
+    "Current no-Sylvia notice/Continue conflicts with approved no-Hospital-chrome and genuine-authored-hold law."
+  ],
+  "next_proof": "One canonical ingress with receipt-proven Sylvia-present noncanonical two-caption fixture: fresh session, exact Save/fresh-process Load, independent saved-authority rejection and fresh next scene after actual completion.",
+  "architecture_question_required_for_bounded_fixture": false,
+  "production_authoring_ready": false
+}

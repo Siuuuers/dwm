@@ -1,0 +1,297 @@
+{
+  "source": "103f7ad2e8c7acaf110abcd37232741de15fe811",
+  "timing": {
+    "commit_us": 4761283,
+    "context": "scene-apps-cold-load",
+    "prepare_us": 1922384,
+    "process_id": 5276,
+    "ready_us": 774222,
+    "slot_sha256": "476b705c2a7b92b9c71f2bc04e14ef142bef17ccaa3b7fdfa43dac6eee36555a",
+    "total_us": 7457889
+  },
+  "profiles": [
+    {
+      "action": "",
+      "cache_enabled": true,
+      "cache_hit": false,
+      "code": "",
+      "context": "scene-apps-cold-load",
+      "elapsed_us": 34288,
+      "locator": "",
+      "ok": true,
+      "scope": "document_parse",
+      "unphased_us": 34288
+    },
+    {
+      "action": "",
+      "candidate_order_us": 300,
+      "code": "ok",
+      "context": "scene-apps-cold-load",
+      "elapsed_us": 1207194,
+      "locator": "slot_1.json",
+      "ok": true,
+      "participant_prepare_us": 1206781,
+      "scope": "restore_prepare",
+      "unphased_us": 113
+    },
+    {
+      "action": "",
+      "admission_us": 677575,
+      "code": "",
+      "context": "scene-apps-cold-load",
+      "elapsed_us": 1920714,
+      "locator": "slot:1",
+      "ok": true,
+      "parse_us": 34396,
+      "restore_prepare_us": 1207291,
+      "revision_read_us": 1085,
+      "scope": "backup_inspection",
+      "unphased_us": 367
+    },
+    {
+      "action": "load",
+      "candidate_copy_us": 1067,
+      "code": "",
+      "context": "scene-apps-cold-load",
+      "elapsed_us": 1922261,
+      "inspection_us": 1920840,
+      "locator": "slot:1",
+      "ok": true,
+      "scope": "backup_prepare",
+      "unphased_us": 354
+    },
+    {
+      "action": "",
+      "cache_enabled": true,
+      "cache_hit": true,
+      "code": "",
+      "context": "scene-apps-cold-load",
+      "elapsed_us": 332,
+      "locator": "",
+      "ok": true,
+      "scope": "document_parse",
+      "unphased_us": 332
+    },
+    {
+      "action": "",
+      "code": "scene_activation_pending",
+      "context": "scene-apps-cold-load",
+      "elapsed_us": 1159051,
+      "locator": "",
+      "ok": false,
+      "scope": "restore_transaction",
+      "unphased_us": 1159051
+    },
+    {
+      "action": "load",
+      "code": "scene_activation_pending",
+      "context": "scene-apps-cold-load",
+      "elapsed_us": 4760994,
+      "locator": "slot_1.json",
+      "ok": false,
+      "reconcile_us": 673297,
+      "restore_commit_us": 4085729,
+      "revision_read_us": 640,
+      "revision_recheck_us": 581,
+      "scope": "backup_commit",
+      "unphased_us": 747
+    }
+  ],
+  "reports": [
+    {
+      "suite": "same-day-owners",
+      "tests": 4,
+      "assertions": 101
+    },
+    {
+      "suite": "supportz-render-create",
+      "tests": 1,
+      "assertions": 362
+    },
+    {
+      "suite": "supportz-render-load",
+      "tests": 1,
+      "assertions": 69
+    },
+    {
+      "suite": "scene-remap",
+      "tests": 5,
+      "assertions": 92
+    },
+    {
+      "suite": "apps-render-create",
+      "tests": 1,
+      "assertions": 86
+    },
+    {
+      "suite": "apps-render-load",
+      "tests": 1,
+      "assertions": 39
+    }
+  ],
+  "tests": 13,
+  "processes": {
+    "same-day-owners": [
+      {
+        "suite_id": "same-day-owners",
+        "argv": [
+          "--headless",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\same-day-owners.log",
+          "-s",
+          "res://addons/gut/gut_cmdln.gd",
+          "-gconfig=",
+          "-gtest=res://tests/unit/test_scene_round_completion.gd,res://tests/integration/test_scene_round_checkpoint_transaction.gd",
+          "-gexit",
+          "-glog=2",
+          "-gjunit_xml_file=res://.godot/ci/same-day-owners.xml"
+        ],
+        "exit_code": 0,
+        "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\same-day-owners.log",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\c9f2d0e3-f2c3-4e8e-8c99-fe6d8c841036",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\c9f2d0e3-f2c3-4e8e-8c99-fe6d8c841036\\appdata\\Godot\\app_userdata\\DWM",
+        "started_at_utc": "2026-10-22T23:22:36.6934445Z",
+        "ended_at_utc": "2026-10-22T23:22:56.3487559Z"
+      }
+    ],
+    "supportz-render": [
+      {
+        "suite_id": "supportz-render",
+        "argv": [
+          "--rendering-method",
+          "gl_compatibility",
+          "--audio-driver",
+          "Dummy",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\supportz-render-create.log",
+          "-s",
+          "res://addons/gut/gut_cmdln.gd",
+          "-gconfig=",
+          "-gtest=res://tests/integration/test_scene_same_day_supportz_create.gd",
+          "-gexit",
+          "-glog=2",
+          "-gjunit_xml_file=res://.godot/ci/supportz-render-create.xml"
+        ],
+        "exit_code": 0,
+        "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\supportz-render-create.log",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\3f777465-2062-497f-8ad7-b7cb3b152b9d",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\3f777465-2062-497f-8ad7-b7cb3b152b9d\\appdata\\Godot\\app_userdata\\DWM",
+        "started_at_utc": "2026-10-22T23:23:04.2235474Z",
+        "ended_at_utc": "2026-10-22T23:24:12.5105959Z"
+      },
+      {
+        "suite_id": "supportz-render",
+        "argv": [
+          "--rendering-method",
+          "gl_compatibility",
+          "--audio-driver",
+          "Dummy",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\supportz-render-load.log",
+          "-s",
+          "res://addons/gut/gut_cmdln.gd",
+          "-gconfig=",
+          "-gtest=res://tests/integration/test_scene_same_day_supportz_load.gd",
+          "-gexit",
+          "-glog=2",
+          "-gjunit_xml_file=res://.godot/ci/supportz-render-load.xml"
+        ],
+        "exit_code": 0,
+        "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\supportz-render-load.log",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\3f777465-2062-497f-8ad7-b7cb3b152b9d",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\3f777465-2062-497f-8ad7-b7cb3b152b9d\\appdata\\Godot\\app_userdata\\DWM",
+        "started_at_utc": "2026-10-22T23:24:12.6332802Z",
+        "ended_at_utc": "2026-10-22T23:24:39.5303636Z"
+      }
+    ],
+    "scene-remap": [
+      {
+        "suite_id": "scene-remap",
+        "argv": [
+          "--headless",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\scene-remap.log",
+          "-s",
+          "res://addons/gut/gut_cmdln.gd",
+          "-gconfig=",
+          "-gtest=res://tests/unit/test_scene_runtime_remap.gd",
+          "-gexit",
+          "-glog=2",
+          "-gjunit_xml_file=res://.godot/ci/scene-remap.xml"
+        ],
+        "exit_code": 0,
+        "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\scene-remap.log",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\d3297e61-3f82-48b4-9d3a-7aa1614d02b0",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\d3297e61-3f82-48b4-9d3a-7aa1614d02b0\\appdata\\Godot\\app_userdata\\DWM",
+        "started_at_utc": "2026-10-22T23:21:12.5579681Z",
+        "ended_at_utc": "2026-10-22T23:21:21.2321972Z"
+      }
+    ],
+    "apps-render": [
+      {
+        "suite_id": "apps-render",
+        "argv": [
+          "--rendering-method",
+          "gl_compatibility",
+          "--audio-driver",
+          "Dummy",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\apps-render-create.log",
+          "-s",
+          "res://addons/gut/gut_cmdln.gd",
+          "-gconfig=",
+          "-gtest=res://tests/integration/test_scene_apps_connected_create.gd",
+          "-gexit",
+          "-glog=2",
+          "-gjunit_xml_file=res://.godot/ci/apps-render-create.xml"
+        ],
+        "exit_code": 0,
+        "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\apps-render-create.log",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\1b176043-59a2-419a-8706-61d322e6f0aa",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\1b176043-59a2-419a-8706-61d322e6f0aa\\appdata\\Godot\\app_userdata\\DWM",
+        "started_at_utc": "2026-10-22T23:21:29.1151524Z",
+        "ended_at_utc": "2026-10-22T23:22:09.0198652Z"
+      },
+      {
+        "suite_id": "apps-render",
+        "argv": [
+          "--rendering-method",
+          "gl_compatibility",
+          "--audio-driver",
+          "Dummy",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\apps-render-load.log",
+          "-s",
+          "res://addons/gut/gut_cmdln.gd",
+          "-gconfig=",
+          "-gtest=res://tests/integration/test_scene_apps_connected_load.gd",
+          "-gexit",
+          "-glog=2",
+          "-gjunit_xml_file=res://.godot/ci/apps-render-load.xml"
+        ],
+        "exit_code": 0,
+        "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\apps-render-load.log",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\1b176043-59a2-419a-8706-61d322e6f0aa",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\1b176043-59a2-419a-8706-61d322e6f0aa\\appdata\\Godot\\app_userdata\\DWM",
+        "started_at_utc": "2026-10-22T23:22:09.1092000Z",
+        "ended_at_utc": "2026-10-22T23:22:28.7364925Z"
+      }
+    ]
+  },
+  "changed": [
+    ".claude/skills/godot-prompter/1.10.0",
+    ".claude/skills/superpowers/6.1.1"
+  ]
+}

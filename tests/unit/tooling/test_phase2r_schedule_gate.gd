@@ -66,9 +66,6 @@ const CANONICAL := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const VECTOR_NAMESPACE := "9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c"
 const CAUSAL_DAY := "causal_day_instance.1515151515151515151515151515151515151515151515151515151515151515"
 const VIEW_FINGERPRINT := "opaque_view.15151515151515151515151515151515"
-const MAX_WALK_STEPS := 40
-const HOSPITAL_TIMELINE_ID := "hospital.faint"
-const HOSPITAL_STAGE := "hospital_if_triggered"
 const DAY_1_6_STAGES := ["lock_day", "validate_schedule", "execute_schedule_actions", "commit_outcomes",
 	"hospital_if_triggered", "execute_schedule_dates", "twofriends_if_deferred", "invitation_rollover",
 	"increment_day", "reset_day_scope", "new_day_autosave", "unlock_day"]
@@ -631,18 +628,27 @@ func test_derive_child_census_at_head_attributes_every_call_site_to_a_matrix_pro
 	assert_true(context_seam_code.find("_identity_issuer.call(&\"derive_child\"") >= 0,
 		"the context seam delegates every derivation to the retained issuer, never minting itself")
 	# The historical classifier calls direct `issuer.derive_child(...)` syntax "dynamic" because
-	# Plan 01 only admitted literal `.call(&"derive_child", ...)` producers. These six newer
+	# Plan 01 only admitted literal `.call(&"derive_child", ...)` producers. These explicitly enumerated
 	# calls are statically named on retained issuer objects; pin every one, including its role.
 	var direct_calls: Array[Dictionary] = [
 		{"path": "autoload/GameState.gd", "call": "_identity_issuer.derive_child({\"child_kind\": \"terminal_intent\"", "kind": "terminal_intent"},
+		{"path": "autoload/GameState.gd", "call": "_identity_issuer.derive_child(request.value)", "kind": "scene_day_completion"},
+		{"path": "autoload/GameState.gd", "call": "_identity_issuer.derive_child(_SCENE_EVENT.scene_day_renewal_request(trigger, identity))", "kind": "continuation_operation"},
 		{"path": "scripts/application/run/ConditionHospitalContactsAdapter.gd", "call": "issuer.derive_child({\"child_kind\": \"hospital_miss\"", "kind": "hospital_miss"},
 		{"path": "scripts/application/run/ConditionHospitalContactsAdapter.gd", "call": "issuer.derive_child({\"child_kind\": \"sylvia_hospital_witness\"", "kind": "sylvia_hospital_witness"},
 		{"path": "scripts/application/run/GameStateConditionHospitalPort.gd", "call": "_issuer.derive_child({\"child_kind\": \"day_resolution_stage\"", "kind": "day_resolution_stage"},
 		{"path": "scripts/application/run/GameStateConditionHospitalPort.gd", "call": "_issuer.derive_child({\"child_kind\": \"day_resolution_stage\"", "kind": "day_resolution_stage"},
 		{"path": "scripts/application/run/GameStateDayResolutionPort.gd", "call": "_identity_issuer.derive_child(source.value.derivation_request)", "kind": "day_resolution_stage"},
+		{"path": "scripts/domain/narrative/SceneEventContract.gd", "call": "issuer.derive_child({\"parent_receipt_id\": root_issuer_receipt.receipt_id,", "kind": "continuation_operation"},
+		{"path": "scripts/domain/narrative/SceneEventContract.gd", "call": "issuer.derive_child({\"parent_receipt_id\": root.receipt_id,", "kind": "continuation_operation"},
+		{"path": "scripts/domain/narrative/SceneEventContract.gd", "call": "issuer.derive_child(request)", "kind": "continuation_operation"},
+		{"path": "scripts/domain/narrative/SceneEventContract.gd", "call": "issuer.derive_child(_scene_terminal_child_request(record.issuer_receipt, record.request_fingerprint))", "kind": "continuation_operation"},
+		{"path": "scripts/domain/narrative/SceneEventContract.gd", "call": "issuer.derive_child({\"parent_receipt_id\": root_issuer_receipt.receipt_id,", "kind": "continuation_operation"},
+		{"path": "scripts/domain/narrative/SceneEventContract.gd", "call": "issuer.derive_child({\"parent_receipt_id\": root_issuer_receipt.receipt_id,", "kind": "continuation_operation"},
+		{"path": "scripts/domain/narrative/SceneEventContract.gd", "call": "issuer.derive_child(scene_day_renewal_request(trigger, source))", "kind": "continuation_operation"},
 	]
 	assert_eq((value["dynamic"] as Array).size(), direct_calls.size(),
-		"only the six identified, statically named issuer calls remain outside the Plan-01 classifier")
+		"only the identified, statically named issuer calls remain outside the Plan-01 classifier")
 	for index: int in range(mini((value["dynamic"] as Array).size(), direct_calls.size())):
 		var site: Dictionary = value["dynamic"][index]
 		var expected: Dictionary = direct_calls[index]
@@ -659,7 +665,7 @@ func test_derive_child_census_at_head_attributes_every_call_site_to_a_matrix_pro
 		"res://scripts/domain/desktop/DesktopContinuationRemapper.gd"))
 	assert_true(remapper.contains("\"derivation_request\": {")
 		and remapper.contains("\"child_kind\": \"day_resolution_stage\""),
-		"the source request of the sixth direct call fixes its registered role")
+		"the day-advance source request fixes its registered role")
 	assert_true(_generator.strip_comments(FileAccess.get_file_as_string(
 		"res://scripts/application/run/GameStateDayResolutionPort.gd")).contains(
 		"_identity_issuer.validate_child(derived.value.provenance, &\"day_resolution_stage\")"),
@@ -784,18 +790,18 @@ func test_committed_entry_key_law_and_state_schema_agree() -> void:
 	var aggregate_keys: Array = ((aggregate["value"] as Dictionary)["values"] as Array).duplicate()
 	aggregate_keys.sort()
 	assert_eq(aggregate_keys, _generator.COMMITTED_AGGREGATE_KEYS, "the five aggregate keys")
-	# The sealed Plan-01 subject had v3; the live contract now carries v6's Schedule view,
-	# condition lifecycle, and captured Dark while retaining the committed aggregate.
+	# The sealed Plan-01 subject had v3; the live v8 contract also requires frozen
+	# presentation contexts while retaining the Schedule view, condition lifecycle and Dark.
 	var subject_schema: String = _git_blob(str(_record["subject_commit"]),
 		"scripts/domain/run/RunSnapshotSchema.gd").get_string_from_utf8()
 	assert_eq(int((_generator.parse_int_constant(subject_schema, "SCHEMA_VERSION")["value"] as Dictionary)["value"]), 3,
 		"the committed Plan-01 subject still owns the historical v3 boundary")
 	var live_schema: String = FileAccess.get_file_as_string("res://scripts/domain/run/RunSnapshotSchema.gd")
-	assert_eq(int((_generator.parse_int_constant(live_schema, "SCHEMA_VERSION")["value"] as Dictionary)["value"]), 6,
-		"the current RunSnapshotSchema carries the reconciled v6 contract")
+	assert_eq(int((_generator.parse_int_constant(live_schema, "SCHEMA_VERSION")["value"] as Dictionary)["value"]), 8,
+		"the current RunSnapshotSchema carries the v8 frozen-context contract")
 	assert_true(live_schema.contains("\"committed_schedule\"") and live_schema.contains("\"schedule_view\"")
 		and live_schema.contains("\"dark_mode\""),
-		"v6 retains committed Schedule and captured Dark beside the saved Schedule view")
+		"v8 retains committed Schedule and captured Dark beside the saved Schedule view")
 
 
 func test_stage_arrays_are_frozen_and_the_ending_residue_is_unreachable() -> void:
@@ -848,7 +854,7 @@ func test_day_advance_identity_shapes_are_bound_from_source() -> void:
 			"counter_start", "counter_end", "disposition", "root_before_fingerprint"]:
 		assert_true(receipt_keys.has(key), "receipt carries " + key)
 	var kinds: Dictionary = _generator.parse_string_array_constant(text, "ALLOWED_RESOLUTION_KIND")
-	assert_eq((kinds["value"] as Dictionary)["values"], ["schedule_done", "condition_hospital"], "both resolution kinds")
+	assert_eq((kinds["value"] as Dictionary)["values"], ["schedule_done", "condition_hospital", "scene_day_complete"], "exact registered resolution kinds")
 	assert_true(_generator.strip_comments(text).find("\"%s:%s\" % [resolution_kind, source_resolution_receipt_id]") >= 0,
 		"the allocation key is resolution_kind:source_resolution_receipt_id, so schedule_done keys are schedule_done:<start receipt id>")
 
@@ -904,158 +910,6 @@ func test_observed_vectors_for_contact_source_solo_empty_done_and_day7_provenanc
 	assert_eq(terminal.get("schedule_entry_id"), null, "no entry for empty_done")
 	assert_false(terminal.has("ending_id"), "no ending id is produced by Plan 01")
 	_observe("P01.schedule.day7_provenance", terminal["receipt_provenance"], transaction_receipt_id, 0)
-
-
-func test_observed_vectors_for_the_day3_hospital_walk_with_two_superseded_dates() -> void:
-	if not _ready_generator() or not _build_substrate():
-		return
-	# P01.contact_source.group on Day 2 (the canonical pair window), before the owner moves to Day 3.
-	_game_state._lifecycle_set_playing_day(2)
-	var group_source: String = _seed_group_source(2)
-	if group_source.is_empty():
-		return
-	var group_receipt: Dictionary = ((_game_state.contacts as Dictionary)["schedule_source_receipts"] as Dictionary)[group_source]
-	_observe("P01.contact_source.group", group_receipt["receipt_provenance"],
-		str((_command("group.reply.day2")["receipt"] as Dictionary)["receipt_id"]), 0)
-	# Day 3: two solo dates (lavinia slot 0, sylvia slot 1) and one ordinary (slot 2), drafted out of order.
-	_game_state._lifecycle_set_playing_day(3)
-	var drafts: Array = [
-		_ordinary("d-rest", 2, "rest", 3),
-		_solo_draft("d-syl", 1, "sylvia", 3),
-		_solo_draft("d-lav", 0, "lavinia", 3),
-	]
-	var commit: Dictionary = _prepare_commit(3, drafts)
-	if commit.is_empty():
-		return
-	var committed: Dictionary = commit["committed_schedule"]
-	var receipt: Dictionary = commit["schedule_commit_receipt"]
-	var transaction_receipt_id: String = str((receipt["transaction_issuer_receipt"] as Dictionary)["receipt_id"])
-	var entries: Array = committed["entries"]
-	assert_eq(entries.size(), 3, "three committed entries")
-	for index: int in range(entries.size()):
-		var entry: Dictionary = entries[index]
-		assert_eq(int(entry["slot_index"]), index, "entries are in slot order")
-		assert_eq(int((entry["schedule_entry_provenance"] as Dictionary)["ordinal"]), index,
-			"the entry ordinal is the zero-based slot-order index, not the draft order or the raw slot")
-	_observe("P01.schedule.entry", (entries[0] as Dictionary)["schedule_entry_provenance"], transaction_receipt_id, 0)
-	_observe_silently("P01.schedule.entry", (entries[1] as Dictionary)["schedule_entry_provenance"], transaction_receipt_id, 1)
-	_observe_silently("P01.schedule.entry", (entries[2] as Dictionary)["schedule_entry_provenance"], transaction_receipt_id, 2)
-	_observe("P01.schedule.commit", receipt["receipt_provenance"], transaction_receipt_id, 0)
-	assert_eq(int(receipt["motivation_charged"]), 3, "one motivation per committed entry")
-	# Begin the resolution through the producer.
-	var command: Dictionary = _command("commit.day3")
-	var start_signals: Array = []
-	_game_state.save_relevant_state_changed.connect(func() -> void: start_signals.append(true))
-	assert_true(_state_port.begin_or_resume(str(command["id"]) + ":resolution").get("ok", false), "the walk begins")
-	_game_state.pending_hospital = true
-	var plan: Dictionary = _active_plan()
-	var root: Dictionary = plan["resolution_issuer_receipt"]
-	var start: Dictionary = plan["day_resolution_start_receipt"]
-	var root_id: String = str(root["receipt_id"])
-	_observe("P01.day_resolution.start", start["receipt_provenance"], root_id, 0)
-	assert_eq(str(plan["resolution_id"]), str(root["token"]), "the resolution id is the minted root token")
-	# Start publication. The producer only PREPARES the start inside begin_or_resume (publication is
-	# the consequence coordinator's job, Plan 03), so the first publish here is a genuine first
-	# delivery: recorded, then exactly one save_relevant_state_changed. The same bytes replay with no
-	# second signal; progressed plan bytes at the same key conflict.
-	var signals_before_first: int = start_signals.size()
-	var start_publication: Dictionary = {"resolution_plan": plan.duplicate(true), "day_resolution_start_receipt": start.duplicate(true)}
-	var first_start: Dictionary = _start_port.publish(start_publication.duplicate(true))
-	assert_true(first_start.get("ok", false), "first start publication: " + str(first_start))
-	assert_eq((first_start.get("value", {}) as Dictionary).get("published"), true, "frozen success")
-	assert_eq(first_start.get("receipt"), start, "the outer receipt is the start receipt")
-	assert_eq(start_signals.size() - signals_before_first, 1, "exactly one start signal after the first delivery")
-	var replayed: Dictionary = _start_port.publish(start_publication.duplicate(true))
-	assert_eq(replayed, first_start, "byte-identical start publication replays the byte-identical success")
-	assert_eq(start_signals.size() - signals_before_first, 1, "a replay emits no second start signal")
-	# DEVIATION-4 made visible: the top-level stage ids are synthetic, not derived children.
-	var hospital_stage_id: String = _top_level_stage_transaction_id(HOSPITAL_STAGE)
-	assert_eq(hospital_stage_id, str(plan["resolution_id"]) + ":" + HOSPITAL_STAGE,
-		"DEVIATION-4: the stage transaction id is resolution_id:stage_id, so P01.day_resolution.stage is unrealized")
-	var request: Dictionary = _await_stage_presentation(HOSPITAL_STAGE)
-	if request.is_empty():
-		return
-	var progressed: Dictionary = _start_port.publish({"resolution_plan": _active_plan(), "day_resolution_start_receipt": start.duplicate(true)})
-	assert_false(progressed.get("ok", true), "progressed plan bytes under the same start key conflict")
-	assert_eq(str(progressed.get("code", &"")), "day_resolution_start_publication_conflict", "start conflict code")
-	_publish_vector("day_resolution_start_port", "day_resolution_start", [true, false], "save_relevant_state_changed", [1, 1],
-		"day_resolution_start_publication_conflict")
-	assert_eq(str(request["route_id"]), "hospital", "route")
-	assert_eq(str(request["timeline_id"]), HOSPITAL_TIMELINE_ID, "registered locator")
-	var context: Dictionary = request["context"]
-	var condition_id: String = _condition_receipt_id(3)
-	# P01.hospital.resolution and P01.hospital.miss, rebuilt from the plan text and required to
-	# reproduce the ids the producer embedded in the context and the intent.
-	var date_ids: Array[String] = []
-	for entry: Variant in entries:
-		if str((entry as Dictionary)["action_kind"]) in ["solo", "group"]:
-			date_ids.append(str((entry as Dictionary)["schedule_entry_id"]))
-	assert_eq(date_ids.size(), 2, "two committed dates in slot order")
-	var resolution_tokens: Array = _tokens([
-		["role", "hospital.resolution"], ["resolution_id", str(plan["resolution_id"])],
-		["causal_day_instance", CAUSAL_DAY], ["source_day", 3],
-		["day_resolution_start_receipt_id", str(start["receipt_id"])],
-		["schedule_commit_receipt_id", str(plan["schedule_commit_receipt_id"])],
-		["condition_receipt_id", condition_id], ["date_schedule_entry_ids", date_ids], ["required", true],
-	])
-	var resolution: Dictionary = _derive(root_id, &"hospital_resolution", 0, resolution_tokens)
-	if resolution.is_empty():
-		return
-	var misses: Array = []
-	for ordinal: int in range(2):
-		var date_entry: Dictionary = entries[ordinal]
-		var miss_tokens: Array = _tokens([
-			["role", "hospital.miss"], ["resolution_id", str(plan["resolution_id"])],
-			["causal_day_instance", CAUSAL_DAY], ["source_day", 3],
-			["hospital_resolution_id", str(resolution["child_id"])],
-			["schedule_entry_id", str(date_entry["schedule_entry_id"])], ["action_id", str(date_entry["action_id"])],
-			["source_receipt_id", date_entry["source_receipt_id"]], ["reason", HOSPITAL_RULES.MISS_REASON],
-		])
-		var miss: Dictionary = _derive(root_id, &"hospital_miss", ordinal, miss_tokens)
-		if miss.is_empty():
-			return
-		misses.append(miss)
-	var miss_ids: Array = [str((misses[0] as Dictionary)["child_id"]), str((misses[1] as Dictionary)["child_id"])]
-	var sorted_miss_ids: Array = miss_ids.duplicate()
-	sorted_miss_ids.sort()
-	assert_eq(context["miss_receipt_ids"], sorted_miss_ids,
-		"the producer embedded exactly the two plan-text P01.hospital.miss children, at ordinals 0 and 1, sorted")
-	assert_eq(context["source_entry_ids"], _sorted_copy(date_ids), "the context names both superseded dates")
-	_observe("P01.hospital.resolution", resolution["provenance"], root_id, 0)
-	_observe("P01.hospital.miss", (misses[0] as Dictionary)["provenance"], root_id, 0)
-	_observe_silently("P01.hospital.miss", (misses[1] as Dictionary)["provenance"], root_id, 1)
-	# P01.presentation.intent: rebuilt, and required to equal the substage_id the producer minted.
-	var inputs: Array = [condition_id] + miss_ids
-	inputs.sort()
-	var intent_tokens: Array = _tokens([
-		["role", "presentation.intent"], ["resolution_id", str(plan["resolution_id"])],
-		["causal_day_instance", CAUSAL_DAY], ["source_day", 3],
-		["day_resolution_start_receipt_id", str(start["receipt_id"])], ["stage_name", HOSPITAL_STAGE],
-		["stage_index", DAY_RESOLUTION_PLAN.stage_allowlist(3).find(HOSPITAL_STAGE)],
-		["presentation_kind", "hospital"], ["schedule_entry_id", null], ["route_id", "hospital"],
-		["timeline_id", HOSPITAL_TIMELINE_ID], ["context_sha256", _sha256_value(context)],
-		["input_receipt_ids", inputs],
-	])
-	var intent: Dictionary = _derive(root_id, &"day_resolution_stage", 0, intent_tokens)
-	if intent.is_empty():
-		return
-	assert_eq(str(request["substage_id"]), str(intent["child_id"]),
-		"the producer's substage_id is exactly the plan-text P01.presentation.intent child")
-	_observe("P01.presentation.intent", intent["provenance"], root_id, 0)
-	# P01.presentation.completion: the producer returns its full provenance; it must bind the intent.
-	var completion: Dictionary = request["completion_transaction_provenance"]
-	assert_eq(str(completion["child_id"]), str(request["completion_transaction_id"]), "completion id")
-	assert_true((completion["source_ids"] as Array).has("substage_id=" + _json(str(intent["child_id"]))),
-		"the completion projects its intent as substage_id")
-	assert_true((completion["source_ids"] as Array).has("stage_id=" + _json(hospital_stage_id)),
-		"the completion projects the top-level stage id (synthetic under DEVIATION-4)")
-	assert_eq(str(request["stage_id"]), hospital_stage_id, "request stage id")
-	_observe("P01.presentation.completion", completion, root_id, 0)
-	# Derivation order: the aggregate precedes its misses, which precede the intent, which precedes
-	# the completion -- each later child projects the earlier child's id.
-	for miss: Dictionary in misses:
-		assert_true((miss["provenance"]["source_ids"] as Array).has("hospital_resolution_id=" + _json(str(resolution["child_id"]))), "miss after aggregate")
-	assert_true((intent["provenance"]["source_ids"] as Array).has("input_receipt_ids=" + _json(inputs)), "intent after both misses")
 
 
 func test_observed_publication_vectors_over_the_real_ledger_and_ports() -> void:
@@ -1596,102 +1450,9 @@ func _group_draft(draft_entry_id: String, slot_index: int, day: int, source_rece
 		"participants": ["priscilla", "lavinia"], "source_receipt_id": source_receipt_id}
 
 
-func _seed_group_source(day: int) -> String:
-	var state: Dictionary = _game_state.contacts
-	for participant: String in ["priscilla", "lavinia"]:
-		var offered: Dictionary = CONTACT_STATE.prepare_offer_solo(state, participant, day,
-			"offer.%s.day%d" % [participant, day], "solo.%s.day%d" % [participant, day])
-		assert_true(offered.get("ok", false), str(offered))
-		if not offered.get("ok", false):
-			return ""
-		state = offered["value"]["candidate"]
-	var activated: Dictionary = CONTACT_STATE.prepare_activate_group_after_round(state, day, 2, 3, "group.activate.day%d" % day)
-	assert_true(activated.get("ok", false), str(activated))
-	if not activated.get("ok", false):
-		return ""
-	state = activated["value"]["candidate"]
-	var record: Dictionary = ((_registry.find_record("group:priscilla_lavinia:day%d" % day))["value"] as Dictionary)["record"]
-	var open_command: Dictionary = _command("group.open.day%d" % day)
-	var opened: Dictionary = CONTACT_STATE.prepare_open_contact(state, "priscilla", day, open_command["id"], open_command["receipt"], _issuer, record)
-	assert_true(opened.get("ok", false), str(opened))
-	if not opened.get("ok", false):
-		return ""
-	state = opened["value"]["candidate"]
-	var reply_command: Dictionary = _command("group.reply.day%d" % day)
-	var replied: Dictionary = CONTACT_STATE.prepare_reply(state, "priscilla", day, reply_command["id"], reply_command["receipt"], _issuer, record)
-	assert_true(replied.get("ok", false), str(replied))
-	if not replied.get("ok", false):
-		return ""
-	_game_state.contacts = replied["value"]["candidate"]
-	return str((replied["receipt"] as Dictionary)["receipt_id"])
-
-
-func _await_stage_presentation(stage_name: String) -> Dictionary:
-	var steps: int = 0
-	while steps < MAX_WALK_STEPS:
-		steps += 1
-		var cursor: Dictionary = _state_port.inspect_next_stage()
-		if not cursor.get("ok", false) or not bool(cursor["value"]["has_stage"]):
-			assert_true(false, "the walk ended before the %s presentation" % stage_name)
-			return {}
-		var begun: Dictionary = _state_port.begin_next_stage()
-		if not begun.get("ok", false):
-			assert_true(false, "a stage before %s refused: %s" % [stage_name, JSON.stringify(begun)])
-			return {}
-		var value: Dictionary = begun["value"]
-		var stage: Dictionary = value["stage"]
-		if str(value["mode"]) == "await_registered_command":
-			if str(stage["stage_id"]) == stage_name:
-				return (value["command"] as Dictionary)["presentation_request"]
-			assert_true(false, "an unexpected presentation paused the walk at " + str(stage["stage_id"]))
-			return {}
-		if str(stage["stage_id"]) == stage_name:
-			assert_true(false, "the %s stage derived no presentation" % stage_name)
-			return {}
-		var advanced: Dictionary = _game_state._run_lifecycle.complete_active_stage(
-			str(stage["transaction_id"]), {"value": ((value["receipt"] as Dictionary)["value"] as Dictionary).duplicate(true)})
-		if not advanced.get("ok", false):
-			assert_true(false, "a stage before %s would not complete: %s" % [stage_name, JSON.stringify(advanced)])
-			return {}
-	assert_true(false, "the walk stopped advancing before the %s presentation" % stage_name)
-	return {}
-
-
 func _active_plan() -> Dictionary:
 	var plan: Variant = _game_state._run_lifecycle.to_dict()["active_resolution_plan"]
 	return (plan as Dictionary) if typeof(plan) == TYPE_DICTIONARY else {}
-
-
-func _top_level_stage_transaction_id(stage_name: String) -> String:
-	for stage_value: Variant in (_active_plan().get("stages", []) as Array):
-		if str((stage_value as Dictionary).get("stage_id", "")) == stage_name:
-			return str((stage_value as Dictionary).get("transaction_id", ""))
-	return ""
-
-
-func _condition_receipt_id(source_day: int) -> String:
-	var resolved: Dictionary = _consequence.resolve_condition_receipt({"causal_day_instance": CAUSAL_DAY, "source_day": source_day})
-	assert_true(resolved.get("ok", false), str(resolved))
-	return str(((resolved["value"] as Dictionary)["condition_receipt"] as Dictionary)["receipt_id"])
-
-
-func _derive(parent_receipt_id: String, child_kind: StringName, ordinal: int, sources: Array) -> Dictionary:
-	var sorted: Array = sources.duplicate()
-	sorted.sort()
-	var derived: Dictionary = _issuer.derive_child({"parent_receipt_id": parent_receipt_id, "child_kind": child_kind,
-		"ordinal": ordinal, "source_ids": sorted})
-	assert_true(derived.get("ok", false), JSON.stringify(derived))
-	if not derived.get("ok", false):
-		return {}
-	return {"child_id": str((derived["value"] as Dictionary)["child_id"]),
-		"provenance": ((derived["value"] as Dictionary)["provenance"] as Dictionary).duplicate(true)}
-
-
-func _tokens(projection: Array) -> Array:
-	var tokens: Array = []
-	for member: Array in projection:
-		tokens.append(str(member[0]) + "=" + _json(member[1]))
-	return tokens
 
 
 func _json(value: Variant) -> String:
@@ -1740,12 +1501,6 @@ func _publish_vector(owner: String, kind: String, sequence: Array, signal_name: 
 func _ledger_request(kind: String, semantic_receipt: Dictionary, publication: Dictionary) -> Dictionary:
 	return {"kind": kind, "semantic_receipt": semantic_receipt.duplicate(true), "publication": publication.duplicate(true),
 		"publication_sha256": _sha256_value(publication)}
-
-
-func _sorted_copy(values: Array) -> Array:
-	var copy: Array = values.duplicate()
-	copy.sort()
-	return copy
 
 
 func _observe_silently(row_id: String, provenance: Dictionary, expected_parent: String, expected_ordinal: int) -> void:

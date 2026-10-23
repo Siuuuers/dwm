@@ -35,12 +35,10 @@ const _CAPABILITY_RULES := preload("res://scripts/domain/minesweeper/Minesweeper
 const _BOARD_SCHEMA := preload("res://scripts/domain/minesweeper/MinesweeperBoardSchema.gd")
 const _BOARD_CATALOG := preload("res://scripts/domain/minesweeper/MinesweeperBoardCatalog.gd")
 
-const _STAT_MOTIVATION := "motivation"
 const _STAT_PRESSURE := "pressure"
 ## Plan 02 Task 8 (dwm-p2r.32) additions, mirroring GameStateMinesweeperShopPort's own established
 ## constants exactly: MinesweeperRoundCoordinator.complete_round() needs the same condition-triple
 ## facts Shop's own action receipts already carry.
-const _STAT_HEALTH := "health"
 const _CONDITION_SEQUELA := "sequela"
 
 var _game_state: Object = null
@@ -129,7 +127,6 @@ func capture() -> Dictionary:
 	var captured_identity := _capture_identity()
 	if not captured_identity.get("ok", false): return captured_identity
 	var identity_context: Dictionary = captured_identity.value
-	var motivation: int = _game_state.get_stat(_STAT_MOTIVATION)
 	var rounds_left: int = int(_game_state.minesweeper_rounds_left)
 	var round_floor: int = int(_game_state.minesweeper_round_floor)
 	var causal_day_instance: String = str(identity_context["causal_day_instance"])
@@ -137,18 +134,18 @@ func capture() -> Dictionary:
 	# Fixed-context fixtures retain their isolated preparation bookkeeping.
 	var next_ordinal: int = int(_game_state.minesweeper_app_rounds_finished_today) + 1 \
 		if _desktop_identity_context is Callable else int(_starts_today.get(causal_day_instance, 0)) + 1
-	var eligible: bool = motivation > 0 and rounds_left > round_floor and next_ordinal >= 1 and next_ordinal <= 5
+	var eligible: bool = rounds_left > round_floor and next_ordinal >= 1 and next_ordinal <= 5
 	return {"ok": true, "code": &"ok", "value": {
 		"run_id": str(identity_context["run_id"]),
 		"branch_id": str(identity_context["branch_id"]),
 		"desktop_timeline_generation": int(identity_context["desktop_timeline_generation"]),
 		"causal_day_instance": causal_day_instance, "next_app_round_ordinal": next_ordinal,
-		"eligible": eligible, "motivation": motivation, "rounds_left": rounds_left,
-		"day": int(_game_state.day), "health": _game_state.get_stat(_STAT_HEALTH),
+		"eligible": eligible, "rounds_left": rounds_left,
+		"day": int(_game_state.day),
 		"pressure": _game_state.get_stat(_STAT_PRESSURE),
 		"carried_sequela": (_game_state.condition_effects_today as Array).has(_CONDITION_SEQUELA),
 		"backup": {
-			"motivation": motivation, "rounds_left": rounds_left, "starts_today": _starts_today.duplicate(true),
+			"rounds_left": rounds_left, "starts_today": _starts_today.duplicate(true),
 		},
 	}, "receipt": {}}
 
@@ -239,7 +236,6 @@ func prepare_first_reveal(board_candidate: Dictionary, transaction_id: String,
 	var facts: Dictionary = captured["value"]
 	if not bool(facts["eligible"]):
 		return _fail(&"insufficient_capacity", "no eligible ordinal or capacity remains", {})
-	var motivation: int = int(facts["motivation"])
 	var rounds_left: int = int(facts["rounds_left"])
 	var board: Dictionary = board_candidate["board"]
 	var layout_view := {
@@ -265,12 +261,12 @@ func prepare_first_reveal(board_candidate: Dictionary, transaction_id: String,
 		"identity": (board_candidate["identity"] as Dictionary).duplicate(true),
 		"difficulty_id": str(board_candidate["difficulty_id"]), "first_cell": int(board_candidate["cell_index"]),
 		"board_revision": int(board["revision"]), "rounds_before": rounds_left, "rounds_after": rounds_left - 1,
-		"motivation_before": motivation, "motivation_after": motivation - 1, "layout_sha256": layout_sha256,
+		"layout_sha256": layout_sha256,
 		"proof_sha256": board_candidate.get("proof_sha256", null), "checkpoint_id": expected_checkpoint_id,
 	}
 	var causal_day_instance: String = str(facts["causal_day_instance"])
 	var run_candidate := {
-		"transaction_id": transaction_id, "motivation": motivation - 1, "rounds_left": rounds_left - 1,
+		"transaction_id": transaction_id, "rounds_left": rounds_left - 1,
 		"starts_today": (_starts_today.duplicate(true) as Dictionary),
 	}
 	(run_candidate["starts_today"] as Dictionary)[causal_day_instance] = \
@@ -362,14 +358,14 @@ func commit(candidate: Dictionary) -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
 		return ready
+	if candidate.has("motivation") or candidate.has("health"):
+		return _fail(&"retired_stat_candidate", "retired stat mutation is not admitted", {})
 	if candidate.has("selected_difficulty"):
 		var selected := _BOARD_CATALOG.lookup("desktop_app", str(candidate.selected_difficulty))
 		if not selected.ok: return selected
 		_game_state.minesweeper_selected_difficulty = str(candidate.selected_difficulty)
 	if candidate.get("board_only", false):
 		return {"ok": true, "code": &"ok", "value": {"committed": true}, "receipt": {}}
-	if candidate.has("motivation"):
-		_game_state.set_stat(_STAT_MOTIVATION, int(candidate["motivation"]))
 	if candidate.has("rounds_left"):
 		_game_state.minesweeper_rounds_left = int(candidate["rounds_left"])
 	if candidate.has("starts_today"):
@@ -381,7 +377,8 @@ func rollback(backup: Dictionary) -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
 		return ready
-	_game_state.set_stat(_STAT_MOTIVATION, int(backup["motivation"]))
+	if backup.has("motivation") or backup.has("health"):
+		return _fail(&"retired_stat_candidate", "retired stat backup is not admitted", {})
 	_game_state.minesweeper_rounds_left = int(backup["rounds_left"])
 	_starts_today = (backup["starts_today"] as Dictionary).duplicate(true)
 	return {"ok": true, "code": &"ok", "value": {"restored": true}, "receipt": {}}
@@ -441,3 +438,4 @@ func _capture_identity() -> Dictionary:
 
 func get_selected_difficulty() -> String:
 	return str(_game_state.minesweeper_selected_difficulty) if _game_state != null else "beginner"
+

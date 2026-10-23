@@ -1,0 +1,186 @@
+{
+  "ci/audit-origin.json": {
+    "bytes": 343,
+    "sha256": "ab4ee44f6f83f09990d5394458bb58da66035c183a83aad2abb74df1c6686041"
+  },
+  "ci/final-status.txt": {
+    "bytes": 275,
+    "sha256": "f9cff9ed49e7f8a7082329877b1af0c2e996b8000304cd83e08c1ddbd0811f60"
+  },
+  "ci/import-process.json": {
+    "bytes": 24,
+    "sha256": "75876e0e3f497cad271143ba85bd4f36569cd81195509043f860dab14265b716"
+  },
+  "ci/import.log": {
+    "bytes": 96271,
+    "sha256": "5b8c6cdb885ee1557ea79226bb0b3eb24a3751296c1043fb487701badb72717f"
+  },
+  "ci/settings-render.jsonl": {
+    "bytes": 656,
+    "sha256": "2d66d771258fd41061e2ad3d7593d8d625995faa1a8aa7c01a4b10eb9f2beec4"
+  },
+  "ci/settings.jsonl": {
+    "bytes": 860,
+    "sha256": "b630858cb3f73133a9dacf786ebd00f241959d86de5e156194c3deac1a4acf99"
+  },
+  "ci/settings.xml": {
+    "bytes": 7645,
+    "sha256": "548157d88807e98209ec57369dd5476934afcde934cf3c69f23a7648d60657d6"
+  },
+  "ci/source-tree.txt": {
+    "bytes": 1704019,
+    "sha256": "e0a5ea18f06ad1e36c1af26bc1bc19e4223981e0edf354bcad4133458383f6d1"
+  },
+  "ci/uid-provenance.json": {
+    "bytes": 1280,
+    "sha256": "3df7a081a46dc789140fea440702e6da1f4765b76042193cb8d365854cf31bed"
+  },
+  "ci/native-uids/authored_week_child.gd.uid": {
+    "bytes": 20,
+    "sha256": "26a07eb1a8b8bcb11f34f35f50a8f6991cabfcec4284123256b710978b3c4512"
+  },
+  "ci/native-uids/authored_week_create.gd.uid": {
+    "bytes": 20,
+    "sha256": "efaa90685c346674983f2d245919b662c600ee8e8438a9130b8d79df5c310ad9"
+  },
+  "ci/native-uids/authored_week_load.gd.uid": {
+    "bytes": 20,
+    "sha256": "0807c4e888870ae647e6a62fe9cad1d383fe0b815c92906731ad067bd3bded09"
+  },
+  "ci/native-uids/authored_week_replay.gd.uid": {
+    "bytes": 20,
+    "sha256": "67e7d792639072893c0af6ab932f72a9e7c9ae49a00e21ea5c2129ca503961f6"
+  },
+  "ci/native/settings/0/user-dir-proof.log": {
+    "bytes": 193,
+    "sha256": "b6314b9011c7628073adeb10f86cf38479a2d71c3d0ee763d0afeb7a19910771"
+  },
+  "ci/native/settings/0/appdata/Godot/app_userdata/DWM/dialogic/saves/global_info.txt": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "ci/native/settings-render/0/user-dir-proof.log": {
+    "bytes": 193,
+    "sha256": "8c73a62acc23b9b7cd57de19e4d8b7fcf7896a9872bd291e9eaa9b19a2767f9b"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/dialogic/saves/global_info.txt": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/evidence/settings_shared/settings-shared-measurements.json": {
+    "bytes": 641,
+    "sha256": "3aa84968b5c2ac11ef971a4046a39058bdbfd92e4a610fe3361d8fc4031867c5"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/+0NJXO2tED5GYLHkSpn8uswoUus=.cache": {
+    "bytes": 2147,
+    "sha256": "d7192d85c653d2d6c824efab36d4f4e19380d9c52ba4b8e934c4fc3afb68645a"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/1i7knzMo7uaabWbXZiMWG8SyZZM=.cache": {
+    "bytes": 1865,
+    "sha256": "31e8bd5ac6d049380a9634d5934bb1951f9d95470066b9f47a3ee8878343c055"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/3ANL6jEa5jkTN52sf1zAbOadg60=.cache": {
+    "bytes": 2966,
+    "sha256": "ef70e24200814195de76bf155f32a3cc8a1f297215f69c8fef912e93aa0ddd61"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/4yodjWkp9eF7T5QAUZ4OHZkc3EE=.cache": {
+    "bytes": 2855,
+    "sha256": "a7b4888366a036b56efb0d417883237df6b998086d482b7d53094568f4556da0"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/cKiSeHOqfE__FhUArKuSnJOfeAk=.cache": {
+    "bytes": 5279,
+    "sha256": "910190ad8f3ff02113846d6f6d93909a0c46ded83b0c5c5a5cc0e18cd4af1b88"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/e5ZRf0mclyCvDPypBYCs3280Jsw=.cache": {
+    "bytes": 5449,
+    "sha256": "b9d8bd3a228a031ec93738e6ab5a3f8aee604c427a8537728d1274c98b1fd14d"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/FPBf1TfevjZruRDFPN9QENniw_w=.cache": {
+    "bytes": 2384,
+    "sha256": "f5016ae3e6edc629210a8e6e23c3cf33dedd7d00408c70b6216b01f1d1232398"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/GfGxaGsWNxrtAGZ8j976VACJbxw=.cache": {
+    "bytes": 5974,
+    "sha256": "bbbbf14f46d2366b77d168b534744fd5405c9cb90f09915558944051a9105e13"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/gfI6W6tQ2GR+Uuy7X9mSPdNu+RA=.cache": {
+    "bytes": 2512,
+    "sha256": "3e9da6f4a3470e5255e0c02a16df6cc2b6a20c5f726d8ae1b097e9e55f9f9d79"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/gtD_9jA4D+GfNkO4XZ5sEGj6GzI=.cache": {
+    "bytes": 2381,
+    "sha256": "3cb18379d76be64eae98d04960db0509d42dc6d8f621828b03a1165bec5fb817"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/I+JSrTCBsZhyPh2Iem61_sd1KKs=.cache": {
+    "bytes": 5808,
+    "sha256": "d87231694ecdd82ffd6e7d091c62f29c80919860174ab53d738694879e01c092"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/j+hHg7Y5LIS776xQvnSjjpeGnvI=.cache": {
+    "bytes": 2185,
+    "sha256": "637695040dfae1aa9ef3dd8844840f29ecaff223bac4c1a9adce897916b540b7"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/j0HcUyvJKtU2zyYFsOzUNEQoxJw=.cache": {
+    "bytes": 2477,
+    "sha256": "8890869f3f93bfc103b00cd00b4cdc6ded67357daa1b13ed6bf341a2dc42cc9b"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/K7koK4h3btXYT65x6VfWJpRcbtY=.cache": {
+    "bytes": 2237,
+    "sha256": "1f2b48d52330bdddb4596a79b036b0e78cacf3f985e22f831f2cba8a9fa50b4c"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/kKFGsrcUJw77eat1Kvd4uiEDuyE=.cache": {
+    "bytes": 6454,
+    "sha256": "a250202151d9f8458395146cf507ce1c1e97a4eda7ebdd20e04c84cf2ea2648f"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/MxTypYjy3isoQ0fsbfqtkMJ94ds=.cache": {
+    "bytes": 27236,
+    "sha256": "902298d14eb985aba2c4e9bc1daa6683771810f4f9d9a3e3b5586a981ba3c849"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/NJaQ_DtLjOwHNVCa+4UWgWHrG+w=.cache": {
+    "bytes": 4273,
+    "sha256": "6e554249f335e1cb07a0f5cd72da67ded64d05e86216f296fdd4292edacc2d20"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/rCQyKqY25wyrYCwvUvoU9dLIyr8=.cache": {
+    "bytes": 2034,
+    "sha256": "e53a259223db7ef33f0e5ac62b1d92468264ed6db8bb52a49f5f050063bf5b4c"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/RJKbaJL3NdpdOIBNASR7evmKxS8=.cache": {
+    "bytes": 27662,
+    "sha256": "7d01cac9f90eac9c0f8e9a63502ff55711f4c4babe0207765e77d47c729cc4b7"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/VaLFKy58efOr6Lm38kYaeeAen40=.cache": {
+    "bytes": 2024,
+    "sha256": "ef3da4ef70c0f35e8ca0674878684c9e7d0a2a9462f19f4a0a7c2b73373aa1c2"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/yFYGcekbaBYxMPgglGePiG6RAH0=.cache": {
+    "bytes": 1535,
+    "sha256": "b3d8930a4c5b43f5ff1ca525c217e4851dfbe57ad6413698f09da7f53cc10675"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/shader_cache/CanvasShaderGLES3/e6624fe2264e206b0e4d7e025633fd052f5ad01a74f8e4ead975432d9ed35cd4/fa7b62523470356194bdf709eb2639ab149a07cc.cache": {
+    "bytes": 76030,
+    "sha256": "311ae316db14960725aab7d22fafbe83c97291db43487b84e2bfe5f44a3b109a"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/shader_cache/CopyShaderGLES3/4b67ab47c152ed26b01d35bc017f7687b5361d62499e2aafa5d4b9fc04a691b8/fa7b62523470356194bdf709eb2639ab149a07cc.cache": {
+    "bytes": 109350,
+    "sha256": "1146eea9f5f0d90f6d67f27743eae3d0ac26ea3452dee28290b33b1d9035cc65"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/shader_cache/FeedShaderGLES3/0b8b6c50cd99ef8772e9faa2517ae00c3fd765fbba160ada73bc7b5a1ed57166/fa7b62523470356194bdf709eb2639ab149a07cc.cache": {
+    "bytes": 7872,
+    "sha256": "1f79c100a0a032e059afda33907d8dea2af9ee11a207876054951f90e0972ba8"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/shader_cache/PostShaderGLES3/b83436dcdfb9b4864b27d9e0e5900eb89cd96c53f8161e4f673e1eaf9008e42b/fa7b62523470356194bdf709eb2639ab149a07cc.cache": {
+    "bytes": 15572,
+    "sha256": "90830d109f1944bc58f1b4452d3a73e866c7c90c07af7a24e74cde94a8979d71"
+  },
+  "ci/native/settings-render/0/appdata/Godot/app_userdata/DWM/shader_cache/SceneShaderGLES3/ae7bdf39be385d6c58bd4296942ac7dade1a132b1337f930759d4a5c900eab2c/fa7b62523470356194bdf709eb2639ab149a07cc.cache": {
+    "bytes": 468952,
+    "sha256": "5500cd2cd2d451340aaf8b52a7ecbb3bf88359e07d7dc7eda554d9db1cd4f641"
+  },
+  "phase2r_logs/settings-render.log": {
+    "bytes": 1048,
+    "sha256": "0be521876e69e6c205acfe2bc4182152caec403f324f8761eb5ca54d6dbc28cf"
+  },
+  "phase2r_logs/settings.log": {
+    "bytes": 310257,
+    "sha256": "e637f448028ff8d07b3462e158a3f3ebfed62aa035df52b5502574b17960b764"
+  }
+}

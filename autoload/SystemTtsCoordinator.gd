@@ -125,11 +125,11 @@ func _on_utterance_finished(token: int, outcome: StringName) -> void:
 func _compatible_voice(locale: String) -> String:
 	if not is_instance_valid(_port): return ""
 	var normalized := locale.replace("-", "_").to_lower()
-	if normalized not in ["en", "zh_cn", "zh_hk"]: return ""
+	if normalized not in ["en", "zh_cn", "zh_hk", "ja", "ko"]: return ""
 	var matches: Array[String] = []
 	for voice: Dictionary in _port.get_voices():
 		var language := str(voice.get("language", "")).replace("-", "_").to_lower()
-		if language == normalized or (normalized == "en" and language.begins_with("en_")):
+		if language == normalized or (normalized in ["en", "ja", "ko"] and language.begins_with(normalized + "_")):
 			var id := str(voice.get("id", ""))
 			if not id.is_empty(): matches.append(id)
 	matches.sort()

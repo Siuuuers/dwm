@@ -240,7 +240,8 @@ func test_live_accessibility_recolours_existing_transcript_without_owner_or_focu
 	var launcher: Button = f.desktop.contacts_button
 	var launcher_caption: String = launcher.caption.text
 	var launcher_name: String = launcher.accessibility_name
-	assert_true(launcher_caption.contains("•"))
+	assert_eq(launcher_caption,"Contacts")
+	assert_true(launcher.unread)
 	assert_true(launcher_name.contains("new message"))
 	var choice: Button = app._ordinary_choices[0]
 	var choice_caption: Label = choice.get_child(0) as Label
@@ -258,6 +259,7 @@ func test_live_accessibility_recolours_existing_transcript_without_owner_or_focu
 	_assert_paper_button_colours(choice, expected)
 	assert_eq(f.port.call_counts(),calls_before,"Colour signals cannot request correspondence or ordinary commands.")
 	assert_eq(launcher.caption.text,launcher_caption)
+	assert_true(launcher.unread,"Colour refresh preserves the displayed unread badge.")
 	assert_eq(launcher.accessibility_name,launcher_name)
 	assert_same(panel.transcript,transcript)
 	assert_same(panel.rows[1],row)
@@ -457,3 +459,25 @@ func test_desktop_rejects_invalid_or_foreign_day_before_binding_contacts_owners(
 	assert_same(candidate._presentation_port,f.port)
 	assert_same(candidate._host_state,f.host)
 	assert_eq(candidate._day,5)
+
+func test_font_style_switch_reflows_retained_thread_without_opening_or_replying_again() -> void:
+	var f := _fixture()
+	var app := _open(f)
+	if app == null: return
+	_open_lavinia(app)
+	await _settle()
+	var copy: Array = []
+	for label: Label in app.contacts_panel.transcript.find_children("*","Label",true,false): copy.append(label.text)
+	var before: Dictionary = f.port.call_counts()
+	var typography := preload("res://scripts/ui/UiTypography.gd")
+	for style: String in ["readable","pixel"]:
+		assert_true(f.localization.set_font_style(style).ok)
+		await _settle()
+		assert_eq(app.contacts_panel.selected_friend,"lavinia")
+		assert_same(app.contacts_panel._fonts.en,typography.font("en",100,style))
+		var current: Array = []
+		for label: Label in app.contacts_panel.transcript.find_children("*","Label",true,false): current.append(label.text)
+		assert_eq(current,copy)
+		var after: Dictionary = f.port.call_counts()
+		for key: String in ["open","reply","prepare","acknowledge","cancel"]:
+			assert_eq(after[key],before[key],"Font selection never changes contact progress: "+key)

@@ -1,0 +1,177 @@
+{
+  "primary": [
+    {
+      "cases": 334,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_path": "windows-desktop-37117747147-1/ci/desktop.xml"
+    },
+    {
+      "cases": 168,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_path": "windows-dating-37117747147-1/ci/dating.xml"
+    },
+    {
+      "cases": 230,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_path": "windows-persistence-37117747147-1/ci/persistence.xml"
+    },
+    {
+      "cases": 22,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_path": "windows-checkpoint_diagnostics-37117747147-1/ci/checkpoint_diagnostics.xml"
+    },
+    {
+      "cases": 106,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_path": "windows-endings-37117747147-1/ci/endings.xml"
+    },
+    {
+      "cases": 617,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_path": "windows-reading_delivery-37117747147-1/ci/reading_delivery.xml"
+    },
+    {
+      "cases": 144,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_path": "windows-shop-37117747147-1/ci/shop.xml"
+    },
+    {
+      "cases": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_path": "public-surfaces-37117747147-1/ci/public_surfaces.xml"
+    },
+    {
+      "cases": 179,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_path": "windows-new_account-37117747147-1/ci/new_account.xml"
+    },
+    {
+      "cases": 153,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_path": "windows-localization-37117747147-1/ci/localization.xml"
+    },
+    {
+      "cases": 44,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_path": "windows-audio-37117747147-1/ci/audio.xml"
+    },
+    {
+      "cases": 357,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_path": "windows-settings-37117747147-1/ci/settings.xml"
+    },
+    {
+      "cases": 210,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_path": "windows-minesweeper-37117747147-1/ci/minesweeper.xml"
+    }
+  ],
+  "negative_controls": [
+    {
+      "cases": 83,
+      "failures": 80,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_path": "storage-refusal/empty/tests.xml"
+    },
+    {
+      "cases": 83,
+      "failures": 80,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_path": "storage-refusal/whitespace/tests.xml"
+    }
+  ],
+  "total_cases": 2575,
+  "total_failures": 0,
+  "total_errors": 0,
+  "total_skips": 0,
+  "changed_tests": [
+    {
+      "name": "test_hospital_manual_save_and_load_refuse_without_capture_or_reveal",
+      "attributes": {
+        "name": "test_hospital_manual_save_and_load_refuse_without_capture_or_reveal",
+        "assertions": "23",
+        "status": "pass",
+        "classname": "tests/unit/test_reading_pause_save.gd",
+        "time": "0.121404"
+      },
+      "child_tags": [],
+      "artifact_path": "windows-reading_delivery-37117747147-1/ci/reading_delivery.xml"
+    },
+    {
+      "name": "test_hospital_live_rail_disables_save_load_but_preserves_history",
+      "attributes": {
+        "name": "test_hospital_live_rail_disables_save_load_but_preserves_history",
+        "assertions": "19",
+        "status": "pass",
+        "classname": "tests/unit/test_reading_pause_save.gd",
+        "time": "0.007821"
+      },
+      "child_tags": [],
+      "artifact_path": "windows-reading_delivery-37117747147-1/ci/reading_delivery.xml"
+    },
+    {
+      "name": "test_hospital_pause_quick_commands_share_manual_restriction",
+      "attributes": {
+        "name": "test_hospital_pause_quick_commands_share_manual_restriction",
+        "assertions": "28",
+        "status": "pass",
+        "classname": "tests/unit/test_reading_pause_save.gd",
+        "time": "0.009059"
+      },
+      "child_tags": [],
+      "artifact_path": "windows-reading_delivery-37117747147-1/ci/reading_delivery.xml"
+    },
+    {
+      "name": "test_hospital_restriction_also_applies_without_a_reading_frontier",
+      "attributes": {
+        "name": "test_hospital_restriction_also_applies_without_a_reading_frontier",
+        "assertions": "16",
+        "status": "pass",
+        "classname": "tests/unit/test_reading_pause_save.gd",
+        "time": "0.007214"
+      },
+      "child_tags": [],
+      "artifact_path": "windows-reading_delivery-37117747147-1/ci/reading_delivery.xml"
+    },
+    {
+      "name": "test_mounted_hospital_refuses_direct_and_paused_load_without_changing_native_source",
+      "attributes": {
+        "name": "test_mounted_hospital_refuses_direct_and_paused_load_without_changing_native_source",
+        "assertions": "32",
+        "status": "pass",
+        "classname": "tests/integration/test_narrative_pause_frontier.gd",
+        "time": "1.011753"
+      },
+      "child_tags": [],
+      "artifact_path": "windows-reading_delivery-37117747147-1/ci/reading_delivery.xml"
+    }
+  ]
+}

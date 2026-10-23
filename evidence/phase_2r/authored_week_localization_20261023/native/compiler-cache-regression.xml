@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="14" >
+  <testsuite name="tests/unit/test_scene_compiler_cache.gd" tests="1" failures="0" skipped="0" time="0.005864" >
+      <testcase name="test_compiled_values_are_detached_and_follow_physical_source_and_arguments" assertions="14" status="pass" classname="tests/unit/test_scene_compiler_cache.gd" time="0.005864" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_scene_sequence_authoring.gd" tests="6" failures="0" skipped="0" time="0.163134" >
+      <testcase name="test_three_scene_order_and_two_scene_removal_use_real_registration" assertions="19" status="pass" classname="tests/unit/test_scene_sequence_authoring.gd" time="0.055396" >
+      </testcase>
+      <testcase name="test_explicit_order_is_not_sorted_or_incremented" assertions="9" status="pass" classname="tests/unit/test_scene_sequence_authoring.gd" time="0.023739" >
+      </testcase>
+      <testcase name="test_invalid_sequences_and_bindings_refuse_without_partial_output" assertions="16" status="pass" classname="tests/unit/test_scene_sequence_authoring.gd" time="0.030144" >
+      </testcase>
+      <testcase name="test_missing_referenced_content_is_clear_and_not_repaired" assertions="9" status="pass" classname="tests/unit/test_scene_sequence_authoring.gd" time="0.017049" >
+      </testcase>
+      <testcase name="test_source_hash_tampering_is_not_authenticated_by_recompilation" assertions="6" status="pass" classname="tests/unit/test_scene_sequence_authoring.gd" time="0.009439" >
+      </testcase>
+      <testcase name="test_single_scene_retains_terminal_policy" assertions="9" status="pass" classname="tests/unit/test_scene_sequence_authoring.gd" time="0.027367" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_scene_registration_v2.gd" tests="7" failures="0" skipped="0" time="0.124063" >
+      <testcase name="test_exact_v1_and_v2_admitted_without_changing_inputs" assertions="8" status="pass" classname="tests/unit/test_scene_registration_v2.gd" time="0.041107" >
+      </testcase>
+      <testcase name="test_definitions_cannot_be_smuggled_into_v1_or_omitted_from_v2" assertions="5" status="pass" classname="tests/unit/test_scene_registration_v2.gd" time="0.006754" >
+      </testcase>
+      <testcase name="test_unknown_version_and_extra_member_refused" assertions="5" status="pass" classname="tests/unit/test_scene_registration_v2.gd" time="0.006077" >
+      </testcase>
+      <testcase name="test_unregistered_fact_and_duplicate_definition_fact_refused" assertions="6" status="pass" classname="tests/unit/test_scene_registration_v2.gd" time="0.01289" >
+      </testcase>
+      <testcase name="test_malformed_contacts_fail_without_indexing_untrusted_rows" assertions="15" status="pass" classname="tests/unit/test_scene_registration_v2.gd" time="0.029957" >
+      </testcase>
+      <testcase name="test_definition_text_changes_whole_bundle_fingerprint" assertions="6" status="pass" classname="tests/unit/test_scene_registration_v2.gd" time="0.016953" >
+      </testcase>
+      <testcase name="test_definition_validation_does_not_replace_nested_dtl_admission" assertions="3" status="pass" classname="tests/unit/test_scene_registration_v2.gd" time="0.010325" >
+      </testcase>
+  </testsuite>
+</testsuites>

@@ -1,9 +1,15 @@
 extends Label
 ## Read-only audience local time. No gameplay clock or background elapsed-time model.
 
-const FONT := preload("res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2")
-const NAMES := {"en": "Local time", "zh-CN": "本地时间", "zh-HK": "本地時間"}
-const UNAVAILABLE := {"en": "Time unavailable", "zh-CN": "时间不可用", "zh-HK": "時間不可用"}
+const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
+const NAMES := {"en": "Local time", "zh-CN": "本地时间", "zh-HK": "本地時間",
+	"ja": "現地時刻",
+	"ko": "현지 시간",
+}
+const UNAVAILABLE := {"en": "Time unavailable", "zh-CN": "时间不可用", "zh-HK": "時間不可用",
+	"ja": "時刻を表示できません",
+	"ko": "시간을 표시할 수 없어요",
+}
 
 var _reader: Callable = Time.get_time_dict_from_system
 var _timer: Timer
@@ -19,10 +25,6 @@ func _init() -> void:
 	auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	var font := FontVariation.new()
-	font.base_font = FONT
-	font.opentype_features = {"tnum": 1}
-	add_theme_font_override("font", font)
 	set_presentation("en", 100)
 
 func _ready() -> void:
@@ -39,12 +41,14 @@ func configure_clock(reader: Callable) -> void:
 	if is_node_ready():
 		refresh_clock()
 
-func set_presentation(locale: String, percent: int) -> void:
+func set_presentation(locale: String, percent: int, font_style: String = "pixel") -> void:
 	_locale = locale.replace("_", "-")
 	if not NAMES.has(_locale):
 		_locale = "en"
 	var scale_percent := percent if percent in [100, 125, 150] else 100
-	add_theme_font_size_override("font_size", int(24 * scale_percent / 100.0))
+	var style := font_style if font_style in ["pixel", "readable"] else "pixel"
+	add_theme_font_override("font", TYPOGRAPHY.font(_locale, scale_percent, style))
+	add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(_locale, scale_percent, 24, style))
 	_refresh_description()
 
 func set_foreground_eligible(eligible: bool) -> void:

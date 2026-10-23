@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "scope": "Complete original ZIPs are stored once; extracted bytes are not duplicated in this archive.",
+  "run_id": 37093072813,
+  "artifact_count": 1,
+  "extracted_file_count": 8,
+  "all_original_zip_crc_verified": true,
+  "all_original_api_digest_size_verified": true,
+  "every_extracted_file_byte_identical_to_original_zip_member": true,
+  "no_unrepresented_extracted_files": true,
+  "artifacts": [
+    {
+      "id": 11263672301,
+      "name": "public-surfaces-37093072813-1",
+      "archive_path": "original-artifacts/11263672301-public-surfaces-37093072813-1.zip",
+      "bytes": 41049,
+      "sha256": "72f8bc0ca6ec7cf7b2d4ba21baf0ebe5f93ee1c7ff8cec4d71e2e2b33abed3cf",
+      "zip_crc_verified": true,
+      "member_records": [
+        {
+          "capture_path": "artifacts/public-surfaces-37093072813-1/ci/public-surfaces/game_state-check.jsonl",
+          "original_zip_archive_path": "original-artifacts/11263672301-public-surfaces-37093072813-1.zip",
+          "member": "ci/public-surfaces/game_state-check.jsonl",
+          "bytes": 997,
+          "sha256": "7b06e3fddf9c266422e2ce856a5fec994b18b08a27b97e864de5c5fee7915d82",
+          "zip_crc32": "da48c28a",
+          "stored_separately": false
+        },
+        {
+          "capture_path": "artifacts/public-surfaces-37093072813-1/ci/public-surfaces/fixture-version-census.json",
+          "original_zip_archive_path": "original-artifacts/11263672301-public-surfaces-37093072813-1.zip",
+          "member": "ci/public-surfaces/fixture-version-census.json",
+          "bytes": 238232,
+          "sha256": "d82d3c5c220fa0f7a6a3172c888851ce87cdfad62f4d088182a3048f5a156789",
+          "zip_crc32": "8648f84c",
+          "stored_separately": false
+        },
+        {
+          "capture_path": "artifacts/public-surfaces-37093072813-1/ci/import.log",
+          "original_zip_archive_path": "original-artifacts/11263672301-public-surfaces-37093072813-1.zip",
+          "member": "ci/import.log",
+          "bytes": 203828,
+          "sha256": "b1a767a1830848cd6caced40f38277bd21ed8ac5e8ba1cd0d808996ac15d059a",
+          "zip_crc32": "9e956a90",
+          "stored_separately": false
+        },
+        {
+          "capture_path": "artifacts/public-surfaces-37093072813-1/ci/public-surfaces/retirement-audit.json",
+          "original_zip_archive_path": "original-artifacts/11263672301-public-surfaces-37093072813-1.zip",
+          "member": "ci/public-surfaces/retirement-audit.json",
+          "bytes": 563,
+          "sha256": "3c4344fefd9fc7f2dcb5729b21a2ad57dfce2fba01b1c709554824b34bca8256",
+          "zip_crc32": "b02b77d9",
+          "stored_separately": false
+        },
+        {
+          "capture_path": "artifacts/public-surfaces-37093072813-1/ci/isolation-timeout.jsonl",
+          "original_zip_archive_path": "original-artifacts/11263672301-public-surfaces-37093072813-1.zip",
+          "member": "ci/isolation-timeout.jsonl",
+          "bytes": 658,
+          "sha256": "df589a37fb272026cb3c36e4e80c782a6eeca22b097ac66dd1cb1995dbea1522",
+          "zip_crc32": "9f7f8da5",
+          "stored_separately": false
+        },
+        {
+          "capture_path": "artifacts/public-surfaces-37093072813-1/phase2r_logs/cloud-isolation-timeout.log",
+          "original_zip_archive_path": "original-artifacts/11263672301-public-surfaces-37093072813-1.zip",
+          "member": "phase2r_logs/cloud-isolation-timeout.log",
+          "bytes": 105,
+          "sha256": "024608dce65ad25e4cf6cf14cda110234e45b506858606453dbab71388889192",
+          "zip_crc32": "844f69b7",
+          "stored_separately": false
+        },
+        {
+          "capture_path": "artifacts/public-surfaces-37093072813-1/phase2r_logs/cloud-isolation-timeout.log.timeout.log",
+          "original_zip_archive_path": "original-artifacts/11263672301-public-surfaces-37093072813-1.zip",
+          "member": "phase2r_logs/cloud-isolation-timeout.log.timeout.log",
+          "bytes": 151,
+          "sha256": "bbfe0f114cd95fdd646d6bed89814dc35f6124e3bf360f0552964a251831cc41",
+          "zip_crc32": "72cbca86",
+          "stored_separately": false
+        },
+        {
+          "capture_path": "artifacts/public-surfaces-37093072813-1/phase2r_logs/cloud-public-surface-game_state-check.log",
+          "original_zip_archive_path": "original-artifacts/11263672301-public-surfaces-37093072813-1.zip",
+          "member": "phase2r_logs/cloud-public-surface-game_state-check.log",
+          "bytes": 166,
+          "sha256": "4eb7579d3b4f801ebd79985042b807ae0cf03210356715a7e32c49a208acde59",
+          "zip_crc32": "29463731",
+          "stored_separately": false
+        }
+      ]
+    }
+  ],
+  "extracted_files": [
+    {
+      "capture_path": "artifacts/public-surfaces-37093072813-1/ci/public-surfaces/game_state-check.jsonl",
+      "original_zip_archive_path": "original-artifacts/11263672301-public-surfaces-37093072813-1.zip",
+      "member": "ci/public-surfaces/game_state-check.jsonl",
+      "bytes": 997,
+      "sha256": "7b06e3fddf9c266422e2ce856a5fec994b18b08a27b97e864de5c5fee7915d82",
+      "zip_crc32": "da48c28a",
+      "stored_separately": false
+    },
+    {
+      "capture_path": "artifacts/public-surfaces-37093072813-1/ci/public-surfaces/fixture-version-census.json",
+      "original_zip_archive_path": "original-artifacts/11263672301-public-surfaces-37093072813-1.zip",
+      "member": "ci/public-surfaces/fixture-version-census.json",
+      "bytes": 238232,
+      "sha256": "d82d3c5c220fa0f7a6a3172c888851ce87cdfad62f4d088182a3048f5a156789",
+      "zip_crc32": "8648f84c",
+      "stored_separately": false
+    },
+    {
+      "capture_path": "artifacts/public-surfaces-37093072813-1/ci/import.log",
+      "original_zip_archive_path": "original-artifacts/11263672301-public-surfaces-37093072813-1.zip",
+      "member": "ci/import.log",
+      "bytes": 203828,
+      "sha256": "b1a767a1830848cd6caced40f38277bd21ed8ac5e8ba1cd0d808996ac15d059a",
+      "zip_crc32": "9e956a90",
+      "stored_separately": false
+    },
+    {
+      "capture_path": "artifacts/public-surfaces-37093072813-1/ci/public-surfaces/retirement-audit.json",
+      "original_zip_archive_path": "original-artifacts/11263672301-public-surfaces-37093072813-1.zip",
+      "member": "ci/public-surfaces/retirement-audit.json",
+      "bytes": 563,
+      "sha256": "3c4344fefd9fc7f2dcb5729b21a2ad57dfce2fba01b1c709554824b34bca8256",
+      "zip_crc32": "b02b77d9",
+      "stored_separately": false
+    },
+    {
+      "capture_path": "artifacts/public-surfaces-37093072813-1/ci/isolation-timeout.jsonl",
+      "original_zip_archive_path": "original-artifacts/11263672301-public-surfaces-37093072813-1.zip",
+      "member": "ci/isolation-timeout.jsonl",
+      "bytes": 658,
+      "sha256": "df589a37fb272026cb3c36e4e80c782a6eeca22b097ac66dd1cb1995dbea1522",
+      "zip_crc32": "9f7f8da5",
+      "stored_separately": false
+    },
+    {
+      "capture_path": "artifacts/public-surfaces-37093072813-1/phase2r_logs/cloud-isolation-timeout.log",
+      "original_zip_archive_path": "original-artifacts/11263672301-public-surfaces-37093072813-1.zip",
+      "member": "phase2r_logs/cloud-isolation-timeout.log",
+      "bytes": 105,
+      "sha256": "024608dce65ad25e4cf6cf14cda110234e45b506858606453dbab71388889192",
+      "zip_crc32": "844f69b7",
+      "stored_separately": false
+    },
+    {
+      "capture_path": "artifacts/public-surfaces-37093072813-1/phase2r_logs/cloud-isolation-timeout.log.timeout.log",
+      "original_zip_archive_path": "original-artifacts/11263672301-public-surfaces-37093072813-1.zip",
+      "member": "phase2r_logs/cloud-isolation-timeout.log.timeout.log",
+      "bytes": 151,
+      "sha256": "bbfe0f114cd95fdd646d6bed89814dc35f6124e3bf360f0552964a251831cc41",
+      "zip_crc32": "72cbca86",
+      "stored_separately": false
+    },
+    {
+      "capture_path": "artifacts/public-surfaces-37093072813-1/phase2r_logs/cloud-public-surface-game_state-check.log",
+      "original_zip_archive_path": "original-artifacts/11263672301-public-surfaces-37093072813-1.zip",
+      "member": "phase2r_logs/cloud-public-surface-game_state-check.log",
+      "bytes": 166,
+      "sha256": "4eb7579d3b4f801ebd79985042b807ae0cf03210356715a7e32c49a208acde59",
+      "zip_crc32": "29463731",
+      "stored_separately": false
+    }
+  ],
+  "restoration": "Extract each original-artifacts ZIP into capture/artifacts/<original artifact name>. Verify each member path, size, SHA256 and CRC using this inventory. Original capture artifact-manifest absolute local_zip paths are historical; use the archive_path mapping here."
+}

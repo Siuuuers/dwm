@@ -19,8 +19,8 @@ func configure_exit(owner: Object, locale: String) -> Dictionary:
 	if owner == null or not owner.has_method("return_to_title"):
 		return {"ok": false, "code": &"logout_unavailable"}
 	_exit = owner
-	_locale = locale if locale in ["en", "zh-CN", "zh-HK"] else "en"
-	confirm_label.text = {"en": "Save your progress and log out?", "zh-CN": "保存进度并登出？", "zh-HK": "儲存進度並登出？"}[_locale]
+	_locale = locale if locale in ["en", "zh-CN", "zh-HK", "ja", "ko"] else "en"
+	confirm_label.text = {"en": "Save your progress and log out?", "zh-CN": "保存进度并登出？", "zh-HK": "儲存進度並登出？", "ja": "進行状況を保存してログアウトしますか？", "ko": "진행 상황을 저장하고 로그아웃할까요?"}[_locale]
 	return {"ok": true}
 
 func configure_desktop_home(button: Button) -> void: _home = button
@@ -43,7 +43,7 @@ func _on_yes_pressed() -> void:
 	# A post-retirement route failure admits only retrying the same confirmed exit.
 	_busy = result.get("code") == &"exit_route_retry_required"
 	confirm_label.text = {"en": "Log out could not finish. Please try again.",
-		"zh-CN": "暂时无法登出。请重试。", "zh-HK": "暫時無法登出。請重試。"}[_locale]
+		"zh-CN": "暂时无法登出。请重试。", "zh-HK": "暫時無法登出。請重試。", "ja": "ログアウトを完了できませんでした。再試行してください。", "ko": "로그아웃을 완료하지 못했습니다. 다시 시도하세요."}[_locale]
 	yes_button.disabled = false
 	no_button.disabled = _busy
 	# Keep navigation blocked after retirement while allowing the same Yes command.

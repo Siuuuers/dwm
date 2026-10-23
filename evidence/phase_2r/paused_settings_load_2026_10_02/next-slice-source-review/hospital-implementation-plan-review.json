@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "source": "41cc51992b74ec9472f7912e0eb8e1c39679af44",
+  "plan": "hospital-next-slice-implementation-plan.md",
+  "bytes": 11957,
+  "sha256": "2ba6c13cea9d0bf1333c506fd4e462836c0870eaecaa7e54b2c56b767a51645f",
+  "kind": "source-only implementation proposal",
+  "reviewers": [
+    "root",
+    "f9_contract_review"
+  ],
+  "approved": true,
+  "verified_scope": [
+    "All20 previously bound Hospital source files are unchanged.",
+    "Lawful prior Solo retirement precedes fresh Hospital; live stale-session replacement belongs separate seam coverage.",
+    "Schedule-Done authority, null witness timing and canonical next-day routing.",
+    "Retained Hospital physical completion remains distinct from Dating completion.",
+    "Single immutable Hospital entry frame requires coherent frame/top-context forgery against independent saved Run, plus row membership checks.",
+    "Exact existing registrations and eight named currently unregistered existing fixtures verified."
+  ],
+  "implementation_performed": false,
+  "engine_tests_run": false,
+  "unresolved_user_architecture_question": false,
+  "limits": [
+    "No Hospital runtime acceptance; plan is separate from Settings F9 proof.",
+    "No new format version number, production prose, authored selector or no-Sylvia timing is selected."
+  ]
+}

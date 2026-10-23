@@ -21,10 +21,15 @@ function ConvertTo-SingleQuotedLiteral {
 }
 
 function Invoke-HelperProcess {
-    param([string]$SuiteId, [string]$LogName, [string[]]$GodotArgs, [AllowEmptyString()][string]$EvidenceLogPath = '')
+    param([string]$SuiteId, [string]$LogName, [string[]]$GodotArgs, [AllowEmptyString()][string]$EvidenceLogPath = '', [int]$TimeoutSeconds = 0, [string[]]$NextGodotArgs = @(), [string]$NextLogName = '')
     $argumentLiterals = @($GodotArgs | ForEach-Object { ConvertTo-SingleQuotedLiteral ([string]$_) })
     $evidenceClause = if ($EvidenceLogPath.Length -eq 0) { '' } else { " -EvidenceLogPath $(ConvertTo-SingleQuotedLiteral $EvidenceLogPath)" }
-    $command = "& $(ConvertTo-SingleQuotedLiteral $helper) -SuiteId $(ConvertTo-SingleQuotedLiteral $SuiteId) -LogName $(ConvertTo-SingleQuotedLiteral $LogName) -GodotArgs @($($argumentLiterals -join ','))$evidenceClause; exit `$LASTEXITCODE"
+    $nextClause = ''
+    if ($NextGodotArgs.Count -gt 0 -or $NextLogName.Length -gt 0) {
+        $nextLiterals = @($NextGodotArgs | ForEach-Object { ConvertTo-SingleQuotedLiteral ([string]$_) })
+        $nextClause = " -NextGodotArgs @($($nextLiterals -join ',')) -NextLogName $(ConvertTo-SingleQuotedLiteral $NextLogName)"
+    }
+    $command = "& $(ConvertTo-SingleQuotedLiteral $helper) -SuiteId $(ConvertTo-SingleQuotedLiteral $SuiteId) -LogName $(ConvertTo-SingleQuotedLiteral $LogName) -GodotArgs @($($argumentLiterals -join ','))$evidenceClause$nextClause -TimeoutSeconds $TimeoutSeconds; exit `$LASTEXITCODE"
     $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($command))
     $start = New-Object Diagnostics.ProcessStartInfo
     $start.FileName = $powershell
@@ -76,6 +81,160 @@ if (-not $user.StartsWith($root + [IO.Path]::DirectorySeparatorChar, [StringComp
     throw 'ISOLATION_USER_DIR: user_dir is not a strict descendant of test_root.'
 }
 if (Test-Path -LiteralPath $root) { throw 'ISOLATION_CLEANUP: GUID root survived without -KeepRoot.' }
+
+# Restart mode must keep the exact eight-key record shape, wait for process exit,
+# reuse one isolated root, and stop at the first child failure.
+$probeArgs = @('-s','res://tools/evidence/print_user_dir.gd')
+$pair = Invoke-HelperProcess -SuiteId 'fixture-pair' -LogName 'fixture-pair-create.log' -GodotArgs $probeArgs `
+    -NextGodotArgs $probeArgs -NextLogName 'fixture-pair-load.log' -TimeoutSeconds 60
+if ($pair.ExitCode -ne 0) { throw "ISOLATION_PAIR_EXIT: $($pair.Stdout)" }
+$pairRecords = @($pair.Stdout -split "`r?`n" | Where-Object { $_.StartsWith('{') } | ForEach-Object { $_ | ConvertFrom-Json })
+if ($pairRecords.Count -ne 2) { throw 'ISOLATION_PAIR_COUNT' }
+foreach ($item in $pairRecords) {
+    if ((@($item.PSObject.Properties.Name) -join ',') -cne ($expectedKeys -join ',')) { throw 'ISOLATION_PAIR_KEYS' }
+    if ($item.exit_code -ne 0 -or (Test-Path -LiteralPath $item.test_root)) { throw 'ISOLATION_PAIR_RESULT_OR_CLEANUP' }
+}
+if ($pairRecords[0].test_root -cne $pairRecords[1].test_root -or $pairRecords[0].user_dir -cne $pairRecords[1].user_dir -or
+    [DateTime]$pairRecords[1].started_at_utc -lt [DateTime]$pairRecords[0].ended_at_utc -or
+    $pairRecords[0].log_path -ceq $pairRecords[1].log_path) { throw 'ISOLATION_PAIR_ROOT_OR_ORDER' }
+$pairForbidden = Invoke-HelperProcess -SuiteId 'fixture-pair-forbidden' -LogName 'fixture-pair-forbidden.log' -GodotArgs $probeArgs `
+    -NextGodotArgs @('--path','C:\outside') -NextLogName 'fixture-pair-forbidden-next.log'
+if ($pairForbidden.ExitCode -ne 124) { throw 'ISOLATION_PAIR_FORBIDDEN_ARG' }
+$pairDuplicate = Invoke-HelperProcess -SuiteId 'fixture-pair-duplicate' -LogName 'fixture-pair-duplicate.log' -GodotArgs $probeArgs `
+    -NextGodotArgs $probeArgs -NextLogName 'fixture-pair-duplicate.log'
+if ($pairDuplicate.ExitCode -ne 124) { throw 'ISOLATION_PAIR_DUPLICATE_LOG' }
+$pairOutput = Join-Path $repositoryRoot '.godot/ci'
+[void][IO.Directory]::CreateDirectory($pairOutput)
+$exitProbe = Join-Path $pairOutput ('isolation-pair-exit-' + [guid]::NewGuid().ToString('N') + '.gd')
+try {
+    [IO.File]::WriteAllText($exitProbe, "extends SceneTree`nfunc _init() -> void:`n    quit(7)`n", (New-Object Text.UTF8Encoding($false)))
+    $firstFailure = Invoke-HelperProcess -SuiteId 'fixture-pair-first-failure' -LogName 'fixture-pair-first-failure.log' `
+        -GodotArgs @('-s',$exitProbe) -NextGodotArgs $probeArgs -NextLogName 'fixture-pair-never.log' -TimeoutSeconds 60
+    $firstRecords = @($firstFailure.Stdout -split "`r?`n" | Where-Object { $_.StartsWith('{') } | ForEach-Object { $_ | ConvertFrom-Json })
+    if ($firstFailure.ExitCode -ne 7 -or $firstRecords.Count -ne 1 -or $firstRecords[0].exit_code -ne 7 -or
+        (Test-Path -LiteralPath $firstRecords[0].test_root)) { throw 'ISOLATION_PAIR_FIRST_FAILURE' }
+    [IO.File]::WriteAllText($exitProbe, "extends SceneTree`nfunc _init() -> void:`n    quit(9)`n", (New-Object Text.UTF8Encoding($false)))
+    $secondFailure = Invoke-HelperProcess -SuiteId 'fixture-pair-second-failure' -LogName 'fixture-pair-before-failure.log' `
+        -GodotArgs $probeArgs -NextGodotArgs @('-s',$exitProbe) -NextLogName 'fixture-pair-second-failure.log' -TimeoutSeconds 60
+    $secondRecords = @($secondFailure.Stdout -split "`r?`n" | Where-Object { $_.StartsWith('{') } | ForEach-Object { $_ | ConvertFrom-Json })
+    if ($secondFailure.ExitCode -ne 9 -or $secondRecords.Count -ne 2 -or $secondRecords[0].exit_code -ne 0 -or
+        $secondRecords[1].exit_code -ne 9 -or $secondRecords[0].test_root -cne $secondRecords[1].test_root -or
+        (Test-Path -LiteralPath $secondRecords[1].test_root)) { throw 'ISOLATION_PAIR_SECOND_FAILURE' }
+} finally {
+    if (Test-Path -LiteralPath $exitProbe) { Remove-Item -LiteralPath $exitProbe -Force }
+}
+
+# A real GUT teardown can log an engine error after its per-test error tracker
+# has stopped and still exit 0. The runner must reject that diagnostic, retain
+# its exact evidence, and clean the isolated user data despite a passing test.
+$invalidTweenOutput = Join-Path $repositoryRoot '.godot\ci\public-surfaces'
+[void][IO.Directory]::CreateDirectory($invalidTweenOutput)
+$invalidTweenProbeName = 'test_isolation_invalid_tween_' + [guid]::NewGuid().ToString('N') + '.gd'
+$invalidTweenProbe = Join-Path $invalidTweenOutput $invalidTweenProbeName
+$invalidTweenResource = 'res://.godot/ci/public-surfaces/' + $invalidTweenProbeName
+$invalidTweenEvidence = '.godot/ci/public-surfaces/isolation-invalid-tween.jsonl'
+$invalidTweenEvidenceFull = Join-Path $repositoryRoot $invalidTweenEvidence
+$invalidTweenLog = Join-Path $repositoryRoot '.godot\phase2r_logs\cloud-public-surface-invalid-tween.log'
+try {
+    $invalidTweenScript = @'
+extends GutTest
+
+func test_passes_before_invalid_tween_teardown() -> void:
+    assert_true(true)
+
+func after_each() -> void:
+    var tween := create_tween()
+    tween.tween_interval(1.0)
+    tween.kill()
+    print("ISOLATION_INVALID_TWEEN_TEARDOWN_STARTED")
+    tween.play()
+    print("ISOLATION_INVALID_TWEEN_TEARDOWN_COMPLETED")
+'@
+    [IO.File]::WriteAllText($invalidTweenProbe, $invalidTweenScript, (New-Object Text.UTF8Encoding($false)))
+    foreach ($priorOutput in @($invalidTweenEvidenceFull, $invalidTweenLog)) {
+        if (Test-Path -LiteralPath $priorOutput) { Remove-Item -LiteralPath $priorOutput -Force }
+    }
+    $invalidTween = Invoke-HelperProcess -SuiteId 'fixture-invalid-tween' -LogName 'cloud-public-surface-invalid-tween.log' `
+        -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', "-gtest=$invalidTweenResource", '-gexit', '-glog=2') `
+        -EvidenceLogPath $invalidTweenEvidence -TimeoutSeconds 60
+    # 126 is synthesized only from a zero child exit by the diagnostic gate.
+    if ($invalidTween.ExitCode -ne 126 -or -not $invalidTween.Stdout.Contains('TWEEN_INVALID: ERROR: Tween invalid.')) {
+        throw "ISOLATION_INVALID_TWEEN_EXIT: expected diagnostic rejection 126, got $($invalidTween.ExitCode): $($invalidTween.Stdout)"
+    }
+    if (-not (Test-Path -LiteralPath $invalidTweenLog -PathType Leaf)) { throw 'ISOLATION_INVALID_TWEEN_LOG_MISSING' }
+    $invalidTweenLogText = Get-Content -LiteralPath $invalidTweenLog -Raw
+    $invalidTweenLines = @($invalidTweenLogText -split "`r?`n")
+    $invalidTweenErrors = @($invalidTweenLines | Where-Object { $_ -match 'SCRIPT ERROR:|(?:^|\s)ERROR:|Parse Error:' })
+    if (@($invalidTweenLines | Where-Object { $_.Trim() -ceq $invalidTweenResource }).Count -ne 1 -or
+        -not $invalidTweenLogText.Contains('1/1 passed.') -or
+        -not $invalidTweenLogText.Contains('ISOLATION_INVALID_TWEEN_TEARDOWN_STARTED') -or
+        -not $invalidTweenLogText.Contains('ISOLATION_INVALID_TWEEN_TEARDOWN_COMPLETED') -or
+        $invalidTweenErrors.Count -ne 1 -or
+        $invalidTweenErrors[0].Trim() -cne 'ERROR: Tween invalid. Either finished or created outside scene tree.') {
+        throw 'ISOLATION_INVALID_TWEEN_RAW_PROOF: expected one executed passing test and one retained native teardown error.'
+    }
+    $invalidTweenRecords = @(Get-Content -LiteralPath $invalidTweenEvidenceFull)
+    if ($invalidTweenRecords.Count -ne 1) { throw 'ISOLATION_INVALID_TWEEN_EVIDENCE_COUNT' }
+    $invalidTweenRecord = $invalidTweenRecords[0] | ConvertFrom-Json
+    if ($invalidTweenRecord.exit_code -ne 126 -or $invalidTweenRecord.suite_id -cne 'fixture-invalid-tween' -or
+        [string]$invalidTweenRecord.log_path -cne [IO.Path]::GetFullPath($invalidTweenLog) -or
+        @($invalidTweenRecord.argv | Where-Object { $_ -ceq "-gtest=$invalidTweenResource" }).Count -ne 1) {
+        throw 'ISOLATION_INVALID_TWEEN_EVIDENCE_RESULT'
+    }
+    if (Test-Path -LiteralPath ([string]$invalidTweenRecord.test_root)) {
+        throw 'ISOLATION_INVALID_TWEEN_CLEANUP: GUID root survived diagnostic rejection.'
+    }
+} finally {
+    if (Test-Path -LiteralPath $invalidTweenProbe) { Remove-Item -LiteralPath $invalidTweenProbe -Force }
+}
+
+# A real non-exiting Godot process must fail before the Actions step timeout,
+# retain its last output and command record, and still remove isolated user data.
+$timeoutOutput = Join-Path $repositoryRoot '.godot\ci'
+[void][IO.Directory]::CreateDirectory($timeoutOutput)
+$timeoutProbe = Join-Path $timeoutOutput ('isolation-timeout-' + [guid]::NewGuid().ToString('N') + '.gd')
+$timeoutEvidence = '.godot/ci/isolation-timeout.jsonl'
+$timeoutEvidenceFull = Join-Path $repositoryRoot $timeoutEvidence
+$timeoutLog = Join-Path $repositoryRoot '.godot\phase2r_logs\cloud-isolation-timeout.log'
+try {
+    $timeoutScript = @'
+extends SceneTree
+
+func _init() -> void:
+    print("ISOLATION_TIMEOUT_PROBE_STARTED")
+'@
+    [IO.File]::WriteAllText($timeoutProbe, $timeoutScript, (New-Object Text.UTF8Encoding($false)))
+    if (Test-Path -LiteralPath $timeoutEvidenceFull) { Remove-Item -LiteralPath $timeoutEvidenceFull -Force }
+    foreach ($priorLog in @($timeoutLog, ($timeoutLog + '.timeout.log'))) {
+        if (Test-Path -LiteralPath $priorLog) { Remove-Item -LiteralPath $priorLog -Force }
+    }
+    $timeout = Invoke-HelperProcess -SuiteId 'fixture-timeout' -LogName 'cloud-isolation-timeout.log' `
+        -GodotArgs @('-s', $timeoutProbe) -EvidenceLogPath $timeoutEvidence -TimeoutSeconds 20
+    if ($timeout.ExitCode -ne 124 -or -not $timeout.Stdout.Contains('GODOT_CHILD_TIMEOUT:')) {
+        throw "ISOLATION_TIMEOUT_EXIT: expected timed-out exit 124, got $($timeout.ExitCode): $($timeout.Stdout)"
+    }
+    foreach ($retainedLog in @($timeoutLog, ($timeoutLog + '.timeout.log'))) {
+        if (-not (Test-Path -LiteralPath $retainedLog) -or
+            -not (Get-Content -LiteralPath $retainedLog -Raw).Contains('ISOLATION_TIMEOUT_PROBE_STARTED')) {
+            throw "ISOLATION_TIMEOUT_OUTPUT_MISSING: $retainedLog"
+        }
+    }
+    $timeoutRecords = @(Get-Content -LiteralPath $timeoutEvidenceFull)
+    if ($timeoutRecords.Count -ne 1) { throw 'ISOLATION_TIMEOUT_EVIDENCE_COUNT' }
+    $timeoutRecord = $timeoutRecords[0] | ConvertFrom-Json
+    if ($timeoutRecord.exit_code -ne 124 -or $timeoutRecord.suite_id -cne 'fixture-timeout') {
+        throw 'ISOLATION_TIMEOUT_EVIDENCE_RESULT'
+    }
+    if (Test-Path -LiteralPath ([string]$timeoutRecord.test_root)) {
+        throw 'ISOLATION_TIMEOUT_CLEANUP: GUID root survived the timeout.'
+    }
+    $timeoutDuration = ([DateTime]$timeoutRecord.ended_at_utc - [DateTime]$timeoutRecord.started_at_utc).TotalSeconds
+    if ($timeoutDuration -lt 19 -or $timeoutDuration -gt 50) {
+        throw "ISOLATION_TIMEOUT_DURATION: expected bounded termination, got $timeoutDuration seconds."
+    }
+} finally {
+    if (Test-Path -LiteralPath $timeoutProbe) { Remove-Item -LiteralPath $timeoutProbe -Force }
+}
 
 # -EvidenceLogPath containment for the closeout log root (dwm-p2r.10 Plan 04 Task 3 Step 2).
 #

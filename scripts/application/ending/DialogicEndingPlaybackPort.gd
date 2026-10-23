@@ -23,14 +23,16 @@ const OBSERVER_CODA_IDS: Array[String] = [
 const SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
 var _reached_profile: Object
 var _presentation_reader: Callable
+var _frozen_presentation_reader: Callable
 
-func configure_reached_presentations(profile: Object, reader: Callable) -> Dictionary:
+func configure_reached_presentations(profile: Object, reader: Callable, frozen_reader: Callable = Callable()) -> Dictionary:
 	if profile == null or not profile.has_method("record_reached_presentation") or not reader.is_valid():
 		return _fail(&"invalid_presentation_recorder", "")
-	if _reached_profile != null and (_reached_profile != profile or _presentation_reader != reader):
+	if _reached_profile != null and (_reached_profile != profile or _presentation_reader != reader or _frozen_presentation_reader != frozen_reader):
 		return _fail(&"presentation_recorder_already_configured", "")
 	_reached_profile = profile
 	_presentation_reader = reader
+	_frozen_presentation_reader = frozen_reader
 	return {"ok":true}
 
 var _bridge: Object = null
@@ -77,12 +79,23 @@ func start_ending_id(ending_id: String, context: Dictionary = {}) -> Dictionary:
 			return _fail(&"playback_context_conflict", "active playback id reused with a different ending/stage/role")
 		return _fail(&"playback_in_progress", "another ending playback is in flight")
 	var signature: Dictionary = {}
+	var presentation: Dictionary = {}
 	if _presentation_reader.is_valid():
 		var captured: Dictionary = _presentation_reader.call(ending_id, context.duplicate(true))
 		if not captured.get("ok", false): return captured
 		var checked := SIGNATURE.validate(captured.value)
 		if not checked.ok: return checked
 		signature = checked.value.signature.duplicate(true)
+	if _frozen_presentation_reader.is_valid():
+		var frozen: Dictionary = _frozen_presentation_reader.call(ending_id, context.duplicate(true))
+		if not frozen.get("ok", false): return frozen
+		if signature.is_empty() or not frozen.get("value") is Dictionary or frozen.value.get("signature") != signature:
+			return _fail(&"ending_frozen_signature_mismatch", "")
+		var checked := preload("res://scripts/narrative/FrozenPresentationContext.gd").validate(signature.entry_id, frozen.value.get("presentation"))
+		if not checked.ok: return checked
+		presentation = checked.value
+		if presentation.fields.step_token != context.playback_id or presentation.fields.ending_role != str(context.role):
+			return _fail(&"ending_frozen_step_mismatch", "")
 	var role := str(context["role"])
 	var started: Variant
 	_starting = true
@@ -91,7 +104,8 @@ func start_ending_id(ending_id: String, context: Dictionary = {}) -> Dictionary:
 		if not _bridge.has_method("start_ending_presentation"):
 			_starting = false
 			return _fail(&"invalid_bridge", "exact ending presentation API required")
-		started = _bridge.start_ending_presentation(ending_id, context.duplicate(true), signature.duplicate(true))
+		started = _bridge.start_ending_presentation(ending_id, context.duplicate(true), signature.duplicate(true), presentation.duplicate(true)) \
+			if not presentation.is_empty() else _bridge.start_ending_presentation(ending_id, context.duplicate(true), signature.duplicate(true))
 	elif role == "observer_coda":
 		if not _bridge.has_method("start_postscript_id"):
 			_starting = false

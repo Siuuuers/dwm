@@ -1,0 +1,12 @@
+{
+  "source_commit": "82d42d3524ac0cdcc90e7c7ae7f69298d5046bcc",
+  "files": 17,
+  "runtime_bytes_unchanged": true,
+  "steam_review_approved": false,
+  "zip_sha256": "d913ef3a03e5c8be8dee5da2a54ca1abd1b2e6295f30c40d4992add825af7c51",
+  "zip_bytes": 104506141,
+  "removed": [
+    "validation.json"
+  ],
+  "launch_executable": "DWM.exe"
+}

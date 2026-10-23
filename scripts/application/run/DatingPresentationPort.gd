@@ -63,6 +63,7 @@ signal completion_failed(failure: Dictionary)
 
 var _identity_issuer: Object = null
 var _physical_owner: Object = null
+var _narrative_playback: Object = null
 ## completion_transaction_id -> the exact canonical command this port issued. Ephemeral projection
 ## of the coordinator-owned pending command, never a second canonical gameplay ledger.
 var _commands: Dictionary = {}
@@ -98,7 +99,54 @@ func configure(identity_issuer: Object, physical_owner: Object) -> Dictionary:
 ## Validates one committed-Schedule dating intent end to end, then starts the physical presentation.
 ##
 ## An unconfigured port refuses before any routing or physical start.
+func configure_narrative_playback(playback: Object) -> Dictionary:
+	if playback == null or not _has_methods(playback, ["begin_presentation", "begin_phase", "pull_phase", "finish_phase"]):
+		return _fail(&"dating_narrative_unavailable", "", {})
+	if _narrative_playback != null and _narrative_playback != playback:
+		return _fail(&"dating_narrative_already_configured", "", {})
+	_narrative_playback = playback
+	return _ok({})
+
+func attach_narrative_presentation(presentation_command: Dictionary) -> Dictionary:
+	var trusted := _trusted_physical_command(presentation_command)
+	if not trusted.ok: return trusted
+	if _narrative_playback == null: return _fail(&"dating_narrative_unavailable", "", {})
+	return _narrative_playback.begin_presentation(trusted.value)
+
+func begin_narrative_phase(presentation_command: Dictionary, retry: bool = false) -> Dictionary:
+	var trusted := _trusted_physical_command(presentation_command)
+	if not trusted.ok: return trusted
+	if _narrative_playback == null: return _fail(&"dating_narrative_unavailable", "", {})
+	var pulled := pull_physical(presentation_command)
+	if not pulled.get("ok", false): return pulled
+	if _is_pair_explosion_cutoff(trusted.value, pulled.value):
+		return _ok({"status": "completed", "reason": "pair_explosion_cutoff"})
+	var presentation := {}
+	if _physical_owner.has_method("pull_frozen_narrative_context"):
+		var frozen: Dictionary = _physical_owner.pull_frozen_narrative_context(
+			str(trusted.value.physical_token), str(pulled.value.phase))
+		if not frozen.get("ok", false): return frozen
+		presentation = frozen.value
+	return _narrative_playback.begin_phase(trusted.value, str(pulled.value.phase), retry, presentation)
+
+func pull_narrative_phase(presentation_command: Dictionary) -> Dictionary:
+	var trusted := _trusted_physical_command(presentation_command)
+	if not trusted.ok: return trusted
+	if _narrative_playback == null: return _fail(&"dating_narrative_unavailable", "", {})
+	var pulled := pull_physical(presentation_command)
+	if not pulled.get("ok", false): return pulled
+	if _is_pair_explosion_cutoff(trusted.value, pulled.value):
+		return _ok({"status": "completed", "reason": "pair_explosion_cutoff"})
+	return _narrative_playback.pull_phase(trusted.value, str(pulled.value.phase))
+
+## Angela-absent pair explosions end the encounter. This is a physical cutoff, not
+## a manufactured Dialogic completion or a witnessed post-challenge presentation.
+static func _is_pair_explosion_cutoff(command: Dictionary, view: Dictionary) -> bool:
+	return command.get("context", {}).get("kind") == "twofriends_if_deferred" \
+		and view.get("phase") == "post_challenge" and view.get("outcome") == "exploded"
+
 func begin(request: Dictionary) -> Dictionary:
+	if request.get("context") is Dictionary and request.context.get("kind") == "scene_challenge": return _begin_scene(request)
 	if _identity_issuer == null or _physical_owner == null:
 		return _fail(&"dating_physical_owner_unconfigured",
 			"The canonical Dating physical owner has not been configured", {})
@@ -150,6 +198,8 @@ func begin(request: Dictionary) -> Dictionary:
 ## physical receipt is proved by the CONFIGURED OWNER; any drift returns
 ## `physical_completion_untrusted` before a domain stage mutation can be requested.
 func complete(request: Dictionary) -> Dictionary:
+	if request.get("presentation_command") is Dictionary and request.presentation_command.get("context") is Dictionary and request.presentation_command.context.get("kind") == "scene_challenge":
+		return _fail(&"scene_requires_authenticated_end", "Scene closure is owned by its end command", {})
 	if _identity_issuer == null or _physical_owner == null:
 		return _fail(&"dating_physical_owner_unconfigured",
 			"The canonical Dating physical owner has not been configured", {})
@@ -274,11 +324,54 @@ func dispatch_physical(presentation_command: Dictionary, action: String, cell_in
 		return _fail(&"physical_presentation_unavailable",
 			"the configured owner exposes no physical commands", {})
 	var command: Dictionary = trusted["value"]
+	var narrative_phase := ""
+	if _narrative_playback != null and action == "continue":
+		var pulled: Dictionary = pull_physical(command)
+		if not pulled.get("ok", false): return pulled
+		if str(pulled.value.phase) in ["pre_challenge", "post_challenge"] \
+				and not _is_pair_explosion_cutoff(command, pulled.value):
+			narrative_phase = str(pulled.value.phase)
+			var playback: Dictionary = _narrative_playback.pull_phase(command, narrative_phase)
+			if not playback.get("ok", false): return playback
+			if playback.value.get("status") != "completed":
+				return _fail(&"dating_narrative_not_complete", "", {})
 	var result: Variant = _physical_owner.call(&"dispatch_physical",
 		str(command["physical_token"]), action, cell_index, expected_revision)
+	if result is Dictionary and result.get("ok", false) and not narrative_phase.is_empty():
+		_narrative_playback.finish_phase(command, narrative_phase)
 	return result if result is Dictionary else _fail(&"physical_presentation_unavailable",
 		"the owner returned no physical command result", {})
 
+
+## The fixed Challenge view can only use a command admitted by this port.
+## The physical owner retains first-Reveal validation and all durable mutations.
+func pull_scene_panel(presentation_command: Dictionary) -> Dictionary:
+	var trusted := _trusted_scene_panel_command(presentation_command)
+	if not trusted.get("ok", false): return trusted
+	if not _physical_owner.has_method("pull_scene_panel"):
+		return _fail(&"physical_presentation_unavailable", "the owner exposes no scene panel", {})
+	var result: Variant = _physical_owner.call("pull_scene_panel", str(trusted.value.physical_token))
+	return result if result is Dictionary else _fail(
+		&"physical_presentation_unavailable", "the owner returned no scene panel", {})
+
+func dispatch_scene_panel_action(presentation_command: Dictionary, action: String,
+		cell_index: int, expected_revision: int) -> Dictionary:
+	var trusted := _trusted_scene_panel_command(presentation_command)
+	if not trusted.get("ok", false): return trusted
+	if not _physical_owner.has_method("dispatch_scene_panel_action"):
+		return _fail(&"physical_presentation_unavailable", "the owner exposes no scene panel actions", {})
+	var result: Variant = _physical_owner.call("dispatch_scene_panel_action",
+		str(trusted.value.physical_token), action, cell_index, expected_revision)
+	return result if result is Dictionary else _fail(
+		&"physical_presentation_unavailable", "the owner returned no scene panel action result", {})
+
+func _trusted_scene_panel_command(candidate: Dictionary) -> Dictionary:
+	var trusted := _trusted_physical_command(candidate)
+	if not trusted.get("ok", false): return trusted
+	if not trusted.value.get("context") is Dictionary \
+			or trusted.value.context.get("kind") != "scene_challenge":
+		return _fail(&"scene_challenge_family_mismatch", "", {})
+	return trusted
 
 func _trusted_physical_command(candidate: Dictionary) -> Dictionary:
 	if _physical_owner == null:
@@ -384,6 +477,8 @@ func _completion_sources(request: Dictionary) -> Array:
 ## The exact dating context. `schedule_entry_id` is nullable only where the plan allows it, and the
 ## participant list is checked against its OWNED order rather than sorted.
 func _context_error(context: Variant) -> String:
+	if context is Dictionary and context.get("kind") == "scene_challenge":
+		return "" if not preload("res://scripts/profile/DatingAttemptLedger.gd").semantic_slot(context).is_empty() else "invalid scene Challenge context"
 	if typeof(context) != TYPE_DICTIONARY:
 		return "context must be a dictionary"
 	var keys: Array = (context as Dictionary).keys()
@@ -506,3 +601,23 @@ static func _ok(value: Dictionary) -> Dictionary:
 
 static func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": details}
+
+## The configured physical owner independently authenticates the playable command
+## through the registered scene authority; legacy Schedule provenance cannot enter here.
+func _begin_scene(request: Dictionary) -> Dictionary:
+	if _physical_owner == null: return _fail(&"dating_physical_owner_unconfigured", "", {})
+	var keys: Array = request.keys(); keys.sort()
+	if keys != ["command_sha256", "completion_transaction_id", "context"] or _context_error(request.context) != "":
+		return _fail(&"invalid_scene_challenge_command", "", {})
+	var admitted: Dictionary = _physical_owner.begin_physical(request.duplicate(true))
+	if not admitted.get("ok", false): return admitted
+	var command := request.duplicate(true)
+	command["physical_token"] = admitted.value.physical_token
+	_commands[str(command.completion_transaction_id)] = command.duplicate(true)
+	return _ok({"presentation_command": command})
+
+func close_scene_challenge(presentation_command: Dictionary) -> Dictionary:
+	var trusted := _trusted_physical_command(presentation_command)
+	if not trusted.ok: return trusted
+	if not presentation_command.get("context") is Dictionary or presentation_command.context.get("kind") != "scene_challenge": return _fail(&"scene_challenge_family_mismatch", "", {})
+	return _physical_owner.close_scene_challenge(str(presentation_command.physical_token))

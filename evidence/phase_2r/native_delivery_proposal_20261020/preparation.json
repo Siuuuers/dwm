@@ -1,0 +1,15 @@
+{
+  "status": "source-prepared-unexecuted",
+  "product": "83da885cbbd3e1597e3a4887195b3e793ceb2e3c",
+  "outside_wait_one_byte_identical": true,
+  "fixture_byte_identical_to_retained_source": true,
+  "powershell_parser_executed": false,
+  "engine_executed": false,
+  "dispatch": false,
+  "sha256": {
+    "Invoke-ExportedGameplay.proposed.ps1": "38b160fbc625026b6ec30376d9214cda0a4bde17cb932dec4a4e73f3d59c5788",
+    "Test-ExportedGameplayDeadline.proposed.ps1": "59e141352e3e525d44c84ebe66b156fa73991424c9a3fdd0ca8aa0403214c939",
+    "ordinary-wait.patch": "a420d277ac8cdccc7faa50dc67196a90cda2d94e4558cbd94b71bb13c8a8bb11",
+    "source-comparison.json": "2cdd37c0d3b16beb4753676fff75f9d7e69c0c3aa38dbad12bb27304ea43c6e5"
+  }
+}

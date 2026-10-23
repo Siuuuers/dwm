@@ -1,0 +1,6 @@
+{
+  "autoload/ProfileManager.gd": "c85de3dc323513661e14c2eba14a0f8080206f2bb086371475bdea5aaa40dfb7",
+  "tests/unit/test_profile_caption_witnesses.gd": "64da801b6eda4d8294b2bffbc8d8ccd26247adbab0cb810d6bf0557a81f99229",
+  "evidence/phase_2r/runtime/game_state_surface.json": "75cc902ce28614a4f3a2472e179929dc01ea216cf994fb69ad8cdc0d2e80b5be",
+  "evidence/phase_2r/runtime/save_manager_surface.json": "4fc1f39787da3257fbb813127c8ce461570662022da1fb1dbd0135711e7852bc"
+}

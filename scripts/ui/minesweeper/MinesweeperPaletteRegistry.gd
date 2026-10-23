@@ -1,6 +1,8 @@
 extends RefCounted
 ## Authored accessibility tuples. See docs/design/current-ui/minesweeper-presentation-tuples.md.
-## Complete literal role tables; exact lookup without colour transforms or fallback.
+## Exact Day 1 tables; the installed day ages room materials only, never semantic state colours.
+
+const WEEK_TINT := preload("res://scripts/ui/theme/WeekTint.gd")
 
 const TUPLES := {
 	"after_hours/standard/standard": {
@@ -236,3 +238,20 @@ static func resolve(palette: StringName, high_contrast: bool, colour_preset: Str
 	if not TUPLES.has(key):
 		return {}
 	return TUPLES[key].duplicate()
+
+
+## The shared week curve changes room materials at scene/day boundaries. Marks,
+## focus, mine numbers and selected/error colours retain their authored tuples.
+static func resolve_tinted(palette: StringName, high_contrast: bool, colour_preset: String, day: int) -> Dictionary:
+	var roles := resolve(palette, high_contrast, colour_preset)
+	if roles.is_empty() or day not in range(1, 8): return {}
+	var room := WEEK_TINT.apply({
+		"habitat": roles[&"habitat"], "face": roles[&"controlled_face"],
+		"paper": roles[&"paper"], "structure": roles[&"paper_structure"],
+	}, WEEK_TINT.tint_for_day(day), high_contrast, colour_preset)
+	roles[&"habitat"] = room.habitat
+	roles[&"controlled_face"] = room.face
+	roles[&"paper"] = room.paper
+	roles[&"paper_structure"] = room.structure
+	roles[&"dark_separation"] = room.habitat
+	return roles

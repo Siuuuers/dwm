@@ -1,0 +1,94 @@
+{
+  "source": "90c95013baa235151a42fce52c6dc47a7fff8748",
+  "reports": [
+    {
+      "suite": "shop-unit",
+      "tests": 62,
+      "assertions": 757,
+      "process": {
+        "suite_id": "shop-unit",
+        "argv": [
+          "--headless",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\shop-unit.log",
+          "-s",
+          "res://addons/gut/gut_cmdln.gd",
+          "-gconfig=",
+          "-gtest=res://tests/unit/test_scene_shop_purchase_rules.gd,res://tests/unit/test_scene_shop_purchase_contract.gd,res://tests/unit/test_scene_shop_presentation_port.gd,res://tests/unit/test_scene_shop_checkpoint_custody.gd,res://tests/unit/test_scene_checkpoint_ack.gd",
+          "-gexit",
+          "-glog=2",
+          "-gjunit_xml_file=res://.godot/ci/shop-unit.xml"
+        ],
+        "exit_code": 0,
+        "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\shop-unit.log",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\61e09151-41e0-454f-8f53-781bdbaa6370",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\61e09151-41e0-454f-8f53-781bdbaa6370\\appdata\\Godot\\app_userdata\\DWM",
+        "started_at_utc": "2026-10-22T20:10:45.8410252Z",
+        "ended_at_utc": "2026-10-22T20:11:00.7362803Z"
+      }
+    },
+    {
+      "suite": "contact-regression",
+      "tests": 1,
+      "assertions": 60,
+      "process": {
+        "suite_id": "contact-regression",
+        "argv": [
+          "--headless",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\contact-regression.log",
+          "-s",
+          "res://addons/gut/gut_cmdln.gd",
+          "-gconfig=",
+          "-gtest=res://tests/integration/test_scene_contacts_checkpoint_refusal.gd",
+          "-gexit",
+          "-glog=2",
+          "-gjunit_xml_file=res://.godot/ci/contact-regression.xml"
+        ],
+        "exit_code": 0,
+        "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\contact-regression.log",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\797df067-98e1-4371-aeab-64c1c5ec442f",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\797df067-98e1-4371-aeab-64c1c5ec442f\\appdata\\Godot\\app_userdata\\DWM",
+        "started_at_utc": "2026-10-22T20:11:08.4887533Z",
+        "ended_at_utc": "2026-10-22T20:11:24.7929799Z"
+      }
+    },
+    {
+      "suite": "shop-transaction",
+      "tests": 1,
+      "assertions": 66,
+      "process": {
+        "suite_id": "shop-transaction",
+        "argv": [
+          "--headless",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\shop-transaction.log",
+          "-s",
+          "res://addons/gut/gut_cmdln.gd",
+          "-gconfig=",
+          "-gtest=res://tests/integration/test_scene_shop_checkpoint_transaction.gd",
+          "-gexit",
+          "-glog=2",
+          "-gjunit_xml_file=res://.godot/ci/shop-transaction.xml"
+        ],
+        "exit_code": 0,
+        "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\shop-transaction.log",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\f6ee8944-7046-4c24-abda-8194bb0ccfc3",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\f6ee8944-7046-4c24-abda-8194bb0ccfc3\\appdata\\Godot\\app_userdata\\DWM",
+        "started_at_utc": "2026-10-22T20:11:32.7339697Z",
+        "ended_at_utc": "2026-10-22T20:11:48.7640972Z"
+      }
+    }
+  ],
+  "tests": 64,
+  "changed": [
+    ".claude/skills/godot-prompter/1.10.0",
+    ".claude/skills/superpowers/6.1.1"
+  ]
+}

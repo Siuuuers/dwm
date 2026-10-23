@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "source": "16484fe4eaecf3c49fe2fbb0f46a543a493b57bf",
+  "baseline": "5a581fc89121864aead5202e01d6a82423b1b52d",
+  "focused_source": "8c4218cc880f16e69854115e7b5263a00982d1bb",
+  "source_only_review": true,
+  "cloud_broad_acceptance": "pending",
+  "changed_files": [
+    {
+      "path": "evidence/phase_2r/runtime/game_state_surface.json",
+      "git_blob": "d1b4ddf50b568c7b96282d44f9b01745707a1f73",
+      "bytes": 561313,
+      "sha256": "8150aab178f554331fe916c344b10134d7755748465174bba815121d506a92d4"
+    },
+    {
+      "path": "evidence/phase_2r/runtime/save_manager_surface.json",
+      "git_blob": "d496c8de205aea0836b6304cf4fb77efad9edf8f",
+      "bytes": 149516,
+      "sha256": "6d8dcda3b416bf9fc9814477733f4394ce1c41a6b59677ba43073173b9f38267"
+    },
+    {
+      "path": "scripts/ui/pause/PauseQuickCommands.gd",
+      "git_blob": "3af090553274386e5379942c51402f955f76c14c",
+      "bytes": 13559,
+      "sha256": "a5e65575680e8d4d555073cc7046df91f6a5ed24adc669770b6d091f9b6cc9a6"
+    },
+    {
+      "path": "scripts/ui/pause/PauseSurface.gd",
+      "git_blob": "2aa9eb9ac81acafed5da981fb178a00b79d60319",
+      "bytes": 20825,
+      "sha256": "5d837ba801c55e0fee8ba2b472def80aa609123903173cf77b31710fbd170ee1"
+    },
+    {
+      "path": "tests/integration/verify_reading_rail_journey.gd",
+      "git_blob": "3bdd02a41bff62ef7ad901d468a168f3e86bc339",
+      "bytes": 93127,
+      "sha256": "fc3ba8bea91dcc9ab78e4512f2851e775e3746ef841f1f93bd9fd52a08621057"
+    },
+    {
+      "path": "tests/unit/test_production_pause_controller.gd",
+      "git_blob": "5f2a2a82401dcc84e09f04a3e573dc9daca6e86b",
+      "bytes": 65682,
+      "sha256": "933b9e13a79677f60e01d1037a75c4803515c1886c6021afd5c72e858475e10b"
+    },
+    {
+      "path": "tools/testing/run_reading_rail_journey.py",
+      "git_blob": "825443e422e79800a6238c28d114e9002e7b4423",
+      "bytes": 46890,
+      "sha256": "7fb6f7b215e624be1e2d97319d786a0b9703fdd3a883c78b757147c76930b352"
+    }
+  ],
+  "production_runtime_paths": [
+    "scripts/ui/pause/PauseQuickCommands.gd",
+    "scripts/ui/pause/PauseSurface.gd"
+  ],
+  "source_vs_focused_changes": [
+    "evidence/phase_2r/runtime/game_state_surface.json",
+    "evidence/phase_2r/runtime/save_manager_surface.json"
+  ],
+  "supported_formats_changed": false,
+  "save_or_profile_owner_changed": false,
+  "production_catalogue_changed": false,
+  "test_identities_added": 6,
+  "old_test_identities_removed": 0,
+  "source_vs_tested_merge_boundary": "preliminary-merge-boundary.json",
+  "review_receipts": [
+    "../settings-window-source-review/source-review.json",
+    "../settings-desktop-type-mismatch-review.json",
+    "../settings-focus3-public-inventory-review.json"
+  ]
+}

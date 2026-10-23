@@ -1,0 +1,11 @@
+{
+  "archive": "cloud-guidance-diagnostic-run115.tar.gz",
+  "archive_member_count": 16,
+  "bytes": 757453,
+  "evidence_kind": "failed-run-diagnostic-only",
+  "excluded_file_count": 0,
+  "manifest_sha256": "cdfdfef4a158cae6c2f6459643de0e570fb1cfbeaf0131bc1adc09fed57a97db",
+  "payload_file_count": 14,
+  "round_trip_verified": true,
+  "sha256": "bf42b207b5fb0e4a88e9eb4e779010c8c8a32b888db5c2e28b2b327b03e0f31d"
+}

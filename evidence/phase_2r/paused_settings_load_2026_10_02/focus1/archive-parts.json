@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "reason": "Base64 GitHub connector requests must stay below the 16 MiB transport limit. This changes transport only, not archive bytes or evidence.",
+  "archive": "settings-f9-focus1-diagnostic.tar.gz",
+  "bytes": 14934403,
+  "sha256": "3830f571f50e67ba3285e39d65faeb133a0450253fa68b2a8ea46bd9c02790b0",
+  "parts": [
+    {
+      "file": "settings-f9-focus1-diagnostic.tar.gz.part-01",
+      "bytes": 8388608,
+      "sha256": "7f11aa61863e0f67c9ec12b6598863c20b6b9c01003bd2106eb9e95b9dec50c1"
+    },
+    {
+      "file": "settings-f9-focus1-diagnostic.tar.gz.part-02",
+      "bytes": 6545795,
+      "sha256": "d141ffea42a8d061ba996821d15100356165ae1dabbad2a3a5702ded39e51b2f"
+    }
+  ],
+  "reassembly_verified_byte_for_byte": true
+}

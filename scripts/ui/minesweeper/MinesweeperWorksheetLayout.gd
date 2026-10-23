@@ -4,7 +4,7 @@ extends RefCounted
 
 static func measure(columns: int, rows: int, band: Vector2i, large: bool = false, requested_scroll: Vector2i = Vector2i.ZERO) -> Dictionary:
 	var target := 32 if large else 24
-	var measured := _measure_scrolled(columns, rows, band, target, 1.0, target, requested_scroll)
+	var measured := _measure_scrolled(columns, rows, band, target, 1.0, 24 if large else 12, requested_scroll)
 	if not measured.ok: return measured
 	var value: Dictionary = measured.value
 	var mount: Rect2 = value.mount
@@ -32,7 +32,7 @@ static func measure_view(columns: int, rows: int, band: Vector2i, large: bool, c
 	if band.x <= 2 * source_target or band.y <= 2 * source_target:
 		return {"ok": false, "code": &"invalid_worksheet_geometry"}
 	return _measure_scrolled(columns, rows, band, source_target,
-		float(cell_size) / (source_target * 2.0), source_target, requested_scroll)
+		float(cell_size) / (source_target * 2.0), 24 if large else 12, requested_scroll)
 
 
 static func reveal_view(columns: int, rows: int, index: int, band: Vector2i, large: bool,
@@ -117,3 +117,4 @@ static func _fit_view(columns: int, rows: int, band: Vector2i, source_target: in
 		"well":Rect2(Vector2.ZERO,Vector2(band)),"mount":Rect2(origin,extent),
 		"scroll":Vector2i.ZERO,"maximum_scroll":Vector2i.ZERO,
 		"horizontal":null,"vertical":null,"corner":Rect2i()}}
+

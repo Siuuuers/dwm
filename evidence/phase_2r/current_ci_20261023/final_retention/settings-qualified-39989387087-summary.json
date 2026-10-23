@@ -1,0 +1,63 @@
+{
+  "run_id": 39989387087,
+  "job_id": 120536888814,
+  "artifact_id": 12516783463,
+  "artifact_name": "windows-settings-39989387087-1",
+  "artifact_sha256": "6d3f4f27869f0befdf63c764b8ecce9185403ec9564e211c6b5d223a6f1fb61d",
+  "artifact_bytes": 2958631,
+  "zip_crc_verified": true,
+  "source": "d74663635f04f63d3bb3e12f1811fee175cadbf7",
+  "source_tree": "137a4d9976c2438c863816634d71a1dda7a4184a",
+  "controller": "15f55f3569467fdcbfc3ebac3f4cf9d8887c6b16",
+  "primary": {
+    "cases": 366,
+    "assertions": 21934,
+    "passed": 366,
+    "failures": 0,
+    "skipped": 0,
+    "scripts": 31
+  },
+  "expected_refusal_censuses": [
+    {
+      "case": "empty",
+      "exit_code": 1,
+      "tests": 83,
+      "expected_root_refusals": 80,
+      "storage_free_passes": 3,
+      "user_dir": "D:\\a\\dwm\\dwm\\.godot\\ci\\storage-refusal\\empty\\appdata\\Godot\\app_userdata\\DWM\\",
+      "repository_snapshot_unchanged": true,
+      "all_refusals_test_root_missing": true,
+      "assertions": 99
+    },
+    {
+      "case": "whitespace",
+      "exit_code": 1,
+      "tests": 83,
+      "expected_root_refusals": 80,
+      "storage_free_passes": 3,
+      "user_dir": "D:\\a\\dwm\\dwm\\.godot\\ci\\storage-refusal\\whitespace\\appdata\\Godot\\app_userdata\\DWM\\",
+      "repository_snapshot_unchanged": true,
+      "all_refusals_test_root_missing": true,
+      "assertions": 99
+    }
+  ],
+  "manual_witness": {
+    "assertions": 61180,
+    "distinct_snapshots": 94,
+    "failures": [],
+    "refusal_pairs": 30,
+    "restart_fault_pairs": 1604,
+    "restart_pairs": 2218,
+    "write_fault_pairs": 154,
+    "write_pairs": 14
+  },
+  "render": {
+    "captures": 3,
+    "ok": true,
+    "failure": "",
+    "sample_scope": "AfterHours Standard ordinary targets only.",
+    "scope": "Authored locale primary font plus explicit companion-font coverage and full-size geometry checks; no claim of perceptual or screen-reader acceptance. Offscreen sheet rows remain reachable by vertical scroll."
+  },
+  "unexpected_script_load_unicode_errors": 0,
+  "scope_note": "Refusal census intentionally reports80 test_root_missing failures per invalid-root mode; those are expected refusal evidence, separate from366 passing primary cases and61180 standalone manual assertions."
+}

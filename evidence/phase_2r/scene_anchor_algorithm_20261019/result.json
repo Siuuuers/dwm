@@ -1,0 +1,70 @@
+{
+  "census": {
+    "anchor-benchmark.xml": {
+      "tests": 1,
+      "assertions": 372
+    },
+    "anchor-differential.xml": {
+      "tests": 5,
+      "assertions": 143
+    },
+    "anchor-receipt.xml": {
+      "tests": 9,
+      "assertions": 99
+    },
+    "anchor-ledger.xml": {
+      "tests": 16,
+      "assertions": 163
+    },
+    "anchor-saved-anchor.xml": {
+      "tests": 7,
+      "assertions": 89
+    },
+    "anchor-terminal.xml": {
+      "tests": 5,
+      "assertions": 120
+    }
+  },
+  "pairs": [
+    {
+      "original": 535412,
+      "candidate": 523089,
+      "pair": 0,
+      "reduction_percent": 2.301592045004597
+    },
+    {
+      "candidate": 528495,
+      "original": 535391,
+      "pair": 1,
+      "reduction_percent": 1.2880306168762679
+    },
+    {
+      "original": 535970,
+      "candidate": 537308,
+      "pair": 2,
+      "reduction_percent": -0.24964083810661286
+    },
+    {
+      "candidate": 537220,
+      "original": 557598,
+      "pair": 3,
+      "reduction_percent": 3.6546042130710665
+    },
+    {
+      "original": 556836,
+      "candidate": 532457,
+      "pair": 4,
+      "reduction_percent": 4.378129287617893
+    },
+    {
+      "candidate": 534799,
+      "original": 553442,
+      "pair": 5,
+      "reduction_percent": 3.368555331904699
+    }
+  ],
+  "original_median_us": 544706.0,
+  "candidate_median_us": 533628.0,
+  "median_reduction_percent": 2.0337576600955365,
+  "improved_pairs": 5
+}

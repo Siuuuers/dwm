@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "archive": "selector-run120-cloud-evidence.tar.gz",
+  "bytes": 19099687,
+  "sha256": "3b05b2121eade6d14bbf8f67aee3e6b16628f4b75b96cd5891bdec0f02acaac9",
+  "parts": [
+    {
+      "file": "selector-run120-cloud-evidence.tar.gz.part01",
+      "bytes": 8388608,
+      "sha256": "ad9e325a64e416cd573e443e673a96bb4764e8e19690a4159b0878812aec69cd"
+    },
+    {
+      "file": "selector-run120-cloud-evidence.tar.gz.part02",
+      "bytes": 8388608,
+      "sha256": "28e7cdc5cbce929bd9731e5e986f2f14c1d46435c8affbd88cec98cc7ec89808"
+    },
+    {
+      "file": "selector-run120-cloud-evidence.tar.gz.part03",
+      "bytes": 2322471,
+      "sha256": "48de127ea4e8d8aca499d62e91a9e453f52602b345feaf2845b6100509276b47"
+    }
+  ],
+  "concatenate_parts_in_list_order": true,
+  "reassembly_byte_verified": true
+}

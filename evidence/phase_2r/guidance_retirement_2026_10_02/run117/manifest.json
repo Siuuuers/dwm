@@ -1,0 +1,119 @@
+{
+  "artifacts": [
+    {
+      "created_at": "2026-10-01T22:49:16Z",
+      "digest": "sha256:dc3edca37e7a1ddf87787fb11f1aa98a616188b66fc7e82f4f73745e04479e3e",
+      "extracted_file_count": 1,
+      "id": 11197828686,
+      "local_zip_basename": "guidance-retirement-36937207578-1.zip",
+      "name": "guidance-retirement-36937207578-1",
+      "size_in_bytes": 15261,
+      "workflow_run_head_sha": "9f1275ca7487358d30988b26acf9c480f298a2ac",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "dc3edca37e7a1ddf87787fb11f1aa98a616188b66fc7e82f4f73745e04479e3e"
+    }
+  ],
+  "bundle": "cloud-guidance-diagnostic-run117.tar.gz",
+  "counts": {
+    ".json": 4,
+    ".log": 2
+  },
+  "evidence_kind": "failed-run-diagnostic-only",
+  "excluded_extracted_files": [],
+  "excluded_metadata": "Transient download responses and artifact-manifest.json are omitted because they can contain signed URLs.",
+  "generic_audit_pass": false,
+  "limits": [
+    "DIAGNOSTIC/PARTIAL ONLY: this failed run does not establish full-gate acceptance. Independently audited passing components retain only their stated scope.",
+    "No XML results are required or manufactured by this packaging mode; all existing raw results retain their actual outcomes.",
+    "Workflow head and pinned attempted source/checkout are recorded separately; checkout success does not imply the engine loaded the project.",
+    "Artifact bytes and raw logs are preserved without executing Godot or PowerShell locally.",
+    "Most PNGs and binary payloads are omitted, with explicit hashes/limits; reading PNGs and savebytes are retained.",
+    "This archive preserves evidence; packaging creates no additional engine or visual acceptance."
+  ],
+  "normalization": "lexicographic POSIX PAX members; mode0644 uid/gid0 empty owner names, mtime0; gzip mtime0, empty filename, level9",
+  "not_downloaded_artifacts": [],
+  "payload_bytes": 677069,
+  "payload_file_count": 6,
+  "payload_files": [
+    {
+      "bytes": 913,
+      "path": "run117/artifacts-api.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "fad0c9590aaa58b9726ea56712df0559c13d951b9a3a5a5e2f45a904a1d08eef"
+    },
+    {
+      "bytes": 203338,
+      "path": "run117/artifacts/guidance-retirement-36937207578-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11197828686,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "dc3edca37e7a1ddf87787fb11f1aa98a616188b66fc7e82f4f73745e04479e3e"
+      },
+      "sha256": "c120e09173f7c5a0901ad463e2c9ce41a379b16280f6d6701eb41245422f8d78"
+    },
+    {
+      "bytes": 4394,
+      "path": "run117/audit/diagnostic-evidence.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "9b4dcfb812d87a347911734da0293c9fe4dbe8b766c5425fdd438e489a14ce78"
+    },
+    {
+      "bytes": 4046,
+      "path": "run117/jobs.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "7ff8a0711c62ecb263a8cfe6d4e15d45df7f8b58ae2fd25d507c04fa62690c27"
+    },
+    {
+      "bytes": 451617,
+      "path": "run117/logs/110620156490.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "236e3a98fa8c971881be5a1a14c5ee936cc420a6f111071a9b9fde4d49b3e8b9"
+    },
+    {
+      "bytes": 12761,
+      "path": "run117/run.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "8e9e3da1fd2475293362bcc8fcc61c6e97068624dad488e176482231d3ee25ca"
+    }
+  ],
+  "run": {
+    "conclusion": "failure",
+    "event": "push",
+    "head_branch": "codex/next-cloud-20261002",
+    "head_sha": "9f1275ca7487358d30988b26acf9c480f298a2ac",
+    "html_url": "https://github.com/Siuuuers/dwm/actions/runs/36937207578",
+    "id": 36937207578,
+    "run_attempt": 1,
+    "run_number": 117,
+    "status": "completed"
+  },
+  "schema_version": 1,
+  "secret_scan_patterns": [
+    "github_token",
+    "signed_query",
+    "authorization_secret",
+    "private_key"
+  ],
+  "source_boundary": {
+    "all_unlisted_paths_byte_identical": true,
+    "checkout_parents": [
+      "c8aacf5540ec85cc64eaebd9870b768165ec537a"
+    ],
+    "explicit_allowed_difference_patterns": [],
+    "master": null,
+    "source": "e18f832deca10f7d000a45e470ce5c48c9b68b56",
+    "source_checkout_differences": [],
+    "tested_checkout": "e18f832deca10f7d000a45e470ce5c48c9b68b56"
+  }
+}

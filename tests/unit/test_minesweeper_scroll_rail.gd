@@ -52,13 +52,13 @@ func test_thumb_drag_maps_native_integer_range_and_track_click_pages() -> void:
 	watch_signals(control)
 	var down: InputEventMouseButton = InputEventMouseButton.new()
 	down.button_index = MOUSE_BUTTON_LEFT
-	down.position = Vector2(10,20)
+	down.position = control._local_thumb().get_center()
 	down.pressed = true
 	control._gui_input(down)
 	var motion: InputEventMouseMotion = InputEventMouseMotion.new()
-	motion.position = Vector2(106,20)
+	motion.position = down.position+Vector2(control.size.x-control._local_thumb().size.x,0)
 	control._gui_input(motion)
-	assert_signal_emitted_with_parameters(control,"scroll_requested",[105])
+	assert_signal_emitted_with_parameters(control,"scroll_requested",[geometry.maximum_scroll.x])
 	var up: InputEventMouseButton = down.duplicate()
 	up.position = motion.position
 	up.pressed = false
@@ -67,7 +67,7 @@ func test_thumb_drag_maps_native_integer_range_and_track_click_pages() -> void:
 
 	var track: InputEventMouseButton = InputEventMouseButton.new()
 	track.button_index = MOUSE_BUTTON_LEFT
-	track.position = Vector2(control.size.x-4,20)
+	track.position = Vector2(control.size.x-4,control.size.y/2.0)
 	track.pressed = true
 	control._gui_input(track)
 	assert_signal_emitted_with_parameters(control,"scroll_requested",[geometry.well.size.x])
@@ -86,16 +86,19 @@ func test_synchronous_thumb_refresh_preserves_original_drag_binding() -> void:
 	)
 	var down: InputEventMouseButton = InputEventMouseButton.new()
 	down.button_index = MOUSE_BUTTON_LEFT
-	down.position = Vector2(10,20)
+	down.position = control._local_thumb().get_center()
 	down.pressed = true
 	control._gui_input(down)
 	var first: InputEventMouseMotion = InputEventMouseMotion.new()
-	first.position = Vector2(58,20)
+	var travel: float = control.size.x-control._local_thumb().size.x
+	first.position = down.position+Vector2(travel/2.0,0)
 	control._gui_input(first)
 	var second: InputEventMouseMotion = InputEventMouseMotion.new()
-	second.position = Vector2(106,20)
+	second.position = down.position+Vector2(travel,0)
 	control._gui_input(second)
-	assert_eq(requested,[53,105])
+	assert_eq(requested.size(),2)
+	assert_almost_eq(float(requested[0]),float(geometry.maximum_scroll.x)/2.0,1.0)
+	assert_eq(requested[1],geometry.maximum_scroll.x)
 	assert_true(control._dragging)
 	var release: InputEventMouseButton = down.duplicate()
 	release.position = second.position
@@ -132,7 +135,7 @@ func test_keys_wheel_and_clamps_use_public_native_values() -> void:
 	page_down.keycode = KEY_PAGEDOWN
 	page_down.pressed = true
 	control._gui_input(page_down)
-	assert_signal_emitted_with_parameters(control,"scroll_requested",[236])
+	assert_signal_emitted_with_parameters(control,"scroll_requested",[mini(100+geometry.well.size.y,geometry.maximum_scroll.y)])
 	var home: InputEventKey = InputEventKey.new()
 	home.keycode = KEY_HOME
 	home.pressed = true
@@ -167,6 +170,24 @@ func test_horizontal_wheel_uses_horizontal_buttons_only() -> void:
 	var emitted_before: int = get_signal_emit_count(control,"scroll_requested")
 	control._gui_input(up)
 	assert_eq(get_signal_emit_count(control,"scroll_requested"),emitted_before)
+
+func test_large_targets_keep_scroll_step_while_visual_rail_gets_thinner() -> void:
+	var geometry: Dictionary = LAYOUT.measure(8,16,Vector2i(200,160),true,Vector2i(0,100)).value
+	var control: Control = _rail(true)
+	assert_true(control.configure(true,"en",MINESWEEPER_THEME.build("en",100,&"after_hours"),true))
+	assert_true(control.present(geometry.vertical,geometry.maximum_scroll.y,100,geometry.well.size.y,true))
+	assert_eq(control.size.x,48.0)
+	watch_signals(control)
+	var down := InputEventKey.new()
+	down.keycode = KEY_DOWN
+	down.pressed = true
+	control._gui_input(down)
+	assert_signal_emitted_with_parameters(control,"scroll_requested",[132])
+	var wheel := InputEventMouseButton.new()
+	wheel.button_index = MOUSE_BUTTON_WHEEL_UP
+	wheel.pressed = true
+	control._gui_input(wheel)
+	assert_signal_emitted_with_parameters(control,"scroll_requested",[68])
 
 
 func test_inert_rail_has_no_focus_contacts_or_owner_metadata() -> void:

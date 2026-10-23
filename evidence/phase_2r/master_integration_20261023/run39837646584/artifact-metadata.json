@@ -1,0 +1,536 @@
+{
+  "artifacts": [
+    {
+      "id": 12453045045,
+      "name": "ui-literal-audit-39837646584-1",
+      "size_in_bytes": 30859,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12453045045",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12453045045/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:19:14Z",
+      "expires_at": "2026-10-29T19:19:13Z",
+      "updated_at": "2026-10-22T19:19:14Z",
+      "digest": "sha256:23edb969d59d6d63da3f4f3f0e3d3fb44c776a5823cd75397b5ccebb652cf73d",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    },
+    {
+      "id": 12453015006,
+      "name": "windows-export-39837646584-1",
+      "size_in_bytes": 105619418,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12453015006",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12453015006/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:17:47Z",
+      "expires_at": "2026-10-29T19:17:44Z",
+      "updated_at": "2026-10-22T19:17:47Z",
+      "digest": "sha256:de5bab1d6a4bfc5b5c3dfe870b9fda63ec82d44e881864af474b132ced0fc101",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    },
+    {
+      "id": 12452945726,
+      "name": "windows-minesweeper-39837646584-1",
+      "size_in_bytes": 167133,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12452945726",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12452945726/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:20:17Z",
+      "expires_at": "2026-10-29T19:20:17Z",
+      "updated_at": "2026-10-22T19:20:17Z",
+      "digest": "sha256:18cbcc504b099b52b016cf193f31be15ba2bd5c35ce118245422c6ee25c44967",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    },
+    {
+      "id": 12452905314,
+      "name": "timed-hold-39837646584-1",
+      "size_in_bytes": 33312,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12452905314",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12452905314/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:18:10Z",
+      "expires_at": "2026-10-29T19:18:10Z",
+      "updated_at": "2026-10-22T19:18:10Z",
+      "digest": "sha256:2f4d1ee86bfdce92da7f1af5faf42c78fe6118ca37ee96eca9b10968ac3daa72",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    },
+    {
+      "id": 12452890354,
+      "name": "windows-shop-39837646584-1",
+      "size_in_bytes": 59773,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12452890354",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12452890354/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:17:43Z",
+      "expires_at": "2026-10-29T19:17:42Z",
+      "updated_at": "2026-10-22T19:17:43Z",
+      "digest": "sha256:8369c3f97db728018edde1c53139f5b82a497119a224eec6d045f71bb1fd1fd4",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    },
+    {
+      "id": 12452840514,
+      "name": "windows-localization-39837646584-1",
+      "size_in_bytes": 371718,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12452840514",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12452840514/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:18:12Z",
+      "expires_at": "2026-10-29T19:18:11Z",
+      "updated_at": "2026-10-22T19:18:12Z",
+      "digest": "sha256:f031a970e9aa53daae44aa3d9887ec6289cc2722efc37613ab8f4584ae58ed52",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    },
+    {
+      "id": 12452725538,
+      "name": "windows-endings-39837646584-1",
+      "size_in_bytes": 91340,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12452725538",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12452725538/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:17:36Z",
+      "expires_at": "2026-10-29T19:17:35Z",
+      "updated_at": "2026-10-22T19:17:36Z",
+      "digest": "sha256:26354bcc33b0efaa662eb314349472d3da5ca9c0ab3b3113f2949ca4b5aa0328",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    },
+    {
+      "id": 12452700613,
+      "name": "windows-new_account-39837646584-1",
+      "size_in_bytes": 237186,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12452700613",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12452700613/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:17:30Z",
+      "expires_at": "2026-10-29T19:17:29Z",
+      "updated_at": "2026-10-22T19:17:30Z",
+      "digest": "sha256:d49d50a420ffd5462c7b8b1f197fbd7ec47aa6ef01706b3b033b13a12c84f1e0",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    },
+    {
+      "id": 12452666438,
+      "name": "desktop-scaling-render-39837646584-1",
+      "size_in_bytes": 12545971,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12452666438",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12452666438/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:19:02Z",
+      "expires_at": "2026-10-29T19:19:01Z",
+      "updated_at": "2026-10-22T19:19:02Z",
+      "digest": "sha256:dab851928e2ccd2c3c092c18b28e4cac3b1840b3250999b8979557b4438a9913",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    },
+    {
+      "id": 12452401426,
+      "name": "checkpoint-performance-39837646584-1",
+      "size_in_bytes": 25616,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12452401426",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12452401426/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:18:02Z",
+      "expires_at": "2026-10-29T19:18:02Z",
+      "updated_at": "2026-10-22T19:18:02Z",
+      "digest": "sha256:61ad4db33ef3caa5c36021d495c73f5ae522603c61e110e0d70b4cccb7558b91",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    },
+    {
+      "id": 12452236710,
+      "name": "seven-day-history-39837646584-1",
+      "size_in_bytes": 16146,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12452236710",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12452236710/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:17:25Z",
+      "expires_at": "2026-10-29T19:17:24Z",
+      "updated_at": "2026-10-22T19:17:25Z",
+      "digest": "sha256:fffe4a346fe1dad9998d37d38ec948d282cc9f2073608cbc3fc1419221fc1eeb",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    },
+    {
+      "id": 12452166839,
+      "name": "cloud-speech-rendered-timed-hold-39837646584-1",
+      "size_in_bytes": 386198,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12452166839",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12452166839/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:16:36Z",
+      "expires_at": "2026-10-29T19:16:35Z",
+      "updated_at": "2026-10-22T19:16:36Z",
+      "digest": "sha256:a0343183475decaf590dfa4e1985ebcaf74e41b011239a97d6df9a2e7f0e22a4",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    },
+    {
+      "id": 12452066888,
+      "name": "cloud-speech-rendered-journeys-39837646584-1",
+      "size_in_bytes": 385999,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12452066888",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12452066888/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:16:44Z",
+      "expires_at": "2026-10-29T19:16:43Z",
+      "updated_at": "2026-10-22T19:16:44Z",
+      "digest": "sha256:61992086cea7160df9108ff01cd1502b299681c1684b0cb6fd615b4ba554f828",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    },
+    {
+      "id": 12451927660,
+      "name": "windows-checkpoint_diagnostics-39837646584-1",
+      "size_in_bytes": 603388,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12451927660",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12451927660/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:18:22Z",
+      "expires_at": "2026-10-29T19:18:20Z",
+      "updated_at": "2026-10-22T19:18:22Z",
+      "digest": "sha256:1b4bf6d12f7f4c77ce7aba541b101eb3d9a538a8096d81c3a820511340852b45",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    },
+    {
+      "id": 12451887612,
+      "name": "gallery-caption-collection-39837646584-1",
+      "size_in_bytes": 8941491,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12451887612",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12451887612/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:18:13Z",
+      "expires_at": "2026-10-29T19:18:12Z",
+      "updated_at": "2026-10-22T19:18:13Z",
+      "digest": "sha256:4dd6019de915aa93ee4a1421823d2d431a7da41d610dc7425a259f8e782d0d15",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    },
+    {
+      "id": 12451583035,
+      "name": "hospital-reading-39837646584-1",
+      "size_in_bytes": 71364,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12451583035",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12451583035/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:18:12Z",
+      "expires_at": "2026-10-29T19:18:12Z",
+      "updated_at": "2026-10-22T19:18:12Z",
+      "digest": "sha256:ea7c410face846489f0b32f348ba1be802d55ea81b1c0623d64de8866501046b",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    },
+    {
+      "id": 12451557698,
+      "name": "gallery-version-register-39837646584-1",
+      "size_in_bytes": 85853,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12451557698",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12451557698/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:17:32Z",
+      "expires_at": "2026-10-29T19:17:31Z",
+      "updated_at": "2026-10-22T19:17:32Z",
+      "digest": "sha256:bce97d396e986b871781ef5565ad3d32daa2e53be0c3c6372a277c3737d9ed61",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    },
+    {
+      "id": 12451547415,
+      "name": "cloud-speech-rendered-hospital-reading-39837646584-1",
+      "size_in_bytes": 385352,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12451547415",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12451547415/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:16:36Z",
+      "expires_at": "2026-10-29T19:16:35Z",
+      "updated_at": "2026-10-22T19:16:36Z",
+      "digest": "sha256:aa99434b5e31b46a2cdd57d63b124efe22ede07dbc8dfbb272540328bee732f7",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    },
+    {
+      "id": 12451458105,
+      "name": "windows-dating-39837646584-1",
+      "size_in_bytes": 598716,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12451458105",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12451458105/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:18:51Z",
+      "expires_at": "2026-10-29T19:18:50Z",
+      "updated_at": "2026-10-22T19:18:51Z",
+      "digest": "sha256:c1a8adce43ee6794383e3ba64440b5ef13a076fbc75e5b6aebcbd0152e628325",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    },
+    {
+      "id": 12451438164,
+      "name": "windows-reading_delivery-39837646584-1",
+      "size_in_bytes": 213048,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12451438164",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12451438164/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:19:40Z",
+      "expires_at": "2026-10-29T19:19:39Z",
+      "updated_at": "2026-10-22T19:19:40Z",
+      "digest": "sha256:24c933867ce8b84eb25b5ea7efb3fd54e0856c317b91c4ac9413ea675863e290",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    },
+    {
+      "id": 12451432793,
+      "name": "ending-reading-39837646584-1",
+      "size_in_bytes": 30863,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12451432793",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12451432793/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:17:29Z",
+      "expires_at": "2026-10-29T19:17:29Z",
+      "updated_at": "2026-10-22T19:17:29Z",
+      "digest": "sha256:c99de6aebd74cc7b42f8d56ee3b1b4c5d7a200633f1393120e7856e3c1946c79",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    },
+    {
+      "id": 12451397630,
+      "name": "public-surfaces-39837646584-1",
+      "size_in_bytes": 261314,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12451397630",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12451397630/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:15:53Z",
+      "expires_at": "2026-10-29T19:15:52Z",
+      "updated_at": "2026-10-22T19:15:53Z",
+      "digest": "sha256:15f1e259f123b5bfe601c05e71938364210dc99da43c831feb15c141c011740c",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    },
+    {
+      "id": 12451328747,
+      "name": "windows-desktop-39837646584-1",
+      "size_in_bytes": 242241,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12451328747",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12451328747/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:19:20Z",
+      "expires_at": "2026-10-29T19:19:20Z",
+      "updated_at": "2026-10-22T19:19:20Z",
+      "digest": "sha256:de5b0bf37f1f23b43bc415d443da0f2b0a1c13368d0f1d1b508d9af5f777f78d",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    },
+    {
+      "id": 12451294054,
+      "name": "cloud-speech-rendered-ending-reading-39837646584-1",
+      "size_in_bytes": 386227,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12451294054",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12451294054/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:16:32Z",
+      "expires_at": "2026-10-29T19:16:32Z",
+      "updated_at": "2026-10-22T19:16:32Z",
+      "digest": "sha256:79f8c3ff249d1fdf9208298732411d540ae8aacdb932d1f3db9ebd6bfc3b7599",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    },
+    {
+      "id": 12451283766,
+      "name": "windows-persistence-39837646584-1",
+      "size_in_bytes": 155391,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12451283766",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12451283766/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:18:00Z",
+      "expires_at": "2026-10-29T19:17:59Z",
+      "updated_at": "2026-10-22T19:18:00Z",
+      "digest": "sha256:d2fba431518199086672137dc324dfa54921528831c20ae571c51e39b8d8e0f1",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    },
+    {
+      "id": 12450999831,
+      "name": "cloud-speech-rendered-desktop-39837646584-1",
+      "size_in_bytes": 386378,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12450999831",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12450999831/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:17:42Z",
+      "expires_at": "2026-10-29T19:17:42Z",
+      "updated_at": "2026-10-22T19:17:42Z",
+      "digest": "sha256:ea7d48765121530208a645929e806488baeaec99c8d3b57ae5b3f90eccfe9cf9",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    },
+    {
+      "id": 12450974789,
+      "name": "windows-audio-39837646584-1",
+      "size_in_bytes": 22915,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12450974789",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12450974789/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:17:32Z",
+      "expires_at": "2026-10-29T19:17:32Z",
+      "updated_at": "2026-10-22T19:17:32Z",
+      "digest": "sha256:252306b81112b5baffa8b6aff29c5f04325553841e915d1f4e5dcf3637e81cc3",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    },
+    {
+      "id": 12450884962,
+      "name": "playable-journeys-39837646584-1",
+      "size_in_bytes": 127232,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12450884962",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12450884962/zip",
+      "expired": false,
+      "created_at": "2026-10-22T19:21:35Z",
+      "expires_at": "2026-10-29T19:21:34Z",
+      "updated_at": "2026-10-22T19:21:35Z",
+      "digest": "sha256:363dfb11a6370fdbcadf30b6c5cea8fec4455ac0749e813f20a6a5e9a272e9ef",
+      "workflow_run": {
+        "id": 39837646584,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/playable-master-integration-20261023",
+        "head_sha": "d1d8313cff343a46733c021ad9125d6c0702eeff"
+      }
+    }
+  ]
+}

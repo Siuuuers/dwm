@@ -3,7 +3,7 @@ extends SceneTree
 const SURFACE := preload("res://scenes/overlay/PauseSurface.tscn")
 const LOCALES := {"en":"en","zh_CN":"zh-CN","zh_HK":"zh-HK"}
 const PRESETS := ["standard","protan","deutan","tritan"]
-const COPY_KEYS := ["continue","backup","settings","return","title","question","warning","cancel"]
+const COPY_KEYS := ["continue","backup","settings","return","title","question","warning","cancel","back"]
 var _viewport: SubViewport
 var _surface: Control
 var _folder := ""

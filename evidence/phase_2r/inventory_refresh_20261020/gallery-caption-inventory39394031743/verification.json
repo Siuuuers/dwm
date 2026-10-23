@@ -1,0 +1,54 @@
+{
+  "archive_bytes": 260966,
+  "archive_sha256": "3f821ecf8b4e3d233457b13ad59fca45b060b14ba54cbfa051cfddaa513ec5db",
+  "members": 28,
+  "manifest_members": 27,
+  "tests": 11,
+  "assertions": 352,
+  "inventory_changes": [
+    {
+      "path": "evidence/phase_2r/runtime/game_state_surface.json",
+      "symbol": "capture_run_snapshot_input",
+      "old": 361,
+      "new": 380,
+      "sha256": "23453d28620c3339f07d4859332439286a572b1e84961992060e558576e2c495"
+    },
+    {
+      "path": "evidence/phase_2r/runtime/save_manager_surface.json",
+      "symbol": "initialize",
+      "old": 66,
+      "new": 68,
+      "sha256": "9db4a1b0a2eff273885459811762644a72a887921d8762d93db28ea82db4b616"
+    }
+  ],
+  "member_hashes": {
+    "ci/audit-origin.json": "3f9e37cb2fcc9903f8da6bc7c5e31dad776bb9a1f82e9b254d4ff549896a8bcf",
+    "ci/final-status.txt": "2bc3bdc3bc0cbb2dc2bbdfd6eda48553df6f355543c71854d0274a05abf845fa",
+    "ci/gate.json": "9b38016ae22ab142e31035567fa920ae916a488a851a6d005031758a38b162ca",
+    "ci/import-process.json": "75876e0e3f497cad271143ba85bd4f36569cd81195509043f860dab14265b716",
+    "ci/import.log": "2fcd278abd5243cf2b02e5b5fcfa0d855eaec681e3aae1a432801fb397a4f95d",
+    "ci/public_surfaces.jsonl": "a8f4c1dddf3c0c06ab4110515d6ca6b27944894e2d4854511e2ead4376bfd816",
+    "ci/public_surfaces.xml": "2d0f719b65a77e58a03cf8a7459a84dec9a0504e8f6ecdacfd9d36cb7385661d",
+    "ci/public-surfaces/game_state-check.jsonl": "7aadd81656afa378f1af340175b7b120c44db02cd10e3280e12fa45e0c5dd090",
+    "ci/public-surfaces/game_state-generate.jsonl": "a6651c11b66c4030c4576955fcb4e9a6b8d3927bb2cfbfba4a058eeebccb22a3",
+    "ci/public-surfaces/game_state_surface.json": "23453d28620c3339f07d4859332439286a572b1e84961992060e558576e2c495",
+    "ci/public-surfaces/retirement-audit.json": "050de7a5a7fbdbf3925b4bdca83f5d12e544c85e3560a2112dad3c90883e3af0",
+    "ci/public-surfaces/save_manager-check.jsonl": "f3a2380811f392b0a6d3c742e82b80d715dfe5161bf613aed866cf63c2c8858b",
+    "ci/public-surfaces/save_manager-generate.jsonl": "99c8115c45294eda5ceab5d47046a5c510174abf6d4c9b2a4adecfb24f1d429c",
+    "ci/public-surfaces/save_manager_surface.json": "9db4a1b0a2eff273885459811762644a72a887921d8762d93db28ea82db4b616",
+    "ci/source/evidence/phase_2r/runtime/game_state_required_surface.json": "2b3d4e82e7db357cb3454ee19c34c8f9b2dd40a6b796324566753164708947b3",
+    "ci/source/evidence/phase_2r/runtime/game_state_surface.json": "23453d28620c3339f07d4859332439286a572b1e84961992060e558576e2c495",
+    "ci/source/evidence/phase_2r/runtime/save_manager_required_surface.json": "6a9824c8fa748e2611438e332c69b58e609908ce7389fba58c7e64d58ed9f3f7",
+    "ci/source/evidence/phase_2r/runtime/save_manager_surface.json": "9db4a1b0a2eff273885459811762644a72a887921d8762d93db28ea82db4b616",
+    "ci/source/tests/unit/tooling/test_public_surface_inventory.gd": "536097a273d289c829688ca6070c2c8162e40e6fbee03f38aacc9947ede812be",
+    "ci/source/tools/runtime/generate_public_surface_inventory.gd": "c5c2a71b19d9f24a3f80d7a7fecc16bb13e5f28a97c79c569c8cba3c9877071a",
+    "ci/source/tools/runtime/PublicSurfaceInventory.gd": "9dcf035d10009180e6c2d1dcbe0df1d5f680cae0a66e1c9714312d377e423dc1",
+    "ci/source/tools/testing/Invoke-PublicSurfaceValidation.ps1": "de02f5eb28b087fe858622dbcae5e45aa38293de694c4df284ae487443e3f11a",
+    "phase2r_logs/cloud-public-surface-game_state-check.log": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7",
+    "phase2r_logs/cloud-public-surface-game_state-generate.log": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7",
+    "phase2r_logs/cloud-public-surface-save_manager-check.log": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7",
+    "phase2r_logs/cloud-public-surface-save_manager-generate.log": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7",
+    "phase2r_logs/cloud-public_surfaces.log": "6b2b47e233800be6956d32d03a8b8c0e8b76f3f00a5c6d6c02b748afb6cf0f9c",
+    "ci/retained-hashes.json": "15408c3bbe625f0c0673757d9a45439cb894ff32f8bc52a767f88df1c4735fe2"
+  }
+}

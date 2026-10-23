@@ -397,3 +397,11 @@ static func _ok(value: Dictionary) -> Dictionary:
 
 static func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": details}
+
+
+
+## Bootstrap calls this only when the application owner is being destroyed.
+## The state adapter retains this start port for publication.
+## Break that lifetime cycle without transactions, signals, or durable writes.
+func release_runtime_dependencies() -> void:
+	_state_port = null

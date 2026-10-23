@@ -1,0 +1,14 @@
+# NON-CANON TEST FIXTURE ONLY. Intentionally invalid fixed reading programmes.
+return
+
+label fixture.reading.extra_caption
+NON-CANON TEST ONLY: an internal caption publication. #id:fixture.caption.beta
+An unregistered caption must not disappear from semantic History. #id:fixture.caption.unregistered
+NON-CANON TEST ONLY: an internal caption publication. #id:fixture.caption.alpha
+return
+
+label fixture.reading.extra_return
+NON-CANON TEST ONLY: an internal caption publication. #id:fixture.caption.beta
+return
+NON-CANON TEST ONLY: an internal caption publication. #id:fixture.caption.alpha
+return

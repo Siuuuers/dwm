@@ -1,5 +1,7 @@
 ﻿extends GutTest
 
+const FIXTURE_ENTRY_CATALOG := preload("res://tests/support/GalleryEndingFixtureCatalog.gd")
+
 const PROFILE := preload("res://autoload/ProfileManager.gd")
 const REPLAY := preload("res://scripts/application/ending/GalleryReplayOwner.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
@@ -104,6 +106,7 @@ func before_each() -> void:
 	_gallery = GALLERY.instantiate()
 	assert_true(_gallery.configure_title_host(_home, _locale, _profile).get("ok", false))
 	assert_true(_gallery.configure_replay(_bridge).get("ok", false))
+	_gallery._replay_owner.set("_entry_catalog", FIXTURE_ENTRY_CATALOG)
 	add_child_autofree(_gallery)
 	_gallery.open_in_title_host()
 	await get_tree().process_frame
@@ -144,7 +147,10 @@ func _assert_error_dock() -> void:
 	assert_eq(_status().size, Vector2(360, 64))
 	assert_eq(_replay_button().position, Vector2(776, 568))
 	assert_eq(_replay_button().size, Vector2(160, 64))
-	assert_eq(_selector().position, Vector2(16, _gallery._record_title_label.size.y + 32))
+	# The retained production sentence precedes the selector; it is not title-only paper.
+	var sentence: Label = _gallery._record_paper.sentence_label
+	assert_true(sentence.visible)
+	assert_eq(_selector().position, Vector2(16, sentence.get_rect().end.y + 32))
 	assert_eq(_selector().size, Vector2(288, 64))
 	assert_false(_selector().get_global_rect().intersects(_status().get_global_rect()))
 	assert_false(_selector().get_global_rect().intersects(_replay_button().get_global_rect()))

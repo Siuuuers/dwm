@@ -1,0 +1,11 @@
+{
+  "archive": "cloud-title-geometry-run127.tar.gz",
+  "archive_member_count": 593,
+  "bytes": 10002273,
+  "evidence_kind": "bounded-successful-run-audit",
+  "excluded_file_count": 205,
+  "manifest_sha256": "6bb263b756f9ce36faa503fe814d4b9a5d735d4c17f71b22cf78a585643f8b51",
+  "payload_file_count": 591,
+  "round_trip_verified": true,
+  "sha256": "119a68d92de607e4b7123d9308840c0397cc032c0fcaafbbb51587eb1b6f3ad2"
+}

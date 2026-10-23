@@ -1,0 +1,69 @@
+{
+  "captures": [
+    {
+      "bytes": 6636,
+      "file": "01-title.png",
+      "sha256": "139cef8fbbe28bb2bcb9b59f67f12258189c6f8d1517fe8af6658795defa2dd6"
+    },
+    {
+      "bytes": 353677,
+      "file": "02-desktop.png",
+      "sha256": "1dec18d299c9fb9f72760c9a146700becd1b789972a2c14c0e09679f3a917e55"
+    },
+    {
+      "bytes": 355374,
+      "file": "03-minesweeper.png",
+      "sha256": "81e16743943b1d420d0ea5d578090c09cd6c93a0e84529bbda4b322874630fd0"
+    },
+    {
+      "bytes": 7318,
+      "file": "04-pre-history.png",
+      "sha256": "4d878362e53a01aad70fb13415154dfcf38c1f331455699c8909a191ea3fcb42"
+    },
+    {
+      "bytes": 673665,
+      "file": "05-dating-board.png",
+      "sha256": "e0e5b98560bb2a01eb4a19a3906aaf45dac34926d10c97ea1ff8eb9cd5fb75e6"
+    },
+    {
+      "bytes": 9027,
+      "file": "06-post-history.png",
+      "sha256": "5b89bcf22ca875fc82563b469392e3137983f9eb3c2dfd39a4d6a3102367ae44"
+    },
+    {
+      "bytes": 1330212,
+      "file": "07-post-save.png",
+      "sha256": "9ef2ae87d5163205bbe4482f0cff84630adeebb92ad2580a9b679621890c825a"
+    },
+    {
+      "bytes": 9027,
+      "file": "08-restored-history.png",
+      "sha256": "5b89bcf22ca875fc82563b469392e3137983f9eb3c2dfd39a4d6a3102367ae44"
+    },
+    {
+      "bytes": 1330459,
+      "file": "09-restored-line.png",
+      "sha256": "d5148fe105c1700944ea6ab51b832aa316c0a2182bb03042b5b4e33f75dd4447"
+    }
+  ],
+  "checkout": "f527957009017993a4987174aeb76a26e8793075",
+  "final_capture_verification": "Images were first inspected while the workflow was running. After final capture, all nine byte counts and SHA-256 identities were checked again against the completed artifact and matched exactly.",
+  "limits": [
+    "Semantic selected caption, frozen frames, physical Save/Load, History and witness guarantees are covered by the separate successful physical-selector-journey-audit.json using final workflow metadata and logs. This visual report does not independently establish the full gate.",
+    "No claim of final native visual polish or identical accumulated text layout across restart.",
+    "The separate known cold board-null Load title clipping is neither exercised nor fixed by this materialized-board journey.",
+    "Only the captured sweet/exploded/hatred run and 1280x720 viewport were visually inspected; no other outcome, resolution or production dialogue acceptance."
+  ],
+  "observations": [
+    "Title, Day 1 desktop and generic Minesweeper captures show readable labels and visible focus cues at 1280x720. The generic Minesweeper capture shows one revealed cell, unlike the larger opening area in Run121; board generation can produce different layouts.",
+    "Pre History shows both selected sweet captions; post and restored History show the same four selected captions, including the actual hatred explosion reflection and sweet closing. Run121 displayed the amused explosion reflection, whereas this run displays hatred.",
+    "The materialized Dating board capture has a visible Priscilla / Day 1 title, Rules button and zoom controls; the board extends within its scroll viewport.",
+    "Both post-save and restored-line captures visibly show the current sweet closing and the full transport rail.",
+    "The live post-save capture also shows preceding exploded post-A wording above post-B; the fresh restored-line capture shows only post-B. This same accumulated-presentation difference was observed in Run121 and prevents a pixel-identical live/restored-layout claim."
+  ],
+  "review_method": "Direct visual inspection of all nine retained cloud PNG captures; no engine execution or image alteration.",
+  "run_attempt": 1,
+  "run_id": 36950541601,
+  "schema_version": 1,
+  "source": "cfb7616bfd498979bef520e1522cbbb712298aea"
+}

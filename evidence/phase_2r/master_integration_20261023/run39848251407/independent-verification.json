@@ -1,0 +1,41 @@
+{
+  "result": "PASS scoped to pinned source and stated suites",
+  "origin": {
+    "workflow": "4e3e985dd08baa0ef0cb316f4a28d99132697a1a",
+    "tree": "76bef7a0c3c673badca5aba2e47fb34eaac02d19",
+    "candidate": "f20e559a7af26808eff3f0582eae60564ed3c352",
+    "attempt": "1",
+    "controller": "937953772c3d9879b21cd7f76d967943dd2f8c1f",
+    "run_id": "39848251407",
+    "event": "4e3e985dd08baa0ef0cb316f4a28d99132697a1a",
+    "base": "d7d0faf84941d0e5dc6f8a90d0896b6da47236d7"
+  },
+  "original_zip": {
+    "bytes": 1557569,
+    "sha256": "06161c39237a31a30e6014935b51c008197f753c2e0525039fb059954be59aa2"
+  },
+  "verified_retained_files": 540,
+  "suites": [
+    {
+      "suite": "shop-unit",
+      "cases": 62,
+      "assertions": 757,
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\4ebe00d6-4d0b-4a82-9fe8-f711d3ea6c9d"
+    },
+    {
+      "suite": "contact-regression",
+      "cases": 1,
+      "assertions": 60,
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\765f2d65-7d1e-4392-b687-c1ed48ebf70a"
+    },
+    {
+      "suite": "shop-transaction",
+      "cases": 1,
+      "assertions": 66,
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\09155437-7c5f-4500-8d9d-6c1d4269ea02"
+    }
+  ],
+  "total_cases": 64,
+  "total_assertions": 883,
+  "limits": "Shop checkpoint qualification only; rendered/native-hold shell suite has independent evidence and is not certified by this run."
+}

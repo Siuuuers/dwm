@@ -5,10 +5,12 @@ signal _preview_operation_finished()
 
 const REGISTRY := preload("res://scripts/settings/SettingsPreferenceRegistry.gd")
 const PRIMARY := &"preferences.language.primary_locale_id"
+const FONT_STYLE := &"preferences.accessibility.font_style"
 const REDUCED_MOTION := &"preferences.accessibility.reduced_motion"
 const SCREEN_SHAKE := &"preferences.accessibility.screen_shake"
 const WINDOW_MODE := &"preferences.display.window_mode"
-const SPECIMENS := {"en": "This is a reading test.", "zh_CN": "这是朗读测试。", "zh_HK": "這是朗讀測試。"}
+const WINDOW_SIZE := &"preferences.display.window_size"
+const SPECIMENS := {"en": "This is a reading test.", "zh_CN": "这是朗读测试。", "zh_HK": "這是朗讀測試。", "ja": "これは読み上げのテストです。", "ko": "음성 읽기 테스트입니다."}
 
 var _content: Control
 var _profile: Object
@@ -64,6 +66,8 @@ func bind(content: Control, services: Dictionary) -> Dictionary:
 			control.visibility_changed.connect(_on_volume_visibility_changed.bind(path))
 		elif control is OptionButton:
 			control.item_selected.connect(func(index: int) -> void: await commit_preference(path, control.get_item_metadata(index)))
+			if path == WINDOW_SIZE:
+				control.get_popup().about_to_popup.connect(refresh)
 		elif control is CheckBox and REGISTRY.is_player_writable(path):
 			control.toggled.connect(func(value: bool) -> void: await commit_preference(path, value))
 	refresh()
@@ -98,9 +102,15 @@ func refresh() -> void:
 		if String(path).begins_with("preferences.audio.") and not _has_audio_sink():
 			disabled = true
 			reason = "settings.status.unavailable"
-		elif path == WINDOW_MODE and not _has_window_sink():
+		elif path == FONT_STYLE and not _localization.has_method("set_font_style"):
 			disabled = true
 			reason = "settings.status.unavailable"
+		elif path in [WINDOW_MODE, WINDOW_SIZE] and not _has_window_sink():
+			disabled = true
+			reason = "settings.status.unavailable"
+		elif path == WINDOW_SIZE and _value(WINDOW_MODE) != "windowed":
+			disabled = true
+			reason = "settings.status.window_size_borderless"
 		elif path == &"preferences.language.secondary_locale_id" and not _value(&"preferences.language.dual_enabled"):
 			disabled = true
 			reason = "settings.status.dual_off"
@@ -118,6 +128,14 @@ func refresh() -> void:
 				disabled = true
 				reason = "settings.status.locales_unavailable"
 		if control is OptionButton:
+			if path == WINDOW_SIZE:
+				var sizes: Array = _window.get_available_window_sizes() if _has_window_sink() and _window.has_method("get_available_window_sizes") else []
+				for index: int in range(control.item_count):
+					control.set_item_disabled(index, control.get_item_metadata(index) not in sizes)
+				if sizes.is_empty():
+					disabled = true
+					if reason.is_empty(): reason = "settings.status.window_size_fitted"
+				if not disabled and value not in sizes: reason = "settings.status.window_size_fitted"
 			if path == SCREEN_SHAKE:
 				var motion_blocked: bool = bool(_value(REDUCED_MOTION))
 				var retire_focus: bool = motion_blocked and (control.has_focus() or control.get_popup().visible)
@@ -144,6 +162,7 @@ func refresh() -> void:
 			_refresh_volume_presentation(path, reason)
 		elif path == PRIMARY and control.item_count > 0:
 			status.text = control.get_item_text(control.selected)
+		status.visible = not status.text.is_empty()
 	_content.rows[&"preferences.exceptional_replay.replay_full"].visible = bool(_value(&"preferences.exceptional_replay.available"))
 	_content.apply_text_size(int(_value(&"preferences.accessibility.text_size")), bool(_value(&"preferences.accessibility.large_targets")))
 	_refresh_tests()
@@ -161,10 +180,14 @@ func commit_preference(path: StringName, value: Variant, preview_handle: Variant
 	var result: Dictionary
 	if String(path).begins_with("preferences.audio."):
 		result = await _volume.commit_settings_audio_preference(_holder, path, value, preview_handle) if _has_audio_sink() else _failure()
+	elif path == WINDOW_SIZE:
+		result = await _window.commit_settings_window_size(_holder, value) if _has_window_sink() and _value(WINDOW_MODE) == "windowed" and _window.has_method("commit_settings_window_size") else _failure()
 	elif path == WINDOW_MODE:
 		result = await _window.commit_settings_window_preference(_holder, value) if _has_window_sink() else _failure()
 	elif path == PRIMARY:
 		result = _localization.set_locale(str(value))
+	elif path == FONT_STYLE:
+		result = _localization.set_font_style(str(value)) if _localization.has_method("set_font_style") else _failure()
 	elif path == &"preferences.language.secondary_locale_id" and value == _value(PRIMARY):
 		# The locale owner already swaps the complete language tuple atomically.
 		result = _localization.set_locale(str(_value(&"preferences.language.secondary_locale_id")))
@@ -415,6 +438,7 @@ func _detach_test() -> Dictionary:
 func _stop_detached_test(test: Dictionary) -> Dictionary:
 	var stopped := {"ok": true, "value": {"stopped": false}}
 	if test["kind"] == "TTS" and _tts != null:
+		var operation := _begin_preview_operation()
 		var source := String(test.get("tts_source", ""))
 		var stop_result: Variant
 		if not source.is_empty() and _tts.has_method("stop_source"):
@@ -427,6 +451,7 @@ func _stop_detached_test(test: Dictionary) -> Dictionary:
 			if recovery is Dictionary and not recovery.get("ok", false):
 				stopped["ok"] = false
 				stopped["code"] = recovery.get("code", &"speech_recovery_failed")
+		_finish_preview_operation(operation)
 	elif test["handle"] != null and _audio != null:
 		var operation := _begin_preview_operation()
 		await _audio.stop_settings_preview(test["handle"])

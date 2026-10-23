@@ -1,0 +1,44 @@
+{
+  "tests/support/GalleryEndingFixtureCatalog.gd": {
+    "bytes": 586,
+    "sha256": "4319e9e0d122a3ca1bd3cf81e2aead3689a48ce33dd0bba8dd908efbe1f153fa",
+    "original_test_names_preserved": true,
+    "test_count": 0
+  },
+  "tests/integration/test_gallery_navigation.gd": {
+    "bytes": 18835,
+    "sha256": "2f5b142edf25a29f7dfab44e2410dbeb5612b8a197f7507c9b2167455c3fd314",
+    "original_test_names_preserved": true,
+    "test_count": 11
+  },
+  "tests/integration/test_gallery_replay_status.gd": {
+    "bytes": 14432,
+    "sha256": "2e5e46701f6489ba4f259b3d898c624caee68e078ede6de76599c4310c9f50db",
+    "original_test_names_preserved": true,
+    "test_count": 6
+  },
+  "tests/integration/test_gallery_version_register.gd": {
+    "bytes": 20137,
+    "sha256": "2dba1807d0c03bd622576b6996b79dfc6f6502758385a70a15c6ec139fc3859e",
+    "original_test_names_preserved": true,
+    "test_count": 9
+  },
+  "tests/integration/test_gallery_art_placements.gd": {
+    "bytes": 8745,
+    "sha256": "51cecd7dbe1fb76ca89b3ba6eb7e59e77694788755d9373baf03cf946da3d13b",
+    "original_test_names_preserved": true,
+    "test_count": 3
+  },
+  "tests/integration/test_gallery_record_metadata.gd": {
+    "bytes": 10417,
+    "sha256": "0f6d14ab864cee2c905f55af5068882993a47aff75db3fadfcb8e203a645048f",
+    "original_test_names_preserved": true,
+    "test_count": 3
+  },
+  "tests/unit/test_ending_frozen_context.gd": {
+    "bytes": 11017,
+    "sha256": "cbccb4a22957d57b04680c31fe6c5d5a5e5341f0d59703a64e04aa1b6081201f",
+    "original_test_names_preserved": true,
+    "test_count": 6
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "archive": "hospital-focus3-diagnostic-corrected.tar.gz",
+  "archive_member_count": 121,
+  "bytes": 2418572,
+  "evidence_kind": "failed-run-diagnostic-only",
+  "excluded_file_count": 10,
+  "manifest_sha256": "6b3230defe271fa0c6c0ad01a568b2adb93e273953d9e34006f0f8bfc3deb05e",
+  "payload_file_count": 119,
+  "round_trip_verified": true,
+  "sha256": "386098fdf5d97059bc03e386df2160dc4a3d77ba4fb39a7d36731ddbbc638116"
+}

@@ -2,7 +2,9 @@
 # locale: en
 # type: core
 # scene: HospitalScene
-# shown: after fainting / danger day
+# Minimal playable copy; production prose is deferred.
+# Day entries retain semantic identity but share one presentation body.
+# Frozen.sylvia_eligible is supplied by the canonical Hospital owner.
 
 return
 
@@ -11,6 +13,7 @@ label hospital.faint.day1
 # CAUSAL INPUT: validated frozen context
 # VARIATION: registered layer order
 # ALLOWED SIGNALS: history.line.witness
+jump hospital.faint.shared
 return
 
 label hospital.faint.day2
@@ -18,6 +21,7 @@ label hospital.faint.day2
 # CAUSAL INPUT: validated frozen context
 # VARIATION: registered layer order
 # ALLOWED SIGNALS: history.line.witness
+jump hospital.faint.shared
 return
 
 label hospital.faint.day3
@@ -25,6 +29,7 @@ label hospital.faint.day3
 # CAUSAL INPUT: validated frozen context
 # VARIATION: registered layer order
 # ALLOWED SIGNALS: history.line.witness
+jump hospital.faint.shared
 return
 
 label hospital.faint.day4
@@ -32,6 +37,7 @@ label hospital.faint.day4
 # CAUSAL INPUT: validated frozen context
 # VARIATION: registered layer order
 # ALLOWED SIGNALS: history.line.witness
+jump hospital.faint.shared
 return
 
 label hospital.faint.day5
@@ -39,6 +45,7 @@ label hospital.faint.day5
 # CAUSAL INPUT: validated frozen context
 # VARIATION: registered layer order
 # ALLOWED SIGNALS: history.line.witness
+jump hospital.faint.shared
 return
 
 label hospital.faint.day6
@@ -46,6 +53,7 @@ label hospital.faint.day6
 # CAUSAL INPUT: validated frozen context
 # VARIATION: registered layer order
 # ALLOWED SIGNALS: history.line.witness
+jump hospital.faint.shared
 return
 
 label hospital.faint.day7
@@ -53,4 +61,21 @@ label hospital.faint.day7
 # CAUSAL INPUT: validated frozen context
 # VARIATION: registered layer order
 # ALLOWED SIGNALS: history.line.witness
+jump hospital.faint.shared
+return
+
+label hospital.faint.shared
+You wake in the treatment room.
+if {Frozen.sylvia_eligible}:
+	jump hospital.faint.sylvia
+else:
+	jump hospital.faint.ordinary
+return
+
+label hospital.faint.sylvia
+Sylvia waits nearby.
+return
+
+label hospital.faint.ordinary
+The treatment room is quiet.
 return

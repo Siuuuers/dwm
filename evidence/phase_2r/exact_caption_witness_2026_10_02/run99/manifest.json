@@ -1,0 +1,478 @@
+{
+  "artifacts": [
+    {
+      "created_at": "2026-10-01T16:39:55Z",
+      "digest": "sha256:77b736e137f650fc5774798932bf58470441b0583f6e2e5e727a408b302be0d6",
+      "extracted_file_count": 11,
+      "id": 11179320008,
+      "local_zip_basename": "run99-11179320008.zip",
+      "name": "cloud-speech-reading-rail-journey-36893609060-1",
+      "size_in_bytes": 382895,
+      "workflow_run_head_sha": "cfb966c1fa2f8f52c0dbed777a10af29688f535e",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "77b736e137f650fc5774798932bf58470441b0583f6e2e5e727a408b302be0d6"
+    },
+    {
+      "created_at": "2026-10-01T16:40:32Z",
+      "digest": "sha256:7e717daf22ede66c0b5bc6b9a5a4015ecfca59b230a69e23381ec4722810534d",
+      "extracted_file_count": 2,
+      "id": 11178611616,
+      "local_zip_basename": "run99-public-surfaces.zip",
+      "name": "public-surfaces-36893609060-1",
+      "size_in_bytes": 36756,
+      "workflow_run_head_sha": "cfb966c1fa2f8f52c0dbed777a10af29688f535e",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "7e717daf22ede66c0b5bc6b9a5a4015ecfca59b230a69e23381ec4722810534d"
+    },
+    {
+      "created_at": "2026-10-01T16:40:27Z",
+      "digest": "sha256:3280a9c085d2a8e8d0d5df813555321a9d11babc9c437decfa3be464e303e7ee",
+      "extracted_file_count": 1,
+      "id": 11177672291,
+      "local_zip_basename": "run99-11177672291.zip",
+      "name": "reading-rail-36893609060-1",
+      "size_in_bytes": 15482,
+      "workflow_run_head_sha": "cfb966c1fa2f8f52c0dbed777a10af29688f535e",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "3280a9c085d2a8e8d0d5df813555321a9d11babc9c437decfa3be464e303e7ee"
+    },
+    {
+      "created_at": "2026-10-01T16:40:27Z",
+      "digest": "sha256:2492990ec89bd19154026ee529051601f742ea6ffaa346cd351b622385792529",
+      "extracted_file_count": 1,
+      "id": 11178930201,
+      "local_zip_basename": "run99-11178930201.zip",
+      "name": "windows-checkpoint_diagnostics-36893609060-1",
+      "size_in_bytes": 15485,
+      "workflow_run_head_sha": "cfb966c1fa2f8f52c0dbed777a10af29688f535e",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "2492990ec89bd19154026ee529051601f742ea6ffaa346cd351b622385792529"
+    },
+    {
+      "created_at": "2026-10-01T16:40:25Z",
+      "digest": "sha256:afd389134c62eb6e567d26da775dadf2490c7f91b49f9453bdb6dec38614a0bc",
+      "extracted_file_count": 1,
+      "id": 11177313086,
+      "local_zip_basename": "run99-11177313086.zip",
+      "name": "windows-dating-36893609060-1",
+      "size_in_bytes": 15486,
+      "workflow_run_head_sha": "cfb966c1fa2f8f52c0dbed777a10af29688f535e",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "afd389134c62eb6e567d26da775dadf2490c7f91b49f9453bdb6dec38614a0bc"
+    },
+    {
+      "created_at": "2026-10-01T16:40:23Z",
+      "digest": "sha256:3ead4d4c601290b3ff7866ded180207fd4370ffa8dbb9221f4c77825a86c0a77",
+      "extracted_file_count": 1,
+      "id": 11178371709,
+      "local_zip_basename": "run99-11178371709.zip",
+      "name": "windows-persistence-36893609060-1",
+      "size_in_bytes": 15483,
+      "workflow_run_head_sha": "cfb966c1fa2f8f52c0dbed777a10af29688f535e",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "3ead4d4c601290b3ff7866ded180207fd4370ffa8dbb9221f4c77825a86c0a77"
+    },
+    {
+      "created_at": "2026-10-01T16:40:21Z",
+      "digest": "sha256:6db8c3f92579c87204c245cdaa333df62cb908c3dad0fd693e4c09a17625a954",
+      "extracted_file_count": 1,
+      "id": 11179075138,
+      "local_zip_basename": "run99-11179075138.zip",
+      "name": "windows-reading_delivery-36893609060-1",
+      "size_in_bytes": 15480,
+      "workflow_run_head_sha": "cfb966c1fa2f8f52c0dbed777a10af29688f535e",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "6db8c3f92579c87204c245cdaa333df62cb908c3dad0fd693e4c09a17625a954"
+    },
+    {
+      "created_at": "2026-10-01T16:40:34Z",
+      "digest": "sha256:c1ef274725566ab366ff10acb1c4d9a5fc770d6d730db78b7a83e6f115c4461f",
+      "extracted_file_count": 1,
+      "id": 11179490076,
+      "local_zip_basename": "run99-11179490076.zip",
+      "name": "windows-settings-36893609060-1",
+      "size_in_bytes": 15481,
+      "workflow_run_head_sha": "cfb966c1fa2f8f52c0dbed777a10af29688f535e",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "c1ef274725566ab366ff10acb1c4d9a5fc770d6d730db78b7a83e6f115c4461f"
+    }
+  ],
+  "bundle": "dwm-run99-failed-diagnostic-evidence.tar.gz",
+  "counts": {
+    ".json": 6,
+    ".log": 19,
+    ".py": 2,
+    ".txt": 4
+  },
+  "evidence_kind": "failed-run-diagnostic-only",
+  "excluded_extracted_files": [
+    {
+      "bytes": 2467131,
+      "path": "run99/artifacts/cloud-speech-reading-rail-journey-36893609060-1/speech-dispatcher.log",
+      "provenance": {
+        "artifact_id": 11179320008,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "speech-dispatcher.log",
+        "zip_sha256": "77b736e137f650fc5774798932bf58470441b0583f6e2e5e727a408b302be0d6"
+      },
+      "reason": "Large native speech diagnostic omitted; job/capability receipts retain their bounded scope.",
+      "sha256": "a9b2ecc863fbc6146769a9202456b2e12d6a0ddc01cc8416e9e233d73af57bc7"
+    },
+    {
+      "bytes": 1032081,
+      "path": "run99/artifacts/cloud-speech-reading-rail-journey-36893609060-1/voices.txt",
+      "provenance": {
+        "artifact_id": 11179320008,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "voices.txt",
+        "zip_sha256": "77b736e137f650fc5774798932bf58470441b0583f6e2e5e727a408b302be0d6"
+      },
+      "reason": "Large native speech diagnostic omitted; job/capability receipts retain their bounded scope.",
+      "sha256": "a5a1e8f33fef802f2f4ff61cf5bc41930458df6168ef027817fa09fbcd8c6a5b"
+    }
+  ],
+  "excluded_metadata": "Transient download responses and artifact-manifest.json are omitted because they can contain signed URLs.",
+  "generic_audit_pass": false,
+  "limits": [
+    "DIAGNOSTIC ONLY: this failed run provides no passing test, behavior, fresh-process journey or acceptance claim.",
+    "No XML results are required or manufactured; any raw results that exist are retained as failure evidence.",
+    "Workflow head and pinned attempted source/checkout are recorded separately; checkout success does not imply the engine loaded the project.",
+    "Artifact bytes and raw logs are preserved without executing Godot or PowerShell locally.",
+    "Most PNGs and binary payloads are omitted, with explicit hashes/limits; reading PNGs and savebytes are retained.",
+    "This archive preserves evidence; packaging creates no additional engine or visual acceptance."
+  ],
+  "normalization": "lexicographic POSIX PAX members; mode0644 uid/gid0 empty owner names, mtime0; gzip mtime0, empty filename, level9",
+  "not_downloaded_artifacts": [],
+  "payload_bytes": 5137849,
+  "payload_file_count": 31,
+  "payload_files": [
+    {
+      "bytes": 7080,
+      "path": "run99/artifacts-api.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "40d4f9739e88975cd9eac4ce8f8b989888fa6bd00766dd7c214266379ce1f7c4"
+    },
+    {
+      "bytes": 102,
+      "path": "run99/artifacts/cloud-speech-reading-rail-journey-36893609060-1/dummy.log",
+      "provenance": {
+        "artifact_id": 11179320008,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "dummy.log",
+        "zip_sha256": "77b736e137f650fc5774798932bf58470441b0583f6e2e5e727a408b302be0d6"
+      },
+      "sha256": "a85c5d8911aac6e6663e7d9c5fa4b21f49c28bc607f95038b9b057e564a84929"
+    },
+    {
+      "bytes": 0,
+      "path": "run99/artifacts/cloud-speech-reading-rail-journey-36893609060-1/espeak-ng-mbrola.log",
+      "provenance": {
+        "artifact_id": 11179320008,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "espeak-ng-mbrola.log",
+        "zip_sha256": "77b736e137f650fc5774798932bf58470441b0583f6e2e5e727a408b302be0d6"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "run99/artifacts/cloud-speech-reading-rail-journey-36893609060-1/espeak-ng.log",
+      "provenance": {
+        "artifact_id": 11179320008,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "espeak-ng.log",
+        "zip_sha256": "77b736e137f650fc5774798932bf58470441b0583f6e2e5e727a408b302be0d6"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 35,
+      "path": "run99/artifacts/cloud-speech-reading-rail-journey-36893609060-1/modules.txt",
+      "provenance": {
+        "artifact_id": 11179320008,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "modules.txt",
+        "zip_sha256": "77b736e137f650fc5774798932bf58470441b0583f6e2e5e727a408b302be0d6"
+      },
+      "sha256": "b86d382d34ae1c2f6c4e9aa4c3bb589ebd1796d93df2942f8ff79e7952480fde"
+    },
+    {
+      "bytes": 13,
+      "path": "run99/artifacts/cloud-speech-reading-rail-journey-36893609060-1/openjtalk.log",
+      "provenance": {
+        "artifact_id": 11179320008,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "openjtalk.log",
+        "zip_sha256": "77b736e137f650fc5774798932bf58470441b0583f6e2e5e727a408b302be0d6"
+      },
+      "sha256": "13da6708a2d9f8e382e8e2bc393abf852bcb30a763ea0f29c22bc162fd082ddb"
+    },
+    {
+      "bytes": 468,
+      "path": "run99/artifacts/cloud-speech-reading-rail-journey-36893609060-1/pulseaudio.log",
+      "provenance": {
+        "artifact_id": 11179320008,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "pulseaudio.log",
+        "zip_sha256": "77b736e137f650fc5774798932bf58470441b0583f6e2e5e727a408b302be0d6"
+      },
+      "sha256": "c63f15cc507374ff6c7e1db5f9f532488b0d4b6d4502e7c7c0b37ffe87ae00e6"
+    },
+    {
+      "bytes": 3,
+      "path": "run99/artifacts/cloud-speech-reading-rail-journey-36893609060-1/sink-module.txt",
+      "provenance": {
+        "artifact_id": 11179320008,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "sink-module.txt",
+        "zip_sha256": "77b736e137f650fc5774798932bf58470441b0583f6e2e5e727a408b302be0d6"
+      },
+      "sha256": "a9742eb8ee320e006666aef25ae9aeed948247f3125c9cafa7cf97b7e7467dd5"
+    },
+    {
+      "bytes": 51,
+      "path": "run99/artifacts/cloud-speech-reading-rail-journey-36893609060-1/sinks.txt",
+      "provenance": {
+        "artifact_id": 11179320008,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "sinks.txt",
+        "zip_sha256": "77b736e137f650fc5774798932bf58470441b0583f6e2e5e727a408b302be0d6"
+      },
+      "sha256": "25a5ed750656366bc54b565a5487a37e58d9bed55dcef226f10a3b5c4668f5dc"
+    },
+    {
+      "bytes": 0,
+      "path": "run99/artifacts/cloud-speech-reading-rail-journey-36893609060-1/voices-attempt-1.stderr.txt",
+      "provenance": {
+        "artifact_id": 11179320008,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "voices-attempt-1.stderr.txt",
+        "zip_sha256": "77b736e137f650fc5774798932bf58470441b0583f6e2e5e727a408b302be0d6"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 203627,
+      "path": "run99/artifacts/public-surfaces-36893609060-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11178611616,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "7e717daf22ede66c0b5bc6b9a5a4015ecfca59b230a69e23381ec4722810534d"
+      },
+      "sha256": "3096c1cb4466a0f780ffe47ed05c6265787725054f42d0262e0bb801b6db1472"
+    },
+    {
+      "bytes": 219506,
+      "path": "run99/artifacts/public-surfaces-36893609060-1/ci/public-surfaces/fixture-version-census.json",
+      "provenance": {
+        "artifact_id": 11178611616,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/fixture-version-census.json",
+        "zip_sha256": "7e717daf22ede66c0b5bc6b9a5a4015ecfca59b230a69e23381ec4722810534d"
+      },
+      "sha256": "2780a0dedfc3995886534f51e69f8b1eafdf8a4b4d49ee60dd2766d3a2a52cf5"
+    },
+    {
+      "bytes": 203627,
+      "path": "run99/artifacts/reading-rail-36893609060-1/import.log",
+      "provenance": {
+        "artifact_id": 11177672291,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "import.log",
+        "zip_sha256": "3280a9c085d2a8e8d0d5df813555321a9d11babc9c437decfa3be464e303e7ee"
+      },
+      "sha256": "7b56573261ac540c11eec371dcb6322f98d7ee11a94f1c817891e53bf724b436"
+    },
+    {
+      "bytes": 203627,
+      "path": "run99/artifacts/windows-checkpoint_diagnostics-36893609060-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11178930201,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "2492990ec89bd19154026ee529051601f742ea6ffaa346cd351b622385792529"
+      },
+      "sha256": "1219a57b6ef224d10afa19dce066bdcd1c94dd891ee300bd7e776275165619ad"
+    },
+    {
+      "bytes": 203627,
+      "path": "run99/artifacts/windows-dating-36893609060-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11177313086,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "afd389134c62eb6e567d26da775dadf2490c7f91b49f9453bdb6dec38614a0bc"
+      },
+      "sha256": "41a0251cdf478f06a3b4fdb162caa4641b1f7eac351e1c1fb784d89de06c39be"
+    },
+    {
+      "bytes": 203627,
+      "path": "run99/artifacts/windows-persistence-36893609060-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11178371709,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "3ead4d4c601290b3ff7866ded180207fd4370ffa8dbb9221f4c77825a86c0a77"
+      },
+      "sha256": "bd2191c66b173383cbc9f2de0bf7458842807a4da9f89b54720e5619868f2efa"
+    },
+    {
+      "bytes": 203627,
+      "path": "run99/artifacts/windows-reading_delivery-36893609060-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11179075138,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "6db8c3f92579c87204c245cdaa333df62cb908c3dad0fd693e4c09a17625a954"
+      },
+      "sha256": "259747360c347c5a3b9e929eb39acb766633bb1ec40cdf87a333bf032c69ec2b"
+    },
+    {
+      "bytes": 203627,
+      "path": "run99/artifacts/windows-settings-36893609060-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11179490076,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "c1ef274725566ab366ff10acb1c4d9a5fc770d6d730db78b7a83e6f115c4461f"
+      },
+      "sha256": "bf541d5d799e8b544a4030dca00dd7e837997cdf74341957c6e6ccc2e5b23252"
+    },
+    {
+      "bytes": 5336,
+      "path": "run99/audit/audit_import_failure.py",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "740141a17ed043ca69df320b01743033598eaf9d54faf3ee97106e0195a51487"
+    },
+    {
+      "bytes": 37771,
+      "path": "run99/audit/cloud_evidence.py",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "3440b1b4a4fa4daef96abd084dde74873bd84f69ec7d604916cc5f99ac190756"
+    },
+    {
+      "bytes": 21353,
+      "path": "run99/audit/diagnostic-evidence.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "a999e081b27a0cef04b5537d45305fef98bccc25654ed1376b956e4475bc63d7"
+    },
+    {
+      "bytes": 6743,
+      "path": "run99/audit/import-failure-diagnosis.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "5d47a02c5f59be77741746c7f789960b85a21030aaf2f9cd4db2090febfb1c26"
+    },
+    {
+      "bytes": 27377,
+      "path": "run99/jobs.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "9f12fdbf71ce00b5a7e5fe80e1a16aa70bcc325a27def95f5d0375ff5a2e3448"
+    },
+    {
+      "bytes": 667908,
+      "path": "run99/logs/110474995169.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "73eebc81cb940f5ea20566d2e224e93ef0b152e4db41b04e5ce3cdebceaeeee2"
+    },
+    {
+      "bytes": 487368,
+      "path": "run99/logs/110474995457.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "1064159e01a20d239189ea25981e7233b8bc2b7f52a23d55765cb225c053e0d2"
+    },
+    {
+      "bytes": 443708,
+      "path": "run99/logs/110474995640.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "687f740723f0fd360e1f6c222c43437c4d6449e2b29edaa79bf00ab43d64af79"
+    },
+    {
+      "bytes": 443741,
+      "path": "run99/logs/110474995695.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "daef8672e05f996e6536b0f1c431205b107793dee0a38e4b085e5bf8e1d910e1"
+    },
+    {
+      "bytes": 443740,
+      "path": "run99/logs/110474995820.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "e8e9ae365727597c763d1c2b77c3e6b5d5f481f89f241a628bbe8453a528c31b"
+    },
+    {
+      "bytes": 443679,
+      "path": "run99/logs/110474995906.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "ade750b805b784196c4261d97b583524930861525546bbe744e1b3703ff6191d"
+    },
+    {
+      "bytes": 443688,
+      "path": "run99/logs/110474995922.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "2c2dcf300dcf7f98d6fec0d21d2f33a97c3be303dda5323c79f7d9b83648d1b3"
+    },
+    {
+      "bytes": 12790,
+      "path": "run99/run.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "27e2b4a81f08a8ebf47e3f91f5d3b4a743460afc18cc6938e53d8d37cc79e7f3"
+    }
+  ],
+  "run": {
+    "conclusion": "failure",
+    "event": "push",
+    "head_branch": "codex/exact-witness-cloud-20261002",
+    "head_sha": "cfb966c1fa2f8f52c0dbed777a10af29688f535e",
+    "html_url": "https://github.com/Siuuuers/dwm/actions/runs/36893609060",
+    "id": 36893609060,
+    "run_attempt": 1,
+    "run_number": 99,
+    "status": "completed"
+  },
+  "schema_version": 1,
+  "secret_scan_patterns": [
+    "github_token",
+    "signed_query",
+    "authorization_secret",
+    "private_key"
+  ],
+  "source_boundary": {
+    "all_unlisted_paths_byte_identical": true,
+    "checkout_parents": [
+      "b2bde83e7f6b4a669c40c07c5d45d9e775228f07"
+    ],
+    "explicit_allowed_difference_patterns": [],
+    "master": null,
+    "source": "8ae8a0ba7369546a1d9da02cbfcd371008ce3009",
+    "source_checkout_differences": [],
+    "tested_checkout": "8ae8a0ba7369546a1d9da02cbfcd371008ce3009"
+  }
+}

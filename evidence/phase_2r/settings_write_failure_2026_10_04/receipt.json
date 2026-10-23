@@ -1,0 +1,2000 @@
+{
+  "schema_version": 1,
+  "scope": "bounded_settings_write_failure",
+  "status": "accepted_bounded",
+  "source_commit": "07492163071a6dbe24d881b7c7fe17f7a3236be7",
+  "tested_merge": "635e833cb345fa12089f0a3b795ef0d49dd5e6aa",
+  "tested_parents": [
+    "dded76aee2e85aeea94f65218de043b1f4fdce7b",
+    "07492163071a6dbe24d881b7c7fe17f7a3236be7"
+  ],
+  "workflow": {
+    "run_id": 37215097884,
+    "run_number": 157,
+    "attempt": 1,
+    "url": "https://github.com/Siuuuers/dwm/actions/runs/37215097884",
+    "engine": "Godot 4.6.3 standard GDScript",
+    "execution": "GitHub Actions only; Windows PowerShell plus existing Linux rendered regressions",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs_passed": 26,
+    "completed_at": "2026-10-04T16:38:55Z",
+    "jobs": [
+      {
+        "id": 111473883952,
+        "name": "Windows / public API surface contracts",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "conclusion": "success"
+          },
+          {
+            "name": "Record fixture and schema version census",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Import project",
+            "conclusion": "success"
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "conclusion": "success"
+          },
+          {
+            "name": "Verify native caption discovery and Normal Accept",
+            "conclusion": "success"
+          },
+          {
+            "name": "Verify isolated runner contracts and timeout diagnostics",
+            "conclusion": "success"
+          },
+          {
+            "name": "Verify committed public inventories without regeneration",
+            "conclusion": "success"
+          },
+          {
+            "name": "Verify public inventory drift and read-only contracts",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload canonical inventories and retirement evidence",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 111474761208,
+        "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Godot and software display",
+            "conclusion": "success"
+          },
+          {
+            "name": "Start and verify native Linux speech service",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload native speech environment evidence",
+            "conclusion": "success"
+          },
+          {
+            "name": "Import project",
+            "conclusion": "success"
+          },
+          {
+            "name": "Exercise complete rendered journeys in fresh isolated profiles",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload journey reports, logs and screenshots",
+            "conclusion": "success"
+          },
+          {
+            "name": "Exercise real Solo reading Save and fresh-process Load",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload Solo reading reports, exact save bytes and screenshots",
+            "conclusion": "success"
+          },
+          {
+            "name": "Exercise authored Solo selectors through physical Save and fresh-process Load",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload authored Solo selector reports, exact save bytes and screenshots",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 111474761266,
+        "name": "Windows / exported release startup",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Import project",
+            "conclusion": "success"
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache pinned export templates",
+            "conclusion": "success"
+          },
+          {
+            "name": "Download verified Godot export templates",
+            "conclusion": "success"
+          },
+          {
+            "name": "Retain verified export templates for subsequent runs",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Export and launch isolated Windows executable",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload Windows validation build and evidence",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 111474761268,
+        "name": "Rendered desktop and dialogue / Linux software OpenGL",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Godot and software display",
+            "conclusion": "success"
+          },
+          {
+            "name": "Start and verify native Linux speech service",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload native speech environment evidence",
+            "conclusion": "success"
+          },
+          {
+            "name": "Import project",
+            "conclusion": "success"
+          },
+          {
+            "name": "Render and verify desktop scaling",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload rendered evidence",
+            "conclusion": "success"
+          },
+          {
+            "name": "Render and verify delivery and dialogue",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload delivery and dialogue evidence",
+            "conclusion": "success"
+          },
+          {
+            "name": "Render and verify Angela stat overlay",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload Angela stat overlay evidence",
+            "conclusion": "success"
+          },
+          {
+            "name": "Validate Japanese and Korean catalogs",
+            "conclusion": "success"
+          },
+          {
+            "name": "Render and verify Japanese and Korean UI",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload Japanese and Korean UI evidence",
+            "conclusion": "success"
+          },
+          {
+            "name": "Render and verify font choices",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload font-choice evidence",
+            "conclusion": "success"
+          },
+          {
+            "name": "Verify rendered startup and Logout consent",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload rendered startup and Logout evidence",
+            "conclusion": "success"
+          },
+          {
+            "name": "Audit all UI literal ownership",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload UI literal audit evidence",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 111474761283,
+        "name": "Rendered Hospital / manual command refusal and saved-fixture restore",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Godot and software display",
+            "conclusion": "success"
+          },
+          {
+            "name": "Start and verify native Linux speech service",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload native speech environment evidence",
+            "conclusion": "success"
+          },
+          {
+            "name": "Import project",
+            "conclusion": "success"
+          },
+          {
+            "name": "Exercise Hospital manual refusal and test-only saved-fixture restore",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload Hospital reading reports, exact save bytes and screenshots",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 111474761291,
+        "name": "Rendered captionless timed hold / Pause and fresh-input continuation",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Godot and software display",
+            "conclusion": "success"
+          },
+          {
+            "name": "Start and verify native Linux speech service",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload native speech environment evidence",
+            "conclusion": "success"
+          },
+          {
+            "name": "Import project",
+            "conclusion": "success"
+          },
+          {
+            "name": "Exercise captionless native hold Pause and fresh-input continuation",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload timed hold raw traces, process logs, reports and captures",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 111474761299,
+        "name": "Windows / seven-day retained history producer",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Import project",
+            "conclusion": "success"
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "conclusion": "success"
+          },
+          {
+            "name": "Measure seven days and saturated retained history",
+            "conclusion": "success"
+          },
+          {
+            "name": "Record Day7 consumer input provenance",
+            "conclusion": "success"
+          },
+          {
+            "name": "Share verified Day7 consumer inputs",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload seven-day history evidence",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 111474761307,
+        "name": "Windows / paired checkpoint performance",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Import project",
+            "conclusion": "success"
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "conclusion": "success"
+          },
+          {
+            "name": "Measure localized journeys and matched payloads",
+            "conclusion": "success"
+          },
+          {
+            "name": "Share current localized payloads",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload paired performance evidence",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 111474761316,
+        "name": "Rendered ordered ending / physical boundary and exact fresh Load",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Godot and software display",
+            "conclusion": "success"
+          },
+          {
+            "name": "Start and verify native Linux speech service",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload native speech environment evidence",
+            "conclusion": "success"
+          },
+          {
+            "name": "Import project",
+            "conclusion": "success"
+          },
+          {
+            "name": "Exercise two-step ending History, Save and fresh Load",
+            "conclusion": "success"
+          },
+          {
+            "name": "Verify Auto continuity across the manual nonfinal ending seam",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload ending reading reports, exact save bytes and screenshots",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 111474761441,
+        "name": "Windows / minesweeper",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Import project",
+            "conclusion": "success"
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run focused regression suite",
+            "conclusion": "success"
+          },
+          {
+            "name": "Render Settings uncertain-write journey",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Upload logs and test results",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 111474761502,
+        "name": "Windows / localization",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Import project",
+            "conclusion": "success"
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run focused regression suite",
+            "conclusion": "success"
+          },
+          {
+            "name": "Render Settings uncertain-write journey",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Upload logs and test results",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 111474761507,
+        "name": "Windows / dating",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Import project",
+            "conclusion": "success"
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run focused regression suite",
+            "conclusion": "success"
+          },
+          {
+            "name": "Render Settings uncertain-write journey",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Upload logs and test results",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 111474761521,
+        "name": "Windows / new_account",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Import project",
+            "conclusion": "success"
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run focused regression suite",
+            "conclusion": "success"
+          },
+          {
+            "name": "Render Settings uncertain-write journey",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Upload logs and test results",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 111474761530,
+        "name": "Windows / reading_delivery",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Import project",
+            "conclusion": "success"
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run focused regression suite",
+            "conclusion": "success"
+          },
+          {
+            "name": "Render Settings uncertain-write journey",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Upload logs and test results",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 111474761546,
+        "name": "Windows / persistence",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Import project",
+            "conclusion": "success"
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run focused regression suite",
+            "conclusion": "success"
+          },
+          {
+            "name": "Render Settings uncertain-write journey",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Upload logs and test results",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 111474761549,
+        "name": "Windows / settings",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Import project",
+            "conclusion": "success"
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run focused regression suite",
+            "conclusion": "success"
+          },
+          {
+            "name": "Render Settings uncertain-write journey",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload logs and test results",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 111474761552,
+        "name": "Windows / shop",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Import project",
+            "conclusion": "success"
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run focused regression suite",
+            "conclusion": "success"
+          },
+          {
+            "name": "Render Settings uncertain-write journey",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Upload logs and test results",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 111474761556,
+        "name": "Windows / endings",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Import project",
+            "conclusion": "success"
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run focused regression suite",
+            "conclusion": "success"
+          },
+          {
+            "name": "Render Settings uncertain-write journey",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Upload logs and test results",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 111474761565,
+        "name": "Windows / checkpoint_diagnostics",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Import project",
+            "conclusion": "success"
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run focused regression suite",
+            "conclusion": "success"
+          },
+          {
+            "name": "Render Settings uncertain-write journey",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Upload logs and test results",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 111474761597,
+        "name": "Windows / audio",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Import project",
+            "conclusion": "success"
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run focused regression suite",
+            "conclusion": "success"
+          },
+          {
+            "name": "Render Settings uncertain-write journey",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Upload logs and test results",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 111474761725,
+        "name": "Windows / desktop",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Import project",
+            "conclusion": "success"
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run focused regression suite",
+            "conclusion": "success"
+          },
+          {
+            "name": "Render Settings uncertain-write journey",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Upload logs and test results",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 111477722357,
+        "name": "Windows / warm-outgoing-proof comparison",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Import project",
+            "conclusion": "success"
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "conclusion": "success"
+          },
+          {
+            "name": "Download exact Day7 producer inputs",
+            "conclusion": "success"
+          },
+          {
+            "name": "Verify Day7 checkout, run, attempt, hashes and recovered identity",
+            "conclusion": "success"
+          },
+          {
+            "name": "Download current localized payloads for outgoing comparison",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Run isolated retained-history comparison",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload comparison raw evidence and input provenance",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 111477722359,
+        "name": "Windows / outgoing-normalization comparison",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Import project",
+            "conclusion": "success"
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "conclusion": "success"
+          },
+          {
+            "name": "Download exact Day7 producer inputs",
+            "conclusion": "success"
+          },
+          {
+            "name": "Verify Day7 checkout, run, attempt, hashes and recovered identity",
+            "conclusion": "success"
+          },
+          {
+            "name": "Download current localized payloads for outgoing comparison",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run isolated retained-history comparison",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload comparison raw evidence and input provenance",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 111477722393,
+        "name": "Windows / lazy-normalization comparison",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Import project",
+            "conclusion": "success"
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "conclusion": "success"
+          },
+          {
+            "name": "Download exact Day7 producer inputs",
+            "conclusion": "success"
+          },
+          {
+            "name": "Verify Day7 checkout, run, attempt, hashes and recovered identity",
+            "conclusion": "success"
+          },
+          {
+            "name": "Download current localized payloads for outgoing comparison",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Run isolated retained-history comparison",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload comparison raw evidence and input provenance",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 111477722412,
+        "name": "Windows / history-region-search comparison",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Import project",
+            "conclusion": "success"
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "conclusion": "success"
+          },
+          {
+            "name": "Download exact Day7 producer inputs",
+            "conclusion": "success"
+          },
+          {
+            "name": "Verify Day7 checkout, run, attempt, hashes and recovered identity",
+            "conclusion": "success"
+          },
+          {
+            "name": "Download current localized payloads for outgoing comparison",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Run isolated retained-history comparison",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload comparison raw evidence and input provenance",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 111480993629,
+        "name": "Windows / seven-day retained history",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Require the Day7 producer and all four comparison jobs",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      }
+    ]
+  },
+  "outcome": "Truthful determinate/indeterminate Settings write reporting, retained custody and canonical mutation fences; existing output compensation preserved.",
+  "runtime_owners": {
+    "persistence": "existing ProfileManager signal and mutation fence, unchanged",
+    "presentation": "SettingsContent",
+    "hosts": [
+      "Setting (Title)",
+      "SettingsApp (Desktop/Pause)"
+    ],
+    "output": "existing SettingsOutputTransactions, unchanged",
+    "recovery": "existing presentation-only WitnessedTransportRecovery no-Retry/no-Cancel mode; no live reconciliation/unlock"
+  },
+  "scope_exclusions": [
+    "external system repair",
+    "forced restart",
+    "new live recovery or Retry/unlatch",
+    "Profile/save/History schema changes",
+    "closure of whole Settings Bead"
+  ],
+  "primary_tests": {
+    "reports": 13,
+    "executions": 2606,
+    "unique_classname_name": 2602,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "deliberate_duplicate_executions": 4,
+    "settings_cases": 361,
+    "shared_host_cases": 12,
+    "new_failure_cases": 4,
+    "accounting": "test-accounting.json",
+    "raw_reports": "test-reports.zip"
+  },
+  "negative_controls": {
+    "included_in_primary": false,
+    "cases_per_control": 83,
+    "expected_failures_per_control": 80,
+    "controls": [
+      "empty storage root",
+      "whitespace storage root"
+    ],
+    "cloud_marker": "STORAGE_REFUSAL_VERIFIED: empty and whitespace roots refused without repository mutations.",
+    "manual_witness_storage_marker": "MANUAL_WITNESS_REVISION_STORAGE_PASS"
+  },
+  "visual_review": {
+    "captures": 3,
+    "reviewed_by": [
+      "root",
+      "independent audit agent"
+    ],
+    "locale": "en",
+    "text_percent": 100,
+    "palette": "AfterHours Standard",
+    "font": "fusion-pixel-8px-proportional-latin.otf.woff2",
+    "native_pixels": [
+      640,
+      360
+    ],
+    "logical_size": [
+      1280,
+      720
+    ],
+    "settings_workfield": [
+      480,
+      64,
+      800,
+      656
+    ],
+    "input": "Godot Viewport key events; not OS UIA",
+    "fault": "persistent marker cleanup refusal in deterministic in-memory FileOps through JsonFileStorage",
+    "message": "Unable to confirm whether the change was saved. Further changes and leaving Settings are unavailable.",
+    "findings": [
+      "Uncertainty panel is readable inside Settings and offers no Retry/Cancel",
+      "Repeated input/departure leaves uncertainty image byte-identical",
+      "FileOps count64 before and after repeated input; live Profile and persisted artifacts unchanged"
+    ],
+    "limitations": [
+      "Before capture does not display its offscreen focused checkbox; no visible-target navigation acceptance",
+      "No production native audio/device, filesystem outage or restart recovery acceptance",
+      "No new full multilingual/scale tuple matrix for this message",
+      "Broader rendered jobs checked through successful steps, not renewed visual inspection of every capture",
+      "Audio integration uses FakeAudioPlaybackPort runtime snapshots; no new native-device compensation acceptance"
+    ],
+    "measurements": "settings-shared-measurements.json",
+    "log": "render.log"
+  },
+  "audits": {
+    "independent_source_caller_test_review": true,
+    "inventory": "Run154 generated existing caller line coordinates only; final Run157 strict outputs exactly match committed files",
+    "ui_literals": {
+      "script_sources": 319,
+      "script_records": 330,
+      "scene_sources": 31,
+      "scene_records": 51,
+      "failures": [],
+      "raw": "ui-literal-audit.zip"
+    },
+    "independent_xml_and_visual_review": true,
+    "record_consistency_review": true
+  },
+  "evidence_files": [
+    {
+      "path": "en-100-AfterHours-standard-failure-before.png",
+      "sha256": "6bd38a5e44cd907e5eb67960cdc8867aa785766ede1f2285e425872e42b3206f",
+      "size": 11540
+    },
+    {
+      "path": "failure-refused.png",
+      "sha256": "0eaefdad82811b6b76f5304d3a28acf75f258afffca4946171003134b788b281",
+      "size": 10571
+    },
+    {
+      "path": "failure-uncertain.png",
+      "sha256": "0eaefdad82811b6b76f5304d3a28acf75f258afffca4946171003134b788b281",
+      "size": 10571
+    },
+    {
+      "path": "render.log",
+      "sha256": "64d30ba25c32a6d6f0ca8346771352f140c46a2f424bddd97ee3eb040cfbed04",
+      "size": 643
+    },
+    {
+      "path": "settings-shared-measurements.json",
+      "sha256": "eaaf862efef8850bd402075fd3cb52483a2ef7b575a2ab4cdad855a98c863098",
+      "size": 10726
+    },
+    {
+      "path": "source-hashes.json",
+      "sha256": "4f4b3a0427963f6f4afec13e210ae05bcecf1bc052e8ba0a2dfca10b533be03a",
+      "size": 3276
+    },
+    {
+      "path": "test-accounting.json",
+      "sha256": "7a067bbaa44f86bbc5f5162021f5ee6c998e629439514ac1d501afa503160cde",
+      "size": 7769
+    },
+    {
+      "path": "test-reports.zip",
+      "sha256": "8eeb4ed3db6c59539db197f1563778ac6da7fbd40235c3acc231d971b7b3b44d",
+      "size": 104547
+    },
+    {
+      "path": "ui-literal-audit.zip",
+      "sha256": "5c0d36622548adb9439f006d983cb332ff49aefd11ee40d0a305db74d655ade9",
+      "size": 29073
+    }
+  ],
+  "source_manifest": "source-hashes.json",
+  "published_source_blobs_verified": true,
+  "retention": {
+    "mirrored": "13 primary XMLs, both negative-control XMLs, three Settings PNGs, measurements/render log, UI literal audit ZIP, source hashes and accounting committed alongside receipt",
+    "not_mirrored": "Complete original workflow artifact archives and unrelated rendered captures; artifact metadata/hashes retained",
+    "original_artifact_retention_days": 7
+  },
+  "beads": {
+    "id": "dwm-eei.2",
+    "status": "open",
+    "total_records": 191,
+    "unfinished_records": 23,
+    "live_dolt_updated": false,
+    "dependencies_changed": false
+  },
+  "publication": "Evidence/navigation/retained-Bead descendant is records only and is not independently engine-tested.",
+  "artifact_integrity": "All 13 downloaded primary artifact ZIP SHA-256 digests match GitHub metadata; UI literal audit ZIP retained separately.",
+  "accepted_at_utc": "2026-10-04T16:40:33.359Z",
+  "artifacts": [
+    {
+      "id": 11309090986,
+      "name": "lazy-normalization-37215097884-1",
+      "size_bytes": 49469,
+      "sha256": "1428315da0915623a6358693f703f185783e1cd74d9517c0b41d470a8118b173",
+      "created_at": "2026-10-04T16:24:52Z",
+      "expires_at": "2026-10-11T16:24:51Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11309090986"
+    },
+    {
+      "id": 11308910057,
+      "name": "windows-dating-37215097884-1",
+      "size_bytes": 587832,
+      "sha256": "dfc3afa1b806a099d049bef3e0df56ea88103995b2bc96feeb83b2e5c0a3ee40",
+      "created_at": "2026-10-04T16:07:19Z",
+      "expires_at": "2026-10-11T16:07:18Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11308910057"
+    },
+    {
+      "id": 11308885051,
+      "name": "desktop-scaling-render-37215097884-1",
+      "size_bytes": 11243324,
+      "sha256": "2eda3e61d2c10ca501e1afaf5e4e72438b285dea876d02df76c7aee2ef55ed10",
+      "created_at": "2026-10-04T16:06:48Z",
+      "expires_at": "2026-10-11T16:06:46Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11308885051"
+    },
+    {
+      "id": 11308845448,
+      "name": "playable-startup-render-37215097884-1",
+      "size_bytes": 1049991,
+      "sha256": "e876c82bf56fb8435b4ec73c8d7d65eba8376741fcd68f881ef223cd2494dd5b",
+      "created_at": "2026-10-04T16:09:12Z",
+      "expires_at": "2026-10-11T16:09:11Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11308845448"
+    },
+    {
+      "id": 11308826655,
+      "name": "seven-day-history-37215097884-1",
+      "size_bytes": 314442,
+      "sha256": "2c71008f5aea633767caf6538029140a58192fa27e55713d960ed7e1421e15c5",
+      "created_at": "2026-10-04T16:20:35Z",
+      "expires_at": "2026-10-11T16:20:34Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11308826655"
+    },
+    {
+      "id": 11308820081,
+      "name": "cloud-speech-rendered-ending-reading-37215097884-1",
+      "size_bytes": 385512,
+      "sha256": "d62743b7fbce1094087f24bfaed6bcdae012824ce171a460ce507d093231796c",
+      "created_at": "2026-10-04T16:05:32Z",
+      "expires_at": "2026-10-11T16:05:31Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11308820081"
+    },
+    {
+      "id": 11308790420,
+      "name": "playable-journeys-37215097884-1",
+      "size_bytes": 9923873,
+      "sha256": "9bcabc0fe6338aef3a3ac1181e8e89b3f44b539ee9b1e3dc547d5ba4c62ec095",
+      "created_at": "2026-10-04T16:07:15Z",
+      "expires_at": "2026-10-11T16:07:14Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11308790420"
+    },
+    {
+      "id": 11308782971,
+      "name": "history-region-search-37215097884-1",
+      "size_bytes": 126080,
+      "sha256": "bc2084039aa99a6a5a5e00dbc4dacb079361ac0e003c663698caac518581e8ca",
+      "created_at": "2026-10-04T16:32:49Z",
+      "expires_at": "2026-10-11T16:32:49Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11308782971"
+    },
+    {
+      "id": 11308760310,
+      "name": "cloud-speech-rendered-hospital-reading-37215097884-1",
+      "size_bytes": 386932,
+      "sha256": "ef1447c4e38dabc8bf0c6963d5835dfd72b775fb3442af4113d42bc041b15143",
+      "created_at": "2026-10-04T16:05:39Z",
+      "expires_at": "2026-10-11T16:05:38Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11308760310"
+    },
+    {
+      "id": 11308755320,
+      "name": "windows-export-37215097884-1",
+      "size_bytes": 98895478,
+      "sha256": "7ed15c9c5cad9a0928f39826190cfc4e979eed64492a6cb7aa8234faaf8b2881",
+      "created_at": "2026-10-04T16:06:37Z",
+      "expires_at": "2026-10-11T16:06:33Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11308755320"
+    },
+    {
+      "id": 11308720481,
+      "name": "ending-reading-37215097884-1",
+      "size_bytes": 13394521,
+      "sha256": "97e3ca510617b6303dbc7f0395423465a3b91f594691a263b9050fbad95863a7",
+      "created_at": "2026-10-04T16:07:02Z",
+      "expires_at": "2026-10-11T16:07:01Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11308720481"
+    },
+    {
+      "id": 11308720279,
+      "name": "cloud-speech-rendered-timed-hold-37215097884-1",
+      "size_bytes": 386334,
+      "sha256": "56c68ddf8e3fd27a3ea09b3a8ea98a9d6f30888549ba9fb5d495f020c80b6219",
+      "created_at": "2026-10-04T16:05:08Z",
+      "expires_at": "2026-10-11T16:05:07Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11308720279"
+    },
+    {
+      "id": 11308700132,
+      "name": "windows-minesweeper-37215097884-1",
+      "size_bytes": 166686,
+      "sha256": "307bf567edd43a2f3ae5641a13d355d2423c154d55c3ec740bd148d7495300bf",
+      "created_at": "2026-10-04T16:07:04Z",
+      "expires_at": "2026-10-11T16:07:04Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11308700132"
+    },
+    {
+      "id": 11308677233,
+      "name": "outgoing-normalization-37215097884-1",
+      "size_bytes": 24944,
+      "sha256": "6458ffab6d94535cd45e7ce3d452f2f0404e1c2c408d15d21fd3311d09b0df35",
+      "created_at": "2026-10-04T16:23:22Z",
+      "expires_at": "2026-10-11T16:23:21Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11308677233"
+    },
+    {
+      "id": 11308615645,
+      "name": "windows-checkpoint_diagnostics-37215097884-1",
+      "size_bytes": 603031,
+      "sha256": "6837e6f414c4c0e4e050f3b627129571ee5027183e9f043c21713af982f490a9",
+      "created_at": "2026-10-04T16:06:15Z",
+      "expires_at": "2026-10-11T16:06:13Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11308615645"
+    },
+    {
+      "id": 11308600678,
+      "name": "windows-endings-37215097884-1",
+      "size_bytes": 75263,
+      "sha256": "fdafc41dc22cfdeaf140a63ba7b099ec47e576ea6a9a2d58957b5139a679dc22",
+      "created_at": "2026-10-04T16:06:15Z",
+      "expires_at": "2026-10-11T16:06:14Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11308600678"
+    },
+    {
+      "id": 11308575888,
+      "name": "japanese-korean-ui-render-37215097884-1",
+      "size_bytes": 7065568,
+      "sha256": "21713f33f905defe3fe0a04916ee1a666f71cbbb7c5f031a414f212605c4788b",
+      "created_at": "2026-10-04T16:08:18Z",
+      "expires_at": "2026-10-11T16:08:16Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11308575888"
+    },
+    {
+      "id": 11308561184,
+      "name": "ui-literal-audit-37215097884-1",
+      "size_bytes": 29073,
+      "sha256": "5c0d36622548adb9439f006d983cb332ff49aefd11ee40d0a305db74d655ade9",
+      "created_at": "2026-10-04T16:09:23Z",
+      "expires_at": "2026-10-11T16:09:22Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11308561184"
+    },
+    {
+      "id": 11308531091,
+      "name": "windows-desktop-37215097884-1",
+      "size_bytes": 293081,
+      "sha256": "740cf74826d5d0a596d8d7de5ab6919a4b4a388cc199a310986f7a486e80ea64",
+      "created_at": "2026-10-04T16:07:41Z",
+      "expires_at": "2026-10-11T16:07:39Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11308531091"
+    },
+    {
+      "id": 11308517474,
+      "name": "seven-day-inputs-37215097884",
+      "size_bytes": 80678,
+      "sha256": "6ba67e3fd92ba5cf1de67aef863b8316933d3907d6ad72fbc8bd0796b5c93719",
+      "created_at": "2026-10-04T16:20:34Z",
+      "expires_at": "2026-10-11T16:20:33Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11308517474"
+    },
+    {
+      "id": 11308510891,
+      "name": "public-surfaces-37215097884-1",
+      "size_bytes": 190045,
+      "sha256": "2ae85aa1a4d622c31f15340a3a2d5b5c933303d51f5b25069866104bc868ab82",
+      "created_at": "2026-10-04T16:04:20Z",
+      "expires_at": "2026-10-11T16:04:19Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11308510891"
+    },
+    {
+      "id": 11308456469,
+      "name": "windows-localization-37215097884-1",
+      "size_bytes": 376415,
+      "sha256": "fe22809dde3225c5e6c40c530f5ef2f16ea33f7e3c19bc0a6d82e812938577f7",
+      "created_at": "2026-10-04T16:06:54Z",
+      "expires_at": "2026-10-11T16:06:54Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11308456469"
+    },
+    {
+      "id": 11308391657,
+      "name": "windows-new_account-37215097884-1",
+      "size_bytes": 238847,
+      "sha256": "0a3c7705c091aec99fbcb12286cb19ba8477b323c96d60404d855f223ec13add",
+      "created_at": "2026-10-04T16:06:31Z",
+      "expires_at": "2026-10-11T16:06:30Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11308391657"
+    },
+    {
+      "id": 11308381131,
+      "name": "hospital-reading-37215097884-1",
+      "size_bytes": 10139891,
+      "sha256": "a0f4d8deb6b6745dac54041f9eb9a2e5454b4b15c4ca6077febda3ddd8d1ef1f",
+      "created_at": "2026-10-04T16:08:22Z",
+      "expires_at": "2026-10-11T16:08:20Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11308381131"
+    },
+    {
+      "id": 11308373483,
+      "name": "warm-outgoing-proof-37215097884-1",
+      "size_bytes": 463369,
+      "sha256": "042ab44c9291cd9b79373698ffbe105fc77e785163202592db380501339a912a",
+      "created_at": "2026-10-04T16:38:45Z",
+      "expires_at": "2026-10-11T16:38:44Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11308373483"
+    },
+    {
+      "id": 11308276253,
+      "name": "windows-shop-37215097884-1",
+      "size_bytes": 65629,
+      "sha256": "3b984d02a4a93628f7548ebc4c38fdba953fca430fc27e6e7050123eeda34a61",
+      "created_at": "2026-10-04T16:05:42Z",
+      "expires_at": "2026-10-11T16:05:41Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11308276253"
+    },
+    {
+      "id": 11308146492,
+      "name": "timed-hold-37215097884-1",
+      "size_bytes": 6803745,
+      "sha256": "69485a28ba2bfd91f6b1800600fe8faca3bc1e5ae97d8c258bfc70d4caf26866",
+      "created_at": "2026-10-04T16:06:02Z",
+      "expires_at": "2026-10-11T16:06:02Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11308146492"
+    },
+    {
+      "id": 11307968788,
+      "name": "checkpoint-performance-37215097884-1",
+      "size_bytes": 155447,
+      "sha256": "97f36d1adc27c5ee55f3d884c73133a35358a7dc6f311487af358e8c3eaabf64",
+      "created_at": "2026-10-04T16:08:44Z",
+      "expires_at": "2026-10-11T16:08:43Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11307968788"
+    },
+    {
+      "id": 11307922896,
+      "name": "windows-settings-37215097884-1",
+      "size_bytes": 3093754,
+      "sha256": "e4280864a8dfedb479a5e3d11278f9e41ff8cbd2688a64b503cb99ece37ea687",
+      "created_at": "2026-10-04T16:09:41Z",
+      "expires_at": "2026-10-11T16:09:40Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11307922896"
+    },
+    {
+      "id": 11307902818,
+      "name": "reading-rail-37215097884-1",
+      "size_bytes": 11548711,
+      "sha256": "d51ea629ebc9bc2cebc59927a20ff8a496d7bb918f4024e1b5ea790c8d27701e",
+      "created_at": "2026-10-04T16:09:23Z",
+      "expires_at": "2026-10-11T16:09:22Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11307902818"
+    },
+    {
+      "id": 11307899266,
+      "name": "angela-overlay-render-37215097884-1",
+      "size_bytes": 2834600,
+      "sha256": "6194b4b5f79372ea4912589188eabada082f302504428168f5db3edcdd71c8cf",
+      "created_at": "2026-10-04T16:07:45Z",
+      "expires_at": "2026-10-11T16:07:43Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11307899266"
+    },
+    {
+      "id": 11307877924,
+      "name": "windows-reading_delivery-37215097884-1",
+      "size_bytes": 310342,
+      "sha256": "38337fad165a2302abeb7352c889ae2fe15c1721053b13fc316d1cef2aa408ec",
+      "created_at": "2026-10-04T16:08:39Z",
+      "expires_at": "2026-10-11T16:08:38Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11307877924"
+    },
+    {
+      "id": 11307839699,
+      "name": "solo-authored-selector-37215097884-1",
+      "size_bytes": 7013800,
+      "sha256": "55cdd19f37cd9dce0b0787d277f7908b7bc3aae3ce7cde92761f14037845f653",
+      "created_at": "2026-10-04T16:09:52Z",
+      "expires_at": "2026-10-11T16:09:50Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11307839699"
+    },
+    {
+      "id": 11307829397,
+      "name": "cloud-speech-rendered-journeys-37215097884-1",
+      "size_bytes": 384794,
+      "sha256": "4c0c7f6d9403ca4269deac51c6ec3c8aafc443efb9ef9aba35f05d9f77422eb7",
+      "created_at": "2026-10-04T16:05:19Z",
+      "expires_at": "2026-10-11T16:05:18Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11307829397"
+    },
+    {
+      "id": 11307804403,
+      "name": "windows-persistence-37215097884-1",
+      "size_bytes": 199730,
+      "sha256": "03a4469fc99e4c7a4fcbf121561ff10ec7e364c5cc8e550be76b6fc4e966e9ca",
+      "created_at": "2026-10-04T16:06:29Z",
+      "expires_at": "2026-10-11T16:06:29Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11307804403"
+    },
+    {
+      "id": 11307774710,
+      "name": "font-choices-render-37215097884-1",
+      "size_bytes": 6337038,
+      "sha256": "7c89a1860c75747bd6d769b980ed66cb7817977d5312d149b0f03e0214138f39",
+      "created_at": "2026-10-04T16:08:58Z",
+      "expires_at": "2026-10-11T16:08:57Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11307774710"
+    },
+    {
+      "id": 11307769807,
+      "name": "checkpoint-payloads-37215097884",
+      "size_bytes": 52049,
+      "sha256": "a731752d7a19cb8462069ab54add7f3a072e39b3ba6e7463cf1d2eae9f116c41",
+      "created_at": "2026-10-04T16:08:43Z",
+      "expires_at": "2026-10-11T16:08:43Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11307769807"
+    },
+    {
+      "id": 11307754770,
+      "name": "delivery-dialogue-render-37215097884-1",
+      "size_bytes": 15210214,
+      "sha256": "9fab7d501ed000ca4bf355dc05b10a366eeaa9ded30be20cf43c655161ba8eec",
+      "created_at": "2026-10-04T16:07:30Z",
+      "expires_at": "2026-10-11T16:07:28Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11307754770"
+    },
+    {
+      "id": 11307289099,
+      "name": "cloud-speech-rendered-desktop-37215097884-1",
+      "size_bytes": 386783,
+      "sha256": "06a05bbc5d1f36f6adc7803a05fa210cb00f89935346b702a24401ee6736503f",
+      "created_at": "2026-10-04T16:05:29Z",
+      "expires_at": "2026-10-11T16:05:27Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11307289099"
+    },
+    {
+      "id": 11307284125,
+      "name": "windows-audio-37215097884-1",
+      "size_bytes": 22440,
+      "sha256": "8d6e43384dc9db15bd75b34c5eb4967e7b9a482180ea662543b8dbb88f7041fc",
+      "created_at": "2026-10-04T16:05:45Z",
+      "expires_at": "2026-10-11T16:05:44Z",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11307284125"
+    }
+  ],
+  "master_verified": "dded76aee2e85aeea94f65218de043b1f4fdce7b"
+}

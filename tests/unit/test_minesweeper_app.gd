@@ -152,14 +152,19 @@ func test_prepared_lifecycle_commits_before_visibility_changes() -> void:
 	assert_signal_emit_count(_app,"window_hidden",1)
 	assert_true(_port.commands.is_empty())
 
-func test_owner_refusal_keeps_visible_window_and_emits_no_hidden_signal() -> void:
+func test_owner_refusal_keeps_visible_window_and_information_overlay_without_hidden_signal() -> void:
 	_show()
+	_app.panel.dock.buttons.rules.pressed.emit()
+	var sheet: Control = _app.panel.worksheet.information_sheet
+	assert_not_null(sheet)
 	_port.refused = true
 	watch_signals(_app)
 	assert_false(_app.prepare_return_home().ok)
 	assert_true(_app.visible)
 	_app.hide_window()
 	assert_true(_app.visible,"A direct hide cannot bypass a refused suspension.")
+	assert_same(_app.panel.worksheet.information_sheet, sheet)
+	assert_true(sheet.is_visible_in_tree())
 	assert_signal_emit_count(_app,"window_hidden",0)
 	assert_true(_port.commands.is_empty())
 
@@ -186,7 +191,7 @@ func test_missing_foreground_publication_blocks_old_facts_until_a_valid_refresh(
 	assert_true(_app.refresh_view().ok)
 	assert_true(_app.can_return_home())
 
-func test_rules_and_assignments_block_home_and_escape_closes_only_the_sheet() -> void:
+func test_rules_and_assignments_allow_home_and_escape_closes_only_the_sheet() -> void:
 	_show()
 	watch_signals(_app)
 	for action: String in ["rules","assignments"]:
@@ -194,10 +199,8 @@ func test_rules_and_assignments_block_home_and_escape_closes_only_the_sheet() ->
 		source.grab_focus()
 		source.pressed.emit()
 		assert_not_null(_app.panel.worksheet.information_sheet)
-		assert_false(_app.can_return_home())
-		var before: int = _port.lifecycle.size()
-		assert_false(_app.prepare_return_home().ok)
-		assert_eq(_port.lifecycle.size(),before,"A local sheet consumes Home before any lifecycle command.")
+		assert_true(_app.can_return_home())
+		assert_false(_home.disabled)
 		_key(KEY_ESCAPE)
 		_key(KEY_ESCAPE,false)
 		assert_null(_app.panel.worksheet.information_sheet)
@@ -205,6 +208,19 @@ func test_rules_and_assignments_block_home_and_escape_closes_only_the_sheet() ->
 		assert_true(source.has_focus())
 		assert_true(_app.can_return_home())
 		assert_signal_emit_count(_app,"window_hidden",0)
+	assert_true(_port.commands.is_empty())
+	_app.panel.dock.buttons.assignments.pressed.emit()
+	var sheet: Control = _app.panel.worksheet.information_sheet
+	var before: int = _port.lifecycle.size()
+	assert_true(_app.prepare_return_home().ok)
+	assert_eq(_port.lifecycle.size(),before+1,"Home from information still uses the authoritative suspension path.")
+	assert_null(_app.panel.worksheet.information_sheet)
+	assert_null(sheet.get_parent())
+	_app.hide_window()
+	assert_false(_app.visible)
+	_show()
+	assert_null(_app.panel.worksheet.information_sheet, "Reopening Home's parked app cannot resurrect the old overlay.")
+	assert_true(_app.panel.worksheet.grid.is_visible_in_tree())
 	assert_true(_port.commands.is_empty())
 
 func test_reopening_retains_mode_semantic_cell_manual_pan_and_focus() -> void:
@@ -256,7 +272,7 @@ func test_locale_and_profile_signals_apply_real_font_preferences_without_resetti
 	var before: Dictionary = _app.panel.public_view.duplicate(true)
 	var lifecycle_before: int = _port.lifecycle.size()
 	_profile.change("preferences.accessibility.font_scale",1.25)
-	assert_eq(_app.panel.dock.buttons.rules.theme.default_font_size,25)
+	assert_eq(_app.panel.dock.buttons.rules.theme.default_font_size,30)
 	_profile.change("preferences.accessibility.large_click_targets",true)
 	assert_eq(_app.panel.worksheet.grid.cell_nodes[0].size,Vector2(64,64))
 	_locale.change("zh-HK")
@@ -265,7 +281,12 @@ func test_locale_and_profile_signals_apply_real_font_preferences_without_resetti
 	_profile.change("preferences.accessibility.large_targets",true)
 	_profile.change("preferences.accessibility.font_scale",1.0)
 	_profile.change("preferences.accessibility.large_click_targets",false)
-	assert_eq(_app.panel.dock.buttons.rules.theme.default_font_size,30,"Canonical text size wins over legacy font scale.")
+	assert_eq(_app.panel.dock.buttons.rules.theme.default_font_size,36,"Canonical text size wins over legacy font scale.")
+	_profile.change("preferences.accessibility.font_style","readable")
+	assert_eq(_app.panel.dock.buttons.rules.theme.default_font_size,30)
+	assert_same(_app.panel.worksheet.theme.default_font,preload("res://scripts/ui/UiTypography.gd").font("zh-HK",150,"readable"))
+	_profile.change("preferences.accessibility.font_style","pixel")
+	assert_eq(_app.panel.dock.buttons.rules.theme.default_font_size,36)
 	assert_eq(_app.panel.worksheet.grid.cell_nodes[0].size,Vector2(64,64),"Canonical targets win over the legacy preference.")
 	assert_eq(_app.panel.worksheet.grid.mode,&"flag")
 	assert_eq(_app.panel.worksheet.grid.focused_index,200)
@@ -338,7 +359,7 @@ func test_invalid_accessibility_preference_keeps_last_valid_theme_and_public_fac
 	assert_signal_emit_count(_app,"recovery_requested",2)
 	assert_true(_port.commands.is_empty())
 
-func test_palette_change_with_open_sheet_retains_sheet_focus_scroll_and_home_block() -> void:
+func test_palette_change_with_open_sheet_retains_sheet_focus_scroll_and_home_access() -> void:
 	_show()
 	_profile.change("preferences.accessibility.text_size",150)
 	_profile.change("preferences.accessibility.large_targets",true)
@@ -353,8 +374,8 @@ func test_palette_change_with_open_sheet_retains_sheet_focus_scroll_and_home_blo
 	assert_true(sheet.rail.has_focus())
 	assert_eq(sheet.get_theme_color("paper","Minesweeper"),Color("e9e2d0"))
 	assert_eq(sheet.return_button.get_theme_color("selected_plane","Minesweeper"),Color("acbecd"))
-	assert_true(_home.disabled)
-	assert_false(_app.can_return_home())
+	assert_false(_home.disabled)
+	assert_true(_app.can_return_home())
 	assert_eq(_app.panel.public_view,before)
 	assert_true(_port.commands.is_empty())
 

@@ -201,11 +201,15 @@ func test_later_sylvia_read_does_not_rewrite_the_frozen_hospital_cause() -> void
 func test_failed_admission_rolls_back_outbox_contacts_and_run_then_saves_one_ordered_plan() -> void:
 	var f := _fixture(false, true)
 	f.game.inter_friend_route_state.priscilla_lavinia.ending_eligible = true
-	f.game.route_context["observer_variant_by_scope"] = {"priscilla_lavinia": "full"}
 	var evidence: Dictionary = MASTERY_FIXTURE.profile_for_scope(f.game, "priscilla_lavinia")
 	assert_true(evidence.ok, str(evidence))
 	if not evidence.ok: return
 	autofree(evidence.value.profile)
+	# Pair Observer eligibility comes from durable witnessed forms, never a caller
+	# variant flag or the retired Observer interaction controls.
+	for form: String in ["ambiguous_sweet", "ambiguous_dark", "love_sweet", "love_dark"]:
+		assert_true(evidence.value.profile.record_pair_form_witness(form, "physical:" + form).ok)
+	assert_eq(evidence.value.profile.get_profile_snapshot().observer_evidence, {})
 	_bind(f)
 	var before: Dictionary = f.game.capture_restore_state().value.backup
 	var outbox_before: Dictionary = f.consequence.capture().value

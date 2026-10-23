@@ -1,0 +1,864 @@
+{
+  "record_kind": "read_only_pr_provenance_and_reconciliation_recommendation",
+  "final_candidate": "7c46453f879c5ce3599c18fecfa19176beee85f5",
+  "final_candidate_branch": "codex/final-integration-20261024",
+  "ancestry_proof": [
+    {
+      "base": "e5cf80a5417c05bd0bb7fa2f60f59e8905e839a6",
+      "status": "ahead",
+      "behind": 0,
+      "ahead": 11,
+      "merge_base": "e5cf80a5417c05bd0bb7fa2f60f59e8905e839a6"
+    },
+    {
+      "base": "894a9f2f2df65b5b87b0562ea1a2e7bc5fb5b1ef",
+      "status": "ahead",
+      "behind": 0,
+      "ahead": 706,
+      "merge_base": "894a9f2f2df65b5b87b0562ea1a2e7bc5fb5b1ef"
+    }
+  ],
+  "audited_pr52_head": "e5cf80a5417c05bd0bb7fa2f60f59e8905e839a6",
+  "preserved_master": "894a9f2f2df65b5b87b0562ea1a2e7bc5fb5b1ef",
+  "preserved_master_changes": [
+    ".github/workflows/steam-upload.yml",
+    "docs/steam/CLOUD_UPLOAD.md"
+  ],
+  "status_note": "No remote PR/branch mutation performed by this audit. Dispositions do not assert final CI acceptance or actual PR closure. Retain pinned historical branches rather than copying their archives into current source.",
+  "holds": [
+    "Production Notes catalogue/UI activation is not implied.",
+    "Schedule deletion and legacy-only assignment migration are not implied.",
+    "Historical scoped passes are not new final-source full-game acceptance.",
+    "Protect PR1/PR14 coordination and archive references; retain diagnostic PR30/PR50 refs.",
+    "Retain independent builds/windows-playable-20261023; do not merge binary delivery branch."
+  ],
+  "prs": [
+    {
+      "number": 1,
+      "title": "Improve desktop UX, dialogue reading, and New Account startup",
+      "head": "a6decec3693ee4d57df9f879b90ace3e118c9d1d",
+      "base_ref": "master",
+      "draft": true,
+      "head_ref": "codex/windows-cloud-ux",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/a6decec3693ee4d57df9f879b90ace3e118c9d1d",
+      "disposition": "exact_ancestor_protected_reference",
+      "recommendation": "No separate source merge; preserve coordination/archive branch and records.",
+      "ancestor_proof": {
+        "head": "a6decec3693ee4d57df9f879b90ace3e118c9d1d",
+        "merge_base": "a6decec3693ee4d57df9f879b90ace3e118c9d1d",
+        "ahead": 524,
+        "behind": 0
+      }
+    },
+    {
+      "number": 4,
+      "title": "Combine durable Gallery History exit and native caption review evidence",
+      "head": "85f29f832dfa627ec128a413922e0daf9dff69f5",
+      "base_ref": "codex/windows-cloud-ux",
+      "draft": true,
+      "head_ref": "codex/combined-history-native-20261006",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/85f29f832dfa627ec128a413922e0daf9dff69f5",
+      "disposition": "exact_ancestor",
+      "recommendation": "Included by ancestry; after final integration inspect automatic closure and reconcile metadata only.",
+      "ancestor_proof": {
+        "head": "85f29f832dfa627ec128a413922e0daf9dff69f5",
+        "merge_base": "85f29f832dfa627ec128a413922e0daf9dff69f5",
+        "ahead": 513,
+        "behind": 0
+      }
+    },
+    {
+      "number": 5,
+      "title": "Draft: measured Backup layout repair and exact-source fixture validation",
+      "head": "e5db010715c187cc775341d204391f527dc334ea",
+      "base_ref": "codex/windows-cloud-ux",
+      "draft": true,
+      "head_ref": "codex/final-fixture-repair-20261006",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/e5db010715c187cc775341d204391f527dc334ea",
+      "disposition": "exact_ancestor",
+      "recommendation": "Included by ancestry; after final integration inspect automatic closure and reconcile metadata only.",
+      "ancestor_proof": {
+        "head": "e5db010715c187cc775341d204391f527dc334ea",
+        "merge_base": "e5db010715c187cc775341d204391f527dc334ea",
+        "ahead": 502,
+        "behind": 0
+      }
+    },
+    {
+      "number": 6,
+      "title": "Scene-event contract foundation with retained-owner dispatch",
+      "head": "feb39dd0d72af169ccf640bf747b1e370f24f178",
+      "base_ref": "codex/final-fixture-repair-20261006",
+      "draft": true,
+      "head_ref": "codex/scene-event-foundation-20261007",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/feb39dd0d72af169ccf640bf747b1e370f24f178",
+      "disposition": "exact_ancestor",
+      "recommendation": "Included by ancestry; after final integration inspect automatic closure and reconcile metadata only.",
+      "ancestor_proof": {
+        "head": "feb39dd0d72af169ccf640bf747b1e370f24f178",
+        "merge_base": "feb39dd0d72af169ccf640bf747b1e370f24f178",
+        "ahead": 499,
+        "behind": 0
+      }
+    },
+    {
+      "number": 7,
+      "title": "Persist notification scene events through retained save and restore custody",
+      "head": "af9440207e0b0f7672c4b13eacd3aa904f4416f7",
+      "base_ref": "codex/scene-event-foundation-20261007",
+      "draft": true,
+      "head_ref": "codex/durable-scene-events-20261007",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/af9440207e0b0f7672c4b13eacd3aa904f4416f7",
+      "disposition": "exact_ancestor",
+      "recommendation": "Included by ancestry; after final integration inspect automatic closure and reconcile metadata only.",
+      "ancestor_proof": {
+        "head": "af9440207e0b0f7672c4b13eacd3aa904f4416f7",
+        "merge_base": "af9440207e0b0f7672c4b13eacd3aa904f4416f7",
+        "ahead": 486,
+        "behind": 0
+      }
+    },
+    {
+      "number": 8,
+      "title": "Add nonwired per-run Notes purchase rules and projection",
+      "head": "e7fbf747cf501f7010253af3d07f38fe3ea0c83c",
+      "base_ref": "codex/scene-event-foundation-20261007",
+      "draft": true,
+      "head_ref": "codex/notes-pure-rules-20261008",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/e7fbf747cf501f7010253af3d07f38fe3ea0c83c",
+      "disposition": "incorporated_with_later_evolution",
+      "recommendation": "Reconcile as superseded after final integration; preserve current owners, qualification limits and holds.",
+      "blob_comparison_source": "eb5a0e84439df3a22522b515d5777476831d7b62",
+      "blob_counts": {
+        "exact": 3,
+        "evolved": 2,
+        "retained_deletion": 0,
+        "missing": 0
+      }
+    },
+    {
+      "number": 9,
+      "title": "Adopt run Notes purchases through retained Shop and restore owners",
+      "head": "452ab34e39f6a3d6e91c4125954b092d9a499e87",
+      "base_ref": "codex/durable-scene-events-20261007",
+      "draft": true,
+      "head_ref": "codex/notes-purchase-adoption-20261008",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/452ab34e39f6a3d6e91c4125954b092d9a499e87",
+      "disposition": "incorporated_with_later_evolution",
+      "recommendation": "Reconcile as superseded after final integration; preserve current owners, qualification limits and holds.",
+      "blob_comparison_source": "eb5a0e84439df3a22522b515d5777476831d7b62",
+      "blob_counts": {
+        "exact": 9,
+        "evolved": 8,
+        "retained_deletion": 0,
+        "missing": 0
+      }
+    },
+    {
+      "number": 10,
+      "title": "Draft: retain Next at a durable notification marker",
+      "head": "ab33586a3e10aed1e853c6f3e9469022df2150b0",
+      "base_ref": "codex/durable-scene-events-20261007",
+      "draft": true,
+      "head_ref": "codex/scene-next-notification-20261008",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/ab33586a3e10aed1e853c6f3e9469022df2150b0",
+      "disposition": "exact_ancestor",
+      "recommendation": "Included by ancestry; after final integration inspect automatic closure and reconcile metadata only.",
+      "ancestor_proof": {
+        "head": "ab33586a3e10aed1e853c6f3e9469022df2150b0",
+        "merge_base": "ab33586a3e10aed1e853c6f3e9469022df2150b0",
+        "ahead": 463,
+        "behind": 0
+      }
+    },
+    {
+      "number": 11,
+      "title": "Add pure scene-day routing and strict registration validation",
+      "head": "544780814217bb7935c58b5a7b7f5885cc0f77ef",
+      "base_ref": "codex/durable-scene-events-20261007",
+      "draft": true,
+      "head_ref": "codex/scene-day-progression-20261008",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/544780814217bb7935c58b5a7b7f5885cc0f77ef",
+      "disposition": "exact_content_incorporated",
+      "recommendation": "Reconcile as incorporated after final integration; do not reapply source.",
+      "blob_comparison_source": "eb5a0e84439df3a22522b515d5777476831d7b62",
+      "blob_counts": {
+        "exact": 3,
+        "evolved": 0,
+        "retained_deletion": 0,
+        "missing": 0
+      }
+    },
+    {
+      "number": 12,
+      "title": "Retire stat HUD while preserving artwork and desktop divider",
+      "head": "5269dc80a1b66bebd49f13482ee5d13a0a986d98",
+      "base_ref": "codex/notes-purchase-adoption-20261008",
+      "draft": true,
+      "head_ref": "codex/hud-retirement-20261008",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/5269dc80a1b66bebd49f13482ee5d13a0a986d98",
+      "disposition": "incorporated_with_later_evolution",
+      "recommendation": "Reconcile as superseded after final integration; preserve current owners, qualification limits and holds.",
+      "blob_comparison_source": "eb5a0e84439df3a22522b515d5777476831d7b62",
+      "blob_counts": {
+        "exact": 10,
+        "evolved": 7,
+        "retained_deletion": 8,
+        "missing": 0
+      }
+    },
+    {
+      "number": 14,
+      "title": "Compose accepted scene foundation: marker, Notes, HUD and pure routing",
+      "head": "b37d662403398139fc2b1029853b236c334f59a0",
+      "base_ref": "codex/scene-next-notification-20261008",
+      "draft": true,
+      "head_ref": "codex/scene-foundation-combined-20261008",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/b37d662403398139fc2b1029853b236c334f59a0",
+      "disposition": "exact_ancestor_protected_reference",
+      "recommendation": "No separate source merge; preserve coordination/archive branch and records.",
+      "ancestor_proof": {
+        "head": "b37d662403398139fc2b1029853b236c334f59a0",
+        "merge_base": "b37d662403398139fc2b1029853b236c334f59a0",
+        "ahead": 461,
+        "behind": 0
+      }
+    },
+    {
+      "number": 16,
+      "title": "Add nonwired DTL scene registration and occurrence reading",
+      "head": "c8e07e4a1215097506d5483ee9d0d436e5b8021c",
+      "base_ref": "codex/scene-foundation-combined-20261008",
+      "draft": true,
+      "head_ref": "codex/dtl-reading-foundation-20261009",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/c8e07e4a1215097506d5483ee9d0d436e5b8021c",
+      "disposition": "exact_ancestor",
+      "recommendation": "Included by ancestry; after final integration inspect automatic closure and reconcile metadata only.",
+      "ancestor_proof": {
+        "head": "c8e07e4a1215097506d5483ee9d0d436e5b8021c",
+        "merge_base": "c8e07e4a1215097506d5483ee9d0d436e5b8021c",
+        "ahead": 457,
+        "behind": 0
+      }
+    },
+    {
+      "number": 17,
+      "title": "feat(scene): add nonwired DTL event and causal identity foundation",
+      "head": "08a2caa3108c625e890cf1a1c802d7529be6d54b",
+      "base_ref": "codex/scene-foundation-combined-20261008",
+      "draft": true,
+      "head_ref": "codex/dtl-event-identity-foundation-20261009",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/08a2caa3108c625e890cf1a1c802d7529be6d54b",
+      "disposition": "incorporated_with_later_evolution",
+      "recommendation": "Reconcile as superseded after final integration; preserve current owners, qualification limits and holds.",
+      "blob_comparison_source": "eb5a0e84439df3a22522b515d5777476831d7b62",
+      "blob_counts": {
+        "exact": 9,
+        "evolved": 3,
+        "retained_deletion": 0,
+        "missing": 0
+      }
+    },
+    {
+      "number": 18,
+      "title": "Compose nonwired DTL reading and identity foundations",
+      "head": "90a7319072a6c5c0703f093d16edf52e2cb04e73",
+      "base_ref": "codex/dtl-reading-foundation-20261009",
+      "draft": true,
+      "head_ref": "codex/dtl-foundations-combined-20261009",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/90a7319072a6c5c0703f093d16edf52e2cb04e73",
+      "disposition": "exact_ancestor",
+      "recommendation": "Included by ancestry; after final integration inspect automatic closure and reconcile metadata only.",
+      "ancestor_proof": {
+        "head": "90a7319072a6c5c0703f093d16edf52e2cb04e73",
+        "merge_base": "90a7319072a6c5c0703f093d16edf52e2cb04e73",
+        "ahead": 456,
+        "behind": 0
+      }
+    },
+    {
+      "number": 20,
+      "title": "Retain held scene custody through confirmed native replacement",
+      "head": "d2aacc316920a4198763b4835333b6535e601001",
+      "base_ref": "codex/dtl-foundations-combined-20261009",
+      "draft": true,
+      "head_ref": "codex/scene-held-source-reading-20261009",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/d2aacc316920a4198763b4835333b6535e601001",
+      "disposition": "exact_ancestor",
+      "recommendation": "Included by ancestry; after final integration inspect automatic closure and reconcile metadata only.",
+      "ancestor_proof": {
+        "head": "d2aacc316920a4198763b4835333b6535e601001",
+        "merge_base": "d2aacc316920a4198763b4835333b6535e601001",
+        "ahead": 453,
+        "behind": 0
+      }
+    },
+    {
+      "number": 22,
+      "title": "Scene Challenge attempt history and sealed checkpoint acknowledgement",
+      "head": "1185f44539c52b9e8085ef51743056f92ac704d1",
+      "base_ref": "codex/dtl-foundations-combined-20261009",
+      "draft": true,
+      "head_ref": "codex/scene-challenge-owner-20261009",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/1185f44539c52b9e8085ef51743056f92ac704d1",
+      "disposition": "incorporated_with_later_evolution",
+      "recommendation": "Reconcile as superseded after final integration; preserve current owners, qualification limits and holds.",
+      "blob_comparison_source": "eb5a0e84439df3a22522b515d5777476831d7b62",
+      "blob_counts": {
+        "exact": 2,
+        "evolved": 9,
+        "retained_deletion": 0,
+        "missing": 0
+      }
+    },
+    {
+      "number": 23,
+      "title": "Compose scene owners and prove real acknowledgement and read-only browsing",
+      "head": "4c6752829a412f82349fa546f0e022df7ff6e7ec",
+      "base_ref": "codex/scene-held-source-reading-20261009",
+      "draft": true,
+      "head_ref": "codex/scene-owners-combined-20261009",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/4c6752829a412f82349fa546f0e022df7ff6e7ec",
+      "disposition": "exact_ancestor",
+      "recommendation": "Included by ancestry; after final integration inspect automatic closure and reconcile metadata only.",
+      "ancestor_proof": {
+        "head": "4c6752829a412f82349fa546f0e022df7ff6e7ec",
+        "merge_base": "4c6752829a412f82349fa546f0e022df7ff6e7ec",
+        "ahead": 449,
+        "behind": 0
+      }
+    },
+    {
+      "number": 26,
+      "title": "Prepare disjoint board stat and Shop retirement for scene cutover",
+      "head": "45dc2df466d52f79a03bf2a4a640b1a160e8c257",
+      "base_ref": "codex/scene-owners-combined-20261009",
+      "draft": true,
+      "head_ref": "codex/scene-retirement-20261009",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/45dc2df466d52f79a03bf2a4a640b1a160e8c257",
+      "disposition": "incorporated_with_later_evolution",
+      "recommendation": "Reconcile as superseded after final integration; preserve current owners, qualification limits and holds.",
+      "blob_comparison_source": "eb5a0e84439df3a22522b515d5777476831d7b62",
+      "blob_counts": {
+        "exact": 17,
+        "evolved": 6,
+        "retained_deletion": 0,
+        "missing": 0
+      }
+    },
+    {
+      "number": 27,
+      "title": "WIP: scene restore durability, activation and F/G runtime composition",
+      "head": "3ae6d9138fb53c388380c78550cf6082eafc0ea3",
+      "base_ref": "codex/scene-owners-combined-20261009",
+      "draft": true,
+      "head_ref": "codex/scene-runtime-integration-20261009",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/3ae6d9138fb53c388380c78550cf6082eafc0ea3",
+      "disposition": "exact_ancestor",
+      "recommendation": "Included by ancestry; after final integration inspect automatic closure and reconcile metadata only.",
+      "ancestor_proof": {
+        "head": "3ae6d9138fb53c388380c78550cf6082eafc0ea3",
+        "merge_base": "3ae6d9138fb53c388380c78550cf6082eafc0ea3",
+        "ahead": 377,
+        "behind": 0
+      }
+    },
+    {
+      "number": 28,
+      "title": "Dependent scene owners and alternating New Run Profile assignments",
+      "head": "b29005cc989033092881942ddcd6203d0e1e07fb",
+      "base_ref": "codex/scene-owners-combined-20261009",
+      "draft": true,
+      "head_ref": "codex/scene-absence-contacts-20261009",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/b29005cc989033092881942ddcd6203d0e1e07fb",
+      "disposition": "incorporated_with_later_evolution",
+      "recommendation": "Reconcile as superseded after final integration; preserve current owners, qualification limits and holds.",
+      "blob_comparison_source": "eb5a0e84439df3a22522b515d5777476831d7b62",
+      "blob_counts": {
+        "exact": 7,
+        "evolved": 10,
+        "retained_deletion": 0,
+        "missing": 0
+      }
+    },
+    {
+      "number": 30,
+      "title": "Actions: pinned scene restore integration diagnostics",
+      "head": "7d96a2487821a35464ee7852ed495aba2e0b60c7",
+      "base_ref": "codex/scene-runtime-integration-20261009",
+      "draft": true,
+      "head_ref": "codex/scene-runtime-integration-controller-20261009",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/7d96a2487821a35464ee7852ed495aba2e0b60c7",
+      "disposition": "diagnostic_controller",
+      "recommendation": "Exclude from product merge; retain controller branch and evidence."
+    },
+    {
+      "number": 31,
+      "title": "C: explicit scene desktop navigation and ID-keyed launcher",
+      "head": "94f79da0c46e94a28155635b7a9d32c8471031fe",
+      "base_ref": "codex/scene-runtime-integration-20261009",
+      "draft": true,
+      "head_ref": "codex/scene-desktop-consumer-20261009",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/94f79da0c46e94a28155635b7a9d32c8471031fe",
+      "disposition": "incorporated_with_later_evolution",
+      "recommendation": "Reconcile as superseded after final integration; preserve current owners, qualification limits and holds.",
+      "blob_comparison_source": "eb5a0e84439df3a22522b515d5777476831d7b62",
+      "blob_counts": {
+        "exact": 2,
+        "evolved": 2,
+        "retained_deletion": 0,
+        "missing": 0
+      }
+    },
+    {
+      "number": 32,
+      "title": "C: explicit scene app presentation and mounted test handoff",
+      "head": "424e0a917e77c13c143088a1e018e01a8cac0c31",
+      "base_ref": "codex/scene-runtime-integration-20261009",
+      "draft": true,
+      "head_ref": "codex/scene-app-presentation-20261009",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/424e0a917e77c13c143088a1e018e01a8cac0c31",
+      "disposition": "incorporated_with_later_evolution",
+      "recommendation": "Reconcile as superseded after final integration; preserve current owners, qualification limits and holds.",
+      "blob_comparison_source": "eb5a0e84439df3a22522b515d5777476831d7b62",
+      "blob_counts": {
+        "exact": 21,
+        "evolved": 6,
+        "retained_deletion": 0,
+        "missing": 0
+      }
+    },
+    {
+      "number": 36,
+      "title": "Connect optional partner TEST fork with durable choice and fresh Load",
+      "head": "c8358870d3ece92d5f8cc7ba65aefe34a746be5c",
+      "base_ref": "codex/scene-runtime-integration-20261009",
+      "draft": true,
+      "head_ref": "codex/a-optional-challenge-20261015",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/c8358870d3ece92d5f8cc7ba65aefe34a746be5c",
+      "disposition": "exact_ancestor",
+      "recommendation": "Included by ancestry; after final integration inspect automatic closure and reconcile metadata only.",
+      "ancestor_proof": {
+        "head": "c8358870d3ece92d5f8cc7ba65aefe34a746be5c",
+        "merge_base": "c8358870d3ece92d5f8cc7ba65aefe34a746be5c",
+        "ahead": 225,
+        "behind": 0
+      }
+    },
+    {
+      "number": 37,
+      "title": "B: prepare replaceable partner-fork TEST content and interface handoff",
+      "head": "91824fbf5628959cc8a4c389660f140b8793a0a1",
+      "base_ref": "codex/scene-runtime-integration-20261009",
+      "draft": true,
+      "head_ref": "codex/b-partner-fork-template-20261015",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/91824fbf5628959cc8a4c389660f140b8793a0a1",
+      "disposition": "incorporated_with_later_evolution",
+      "recommendation": "Reconcile as superseded after final integration; preserve current owners, qualification limits and holds.",
+      "blob_comparison_source": "eb5a0e84439df3a22522b515d5777476831d7b62",
+      "blob_counts": {
+        "exact": 2,
+        "evolved": 1,
+        "retained_deletion": 0,
+        "missing": 0
+      }
+    },
+    {
+      "number": 38,
+      "title": "docs: reconcile current scene milestones and remaining work",
+      "head": "63e0738fbc786a8f8c7bd66e9f7b27f4e3ede5a9",
+      "base_ref": "codex/scene-runtime-integration-20261009",
+      "draft": true,
+      "head_ref": "codex/c-work-reconciliation-20261016",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/63e0738fbc786a8f8c7bd66e9f7b27f4e3ede5a9",
+      "disposition": "historical_documentation_not_incorporated",
+      "recommendation": "Preserve exact pinned branch/head; close only as historical/superseded, not wholly incorporated. Do not overwrite current handoff/report.md.",
+      "blob_comparison_source": "eb5a0e84439df3a22522b515d5777476831d7b62",
+      "blob_counts": {
+        "exact": 0,
+        "evolved": 1,
+        "retained_deletion": 0,
+        "missing": 1
+      },
+      "historical_records_not_in_current_tree": [
+        {
+          "path": "handoff/c-remaining-work-20261016.md",
+          "sha": "34478a3e3a2c260e73b86b7cccde0d7db9382ca7",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        }
+      ]
+    },
+    {
+      "number": 39,
+      "title": "B: prepare editable Day1 sequence with existing registration validation",
+      "head": "9db56fd4144de9be63615b4dbaad56bd8187beeb",
+      "base_ref": "codex/a-optional-challenge-20261015",
+      "draft": true,
+      "head_ref": "codex/b-scene-sequence-20261016",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/9db56fd4144de9be63615b4dbaad56bd8187beeb",
+      "disposition": "incorporated_with_later_evolution",
+      "recommendation": "Reconcile as superseded after final integration; preserve current owners, qualification limits and holds.",
+      "blob_comparison_source": "eb5a0e84439df3a22522b515d5777476831d7b62",
+      "blob_counts": {
+        "exact": 5,
+        "evolved": 4,
+        "retained_deletion": 0,
+        "missing": 0
+      }
+    },
+    {
+      "number": 40,
+      "title": "C: scene ending connection interface and connected TEST journey",
+      "head": "d45d12f52abc56c43f331d8ca1e83621265408c1",
+      "base_ref": "codex/a-optional-challenge-20261015",
+      "draft": true,
+      "head_ref": "codex/c-ending-connection-20261016",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/d45d12f52abc56c43f331d8ca1e83621265408c1",
+      "disposition": "exact_content_incorporated",
+      "recommendation": "Reconcile as incorporated after final integration; do not reapply source.",
+      "blob_comparison_source": "eb5a0e84439df3a22522b515d5777476831d7b62",
+      "blob_counts": {
+        "exact": 1,
+        "evolved": 0,
+        "retained_deletion": 0,
+        "missing": 0
+      }
+    },
+    {
+      "number": 42,
+      "title": "Integrate playable template source with consolidated master story",
+      "head": "e8ab9c99473a207e3a455a3fb1af1ceb05d182fb",
+      "base_ref": "master",
+      "draft": true,
+      "head_ref": "codex/playable-master-integration-20261023",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/e8ab9c99473a207e3a455a3fb1af1ceb05d182fb",
+      "disposition": "exact_ancestor",
+      "recommendation": "Included by ancestry; after final integration inspect automatic closure and reconcile metadata only.",
+      "ancestor_proof": {
+        "head": "e8ab9c99473a207e3a455a3fb1af1ceb05d182fb",
+        "merge_base": "e8ab9c99473a207e3a455a3fb1af1ceb05d182fb",
+        "ahead": 106,
+        "behind": 0
+      }
+    },
+    {
+      "number": 43,
+      "title": "Draft: adapt seven authored days into the playable story",
+      "head": "e2d1cd5c3500d2178fcbc483495010a1922d3f0f",
+      "base_ref": "codex/art-media-20261023",
+      "draft": true,
+      "head_ref": "codex/seven-day-story-20261023",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/e2d1cd5c3500d2178fcbc483495010a1922d3f0f",
+      "disposition": "implementation_superseded_unique_historical_records_retained",
+      "recommendation": "Preserve pinned branch/head and independent build branch; reconcile runtime as superseded, keeping historical export receipts at original source.",
+      "blob_comparison_source": "eb5a0e84439df3a22522b515d5777476831d7b62",
+      "blob_counts": {
+        "exact": 155,
+        "evolved": 16,
+        "retained_deletion": 0,
+        "missing": 27
+      },
+      "historical_records_not_in_current_tree": [
+        {
+          "path": "evidence/phase_2r/authored_week_20261023/windows-export/39842240751/artifact.json",
+          "sha": "07292e67ee0a7a70351bfc75eb77bd7347f8c46b",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        },
+        {
+          "path": "evidence/phase_2r/authored_week_20261023/windows-export/39842240751/import.log",
+          "sha": "6edcf2a6a15dd513c53da1592bc01d4232bc43e1",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        },
+        {
+          "path": "evidence/phase_2r/authored_week_20261023/windows-export/39842240751/source-custody.json",
+          "sha": "446eea4c130bbb1f27638cf0aca3b5b0b76479a3",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        },
+        {
+          "path": "evidence/phase_2r/authored_week_20261023/windows-export/39842240751/source-status.txt",
+          "sha": "571e9ee6c7a6d72ae122531df0e65071df405cf7",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        },
+        {
+          "path": "evidence/phase_2r/authored_week_20261023/windows-export/39842240751/source.json",
+          "sha": "32c04946234243bb36a0c3b3b7f60a30e36f7054",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        },
+        {
+          "path": "evidence/phase_2r/authored_week_20261023/windows-export/39842766427/SHA256SUMS.txt",
+          "sha": "2402e3561cedfb352f1d592ced58b44f1e234b8e",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        },
+        {
+          "path": "evidence/phase_2r/authored_week_20261023/windows-export/39842766427/artifact.json",
+          "sha": "9ea9eccd433308a9733a1f35d2af9e23a37c3340",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        },
+        {
+          "path": "evidence/phase_2r/authored_week_20261023/windows-export/39842766427/export-controller.log",
+          "sha": "bc9c27ded4cd5bd9e4910a77beaebb7b0db9cb65",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        },
+        {
+          "path": "evidence/phase_2r/authored_week_20261023/windows-export/39842766427/import.log",
+          "sha": "2cbeec5675071221f2047c4f0f27ccdfa2a3bc87",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        },
+        {
+          "path": "evidence/phase_2r/authored_week_20261023/windows-export/39842766427/source-custody.json",
+          "sha": "ec116172bb239a9e2c21e9321492065c5381a389",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        },
+        {
+          "path": "evidence/phase_2r/authored_week_20261023/windows-export/39842766427/source-status.txt",
+          "sha": "438c61d20c09c17cd59a044d046abe7969ddba43",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        },
+        {
+          "path": "evidence/phase_2r/authored_week_20261023/windows-export/39842766427/source.json",
+          "sha": "5bb83253843a3e3f139abf32e13375cbae0f4657",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        },
+        {
+          "path": "evidence/phase_2r/authored_week_20261023/windows-export/39842766427/validation.json",
+          "sha": "ee7d0ab7b5e8e7dbe042641405e9d5275595a902",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        },
+        {
+          "path": "evidence/phase_2r/authored_week_20261023/windows-export/39843283227/SHA256SUMS.txt",
+          "sha": "a0d9d14ac9679ea861d9597b09f9cc434a6b5fab",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        },
+        {
+          "path": "evidence/phase_2r/authored_week_20261023/windows-export/39843283227/artifact.json",
+          "sha": "0473ebd7cc14178ee3b0eeaece1c3a0801123ab1",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        },
+        {
+          "path": "evidence/phase_2r/authored_week_20261023/windows-export/39843283227/export-controller.log",
+          "sha": "02e2a158375336fdc3ea79c5c09121d36e181d30",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        },
+        {
+          "path": "evidence/phase_2r/authored_week_20261023/windows-export/39843283227/export.console.log",
+          "sha": "08d91b4b020319d6e18ab90766a39824fb606d5a",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        },
+        {
+          "path": "evidence/phase_2r/authored_week_20261023/windows-export/39843283227/import.log",
+          "sha": "9fdfc73e07670e64e64dfb24c48b91e1d929ac5b",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        },
+        {
+          "path": "evidence/phase_2r/authored_week_20261023/windows-export/39843283227/pack-audit.console.log",
+          "sha": "12187d3f9fc50e80aa7b72db72a9b6f3e1a097ab",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        },
+        {
+          "path": "evidence/phase_2r/authored_week_20261023/windows-export/39843283227/smoke.console.log",
+          "sha": "7b59ad22ec08576bd7d199c9cd89a28fa8a2a488",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        },
+        {
+          "path": "evidence/phase_2r/authored_week_20261023/windows-export/39843283227/source-custody.json",
+          "sha": "476a00f69e145b91523c54cc11c2187615a19ddb",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        },
+        {
+          "path": "evidence/phase_2r/authored_week_20261023/windows-export/39843283227/source-status.txt",
+          "sha": "c75030e4a8db9c7cf06aa471e1a16d0db7499bd0",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        },
+        {
+          "path": "evidence/phase_2r/authored_week_20261023/windows-export/39843283227/source.json",
+          "sha": "375ed7438f68ac4f68d9c8de873140069cec3b49",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        },
+        {
+          "path": "evidence/phase_2r/authored_week_20261023/windows-export/39843283227/validation.json",
+          "sha": "e1c29242868928e18deea659a7674e8d5ff117ce",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        },
+        {
+          "path": "evidence/phase_2r/authored_week_20261023/windows-export/39843770556/package-receipt.json",
+          "sha": "a0cc4ed3b788f46c24d2091a0714563e02b9af65",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        },
+        {
+          "path": "evidence/phase_2r/authored_week_20261023/windows-export/39843770556/publication-readback.json",
+          "sha": "23e439e082a45bb83b2f6bdb16199f84a56a2309",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        },
+        {
+          "path": "handoff/a-resume-20261023-authored-week.md",
+          "sha": "2f741556309d8491f69b949932468a71bbf97a2d",
+          "status": "added",
+          "current_blob": null,
+          "disposition": "missing"
+        }
+      ]
+    },
+    {
+      "number": 47,
+      "title": "test: qualify scene Shop and connected desktop apps",
+      "head": "a226f61115e739972df3ec7e7eca47a03b5bac13",
+      "base_ref": "codex/playable-master-integration-20261023",
+      "draft": true,
+      "head_ref": "codex/scene-shop-qualification-20261023",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/a226f61115e739972df3ec7e7eca47a03b5bac13",
+      "disposition": "exact_ancestor",
+      "recommendation": "Included by ancestry; after final integration inspect automatic closure and reconcile metadata only.",
+      "ancestor_proof": {
+        "head": "a226f61115e739972df3ec7e7eca47a03b5bac13",
+        "merge_base": "a226f61115e739972df3ec7e7eca47a03b5bac13",
+        "ahead": 76,
+        "behind": 0
+      }
+    },
+    {
+      "number": 49,
+      "title": "Fix scene Save normalization and fresh Load recovery; qualify same-day Supportz",
+      "head": "fe3d7614777f364010cb97c9ac94c075e181de7f",
+      "base_ref": "codex/scene-shop-qualification-20261023",
+      "draft": true,
+      "head_ref": "codex/cold-load-supportz-followup-20261023",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/fe3d7614777f364010cb97c9ac94c075e181de7f",
+      "disposition": "exact_ancestor",
+      "recommendation": "Included by ancestry; after final integration inspect automatic closure and reconcile metadata only.",
+      "ancestor_proof": {
+        "head": "fe3d7614777f364010cb97c9ac94c075e181de7f",
+        "merge_base": "fe3d7614777f364010cb97c9ac94c075e181de7f",
+        "ahead": 68,
+        "behind": 0
+      }
+    },
+    {
+      "number": 50,
+      "title": "Diagnostic controller: verified authored recovery, ending replay and Windows export",
+      "head": "7dab26a826b8fc2c5929625fe3d70d4d90c1ed84",
+      "base_ref": "codex/scene-apps-integrated-20261023",
+      "draft": true,
+      "head_ref": "codex/story-day-qualification-20261023",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/7dab26a826b8fc2c5929625fe3d70d4d90c1ed84",
+      "disposition": "diagnostic_controller",
+      "recommendation": "Exclude from product merge; retain controller branch and evidence."
+    },
+    {
+      "number": 51,
+      "title": "Integrate scene Apps with cold Load recovery and daily Supportz renewal",
+      "head": "328edfe082c84bd9f6ca0a9d45e6603e0902695c",
+      "base_ref": "codex/playable-master-integration-20261023",
+      "draft": true,
+      "head_ref": "codex/scene-apps-integrated-20261023",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/328edfe082c84bd9f6ca0a9d45e6603e0902695c",
+      "disposition": "exact_ancestor",
+      "recommendation": "Included by ancestry; after final integration inspect automatic closure and reconcile metadata only.",
+      "ancestor_proof": {
+        "head": "328edfe082c84bd9f6ca0a9d45e6603e0902695c",
+        "merge_base": "328edfe082c84bd9f6ca0a9d45e6603e0902695c",
+        "ahead": 58,
+        "behind": 0
+      }
+    },
+    {
+      "number": 52,
+      "title": "Integrate authored scene game and current Windows verification",
+      "head": "e5cf80a5417c05bd0bb7fa2f60f59e8905e839a6",
+      "base_ref": "master",
+      "draft": true,
+      "head_ref": "codex/authored-week-followup-20261023",
+      "repository": "Siuuuers/dwm",
+      "pinned_url": "https://github.com/Siuuuers/dwm/tree/e5cf80a5417c05bd0bb7fa2f60f59e8905e839a6",
+      "disposition": "consolidated_integration",
+      "recommendation": "Final acceptance and ancestry-preserving merge of final candidate remain required."
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "archive_bytes": 260381,
+  "archive_sha256": "3e5f07a1acb9ab333e720a8ec02613a12c0f00406cfe0c42871d4220344be131",
+  "manifest_members": 26,
+  "zip_members": 27,
+  "tests": 11,
+  "assertions": 352,
+  "clean_exits": 5,
+  "origin": {
+    "tree": "c7d83eedae64c67fabbde16b87bd3e902947bc08",
+    "candidate": "49807a69e6c9b491224813fe317c3859f4a0c11a",
+    "controller": "f5ad950df315d6ae954950a899922dc8c9afba13",
+    "base": "49807a69e6c9b491224813fe317c3859f4a0c11a"
+  },
+  "source_git_blobs": {
+    "tests/unit/tooling/test_public_surface_inventory.gd": "197a5d056b31b8177cf7f0f5b429557c99621de9",
+    "tools/testing/Invoke-PublicSurfaceValidation.ps1": "ad46c78cd5be9da80b650feae95b892d7798415d",
+    "tools/runtime/PublicSurfaceInventory.gd": "777def12ff04d624a5695908a0c03fd078052189",
+    "tools/runtime/generate_public_surface_inventory.gd": "38c227593a047a9812251f73d576482eb1a29306",
+    "evidence/phase_2r/runtime/save_manager_surface.json": "aa03d2542178025fcf6df384f22b21f2ca6a9e64",
+    "evidence/phase_2r/runtime/game_state_required_surface.json": "a0cccae3ef69f1616139db779f09f8b9b23e4920",
+    "evidence/phase_2r/runtime/game_state_surface.json": "8df3816c0bdcb14ebe73c2bcc42fd91d0f626b63",
+    "evidence/phase_2r/runtime/save_manager_required_surface.json": "798d3bda3830b1508da4f1ae8e45f0cc3861eb3d"
+  }
+}

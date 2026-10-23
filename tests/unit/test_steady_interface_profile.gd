@@ -99,6 +99,8 @@ func _historical_source(version: int) -> Dictionary:
 	var source := SCHEMA.make_defaults()
 	source.schema_version = version
 	source.preferences.accessibility.erase("steady_interface")
+	if version < 10: source.erase("witnessed_caption_variants")
+	if version < 9: source.erase("reached_presentation_chronology")
 	if version < 8:
 		for key: String in ["observer_evidence", "pair_deck_draws", "reached_presentations"]: source.erase(key)
 	if version < 6: source.erase("dating_attempts")

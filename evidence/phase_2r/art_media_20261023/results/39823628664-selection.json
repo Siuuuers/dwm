@@ -1,0 +1,119 @@
+{
+  "source": "96999b674dea4cdaabeb8f44e57caa7aad3cfdc9",
+  "sources": [
+    {
+      "path": "tests/integration/test_artwork_gallery.gd",
+      "blob": "1ab75d77c6bfe6792d405aa6e63da51afaf93336",
+      "sha256": "e5ca7f228fc40e3db2173f3303684aa50426d5a52bcc8088a6fd6df1d960bc04"
+    },
+    {
+      "path": "tests/unit/test_scene_audio_manifest.gd",
+      "blob": "d06eafca6890534e34ca274d7198f8bf48a90322",
+      "sha256": "884fb4948bc898c4ca6faa47eb4319c70356c6b18443a984554ef819a00812b4"
+    },
+    {
+      "path": "tests/unit/test_scene_audio_manager.gd",
+      "blob": "61677b9c57a686c631adeb26cab0770a42bd334a",
+      "sha256": "844be8ad4e84aa2e20da356706f41da49edfee7950992f6daf593d5e6f2d3c98"
+    },
+    {
+      "path": "tests/unit/test_template_music_assets.gd",
+      "blob": "5576e07fed5cc029e35cad780a1fb27e75305f96",
+      "sha256": "551fdbc033a34c973ec3b600645162feef9ad41abc0304f70c9120d5bbc2935b"
+    },
+    {
+      "path": "scripts/ui/gallery/ArtworkGallery.gd",
+      "blob": "9a07d664f303dfd6e287684924e1c1ac8d4b4a74",
+      "sha256": "b19731cc6dfe12005b3b6930d1bd4c2492a65851296e977764c64fa91a0c6754"
+    },
+    {
+      "path": "scripts/ui/GalleryScene.gd",
+      "blob": "3bf5fa223273107c8a605c1050dbe732c8e4ef82",
+      "sha256": "75737da50edb23c231951414a12b87b6238439e459b27b356ba46239a79870ca"
+    },
+    {
+      "path": "scripts/data/ArtManifest.gd",
+      "blob": "19d11bac3ad92bc7daf64f405ec37a25930a719c",
+      "sha256": "87383e8ac095e1efc4ae27a3dcd9e8958c0566e4921bc597bca4355e95911837"
+    },
+    {
+      "path": "scripts/ui/art/SceneArtView.gd",
+      "blob": "95aa7d8bde8c337da0087bdeac2a07206f804509",
+      "sha256": "62fbc8a634e4fc4d172cdad10ac5a08515dd8c0ba85ed4376015fde82e92c82a"
+    },
+    {
+      "path": "scripts/ui/witnessed/WitnessedCaptionLayer.gd",
+      "blob": "da021d70d34338d411768e10610d6ab4168fe058",
+      "sha256": "f1e155c87b2fc9f57ea4d026574476af0c8f612c5182b52d2146fa708cdf0828"
+    },
+    {
+      "path": "data/manifests/art_placements.json",
+      "blob": "bf8d57b5c6f011086903a3f30c7790d83230dbef",
+      "sha256": "52c8e5689c1c69c71167574a64b020b535296b764c0767c72c16e99034a6a9c5"
+    },
+    {
+      "path": "scripts/data/AudioManifest.gd",
+      "blob": "bb3d8800200a8e4afdf54d5ef41f61b3888f419b",
+      "sha256": "cfc288066f2901ef124cb410222ded414f4646f827ab6b36b849595f64257f81"
+    },
+    {
+      "path": "autoload/AudioManager.gd",
+      "blob": "fdc30a7498bba6953ac77b9aebb20b3f9bf529dd",
+      "sha256": "9f5b63ff79e7a32da478eb0bccb0d1d2950357e3a1903ad6701a0c931831859f"
+    },
+    {
+      "path": "tests/templates/seven_day/SevenDayTemplates.gd",
+      "blob": "e823de91ee65a2ee48ccf45dc1f6d2649fa6663f",
+      "sha256": "900bb73a560124bf1f6ece678b36e1d521b41a25c477e5f834459842f3a7f471"
+    },
+    {
+      "path": "audio/bgm/menu_theme.ogg",
+      "blob": "3a915940a3ae60687a263581d615108460576412",
+      "sha256": "97390a627b08151cc5c566e16dd1b3a34428f368e5b4651b9b282c58db179cd4"
+    },
+    {
+      "path": "audio/bgm/story_theme.ogg",
+      "blob": "3a915940a3ae60687a263581d615108460576412",
+      "sha256": "97390a627b08151cc5c566e16dd1b3a34428f368e5b4651b9b282c58db179cd4"
+    },
+    {
+      "path": "art/pictures/picture1.jpg",
+      "blob": "dcb16cf4c4fcad09b9a37a616b092df1f6d4b5e1",
+      "sha256": "0ab4f5ee6d21949af409fe2257fc0e1f87d4a34987a293df96bc6cd8d5c8488a"
+    },
+    {
+      "path": "art/pictures/picture2.jpg",
+      "blob": "9452140d264b1d190a0844564dc74e3a8f848d7c",
+      "sha256": "1d15d7bd7215d22c72f8b384784a02cc28cee8fee175a4084211254a591d1a36"
+    },
+    {
+      "path": "art/pictures/picture3.jpg",
+      "blob": "44a1084f88382e1993ed840f579060813b30fba5",
+      "sha256": "ab735a8a6e165a0ceb209ba60877ba0548ea67394bd89da6c813f5b89a320041"
+    },
+    {
+      "path": "art/pictures/picture4.jpg",
+      "blob": "f9bc4db83d4dd13003cdc9836630e956cf759828",
+      "sha256": "95d859be25f02e0ca2ad467b73950d4ec1405de7310fabba4b04356d5f2c78c0"
+    },
+    {
+      "path": "art/pictures/picture5.jpg",
+      "blob": "0c3060f6ce8e94a7ea2e92a21dd4d8005a98aaa1",
+      "sha256": "04b4606630f0043660e4751120b3d9c22394e21670a2f3e5c50806c3a5f6bedb"
+    }
+  ],
+  "scripts": [
+    "tests/integration/test_artwork_gallery.gd",
+    "tests/unit/test_scene_audio_manifest.gd",
+    "tests/unit/test_scene_audio_manager.gd",
+    "tests/unit/test_template_music_assets.gd"
+  ],
+  "runner_sha256": "1176341a756fb03743697858a2385bef97fe3c7faa0f077a9a0408bfcfdbafd5",
+  "isolation_sha256": "a8b5c2452ccd9bbf18e362f9b526efdf5af62ac4f95a0074a853a97dcc9bc76e",
+  "console_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+  "rendered": "Gallery only; three audio suites headless",
+  "child_timeout_seconds": 120,
+  "distinct_isolated_children": true,
+  "census": "exact source function names against JUnit; no fixed assertion count",
+  "scope": "five-picture Gallery, seven-day split art placement, and shared music manifest/runtime; not full-game acceptance"
+}

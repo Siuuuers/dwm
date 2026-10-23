@@ -1,0 +1,48 @@
+{
+  "source": "571d68cf9a50726a93054100360f0b8de8376f0b",
+  "tree": "604a5d96f9eedc7466e7f64f6085928fbac63402",
+  "passed": 25,
+  "assertions": 623,
+  "suites": [
+    {
+      "name": "terminal-load",
+      "passed": 1,
+      "assertions": 71
+    },
+    {
+      "name": "terminal-lifecycle",
+      "passed": 5,
+      "assertions": 120
+    },
+    {
+      "name": "terminal-presentation",
+      "passed": 6,
+      "assertions": 30
+    },
+    {
+      "name": "terminal-snapshot",
+      "passed": 2,
+      "assertions": 10
+    },
+    {
+      "name": "connected-create",
+      "passed": 1,
+      "assertions": 95
+    },
+    {
+      "name": "connected-load",
+      "passed": 1,
+      "assertions": 162
+    },
+    {
+      "name": "sequence-authoring",
+      "passed": 6,
+      "assertions": 68
+    },
+    {
+      "name": "seven-day-templates",
+      "passed": 3,
+      "assertions": 67
+    }
+  ]
+}

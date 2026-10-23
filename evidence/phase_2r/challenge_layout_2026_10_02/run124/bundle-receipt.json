@@ -1,0 +1,11 @@
+{
+  "archive": "cloud-layout-geometry-run124.tar.gz",
+  "archive_member_count": 84,
+  "bytes": 1691141,
+  "evidence_kind": "bounded-successful-run-audit",
+  "excluded_file_count": 21,
+  "manifest_sha256": "e355ce53d0e73fc1a8b2bed1b4b202b2f647b771cd8e6a99247a7cac3678dab5",
+  "payload_file_count": 82,
+  "round_trip_verified": true,
+  "sha256": "e728a01e419d6f6457362fe01556db423cb80b6b414bbee65291285b0087e5ae"
+}

@@ -7,8 +7,9 @@ const LOCALIZATION := preload("res://autoload/LocalizationManager.gd")
 const PROFILE := preload("res://autoload/ProfileManager.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const FILES := preload("res://tests/support/FakeFileOps.gd")
-const LEFTS := [0, 212, 426, 640, 852, 1066]
-const WIDTHS := [212, 214, 214, 212, 214, 214]
+const LEFTS := [0, 640, 852, 212, 426, 1066]
+const TOPS := [64, 0, 0, 64, 64, 0]
+const WIDTHS := [212, 212, 214, 214, 214, 214]
 const COPY := {
 	"en": ["History", "Skip", "Auto", "Save", "Load", "Next", "On", "Off"],
 	"zh-CN": ["\u5386\u53f2", "\u8df3\u8fc7", "\u81ea\u52a8", "\u4fdd\u5b58", "\u8bfb\u53d6", "\u4e0b\u4e00\u6b65", "\u5f00", "\u5173"],
@@ -61,22 +62,47 @@ func _has_load_contract(rail: Control) -> bool:
 	return false
 
 
-func test_six_controls_cover_the_exact_scaled_native_hit_rectangles() -> void:
+func test_commands_and_clock_use_separate_nonoverlapping_footer_rows() -> void:
 	var rail := _new_rail()
 	assert_true(rail.configure_presentation(CAPTION_THEME.build("en", 100, "AfterHours"), "en"))
 	add_child_autofree(rail)
-	assert_eq(rail.position, Vector2(0, 656))
-	assert_eq(rail.size, Vector2(1280, 64))
-	assert_eq(rail.get_child_count(), 6, "the rail contains only the six physical controls")
+	assert_eq(rail.position, Vector2(0, 592))
+	assert_eq(rail.size, Vector2(1280, 128))
+	assert_eq(rail.get_child_count(), 7, "six existing controls and one noninteractive clock")
 	for index: int in NAMES.size():
 		var button := rail.get_child(index) as Button
 		assert_not_null(button)
 		assert_eq(button.name, NAMES[index])
-		assert_eq(button.position, Vector2(LEFTS[index], 0), NAMES[index])
+		assert_eq(button.position, Vector2(LEFTS[index], TOPS[index]), NAMES[index])
 		assert_eq(button.size, Vector2(WIDTHS[index], 64), NAMES[index])
-		assert_eq(button.position.x + button.size.x,
-			1280.0 if index == NAMES.size() - 1 else float(LEFTS[index + 1]),
-			NAMES[index] + " shares its exact boundary")
+		assert_false(button.get_rect().intersects(rail.clock_label.get_rect()))
+		for other: String in NAMES:
+			if other != NAMES[index]:
+				assert_false(button.get_rect().intersects(rail.get_node(other).get_rect()))
+	assert_eq(rail.clock_label.get_rect(), Rect2(1128, 64, 152, 64))
+	assert_eq(rail.clock_label.focus_mode, Control.FOCUS_NONE)
+	assert_eq(rail.clock_label.mouse_filter, Control.MOUSE_FILTER_IGNORE)
+
+
+func test_ending_layout_restores_ordinary_layout_without_replacing_controls() -> void:
+	var rail := _new_rail()
+	add_child_autofree(rail)
+	var original_next: Node = rail.get_node("Next")
+	rail.set_ending_layout(true)
+	assert_true(rail.ending_layout)
+	assert_false(rail.clock_label.visible)
+	assert_eq(rail.position, Vector2(0, 656))
+	assert_eq(rail.size, Vector2(1280, 64))
+	for index: int in NAMES.size():
+		assert_eq(rail.get_node(NAMES[index]).position, Vector2(LEFTS[index], 0))
+	rail.set_ending_layout(false)
+	assert_false(rail.ending_layout)
+	assert_true(rail.clock_label.visible)
+	assert_eq(rail.position, Vector2(0, 592))
+	assert_eq(rail.size, Vector2(1280, 128))
+	assert_same(rail.get_node("Next"), original_next)
+	for index: int in NAMES.size():
+		assert_eq(rail.get_node(NAMES[index]).position, Vector2(LEFTS[index], TOPS[index]))
 
 
 func test_projection_keeps_placeholders_visible_disabled_and_modes_truthful() -> void:
@@ -249,6 +275,68 @@ func test_all_locales_and_text_sizes_keep_complete_labels_inside_their_plates() 
 				assert_lte(button.get_minimum_size().x, button.size.x, context + "/" + NAMES[index] + " minimum width")
 				assert_lte(button.get_minimum_size().y, button.size.y, context + "/" + NAMES[index] + " minimum height")
 			rail.free()
+
+
+func test_mounted_locale_and_size_transitions_keep_the_selected_face_and_fixed_label_bays() -> void:
+	var canvas := Control.new()
+	add_child_autofree(canvas)
+	var rail := _new_rail()
+	canvas.add_child(rail)
+	# Exercise the retained delivery screenshot order and its reverse before
+	# covering the other supported tuples on the same mounted controls.
+	var transitions: Array = [["en", 100], ["zh-CN", 150], ["zh-HK", 150],
+		["zh-CN", 150], ["en", 100]]
+	for language: String in ["en", "zh-CN", "zh-HK", "ja", "ko"]:
+		for percent: int in [100, 125, 150]:
+			transitions.append([language, percent])
+	for font_style: String in ["pixel", "readable"]:
+		for tuple: Array in transitions:
+			var language: String = tuple[0]
+			var percent: int = tuple[1]
+			var context := "%s/%s/%d%%" % [font_style, language, percent]
+			var presentation: Theme = CAPTION_THEME.build(language, percent,
+				"AfterHours", false, "standard", false, 1, false, font_style)
+			assert_not_null(presentation, context)
+			assert_true(_localization.set_locale(language.replace("-", "_")).get("ok", false), context)
+			assert_true(rail.bind_localization(_localization), context)
+			# WitnessedCaptionLayer publishes the rail theme before Canvas.theme.
+			assert_true(rail.configure_presentation(presentation, language, percent, font_style), context)
+			assert_eq(rail.clock_label.get_theme_font_size("font_size"), int(24 * percent / 100.0), context + ": clock text size")
+			assert_eq(rail.clock_label.get_rect(), Rect2(1128, 64, 152, 64), context + ": clock stays bottom right")
+			canvas.theme = presentation
+			await get_tree().process_frame
+			await get_tree().process_frame
+			var mode_labels := {"skip": {}, "auto": {}}
+			for modes: Array in [[false, false], [true, false], [false, true]]:
+				assert_true(rail.project(true, modes[0], modes[1], true, true, true, true, true), context)
+				await get_tree().process_frame
+				for index: int in NAMES.size():
+					var button := rail.get_child(index) as Button
+					var id: String = String(RAIL.CONTROL_IDS[index])
+					var detail := context + "/" + id + "/" + str(modes)
+					assert_same(button.get_theme_font("font"), presentation.default_font, detail + ": selected face")
+					assert_eq(button.get_theme_font_size("font_size"), presentation.default_font_size, detail + ": full size")
+					assert_eq(button.position, Vector2(LEFTS[index], TOPS[index]), detail + ": fixed position")
+					assert_eq(button.size, Vector2(WIDTHS[index], 64), detail + ": fixed bay")
+					assert_lte(button.get_combined_minimum_size().y, 64.0, detail + ": native minimum fits the rail")
+					var plate: StyleBox = button.get_theme_stylebox("normal")
+					var available := button.size.x - plate.get_content_margin(SIDE_LEFT) - plate.get_content_margin(SIDE_RIGHT)
+					var available_height := button.size.y - plate.get_content_margin(SIDE_TOP) - plate.get_content_margin(SIDE_BOTTOM)
+					assert_lte(button.get_theme_font("font").get_height(button.get_theme_font_size("font_size")),
+						available_height + 0.01, detail + ": full line height fits actual vertical margins")
+					var width := button.get_theme_font("font").get_string_size(button.text,
+						HORIZONTAL_ALIGNMENT_LEFT, -1, button.get_theme_font_size("font_size")).x
+					assert_lte(width, available + 0.01, detail + ": complete visible label fits actual margins")
+					var full: String = _localization.t("witnessed.transport." + id)
+					if id in ["skip", "auto"]:
+						var enabled: bool = modes[0] if id == "skip" else modes[1]
+						full += " · " + _localization.t("witnessed.transport.on" if enabled else "witnessed.transport.off")
+						mode_labels[id][enabled] = button.text
+					assert_eq(button.accessibility_name, full, detail + ": full accessible label")
+					if language not in ["ja", "ko"] or id not in ["skip", "auto"]:
+						assert_eq(button.text, full, detail + ": full visible label")
+			for id: String in mode_labels:
+				assert_ne(mode_labels[id][false], mode_labels[id][true], context + "/" + id + ": visible on/off distinction")
 
 
 func test_materials_use_caption_roles_and_skip_signal_stays_admission_bound() -> void:

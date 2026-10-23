@@ -1,6 +1,6 @@
 ﻿extends GutTest
 ## Production Desktop and ShopApp over a strict public-catalog provider. Art uses generated
-## dimension fixtures only; these tests make no asset provenance claim and expose no purchase API.
+## dimension fixtures, except the appearance-refresh case uses production procedural item art.
 
 const DESKTOP := preload("res://scenes/desktop/ComputerDesktop.tscn")
 const HOST := preload("res://scripts/domain/desktop/DesktopAppHostState.gd")
@@ -13,22 +13,23 @@ const SHOP_THEME := preload("res://scripts/ui/shop/ShopTheme.gd")
 const BACKUP_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
 
 const ORDER := [
-	"coffee","wine","pineapple_bun","bandage_pack","quiet_tea","soft_blanket",
-	"weighted_plush","spa_coupon","supportz","healthy_meal","protein_box","pep_note",
-	"premium_care","lucky_charm","debug_key","bookend_keepsake",
-	"metronome_keepsake","pocket_calculator_keepsake",
+	"wine", "pineapple_bun", "quiet_tea",
+	"soft_blanket", "weighted_plush", "spa_coupon", "supportz",
+	"premium_care", "lucky_charm",
+	"debug_key", "bookend_keepsake", "metronome_keepsake",
+	"pocket_calculator_keepsake",
 ]
 const SPECS := {
-	"coffee":[20,"money",true],"wine":[55,"money",true],
-	"pineapple_bun":[10,"money",true],"bandage_pack":[15,"money",true],
-	"quiet_tea":[15,"money",true],"soft_blanket":[25,"money",true],
-	"weighted_plush":[35,"money",true],"spa_coupon":[45,"money",false],
-	"healthy_meal":[25,"money",true],"protein_box":[35,"money",true],
-	"pep_note":[10,"money",true],"premium_care":[1,"minesweeper_coin",true],
-	"lucky_charm":[1,"minesweeper_coin",false],"debug_key":[3,"minesweeper_coin",false],
-	"bookend_keepsake":[3,"minesweeper_coin",false],
-	"metronome_keepsake":[3,"minesweeper_coin",false],
-	"pocket_calculator_keepsake":[3,"minesweeper_coin",false],
+	"wine": [55, "money", true],
+	"pineapple_bun": [10, "money", true],
+	"quiet_tea": [15, "money", true], "soft_blanket": [25, "money", true],
+	"weighted_plush": [35, "money", true], "spa_coupon": [45, "money", false],
+	"premium_care": [1, "minesweeper_coin", true],
+	"lucky_charm": [1, "minesweeper_coin", false],
+	"debug_key": [3, "minesweeper_coin", false],
+	"bookend_keepsake": [3, "minesweeper_coin", false],
+	"metronome_keepsake": [3, "minesweeper_coin", false],
+	"pocket_calculator_keepsake": [3, "minesweeper_coin", false],
 }
 
 
@@ -244,16 +245,16 @@ func test_invalid_owner_bundle_rejects_atomically_then_exact_owners_remain_immut
 	assert_true(app.last_result.ok)
 
 
-func test_real_provider_projects_fixed_order_seventeen_cards_and_supportz_blank() -> void:
+func test_real_provider_projects_fixed_order_twelve_cards_and_supportz_blank() -> void:
 	var desktop := await _desktop_on_tree()
 	assert_true(_configure_shop(desktop).ok)
 	var app := _open_shop(desktop)
 	if app == null: return
 	await _settle()
-	assert_eq(_provider.rows.size(),17)
-	assert_eq(app.cards.size(),17)
+	assert_eq(_provider.rows.size(),12)
+	assert_eq(app.cards.size(),12)
 	assert_eq(_ids(app._records),ORDER)
-	assert_eq(app._records[8],{"id":"supportz","blank":true,"actionable":false})
+	assert_eq(app._records[6],{"id":"supportz","blank":true,"actionable":false})
 	assert_false(app.cards.has("supportz"))
 	assert_false(_provider.calls.is_empty())
 	for locale: String in _provider.calls: assert_eq(locale,"en")
@@ -278,12 +279,12 @@ func test_home_cache_retains_page_selection_quantity_and_focus_then_hidden_prefe
 	await _settle()
 	app.next_button.pressed.emit()
 	await _settle()
-	app.cards.healthy_meal.pressed.emit()
-	app.quantity_buttons.maximum.pressed.emit()
-	app.cards.healthy_meal.grab_focus()
+	app.cards.debug_key.pressed.emit()
+	assert_false(app.quantity_buttons.maximum.visible, "Second-page capability purchases are single quantity.")
+	app.cards.debug_key.grab_focus()
 	var page_before: int = app.page_index
-	assert_eq(app.selected_id,"healthy_meal")
-	assert_eq(app.quantity,4)
+	assert_eq(app.selected_id,"debug_key")
+	assert_eq(app.quantity,1)
 	assert_true(desktop.return_home().ok)
 	assert_true(desktop.launcher_buttons[&"shop"].has_focus())
 	var reopened: Dictionary = desktop.open_app(&"shop")
@@ -292,9 +293,9 @@ func test_home_cache_retains_page_selection_quantity_and_focus_then_hidden_prefe
 	await _settle()
 	assert_same(reopened.value.app,app)
 	assert_eq(app.page_index,page_before)
-	assert_eq(app.selected_id,"healthy_meal")
-	assert_eq(app.quantity,4,"An identical provider delivery does not reset presentation quantity.")
-	assert_true(app.cards.healthy_meal.has_focus())
+	assert_eq(app.selected_id,"debug_key")
+	assert_eq(app.quantity,1,"An identical provider delivery does not reset presentation quantity.")
+	assert_true(app.cards.debug_key.has_focus())
 	assert_true(desktop.return_home().ok)
 	assert_true(_localization.set_locale("zh_HK").ok)
 	assert_true(_profile.set_preferences({
@@ -308,10 +309,63 @@ func test_home_cache_retains_page_selection_quantity_and_focus_then_hidden_prefe
 	assert_eq(app._locale,"zh_HK")
 	assert_eq(app._percent,125)
 	assert_true(app._large)
-	assert_eq(app.selected_id,"healthy_meal")
-	assert_eq(app.quantity,4)
-	assert_true(app.cards.healthy_meal.visible)
-	assert_true(app.cards.healthy_meal.has_focus())
+	assert_eq(app.selected_id,"debug_key")
+	assert_eq(app.quantity,1)
+	assert_true(app.cards.debug_key.visible)
+	assert_true(app.cards.debug_key.has_focus())
+
+
+func test_desktop_enlargement_preserves_shop_state_and_maps_physical_card_input() -> void:
+	var desktop := await _desktop_on_tree()
+	desktop.size = Vector2(800, 720)
+	assert_true(_configure_shop(desktop).ok)
+	var app := _open_shop(desktop)
+	if app == null: return
+	await _settle()
+	app.quantity_buttons.maximum.pressed.emit()
+	var card: Button = app.cards.wine
+	card.grab_focus()
+	var card_rect := card.get_global_rect()
+	var page_before: int = app.page_index
+	var calls_before: int = _provider.calls.size()
+	desktop.size.x = 960
+	await _settle()
+	assert_true(card.get_global_rect().size.is_equal_approx(card_rect.size * 1.2),
+		"card artwork, captions and input bounds magnify together")
+	assert_same(desktop._cached_app_windows[&"shop"], app)
+	assert_same(app.cards.wine, card)
+	assert_same(_viewport.gui_get_focus_owner(), card)
+	assert_eq(app.selected_id, "wine")
+	assert_eq(app.quantity, 4)
+	assert_eq(app.page_index, page_before)
+	assert_eq(_provider.calls.size(), calls_before, "presentation resize does not refresh the catalog")
+	var pineapple_bun: Button = app.cards.pineapple_bun
+	var point := pineapple_bun.get_global_rect().get_center()
+	var motion := InputEventMouseMotion.new()
+	motion.position = point
+	motion.global_position = point
+	_viewport.push_input(motion, true)
+	for pressed: bool in [true, false]:
+		var event := InputEventMouseButton.new()
+		event.position = point
+		event.global_position = point
+		event.button_index = MOUSE_BUTTON_LEFT
+		event.pressed = pressed
+		_viewport.push_input(event, true)
+		await get_tree().process_frame
+	await _settle()
+	assert_eq(app.selected_id, "pineapple_bun", "physical input reaches the enlarged card")
+	assert_true(_provider.purchase_calls.is_empty(), "inspection does not purchase")
+	desktop.app_scroll.ensure_control_visible(app.get("_buy_button"))
+	await _settle()
+	assert_true(desktop.app_scroll.get_global_rect().encloses(app.get("_buy_button").get_global_rect()),
+		"the enlarged bottom action remains reachable above the fixed footer")
+	desktop.size.x = 800
+	await _settle()
+	assert_true(card.get_global_rect().size.is_equal_approx(card_rect.size))
+	assert_same(app.cards.wine, card)
+	assert_eq(app.selected_id, "pineapple_bun")
+	assert_eq(_provider.calls.size(), calls_before)
 
 
 func test_changed_owner_snapshot_resets_quantity_to_one_and_uses_new_legal_max() -> void:
@@ -322,13 +376,13 @@ func test_changed_owner_snapshot_resets_quantity_to_one_and_uses_new_legal_max()
 	await _settle()
 	app.quantity_buttons.maximum.pressed.emit()
 	assert_eq(app.quantity,4)
-	_record("coffee").legal_max = 2
+	_record("wine").legal_max = 2
 	_provider.catalog_changed.emit()
 	await _settle()
 	assert_true(app.last_result.ok)
 	assert_eq(app.quantity,1)
 	assert_eq(app._records[0].legal_max,2)
-	assert_eq(_record("coffee").legal_max,2)
+	assert_eq(_record("wine").legal_max,2)
 	app.quantity_buttons.maximum.pressed.emit()
 	assert_eq(app.quantity,2)
 	assert_eq(_host.get_state().active_app_id,&"shop")
@@ -358,7 +412,7 @@ func test_bad_projection_recovers_without_partial_cards_or_route_change() -> voi
 	assert_true(desktop.open_app(&"shop").ok)
 	await _settle()
 	assert_true(app.last_result.ok)
-	assert_eq(app.cards.size(),17)
+	assert_eq(app.cards.size(),12)
 	assert_eq(_host.get_state().active_app_id,&"shop")
 
 func test_failed_initial_catalog_does_not_change_an_ordinary_host_route() -> void:
@@ -405,7 +459,7 @@ func test_native_back_returns_to_launcher_and_keeps_the_cached_shop() -> void:
 	var app := _open_shop(desktop)
 	if app == null: return
 	await _settle()
-	assert_true(app.cards.coffee.has_focus())
+	assert_true(app.cards.wine.has_focus())
 	assert_false(desktop.home_button.disabled)
 	assert_eq(desktop.home_button.focus_mode,Control.FOCUS_ALL)
 	await _tap(KEY_ESCAPE)
@@ -422,7 +476,7 @@ func test_shared_confirmation_owns_higher_routing_and_native_input_custody() -> 
 	var app := _open_shop(desktop)
 	if app == null: return
 	await _settle()
-	app.cards.coffee.grab_focus()
+	app.cards.wine.grab_focus()
 	var before := {"page":app.page_index,"selected":app.selected_id,"quantity":app.quantity}
 	var presented: Dictionary = desktop.present_confirmation({
 		"title":"Fixture custody","body":"No Shop command is available here.",
@@ -448,19 +502,21 @@ func test_shared_confirmation_owns_higher_routing_and_native_input_custody() -> 
 
 func test_live_accessibility_colours_repaint_cached_shop_without_catalog_or_selection_mutation() -> void:
 	var desktop := await _desktop_on_tree()
-	var meal: Dictionary = _record("healthy_meal")
-	meal.description = "Public fixture description. ".repeat(80)
+	var art_port := preload("res://scripts/application/shop/ShopPresentationPort.gd").new()
+	for row: Dictionary in _provider.rows:
+		row.card_art = art_port._texture(row.id,28)
+		row.inspector_art = art_port._texture(row.id,56)
+	var selected: Dictionary = _record("wine")
+	selected.description = "Public fixture description. ".repeat(80)
 	assert_true(_configure_shop(desktop).ok)
 	var app := _open_shop(desktop)
 	if app == null: return
 	await _settle()
-	app.next_button.pressed.emit()
-	await _settle()
-	app.cards.healthy_meal.pressed.emit()
+	app.cards.wine.pressed.emit()
 	app.quantity_buttons.maximum.pressed.emit()
 	app.info_scroll.grab_focus()
 	app.info_scroll.scroll_vertical = 30
-	var card: Button = app.cards.healthy_meal
+	var card: Button = app.cards.wine
 	var art: Texture2D = card.get("_art")
 	var inspector_art: Texture2D = app._art.texture
 	var calls_before: int = _provider.calls.size()
@@ -478,12 +534,12 @@ func test_live_accessibility_colours_repaint_cached_shop_without_catalog_or_sele
 	assert_eq(_provider.calls.size(),calls_before,"Appearance-only preference signals do not query the catalog.")
 	assert_true(_provider.purchase_calls.is_empty())
 	assert_eq(app._records,records_before)
-	assert_eq(app.selected_id,"healthy_meal")
+	assert_eq(app.selected_id,"wine")
 	assert_eq(app.quantity,4)
-	assert_eq(app.page_index,1)
+	assert_eq(app.page_index,0)
 	assert_eq(app.info_scroll.scroll_vertical,30)
 	assert_true(app.info_scroll.has_focus())
-	assert_same(app.cards.healthy_meal,card)
+	assert_same(app.cards.wine,card)
 	assert_same(card.get("_art"),art)
 	assert_same(app._art.texture,inspector_art)
 	assert_eq(app._art.modulate,Color.WHITE)
@@ -496,11 +552,11 @@ func test_live_accessibility_colours_repaint_cached_shop_without_catalog_or_sele
 	assert_true(desktop.open_app(&"shop").ok)
 	await _settle()
 	assert_same(desktop._cached_app_windows[&"shop"],app)
-	assert_same(app.cards.healthy_meal,card)
+	assert_same(app.cards.wine,card)
 	assert_eq(app.theme.get_color("habitat","Shop"),SHOP_THEME.resolve(&"after_hours",3,false,"tritan").habitat)
-	assert_eq(app.selected_id,"healthy_meal")
+	assert_eq(app.selected_id,"wine")
 	assert_eq(app.quantity,4)
-	assert_eq(app.page_index,1)
+	assert_eq(app.page_index,0)
 	assert_eq(app.info_scroll.scroll_vertical,30)
 	assert_true(app.info_scroll.has_focus())
 	assert_true(_provider.purchase_calls.is_empty())
@@ -528,9 +584,9 @@ func test_shop_uses_new_installed_day_after_desktop_eviction() -> void:
 	assert_not_null(day_seven)
 	assert_eq(day_seven.theme.get_color("habitat","Shop"),
 		SHOP_THEME.resolve(&"after_hours",7,false,"standard").habitat)
-	assert_eq(day_seven.cards.size(),17)
+	assert_eq(day_seven.cards.size(),12)
 	assert_eq(day_seven.page_count,2)
-	assert_true(day_seven._records[8].blank)
+	assert_true(day_seven._records[6].blank)
 	assert_true(_provider.purchase_calls.is_empty())
 
 
@@ -553,11 +609,11 @@ func test_supportz_confirmation_holds_old_colours_until_modal_finishes() -> void
 	var calls_before: int = _provider.calls.size()
 	# The owner may have fresher ordinary facts without an event while this modal
 	# owns input. Cancel must revalidate them as it publishes pending colours.
-	var coffee: Dictionary = _record("coffee")
-	coffee.legal_max = 2
 	var wine: Dictionary = _record("wine")
-	wine.available = false
-	wine.legal_max = 0
+	wine.legal_max = 2
+	var pineapple_bun: Dictionary = _record("pineapple_bun")
+	pineapple_bun.available = false
+	pineapple_bun.legal_max = 0
 	assert_true(_profile.set_preferences({
 		&"preferences.accessibility.high_contrast":true,
 		&"preferences.accessibility.colour_differentiation":"deutan",
@@ -581,7 +637,7 @@ func test_supportz_confirmation_holds_old_colours_until_modal_finishes() -> void
 	assert_eq(app._records[0].legal_max,2)
 	assert_false(app._records[1].available)
 	assert_eq(app._records[1].legal_max,0)
-	assert_eq(app.cards.wine.availability_label.text,"Sold out")
+	assert_eq(app.cards.pineapple_bun.availability_label.text,"Sold out")
 	assert_true(_provider.purchase_calls.is_empty())
 	assert_eq(_host.get_state().active_app_id,&"shop")
 	app._supportz_button.pressed.emit()
@@ -594,3 +650,25 @@ func test_supportz_confirmation_holds_old_colours_until_modal_finishes() -> void
 	current_modal.cancel_button.pressed.emit()
 	await _settle()
 	assert_true(_provider.purchase_calls.is_empty())
+
+func test_font_style_only_change_bypasses_colour_cache_and_preserves_purchase_selection() -> void:
+	var desktop := await _desktop_on_tree()
+	assert_true(_configure_shop(desktop).ok)
+	var app := _open_shop(desktop)
+	if app == null: return
+	await _settle()
+	app.cards.wine.grab_focus()
+	app.quantity_buttons.maximum.pressed.emit()
+	app.cards.wine.grab_focus()
+	var quantity: int = app.quantity
+	var page: int = app.page_index
+	var typography := preload("res://scripts/ui/UiTypography.gd")
+	for style: String in ["readable","pixel"]:
+		assert_true(_localization.set_font_style(style).ok)
+		await _settle()
+		assert_eq(app._font_style,style)
+		assert_same(app.theme.default_font.base_font,typography.font("en",100,style))
+		assert_eq(app.selected_id,"wine")
+		assert_eq(app.quantity,quantity)
+		assert_eq(app.page_index,page)
+		assert_true(app.cards.wine.has_focus())

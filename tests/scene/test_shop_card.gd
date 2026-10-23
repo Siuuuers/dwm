@@ -40,10 +40,10 @@ func test_card_has_only_public_copy_and_no_purchase_or_hidden_controls() -> void
 	var row: Dictionary = CATALOG_PROJECTION.project(_valid_rows()).value[0]
 	var card := _card(row)
 	await _settle()
-	assert_eq(card.name_label.text, "Coffee")
-	assert_eq(card.price_label.text, "$20")
+	assert_eq(card.name_label.text, "Wine")
+	assert_eq(card.price_label.text, "$55")
 	assert_eq(card.availability_label.text, "Available")
-	assert_eq(card.accessibility_name, "Coffee, $20, Available")
+	assert_eq(card.accessibility_name, "Wine, $55, Available")
 	assert_eq(card.get_child_count(), 4, "Three public labels plus nonfocusable pointer surface.")
 	for child in card.get_children():
 		assert_false(child is BaseButton, "No nested Buy/quantity/secret target.")
@@ -56,6 +56,21 @@ func test_unconfigured_card_is_not_a_phantom_blank_target() -> void:
 	assert_false(card.visible)
 	assert_eq(card.focus_mode, Control.FOCUS_NONE)
 	assert_eq(card.accessibility_name, "")
+
+func test_native_pointer_hover_requests_inspection_without_activation() -> void:
+	var card := _card(CATALOG_PROJECTION.project(_valid_rows()).value[0])
+	await _settle()
+	var inspections: Array = []
+	var activations: Array = []
+	card.inspection_requested.connect(func(): inspections.append(true))
+	card.pressed.connect(func(): activations.append(true))
+	var motion := InputEventMouseMotion.new()
+	motion.position = card.get_global_rect().get_center()
+	_card_viewport.push_input(motion, true)
+	await _settle()
+	assert_gt(inspections.size(), 0, "PointerSurface forwards native hover to Shop")
+	assert_eq(activations.size(), 0, "Hover does not activate the product")
+	assert_false(card.selected, "The standalone card does not own selection")
 
 func test_fixed_card_bands_keep_name_price_and_availability_inside_two_page_geometry() -> void:
 	var rows: Array = CATALOG_PROJECTION.project(_valid_rows()).value
@@ -98,7 +113,7 @@ func test_pointer_release_selects_once_and_cancels_after_leave_or_hide() -> void
 	assert_eq(activations.size(), 1, "Leaving cancels contact even after re-entry.")
 	await _mouse(point, true)
 	var changed: Dictionary = CATALOG_PROJECTION.project(_valid_rows()).value[1]
-	card.configure(changed, "$55", "Available")
+	card.configure(changed, "$10", "Available")
 	await _mouse(point, false)
 	assert_eq(activations.size(), 1, "A new projection cannot inherit a held activation.")
 	await _mouse(point, true)
@@ -108,7 +123,7 @@ func test_pointer_release_selects_once_and_cancels_after_leave_or_hide() -> void
 	await _mouse(point, false)
 	assert_eq(activations.size(), 1, "Re-admission needs a fresh press.")
 
-func test_sold_out_stays_selectable_and_selection_does_not_follow_focus() -> void:
+func test_sold_out_requests_inspection_and_the_shop_still_owns_selection() -> void:
 	var rows := _valid_rows()
 	rows[0].available = false
 	rows[0].legal_max = 0
@@ -116,7 +131,10 @@ func test_sold_out_stays_selectable_and_selection_does_not_follow_focus() -> voi
 	await _settle()
 	assert_false(card.disabled)
 	assert_eq(card.availability_label.text, "Sold out")
+	var inspections: Array = []
+	card.inspection_requested.connect(func(): inspections.append(true))
 	card.grab_focus()
+	assert_eq(inspections.size(), 1, "Sold-out items can still be inspected by focus")
 	assert_false(card.selected)
 	card.selected = true
 	assert_true(card.has_focus())
@@ -154,7 +172,7 @@ func test_cjk_font_metrics_preserve_complete_public_labels_at_all_sizes() -> voi
 	# Representative literal object-name fixtures, not a production translation catalog.
 	for font: Font in [FONTS.SIMPLIFIED, FONTS.TRADITIONAL]:
 		for font_size in [20, 25, 30]:
-			var row: Dictionary = CATALOG_PROJECTION.project(_valid_rows()).value[17]
+			var row: Dictionary = CATALOG_PROJECTION.project(_valid_rows()).value[12]
 			row.name = "口袋計算器"
 			var card := _card(row, font_size)
 			card.theme.default_font = font

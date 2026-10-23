@@ -134,6 +134,34 @@ func test_all_reset_sheets_fit_the_actual_workfield_in_nine_presentations() -> v
 			content.free()
 
 
+func test_scaled_reset_sheets_and_controls_windows_match_their_parent_and_reopen_without_compounding() -> void:
+	_surface.size = Vector2i(1280, 720)
+	for locale: String in LOCALES:
+		var fixture := _fixture(locale, 150)
+		var content: Control = fixture.content
+		await _settle()
+		for factor: float in [1.2, 1.0, 1.2]:
+			content.scale = Vector2.ONE * factor
+			for reset_id: String in RESET_IDS:
+				var dialog: ConfirmationDialog = await _open(content, reset_id)
+				assert_almost_eq(dialog.content_scale_factor, factor, 0.001, reset_id + ": content follows the parent canvas")
+				assert_almost_eq(float(dialog.size.x), 720.0 * factor, 1.0, reset_id + ": window width follows content scale")
+				_assert_inside(Rect2(Vector2(dialog.position), Vector2(dialog.size)), Rect2(0, 0, 1280, 720), reset_id)
+				assert_almost_eq(Vector2(dialog.position).x + dialog.size.x / 2.0, 640.0, 1.0, "Scaled sheet remains centered")
+				assert_eq(dialog.gui_get_focus_owner(), dialog.get_cancel_button())
+				dialog.hide()
+			var sheet: Control = content._controls_sheet
+			for dialog: ConfirmationDialog in [sheet.capture_dialog, sheet.conflict_dialog, sheet.original_dialog, sheet.import_dialog]:
+				sheet._popup_dialog(dialog, Vector2i(720, 480))
+				await _settle()
+				assert_almost_eq(dialog.content_scale_factor, factor, 0.001, dialog.name)
+				assert_almost_eq(float(dialog.size.x), 720.0 * factor, 1.0, dialog.name)
+				_assert_inside(Rect2(Vector2(dialog.position), Vector2(dialog.size)), Rect2(0, 0, 1280, 720), dialog.name)
+				dialog.hide()
+		_assert_no_reset(fixture, "Scaling does not execute reset actions")
+		content.free()
+
+
 func test_activating_initial_cancel_is_inert_for_every_reset_and_locale() -> void:
 	for locale: String in LOCALES:
 		var fixture := _fixture(locale, 150)

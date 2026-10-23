@@ -1,0 +1,20 @@
+{
+  "run": 39927141430,
+  "artifact": 12490497031,
+  "source": "7f353cbb7b85744d36e8871ab70c4adfc1d026d8",
+  "tree": "b284ed0971c051a0d46126c9f0f52ae4111cd9f5",
+  "outer_sha256": "d4465fb60ba582cd6ff28bd9b49521d6aa7d4f2fbf387820809604b56a9244da",
+  "inner_sha256": "dc47fa7f0cd8eca5edf4907ad2a42135d2d61babe17a7eb8a035fba940aa068e",
+  "archive_crcs_verified": true,
+  "retained_member_hashes_verified": 120,
+  "result": "failure",
+  "passed_assertions": 362,
+  "failed_assertions": 1,
+  "cause": "Harness clicked hidden direct-host Back on ending ordinary Pause after physical Save succeeded; use native Escape then Continue",
+  "requested_exits": [
+    0,
+    1
+  ],
+  "replay": "not_run",
+  "export": "skipped"
+}

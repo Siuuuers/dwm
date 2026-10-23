@@ -1,0 +1,11 @@
+{
+  "archive": "dwm-run100-focused-cloud-evidence.tar.gz",
+  "archive_member_count": 162,
+  "bytes": 12778408,
+  "evidence_kind": "bounded-successful-run-audit",
+  "excluded_file_count": 4,
+  "manifest_sha256": "703e2539870f8e9e6e9fbaaf380693c5973e080a597c1dd93408ef385e260a0b",
+  "payload_file_count": 160,
+  "round_trip_verified": true,
+  "sha256": "09d0affe0291f0fd31e4e0e6df0ba3c04cf5ce31e5e9c80b96e156c3fc40f1e6"
+}

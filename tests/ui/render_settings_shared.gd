@@ -6,18 +6,27 @@ const PROFILE := preload("res://autoload/ProfileManager.gd")
 const LOCALIZATION := preload("res://autoload/LocalizationManager.gd")
 const INPUT := preload("res://autoload/InputManager.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
-const FILES := preload("res://tests/support/FakeFileOps.gd")
+class FailureFiles extends "res://tests/support/FakeFileOps.gd":
+	var refuse_cleanup := false
+	func remove_path(path: String) -> Dictionary:
+		if refuse_cleanup and path.ends_with("/profile.json.txn.json"):
+			_record(&"remove_path", path)
+			return _injected_failure()
+		return super.remove_path(path)
 const SETTINGS := preload("res://scenes/apps/SettingsApp.tscn")
 const PAUSE := preload("res://scenes/overlay/PauseSurface.tscn")
 const PRESENTATION := preload("res://scripts/ui/SettingsTheme.gd")
 const LOCALES := {"en": "en", "zh_CN": "zh-CN", "zh_HK": "zh-HK"}
-const COPY_KEYS := ["continue", "backup", "settings", "return", "title", "question", "warning", "cancel"]
+const COPY_KEYS := ["continue", "backup", "settings", "return", "title", "question", "warning", "cancel", "back"]
 
+var _files: RefCounted
+var _failure_journey := false
 var _viewport: SubViewport
 var _profile: Node
 var _localization: Node
 var _input: Node
 var _app: Control
+var _desktop_host: Control
 var _pause: Control
 var _content: Control
 var _folder := ""
@@ -35,6 +44,7 @@ func _render() -> void:
 	if not _check(DirAccess.make_dir_recursive_absolute(_folder) == OK, "cannot create evidence directory"):
 		await _finish(false)
 		return
+	_failure_journey = "--settings-write-failure" in OS.get_cmdline_user_args()
 	_viewport = SubViewport.new()
 	_viewport.size = Vector2i(640, 360)
 	_viewport.size_2d_override = Vector2i(1280, 720)
@@ -44,6 +54,9 @@ func _render() -> void:
 	_viewport.handle_input_locally = true
 	_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(_viewport)
+	if _failure_journey:
+		await _render_failure()
+		return
 	for locale: String in LOCALES:
 		for percent: int in [100, 125, 150]:
 			if not await _mount(locale, percent, false):
@@ -74,13 +87,106 @@ func _render() -> void:
 		return
 	await _finish(_check(_records.size() == 11, "incomplete nine-tuple plus two custody-state matrix"))
 
+func _render_failure() -> void:
+	if not await _mount("en", 100, true):
+		await _finish(false)
+		return
+	_pause.rows[&"settings"].grab_focus()
+	await _frames()
+	var navigation_before: Dictionary = _profile.get_profile_snapshot()
+	var navigation_revision: int = _profile.get_profile_revision()
+	var navigation_persisted: Dictionary = _files.snapshot_persisted()
+	var navigation_operations: int = _files.operation_count()
+	await _key(KEY_RIGHT)
+	if not _check(_content.find_child("LanguageCategory", true, false).has_focus(), "Pause Right did not enter the Language rail"):
+		await _finish(false)
+		return
+	# Use separate settled inputs, as a player does. Selecting a hidden sheet and
+	# grabbing its fourth control in the same frame can read pre-layout geometry.
+	for category: String in ["reading", "audio", "display", "controls", "accessibility"]:
+		await _key(KEY_DOWN)
+		var rail: Control = _content.find_child(category.to_pascal_case() + "Category", true, false)
+		if not _check(rail.has_focus(), "keyboard category route diverged at " + category):
+			await _finish(false)
+			return
+	await _key(KEY_RIGHT)
+	for field: String in ["font_style", "text_size", "large_targets", "high_contrast"]:
+		if field != "font_style": await _key(KEY_TAB)
+		var target: Control = _content.control_for(StringName("preferences.accessibility." + field))
+		if not _check(target.has_focus() and _content.sheet_scroll.get_global_rect().encloses(target.get_global_rect().grow(8)),
+			"keyboard target or its focus perimeter is offscreen: " + field):
+			await _finish(false)
+			return
+	var toggle: CheckBox = _content.control_for(&"preferences.accessibility.high_contrast")
+	if not _check(_pause.entered_action == &"settings" and toggle.has_focus()
+		and _profile.get_profile_snapshot() == navigation_before and _files.snapshot_persisted() == navigation_persisted
+		and _profile.get_profile_revision() == navigation_revision
+		and _files.operation_count() == navigation_operations, "Settings navigation changed custody or Profile/storage"):
+		await _finish(false)
+		return
+	if not await _capture("en", 100, "failure-before"):
+		await _finish(false)
+		return
+	_records[-1]["navigation"] = {"transport": "Viewport key events", "category_keys": 5, "sheet_tabs": 3,
+		"target": "preferences.accessibility.high_contrast", "focus_perimeter_visible": true,
+		"profile_unchanged": true, "persisted_unchanged": true, "file_operations": navigation_operations,
+		"profile_revision": navigation_revision,
+		"target_rect": [toggle.global_position.x, toggle.global_position.y, toggle.size.x, toggle.size.y]}
+	var before: Dictionary = _profile.get_profile_snapshot()
+	_files.refuse_cleanup = true
+	await _key(KEY_SPACE)
+	var persisted: Dictionary = _files.snapshot_persisted()
+	var durable: Dictionary = JSON.parse_string(persisted["settings-render.memory/profile.json"].get_string_from_utf8())
+	var operations: int = _files.operation_count()
+	var recovery: Control = _content.get_node_or_null("SettingsWriteRecovery")
+	if not _check(_content.is_profile_write_uncertain() and is_instance_valid(recovery) and recovery.is_presented()
+		and durable.preferences.accessibility.high_contrast and _profile.get_profile_snapshot() == before,
+		"real marker-cleanup failure did not retain truthful uncertainty"):
+		await _finish(false)
+		return
+	if not await _capture_failure(recovery, "failure-uncertain"):
+		await _finish(false)
+		return
+	await _key(KEY_SPACE)
+	await _key(KEY_ESCAPE)
+	await _key(KEY_F5)
+	await _key(KEY_F9)
+	_pause.leave_host()
+	_pause.set_interactive(false)
+	_pause.set_interactive(true)
+	if not _check(_pause.entered_action == &"settings" and not _content.is_interaction_enabled()
+		and not _pause.quick_input_admitted("save") and not _pause.quick_input_admitted("load")
+		and _files.operation_count() == operations and _files.snapshot_persisted() == persisted
+		and _profile.get_profile_snapshot() == before, "repeated input escaped uncertainty custody"):
+		await _finish(false)
+		return
+	await _finish(await _capture_failure(recovery, "failure-refused"))
+
+func _capture_failure(recovery: Control, state: String) -> bool:
+	await _frames()
+	var message: Label = recovery.message_label
+	if not _check(message.text == _localization.t("settings.status.uncertain")
+		and not recovery.retry_button.visible and not recovery.cancel_button.visible,
+		"uncertainty copy or no-Retry presentation diverged"): return false
+	var measurements: Array[Dictionary] = []
+	if not _measure_text(recovery, 100, measurements): return false
+	if not _check(_content.get_global_rect().encloses(message.get_global_rect()), "uncertainty text escaped Settings"): return false
+	var name := state + ".png"
+	if not _check(_viewport.get_texture().get_image().save_png(_folder.path_join(name)) == OK, "cannot save uncertainty capture"): return false
+	_records.append({"file": name, "state": state, "message": message.text,
+		"text_metrics": measurements, "input_blocked": not _content.is_interaction_enabled(),
+		"departure_blocked": _content.is_departure_blocked(), "retry": recovery.retry_button.visible,
+		"cancel": recovery.cancel_button.visible, "file_operations": _files.operation_count()})
+	return true
+
 func _mount(locale: String, percent: int, in_pause: bool) -> bool:
 	await _unmount()
 	_profile = PROFILE.new()
 	_localization = LOCALIZATION.new()
 	_input = INPUT.new()
 	for owner: Node in [_profile, _localization, _input]: root.add_child(owner)
-	if not _check(_profile.initialize(STORAGE.new("settings-render.memory", FILES.new())).get("ok", false), "Profile memory initialization failed"): return false
+	_files = FailureFiles.new()
+	if not _check(_profile.initialize(STORAGE.new("settings-render.memory", _files)).get("ok", false), "Profile memory initialization failed"): return false
 	if not _check(_localization.initialize(_profile).get("ok", false), "Localization initialization failed"): return false
 	if not _check(_localization.set_locale(locale).get("ok", false), "canonical locale commit failed"): return false
 	if not _check(_profile.set_preference(&"preferences.accessibility.text_size", percent).get("ok", false), "canonical text-size commit failed"): return false
@@ -99,9 +205,14 @@ func _mount(locale: String, percent: int, in_pause: bool) -> bool:
 		if not _check(_pause.configure_presentation(LOCALES[locale], percent, "AfterHours") and _pause.configure_copy(copy), "Pause presentation/copy refused"): return false
 		_pause.open_surface()
 	else:
-		_app.position = Vector2(480, 64)
-		_app.size = Vector2(800, 656)
-		_viewport.add_child(_app)
+		# The bare Settings wrapper fills its shell parent in _ready(). Match
+		# the desktop workfield instead of making the viewport itself its host.
+		_desktop_host = Control.new()
+		_desktop_host.name = "DesktopContent"
+		_desktop_host.position = Vector2(480, 64)
+		_desktop_host.size = Vector2(800, 656)
+		_viewport.add_child(_desktop_host)
+		_desktop_host.add_child(_app)
 		_app.show_window()
 	_content = _app.settings_content
 	await _frames()
@@ -110,10 +221,11 @@ func _mount(locale: String, percent: int, in_pause: bool) -> bool:
 func _capture(locale: String, percent: int, state: String) -> bool:
 	await _frames()
 	var expected := Rect2(480, 64, 800, 656)
-	if not _check(_app.get_global_rect() == expected and _content.get_global_rect() == expected, "Settings escaped exact 800x656 workfield"): return false
+	if not _check(_app.get_global_rect() == expected and _content.get_global_rect() == expected,
+		"Settings escaped exact 800x656 workfield: app=%s content=%s expected=%s" % [_app.get_global_rect(), _content.get_global_rect(), expected]): return false
 	if not _check(_content.theme.default_font_size == int(24 * percent / 100.0), "canonical full text size changed"): return false
 	if not _check(_content.current_locale() == locale, "rendered locale differs from canonical owner"): return false
-	var primary: Font = {"en": PRESENTATION.ENGLISH, "zh_CN": PRESENTATION.SIMPLIFIED, "zh_HK": PRESENTATION.TRADITIONAL}[locale]
+	var primary: Font = PRESENTATION.TYPOGRAPHY.font(locale, percent, String(_profile.get_preference(&"preferences.accessibility.font_style", "pixel")))
 	var rendered_font := _content.theme.default_font as FontVariation
 	if not _check(rendered_font != null and rendered_font.base_font == primary, "locale lost its authored primary font"): return false
 	var focused: Control = _viewport.gui_get_focus_owner()
@@ -193,10 +305,13 @@ func _unmount() -> void:
 	if is_instance_valid(_pause):
 		_pause.close_surface()
 		_pause.queue_free()
+	elif is_instance_valid(_desktop_host):
+		_desktop_host.queue_free()
 	elif is_instance_valid(_app):
 		_app.queue_free()
 	await process_frame
 	_pause = null
+	_desktop_host = null
 	_app = null
 	_content = null
 	for owner: Node in [_input, _localization, _profile]:
@@ -215,7 +330,7 @@ func _finish(ok: bool) -> void:
 	var report := FileAccess.open(_folder.path_join("settings-shared-measurements.json"), FileAccess.WRITE)
 	if report != null:
 		report.store_string(JSON.stringify({"ok": ok, "failure": _failure, "captures": _records.size(),
-			"scope": "Nine bare SettingsApp Accessibility sheets and two actual PauseSurface Settings custody states; real Profile/Localization/Input, in-memory storage. No full desktop, audio preview, TTS, lifecycle, or assistive-technology acceptance.",
+			"scope": "Actual Pause Settings keyboard journey with real Profile/Localization/Input and in-memory marker-cleanup refusal after durable promotion; no physical disk or OS-crash claim." if _failure_journey else "Nine bare SettingsApp Accessibility sheets and two actual PauseSurface Settings custody states; real Profile/Localization/Input, in-memory storage. No full desktop, audio preview, TTS, lifecycle, or assistive-technology acceptance.",
 			"palette_scope": "AfterHours Standard ordinary targets only.",
 			"glyph_scope": "Authored locale primary font plus explicit companion-font coverage and full-size geometry checks; no claim of perceptual or screen-reader acceptance. Offscreen sheet rows remain reachable by vertical scroll.",
 			"samples": _records}, "\t") + "\n")

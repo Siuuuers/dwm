@@ -1,0 +1,40 @@
+﻿2026-10-01T13:44:43.1425015Z Current runner version: '2.337.0'
+2026-10-01T13:44:43.1442856Z ##[group]Runner Image Provisioner
+2026-10-01T13:44:43.1443353Z Hosted Compute Agent
+2026-10-01T13:44:43.1443664Z Version: 20260901.588
+2026-10-01T13:44:43.1444040Z Commit: f88ec8081b781fac6c440065ac7ff9e710ce3d0b
+2026-10-01T13:44:43.1444438Z Build Date: 2026-09-01T19:56:44Z
+2026-10-01T13:44:43.1444812Z Worker ID: {4b924295-5029-45a8-bfba-9525e404d3af}
+2026-10-01T13:44:43.1445192Z Azure Region: westus2
+2026-10-01T13:44:43.1445495Z ##[endgroup]
+2026-10-01T13:44:43.1446235Z ##[group]Operating System
+2026-10-01T13:44:43.1446594Z Microsoft Windows Server 2022
+2026-10-01T13:44:43.1446916Z 10.0.20348
+2026-10-01T13:44:43.1447223Z Datacenter
+2026-10-01T13:44:43.1447523Z ##[endgroup]
+2026-10-01T13:44:43.1447825Z ##[group]Runner Image
+2026-10-01T13:44:43.1448169Z Image: windows-2022
+2026-10-01T13:44:43.1448470Z Version: 20260927.320.1
+2026-10-01T13:44:43.1449417Z Included Software: https://github.com/actions/runner-images/blob/win22/20260927.320/images/windows/Windows2022-Readme.md
+2026-10-01T13:44:43.1450202Z Image Release: https://github.com/actions/runner-images/releases/tag/win22%2F20260927.320
+2026-10-01T13:44:43.1450740Z ##[endgroup]
+2026-10-01T13:44:43.1451319Z ##[group]GITHUB_TOKEN Permissions
+2026-10-01T13:44:43.1452635Z Contents: read
+2026-10-01T13:44:43.1452953Z Metadata: read
+2026-10-01T13:44:43.1453248Z ##[endgroup]
+2026-10-01T13:44:43.1454600Z Secret source: Actions
+2026-10-01T13:44:43.1455086Z Cache mode: write
+2026-10-01T13:44:43.1455530Z Prepare workflow directory
+2026-10-01T13:44:43.1661227Z Prepare all required actions
+2026-10-01T13:44:43.1723141Z Complete job name: Windows / seven-day retained history
+2026-10-01T13:44:43.3063892Z ##[group]Run if ($env:DWM_PRODUCER_RESULT -cne 'success' -or $env:DWM_COMPARISONS_RESULT -cne 'success') {
+2026-10-01T13:44:43.3064829Z [36;1mif ($env:DWM_PRODUCER_RESULT -cne 'success' -or $env:DWM_COMPARISONS_RESULT -cne 'success') {[0m
+2026-10-01T13:44:43.3065611Z [36;1m  throw 'The seven-day history gate requires its producer and all four isolated comparisons to pass.'[0m
+2026-10-01T13:44:43.3066180Z [36;1m}[0m
+2026-10-01T13:44:43.3179667Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-01T13:44:43.3180241Z env:
+2026-10-01T13:44:43.3180556Z   DWM_PRODUCER_RESULT: success
+2026-10-01T13:44:43.3180887Z   DWM_COMPARISONS_RESULT: success
+2026-10-01T13:44:43.3181207Z ##[endgroup]
+2026-10-01T13:44:43.5991370Z Cleaning up orphan processes
+

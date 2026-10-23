@@ -89,7 +89,6 @@ var _state_port: RefCounted
 var _consequence_state: RefCounted
 var _checkpoint_port: _FakeConsequenceCheckpointPort
 var _publication_ledger: Object
-var _publication_root_counter := 0
 var _issuer: RefCounted
 var _root: RefCounted
 var _gate: ApplicationMutationGate
@@ -97,10 +96,12 @@ var _participant: RefCounted
 
 
 func before_each() -> void:
+	_publication_ledger = _real_publication_ledger()
+	if _publication_ledger == null:
+		return
 	_state_port = _STATE_PORT.new()
 	_consequence_state = _CONSEQUENCE_STATE.new()
 	_checkpoint_port = _FakeConsequenceCheckpointPort.new()
-	_publication_ledger = _real_publication_ledger()
 	_root = _FAKE_ROOT_STORE.new("ab".repeat(32), 1)
 	_issuer = _ISSUER.new()
 	_issuer.configure(_root)
@@ -132,20 +133,19 @@ func _bootstrap_consequence_state(causal_day_instance: String) -> void:
 ## DWM_TEST_ROOT, never the production user:// directory -- and takes a FRESH root per test so each
 ## test starts against an empty durable ledger, the way the deleted in-memory double did.
 func _isolated_publication_root() -> String:
-	var wrapper := OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
-	_publication_root_counter += 1
-	var root: String = wrapper.path_join("shop-purchase-publications-%d" % _publication_root_counter)
-	var production := ProjectSettings.globalize_path("user://").simplify_path().trim_suffix("/")
-	assert_ne(root.simplify_path().trim_suffix("/").nocasecmp_to(production), 0,
-		"an isolated root is never the production user directory")
-	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
-	return root
+	var created := TemporaryStorage.create("shop-purchase-publications")
+	assert_true(created.get("ok", false), str(created))
+	if not created.get("ok", false):
+		return ""
+	return str(created["value"])
 
 
 func _real_publication_ledger() -> Object:
+	var root := _isolated_publication_root()
+	if root.is_empty():
+		return null
 	var ledger: Object = _PUBLICATION_LEDGER.new()
-	var configured: Dictionary = ledger.configure(JsonFileStorage.new(_isolated_publication_root()))
+	var configured: Dictionary = ledger.configure(JsonFileStorage.new(root))
 	assert_true(configured.get("ok", false), JSON.stringify(configured))
 	var loaded: Dictionary = ledger.load()
 	assert_true(loaded.get("ok", false), JSON.stringify(loaded))
@@ -196,6 +196,8 @@ func _quote_and_prepare(item_id: String, txn: Dictionary) -> Dictionary:
 # ---------------------------------------------------------------------------------------------
 
 func test_dynamic_script_probe_proves_every_preload_loads() -> void:
+	if _publication_ledger == null:
+		return
 	for path: String in [_PARTICIPANT_PATH, _STATE_PORT_PATH, _ACTION_RECEIPT_PATH]:
 		var probed: Dictionary = _PROBE.instantiate(path)
 		assert_true(probed.get("ok", false), "%s must load and instantiate: %s" % [path, str(probed)])
@@ -206,6 +208,8 @@ func test_dynamic_script_probe_proves_every_preload_loads() -> void:
 # ---------------------------------------------------------------------------------------------
 
 func test_configure_publication_ledger_is_idempotent_and_rejects_replacement() -> void:
+	if _publication_ledger == null:
+		return
 	var participant := _PARTICIPANT.new()
 	assert_true(participant.configure_publication_ledger(_publication_ledger).get("ok", false))
 	var replay: Dictionary = participant.configure_publication_ledger(_publication_ledger)
@@ -216,6 +220,8 @@ func test_configure_publication_ledger_is_idempotent_and_rejects_replacement() -
 
 
 func test_configure_requires_publication_ledger_first() -> void:
+	if _publication_ledger == null:
+		return
 	var participant := _PARTICIPANT.new()
 	var configured: Dictionary = participant.configure(_state_port, _consequence_state, _checkpoint_port,
 		_REGISTRY, _issuer, _gate)
@@ -224,6 +230,8 @@ func test_configure_requires_publication_ledger_first() -> void:
 
 
 func test_configure_is_idempotent_and_rejects_replacement_owner() -> void:
+	if _publication_ledger == null:
+		return
 	var participant := _configured_participant()
 	var replay: Dictionary = participant.configure(_state_port, _consequence_state, _checkpoint_port,
 		_REGISTRY, _issuer, _gate)
@@ -236,6 +244,8 @@ func test_configure_is_idempotent_and_rejects_replacement_owner() -> void:
 
 
 func test_prepare_purchase_fails_closed_before_configure() -> void:
+	if _publication_ledger == null:
+		return
 	var participant := _PARTICIPANT.new()
 	var result: Dictionary = participant.prepare_purchase({})
 	assert_false(result.get("ok", true))
@@ -247,6 +257,8 @@ func test_prepare_purchase_fails_closed_before_configure() -> void:
 # ---------------------------------------------------------------------------------------------
 
 func test_quote_produces_the_exact_frozen_shape_and_derives_shop_quote_child_id() -> void:
+	if _publication_ledger == null:
+		return
 	var participant := _configured_participant()
 	var txn := _mint_transaction()
 	var quoted: Dictionary = participant.quote("lucky_charm", txn["transaction_id"], txn["transaction_issuer_receipt"])
@@ -266,6 +278,8 @@ func test_quote_produces_the_exact_frozen_shape_and_derives_shop_quote_child_id(
 
 
 func test_quote_is_idempotent_on_identical_replay() -> void:
+	if _publication_ledger == null:
+		return
 	var participant := _configured_participant()
 	var txn := _mint_transaction()
 	var first: Dictionary = participant.quote("debug_key", txn["transaction_id"], txn["transaction_issuer_receipt"])
@@ -274,6 +288,8 @@ func test_quote_is_idempotent_on_identical_replay() -> void:
 
 
 func test_quote_a_second_item_under_the_same_transaction_conflicts() -> void:
+	if _publication_ledger == null:
+		return
 	var participant := _configured_participant()
 	var txn := _mint_transaction()
 	assert_true(participant.quote("lucky_charm", txn["transaction_id"], txn["transaction_issuer_receipt"]).get("ok", false))
@@ -283,6 +299,8 @@ func test_quote_a_second_item_under_the_same_transaction_conflicts() -> void:
 
 
 func test_quote_rejects_an_unregistered_item() -> void:
+	if _publication_ledger == null:
+		return
 	var participant := _configured_participant()
 	var txn := _mint_transaction()
 	var result: Dictionary = participant.quote("not_a_real_item", txn["transaction_id"], txn["transaction_issuer_receipt"])
@@ -290,6 +308,8 @@ func test_quote_rejects_an_unregistered_item() -> void:
 
 
 func test_quote_rejects_a_transaction_receipt_that_does_not_verify() -> void:
+	if _publication_ledger == null:
+		return
 	var participant := _configured_participant()
 	var forged := {"receipt_id": "issuer_receipt.forged", "purpose": "transaction_id", "namespace": "x",
 		"counter": 99, "token": "forged-txn", "numeric_value": null}
@@ -302,6 +322,8 @@ func test_quote_rejects_a_transaction_receipt_that_does_not_verify() -> void:
 # ---------------------------------------------------------------------------------------------
 
 func test_prepare_purchase_lucky_charm_produces_the_frozen_action_shape_and_is_pending() -> void:
+	if _publication_ledger == null:
+		return
 	var txn := _mint_transaction()
 	var result: Dictionary = _quote_and_prepare("lucky_charm", txn)
 	assert_true(result.get("ok", false), JSON.stringify(result))
@@ -325,6 +347,8 @@ func test_prepare_purchase_lucky_charm_produces_the_frozen_action_shape_and_is_p
 
 
 func test_prepare_purchase_leaves_live_economy_board_sequence_and_outbox_byte_equal() -> void:
+	if _publication_ledger == null:
+		return
 	var txn := _mint_transaction()
 	var before_state := _live_consequence()
 	var before_money: int = _state_port.money
@@ -348,6 +372,8 @@ func test_prepare_purchase_leaves_live_economy_board_sequence_and_outbox_byte_eq
 
 
 func test_prepare_purchase_durably_checkpoints_before_live_pending_is_adopted() -> void:
+	if _publication_ledger == null:
+		return
 	var txn := _mint_transaction()
 	var result: Dictionary = _quote_and_prepare("lucky_charm", txn)
 	assert_true(result.get("ok", false), JSON.stringify(result))
@@ -357,6 +383,8 @@ func test_prepare_purchase_durably_checkpoints_before_live_pending_is_adopted() 
 
 
 func test_prepare_purchase_acquires_and_retains_the_causal_transaction_lease() -> void:
+	if _publication_ledger == null:
+		return
 	var txn := _mint_transaction()
 	assert_false(_gate.is_active())
 	var result: Dictionary = _quote_and_prepare("lucky_charm", txn)
@@ -365,6 +393,8 @@ func test_prepare_purchase_acquires_and_retains_the_causal_transaction_lease() -
 
 
 func test_prepare_purchase_rejects_when_no_quote_was_retained() -> void:
+	if _publication_ledger == null:
+		return
 	var participant := _configured_participant()
 	var txn := _mint_transaction()
 	var live := _live_consequence()
@@ -379,6 +409,8 @@ func test_prepare_purchase_rejects_when_no_quote_was_retained() -> void:
 
 
 func test_prepare_purchase_rejects_a_wrong_member_set() -> void:
+	if _publication_ledger == null:
+		return
 	var participant := _configured_participant()
 	var result: Dictionary = participant.prepare_purchase({"transaction_id": "x"})
 	assert_false(result.get("ok", true))
@@ -386,6 +418,8 @@ func test_prepare_purchase_rejects_a_wrong_member_set() -> void:
 
 
 func test_prepare_purchase_rejects_a_stale_run_revision() -> void:
+	if _publication_ledger == null:
+		return
 	var participant := _configured_participant()
 	var txn := _mint_transaction()
 	var quoted: Dictionary = participant.quote("lucky_charm", txn["transaction_id"], txn["transaction_issuer_receipt"])
@@ -401,6 +435,8 @@ func test_prepare_purchase_rejects_a_stale_run_revision() -> void:
 
 
 func test_prepare_purchase_rejects_a_stale_causal_day_instance() -> void:
+	if _publication_ledger == null:
+		return
 	var participant := _configured_participant()
 	var txn := _mint_transaction()
 	var quoted: Dictionary = participant.quote("lucky_charm", txn["transaction_id"], txn["transaction_issuer_receipt"])
@@ -416,6 +452,8 @@ func test_prepare_purchase_rejects_a_stale_causal_day_instance() -> void:
 
 
 func test_prepare_purchase_rejects_insufficient_funds() -> void:
+	if _publication_ledger == null:
+		return
 	_state_port.coins = 0
 	var txn := _mint_transaction()
 	var result: Dictionary = _quote_and_prepare("lucky_charm", txn)
@@ -424,6 +462,8 @@ func test_prepare_purchase_rejects_insufficient_funds() -> void:
 
 
 func test_prepare_purchase_rejects_lucky_charm_a_second_time_on_the_same_branch() -> void:
+	if _publication_ledger == null:
+		return
 	var first_txn := _mint_transaction()
 	var first: Dictionary = _quote_and_prepare("lucky_charm", first_txn)
 	assert_true(first.get("ok", false), JSON.stringify(first))
@@ -444,6 +484,8 @@ func test_prepare_purchase_rejects_lucky_charm_a_second_time_on_the_same_branch(
 
 
 func test_prepare_purchase_rejects_a_second_pending_transaction_while_one_is_already_pending() -> void:
+	if _publication_ledger == null:
+		return
 	var first_txn := _mint_transaction()
 	var first: Dictionary = _quote_and_prepare("lucky_charm", first_txn)
 	assert_true(first.get("ok", false), JSON.stringify(first))
@@ -454,6 +496,8 @@ func test_prepare_purchase_rejects_a_second_pending_transaction_while_one_is_alr
 
 
 func test_prepare_purchase_duplicate_replay_is_idempotent_and_a_changed_payload_conflicts() -> void:
+	if _publication_ledger == null:
+		return
 	var participant := _configured_participant()
 	var txn := _mint_transaction()
 	var quoted: Dictionary = participant.quote("lucky_charm", txn["transaction_id"], txn["transaction_issuer_receipt"])
@@ -481,6 +525,8 @@ func test_prepare_purchase_duplicate_replay_is_idempotent_and_a_changed_payload_
 
 
 func test_prepare_purchase_recognizes_a_durable_pending_purchase_after_a_fresh_participant_instance() -> void:
+	if _publication_ledger == null:
+		return
 	var txn := _mint_transaction()
 	var original: Dictionary = _quote_and_prepare("lucky_charm", txn)
 	assert_true(original.get("ok", false), JSON.stringify(original))
@@ -512,6 +558,8 @@ func test_prepare_purchase_recognizes_a_durable_pending_purchase_after_a_fresh_p
 
 
 func test_prepare_purchase_a_capability_purchase_is_invisible_to_an_already_frozen_board_capability_ids() -> void:
+	if _publication_ledger == null:
+		return
 	# A shop purchase never touches board state at all -- this participant has no board dependency,
 	# so any already-materialized board spec's capability_ids is trivially untouched by a purchase.
 	var txn := _mint_transaction()
@@ -534,6 +582,8 @@ func _seed_two_base_completions(causal_day_instance: String) -> void:
 
 
 func test_supportz_purchase_rejects_without_two_base_completions_today() -> void:
+	if _publication_ledger == null:
+		return
 	var txn := _mint_transaction()
 	var result: Dictionary = _quote_and_prepare("supportz", txn)
 	assert_false(result.get("ok", true))
@@ -541,6 +591,8 @@ func test_supportz_purchase_rejects_without_two_base_completions_today() -> void
 
 
 func test_supportz_purchase_succeeds_with_two_base_completions_and_decrements_the_floor_on_commit() -> void:
+	if _publication_ledger == null:
+		return
 	_seed_two_base_completions("causal-day-1")
 	var txn := _mint_transaction()
 	var prepared: Dictionary = _quote_and_prepare("supportz", txn)
@@ -560,6 +612,8 @@ func test_supportz_purchase_succeeds_with_two_base_completions_and_decrements_th
 
 
 func test_supportz_purchase_rejects_a_second_time_the_same_causal_day() -> void:
+	if _publication_ledger == null:
+		return
 	_seed_two_base_completions("causal-day-1")
 	var first_txn := _mint_transaction()
 	var first: Dictionary = _quote_and_prepare("supportz", first_txn)
@@ -577,6 +631,8 @@ func test_supportz_purchase_rejects_a_second_time_the_same_causal_day() -> void:
 
 
 func test_supportz_purchase_rejects_a_fourth_time_on_the_same_branch() -> void:
+	if _publication_ledger == null:
+		return
 	_state_port.money = 500  # three purchases at 45 money each exceeds the fake's default 100 seed
 	for day_index: int in [1, 2, 3]:
 		var day_token := "causal-day-supportz-%d" % day_index
@@ -601,6 +657,8 @@ func test_supportz_purchase_rejects_a_fourth_time_on_the_same_branch() -> void:
 
 
 func test_supportz_purchase_rejects_when_the_live_floor_no_longer_matches_the_branch_count() -> void:
+	if _publication_ledger == null:
+		return
 	_seed_two_base_completions("causal-day-1")
 	# Corrupt the invariant directly: the live floor no longer equals -branch_purchase_count.
 	_state_port.minesweeper_round_floor = -5
@@ -667,6 +725,8 @@ func _force_terminal_cleanup() -> void:
 # ---------------------------------------------------------------------------------------------
 
 func test_commit_rejects_without_the_gate_lease() -> void:
+	if _publication_ledger == null:
+		return
 	var participant := _configured_participant()
 	var result: Dictionary = participant.commit({"transaction_id": "no-such-txn"})
 	assert_false(result.get("ok", true))
@@ -674,6 +734,8 @@ func test_commit_rejects_without_the_gate_lease() -> void:
 
 
 func test_commit_rejects_before_sequence_committed() -> void:
+	if _publication_ledger == null:
+		return
 	var txn := _mint_transaction()
 	var prepared: Dictionary = _quote_and_prepare("lucky_charm", txn)
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
@@ -685,6 +747,8 @@ func test_commit_rejects_before_sequence_committed() -> void:
 
 
 func test_commit_succeeds_after_sequence_committed_and_grants_the_capability() -> void:
+	if _publication_ledger == null:
+		return
 	var txn := _mint_transaction()
 	var prepared: Dictionary = _quote_and_prepare("lucky_charm", txn)
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
@@ -697,6 +761,8 @@ func test_commit_succeeds_after_sequence_committed_and_grants_the_capability() -
 
 
 func test_commit_is_idempotent_on_identical_replay_and_conflicts_on_changed_bytes() -> void:
+	if _publication_ledger == null:
+		return
 	var txn := _mint_transaction()
 	var prepared: Dictionary = _quote_and_prepare("lucky_charm", txn)
 	_force_sequence_committed(txn["transaction_id"])
@@ -716,6 +782,8 @@ func test_commit_is_idempotent_on_identical_replay_and_conflicts_on_changed_byte
 
 
 func test_rollback_reverts_the_prepared_pending_and_releases_the_gate() -> void:
+	if _publication_ledger == null:
+		return
 	var txn := _mint_transaction()
 	var before := _live_consequence()
 	var participant := _configured_participant()
@@ -731,6 +799,8 @@ func test_rollback_reverts_the_prepared_pending_and_releases_the_gate() -> void:
 
 
 func test_publish_records_through_the_action_source_kind_and_releases_the_gate() -> void:
+	if _publication_ledger == null:
+		return
 	var txn := _mint_transaction()
 	var prepared: Dictionary = _quote_and_prepare("lucky_charm", txn)
 	_force_sequence_committed(txn["transaction_id"])
@@ -753,6 +823,8 @@ func test_publish_records_through_the_action_source_kind_and_releases_the_gate()
 
 
 func test_publish_rejects_an_invalid_publication_shape() -> void:
+	if _publication_ledger == null:
+		return
 	var participant := _configured_participant()
 	var result: Dictionary = participant.publish({"wrong_key": {}})
 	assert_false(result.get("ok", true))
@@ -767,6 +839,8 @@ func test_publish_rejects_an_invalid_publication_shape() -> void:
 # ---------------------------------------------------------------------------------------------
 
 func test_validate_recovery_action_is_mutation_free_and_returns_the_frozen_publication_shape() -> void:
+	if _publication_ledger == null:
+		return
 	var txn := _mint_transaction()
 	var prepared: Dictionary = _quote_and_prepare("lucky_charm", txn)
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
@@ -785,6 +859,8 @@ func test_validate_recovery_action_is_mutation_free_and_returns_the_frozen_publi
 
 
 func test_commit_recovery_action_grants_the_capability_and_is_idempotent() -> void:
+	if _publication_ledger == null:
+		return
 	var txn := _mint_transaction()
 	var prepared: Dictionary = _quote_and_prepare("lucky_charm", txn)
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
@@ -816,6 +892,8 @@ func test_commit_recovery_action_grants_the_capability_and_is_idempotent() -> vo
 
 
 func test_commit_recovery_action_rejects_changed_bytes_at_the_same_identity() -> void:
+	if _publication_ledger == null:
+		return
 	var txn := _mint_transaction()
 	var prepared: Dictionary = _quote_and_prepare("lucky_charm", txn)
 	var receipt: Dictionary = (prepared["value"] as Dictionary)["action_receipt"]
@@ -839,6 +917,8 @@ func test_commit_recovery_action_rejects_changed_bytes_at_the_same_identity() ->
 ## which DesktopConsequenceCoordinator calls after terminal cleanup -- see that method's own doc
 ## comment.
 func test_publish_recovery_action_records_through_action_source_and_retains_the_gate() -> void:
+	if _publication_ledger == null:
+		return
 	var txn := _mint_transaction()
 	var prepared: Dictionary = _quote_and_prepare("lucky_charm", txn)
 	var receipt: Dictionary = (prepared["value"] as Dictionary)["action_receipt"]
@@ -872,6 +952,8 @@ func test_publish_recovery_action_records_through_action_source_and_retains_the_
 # ---------------------------------------------------------------------------------------------
 
 func test_prepare_purchase_result_is_detached_from_internal_state() -> void:
+	if _publication_ledger == null:
+		return
 	var participant := _configured_participant()
 	var txn := _mint_transaction()
 	var quoted: Dictionary = participant.quote("lucky_charm", txn["transaction_id"], txn["transaction_issuer_receipt"])

@@ -1,4 +1,7 @@
 extends "res://addons/gut/test.gd"
+
+# Retained semantic fixtures exercise current playback owners, not shipped story startup.
+var _scene_validation_scope := preload("res://tests/support/SceneValidationScope.gd").new()
 # Held fast-forward through DialogicBridge (dwm-p2r.8, Plan-05 Task 4 Steps 4.2/4.3).
 # Repeated request_skip_step() must reveal each line, mark it globally visited BEFORE deciding,
 # and stop before every boundary WITHOUT consuming it.
@@ -100,8 +103,13 @@ class _FakeMutationGate extends Node:
 
 
 func before_each() -> void:
+	_scene_validation_scope.install(true)
 	_bridge = BRIDGE.new()
 	add_child_autofree(_bridge)
+
+
+func after_each() -> void:
+	_scene_validation_scope.restore()
 
 
 func _active_entry_fixture(token: String = "skip-fixture-token") -> Dictionary:
@@ -369,6 +377,32 @@ func test_mutation_gate_blocks_ack_but_not_opaque_capture_or_later_exact_retry()
 	assert_true(retried.get("ok", false), str(retried))
 	assert_eq(profile.mark_calls, [LINE_A])
 	assert_true(bool(_bridge.call("is_current_line_presentation_acknowledged")))
+
+
+func test_skip_checks_mutation_custody_before_reveal_or_profile_write() -> void:
+	var wired := _wired([[LINE_A, "text"]], POLICY.READ_ONLY)
+	var gate := _FakeMutationGate.new()
+	add_child_autofree(gate)
+	assert_true(_bridge.configure_mutation_gate(gate).ok)
+	assert_true(_bridge.capture_current_line_presentation_frontier().ok, "pure renderer capture remains available")
+	var result: Dictionary = _bridge.request_skip_step()
+	assert_false(result.ok)
+	assert_eq(result.code, &"fixture_gate_held")
+	assert_eq(wired.adapter.calls, [], "custody refusal precedes native reveal")
+	assert_eq(wired.profile.mark_calls, [])
+	assert_eq(wired.adapter.cursor, 0)
+
+
+func test_skip_checks_fatal_acknowledgement_latch_before_reveal() -> void:
+	var wired := _wired([[LINE_A, "text"]], POLICY.READ_ONLY)
+	wired.profile.failure_result = {"ok": false, "code": &"indeterminate_commit", "fatal": true}
+	var proof: Dictionary = _bridge.capture_current_line_presentation_frontier()
+	var failed: Dictionary = _bridge.acknowledge_current_line_presentation(proof)
+	assert_false(failed.ok)
+	wired.profile.failure_result.clear()
+	assert_eq(_bridge.request_skip_step(), failed)
+	assert_eq(wired.adapter.calls, [], "the fatal owner never reveals or advances")
+	assert_eq(wired.profile.mark_calls, [LINE_A], "fatal refusal never retries the Profile write")
 
 
 func test_fatal_acknowledgement_latch_survives_frontier_replacement_until_profile_rebind() -> void:

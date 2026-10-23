@@ -1,0 +1,149 @@
+{
+  "reports": [
+    {
+      "path": "ci/audio.xml",
+      "tests": 44,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "29d6afb6c1e1d3124239fdf54cd5a24aa19167a31bb0d46fae7a1cfb091d1b41",
+      "artifact_id": 11291934375
+    },
+    {
+      "path": "ci/checkpoint_diagnostics.xml",
+      "tests": 22,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "a8ec9a142eafe4ada5632e527cb3b44573a567855035dadb92278ec09c51babb",
+      "artifact_id": 11292278317
+    },
+    {
+      "path": "ci/dating.xml",
+      "tests": 174,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "b7dd69da6166d799032b7b2cb6c94680a907ae960615b270854b89d0169a9f1f",
+      "artifact_id": 11292607742
+    },
+    {
+      "path": "ci/desktop.xml",
+      "tests": 334,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "97dc64a17cb26275a92dfc15401eebddb6787b304c43f18af0221336adf366be",
+      "artifact_id": 11292478221
+    },
+    {
+      "path": "ci/endings.xml",
+      "tests": 106,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "bba745f204e4da1b208ce0d96b704093163dc8ae17d24a8bb8fd57024d6e8b37",
+      "artifact_id": 11291994095
+    },
+    {
+      "path": "ci/localization.xml",
+      "tests": 153,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "bd142fdf840691c1667e4418d23190c7cc487c1cd421f40b0b36328f2d15656e",
+      "artifact_id": 11292153942
+    },
+    {
+      "path": "ci/minesweeper.xml",
+      "tests": 210,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "2de42b60db589342c91936cbee47bd0548e44216ff964ce805236da2d718ebd8",
+      "artifact_id": 11292597687
+    },
+    {
+      "path": "ci/new_account.xml",
+      "tests": 179,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "e5fa0558e10dbae5dc367edd31bd5a6e8a1609dea5c9e495ca93ad603d9e88fb",
+      "artifact_id": 11292502949
+    },
+    {
+      "path": "ci/persistence.xml",
+      "tests": 234,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "be44b82aa9cca116ab34d5886e0b39a7e277f416d5631b765dabe1b07f5d39fd",
+      "artifact_id": 11291939344
+    },
+    {
+      "path": "ci/public_surfaces.xml",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "50263ae1bff3b6fe8cf42035d6b93c969c8b051a420a0b128c29673fcfa2a994",
+      "artifact_id": 11292542555
+    },
+    {
+      "path": "ci/reading_delivery.xml",
+      "tests": 633,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "b833b7c4e53f78ec39fbe702d9f00c6697581f7178bbc1b450a64819ff25cc17",
+      "artifact_id": 11292099859
+    },
+    {
+      "path": "ci/settings.xml",
+      "tests": 357,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "7a5a77cc921a58eb14455409f21c711bc981f2789d6475f7de7f73a763ad6bd5",
+      "artifact_id": 11293010068
+    },
+    {
+      "path": "ci/shop.xml",
+      "tests": 144,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "78ba1112d1619f5d7ac24d8eb0fdda1a98ec6442f370ce9faf3f2304d5c14371",
+      "artifact_id": 11292348221
+    }
+  ],
+  "primary_xml_reports": 13,
+  "primary_cases": {
+    "tests": 2601,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "native": {
+    "ok": true,
+    "checkout": "e21892b49107cd13c6be77f1afe87bb568135118",
+    "run_id": "37173880983",
+    "run_attempt": "1",
+    "native_invocations": 2,
+    "runtime": {
+      "ended": 0,
+      "event_index": 1,
+      "finished": 1,
+      "ok": true,
+      "phase": "two_native_invocations",
+      "physical_contacts": 0,
+      "reveal_generation": 3,
+      "revealing": true,
+      "scope": "Synthetic mounted caption; Windows UIA discovery/invocation only. No whole-screen-reader or production route acceptance.",
+      "text": "The successor keeps its own reveal."
+    },
+    "scope": "Mounted fixture, native Windows UIA Invoke. No screen-reader navigation or production route claim."
+  },
+  "limits": "Two intentional storage-refusal controls are not primary test cases; native two-stage proof is counted separately."
+}

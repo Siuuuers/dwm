@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="1" >
+  <testsuite name=".godot/ci/pair-next.gd" tests="1" failures="0" skipped="0" time="704.420254" >
+      <testcase name="test_genuine_ending_load_save" assertions="112" status="pass" classname=".godot/ci/pair-next.gd" time="704.420254" >
+      </testcase>
+  </testsuite>
+</testsuites>

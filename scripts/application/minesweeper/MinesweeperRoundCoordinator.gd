@@ -127,6 +127,16 @@ var _round_recovery_committed: Dictionary = {}
 ## DWM_CONSEQUENCE_PROFILE gate, read from the environment once per instance in _init(). Every
 ## profile marker below costs exactly one boolean check while the variable is unset.
 var _profile_enabled: bool = false
+var _scene_completion_owner: Object
+
+func configure_scene_completion(owner: Object) -> Dictionary:
+	if not is_instance_valid(owner) or not owner.has_method("commit_scene_round_completion"):
+		return _fail(&"invalid_scene_completion_owner", "", {})
+	if _scene_completion_owner != null and _scene_completion_owner != owner:
+		return _fail(&"scene_completion_owner_conflict", "", {})
+	_scene_completion_owner = owner
+	return {"ok": true}
+
 
 
 func configure_source_checkpoint_capture(capture_inputs: Callable) -> Dictionary:
@@ -277,6 +287,8 @@ func configure_consequence_checkpoint(consequence_state_port: Object, checkpoint
 ## `condition_after` mirror the Shop participant's own health/pressure/carried_sequela pattern via
 ## `GameStateDesktopBoardPort`'s matching Task-8 extension.
 func complete_round(request: Dictionary) -> Dictionary:
+	if is_instance_valid(_scene_completion_owner) and _scene_completion_owner.scene_round_completion_active():
+		return _scene_completion_owner.commit_scene_round_completion(request.duplicate(true))
 	var profile := _consequence_profile_start("minesweeper_round_complete")
 	var profile_tick := int(profile.get("_started_us", 0))
 	var retry_id := str(request.get("transaction_id", ""))
@@ -1219,18 +1231,19 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 		return base_captured
 	var base_snapshot_input: Dictionary = (base_captured["value"] as Dictionary)["snapshot_input"]
 
+	# One result is retained both in the durable projection and the eventual live commit.
+	board_candidate["result_override"] = {
+		"ok": true, "code": &"first_reveal_committed",
+		"value": {"receipt": receipt.duplicate(true), "publication": publication.duplicate(true)},
+		"receipt": {},
+	}
+
 	var composed: Dictionary = _snapshot_composer.call(&"compose", base_snapshot_input,
 		game_state_candidate, board_candidate, consequence_candidate)
 	profile_tick = _consequence_profile_phase(profile, "compose_us", profile_tick)
 	if not composed.get("ok", false):
 		return composed
 	var post_commit_snapshot_input: Dictionary = (composed["value"] as Dictionary)["snapshot_input"]
-
-	board_candidate["result_override"] = {
-		"ok": true, "code": &"first_reveal_committed",
-		"value": {"receipt": receipt.duplicate(true), "publication": publication.duplicate(true)},
-		"receipt": {},
-	}
 
 	var state_backup_captured: Dictionary = _state_port.call(&"capture")
 	profile_tick = _consequence_profile_phase(profile, "state_capture_us", profile_tick)

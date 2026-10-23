@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "archive": "dwm-run102-cloud-evidence.tar.gz",
+  "bytes": 16264094,
+  "sha256": "2f808f89d2b2d6ce3fb2b6c4f9049973c79cf23d332ad2833be42b50b48559ba",
+  "parts": [
+    {
+      "file": "dwm-run102-cloud-evidence.tar.gz.part01",
+      "bytes": 8388608,
+      "sha256": "3dec2fde527a601c44cd3e90dc52b51828450cc92575a168aef36652d712db3e"
+    },
+    {
+      "file": "dwm-run102-cloud-evidence.tar.gz.part02",
+      "bytes": 7875486,
+      "sha256": "b8c286c0021e8c8f367321f9d80b562eeff1b6fea91dcd0790809f3abd4c93f4"
+    }
+  ],
+  "concatenate_parts_in_list_order": true,
+  "reassembly_byte_verified": true,
+  "reason": "Bounded transfer parts preserve the exact audited archive within the GitHub connector request limit."
+}

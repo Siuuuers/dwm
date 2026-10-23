@@ -1,0 +1,2 @@
+cbb6476a72c2ef2927770260cb31ec334afd6334bd08b58030956fd2414d213c  hospital-focus4-diagnostic.tar.gz
+f965df391a0121cbd34ce239f4cec3ed5adb96cd3104d29a973efa3c37bfa540  manifest.json

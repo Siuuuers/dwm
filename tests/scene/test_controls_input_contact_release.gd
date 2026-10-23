@@ -16,7 +16,7 @@ func before_each() -> void:
 		_map[action] = {"deadzone": InputMap.action_get_deadzone(action),
 			"events": InputMap.action_get_events(action).duplicate(true)}
 	_surface = SubViewport.new()
-	_surface.size = Vector2i(800, 656)
+	_surface.size = Vector2i(1280, 720)
 	_surface.gui_embed_subwindows = true
 	add_child(_surface)
 
@@ -60,6 +60,7 @@ func test_release_inside_real_controls_capture_clears_parent_contact_before_firs
 		"audio": null, "volume": null, "tts": null, "window": null,
 		"profile_reset_admission": func() -> bool: return false})
 	_surface.add_child(content)
+	content.scale = Vector2(1.2, 1.2)
 	content.select_category("controls")
 	content.hide()
 	var grid: Control = GRID.new()
@@ -92,6 +93,8 @@ func test_release_inside_real_controls_capture_clears_parent_contact_before_firs
 	await _key(_surface, KEY_ENTER, true)
 	await _key(_surface, KEY_ENTER, false)
 	assert_true(sheet.capture_dialog.visible)
+	assert_almost_eq(sheet.capture_dialog.content_scale_factor, 1.2, 0.001, "Binding capture magnifies with the computer content")
+	assert_eq(sheet.capture_dialog.size.x, 864, "The enlarged capture window keeps its full content width")
 	if not sheet.capture_dialog.visible: return
 	var revision: int = profile.get_profile_revision()
 	await _key(sheet.capture_dialog, KEY_F6, true)

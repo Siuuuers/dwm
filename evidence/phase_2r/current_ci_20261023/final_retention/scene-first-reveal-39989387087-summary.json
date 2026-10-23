@@ -1,0 +1,32 @@
+{
+  "run_id": 39989387087,
+  "job_id": 120536889371,
+  "artifact_id": 12517690807,
+  "artifact_sha256": "4d73b83023ba9923afbd8c4b979ec41acb0cd916a2bbc117a02dd456dcf4269b",
+  "artifact_bytes": 19904,
+  "zip_crc_verified": true,
+  "source": "d74663635f04f63d3bb3e12f1811fee175cadbf7",
+  "source_tree": "137a4d9976c2438c863816634d71a1dda7a4184a",
+  "controller": "15f55f3569467fdcbfc3ebac3f4cf9d8887c6b16",
+  "reports": [
+    {
+      "file": "scene_desktop_first_reveal.xml",
+      "cases": 1,
+      "assertions": 92,
+      "status": "pass"
+    },
+    {
+      "file": "scene_desktop_first_reveal-load.xml",
+      "cases": 1,
+      "assertions": 51,
+      "status": "pass"
+    }
+  ],
+  "creator_process_id": 1980,
+  "loader_process_id": 1632,
+  "same_test_root": true,
+  "same_user_dir": true,
+  "source_branch": "branch_id.c2db1bcdb472ae7de4dec74f1ccde38b3d8d2e4be801bb6d6df9b11b4eb0f193",
+  "destination_branch": "branch_id.af3c8e945783014ad44cf9b69ee0fd2325ab8917753f4fe592483eb0af0a957e",
+  "verified_scope": "Passing assertions cover real filesystem refusal and retry, complete Save9/Run9 persistence, fresh selected Load retaining board and gameplay without recharge, and no presentation-open accounting changes. Rendered native process; no screenshot or physical-input UI claim. Load proof run payload is the retained creator witness; live equality is verified by the passing Load assertions. Historical post-checkpoint/pre-live-adoption crash injection matrix is not reproduced."
+}

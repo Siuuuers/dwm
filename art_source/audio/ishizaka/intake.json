@@ -1,0 +1,18 @@
+[
+  {
+    "gain_db": 0,
+    "original_sha256": "e4b2999f155a97f6ff6c52cad9c5ea7fba175151603ae47d77b7e447b4b1565c",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/b/bc/Kimiko_Ishizaka_-_Bach_-_Well-Tempered_Clavier%2C_Book_1_-_17_Prelude_No._9_in_E_major%2C_BWV_854.ogg",
+    "bytes": 2335340,
+    "path": "audio/bgm/menu_theme.ogg",
+    "runtime_sha256": "e4b2999f155a97f6ff6c52cad9c5ea7fba175151603ae47d77b7e447b4b1565c"
+  },
+  {
+    "gain_db": -6,
+    "original_sha256": "541bc8b1c09dd2844c5a8a9f9f8c4aea478ea7470f07bc59dee7644e38c6181b",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/f/fc/Kimiko_Ishizaka_-_Bach_-_Well-Tempered_Clavier%2C_Book_1_-_27_Prelude_No._14_in_F-sharp_minor%2C_BWV_859.ogg",
+    "bytes": 1160725,
+    "path": "audio/bgm/story_theme.ogg",
+    "runtime_sha256": "ed4a49ebf574fe220bb3b399fecc9cd5c4d6af2016d0c1111e88894d4bf089a5"
+  }
+]

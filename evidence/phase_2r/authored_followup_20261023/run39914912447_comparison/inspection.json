@@ -1,0 +1,87 @@
+{
+  "source": {
+    "workflow": "73f4cc58b61e4e885672372e118d76ef3647a6bd",
+    "run_id": "39914912447",
+    "attempt": "1",
+    "event": "73f4cc58b61e4e885672372e118d76ef3647a6bd",
+    "tree": "14b77bc54dd2e87fc1d8038d005b154fd95d1c13",
+    "controller": "d27304df01b76aa226055668442c07ddf33930ff",
+    "candidate": "86668705820ca91676f14455d71df4fe5b36c138"
+  },
+  "run_url": "https://github.com/Siuuuers/dwm/actions/runs/39914912447",
+  "artifact_sha256": "8cf0640577d112e99d1810f39c24d671ae5f04c577e6d849498cf9a8bf5fe1dc",
+  "phases": [
+    {
+      "elapsed_us": 8054098,
+      "ok": true,
+      "phase": "boot"
+    },
+    {
+      "elapsed_us": 20255017,
+      "ok": true,
+      "phase": "title_backup"
+    },
+    {
+      "elapsed_us": 70924,
+      "ok": true,
+      "phase": "select_autosave"
+    },
+    {
+      "elapsed_us": 85138628,
+      "ok": true,
+      "phase": "load"
+    },
+    {
+      "elapsed_us": 148042187,
+      "ok": true,
+      "phase": "control_departure"
+    },
+    {
+      "elapsed_us": 921235,
+      "ok": true,
+      "phase": "ordinary_caption_291"
+    },
+    {
+      "elapsed_us": 844753,
+      "ok": true,
+      "phase": "ordinary_caption_292"
+    },
+    {
+      "elapsed_us": 110230,
+      "ok": true,
+      "phase": "caption_memory"
+    }
+  ],
+  "retained_files": {
+    "ci/audit-origin.json": {
+      "sha256": "8248de7cadb17f7c4b4019c7bdf33dffefee2db03a28d07d5a33b420da602a66",
+      "retained_as": "audit-origin.json"
+    },
+    "ci/authored-recovery.json": {
+      "sha256": "d9969838374a6f5036f78a2da07429069543bfedc9e7a474f735daec072af869",
+      "retained_as": "authored-recovery.json"
+    },
+    "phase2r_logs/authored-recovery.log": {
+      "sha256": "6bc5aa03b03bc47980f0cd1a1eaec88cd2a77474b99be3deb97f7ecbfdebedc6",
+      "retained_as": "authored-recovery.log"
+    },
+    "ci/authored-recovery.xml": {
+      "sha256": "0ccfe89a5d4a04a62ce00d7b4757795a369bd3667029b467754bf9106c22703c",
+      "retained_as": "authored-recovery.xml"
+    },
+    "ci/caption-ledger.xml": {
+      "sha256": "37bdf4483e9961e306b688793380d0d9f9b2fe3dcc14ea9f1055ea28ad607505",
+      "retained_as": "caption-ledger.xml"
+    },
+    "ci/caption-ledger.jsonl": {
+      "sha256": "8f3e5494d60fcf5942b40d3c6514c68a9db12b3cf0e13be794ef9959046d59b6",
+      "retained_as": "caption-ledger.jsonl"
+    },
+    "ci/authored-recovery.jsonl": {
+      "sha256": "f0720b4efe43812af7108eb24f5a661034808723f7b97474db2fa09eaaecfdcc",
+      "retained_as": "authored-recovery.jsonl"
+    }
+  },
+  "scope": "bounded authentic Day2 recovery, not full-week acceptance",
+  "original_archive": "GitHub Actions artifact; durable seed remains in repository run39888749357_journey/original-artifact.zip"
+}

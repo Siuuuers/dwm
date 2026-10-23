@@ -1,8 +1,10 @@
 extends SceneTree
-## Isolated actual-player practice journey. The ONLY injected gameplay-history fixture is one
-## explicitly labeled prior-ending Profile milestone; date reach and both boards are real.
-## Run with --prior-ending-fixture; --render-evidence additionally saves actual GPU frames.
-## --probe-date-replay also replays the actually reached Before scene after Practice returns.
+## Current empty-DTL journey proves that unshown prose never earns a Gallery/Practice record.
+## --prior-ending-fixture explicitly seeds only the existing Practice milestone.
+## --legacy-reached-fixture additionally seeds one labeled historical record to exercise private
+## board compatibility; that record is never reported as earned by this canonical empty scene.
+## --render-evidence requires a real GPU/software renderer. --probe-date-replay requires both
+## --legacy-reached-fixture and rendering because the retained legacy replay is a drawn card.
 
 const ENTRY := "dating.solo.priscilla.day1.pre_challenge"
 var _stage := "startup"
@@ -98,7 +100,7 @@ func _probe_reached_date_replay(gallery: Node, title: Node, reached: Dictionary)
 	var selected: Button
 	for row: Button in gallery.get_node("%EndingTileGrid").get_children():
 		if row.get_meta(&"gallery_record_id", "") == reached.signature.entry_id: selected = row
-	if not _check(selected != null and selected.is_visible_in_tree(), "actual Gallery contains canonically reached Before scene"): return false
+	if not _check(selected != null and selected.is_visible_in_tree(), "actual Gallery contains the explicitly seeded historical Before scene"): return false
 	if not _check(not selected.text.contains("dating.") and not selected.text.contains("signature"), "date picker uses audience-facing title"): return false
 	selected.pressed.emit()
 	var version := -1
@@ -114,7 +116,7 @@ func _probe_reached_date_replay(gallery: Node, title: Node, reached: Dictionary)
 	if not await _wait_until(func(): return bridge.get("_reached_replay").has("surface"), "real readonly date surface mounts"): return false
 	var playback: Dictionary = bridge.get("_reached_replay")
 	if not _check(playback.signature == reached.signature and playback.signature_id == reached.signature_id,
-		"readonly presentation freezes the exact canonically reached source"): return false
+		"readonly presentation freezes the exact explicitly seeded historical source"): return false
 	var token: String = playback.token
 	var surface: Node = playback.surface
 	if not await _wait_until(func(): return is_instance_valid(surface) and surface.get("_drawn") and not surface.get("_next").disabled,
@@ -123,7 +125,7 @@ func _probe_reached_date_replay(gallery: Node, title: Node, reached: Dictionary)
 		"real staging history carries this exact playback token"): return false
 	if not _check(surface.get("_current_body").text == preload("res://scripts/ui/DatingScene.gd").reached_presentation_copy(
 		reached.signature, str(root.get_node("LocalizationManager").get_locale())).value.body,
-		"actual replay uses the canonical date's shared phase copy"): return false
+		"legacy replay uses the registered date's shared phase copy"): return false
 	if not _unchanged("actual date replay displayed"): return false
 	if not await _capture_screen("09-exact-reached-date-replay"): return false
 	surface.get("_next").pressed.emit()
@@ -135,8 +137,21 @@ func _probe_reached_date_replay(gallery: Node, title: Node, reached: Dictionary)
 		"public Gallery Return restores title home"): return false
 	if not _unchanged("Gallery Return after replay"): return false
 	if not await _capture_screen("10-title-after-exact-date-replay"): return false
-	print("PLAYABLE_REACHED_DATE_REPLAY_PASS: exact canonical Before signature -> public Gallery Replay -> actual card draw -> Next -> Gallery Return; Run/Profile/Dialogic unchanged.")
+	print("PLAYABLE_REACHED_DATE_REPLAY_LEGACY_PASS: explicit historical Before fixture -> public Gallery Replay -> actual card draw -> Next -> Gallery Return; Run/Profile/Dialogic unchanged.")
 	return true
+
+func _seed_explicit_legacy_reached_fixture() -> bool:
+	if not _check(_reached_date().is_empty(), "canonical empty DTL produced no reached record before the compatibility fixture"): return false
+	var gate: Object = _bootstrap.get("_application_gate")
+	var lease: Dictionary = gate.acquire(&"causal_transaction")
+	if not _check(lease.get("ok", false), "legacy fixture causal lease"): return false
+	var seeded: Dictionary = _profile.record_reached_presentation({"entry_id": ENTRY, "schema_version": 1,
+		"fields": {"tier": "friend", "tone": "sweet", "attitude": "neutral", "echo_ids": []}})
+	var released: Dictionary = gate.release(&"causal_transaction", lease.value.token)
+	if not _check(seeded.get("ok", false) and released.get("ok", false), "explicit legacy reached fixture"): return false
+	print("PRACTICE_LEGACY_FIXTURE: one historical pre-challenge signature seeded after proving the current empty DTL earns none; not canonical witness evidence.")
+	return true
+
 
 func _seed_explicit_prior_ending_fixture() -> bool:
 	if not _check("--prior-ending-fixture" in OS.get_cmdline_user_args(), "explicit --prior-ending-fixture flag is required"): return false
@@ -157,6 +172,9 @@ func _seed_explicit_prior_ending_fixture() -> bool:
 	return true
 
 func _run() -> void:
+	if "--probe-date-replay" in OS.get_cmdline_user_args() and "--legacy-reached-fixture" not in OS.get_cmdline_user_args():
+		_check(false, "--probe-date-replay requires the explicitly labeled --legacy-reached-fixture")
+		return
 	await _frames(12)
 	_bootstrap = root.get_node_or_null("ApplicationBootstrap")
 	_game = root.get_node_or_null("GameState")
@@ -188,7 +206,8 @@ func _run() -> void:
 		# Only the test reads a real hidden mine to finish the round through public Reveal.
 		var actual: Dictionary = _bootstrap.get("_desktop_board_state").capture().board.board
 		board_panel.worksheet.cell_action_requested.emit(&"reveal", int(actual.mine_indices[0]), int(board_panel.public_view.board.revision))
-	if not _check(mine_app.last_result.get("ok", false) and board_panel.public_view.settled, "actual round is settled"): return
+	if not await _wait_until(func(): return mine_app.last_result.get("ok", false) and board_panel.public_view.settled,
+		"terminal board paints then the actual round settles"): return
 	if not _check(_game.contacts.solo_actions.has("solo:priscilla:day1"), "real round unlocked Priscilla invitation"): return
 	if not _check(desktop.return_home().get("ok", false), "Home after round"): return
 	opened = desktop.open_app(&"contacts")
@@ -224,13 +243,13 @@ func _run() -> void:
 	var dating: Node = current_scene
 	if not _check(dating.get("_input_owner") == root.get_node("InputManager") and dating.worksheet.grid.get("_input_owner") == root.get_node("InputManager"),
 		"actual canonical Dating input service is composed"): return
-	# No draw signal or reached-record writer is called by this test. Real rendering earns it.
-	if not await _wait_until(func(): return not _reached_date().is_empty(), "actual pre-challenge draw records its exact reached presentation"): return
-	var reached: Dictionary = _reached_date()
-	if not _check(reached.signature.entry_id == ENTRY and bool(dating.get("_pre_challenge_reached")), "canonical draw and recorded signature agree"): return
-	if not await _capture_screen("02-canonical-date-reached"): return
-	dating.get("_continue_button").pressed.emit()
-	if not _check(dating.get("_physical_view").phase == "challenge", "actual Continue starts canonical challenge"): return
+	if not await _wait_until(func(): return dating.get("_physical_view").get("phase") == "challenge",
+		"empty canonical pre-DTL enters its real board automatically"): return
+	if not _check(not dating.get("_continue_button").visible and not dating.get("_special_mine_button").visible,
+		"canonical board has no retired confirmation or special-mine choice"): return
+	if not _check(_reached_date().is_empty(), "empty pre-DTL grants no witnessed signature"): return
+	var reached: Dictionary = {}
+	if not await _capture_screen("02-canonical-empty-date-board"): return
 	dating.worksheet.cell_action_requested.emit(&"reveal", 0, int(dating.get("_physical_view").board.revision))
 	if not _check(_game.capture_dating_challenge_state().value.board != null, "actual canonical first Reveal creates board"): return
 	if not await _wait_until(func(): return not dating.get("_dispatching") and not _bootstrap.get("_application_gate").is_active(), "idle canonical board before Pause"): return
@@ -256,6 +275,11 @@ func _run() -> void:
 	if not await _wait_until(func(): return not paused and current_scene != null and current_scene.has_node("%NewAccButton"), "confirmed Return reaches title"): return
 	if not _check(not _game.capture_live_session().value.active, "Return retires canonical live session"): return
 	await _frames()
+	if not _check(_reached_date().is_empty(), "canonical board and Return did not fabricate a reached date"): return
+	if "--legacy-reached-fixture" in OS.get_cmdline_user_args():
+		if not _seed_explicit_legacy_reached_fixture(): return
+		reached = _reached_date()
+		if not _check(not reached.is_empty(), "explicit historical fixture is readable"): return
 	_capture_baseline()
 	var title: Node = current_scene
 	_stage = "public Gallery practice picker"
@@ -267,10 +291,23 @@ func _run() -> void:
 	gallery.get("_practice_button").pressed.emit()
 	if not await _wait_until(func(): return gallery.get("_practice_host") != null, "actual Practice picker mounts"): return
 	var practice: Node = gallery.get("_practice_host")
+	if reached.is_empty():
+		if not _check(practice.get("_records").is_empty() and practice.get("_start").disabled
+			and practice.get("_dates").disabled and practice.get("_dating") == null,
+			"empty canonical DTL leaves an honest empty Practice picker"): return
+		if not _unchanged("empty Practice picker"): return
+		if not await _capture_screen("05-empty-practice-picker"): return
+		practice.get("_return_button").pressed.emit()
+		if not await _wait_until(func(): return not gallery.has_active_rehearsal() and gallery.get("_canvas").visible,
+			"empty Practice Return restores Gallery"): return
+		if not _unchanged("empty Practice Return"): return
+		print("PLAYABLE_EMPTY_DTL_PRACTICE_PASS: actual New Account -> invitation -> scheduled automatic Dating board -> Pause Return -> Gallery Practice; no reached record, no selectable fabricated date, canonical state unchanged.")
+		quit(0)
+		return
 	var selected_index := -1
 	for index: int in practice.get("_records").size():
 		if practice.get("_records")[index] == reached: selected_index = index
-	if not _check(selected_index >= 0, "picker contains only the exact physically reached date version"): return
+	if not _check(selected_index >= 0, "picker contains the exact explicitly seeded historical date version"): return
 	practice.get("_dates").select(selected_index)
 	practice.get("_dates").item_selected.emit(selected_index)
 	if not _unchanged("picker"): return
@@ -284,13 +321,24 @@ func _run() -> void:
 		"sandbox starts exact reached presentation"): return
 	if not _check(practice_scene.get("_input_owner") == root.get_node("InputManager")
 		and practice_scene.worksheet.grid.get("_input_owner") == root.get_node("InputManager"), "actual Practice board input service is composed"): return
-	practice_scene.get("_continue_button").pressed.emit()
-	if not _check(practice_scene.get("_physical_view").phase == "challenge", "public Practice Continue starts real board"): return
+	if not await _wait_until(func(): return practice_scene.get("_physical_view").get("phase") == "challenge",
+		"empty private pre-DTL enters its real board automatically"): return
+	if not _check(not practice_scene.get("_continue_button").visible, "private board has no routine Continue"): return
+	var private_before: Dictionary = sandbox.get("_sandbox").capture_dating_challenge_state().value
+	var frozen_spec: Dictionary = private_before.spec.duplicate(true)
+	if not _check(frozen_spec.width == 18 and frozen_spec.height == 18 and frozen_spec.base_mine_count == 36
+		and frozen_spec.pressure == _game.get_stat("pressure")
+		and frozen_spec.penalty_points_today == _game.penalty_points_today,
+		"private board retains the canonical base dimensions and copied current hidden inputs"): return
 	practice_scene.worksheet.cell_action_requested.emit(&"reveal", 0, int(practice_scene.get("_physical_view").board.revision))
 	# Read-only inspection verifies the production generator/reducer; no board is fabricated.
+	# 36 is the base count. Retained pressure/capabilities determine the requested total.
 	var private_record: Dictionary = sandbox.get("_sandbox").capture_dating_challenge_state().value
-	if not _check(private_record.board != null and private_record.spec.width == 18 and private_record.spec.height == 18
-		and private_record.spec.requested_mine_count == 36 and private_record.board.revealed_indices.has(0), "real 18x18/36 Practice board accepts first Reveal"): return
+	if not _check(private_record.board != null and private_record.spec == frozen_spec
+		and private_record.board.width == 18 and private_record.board.height == 18
+		and private_record.board.mine_count == frozen_spec.requested_mine_count
+		and private_record.board.revealed_indices.has(0) and not private_record.board.mine_indices.has(0),
+		"real Practice board reveals a safe first cell with the exact retained specification"): return
 	if not _unchanged("practice first Reveal"): return
 	if not await _capture_screen("06-practice-board"): return
 	_stage = "Practice returns without canonical mutation"
@@ -307,5 +355,5 @@ func _run() -> void:
 	if not await _capture_screen("08-return-gallery"): return
 	if "--probe-date-replay" in OS.get_cmdline_user_args():
 		if not await _probe_reached_date_replay(gallery, title, reached): return
-	print("PLAYABLE_REHEARSAL_PASS: real New Account -> Day1 round -> accepted/scheduled date -> actual reached draw -> canonical board -> public Pause Return -> Gallery Practice -> exact version -> real private board -> Return twice; Run/Profile/Dialogic unchanged during practice.")
+	print("PLAYABLE_REHEARSAL_LEGACY_PASS: real New Account -> scheduled automatic Dating board -> Pause Return; explicitly seeded historical signature -> Gallery Practice -> exact version -> automatic private board -> Return twice; canonical Run/Profile/Dialogic unchanged during practice.")
 	quit(0)

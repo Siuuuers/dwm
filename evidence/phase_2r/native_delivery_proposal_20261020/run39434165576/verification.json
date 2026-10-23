@@ -1,0 +1,77 @@
+{
+  "archive_bytes": 15393,
+  "archive_sha256": "c6b9f0e928ed7db48a4fcd9d4746a54d0b997c9c7c10ec5c7e9579cc20c171d2",
+  "members": 9,
+  "manifest_payloads": 8,
+  "origin": {
+    "source": "f789011a02c1c206d0293c9fd3e61c02bb18d583",
+    "powershell": "7.6.6",
+    "attempt": "1",
+    "os": "Microsoft Windows NT 10.0.20348.0",
+    "controller": "9f7fe38ad6255b8b094d96024e77750f074c13f4",
+    "run_id": "39434165576",
+    "hashes": {
+      "Test-ExportedGameplayDeadline.proposed.ps1": "59e141352e3e525d44c84ebe66b156fa73991424c9a3fdd0ca8aa0403214c939",
+      "Invoke-ExportedGameplay.proposed.ps1": "38b160fbc625026b6ec30376d9214cda0a4bde17cb932dec4a4e73f3d59c5788"
+    },
+    "event": "8f49ecb30f59599ef420f2c199f122e611c88f2d",
+    "workflow": "8f49ecb30f59599ef420f2c199f122e611c88f2d",
+    "scope": "Parser and fake-provider cases only; no driver top-level or game launch"
+  },
+  "parsers": {
+    "results": [
+      {
+        "errors": [],
+        "name": "Invoke-ExportedGameplay.proposed.ps1",
+        "ok": true
+      },
+      {
+        "errors": [],
+        "name": "Test-ExportedGameplayDeadline.proposed.ps1",
+        "ok": true
+      }
+    ],
+    "ok": true
+  },
+  "result": {
+    "ok": true,
+    "cases": [
+      {
+        "name": "late_root_refused_before_enumeration",
+        "ok": true
+      },
+      {
+        "name": "late_match_refused",
+        "ok": true
+      },
+      {
+        "name": "timely_unique_match_accepted",
+        "ok": true
+      },
+      {
+        "name": "ambiguous_match_refused",
+        "ok": true
+      }
+    ],
+    "scope": "Actual Wait-One with fake provider boundaries; no game or UIA qualification"
+  },
+  "process": {
+    "exit_code": 0
+  },
+  "command": {
+    "executable": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+    "arguments": [
+      "-NoLogo",
+      "-NoProfile",
+      "-NonInteractive",
+      "-File",
+      "evidence/Test-ExportedGameplayDeadline.proposed.ps1",
+      "-DriverPath",
+      "evidence/Invoke-ExportedGameplay.proposed.ps1",
+      "-OutputPath",
+      "evidence/result.json"
+    ]
+  },
+  "verified": true,
+  "scope": "Offline original ZIP hash/CRC/member/receipt verification; no test rerun"
+}

@@ -1,0 +1,141 @@
+{
+  "status": "focused_acceptance_passed",
+  "scope": "bounded TEST optional Challenge departure, End, fresh Load and focused owner/recovery checks; not whole-project acceptance",
+  "source": "0d3464691bfa13f4cd0fdfe368906b0de2079e53",
+  "tree": "a4cb2a7694df188b6c863f807dfe91987f4dea6e",
+  "tests": 77,
+  "assertions": 1868,
+  "rendered_tests": 10,
+  "rendered_assertions": 573,
+  "run102": {
+    "run_id": 38723457603,
+    "job_id": 116383441746,
+    "run_conclusion": "failure: unit-absence timed out; remaining suites did not run",
+    "accepted_scope": "10 rendered cases and 22 Challenge cases only",
+    "status": "verified",
+    "tree": "a4cb2a7694df188b6c863f807dfe91987f4dea6e",
+    "tests": 32,
+    "assertions": 824,
+    "rows": [
+      {
+        "suite": "optional_never_opened-create",
+        "tests": 1,
+        "assertions": 54
+      },
+      {
+        "suite": "optional_never_opened-load",
+        "tests": 1,
+        "assertions": 41
+      },
+      {
+        "suite": "optional_never_started-create",
+        "tests": 1,
+        "assertions": 59
+      },
+      {
+        "suite": "optional_never_started-load",
+        "tests": 1,
+        "assertions": 41
+      },
+      {
+        "suite": "optional_unfinished-create",
+        "tests": 1,
+        "assertions": 82
+      },
+      {
+        "suite": "optional_unfinished-load",
+        "tests": 1,
+        "assertions": 45
+      },
+      {
+        "suite": "optional_selected_absence-create",
+        "tests": 1,
+        "assertions": 79
+      },
+      {
+        "suite": "optional_selected_absence-load",
+        "tests": 1,
+        "assertions": 44
+      },
+      {
+        "suite": "loss-create",
+        "tests": 1,
+        "assertions": 74
+      },
+      {
+        "suite": "loss-load",
+        "tests": 1,
+        "assertions": 54
+      },
+      {
+        "suite": "unit-challenge",
+        "tests": 22,
+        "assertions": 251
+      }
+    ],
+    "archive": {
+      "bytes": 2150000,
+      "sha256": "cbeb6a5e901aa31d930b4dc1eec2a0d97643bbe438396183020bbc9d9c21a93b"
+    },
+    "manifest_members": 109
+  },
+  "run103": {
+    "run_id": 38725775354,
+    "job_id": 116391136034,
+    "conclusion": "success",
+    "controller": "06ccb345220724071c175e8184758b3c25dbd819",
+    "gate": {
+      "scope": "remaining recovery suites; rendered and Challenge evidence retained separately from run102 on identical tree",
+      "status": "passed",
+      "source": "ef0a142400afb005bfd2ea0e0811ceb7d12e8aac",
+      "cases": 45,
+      "assertions": 1044
+    },
+    "archive": {
+      "bytes": 728514,
+      "sha256": "5624c3f6ed492705872f3796baefffbcfdf154e1b1e34283a1b8eb5809e90aad"
+    },
+    "manifest_members": 66,
+    "rows": [
+      {
+        "suite": "ci/integration-new-run-pair.xml",
+        "tests": 8,
+        "assertions": 270
+      },
+      {
+        "suite": "ci/integration-new-run-startup.xml",
+        "tests": 3,
+        "assertions": 154
+      },
+      {
+        "suite": "ci/unit-absence.xml",
+        "tests": 11,
+        "assertions": 266
+      },
+      {
+        "suite": "ci/unit-creation-storage-recovery.xml",
+        "tests": 4,
+        "assertions": 59
+      },
+      {
+        "suite": "ci/unit-scene-bootstrap-recovery.xml",
+        "tests": 2,
+        "assertions": 10
+      },
+      {
+        "suite": "ci/unit-scene-new-run-journal.xml",
+        "tests": 6,
+        "assertions": 96
+      },
+      {
+        "suite": "ci/unit-scene-restore-journal.xml",
+        "tests": 11,
+        "assertions": 189
+      }
+    ],
+    "source_files_matched": 31
+  },
+  "workspace_note": "Local exec environment disconnected after publication; retained source bytes were verified through GitHub and matched the complete cloud tree. No local Godot or PowerShell execution.",
+  "merge_qualification": "blocked by unresolved broader CI failures",
+  "broad_ci_run": 38725742391
+}

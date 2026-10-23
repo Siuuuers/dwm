@@ -1,0 +1,795 @@
+{
+  "schema": "dwm_entry_frames_and_manual_save_witness_v1",
+  "status": "accepted_bounded_increment",
+  "beads": [
+    "dwm-634.3",
+    "dwm-vky.14"
+  ],
+  "parents_remain_in_progress": true,
+  "prior_records_sha": "fbb482996094d682aec9bccbdfb722e2f1f0ea20",
+  "source": "d0831f1dfe420443803658c47c28ee95caa7be9f",
+  "source_tree": "363380fdf677665004d3f1edef11d2eabe5d6613",
+  "diagnostic_source": "2dd0f8c91fe7b1f7dcf105e56f4309f2658b3aa2",
+  "diagnostic_source_tree": "85d84ff981cd0c755e8f88a02dfb7101757d62ec",
+  "runs": {
+    "run75": {
+      "id": 36522797798,
+      "number": 75,
+      "workflow_head": "0ff9d6c9ab50068b7087bfe2a6a9eb035696f445",
+      "source": "2dd0f8c91fe7b1f7dcf105e56f4309f2658b3aa2",
+      "source_tree": "85d84ff981cd0c755e8f88a02dfb7101757d62ec",
+      "artifacts": [
+        {
+          "id": 11013691075,
+          "name": "manual-save-witness-36522797798-1",
+          "size_in_bytes": 257388,
+          "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11013691075",
+          "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11013691075/zip",
+          "expired": false,
+          "created_at": "2026-09-29T04:51:45Z",
+          "expires_at": "2026-10-06T04:51:43Z",
+          "updated_at": "2026-09-29T04:51:45Z",
+          "digest": "sha256:3842d027603a56948443c2b0fd4bd23d754e977b723228a97a1a1852d8d044e0",
+          "workflow_run": {
+            "id": 36522797798,
+            "repository_id": 1302529453,
+            "head_repository_id": 1302529453,
+            "head_branch": "codex/manual-witness-reading-20260929",
+            "head_sha": "0ff9d6c9ab50068b7087bfe2a6a9eb035696f445"
+          }
+        },
+        {
+          "id": 11012879004,
+          "name": "public-surfaces-36522797798-1",
+          "size_in_bytes": 139296,
+          "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11012879004",
+          "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11012879004/zip",
+          "expired": false,
+          "created_at": "2026-09-29T04:45:52Z",
+          "expires_at": "2026-10-06T04:45:51Z",
+          "updated_at": "2026-09-29T04:45:52Z",
+          "digest": "sha256:e2d6b615214f66380009740a10283ee3ca251ed4ed4c6cd1b9d02868828396b9",
+          "workflow_run": {
+            "id": 36522797798,
+            "repository_id": 1302529453,
+            "head_repository_id": 1302529453,
+            "head_branch": "codex/manual-witness-reading-20260929",
+            "head_sha": "0ff9d6c9ab50068b7087bfe2a6a9eb035696f445"
+          }
+        },
+        {
+          "id": 11012619520,
+          "name": "windows-reading_delivery-36522797798-1",
+          "size_in_bytes": 97492,
+          "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11012619520",
+          "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11012619520/zip",
+          "expired": false,
+          "created_at": "2026-09-29T04:44:57Z",
+          "expires_at": "2026-10-06T04:44:56Z",
+          "updated_at": "2026-09-29T04:44:57Z",
+          "digest": "sha256:4e12970b0f9d88370fc5662384e28557916e18a972925ccded3bf00d2849d973",
+          "workflow_run": {
+            "id": 36522797798,
+            "repository_id": 1302529453,
+            "head_repository_id": 1302529453,
+            "head_branch": "codex/manual-witness-reading-20260929",
+            "head_sha": "0ff9d6c9ab50068b7087bfe2a6a9eb035696f445"
+          }
+        }
+      ]
+    },
+    "run76": {
+      "id": 36523397197,
+      "number": 76,
+      "workflow_head": "3127ffe1e10234b1132d40fe3857f7766bd34085",
+      "source": "d0831f1dfe420443803658c47c28ee95caa7be9f",
+      "source_tree": "363380fdf677665004d3f1edef11d2eabe5d6613",
+      "jobs": [
+        {
+          "id": 109261008200,
+          "name": "Windows / public API surface contracts",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 36523397197,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Prepare disposable checkout for credential cleanup",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Record fixture and schema version census",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install Godot 4.6.3 standard",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Import project",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Restore committed project settings after editor import",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Verify isolated runner contracts and timeout diagnostics",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Verify committed public inventories without regeneration",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Verify public inventory drift and read-only contracts",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Upload canonical inventories and retirement evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Post Run actions/checkout@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            }
+          ]
+        },
+        {
+          "id": 109261843920,
+          "name": "Windows / reading_delivery",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 36523397197,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Prepare disposable checkout for credential cleanup",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Install Godot 4.6.3 standard",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Import project",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Restore committed project settings after editor import",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Run focused regression suite",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Upload logs and test results",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Post Run actions/checkout@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            }
+          ]
+        }
+      ],
+      "artifacts": [
+        {
+          "id": 11013716281,
+          "name": "public-surfaces-36523397197-1",
+          "size_in_bytes": 137532,
+          "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11013716281",
+          "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11013716281/zip",
+          "expired": false,
+          "created_at": "2026-09-29T04:53:56Z",
+          "expires_at": "2026-10-06T04:53:54Z",
+          "updated_at": "2026-09-29T04:53:56Z",
+          "digest": "sha256:f1b7df2836f2f1c01e2605f96d2d72b03bd8018ce0f5d1ca78b4038b4899cf38",
+          "workflow_run": {
+            "id": 36523397197,
+            "repository_id": 1302529453,
+            "head_repository_id": 1302529453,
+            "head_branch": "codex/manual-witness-reading-20260929",
+            "head_sha": "3127ffe1e10234b1132d40fe3857f7766bd34085"
+          }
+        },
+        {
+          "id": 11012889890,
+          "name": "windows-reading_delivery-36523397197-1",
+          "size_in_bytes": 97480,
+          "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11012889890",
+          "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11012889890/zip",
+          "expired": false,
+          "created_at": "2026-09-29T04:56:37Z",
+          "expires_at": "2026-10-06T04:56:36Z",
+          "updated_at": "2026-09-29T04:56:37Z",
+          "digest": "sha256:95b76ef7355084bbecde5ef0e56bef047b29a2ee95ee73f389d8ab587ece020d",
+          "workflow_run": {
+            "id": 36523397197,
+            "repository_id": 1302529453,
+            "head_repository_id": 1302529453,
+            "head_branch": "codex/manual-witness-reading-20260929",
+            "head_sha": "3127ffe1e10234b1132d40fe3857f7766bd34085"
+          }
+        }
+      ]
+    }
+  },
+  "jobs": [
+    {
+      "run": 75,
+      "job_id": 109259161673,
+      "kind": "reading",
+      "actual_source": "2dd0f8c91fe7b1f7dcf105e56f4309f2658b3aa2",
+      "checkout_excerpts": [
+        "2026-09-29T04:42:19.0389408Z   ref: 2dd0f8c91fe7b1f7dcf105e56f4309f2658b3aa2",
+        "2026-09-29T04:42:22.2211958Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin 2dd0f8c91fe7b1f7dcf105e56f4309f2658b3aa2",
+        "2026-09-29T04:42:27.2583620Z 2dd0f8c91fe7b1f7dcf105e56f4309f2658b3aa2",
+        "2026-09-29T04:42:27.3146700Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" checkout --progress --force 2dd0f8c91fe7b1f7dcf105e56f4309f2658b3aa2",
+        "2026-09-29T04:42:29.4500116Z 2dd0f8c91fe7b1f7dcf105e56f4309f2658b3aa2"
+      ],
+      "decoded_lf_job_log_sha256": "9b5f8a411cb294c3c40e4b507a563c33f0e168d5bb5bbab70392ea098fde012e",
+      "conclusion": "success",
+      "gut": {
+        "suite": "reading_delivery",
+        "test_cases": 232,
+        "passed": 232,
+        "skipped": 0,
+        "requested_scripts": 18,
+        "reported_scripts": 18,
+        "scripts": [
+          {
+            "script": "tests/unit/test_hospital_frozen_context.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_frozen_replay_context.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_delivery_notice.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_narrative_caption_ledger.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_narrative_caption_ledger_runtime.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_witnessed_caption_runtime.gd",
+            "test_cases": 48,
+            "passed": 48,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_witnessed_pause_view.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_witnessed_auto_controller.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_witnessed_skip_controller.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_witnessed_transport_recovery.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_witnessed_speech_projection.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_dating_caption_style.gd",
+            "test_cases": 19,
+            "passed": 19,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_scene_art_bindings.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_scene_art_hold.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_production_pause_controller.gd",
+            "test_cases": 33,
+            "passed": 33,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_hospital_scene.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_day7_font_preferences.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_gallery_replay_owner.gd",
+            "test_cases": 15,
+            "passed": 15,
+            "skipped": 0
+          }
+        ]
+      },
+      "junit_sha256": "450850402e19e0f19dc0c688bef5e9cccf826a26a9d89991dde0999edec1f8d9"
+    },
+    {
+      "run": 75,
+      "job_id": 109259161786,
+      "kind": "public",
+      "actual_source": "2dd0f8c91fe7b1f7dcf105e56f4309f2658b3aa2",
+      "checkout_excerpts": [
+        "2026-09-29T04:42:19.0683322Z   ref: 2dd0f8c91fe7b1f7dcf105e56f4309f2658b3aa2",
+        "2026-09-29T04:42:26.8221931Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin 2dd0f8c91fe7b1f7dcf105e56f4309f2658b3aa2",
+        "2026-09-29T04:42:31.9238834Z 2dd0f8c91fe7b1f7dcf105e56f4309f2658b3aa2",
+        "2026-09-29T04:42:31.9795347Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" checkout --progress --force 2dd0f8c91fe7b1f7dcf105e56f4309f2658b3aa2",
+        "2026-09-29T04:42:34.3475817Z 2dd0f8c91fe7b1f7dcf105e56f4309f2658b3aa2"
+      ],
+      "decoded_lf_job_log_sha256": "7f48ecedf9384478761568d1171a3fe59bd214bb33be4f5419c6b7e1d4d2d903",
+      "conclusion": "success",
+      "gut": {
+        "suite": "public_surfaces",
+        "test_cases": 11,
+        "passed": 11,
+        "skipped": 0,
+        "requested_scripts": 1,
+        "reported_scripts": 1,
+        "scripts": [
+          {
+            "script": "tests/unit/tooling/test_public_surface_inventory.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          }
+        ]
+      },
+      "junit_sha256": "af887240bfda9d847b20af6aa5a250697499a27bd0f7bbb4c9f8a4dfae81ad11",
+      "retirement": {
+        "symbols": 10,
+        "source_files": 925,
+        "references": 0
+      },
+      "inventory_mode": "generate_then_check"
+    },
+    {
+      "run": 75,
+      "job_id": 109259161873,
+      "kind": "performance",
+      "actual_source": "2dd0f8c91fe7b1f7dcf105e56f4309f2658b3aa2",
+      "checkout_excerpts": [
+        "2026-09-29T04:42:19.3109268Z   ref: 2dd0f8c91fe7b1f7dcf105e56f4309f2658b3aa2",
+        "2026-09-29T04:42:28.2351225Z 2dd0f8c91fe7b1f7dcf105e56f4309f2658b3aa2",
+        "2026-09-29T04:42:28.3000868Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" checkout --progress --force 2dd0f8c91fe7b1f7dcf105e56f4309f2658b3aa2",
+        "2026-09-29T04:42:30.7565364Z 2dd0f8c91fe7b1f7dcf105e56f4309f2658b3aa2"
+      ],
+      "decoded_lf_job_log_sha256": "4d7fd919ff0529ead516d19b2450f6526df23730deee8d8118588a191c841a45",
+      "conclusion": "success"
+    },
+    {
+      "run": 76,
+      "job_id": 109261843920,
+      "kind": "reading",
+      "actual_source": "d0831f1dfe420443803658c47c28ee95caa7be9f",
+      "checkout_excerpts": [
+        "2026-09-29T04:54:05.6037268Z   ref: d0831f1dfe420443803658c47c28ee95caa7be9f",
+        "2026-09-29T04:54:08.6553511Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin d0831f1dfe420443803658c47c28ee95caa7be9f",
+        "2026-09-29T04:54:14.8659125Z d0831f1dfe420443803658c47c28ee95caa7be9f",
+        "2026-09-29T04:54:14.9284688Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" checkout --progress --force d0831f1dfe420443803658c47c28ee95caa7be9f",
+        "2026-09-29T04:54:17.6391842Z d0831f1dfe420443803658c47c28ee95caa7be9f"
+      ],
+      "decoded_lf_job_log_sha256": "e9842208b9479d7d46c55ea984d4de3934f1ca5ac59e28e67648eeec5b1e1520",
+      "conclusion": "success",
+      "gut": {
+        "suite": "reading_delivery",
+        "test_cases": 232,
+        "passed": 232,
+        "skipped": 0,
+        "requested_scripts": 18,
+        "reported_scripts": 18,
+        "scripts": [
+          {
+            "script": "tests/unit/test_hospital_frozen_context.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_frozen_replay_context.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_delivery_notice.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_narrative_caption_ledger.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_narrative_caption_ledger_runtime.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_witnessed_caption_runtime.gd",
+            "test_cases": 48,
+            "passed": 48,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_witnessed_pause_view.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_witnessed_auto_controller.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_witnessed_skip_controller.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_witnessed_transport_recovery.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_witnessed_speech_projection.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_dating_caption_style.gd",
+            "test_cases": 19,
+            "passed": 19,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_scene_art_bindings.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_scene_art_hold.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_production_pause_controller.gd",
+            "test_cases": 33,
+            "passed": 33,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_hospital_scene.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_day7_font_preferences.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_gallery_replay_owner.gd",
+            "test_cases": 15,
+            "passed": 15,
+            "skipped": 0
+          }
+        ]
+      },
+      "junit_sha256": "de1fea43280c6b05315add6a8bd1bc38b0e49f8a5bd610e279b53d982946bea9"
+    },
+    {
+      "run": 76,
+      "job_id": 109261008200,
+      "kind": "public",
+      "actual_source": "d0831f1dfe420443803658c47c28ee95caa7be9f",
+      "checkout_excerpts": [
+        "2026-09-29T04:50:25.1551176Z   ref: d0831f1dfe420443803658c47c28ee95caa7be9f",
+        "2026-09-29T04:50:28.3522213Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin d0831f1dfe420443803658c47c28ee95caa7be9f",
+        "2026-09-29T04:50:32.8438755Z d0831f1dfe420443803658c47c28ee95caa7be9f",
+        "2026-09-29T04:50:32.9021271Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" checkout --progress --force d0831f1dfe420443803658c47c28ee95caa7be9f",
+        "2026-09-29T04:50:35.7130545Z d0831f1dfe420443803658c47c28ee95caa7be9f"
+      ],
+      "decoded_lf_job_log_sha256": "07ffef83785479a2f707779d4133fcd74ecf3395fbf6d5a42487c1df8378fa46",
+      "conclusion": "success",
+      "gut": {
+        "suite": "public_surfaces",
+        "test_cases": 11,
+        "passed": 11,
+        "skipped": 0,
+        "requested_scripts": 1,
+        "reported_scripts": 1,
+        "scripts": [
+          {
+            "script": "tests/unit/tooling/test_public_surface_inventory.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          }
+        ]
+      },
+      "junit_sha256": "0ec423d6443e0e8b9a4b113211fa84bb1b61701e5036fc0a4c6fad5098bc5249",
+      "retirement": {
+        "symbols": 10,
+        "source_files": 925,
+        "references": 0
+      },
+      "inventory_mode": "committed_read_only"
+    }
+  ],
+  "source_delta_after_measurement": [
+    "evidence/phase_2r/runtime/game_state_surface.json",
+    "evidence/phase_2r/runtime/save_manager_surface.json"
+  ],
+  "auxiliary_diff_each_run": [
+    ".github/workflows/windows-tests.yml"
+  ],
+  "final_acceptance": {
+    "jobs": 2,
+    "gut_cases": 243,
+    "unique_scripts": 19,
+    "skipped": 0,
+    "reading_cases": 232,
+    "ledger_unit_cases": 12,
+    "ledger_runtime_cases": 9,
+    "public_cases": 11,
+    "inventory_mode": "committed read-only; no regeneration"
+  },
+  "inventory_review": {
+    "sha256": {
+      "game_state": "2865701b8571ca308b4d63b23e09d4e345a1937801bcb076c5515b24612e81eb",
+      "save_manager": "02e7dd3b3d3ffe7d69ed52fe2ef03bb80d1f37f93e74620c86153f851c150b08"
+    },
+    "current_rows": {
+      "game_state": 236,
+      "save_manager": 74
+    },
+    "only_changes": "Shifted/new test and source call-site references; all identities, signatures, contracts, dispositions, replacements, dynamic refs and required mappings unchanged."
+  },
+  "manual_save": {
+    "result": "diagnostic supports further bounded correctness work; production not adopted",
+    "source_hashes": {
+      "autoload/SaveManager.gd": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a",
+      "scripts/infrastructure/storage/JsonFileStorage.gd": "ad2691249d9c7a247147fdc76885044b6cd9f6ebaac1f7267b4c144586d2adab",
+      "scripts/infrastructure/storage/FileOps.gd": "89aa45cf28b0c618f46c6c8b2b590227e8314c664624d8fb314069c133dc0895",
+      "scripts/infrastructure/save/CheckpointJournal.gd": "40ff91bc9e2be063c25f10d0ef89b717d3e47b9247b087679eaa69898dfe369d",
+      "scripts/infrastructure/save/SaveDocumentSchema.gd": "c7a18cea7a87699a1e69cef4ec2fc61f4ace858c9b45df5a6db622830e5e0540",
+      "scripts/domain/run/RunSnapshotSchema.gd": "88c329ce56350c8cd09124222cc69ae2f0335731f6519d655c8c8a14beff9158",
+      "scripts/validation/StrictJson.gd": "9c0aa8e2716473cf9fa6a6ae524216e812c760bff134a1b5ae7af8eb3d46a82f",
+      "scripts/validation/CanonicalJsonWriter.gd": "925341fed6bbb64b2c28d22f269e92a2806f2170f4965eb412d9179cf3cd34f1",
+      "tests/manual/benchmark_manual_save_write.gd": "fe08188c63dee2e201b7e1ecc60a36b1abf5eedc34508029969909fcf780d5e2",
+      "tests/manual/benchmark_seven_day_history.gd": "c8e3e5fea9ce0ab472d78e9aa988f54d6d5e6775a94a204dcf6f5a3d851413d2",
+      "tests/manual/benchmark_minesweeper_click_latency.gd": "bc85a6a56631c75166b6627f7e3a09554ee0d01ced8baadcfb2a17d9e53a5e67",
+      "tools/testing/Invoke-IsolatedGodot.ps1": "e37252b9313d5dbf809e9502578bb270118d12a997fc189bf088648eb97329f1",
+      "tools/testing/Invoke-ManualSaveWitnessPerformance.ps1": "1f82bac84fdc66765a2489061cd3d06d3ee5e37b603fce9c27c693502d9d9814"
+    },
+    "baseline_body_proof": {
+      "baseline_body_sha256": "316ff83a7f767daefb05e9afd63c5d1557e05526a2282306b0728c36b2a68946",
+      "exact_body_match": true
+    },
+    "raw_timings": 48,
+    "paired_deltas": 24,
+    "summaries": {
+      "enabled": {
+        "prepare_us": {
+          "baseline_median_us": 2233270.0,
+          "witness_median_us": 2235126.0,
+          "median_paired_witness_minus_baseline_us": 5298.0
+        },
+        "commit_us": {
+          "baseline_median_us": 2384781.5,
+          "witness_median_us": 2233050.0,
+          "median_paired_witness_minus_baseline_us": -147095.0
+        },
+        "envelope_us": {
+          "baseline_median_us": 4624019.0,
+          "witness_median_us": 4465578.0,
+          "median_paired_witness_minus_baseline_us": -141790.0
+        }
+      },
+      "disabled": {
+        "prepare_us": {
+          "baseline_median_us": 2233863.0,
+          "witness_median_us": 2227604.0,
+          "median_paired_witness_minus_baseline_us": -1126.5
+        },
+        "commit_us": {
+          "baseline_median_us": 2365538.5,
+          "witness_median_us": 2237425.0,
+          "median_paired_witness_minus_baseline_us": -125319.0
+        },
+        "envelope_us": {
+          "baseline_median_us": 4594646.5,
+          "witness_median_us": 4469182.5,
+          "median_paired_witness_minus_baseline_us": -129806.5
+        }
+      }
+    },
+    "pairs_per_cache_mode": 4,
+    "all_eight_envelopes_faster": true,
+    "processes": 18,
+    "retained_checkpoints": 66,
+    "retained_files": 15,
+    "retained_bytes": 6235146,
+    "artifact_path": "performance/run75-manual-save-witness-artifact.zip",
+    "artifact_sha256": "3842d027603a56948443c2b0fd4bd23d754e977b723228a97a1a1852d8d044e0",
+    "readable_results_path": "performance/run75-manual-save-witness.json",
+    "readable_results_sha256": "d6f5f198ad52042682157dbe15b4a83c1ec0f4f333ace42a4a9da8519019ce40",
+    "replay": "performance/README-manual-witness-replay.md",
+    "sample_scopes": "prepare_us and commit_us time the individual public calls. envelope_us continuously surrounds both, including only token/reference and shallow cache bookkeeping between them. These nested timers must not be summed. All expensive oracles are outside the envelope.",
+    "limits": "Shared Windows runner; process-fresh, not OS-cache-cold. Immutable capture and fixed clock; real public preparation/commit and disk I/O, no live UI, issuer-flush callback, rendering or physical input-to-paint. No speed threshold or production adoption.",
+    "adoption_requires": "Witness-specific malformed-success/refusal, stale revision/consent, Quick Save, changed promoted bytes, physical fault/restart and ordered-operation equivalence."
+  },
+  "proof_archive": {
+    "path": "entry-frames-run75-76-logs.zip",
+    "sha256": "b6af2b51ee9d88b26dedfee658151272ba4240755ca869dfe30fc4252d7f8ddd",
+    "files": {
+      "inventory-deltas/game_state.json": "ecd1ba77e5002a9ff7388eca72c2621e6c566c38e9f7e0dc508f18721b237c93",
+      "inventory-deltas/save_manager.json": "3c5bf1f2ccbf840de77a6fa753e1b70e9c42fd9401bb78b1515872d570b8aef9",
+      "run75/performance-job.log": "4d7fd919ff0529ead516d19b2450f6526df23730deee8d8118588a191c841a45",
+      "run75/public-job.log": "7f48ecedf9384478761568d1171a3fe59bd214bb33be4f5419c6b7e1d4d2d903",
+      "run75/public_surfaces.xml": "af887240bfda9d847b20af6aa5a250697499a27bd0f7bbb4c9f8a4dfae81ad11",
+      "run75/reading-job.log": "9b5f8a411cb294c3c40e4b507a563c33f0e168d5bb5bbab70392ea098fde012e",
+      "run75/reading_delivery.xml": "450850402e19e0f19dc0c688bef5e9cccf826a26a9d89991dde0999edec1f8d9",
+      "run75/retirement-audit.json": "bd972ed6765b2bf5e2666dda0f498285fc10951d7701589e65dfe8620b6e03b1",
+      "run76/public-job.log": "07ffef83785479a2f707779d4133fcd74ecf3395fbf6d5a42487c1df8378fa46",
+      "run76/public_surfaces.xml": "0ec423d6443e0e8b9a4b113211fa84bb1b61701e5036fc0a4c6fad5098bc5249",
+      "run76/reading-job.log": "e9842208b9479d7d46c55ea984d4de3934f1ca5ac59e28e67648eeec5b1e1520",
+      "run76/reading_delivery.xml": "de1fea43280c6b05315add6a8bd1bc38b0e49f8a5bd610e279b53d982946bea9",
+      "run76/retirement-audit.json": "b72de16fd680417a1b3fb7ad38f2f70524d0226b20b996a28048c888a8f26eea"
+    },
+    "job_log_encoding": "Tool-decoded UTF-8 job logs normalized to LF; original performance runtime logs and process hashes remain in the exact Actions ZIP. Reading/public proof retains decoded job logs and JUnit."
+  },
+  "beads_export_review": {
+    "before_sha256": "fd204d53bc6d314029eea30bfe49bf6414a38e61e91bbd8bb36dac8642b7cd75",
+    "after_sha256": "b5f4ec2d4aa9055896a124eeb3ad1aa531cc1ce17521c0b9572338acb6592b2f",
+    "records": 191,
+    "changed_records": [
+      "dwm-634.3",
+      "dwm-vky.14"
+    ],
+    "changed_fields": [
+      "notes",
+      "updated_at"
+    ],
+    "unrelated_records_byte_identical": 189,
+    "status_changes": 0,
+    "dolt_database_sync_claimed": false
+  },
+  "limits": [
+    "No new full18-job or PR-merge acceptance; Run71 remains the earlier broad baseline.",
+    "No new production reading, Save/Load, exact authored projection, Profile witnessing, gameplay speedup or native Windows UI/input-to-paint acceptance.",
+    "One immutable frame per authored entry per internal session; different-fact re-entry requires future owner design.",
+    "Records descendant is documentation/evidence/Beads only and is not separately engine-tested."
+  ],
+  "independent_review": "Root plus independent source and evidence review verified actual checkouts, JUnit bodies/counts, source/control hashes, complete fixture, raw samples/summaries and inventory scope."
+}

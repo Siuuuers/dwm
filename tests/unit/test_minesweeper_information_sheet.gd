@@ -19,9 +19,9 @@ func test_baseline_rules_fit_exact_bands_with_four_readonly_rows() -> void:
 	assert_true(sheet.present_rules())
 	assert_eq(sheet.size,Vector2(800,492))
 	assert_eq(sheet.body.position,Vector2(16,72))
-	assert_eq(sheet.body.size,Vector2(768,332))
-	assert_eq(sheet.return_button.position,Vector2(656,420))
-	assert_eq(sheet.return_button.size,Vector2(128,48))
+	assert_eq(sheet.body.size,Vector2(768,326))
+	assert_eq(sheet.return_button.position,Vector2(656,414))
+	assert_eq(sheet.return_button.size,Vector2(128,54))
 	assert_eq(sheet.rows.size(),4)
 	assert_null(sheet.rail)
 	assert_true(sheet.rows[0].has_focus())
@@ -51,12 +51,19 @@ func test_locale_scale_large_and_both_palettes_preserve_full_font_and_row_capaci
 				for palette: StringName in [&"after_hours",&"midnight"]:
 					assert_true(sheet.configure("desktop_app",locale,percent,large,palette))
 					assert_true(sheet.present_rules())
-					assert_eq(sheet.theme.default_font_size,20*percent/100)
+					assert_eq(sheet.theme.default_font_size,24*percent/100)
 					assert_eq(sheet.rows.size(),4)
 					for row: Control in sheet.rows:
 						assert_gte(row.size.y,64.0 if large else 48.0)
 						assert_lte(row.size.y,sheet.body.size.y)
-					if percent == 100: assert_null(sheet.rail,"All baseline Rules rows fit.")
+					if sheet._extent > sheet._page:
+						assert_not_null(sheet.rail, "Full-size text remains reachable through the scroll rail.")
+					else:
+						assert_null(sheet.rail, "A fitting Rules document needs no scroll rail.")
+					for row: Control in sheet.rows:
+						row.grab_focus()
+						assert_true(Rect2(Vector2.ZERO,sheet.body.size).encloses(Rect2(sheet.document.position+row.position,row.size)),
+							"Every complete Rules row remains reachable at %s/%d/large=%s" % [locale,percent,large])
 					assert_true(sheet.present_assignments([false,false,false,false,false,false,false,false,false]))
 					assert_not_null(sheet.rail)
 

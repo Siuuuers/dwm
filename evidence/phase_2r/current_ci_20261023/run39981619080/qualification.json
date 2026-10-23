@@ -1,0 +1,13 @@
+{
+  "source": "d2e737d2da04db29c410d0a13e9ca369d32b91b8",
+  "tree": "52dcf432a30a343ca0af778bbba378d89d0cd52b",
+  "controller": "e236698c8f03cc532ed9e93ab30de2818f89ac99",
+  "captures": {
+    "desktop": 38,
+    "delivery": 25,
+    "hud": 10,
+    "japanese_korean": 30,
+    "fonts": 30
+  },
+  "reported_failures": 0
+}

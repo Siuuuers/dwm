@@ -1,5 +1,7 @@
 # Put your artwork here
 
+For the active Day1–Day7 templates, start with [the five-picture and music guide](pictures/README.md).
+
 These are optional, working image slots. Start with a few pictures; the game does not require all 132 distinct paths to be filled. Final artwork is not included. Minesweeper cells, flags, mines, numbers, and their state effects remain drawn in code.
 
 ## First three steps
@@ -101,3 +103,4 @@ remain valid drop-in slots if you later paint a scene-specific picture and
 repoint its record. The desktop wallpaper and the title illustration are
 deliberately left empty: the 2026-09-12 amendment keeps wallpaper code-drawn
 and leaves the title presenter for a later ruling.
+

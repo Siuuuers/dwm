@@ -1,0 +1,40 @@
+{
+  "source": "103f7ad2e8c7acaf110abcd37232741de15fe811",
+  "tests": 8,
+  "assertions": 1408,
+  "cases": [
+    [
+      "tests/integration/test_run_restore_isolation.gd",
+      "test_frozen_owner_reproduces_all_six_historical_alias_directions"
+    ],
+    [
+      "tests/integration/test_run_restore_isolation.gd",
+      "test_captured_backup_mutation_cannot_change_live_gameplay"
+    ],
+    [
+      "tests/integration/test_run_restore_isolation.gd",
+      "test_live_gameplay_mutation_cannot_change_captured_backup"
+    ],
+    [
+      "tests/integration/test_run_restore_isolation.gd",
+      "test_prepared_restore_plan_and_installed_owner_remain_independent_until_finalize"
+    ],
+    [
+      "tests/integration/test_run_restore_isolation.gd",
+      "test_rollback_backup_and_restored_owner_remain_independent_until_finalize"
+    ],
+    [
+      "tests/integration/test_live_run_rollback_isolation.gd",
+      "test_frozen_live_run_control_reproduces_capture_and_rollback_aliases"
+    ],
+    [
+      "tests/integration/test_live_run_rollback_isolation.gd",
+      "test_active_run_capture_and_owner_keep_independent_nested_gameplay"
+    ],
+    [
+      "tests/integration/test_live_run_rollback_isolation.gd",
+      "test_active_run_rollback_keeps_independent_nested_gameplay_and_existing_publication"
+    ]
+  ],
+  "clean_exits": 1
+}

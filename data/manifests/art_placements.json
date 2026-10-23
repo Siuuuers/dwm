@@ -148,20 +148,6 @@
         896
       ]
     },
-    "shop.coffee.card": {
-      "path": "res://art/shop/items/coffee-card.png",
-      "size": [
-        28,
-        28
-      ]
-    },
-    "shop.coffee.inspector": {
-      "path": "res://art/shop/items/coffee-inspector.png",
-      "size": [
-        56,
-        56
-      ]
-    },
     "shop.wine.card": {
       "path": "res://art/shop/items/wine-card.png",
       "size": [
@@ -185,20 +171,6 @@
     },
     "shop.pineapple_bun.inspector": {
       "path": "res://art/shop/items/pineapple_bun-inspector.png",
-      "size": [
-        56,
-        56
-      ]
-    },
-    "shop.bandage_pack.card": {
-      "path": "res://art/shop/items/bandage_pack-card.png",
-      "size": [
-        28,
-        28
-      ]
-    },
-    "shop.bandage_pack.inspector": {
-      "path": "res://art/shop/items/bandage_pack-inspector.png",
       "size": [
         56,
         56
@@ -255,48 +227,6 @@
     },
     "shop.spa_coupon.inspector": {
       "path": "res://art/shop/items/spa_coupon-inspector.png",
-      "size": [
-        56,
-        56
-      ]
-    },
-    "shop.healthy_meal.card": {
-      "path": "res://art/shop/items/healthy_meal-card.png",
-      "size": [
-        28,
-        28
-      ]
-    },
-    "shop.healthy_meal.inspector": {
-      "path": "res://art/shop/items/healthy_meal-inspector.png",
-      "size": [
-        56,
-        56
-      ]
-    },
-    "shop.protein_box.card": {
-      "path": "res://art/shop/items/protein_box-card.png",
-      "size": [
-        28,
-        28
-      ]
-    },
-    "shop.protein_box.inspector": {
-      "path": "res://art/shop/items/protein_box-inspector.png",
-      "size": [
-        56,
-        56
-      ]
-    },
-    "shop.pep_note.card": {
-      "path": "res://art/shop/items/pep_note-card.png",
-      "size": [
-        28,
-        28
-      ]
-    },
-    "shop.pep_note.inspector": {
-      "path": "res://art/shop/items/pep_note-inspector.png",
       "size": [
         56,
         56
@@ -1127,6 +1057,21 @@
         1920,
         672
       ]
+    },
+    "picture1": {
+      "path": "res://art/pictures/picture1.jpg"
+    },
+    "picture2": {
+      "path": "res://art/pictures/picture2.jpg"
+    },
+    "picture3": {
+      "path": "res://art/pictures/picture3.jpg"
+    },
+    "picture4": {
+      "path": "res://art/pictures/picture4.jpg"
+    },
+    "picture5": {
+      "path": "res://art/pictures/picture5.jpg"
     }
   },
   "scenes": {
@@ -2412,6 +2357,825 @@
       "background": "background.core.tutorial_desktop_day1",
       "portraits": [],
       "cg": ""
+    },
+    "Day1": {
+      "day": 1,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day2": {
+      "day": 2,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day3": {
+      "day": 3,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day4": {
+      "day": 4,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day5": {
+      "day": 5,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day6": {
+      "day": 6,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day7": {
+      "day": 7,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day1.photo.yes": {
+      "day": 1,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day1.photo.default": {
+      "day": 1,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day1.reading": {
+      "day": 1,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day1.result.A": {
+      "day": 1,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day1.result.B": {
+      "day": 1,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day1.result.C": {
+      "day": 1,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day1.result.D": {
+      "day": 1,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day1.result.E": {
+      "day": 1,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day1.coda": {
+      "day": 1,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day2.food.yes": {
+      "day": 2,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day2.food.default": {
+      "day": 2,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day2.answer": {
+      "day": 2,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day2.result.A": {
+      "day": 2,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day2.result.B": {
+      "day": 2,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day2.result.C": {
+      "day": 2,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day2.result.E": {
+      "day": 2,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day2.result.D": {
+      "day": 2,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day2.threshold.stay": {
+      "day": 2,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day2.threshold.benchmark": {
+      "day": 2,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day2.threshold.cruel": {
+      "day": 2,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day3.lavinia": {
+      "day": 3,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day3.sylvia": {
+      "day": 3,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day3.lavinia.result.A": {
+      "day": 3,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day3.lavinia.result.B": {
+      "day": 3,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day3.lavinia.result.C": {
+      "day": 3,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day3.lavinia.result.D": {
+      "day": 3,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day3.lavinia.result.E": {
+      "day": 3,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day3.sylvia.result.A": {
+      "day": 3,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day3.sylvia.result.B": {
+      "day": 3,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day3.sylvia.result.C": {
+      "day": 3,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day3.sylvia.result.D": {
+      "day": 3,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day3.sylvia.result.E": {
+      "day": 3,
+      "background": "picture2",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day4.pastille.yes": {
+      "day": 4,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day4.pastille.default": {
+      "day": 4,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day4.impulse": {
+      "day": 4,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day4.A": {
+      "day": 4,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day4.B": {
+      "day": 4,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day4.C": {
+      "day": 4,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day4.D": {
+      "day": 4,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day4.D.default": {
+      "day": 4,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day4.D.mirror": {
+      "day": 4,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day4.D.friday": {
+      "day": 4,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day4.E": {
+      "day": 4,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day5.cheek": {
+      "day": 5,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day5.cheek.yes": {
+      "day": 5,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day5.cheek.default": {
+      "day": 5,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day5.impulse": {
+      "day": 5,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day5.A": {
+      "day": 5,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day5.B": {
+      "day": 5,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day5.C": {
+      "day": 5,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day5.D": {
+      "day": 5,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day5.D.default": {
+      "day": 5,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day5.D.note": {
+      "day": 5,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day5.D.arch": {
+      "day": 5,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day5.E": {
+      "day": 5,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day6.rehearsal.yes": {
+      "day": 6,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day6.rehearsal.default": {
+      "day": 6,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day6.impulse": {
+      "day": 6,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day6.A": {
+      "day": 6,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day6.B": {
+      "day": 6,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day6.C": {
+      "day": 6,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day6.D": {
+      "day": 6,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day6.D.default": {
+      "day": 6,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day6.D.word": {
+      "day": 6,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day6.D.dark": {
+      "day": 6,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day6.E": {
+      "day": 6,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day7.clipboard.yes": {
+      "day": 7,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day7.crossed.impulse": {
+      "day": 7,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day7.crossed.D": {
+      "day": 7,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day7.crossed.D.recording": {
+      "day": 7,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day7.crossed.D.no_recording": {
+      "day": 7,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day7.crossed.D.board": {
+      "day": 7,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day7.clipboard.default": {
+      "day": 7,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day7.untouched.impulse": {
+      "day": 7,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day7.untouched.D": {
+      "day": 7,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day7.untouched.D.recording": {
+      "day": 7,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day7.untouched.D.no_recording": {
+      "day": 7,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day7.untouched.D.board": {
+      "day": 7,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day7.A": {
+      "day": 7,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day7.B": {
+      "day": 7,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day7.C": {
+      "day": 7,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day7.D.default": {
+      "day": 7,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day7.D.pocket": {
+      "day": 7,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
+    },
+    "Day7.E": {
+      "day": 7,
+      "background": "picture3",
+      "portraits": [
+        "picture1"
+      ],
+      "cg": "",
+      "split_panels": true
     }
   }
 }

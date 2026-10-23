@@ -1,0 +1,145 @@
+{
+  "total_count": 1,
+  "jobs": [
+    {
+      "id": 118504240996,
+      "run_id": 39385501032,
+      "workflow_name": "Focused Gallery register fixture",
+      "head_branch": "codex/scene-runtime-integration-controller-20261009",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/39385501032",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAbl2c3ZA",
+      "head_sha": "a3c37fb2417092f3aa783154cc2b0fec88da4ce6",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/118504240996",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/39385501032/job/118504240996",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-20T07:17:04Z",
+      "started_at": "2026-10-20T07:17:06Z",
+      "completed_at": "2026-10-20T07:18:47Z",
+      "name": "Focused Gallery register fixture",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-20T07:17:07Z",
+          "completed_at": "2026-10-20T07:17:07Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-20T07:17:07Z",
+          "completed_at": "2026-10-20T07:17:22Z"
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-20T07:17:22Z",
+          "completed_at": "2026-10-20T07:17:23Z"
+        },
+        {
+          "name": "Verify pinned source and retain provenance",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-20T07:17:23Z",
+          "completed_at": "2026-10-20T07:17:23Z"
+        },
+        {
+          "name": "Install Godot and software display",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-20T07:17:23Z",
+          "completed_at": "2026-10-20T07:17:48Z"
+        },
+        {
+          "name": "Start and verify native Linux speech service",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-20T07:17:48Z",
+          "completed_at": "2026-10-20T07:17:49Z"
+        },
+        {
+          "name": "Upload native speech environment evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-20T07:17:49Z",
+          "completed_at": "2026-10-20T07:17:50Z"
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-20T07:17:50Z",
+          "completed_at": "2026-10-20T07:18:29Z"
+        },
+        {
+          "name": "Render witnessed-version register fixtures",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-20T07:18:29Z",
+          "completed_at": "2026-10-20T07:18:44Z"
+        },
+        {
+          "name": "Verify rendered evidence census",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-10-20T07:18:44Z",
+          "completed_at": "2026-10-20T07:18:44Z"
+        },
+        {
+          "name": "Retain import log",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-10-20T07:18:44Z",
+          "completed_at": "2026-10-20T07:18:44Z"
+        },
+        {
+          "name": "Upload witnessed-version register evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-10-20T07:18:44Z",
+          "completed_at": "2026-10-20T07:18:45Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 24,
+          "started_at": "2026-10-20T07:18:45Z",
+          "completed_at": "2026-10-20T07:18:46Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 25,
+          "started_at": "2026-10-20T07:18:46Z",
+          "completed_at": "2026-10-20T07:18:46Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/118504240996",
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "runner_id": 1000004090,
+      "runner_name": "GitHub Actions 1000004090",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    }
+  ]
+}

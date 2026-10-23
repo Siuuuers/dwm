@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "kind": "independent_restore_bookkeeping_contract_trace",
+  "reviewer": "f9_contract_review",
+  "reviewed_at_utc": "2026-10-02T07:07:55.762987+00:00",
+  "observed_run": 36975542531,
+  "observed_source": "78cb263f8e0d82ad1f1274c0e84915397cd071b0",
+  "source_files": [
+    {
+      "path": "autoload/SaveManager.gd",
+      "bytes": 145022,
+      "sha256": "7572f6657d4e1cafbc04c19c44798ca69a872521b638f8075c51ff6c3c498a6b"
+    },
+    {
+      "path": "scripts/application/restore/DesktopIdentityAllocationRestoreParticipant.gd",
+      "bytes": 9405,
+      "sha256": "aab911a92df16803b8b959e606585788ee7e9e03a146e4d3b9f71d48455337b6"
+    },
+    {
+      "path": "scripts/application/desktop/DesktopIdentityNonceIssuer.gd",
+      "bytes": 16894,
+      "sha256": "91fa13f541a41a70c7edf666b10c37ab75b6057bfcac07549cf443d020d73468"
+    },
+    {
+      "path": "scripts/infrastructure/identity/DesktopIssuerRootStore.gd",
+      "bytes": 60692,
+      "sha256": "5f19265753d0deb4ac14096ef22eecf7a2b5af15e8412ab1cea32ce46e0dbd9c"
+    },
+    {
+      "path": "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd",
+      "bytes": 64315,
+      "sha256": "05781cd5a69b45dd7a4519879bae299296dbfbfb8705b45c6af9f2be040e02e1"
+    },
+    {
+      "path": "scripts/infrastructure/storage/JsonFileStorage.gd",
+      "bytes": 46885,
+      "sha256": "ad2691249d9c7a247147fdc76885044b6cd9f6ebaac1f7267b4c144586d2adab"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-08-11-desktop-minesweeper-shop-schedule-02-desktop-board-shop-contracts.md",
+      "bytes": 270873,
+      "sha256": "2aaa9965f45208ecc12a119ce5ba5eae199895ea4076649a4df83386ca4b934d"
+    }
+  ],
+  "artifact_observations": [
+    {
+      "path": "/workspace/scratch/e169b180163f/settings-f9-focus2/artifacts/reading-rail-36975542531-1/e9f80ac3-bb65-4267-b193-08c9128266ea/settings-load/settings-load-prepared.json",
+      "bytes": 29113,
+      "sha256": "7b972567c6dcfea70bebb08e6d174223516cfb4e71c6628df85c8f30e9f6016e",
+      "mutations": 0,
+      "failed_checks": []
+    },
+    {
+      "path": "/workspace/scratch/e169b180163f/settings-f9-focus2/artifacts/reading-rail-36975542531-1/e9f80ac3-bb65-4267-b193-08c9128266ea/settings-load/settings-load-cancelled.json",
+      "bytes": 29416,
+      "sha256": "781cf305007d9831fe198524d65827dc740e838a15134c110dc20379ebbcec83",
+      "mutations": 0,
+      "failed_checks": []
+    },
+    {
+      "path": "/workspace/scratch/e169b180163f/settings-f9-focus2/artifacts/reading-rail-36975542531-1/e9f80ac3-bb65-4267-b193-08c9128266ea/settings-load/settings-load-reprepared.json",
+      "bytes": 29113,
+      "sha256": "e982374cbedd9776a825aac1b12ca3a81dbaa2fd6c37c855c7c8f40e10c514f8",
+      "mutations": 0,
+      "failed_checks": []
+    },
+    {
+      "path": "/workspace/scratch/e169b180163f/settings-f9-focus2/artifacts/reading-rail-36975542531-1/e9f80ac3-bb65-4267-b193-08c9128266ea/settings-load/settings-load-confirmed.json",
+      "bytes": 55264,
+      "sha256": "2f8d873c37f7257e3ad549a23f8d0dd0955f1b379edd17ff9b0bd1695ad59931",
+      "mutations": 224,
+      "failed_checks": [
+        "zero_mutations"
+      ]
+    }
+  ],
+  "observed_sequence": {
+    "total_mutation_operations": 224,
+    "operation_counts": {
+      "write": 80,
+      "flush": 80,
+      "remove": 32,
+      "rename": 32
+    },
+    "complete_atomic_commits": 16,
+    "issuer_root_commits": 2,
+    "continuation_journal_commits": 14,
+    "exact_owner_path_operation_rename_sequence_validated": true,
+    "every_result_true": true,
+    "all_sequences_contiguous_1_to_224": true
+  },
+  "source_derivation": [
+    {
+      "reference": "docs/superpowers/plans/2026-08-11-desktop-minesweeper-shop-schedule-02-desktop-board-shop-contracts.md:31-32,593,1682-1684",
+      "fact": "Selected Load must durably issue and allocate identities and keep a continuation journal external to selectable saves/Profile. Allocation is forward-only after commitment."
+    },
+    {
+      "reference": "autoload/SaveManager.gd:364-447",
+      "fact": "Writes issuer transaction token, journal intent, issuer allocation, journal allocated and journal applying in that order."
+    },
+    {
+      "reference": "autoload/SaveManager.gd:112-117,1055-1098,1138-1145",
+      "fact": "Nine fixed participants each advance durable progress, then participants_applied and completed. Combined with intent/allocated/applying gives14 journal commits."
+    },
+    {
+      "reference": "scripts/infrastructure/identity/DesktopIssuerRootStore.gd:234-245,319-340,413-448",
+      "fact": "Root transaction issuance and committed continuation allocation each write exact root file through atomic storage."
+    },
+    {
+      "reference": "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd:417-433",
+      "fact": "Every legal journal transition writes its closed journal path through the same atomic storage."
+    },
+    {
+      "reference": "scripts/infrastructure/storage/JsonFileStorage.gd:397-493",
+      "fact": "For this retained source with existing backup, each successful atomic transaction produces14 observed mutation operations:4marker write/flush pairs,1candidate write/flush pair,remove oldbak,rename base→bak,rename next→base,remove marker."
+    }
+  ],
+  "classification": "Fixture contract error: zero mutations on successful selected Load conflicts with mandatory existing recovery bookkeeping. No evidence indicates a runtime restore defect.",
+  "required_minimal_repair": [
+    "Retain strict no mutation through prepare/Cancel/reprepare.",
+    "Require successful Confirm to match only the exact16 atomic transaction blocks and both correct storage owners, with exact rename destinations, successful results, typed contiguous sequence and valid write identities.",
+    "Keep rawQuick/Autosave/Profile byte-equality and all semantic restore/speech/old-Pause-closed assertions unchanged.",
+    "Report80write calls among224total mutation operations, not224writes.",
+    "Do not remove/disable journal or issuer persistence and do not waive arbitrary directory/owner/path mutations."
+  ],
+  "proof_limits": [
+    "Artifact retained size/hash identities for recovery write payloads, not the full decoded recovery documents. Source mapping and exact operation trace justify narrow bookkeeping classification; this alone does not prove every journal payload or crash cut.",
+    "Focus2 remains a failed historical diagnostic because its original zero_mutations assertion failed. A corrected source must rerun and produce its own accepted receipt.",
+    "No local Godot/PowerShell runtime executed and no repository file modified by reviewer."
+  ]
+}

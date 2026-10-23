@@ -1,0 +1,22 @@
+{
+  "source": "dca8b35b40e4ba9d80f204c77064357d16f07319",
+  "run_id": 37039358038,
+  "run_url": "https://github.com/Siuuuers/dwm/actions/runs/37039358038",
+  "source_tree": "55c167fa5d47e2ef5bd76c821a2ce5cb7f13963c",
+  "workflow_head": "e0317e13c226f3c7142ac31d1ae28050561c65b0",
+  "workflow_tree": "096c276436c2e37651168f1f797abda45f3e1629",
+  "workflow_blob": "b38577de2da69ec65c0475c11c2472a0711b4fa7",
+  "parents": [
+    "ccd8435ad0c8fef8dc19514081fc009ebaf70ac2",
+    "dca8b35b40e4ba9d80f204c77064357d16f07319"
+  ],
+  "branch": "codex/hospital-reading-cloud-20261002",
+  "pr_head_unchanged": "732e3fe266be69396bd0835c3e07c7beb06f9e5f",
+  "selected_suites": [
+    "reading_delivery",
+    "persistence",
+    "desktop",
+    "settings",
+    "new_account"
+  ]
+}

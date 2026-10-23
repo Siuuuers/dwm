@@ -1,0 +1,1054 @@
+{
+  "schema": "dwm_lazy_normalization_evidence.v1",
+  "workflow_run_id": 36460570529,
+  "job_id": 109060431064,
+  "source_binding": {
+    "source_commit": "274bcff60e7bdba32c2fc4d6961ef51909f0d7a1",
+    "source_tree": "3c7596cdcb3495030a446b106de699a672679132",
+    "source_parent": "8cd17c2d5cb5eea2cb223ef1af92d47170ff1f78",
+    "tested_merge": "c89aae5a022dee3262391e68126954f2e01085e7",
+    "tested_tree": "8b502d397e37adcb6db42f69de7e3255db92e4f3",
+    "actual_master": "2e8602d5f098eebbab18241f370b5f4d14adf99b",
+    "parents": [
+      "2e8602d5f098eebbab18241f370b5f4d14adf99b",
+      "274bcff60e7bdba32c2fc4d6961ef51909f0d7a1"
+    ],
+    "source_to_merge_difference": [
+      {
+        "path": "docs/design/2026-09-02-relationship-progression-runtime-behavior-record.md",
+        "sha": "e9ae0a1deba976b2611a6407a765895af1204e34",
+        "status": "modified"
+      },
+      {
+        "path": "docs/story-auditions/2026-09-26-priscilla-lavinia-day-2-portrait-dark-love-read-through.md",
+        "sha": "013ef7fc625652ff74d440035a231aa22ed24dfd",
+        "status": "added"
+      },
+      {
+        "path": "docs/story-auditions/2026-09-26-priscilla-lavinia-portrait-and-intimacy-working-record.md",
+        "sha": "2175108321c5a8aea02b86143ab1a7a15f4642b6",
+        "status": "added"
+      },
+      {
+        "path": "docs/story-auditions/2026-09-27-priscilla-lavinia-session-conversation-archive.md",
+        "sha": "e56f3d4a025c32d8858746e39cfc4aa697b4de0c",
+        "status": "added"
+      },
+      {
+        "path": "docs/story-auditions/Our_PL.md",
+        "sha": "0b508f8f674a749ca9dbe7fce0d1885e635baf08",
+        "status": "added"
+      },
+      {
+        "path": "docs/story-auditions/README.md",
+        "sha": "110550d1ed4524e5cea8a2e14cd1d3e39c664453",
+        "status": "modified"
+      },
+      {
+        "path": "story/01-core-story-bible.md",
+        "sha": "79d21a6a73d5a31554a1ed1f7f60d4eafad6612a",
+        "status": "modified"
+      }
+    ],
+    "runtime_tests_workflow_inventory_unchanged": true,
+    "all_job_checkouts_verified": true
+  },
+  "checkout_ref": "c89aae5a022dee3262391e68126954f2e01085e7",
+  "source_sha256": {
+    "schema": "1676d41225675acf4e3c154c60e38c2bd831417047266d5a9f00e4466bd448b2",
+    "port": "bac00cb4df7573a6c670bbab1593e77f6ca8d0dd31b3cd7dade6d50616fd04bc",
+    "reference": "f1bb63f480e09b72abeaa486047e7c2ac0a5d63b0396874ddb55d9bbf1b44cf8",
+    "harness": "44f7b26800252ca8af28c52b3f1b76e132c15ca4239a869faa514c5714d59a78"
+  },
+  "input_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+  "sampling": "Four alternating pairs per full/splice mode; sixteen fresh isolated processes. Each metric keeps five samples after two warmups. No timing threshold; OS caches are not flushed.",
+  "scope": "Frozen eager helpers versus current lazy helpers on identical strict Day7 JSON. Both port seams use the same current strict outgoing schema and proofs. This is not a matched schema-build, physical-save, gameplay, or input-to-paint comparison.",
+  "summaries": [
+    {
+      "mode": "full",
+      "metric": "schema_helper",
+      "pairs": 4,
+      "baseline_median_us": 87067.5,
+      "candidate_median_us": 79456.5,
+      "median_paired_candidate_minus_baseline_us": -7365.0
+    },
+    {
+      "mode": "full",
+      "metric": "port_helper",
+      "pairs": 4,
+      "baseline_median_us": 87953.0,
+      "candidate_median_us": 79802.0,
+      "median_paired_candidate_minus_baseline_us": -7789.5
+    },
+    {
+      "mode": "full",
+      "metric": "port_seam",
+      "pairs": 4,
+      "baseline_median_us": 175474.0,
+      "candidate_median_us": 165507.0,
+      "median_paired_candidate_minus_baseline_us": -9543.0
+    },
+    {
+      "mode": "splice",
+      "metric": "schema_helper",
+      "pairs": 4,
+      "baseline_median_us": 2301.5,
+      "candidate_median_us": 2108.5,
+      "median_paired_candidate_minus_baseline_us": -200.0
+    },
+    {
+      "mode": "splice",
+      "metric": "port_helper",
+      "pairs": 4,
+      "baseline_median_us": 1997.0,
+      "candidate_median_us": 1789.5,
+      "median_paired_candidate_minus_baseline_us": -199.0
+    },
+    {
+      "mode": "splice",
+      "metric": "port_seam",
+      "pairs": 4,
+      "baseline_median_us": 88132.0,
+      "candidate_median_us": 87271.5,
+      "median_paired_candidate_minus_baseline_us": -853.5
+    }
+  ],
+  "pairs": [
+    {
+      "mode": "full",
+      "pair": 1,
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "baseline": {
+        "bytes": 1910476,
+        "candidate_port_source_sha256": "bac00cb4df7573a6c670bbab1593e77f6ca8d0dd31b3cd7dade6d50616fd04bc",
+        "candidate_schema_source_sha256": "1676d41225675acf4e3c154c60e38c2bd831417047266d5a9f00e4466bd448b2",
+        "helper_input_bytes": 1910475,
+        "helper_input_sha256": "a4edf140cb79db29480b35557038db94c49fed242627dd41603cd2d73f690ef0",
+        "identity_preserved_unchanged": true,
+        "identity_replaced_changed": true,
+        "input_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "journal_bundles": 66,
+        "mode": "full",
+        "output_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "port_helper_median_us": 86671,
+        "port_helper_samples_us": [
+          87490,
+          88165,
+          85488,
+          86399,
+          86671
+        ],
+        "port_seam_median_us": 173786,
+        "port_seam_samples_us": [
+          173786,
+          173392,
+          172048,
+          173801,
+          178228
+        ],
+        "proof_source": "Strict validation of all bundles in this identical fixed JSON payload, not gameplay proof-cache evidence.",
+        "reference_commit": "dae70bf9aa05b6b3debb60f95738e5ffc4e97548",
+        "reference_port_helper_sha256": "3c3f47f720401d61418373fedbe18aff300cd748b3889b2da52bc0e43fa54042",
+        "reference_port_source_sha256": "080c3b2e745fde702a54317f2ce7671ea50e2339c29e5d452a93a3babf9902f6",
+        "reference_schema_helper_sha256": "2104c862b2a0fc29179513ebb18e7fd2d965f1f6a72867cf729311ca0cb5d490",
+        "reference_schema_source_sha256": "52a7ec70092cf59e4c66e46aca2a2922b7d2091003d03d94a530cfbf321d3fbe",
+        "sample_count": 5,
+        "schema_helper_median_us": 86337,
+        "schema_helper_samples_us": [
+          86337,
+          86015,
+          87177,
+          87021,
+          86126
+        ],
+        "schema_version": 7,
+        "seam_limitation": "Only direct port normalization differs. This is not a matched schema-build, full checkpoint, physical-write or frame-time comparison.",
+        "snapshot_schema_version": 7,
+        "source_unchanged": true,
+        "timing_boundary": "Direct helper calls; port seam additionally includes the same current strict outgoing validator. Proof creation, envelope construction, emission and equality checks are outside timing.",
+        "validated_journal_bundles": 66,
+        "variant": "baseline",
+        "warmup_count": 2
+      },
+      "candidate": {
+        "bytes": 1910476,
+        "candidate_port_source_sha256": "bac00cb4df7573a6c670bbab1593e77f6ca8d0dd31b3cd7dade6d50616fd04bc",
+        "candidate_schema_source_sha256": "1676d41225675acf4e3c154c60e38c2bd831417047266d5a9f00e4466bd448b2",
+        "helper_input_bytes": 1910475,
+        "helper_input_sha256": "a4edf140cb79db29480b35557038db94c49fed242627dd41603cd2d73f690ef0",
+        "identity_preserved_unchanged": true,
+        "identity_replaced_changed": true,
+        "input_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "journal_bundles": 66,
+        "mode": "full",
+        "output_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "port_helper_median_us": 79454,
+        "port_helper_samples_us": [
+          79527,
+          79110,
+          78097,
+          79454,
+          81550
+        ],
+        "port_seam_median_us": 165471,
+        "port_seam_samples_us": [
+          165471,
+          164503,
+          166482,
+          163565,
+          166663
+        ],
+        "proof_source": "Strict validation of all bundles in this identical fixed JSON payload, not gameplay proof-cache evidence.",
+        "reference_commit": "dae70bf9aa05b6b3debb60f95738e5ffc4e97548",
+        "reference_port_helper_sha256": "3c3f47f720401d61418373fedbe18aff300cd748b3889b2da52bc0e43fa54042",
+        "reference_port_source_sha256": "080c3b2e745fde702a54317f2ce7671ea50e2339c29e5d452a93a3babf9902f6",
+        "reference_schema_helper_sha256": "2104c862b2a0fc29179513ebb18e7fd2d965f1f6a72867cf729311ca0cb5d490",
+        "reference_schema_source_sha256": "52a7ec70092cf59e4c66e46aca2a2922b7d2091003d03d94a530cfbf321d3fbe",
+        "sample_count": 5,
+        "schema_helper_median_us": 79208,
+        "schema_helper_samples_us": [
+          80523,
+          79208,
+          79187,
+          78622,
+          80895
+        ],
+        "schema_version": 7,
+        "seam_limitation": "Only direct port normalization differs. This is not a matched schema-build, full checkpoint, physical-write or frame-time comparison.",
+        "snapshot_schema_version": 7,
+        "source_unchanged": true,
+        "timing_boundary": "Direct helper calls; port seam additionally includes the same current strict outgoing validator. Proof creation, envelope construction, emission and equality checks are outside timing.",
+        "validated_journal_bundles": 66,
+        "variant": "candidate",
+        "warmup_count": 2
+      },
+      "candidate_minus_baseline_us": {
+        "schema_helper": -7129,
+        "port_helper": -7217,
+        "port_seam": -8315
+      }
+    },
+    {
+      "mode": "full",
+      "pair": 2,
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "candidate": {
+        "bytes": 1910476,
+        "candidate_port_source_sha256": "bac00cb4df7573a6c670bbab1593e77f6ca8d0dd31b3cd7dade6d50616fd04bc",
+        "candidate_schema_source_sha256": "1676d41225675acf4e3c154c60e38c2bd831417047266d5a9f00e4466bd448b2",
+        "helper_input_bytes": 1910475,
+        "helper_input_sha256": "a4edf140cb79db29480b35557038db94c49fed242627dd41603cd2d73f690ef0",
+        "identity_preserved_unchanged": true,
+        "identity_replaced_changed": true,
+        "input_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "journal_bundles": 66,
+        "mode": "full",
+        "output_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "port_helper_median_us": 79951,
+        "port_helper_samples_us": [
+          77867,
+          80900,
+          79872,
+          81096,
+          79951
+        ],
+        "port_seam_median_us": 165228,
+        "port_seam_samples_us": [
+          165528,
+          165228,
+          163179,
+          166120,
+          163350
+        ],
+        "proof_source": "Strict validation of all bundles in this identical fixed JSON payload, not gameplay proof-cache evidence.",
+        "reference_commit": "dae70bf9aa05b6b3debb60f95738e5ffc4e97548",
+        "reference_port_helper_sha256": "3c3f47f720401d61418373fedbe18aff300cd748b3889b2da52bc0e43fa54042",
+        "reference_port_source_sha256": "080c3b2e745fde702a54317f2ce7671ea50e2339c29e5d452a93a3babf9902f6",
+        "reference_schema_helper_sha256": "2104c862b2a0fc29179513ebb18e7fd2d965f1f6a72867cf729311ca0cb5d490",
+        "reference_schema_source_sha256": "52a7ec70092cf59e4c66e46aca2a2922b7d2091003d03d94a530cfbf321d3fbe",
+        "sample_count": 5,
+        "schema_helper_median_us": 79864,
+        "schema_helper_samples_us": [
+          81631,
+          78756,
+          80099,
+          79039,
+          79864
+        ],
+        "schema_version": 7,
+        "seam_limitation": "Only direct port normalization differs. This is not a matched schema-build, full checkpoint, physical-write or frame-time comparison.",
+        "snapshot_schema_version": 7,
+        "source_unchanged": true,
+        "timing_boundary": "Direct helper calls; port seam additionally includes the same current strict outgoing validator. Proof creation, envelope construction, emission and equality checks are outside timing.",
+        "validated_journal_bundles": 66,
+        "variant": "candidate",
+        "warmup_count": 2
+      },
+      "baseline": {
+        "bytes": 1910476,
+        "candidate_port_source_sha256": "bac00cb4df7573a6c670bbab1593e77f6ca8d0dd31b3cd7dade6d50616fd04bc",
+        "candidate_schema_source_sha256": "1676d41225675acf4e3c154c60e38c2bd831417047266d5a9f00e4466bd448b2",
+        "helper_input_bytes": 1910475,
+        "helper_input_sha256": "a4edf140cb79db29480b35557038db94c49fed242627dd41603cd2d73f690ef0",
+        "identity_preserved_unchanged": true,
+        "identity_replaced_changed": true,
+        "input_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "journal_bundles": 66,
+        "mode": "full",
+        "output_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "port_helper_median_us": 87645,
+        "port_helper_samples_us": [
+          87252,
+          87645,
+          88012,
+          87240,
+          88076
+        ],
+        "port_seam_median_us": 175530,
+        "port_seam_samples_us": [
+          175750,
+          175012,
+          174632,
+          175530,
+          176537
+        ],
+        "proof_source": "Strict validation of all bundles in this identical fixed JSON payload, not gameplay proof-cache evidence.",
+        "reference_commit": "dae70bf9aa05b6b3debb60f95738e5ffc4e97548",
+        "reference_port_helper_sha256": "3c3f47f720401d61418373fedbe18aff300cd748b3889b2da52bc0e43fa54042",
+        "reference_port_source_sha256": "080c3b2e745fde702a54317f2ce7671ea50e2339c29e5d452a93a3babf9902f6",
+        "reference_schema_helper_sha256": "2104c862b2a0fc29179513ebb18e7fd2d965f1f6a72867cf729311ca0cb5d490",
+        "reference_schema_source_sha256": "52a7ec70092cf59e4c66e46aca2a2922b7d2091003d03d94a530cfbf321d3fbe",
+        "sample_count": 5,
+        "schema_helper_median_us": 87263,
+        "schema_helper_samples_us": [
+          87286,
+          86372,
+          87263,
+          87756,
+          87143
+        ],
+        "schema_version": 7,
+        "seam_limitation": "Only direct port normalization differs. This is not a matched schema-build, full checkpoint, physical-write or frame-time comparison.",
+        "snapshot_schema_version": 7,
+        "source_unchanged": true,
+        "timing_boundary": "Direct helper calls; port seam additionally includes the same current strict outgoing validator. Proof creation, envelope construction, emission and equality checks are outside timing.",
+        "validated_journal_bundles": 66,
+        "variant": "baseline",
+        "warmup_count": 2
+      },
+      "candidate_minus_baseline_us": {
+        "schema_helper": -7399,
+        "port_helper": -7694,
+        "port_seam": -10302
+      }
+    },
+    {
+      "mode": "full",
+      "pair": 3,
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "baseline": {
+        "bytes": 1910476,
+        "candidate_port_source_sha256": "bac00cb4df7573a6c670bbab1593e77f6ca8d0dd31b3cd7dade6d50616fd04bc",
+        "candidate_schema_source_sha256": "1676d41225675acf4e3c154c60e38c2bd831417047266d5a9f00e4466bd448b2",
+        "helper_input_bytes": 1910475,
+        "helper_input_sha256": "a4edf140cb79db29480b35557038db94c49fed242627dd41603cd2d73f690ef0",
+        "identity_preserved_unchanged": true,
+        "identity_replaced_changed": true,
+        "input_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "journal_bundles": 66,
+        "mode": "full",
+        "output_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "port_helper_median_us": 88261,
+        "port_helper_samples_us": [
+          88261,
+          88323,
+          88595,
+          87076,
+          87369
+        ],
+        "port_seam_median_us": 175723,
+        "port_seam_samples_us": [
+          175430,
+          180443,
+          175723,
+          176008,
+          175461
+        ],
+        "proof_source": "Strict validation of all bundles in this identical fixed JSON payload, not gameplay proof-cache evidence.",
+        "reference_commit": "dae70bf9aa05b6b3debb60f95738e5ffc4e97548",
+        "reference_port_helper_sha256": "3c3f47f720401d61418373fedbe18aff300cd748b3889b2da52bc0e43fa54042",
+        "reference_port_source_sha256": "080c3b2e745fde702a54317f2ce7671ea50e2339c29e5d452a93a3babf9902f6",
+        "reference_schema_helper_sha256": "2104c862b2a0fc29179513ebb18e7fd2d965f1f6a72867cf729311ca0cb5d490",
+        "reference_schema_source_sha256": "52a7ec70092cf59e4c66e46aca2a2922b7d2091003d03d94a530cfbf321d3fbe",
+        "sample_count": 5,
+        "schema_helper_median_us": 86872,
+        "schema_helper_samples_us": [
+          86199,
+          86872,
+          88340,
+          88943,
+          85923
+        ],
+        "schema_version": 7,
+        "seam_limitation": "Only direct port normalization differs. This is not a matched schema-build, full checkpoint, physical-write or frame-time comparison.",
+        "snapshot_schema_version": 7,
+        "source_unchanged": true,
+        "timing_boundary": "Direct helper calls; port seam additionally includes the same current strict outgoing validator. Proof creation, envelope construction, emission and equality checks are outside timing.",
+        "validated_journal_bundles": 66,
+        "variant": "baseline",
+        "warmup_count": 2
+      },
+      "candidate": {
+        "bytes": 1910476,
+        "candidate_port_source_sha256": "bac00cb4df7573a6c670bbab1593e77f6ca8d0dd31b3cd7dade6d50616fd04bc",
+        "candidate_schema_source_sha256": "1676d41225675acf4e3c154c60e38c2bd831417047266d5a9f00e4466bd448b2",
+        "helper_input_bytes": 1910475,
+        "helper_input_sha256": "a4edf140cb79db29480b35557038db94c49fed242627dd41603cd2d73f690ef0",
+        "identity_preserved_unchanged": true,
+        "identity_replaced_changed": true,
+        "input_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "journal_bundles": 66,
+        "mode": "full",
+        "output_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "port_helper_median_us": 79653,
+        "port_helper_samples_us": [
+          80285,
+          79653,
+          81119,
+          79222,
+          79094
+        ],
+        "port_seam_median_us": 166512,
+        "port_seam_samples_us": [
+          166512,
+          164128,
+          171109,
+          166526,
+          163949
+        ],
+        "proof_source": "Strict validation of all bundles in this identical fixed JSON payload, not gameplay proof-cache evidence.",
+        "reference_commit": "dae70bf9aa05b6b3debb60f95738e5ffc4e97548",
+        "reference_port_helper_sha256": "3c3f47f720401d61418373fedbe18aff300cd748b3889b2da52bc0e43fa54042",
+        "reference_port_source_sha256": "080c3b2e745fde702a54317f2ce7671ea50e2339c29e5d452a93a3babf9902f6",
+        "reference_schema_helper_sha256": "2104c862b2a0fc29179513ebb18e7fd2d965f1f6a72867cf729311ca0cb5d490",
+        "reference_schema_source_sha256": "52a7ec70092cf59e4c66e46aca2a2922b7d2091003d03d94a530cfbf321d3fbe",
+        "sample_count": 5,
+        "schema_helper_median_us": 79541,
+        "schema_helper_samples_us": [
+          80086,
+          80255,
+          78796,
+          79352,
+          79541
+        ],
+        "schema_version": 7,
+        "seam_limitation": "Only direct port normalization differs. This is not a matched schema-build, full checkpoint, physical-write or frame-time comparison.",
+        "snapshot_schema_version": 7,
+        "source_unchanged": true,
+        "timing_boundary": "Direct helper calls; port seam additionally includes the same current strict outgoing validator. Proof creation, envelope construction, emission and equality checks are outside timing.",
+        "validated_journal_bundles": 66,
+        "variant": "candidate",
+        "warmup_count": 2
+      },
+      "candidate_minus_baseline_us": {
+        "schema_helper": -7331,
+        "port_helper": -8608,
+        "port_seam": -9211
+      }
+    },
+    {
+      "mode": "full",
+      "pair": 4,
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "candidate": {
+        "bytes": 1910476,
+        "candidate_port_source_sha256": "bac00cb4df7573a6c670bbab1593e77f6ca8d0dd31b3cd7dade6d50616fd04bc",
+        "candidate_schema_source_sha256": "1676d41225675acf4e3c154c60e38c2bd831417047266d5a9f00e4466bd448b2",
+        "helper_input_bytes": 1910475,
+        "helper_input_sha256": "a4edf140cb79db29480b35557038db94c49fed242627dd41603cd2d73f690ef0",
+        "identity_preserved_unchanged": true,
+        "identity_replaced_changed": true,
+        "input_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "journal_bundles": 66,
+        "mode": "full",
+        "output_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "port_helper_median_us": 80781,
+        "port_helper_samples_us": [
+          80781,
+          76696,
+          81557,
+          81775,
+          79274
+        ],
+        "port_seam_median_us": 165543,
+        "port_seam_samples_us": [
+          165195,
+          165543,
+          169717,
+          167129,
+          165006
+        ],
+        "proof_source": "Strict validation of all bundles in this identical fixed JSON payload, not gameplay proof-cache evidence.",
+        "reference_commit": "dae70bf9aa05b6b3debb60f95738e5ffc4e97548",
+        "reference_port_helper_sha256": "3c3f47f720401d61418373fedbe18aff300cd748b3889b2da52bc0e43fa54042",
+        "reference_port_source_sha256": "080c3b2e745fde702a54317f2ce7671ea50e2339c29e5d452a93a3babf9902f6",
+        "reference_schema_helper_sha256": "2104c862b2a0fc29179513ebb18e7fd2d965f1f6a72867cf729311ca0cb5d490",
+        "reference_schema_source_sha256": "52a7ec70092cf59e4c66e46aca2a2922b7d2091003d03d94a530cfbf321d3fbe",
+        "sample_count": 5,
+        "schema_helper_median_us": 79372,
+        "schema_helper_samples_us": [
+          79372,
+          78491,
+          79833,
+          78933,
+          79737
+        ],
+        "schema_version": 7,
+        "seam_limitation": "Only direct port normalization differs. This is not a matched schema-build, full checkpoint, physical-write or frame-time comparison.",
+        "snapshot_schema_version": 7,
+        "source_unchanged": true,
+        "timing_boundary": "Direct helper calls; port seam additionally includes the same current strict outgoing validator. Proof creation, envelope construction, emission and equality checks are outside timing.",
+        "validated_journal_bundles": 66,
+        "variant": "candidate",
+        "warmup_count": 2
+      },
+      "baseline": {
+        "bytes": 1910476,
+        "candidate_port_source_sha256": "bac00cb4df7573a6c670bbab1593e77f6ca8d0dd31b3cd7dade6d50616fd04bc",
+        "candidate_schema_source_sha256": "1676d41225675acf4e3c154c60e38c2bd831417047266d5a9f00e4466bd448b2",
+        "helper_input_bytes": 1910475,
+        "helper_input_sha256": "a4edf140cb79db29480b35557038db94c49fed242627dd41603cd2d73f690ef0",
+        "identity_preserved_unchanged": true,
+        "identity_replaced_changed": true,
+        "input_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "journal_bundles": 66,
+        "mode": "full",
+        "output_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "port_helper_median_us": 88666,
+        "port_helper_samples_us": [
+          88672,
+          88340,
+          89414,
+          88666,
+          86659
+        ],
+        "port_seam_median_us": 175418,
+        "port_seam_samples_us": [
+          177832,
+          175418,
+          176830,
+          173142,
+          172569
+        ],
+        "proof_source": "Strict validation of all bundles in this identical fixed JSON payload, not gameplay proof-cache evidence.",
+        "reference_commit": "dae70bf9aa05b6b3debb60f95738e5ffc4e97548",
+        "reference_port_helper_sha256": "3c3f47f720401d61418373fedbe18aff300cd748b3889b2da52bc0e43fa54042",
+        "reference_port_source_sha256": "080c3b2e745fde702a54317f2ce7671ea50e2339c29e5d452a93a3babf9902f6",
+        "reference_schema_helper_sha256": "2104c862b2a0fc29179513ebb18e7fd2d965f1f6a72867cf729311ca0cb5d490",
+        "reference_schema_source_sha256": "52a7ec70092cf59e4c66e46aca2a2922b7d2091003d03d94a530cfbf321d3fbe",
+        "sample_count": 5,
+        "schema_helper_median_us": 87266,
+        "schema_helper_samples_us": [
+          87649,
+          87266,
+          88544,
+          86301,
+          86442
+        ],
+        "schema_version": 7,
+        "seam_limitation": "Only direct port normalization differs. This is not a matched schema-build, full checkpoint, physical-write or frame-time comparison.",
+        "snapshot_schema_version": 7,
+        "source_unchanged": true,
+        "timing_boundary": "Direct helper calls; port seam additionally includes the same current strict outgoing validator. Proof creation, envelope construction, emission and equality checks are outside timing.",
+        "validated_journal_bundles": 66,
+        "variant": "baseline",
+        "warmup_count": 2
+      },
+      "candidate_minus_baseline_us": {
+        "schema_helper": -7894,
+        "port_helper": -7885,
+        "port_seam": -9875
+      }
+    },
+    {
+      "mode": "splice",
+      "pair": 1,
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "baseline": {
+        "bytes": 1910476,
+        "candidate_port_source_sha256": "bac00cb4df7573a6c670bbab1593e77f6ca8d0dd31b3cd7dade6d50616fd04bc",
+        "candidate_schema_source_sha256": "1676d41225675acf4e3c154c60e38c2bd831417047266d5a9f00e4466bd448b2",
+        "helper_input_bytes": 49082,
+        "helper_input_sha256": "2d45e3dba93dfad0db726710e6cd07e914074e97eda4f6e6745a24f6f67f161a",
+        "identity_preserved_unchanged": true,
+        "identity_replaced_changed": true,
+        "input_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "journal_bundles": 66,
+        "mode": "splice",
+        "output_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "port_helper_median_us": 2021,
+        "port_helper_samples_us": [
+          2021,
+          2034,
+          2032,
+          1963,
+          1989
+        ],
+        "port_seam_median_us": 88974,
+        "port_seam_samples_us": [
+          88424,
+          90636,
+          88974,
+          85841,
+          89101
+        ],
+        "proof_source": "Strict validation of all bundles in this identical fixed JSON payload, not gameplay proof-cache evidence.",
+        "reference_commit": "dae70bf9aa05b6b3debb60f95738e5ffc4e97548",
+        "reference_port_helper_sha256": "3c3f47f720401d61418373fedbe18aff300cd748b3889b2da52bc0e43fa54042",
+        "reference_port_source_sha256": "080c3b2e745fde702a54317f2ce7671ea50e2339c29e5d452a93a3babf9902f6",
+        "reference_schema_helper_sha256": "2104c862b2a0fc29179513ebb18e7fd2d965f1f6a72867cf729311ca0cb5d490",
+        "reference_schema_source_sha256": "52a7ec70092cf59e4c66e46aca2a2922b7d2091003d03d94a530cfbf321d3fbe",
+        "sample_count": 5,
+        "schema_helper_median_us": 2339,
+        "schema_helper_samples_us": [
+          2335,
+          2437,
+          2419,
+          2294,
+          2339
+        ],
+        "schema_version": 7,
+        "seam_limitation": "Only direct port normalization differs. This is not a matched schema-build, full checkpoint, physical-write or frame-time comparison.",
+        "snapshot_schema_version": 7,
+        "source_unchanged": true,
+        "timing_boundary": "Direct helper calls; port seam additionally includes the same current strict outgoing validator. Proof creation, envelope construction, emission and equality checks are outside timing.",
+        "validated_journal_bundles": 66,
+        "variant": "baseline",
+        "warmup_count": 2
+      },
+      "candidate": {
+        "bytes": 1910476,
+        "candidate_port_source_sha256": "bac00cb4df7573a6c670bbab1593e77f6ca8d0dd31b3cd7dade6d50616fd04bc",
+        "candidate_schema_source_sha256": "1676d41225675acf4e3c154c60e38c2bd831417047266d5a9f00e4466bd448b2",
+        "helper_input_bytes": 49082,
+        "helper_input_sha256": "2d45e3dba93dfad0db726710e6cd07e914074e97eda4f6e6745a24f6f67f161a",
+        "identity_preserved_unchanged": true,
+        "identity_replaced_changed": true,
+        "input_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "journal_bundles": 66,
+        "mode": "splice",
+        "output_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "port_helper_median_us": 1807,
+        "port_helper_samples_us": [
+          1915,
+          1897,
+          1807,
+          1796,
+          1783
+        ],
+        "port_seam_median_us": 88367,
+        "port_seam_samples_us": [
+          88467,
+          85990,
+          88367,
+          89462,
+          86280
+        ],
+        "proof_source": "Strict validation of all bundles in this identical fixed JSON payload, not gameplay proof-cache evidence.",
+        "reference_commit": "dae70bf9aa05b6b3debb60f95738e5ffc4e97548",
+        "reference_port_helper_sha256": "3c3f47f720401d61418373fedbe18aff300cd748b3889b2da52bc0e43fa54042",
+        "reference_port_source_sha256": "080c3b2e745fde702a54317f2ce7671ea50e2339c29e5d452a93a3babf9902f6",
+        "reference_schema_helper_sha256": "2104c862b2a0fc29179513ebb18e7fd2d965f1f6a72867cf729311ca0cb5d490",
+        "reference_schema_source_sha256": "52a7ec70092cf59e4c66e46aca2a2922b7d2091003d03d94a530cfbf321d3fbe",
+        "sample_count": 5,
+        "schema_helper_median_us": 2119,
+        "schema_helper_samples_us": [
+          2119,
+          2106,
+          2129,
+          2163,
+          2062
+        ],
+        "schema_version": 7,
+        "seam_limitation": "Only direct port normalization differs. This is not a matched schema-build, full checkpoint, physical-write or frame-time comparison.",
+        "snapshot_schema_version": 7,
+        "source_unchanged": true,
+        "timing_boundary": "Direct helper calls; port seam additionally includes the same current strict outgoing validator. Proof creation, envelope construction, emission and equality checks are outside timing.",
+        "validated_journal_bundles": 66,
+        "variant": "candidate",
+        "warmup_count": 2
+      },
+      "candidate_minus_baseline_us": {
+        "schema_helper": -220,
+        "port_helper": -214,
+        "port_seam": -607
+      }
+    },
+    {
+      "mode": "splice",
+      "pair": 2,
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "candidate": {
+        "bytes": 1910476,
+        "candidate_port_source_sha256": "bac00cb4df7573a6c670bbab1593e77f6ca8d0dd31b3cd7dade6d50616fd04bc",
+        "candidate_schema_source_sha256": "1676d41225675acf4e3c154c60e38c2bd831417047266d5a9f00e4466bd448b2",
+        "helper_input_bytes": 49082,
+        "helper_input_sha256": "2d45e3dba93dfad0db726710e6cd07e914074e97eda4f6e6745a24f6f67f161a",
+        "identity_preserved_unchanged": true,
+        "identity_replaced_changed": true,
+        "input_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "journal_bundles": 66,
+        "mode": "splice",
+        "output_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "port_helper_median_us": 1790,
+        "port_helper_samples_us": [
+          1835,
+          1809,
+          1790,
+          1778,
+          1785
+        ],
+        "port_seam_median_us": 87537,
+        "port_seam_samples_us": [
+          87537,
+          89492,
+          88960,
+          85312,
+          87397
+        ],
+        "proof_source": "Strict validation of all bundles in this identical fixed JSON payload, not gameplay proof-cache evidence.",
+        "reference_commit": "dae70bf9aa05b6b3debb60f95738e5ffc4e97548",
+        "reference_port_helper_sha256": "3c3f47f720401d61418373fedbe18aff300cd748b3889b2da52bc0e43fa54042",
+        "reference_port_source_sha256": "080c3b2e745fde702a54317f2ce7671ea50e2339c29e5d452a93a3babf9902f6",
+        "reference_schema_helper_sha256": "2104c862b2a0fc29179513ebb18e7fd2d965f1f6a72867cf729311ca0cb5d490",
+        "reference_schema_source_sha256": "52a7ec70092cf59e4c66e46aca2a2922b7d2091003d03d94a530cfbf321d3fbe",
+        "sample_count": 5,
+        "schema_helper_median_us": 2109,
+        "schema_helper_samples_us": [
+          2129,
+          2109,
+          2160,
+          2037,
+          2082
+        ],
+        "schema_version": 7,
+        "seam_limitation": "Only direct port normalization differs. This is not a matched schema-build, full checkpoint, physical-write or frame-time comparison.",
+        "snapshot_schema_version": 7,
+        "source_unchanged": true,
+        "timing_boundary": "Direct helper calls; port seam additionally includes the same current strict outgoing validator. Proof creation, envelope construction, emission and equality checks are outside timing.",
+        "validated_journal_bundles": 66,
+        "variant": "candidate",
+        "warmup_count": 2
+      },
+      "baseline": {
+        "bytes": 1910476,
+        "candidate_port_source_sha256": "bac00cb4df7573a6c670bbab1593e77f6ca8d0dd31b3cd7dade6d50616fd04bc",
+        "candidate_schema_source_sha256": "1676d41225675acf4e3c154c60e38c2bd831417047266d5a9f00e4466bd448b2",
+        "helper_input_bytes": 49082,
+        "helper_input_sha256": "2d45e3dba93dfad0db726710e6cd07e914074e97eda4f6e6745a24f6f67f161a",
+        "identity_preserved_unchanged": true,
+        "identity_replaced_changed": true,
+        "input_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "journal_bundles": 66,
+        "mode": "splice",
+        "output_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "port_helper_median_us": 1963,
+        "port_helper_samples_us": [
+          2027,
+          1960,
+          2004,
+          1958,
+          1963
+        ],
+        "port_seam_median_us": 88235,
+        "port_seam_samples_us": [
+          88413,
+          88095,
+          88235,
+          86993,
+          88310
+        ],
+        "proof_source": "Strict validation of all bundles in this identical fixed JSON payload, not gameplay proof-cache evidence.",
+        "reference_commit": "dae70bf9aa05b6b3debb60f95738e5ffc4e97548",
+        "reference_port_helper_sha256": "3c3f47f720401d61418373fedbe18aff300cd748b3889b2da52bc0e43fa54042",
+        "reference_port_source_sha256": "080c3b2e745fde702a54317f2ce7671ea50e2339c29e5d452a93a3babf9902f6",
+        "reference_schema_helper_sha256": "2104c862b2a0fc29179513ebb18e7fd2d965f1f6a72867cf729311ca0cb5d490",
+        "reference_schema_source_sha256": "52a7ec70092cf59e4c66e46aca2a2922b7d2091003d03d94a530cfbf321d3fbe",
+        "sample_count": 5,
+        "schema_helper_median_us": 2289,
+        "schema_helper_samples_us": [
+          2371,
+          2289,
+          2288,
+          2287,
+          2315
+        ],
+        "schema_version": 7,
+        "seam_limitation": "Only direct port normalization differs. This is not a matched schema-build, full checkpoint, physical-write or frame-time comparison.",
+        "snapshot_schema_version": 7,
+        "source_unchanged": true,
+        "timing_boundary": "Direct helper calls; port seam additionally includes the same current strict outgoing validator. Proof creation, envelope construction, emission and equality checks are outside timing.",
+        "validated_journal_bundles": 66,
+        "variant": "baseline",
+        "warmup_count": 2
+      },
+      "candidate_minus_baseline_us": {
+        "schema_helper": -180,
+        "port_helper": -173,
+        "port_seam": -698
+      }
+    },
+    {
+      "mode": "splice",
+      "pair": 3,
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "baseline": {
+        "bytes": 1910476,
+        "candidate_port_source_sha256": "bac00cb4df7573a6c670bbab1593e77f6ca8d0dd31b3cd7dade6d50616fd04bc",
+        "candidate_schema_source_sha256": "1676d41225675acf4e3c154c60e38c2bd831417047266d5a9f00e4466bd448b2",
+        "helper_input_bytes": 49082,
+        "helper_input_sha256": "2d45e3dba93dfad0db726710e6cd07e914074e97eda4f6e6745a24f6f67f161a",
+        "identity_preserved_unchanged": true,
+        "identity_replaced_changed": true,
+        "input_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "journal_bundles": 66,
+        "mode": "splice",
+        "output_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "port_helper_median_us": 1973,
+        "port_helper_samples_us": [
+          1987,
+          1952,
+          1960,
+          1995,
+          1973
+        ],
+        "port_seam_median_us": 88007,
+        "port_seam_samples_us": [
+          88648,
+          88007,
+          87886,
+          88958,
+          86594
+        ],
+        "proof_source": "Strict validation of all bundles in this identical fixed JSON payload, not gameplay proof-cache evidence.",
+        "reference_commit": "dae70bf9aa05b6b3debb60f95738e5ffc4e97548",
+        "reference_port_helper_sha256": "3c3f47f720401d61418373fedbe18aff300cd748b3889b2da52bc0e43fa54042",
+        "reference_port_source_sha256": "080c3b2e745fde702a54317f2ce7671ea50e2339c29e5d452a93a3babf9902f6",
+        "reference_schema_helper_sha256": "2104c862b2a0fc29179513ebb18e7fd2d965f1f6a72867cf729311ca0cb5d490",
+        "reference_schema_source_sha256": "52a7ec70092cf59e4c66e46aca2a2922b7d2091003d03d94a530cfbf321d3fbe",
+        "sample_count": 5,
+        "schema_helper_median_us": 2297,
+        "schema_helper_samples_us": [
+          2321,
+          2253,
+          2297,
+          2334,
+          2284
+        ],
+        "schema_version": 7,
+        "seam_limitation": "Only direct port normalization differs. This is not a matched schema-build, full checkpoint, physical-write or frame-time comparison.",
+        "snapshot_schema_version": 7,
+        "source_unchanged": true,
+        "timing_boundary": "Direct helper calls; port seam additionally includes the same current strict outgoing validator. Proof creation, envelope construction, emission and equality checks are outside timing.",
+        "validated_journal_bundles": 66,
+        "variant": "baseline",
+        "warmup_count": 2
+      },
+      "candidate": {
+        "bytes": 1910476,
+        "candidate_port_source_sha256": "bac00cb4df7573a6c670bbab1593e77f6ca8d0dd31b3cd7dade6d50616fd04bc",
+        "candidate_schema_source_sha256": "1676d41225675acf4e3c154c60e38c2bd831417047266d5a9f00e4466bd448b2",
+        "helper_input_bytes": 49082,
+        "helper_input_sha256": "2d45e3dba93dfad0db726710e6cd07e914074e97eda4f6e6745a24f6f67f161a",
+        "identity_preserved_unchanged": true,
+        "identity_replaced_changed": true,
+        "input_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "journal_bundles": 66,
+        "mode": "splice",
+        "output_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "port_helper_median_us": 1789,
+        "port_helper_samples_us": [
+          1789,
+          1778,
+          1842,
+          1771,
+          1796
+        ],
+        "port_seam_median_us": 86998,
+        "port_seam_samples_us": [
+          87185,
+          86640,
+          88373,
+          86998,
+          86769
+        ],
+        "proof_source": "Strict validation of all bundles in this identical fixed JSON payload, not gameplay proof-cache evidence.",
+        "reference_commit": "dae70bf9aa05b6b3debb60f95738e5ffc4e97548",
+        "reference_port_helper_sha256": "3c3f47f720401d61418373fedbe18aff300cd748b3889b2da52bc0e43fa54042",
+        "reference_port_source_sha256": "080c3b2e745fde702a54317f2ce7671ea50e2339c29e5d452a93a3babf9902f6",
+        "reference_schema_helper_sha256": "2104c862b2a0fc29179513ebb18e7fd2d965f1f6a72867cf729311ca0cb5d490",
+        "reference_schema_source_sha256": "52a7ec70092cf59e4c66e46aca2a2922b7d2091003d03d94a530cfbf321d3fbe",
+        "sample_count": 5,
+        "schema_helper_median_us": 2108,
+        "schema_helper_samples_us": [
+          2119,
+          2108,
+          2129,
+          2099,
+          2080
+        ],
+        "schema_version": 7,
+        "seam_limitation": "Only direct port normalization differs. This is not a matched schema-build, full checkpoint, physical-write or frame-time comparison.",
+        "snapshot_schema_version": 7,
+        "source_unchanged": true,
+        "timing_boundary": "Direct helper calls; port seam additionally includes the same current strict outgoing validator. Proof creation, envelope construction, emission and equality checks are outside timing.",
+        "validated_journal_bundles": 66,
+        "variant": "candidate",
+        "warmup_count": 2
+      },
+      "candidate_minus_baseline_us": {
+        "schema_helper": -189,
+        "port_helper": -184,
+        "port_seam": -1009
+      }
+    },
+    {
+      "mode": "splice",
+      "pair": 4,
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "candidate": {
+        "bytes": 1910476,
+        "candidate_port_source_sha256": "bac00cb4df7573a6c670bbab1593e77f6ca8d0dd31b3cd7dade6d50616fd04bc",
+        "candidate_schema_source_sha256": "1676d41225675acf4e3c154c60e38c2bd831417047266d5a9f00e4466bd448b2",
+        "helper_input_bytes": 49082,
+        "helper_input_sha256": "2d45e3dba93dfad0db726710e6cd07e914074e97eda4f6e6745a24f6f67f161a",
+        "identity_preserved_unchanged": true,
+        "identity_replaced_changed": true,
+        "input_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "journal_bundles": 66,
+        "mode": "splice",
+        "output_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "port_helper_median_us": 1788,
+        "port_helper_samples_us": [
+          1779,
+          1779,
+          1788,
+          1833,
+          1872
+        ],
+        "port_seam_median_us": 87006,
+        "port_seam_samples_us": [
+          88086,
+          86684,
+          86891,
+          87006,
+          89277
+        ],
+        "proof_source": "Strict validation of all bundles in this identical fixed JSON payload, not gameplay proof-cache evidence.",
+        "reference_commit": "dae70bf9aa05b6b3debb60f95738e5ffc4e97548",
+        "reference_port_helper_sha256": "3c3f47f720401d61418373fedbe18aff300cd748b3889b2da52bc0e43fa54042",
+        "reference_port_source_sha256": "080c3b2e745fde702a54317f2ce7671ea50e2339c29e5d452a93a3babf9902f6",
+        "reference_schema_helper_sha256": "2104c862b2a0fc29179513ebb18e7fd2d965f1f6a72867cf729311ca0cb5d490",
+        "reference_schema_source_sha256": "52a7ec70092cf59e4c66e46aca2a2922b7d2091003d03d94a530cfbf321d3fbe",
+        "sample_count": 5,
+        "schema_helper_median_us": 2095,
+        "schema_helper_samples_us": [
+          2095,
+          2125,
+          2099,
+          2056,
+          2090
+        ],
+        "schema_version": 7,
+        "seam_limitation": "Only direct port normalization differs. This is not a matched schema-build, full checkpoint, physical-write or frame-time comparison.",
+        "snapshot_schema_version": 7,
+        "source_unchanged": true,
+        "timing_boundary": "Direct helper calls; port seam additionally includes the same current strict outgoing validator. Proof creation, envelope construction, emission and equality checks are outside timing.",
+        "validated_journal_bundles": 66,
+        "variant": "candidate",
+        "warmup_count": 2
+      },
+      "baseline": {
+        "bytes": 1910476,
+        "candidate_port_source_sha256": "bac00cb4df7573a6c670bbab1593e77f6ca8d0dd31b3cd7dade6d50616fd04bc",
+        "candidate_schema_source_sha256": "1676d41225675acf4e3c154c60e38c2bd831417047266d5a9f00e4466bd448b2",
+        "helper_input_bytes": 49082,
+        "helper_input_sha256": "2d45e3dba93dfad0db726710e6cd07e914074e97eda4f6e6745a24f6f67f161a",
+        "identity_preserved_unchanged": true,
+        "identity_replaced_changed": true,
+        "input_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "journal_bundles": 66,
+        "mode": "splice",
+        "output_sha256": "cc3dfb793b0ec5942dac8a007f71ef85d434cdcaa3c8a8ce0518c7dc6c6c879e",
+        "port_helper_median_us": 2030,
+        "port_helper_samples_us": [
+          2090,
+          2034,
+          2030,
+          1963,
+          1992
+        ],
+        "port_seam_median_us": 88029,
+        "port_seam_samples_us": [
+          85982,
+          88029,
+          87968,
+          88267,
+          89179
+        ],
+        "proof_source": "Strict validation of all bundles in this identical fixed JSON payload, not gameplay proof-cache evidence.",
+        "reference_commit": "dae70bf9aa05b6b3debb60f95738e5ffc4e97548",
+        "reference_port_helper_sha256": "3c3f47f720401d61418373fedbe18aff300cd748b3889b2da52bc0e43fa54042",
+        "reference_port_source_sha256": "080c3b2e745fde702a54317f2ce7671ea50e2339c29e5d452a93a3babf9902f6",
+        "reference_schema_helper_sha256": "2104c862b2a0fc29179513ebb18e7fd2d965f1f6a72867cf729311ca0cb5d490",
+        "reference_schema_source_sha256": "52a7ec70092cf59e4c66e46aca2a2922b7d2091003d03d94a530cfbf321d3fbe",
+        "sample_count": 5,
+        "schema_helper_median_us": 2306,
+        "schema_helper_samples_us": [
+          2305,
+          2323,
+          2317,
+          2306,
+          2293
+        ],
+        "schema_version": 7,
+        "seam_limitation": "Only direct port normalization differs. This is not a matched schema-build, full checkpoint, physical-write or frame-time comparison.",
+        "snapshot_schema_version": 7,
+        "source_unchanged": true,
+        "timing_boundary": "Direct helper calls; port seam additionally includes the same current strict outgoing validator. Proof creation, envelope construction, emission and equality checks are outside timing.",
+        "validated_journal_bundles": 66,
+        "variant": "baseline",
+        "warmup_count": 2
+      },
+      "candidate_minus_baseline_us": {
+        "schema_helper": -211,
+        "port_helper": -242,
+        "port_seam": -1023
+      }
+    }
+  ]
+}

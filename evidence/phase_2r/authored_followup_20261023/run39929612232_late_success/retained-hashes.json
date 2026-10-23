@@ -1,0 +1,514 @@
+{
+  "ci/audit-origin.json": {
+    "bytes": 343,
+    "sha256": "4f12f17d3fff8b96c2bf555b229c7d567885d7aeb985c69ec45c3d7138197ea5"
+  },
+  "ci/authored-late-recovery-continued.json": {
+    "bytes": 658535,
+    "sha256": "4e4e4ed10939118c415bbabbcb441a54b7a494afb5936af8e971c263e64fb055"
+  },
+  "ci/authored-late-recovery-restored.json": {
+    "bytes": 1362009,
+    "sha256": "0982aabbde68a260775c90af3231a0875dfff093a4e6e0dc141154c038c0d3ab"
+  },
+  "ci/authored-late-recovery.json": {
+    "bytes": 525062,
+    "sha256": "2ee0213d02a8a11a991635bab47eec752b32c2ce355ff786ccbffd952646a2ac"
+  },
+  "ci/authored-recovery-seed.json": {
+    "bytes": 5139,
+    "sha256": "225db1c18c33bc4b3f81ef8744e170c1d6271754d4574ceb70ab5a7d09210928"
+  },
+  "ci/authored-recovery.jsonl": {
+    "bytes": 2300,
+    "sha256": "8d562fc25e4a0dd458229fd552de540ba8910f8041495927d89c788c8ca66580"
+  },
+  "ci/authored-recovery.xml": {
+    "bytes": 448,
+    "sha256": "be0c5514780dcb5bf388415c8e2cf3bc87b09f34e1319bc4518294da575c682d"
+  },
+  "ci/authored-replay.xml": {
+    "bytes": 413,
+    "sha256": "b7334525209ab72315f65a4fc092b42aba6ebb1a7489e65bc29ebab1874235b3"
+  },
+  "ci/authored-week-ending.json": {
+    "bytes": 677619,
+    "sha256": "c0e07eb724a437da9e6f2ec9a28346e555c1e440289be6eea1bccd621fd0155c"
+  },
+  "ci/authored-week-replay.json": {
+    "bytes": 291243,
+    "sha256": "20d28b525bef5c3d2ec4aff50f0cacde73f0b10edecdbf255c9ca90b0a5055dc"
+  },
+  "ci/computer-authored-ending.png": {
+    "bytes": 577466,
+    "sha256": "aad4a14fdad9b370e9da7a0e165b68328ef39adae3aad37d918fb3ca138874f1"
+  },
+  "ci/computer-authored-fresh-day1.png": {
+    "bytes": 854831,
+    "sha256": "982dbf885b1c42845e254e44124b2252940ede2d8234d6df80b07050a1c1b2d8"
+  },
+  "ci/computer-authored-late-recovery-completed-title.png": {
+    "bytes": 11634,
+    "sha256": "816769ac963342ceb51d239e6d7000633532af753a85dff108cb586a85e9b562"
+  },
+  "ci/computer-authored-late-recovery-continued.png": {
+    "bytes": 665325,
+    "sha256": "523133a8fb093dc432688094e8a7bf817c402f926f24162e5fb2530cfce4aa95"
+  },
+  "ci/computer-authored-late-recovery-held-control.png": {
+    "bytes": 661552,
+    "sha256": "572abd54b405a49d30f42b9320ab0037ae84eb23a15d48c52dbcfcbbc16e72a1"
+  },
+  "ci/computer-authored-replay-completed-title.png": {
+    "bytes": 11483,
+    "sha256": "acce68352792ae9f56778720973b7245a960b85302ac9f7ef2e7905c5c5c6631"
+  },
+  "ci/computer-authored-restored-slot-2.png": {
+    "bytes": 577257,
+    "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+  },
+  "ci/final-status.txt": {
+    "bytes": 78,
+    "sha256": "e9ea381f63c5204fbd6d980c19443954d39f7c6a7fe147b99ddf3955528814dd"
+  },
+  "ci/import-process.json": {
+    "bytes": 24,
+    "sha256": "75876e0e3f497cad271143ba85bd4f36569cd81195509043f860dab14265b716"
+  },
+  "ci/import.log": {
+    "bytes": 96376,
+    "sha256": "1216df783346bbde864f14971e48aa6611a13bf95b66c2c2abb2216eb356eebd"
+  },
+  "ci/recovery-source.json": {
+    "bytes": 5473,
+    "sha256": "a1f77a7a24157a914293a741d85ac4ffadd05585c472b1c5bdcebea10c5fac59"
+  },
+  "ci/seed-authored-recovery.gd": {
+    "bytes": 1300,
+    "sha256": "66cf752267f645c86768c2a2545d2018c88cf3e3ef44dfe4b157b204416f8e46"
+  },
+  "ci/source-journey.zip": {
+    "bytes": 7297563,
+    "sha256": "86bcc222c600c352cac163d57b9006b7f61e5b83fe227f321aafd163a2b8d42f"
+  },
+  "ci/source-tree.txt": {
+    "bytes": 1722797,
+    "sha256": "7083e005576ccff68e214b7e5698c00a3fb52230dbd3a34d0c52e14c2ad8a4d3"
+  },
+  "ci/uid-provenance.json": {
+    "bytes": 7378,
+    "sha256": "b9b8173483814eb653b8a2e3b2c095e01d9123f3a5a73c4857849cf760d9cc2b"
+  },
+  "ci/native-uids/authored_week_child.gd.uid": {
+    "bytes": 20,
+    "sha256": "26a07eb1a8b8bcb11f34f35f50a8f6991cabfcec4284123256b710978b3c4512"
+  },
+  "ci/native-uids/authored_week_create.gd.uid": {
+    "bytes": 20,
+    "sha256": "efaa90685c346674983f2d245919b662c600ee8e8438a9130b8d79df5c310ad9"
+  },
+  "ci/native-uids/authored_week_late_recovery.gd.uid": {
+    "bytes": 20,
+    "sha256": "a33dcd5ff5b060bf46007dc918d68be7106712f9f9fcd109a7e0c9c41451ddfc"
+  },
+  "ci/native-uids/authored_week_load.gd.uid": {
+    "bytes": 20,
+    "sha256": "0807c4e888870ae647e6a62fe9cad1d383fe0b815c92906731ad067bd3bded09"
+  },
+  "ci/native-uids/authored_week_profile.gd.uid": {
+    "bytes": 19,
+    "sha256": "af40f7c53955d76c8b629921d98c8fca13ff6fe33565b08f8284cb3137a25f33"
+  },
+  "ci/native-uids/authored_week_recovery.gd.uid": {
+    "bytes": 20,
+    "sha256": "2212140e12b7468c4b0a8c473f5c1f6853d638ce1e7dd14cbf4d4dce59891567"
+  },
+  "ci/native-uids/authored_week_replay.gd.uid": {
+    "bytes": 20,
+    "sha256": "67e7d792639072893c0af6ab932f72a9e7c9ae49a00e21ea5c2129ca503961f6"
+  },
+  "ci/native-uids/scene_caption_challenge_child.gd.uid": {
+    "bytes": 20,
+    "sha256": "c51e5ac0c35131dd661435d90eb947370d9b082c14b211ee874a55c361d5865f"
+  },
+  "ci/native-uids/test_scene_caption_challenge.gd.uid": {
+    "bytes": 20,
+    "sha256": "04243240a3e8b6c90969915e0f57cb49e91c19df71c078947613829a0a6b8f36"
+  },
+  "ci/native-uids/test_scene_caption_challenge_load.gd.uid": {
+    "bytes": 20,
+    "sha256": "bdde427f62b112f4c5ad181e731d35a963d06ccd1c5b179f4b7553b6e40d1e67"
+  },
+  "ci/native-uids/test_scene_multiple_thoughts_create.gd.uid": {
+    "bytes": 19,
+    "sha256": "081205e55c56917ea816150e6b4bf79856bdb6ee187a472797cc985776f2301d"
+  },
+  "ci/native-uids/test_scene_native_activation_runtime.gd.uid": {
+    "bytes": 20,
+    "sha256": "84df30a88a760f8ab9b3568f734cc1824e0499f15469f91cce5726be0c45a603"
+  },
+  "ci/native-uids/test_scene_playable_native_control.gd.uid": {
+    "bytes": 20,
+    "sha256": "f4d2d92e1963948559f97a1be8e3d94b651baf77cdd2404cc8776c716dbea77c"
+  },
+  "ci/recovery-source/authored-week-day4.json": {
+    "bytes": 745849,
+    "sha256": "28c243435f3ba67404766e655c14be81e567f6823aa639ed1b6016a07907831f"
+  },
+  "ci/recovery-source/desktop-issuer-root.json": {
+    "bytes": 51365,
+    "sha256": "dc7add51be683e99e78ccf8fefde29c9588f7b9e18e448c53dce6cb60c8ffa6d"
+  },
+  "ci/recovery-source/desktop-issuer-root.json.bak": {
+    "bytes": 50956,
+    "sha256": "68832d623e435162701d308edf5e8fcde36ce2a7c4c2998bceb183e886e69524"
+  },
+  "ci/recovery-source/desktop-publications.json": {
+    "bytes": 34,
+    "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+  },
+  "ci/recovery-source/profile.json": {
+    "bytes": 221285,
+    "sha256": "c2acdeb4d3a4ac81efeef8644959d6ad10f145f1da083c7d0519dab179a86cbb"
+  },
+  "ci/recovery-source/profile.json.bak": {
+    "bytes": 220944,
+    "sha256": "68eae155c8e16f268db0a0fbd6a75eccf0565d3121079e93297e4a3296520209"
+  },
+  "ci/recovery-source/schedule-foundation-publications.json": {
+    "bytes": 34,
+    "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+  },
+  "ci/native/authored-recovery/0/user-dir-proof.log": {
+    "bytes": 193,
+    "sha256": "0425d0ed0cbd3027c4f9d64f00c7a473bd4731268f5083c83d8a595aff5b9c3b"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/authored-week-day4.json": {
+    "bytes": 745849,
+    "sha256": "28c243435f3ba67404766e655c14be81e567f6823aa639ed1b6016a07907831f"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/authored-week-ending.json": {
+    "bytes": 677619,
+    "sha256": "c0e07eb724a437da9e6f2ec9a28346e555c1e440289be6eea1bccd621fd0155c"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/desktop-issuer-root.json": {
+    "bytes": 65790,
+    "sha256": "fc7ca1c8fec152d44e7c800fa87774c354967af809b1c9afc48e8a064e89bff4"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/desktop-issuer-root.json.bak": {
+    "bytes": 61514,
+    "sha256": "703c3d56aa7d32f655f4944ab14e9dd42656a6aa1c66bd4ced2690ace2cb3cdc"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/desktop-publications.json": {
+    "bytes": 34,
+    "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/profile.json": {
+    "bytes": 231435,
+    "sha256": "40a3166a287790295a5270a42934337fc7bdd5f63c759d193d0d555c89c71f43"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/schedule-foundation-publications.json": {
+    "bytes": 34,
+    "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/saves/autosave.json": {
+    "bytes": 9102,
+    "sha256": "54b47a2637f33b4937fa63e63c5b8571038d3adde0576437bad1c415b13454a3"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/saves/desktop-continuation-operations.json": {
+    "bytes": 5160096,
+    "sha256": "04c5dd615ed91e42378a7e5e5b8d9506337fa913c746bae62c0fb57a29cb227a"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/saves/desktop-continuation-operations.json.bak": {
+    "bytes": 5160091,
+    "sha256": "5a48b23539720eb5658907cde08fb4967ffc9a3435105b1b131c0f5caf3f2b38"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/saves/slot_1.json": {
+    "bytes": 715995,
+    "sha256": "abfc0aa1c5438a3d3c747e1a539532866c9dfddbd67bcbc57c6562325367449e"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/saves/slot_2.json": {
+    "bytes": 1577281,
+    "sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/dialogic/saves/global_info.txt": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/+0NJXO2tED5GYLHkSpn8uswoUus=.cache": {
+    "bytes": 2147,
+    "sha256": "d7192d85c653d2d6c824efab36d4f4e19380d9c52ba4b8e934c4fc3afb68645a"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/1i7knzMo7uaabWbXZiMWG8SyZZM=.cache": {
+    "bytes": 1865,
+    "sha256": "31e8bd5ac6d049380a9634d5934bb1951f9d95470066b9f47a3ee8878343c055"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/3ANL6jEa5jkTN52sf1zAbOadg60=.cache": {
+    "bytes": 2966,
+    "sha256": "ef70e24200814195de76bf155f32a3cc8a1f297215f69c8fef912e93aa0ddd61"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/4yodjWkp9eF7T5QAUZ4OHZkc3EE=.cache": {
+    "bytes": 2855,
+    "sha256": "a7b4888366a036b56efb0d417883237df6b998086d482b7d53094568f4556da0"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/cKiSeHOqfE__FhUArKuSnJOfeAk=.cache": {
+    "bytes": 5279,
+    "sha256": "910190ad8f3ff02113846d6f6d93909a0c46ded83b0c5c5a5cc0e18cd4af1b88"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/e5ZRf0mclyCvDPypBYCs3280Jsw=.cache": {
+    "bytes": 5449,
+    "sha256": "b9d8bd3a228a031ec93738e6ab5a3f8aee604c427a8537728d1274c98b1fd14d"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/FPBf1TfevjZruRDFPN9QENniw_w=.cache": {
+    "bytes": 2384,
+    "sha256": "f5016ae3e6edc629210a8e6e23c3cf33dedd7d00408c70b6216b01f1d1232398"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/GfGxaGsWNxrtAGZ8j976VACJbxw=.cache": {
+    "bytes": 5974,
+    "sha256": "bbbbf14f46d2366b77d168b534744fd5405c9cb90f09915558944051a9105e13"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/gfI6W6tQ2GR+Uuy7X9mSPdNu+RA=.cache": {
+    "bytes": 2512,
+    "sha256": "3e9da6f4a3470e5255e0c02a16df6cc2b6a20c5f726d8ae1b097e9e55f9f9d79"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/gtD_9jA4D+GfNkO4XZ5sEGj6GzI=.cache": {
+    "bytes": 2381,
+    "sha256": "3cb18379d76be64eae98d04960db0509d42dc6d8f621828b03a1165bec5fb817"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/I+JSrTCBsZhyPh2Iem61_sd1KKs=.cache": {
+    "bytes": 6024,
+    "sha256": "7d0ebf2d73e81d405133cc877d583d7f7afec29e0147a095b4f1ecf50b872761"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/j+hHg7Y5LIS776xQvnSjjpeGnvI=.cache": {
+    "bytes": 2185,
+    "sha256": "637695040dfae1aa9ef3dd8844840f29ecaff223bac4c1a9adce897916b540b7"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/j0HcUyvJKtU2zyYFsOzUNEQoxJw=.cache": {
+    "bytes": 2477,
+    "sha256": "8890869f3f93bfc103b00cd00b4cdc6ded67357daa1b13ed6bf341a2dc42cc9b"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/K7koK4h3btXYT65x6VfWJpRcbtY=.cache": {
+    "bytes": 2237,
+    "sha256": "1f2b48d52330bdddb4596a79b036b0e78cacf3f985e22f831f2cba8a9fa50b4c"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/kbP6M7ytmmjhR_i103gyq8UhGIA=.cache": {
+    "bytes": 6024,
+    "sha256": "7d0ebf2d73e81d405133cc877d583d7f7afec29e0147a095b4f1ecf50b872761"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/kKFGsrcUJw77eat1Kvd4uiEDuyE=.cache": {
+    "bytes": 6454,
+    "sha256": "a250202151d9f8458395146cf507ce1c1e97a4eda7ebdd20e04c84cf2ea2648f"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/MxTypYjy3isoQ0fsbfqtkMJ94ds=.cache": {
+    "bytes": 27236,
+    "sha256": "902298d14eb985aba2c4e9bc1daa6683771810f4f9d9a3e3b5586a981ba3c849"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/NJaQ_DtLjOwHNVCa+4UWgWHrG+w=.cache": {
+    "bytes": 4273,
+    "sha256": "6e554249f335e1cb07a0f5cd72da67ded64d05e86216f296fdd4292edacc2d20"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/rCQyKqY25wyrYCwvUvoU9dLIyr8=.cache": {
+    "bytes": 2034,
+    "sha256": "e53a259223db7ef33f0e5ac62b1d92468264ed6db8bb52a49f5f050063bf5b4c"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/RJKbaJL3NdpdOIBNASR7evmKxS8=.cache": {
+    "bytes": 27662,
+    "sha256": "7d01cac9f90eac9c0f8e9a63502ff55711f4c4babe0207765e77d47c729cc4b7"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/VaLFKy58efOr6Lm38kYaeeAen40=.cache": {
+    "bytes": 2024,
+    "sha256": "ef3da4ef70c0f35e8ca0674878684c9e7d0a2a9462f19f4a0a7c2b73373aa1c2"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/shader_cache/EGL/yFYGcekbaBYxMPgglGePiG6RAH0=.cache": {
+    "bytes": 1535,
+    "sha256": "b3d8930a4c5b43f5ff1ca525c217e4851dfbe57ad6413698f09da7f53cc10675"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/shader_cache/CanvasShaderGLES3/e6624fe2264e206b0e4d7e025633fd052f5ad01a74f8e4ead975432d9ed35cd4/fa7b62523470356194bdf709eb2639ab149a07cc.cache": {
+    "bytes": 76182,
+    "sha256": "7af3f4baaeaa308d45f82b2af2972e5f2b8e094bc937981352e03dff36aba3ce"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/shader_cache/CopyShaderGLES3/4b67ab47c152ed26b01d35bc017f7687b5361d62499e2aafa5d4b9fc04a691b8/fa7b62523470356194bdf709eb2639ab149a07cc.cache": {
+    "bytes": 109350,
+    "sha256": "1146eea9f5f0d90f6d67f27743eae3d0ac26ea3452dee28290b33b1d9035cc65"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/shader_cache/FeedShaderGLES3/0b8b6c50cd99ef8772e9faa2517ae00c3fd765fbba160ada73bc7b5a1ed57166/fa7b62523470356194bdf709eb2639ab149a07cc.cache": {
+    "bytes": 7872,
+    "sha256": "1f79c100a0a032e059afda33907d8dea2af9ee11a207876054951f90e0972ba8"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/shader_cache/PostShaderGLES3/b83436dcdfb9b4864b27d9e0e5900eb89cd96c53f8161e4f673e1eaf9008e42b/fa7b62523470356194bdf709eb2639ab149a07cc.cache": {
+    "bytes": 15572,
+    "sha256": "90830d109f1944bc58f1b4452d3a73e866c7c90c07af7a24e74cde94a8979d71"
+  },
+  "ci/native/authored-recovery/0/appdata/Godot/app_userdata/DWM/shader_cache/SceneShaderGLES3/ae7bdf39be385d6c58bd4296942ac7dade1a132b1337f930759d4a5c900eab2c/fa7b62523470356194bdf709eb2639ab149a07cc.cache": {
+    "bytes": 468952,
+    "sha256": "5500cd2cd2d451340aaf8b52a7ecbb3bf88359e07d7dc7eda554d9db1cd4f641"
+  },
+  "ci/native-uids/autoload/DialogicBridge.gd.uid": {
+    "bytes": 20,
+    "sha256": "9fce0c9e5be35e51a6135a600d55c492e44333b8632d2110c1bf8a443c36c8f4"
+  },
+  "ci/native-uids/autoload/GameState.gd.uid": {
+    "bytes": 20,
+    "sha256": "e99d94c21ee3597d69de08bd83b0d5707ff6557317a11a5b4169cd10bbb9e7d4"
+  },
+  "ci/native-uids/scripts/narrative/DialogicRuntimeAdapter.gd.uid": {
+    "bytes": 20,
+    "sha256": "acc391abaa7069b4443dce06120f05d3dfeb12c9223922f9642d0158dc55aa19"
+  },
+  "ci/native-uids/scripts/ui/BackupApp.gd.uid": {
+    "bytes": 20,
+    "sha256": "8cfe2cb9ab952fe6c1ed11a40d7f86b9b935833f5036f55f9dce7b66f38a04d1"
+  },
+  "ci/native-uids/scripts/ui/MenuScene.gd.uid": {
+    "bytes": 20,
+    "sha256": "de724f287b1cad15701aeb4c5490426ef1e6d17b668dd464db2a61ad34abe5b2"
+  },
+  "ci/native-uids/scripts/ui/SceneHost.gd.uid": {
+    "bytes": 20,
+    "sha256": "9d9502a8200afb42cdc6cfb9954bf1dafcd4e2fa24e15620626d101a4b78bb72"
+  },
+  "ci/recovery-source/saves/autosave.json": {
+    "bytes": 2085658,
+    "sha256": "53c3db44785b0296ac27bb24ea714cf5bd9f0d0ad86a173763d88438a5c5ce3b"
+  },
+  "ci/recovery-source/saves/autosave.json.bak": {
+    "bytes": 1800868,
+    "sha256": "0de322f04d4ef3dc1b4ae659de037d6fee5342b418712222930c572be5058c67"
+  },
+  "ci/recovery-source/saves/desktop-continuation-operations.json": {
+    "bytes": 750791,
+    "sha256": "88782fa9709d27a0570a71c15a62dec153a3d0bfb06791a01f851de9a18f1ed4"
+  },
+  "ci/recovery-source/saves/desktop-continuation-operations.json.bak": {
+    "bytes": 750786,
+    "sha256": "3d41ce7cd7a1dcdf8eb8d25685a5d4aa86fbd6a9b7d5d839f940ea9d141523f6"
+  },
+  "ci/recovery-source/saves/slot_1.json": {
+    "bytes": 715995,
+    "sha256": "abfc0aa1c5438a3d3c747e1a539532866c9dfddbd67bcbc57c6562325367449e"
+  },
+  "ci/recovery-source/dialogic/saves/global_info.txt": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "ci/recovery-source/shader_cache/EGL/+0NJXO2tED5GYLHkSpn8uswoUus=.cache": {
+    "bytes": 2147,
+    "sha256": "d7192d85c653d2d6c824efab36d4f4e19380d9c52ba4b8e934c4fc3afb68645a"
+  },
+  "ci/recovery-source/shader_cache/EGL/1i7knzMo7uaabWbXZiMWG8SyZZM=.cache": {
+    "bytes": 1865,
+    "sha256": "31e8bd5ac6d049380a9634d5934bb1951f9d95470066b9f47a3ee8878343c055"
+  },
+  "ci/recovery-source/shader_cache/EGL/3ANL6jEa5jkTN52sf1zAbOadg60=.cache": {
+    "bytes": 2966,
+    "sha256": "ef70e24200814195de76bf155f32a3cc8a1f297215f69c8fef912e93aa0ddd61"
+  },
+  "ci/recovery-source/shader_cache/EGL/4yodjWkp9eF7T5QAUZ4OHZkc3EE=.cache": {
+    "bytes": 2855,
+    "sha256": "a7b4888366a036b56efb0d417883237df6b998086d482b7d53094568f4556da0"
+  },
+  "ci/recovery-source/shader_cache/EGL/cKiSeHOqfE__FhUArKuSnJOfeAk=.cache": {
+    "bytes": 5279,
+    "sha256": "910190ad8f3ff02113846d6f6d93909a0c46ded83b0c5c5a5cc0e18cd4af1b88"
+  },
+  "ci/recovery-source/shader_cache/EGL/e5ZRf0mclyCvDPypBYCs3280Jsw=.cache": {
+    "bytes": 5449,
+    "sha256": "b9d8bd3a228a031ec93738e6ab5a3f8aee604c427a8537728d1274c98b1fd14d"
+  },
+  "ci/recovery-source/shader_cache/EGL/FPBf1TfevjZruRDFPN9QENniw_w=.cache": {
+    "bytes": 2384,
+    "sha256": "f5016ae3e6edc629210a8e6e23c3cf33dedd7d00408c70b6216b01f1d1232398"
+  },
+  "ci/recovery-source/shader_cache/EGL/GfGxaGsWNxrtAGZ8j976VACJbxw=.cache": {
+    "bytes": 5974,
+    "sha256": "bbbbf14f46d2366b77d168b534744fd5405c9cb90f09915558944051a9105e13"
+  },
+  "ci/recovery-source/shader_cache/EGL/gfI6W6tQ2GR+Uuy7X9mSPdNu+RA=.cache": {
+    "bytes": 2512,
+    "sha256": "3e9da6f4a3470e5255e0c02a16df6cc2b6a20c5f726d8ae1b097e9e55f9f9d79"
+  },
+  "ci/recovery-source/shader_cache/EGL/gtD_9jA4D+GfNkO4XZ5sEGj6GzI=.cache": {
+    "bytes": 2381,
+    "sha256": "3cb18379d76be64eae98d04960db0509d42dc6d8f621828b03a1165bec5fb817"
+  },
+  "ci/recovery-source/shader_cache/EGL/I+JSrTCBsZhyPh2Iem61_sd1KKs=.cache": {
+    "bytes": 6024,
+    "sha256": "7d0ebf2d73e81d405133cc877d583d7f7afec29e0147a095b4f1ecf50b872761"
+  },
+  "ci/recovery-source/shader_cache/EGL/j+hHg7Y5LIS776xQvnSjjpeGnvI=.cache": {
+    "bytes": 2185,
+    "sha256": "637695040dfae1aa9ef3dd8844840f29ecaff223bac4c1a9adce897916b540b7"
+  },
+  "ci/recovery-source/shader_cache/EGL/j0HcUyvJKtU2zyYFsOzUNEQoxJw=.cache": {
+    "bytes": 2477,
+    "sha256": "8890869f3f93bfc103b00cd00b4cdc6ded67357daa1b13ed6bf341a2dc42cc9b"
+  },
+  "ci/recovery-source/shader_cache/EGL/K7koK4h3btXYT65x6VfWJpRcbtY=.cache": {
+    "bytes": 2237,
+    "sha256": "1f2b48d52330bdddb4596a79b036b0e78cacf3f985e22f831f2cba8a9fa50b4c"
+  },
+  "ci/recovery-source/shader_cache/EGL/kbP6M7ytmmjhR_i103gyq8UhGIA=.cache": {
+    "bytes": 6024,
+    "sha256": "7d0ebf2d73e81d405133cc877d583d7f7afec29e0147a095b4f1ecf50b872761"
+  },
+  "ci/recovery-source/shader_cache/EGL/kKFGsrcUJw77eat1Kvd4uiEDuyE=.cache": {
+    "bytes": 6454,
+    "sha256": "a250202151d9f8458395146cf507ce1c1e97a4eda7ebdd20e04c84cf2ea2648f"
+  },
+  "ci/recovery-source/shader_cache/EGL/MxTypYjy3isoQ0fsbfqtkMJ94ds=.cache": {
+    "bytes": 27236,
+    "sha256": "902298d14eb985aba2c4e9bc1daa6683771810f4f9d9a3e3b5586a981ba3c849"
+  },
+  "ci/recovery-source/shader_cache/EGL/NJaQ_DtLjOwHNVCa+4UWgWHrG+w=.cache": {
+    "bytes": 4273,
+    "sha256": "6e554249f335e1cb07a0f5cd72da67ded64d05e86216f296fdd4292edacc2d20"
+  },
+  "ci/recovery-source/shader_cache/EGL/rCQyKqY25wyrYCwvUvoU9dLIyr8=.cache": {
+    "bytes": 2034,
+    "sha256": "e53a259223db7ef33f0e5ac62b1d92468264ed6db8bb52a49f5f050063bf5b4c"
+  },
+  "ci/recovery-source/shader_cache/EGL/RJKbaJL3NdpdOIBNASR7evmKxS8=.cache": {
+    "bytes": 27662,
+    "sha256": "7d01cac9f90eac9c0f8e9a63502ff55711f4c4babe0207765e77d47c729cc4b7"
+  },
+  "ci/recovery-source/shader_cache/EGL/VaLFKy58efOr6Lm38kYaeeAen40=.cache": {
+    "bytes": 2024,
+    "sha256": "ef3da4ef70c0f35e8ca0674878684c9e7d0a2a9462f19f4a0a7c2b73373aa1c2"
+  },
+  "ci/recovery-source/shader_cache/EGL/yFYGcekbaBYxMPgglGePiG6RAH0=.cache": {
+    "bytes": 1535,
+    "sha256": "b3d8930a4c5b43f5ff1ca525c217e4851dfbe57ad6413698f09da7f53cc10675"
+  },
+  "ci/recovery-source/shader_cache/CanvasShaderGLES3/e6624fe2264e206b0e4d7e025633fd052f5ad01a74f8e4ead975432d9ed35cd4/fa7b62523470356194bdf709eb2639ab149a07cc.cache": {
+    "bytes": 76182,
+    "sha256": "7af3f4baaeaa308d45f82b2af2972e5f2b8e094bc937981352e03dff36aba3ce"
+  },
+  "ci/recovery-source/shader_cache/CopyShaderGLES3/4b67ab47c152ed26b01d35bc017f7687b5361d62499e2aafa5d4b9fc04a691b8/fa7b62523470356194bdf709eb2639ab149a07cc.cache": {
+    "bytes": 109350,
+    "sha256": "1146eea9f5f0d90f6d67f27743eae3d0ac26ea3452dee28290b33b1d9035cc65"
+  },
+  "ci/recovery-source/shader_cache/FeedShaderGLES3/0b8b6c50cd99ef8772e9faa2517ae00c3fd765fbba160ada73bc7b5a1ed57166/fa7b62523470356194bdf709eb2639ab149a07cc.cache": {
+    "bytes": 7872,
+    "sha256": "1f79c100a0a032e059afda33907d8dea2af9ee11a207876054951f90e0972ba8"
+  },
+  "ci/recovery-source/shader_cache/PostShaderGLES3/b83436dcdfb9b4864b27d9e0e5900eb89cd96c53f8161e4f673e1eaf9008e42b/fa7b62523470356194bdf709eb2639ab149a07cc.cache": {
+    "bytes": 15572,
+    "sha256": "90830d109f1944bc58f1b4452d3a73e866c7c90c07af7a24e74cde94a8979d71"
+  },
+  "ci/recovery-source/shader_cache/SceneShaderGLES3/ae7bdf39be385d6c58bd4296942ac7dade1a132b1337f930759d4a5c900eab2c/fa7b62523470356194bdf709eb2639ab149a07cc.cache": {
+    "bytes": 468952,
+    "sha256": "5500cd2cd2d451340aaf8b52a7ecbb3bf88359e07d7dc7eda554d9db1cd4f641"
+  },
+  "phase2r_logs/authored-recovery-seed.log": {
+    "bytes": 520,
+    "sha256": "be0812e89727ecfd6901411804e21beefd359be75b8d069b77da1f6b17bdf9ec"
+  },
+  "phase2r_logs/authored-recovery.log": {
+    "bytes": 12391943,
+    "sha256": "499436dc02098ea2e09104fb5b327c09d024fd7d155574ba2f4d1d1df1500852"
+  },
+  "phase2r_logs/authored-replay.log": {
+    "bytes": 4642567,
+    "sha256": "d828cf26a4a7d2bb6b9f2f174fc79c1ac80e2040b1f71bf7386b2a906d6a0b2c"
+  }
+}

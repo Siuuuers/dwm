@@ -63,26 +63,39 @@ func test_day_seven_shows_selected_source_and_remove_without_order_controls() ->
 	assert_eq(panel.entry_buttons.a.accessibility_name,"Priscilla")
 
 func test_fixed_topology_font_scaling_and_large_targets() -> void:
-	for locale: String in ["en","zh-CN","zh-HK"]:
-		for percent: int in [100,125,150]:
-			for large: bool in [false,true]:
-				var panel := _panel(locale,percent,large)
-				var label := "Training" if locale == "en" else "训练"
-				assert_true(panel.set_projection(_projection([_entry("a",label)],false,[_source("training",label)]),"a"))
-				await get_tree().process_frame
-				assert_eq(panel.available_scroll.position,Vector2(32,88))
-				assert_eq(panel.docket_scroll.position,Vector2(294,32))
-				assert_eq(panel.docket_scroll.size,Vector2(474,516))
-				assert_eq(panel.theme.default_font_size,20*percent/100)
-				assert_gte(panel.source_buttons.training.size.y,80.0 if large else 64.0)
-				assert_eq(panel.commands.remove.size,Vector2(254,64 if large else 48))
-				assert_eq(panel.docket_scroll.scroll_hint_mode,ScrollContainer.SCROLL_HINT_MODE_DISABLED)
-				for art: TextureRect in panel.find_children("RegisteredArt","TextureRect",true,false):
-					assert_true(art.size in [Vector2(48,48),Vector2(128,128)],str(art.get_path())+str(art.size))
-					assert_eq(art.texture_filter,CanvasItem.TEXTURE_FILTER_NEAREST,str(art.get_path()))
-				for text_label: Label in panel.find_children("*","Label",true,false):
-					assert_lte(text_label.get_minimum_size().y,text_label.size.y,"Every wrapped label has its measured height")
-				panel.hide()
+	var names := preload("res://scripts/ui/schedule/ScheduleCopy.gd").LABELS
+	for font_style: String in ["pixel","readable"]:
+		for locale: String in ["en","zh-CN","zh-HK","ja","ko"]:
+			for percent: int in [100,125,150]:
+				for large: bool in [false,true]:
+					var panel := _panel(locale,percent,large)
+					assert_true(panel.configure(locale,percent,large,&"after_hours",1,false,"standard",font_style))
+					var training: String = names.training[locale]
+					var working: String = "Working" if locale == "en" else names.working[locale]
+					assert_true(panel.set_projection(_projection([_entry("a",training),_entry("b",working,"working")],false,
+						[_source("training",training),_source("working",working)]),"a"))
+					await get_tree().process_frame
+					assert_eq(panel.available_scroll.position,Vector2(32,88))
+					assert_eq(panel.docket_scroll.position,Vector2(294,32))
+					assert_eq(panel.docket_scroll.size,Vector2(474,516))
+					assert_eq(panel.theme.default_font_size,(24 if font_style == "pixel" else 20)*percent/100)
+					assert_gte(panel.source_buttons.training.size.y,80.0 if large else 64.0)
+					assert_eq(panel.commands.remove.size,Vector2(254,64 if large else 48))
+					assert_eq(panel.docket_scroll.scroll_hint_mode,ScrollContainer.SCROLL_HINT_MODE_DISABLED)
+					for key: Button in panel.entry_buttons.values():
+						var label: Label = key.find_children("*","Label",true,false)[0]
+						assert_lte(key.get_rect().end.x,panel._folio.position.x,"Names and drag targets cannot enter the folio")
+						assert_lte(label.get_rect().end.x,key.drag_grip.position.x,"Reading text does not become a drag hit area")
+						assert_eq(key.drag_grip.size,Vector2(64,64) if large else Vector2(48,48))
+						if locale == "en" and (percent == 100 or (not large and percent == 125)):
+							assert_eq(label.get_line_count(),1,"Ordinary activity names use the spare row width at full font size")
+						assert_lte(label.get_rect().end.y,key.size.y-8)
+					for art: TextureRect in panel.find_children("RegisteredArt","TextureRect",true,false):
+						assert_true(art.size in [Vector2(48,48),Vector2(128,128)],str(art.get_path())+str(art.size))
+						assert_eq(art.texture_filter,CanvasItem.TEXTURE_FILTER_NEAREST,str(art.get_path()))
+					for text_label: Label in panel.find_children("*","Label",true,false):
+						assert_lte(text_label.get_minimum_size().y,text_label.size.y,"Every wrapped label has its measured height")
+					panel.hide()
 
 func test_unavailable_sources_keep_name_but_leave_focus_graph_and_invalid_art_refuses() -> void:
 	var panel := _panel()
@@ -125,7 +138,7 @@ func test_long_public_name_wraps_inside_its_source_and_occurrence_columns() -> v
 	var source_label: Label = panel.source_buttons.working.find_children("*","Label",true,false)[0]
 	var entry_label: Label = panel.entry_buttons.a.find_children("*","Label",true,false)[0]
 	assert_eq(source_label.size.x,112.0)
-	assert_eq(entry_label.size.x,88.0)
+	assert_eq(entry_label.size.x,116.0)
 	assert_gt(source_label.get_line_count(),1)
 	assert_gt(entry_label.get_line_count(),1)
 	assert_lte(source_label.get_rect().end.y,panel.source_buttons.working.size.y-8)

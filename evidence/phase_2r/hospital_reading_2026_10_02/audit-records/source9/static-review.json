@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "scope": "Static-only reconstruction and adversarial text checks; PowerShell/Godot not executed.",
+  "source_commit": "856520f09440d9b47cc272de3363009924ffedca",
+  "reviewed_shared_evolution_commit": "dca8b35b40e4ba9d80f204c77064357d16f07319",
+  "reviewed_parent": "28dbdd345abfce3915dcefdc514530c40a299f27",
+  "reviewed_source7_changes_exactly_capture_method_in_port": true,
+  "source8_port_equals_reviewed_source7": true,
+  "capture_hashes": {
+    "historical": "8a5c4fce433ef77722d0bab6fa503aec51a1c70257d129a8a714aeca9de006a2",
+    "current": "803bbae0ca2bfc1b8944ddca1952d8743b10ea579b92946dcf5cf438e0d16e7b",
+    "reviewed_whole_port": "ab8824ecb5617b48c5feb581133e4286facae70d42714add825fbea88e60272f"
+  },
+  "reconstructed_hashes": {
+    "accepted226_port": "bac00cb4df7573a6c670bbab1593e77f6ca8d0dd31b3cd7dade6d50616fd04bc",
+    "accepted226_schema": "1676d41225675acf4e3c154c60e38c2bd831417047266d5a9f00e4466bd448b2",
+    "accepted226_journal": "617aa35fe71b426c8c0b643b9fdda2e65322f5e37e652fb98bf7f78f64e7c344",
+    "original5c_region_port": "72d400998c3bc6d9a3b4a7645bfd24a749e34a78eaa140ba73d1b23d6fc20310"
+  },
+  "original_historical_pins_unchanged": true,
+  "controls_share_current_capture": true,
+  "mutation_refusals": {
+    "unreviewed_capture_body": {
+      "refused": true,
+      "reason": "unknown current capture evolution"
+    },
+    "old_capture_not_accepted_as_fallback": {
+      "refused": true,
+      "reason": "unknown current capture evolution"
+    },
+    "unrelated_port_change": {
+      "refused": true,
+      "reason": "whole historical port mismatch"
+    },
+    "frozen_commit_change": {
+      "refused": true,
+      "reason": "unique method required: commit"
+    },
+    "warm_shared_override": {
+      "refused": true,
+      "reason": "control overrides shared capture"
+    },
+    "region_shared_override": {
+      "refused": true,
+      "reason": "control overrides shared capture"
+    },
+    "warm_whitespace_override": {
+      "refused": true,
+      "reason": "control overrides shared capture"
+    },
+    "region_whitespace_override": {
+      "refused": true,
+      "reason": "control overrides shared capture"
+    },
+    "warm_alternate_base": {
+      "refused": true,
+      "reason": "control base changed"
+    },
+    "region_alternate_base": {
+      "refused": true,
+      "reason": "control base changed"
+    },
+    "unrelated_journal_change": {
+      "refused": true,
+      "reason": "whole historical journal"
+    },
+    "unrelated_schema_change": {
+      "refused": true,
+      "reason": "whole historical schema"
+    }
+  },
+  "changed_files": {
+    "tools/testing/Assert-WarmOutgoingProofBaseline.ps1": {
+      "bytes": 10663,
+      "sha256": "32f9936715f6fcce5ef39364865c7ef854ba4f15605efcef1afe0e5119dc5adb"
+    },
+    "tools/testing/Invoke-HistoryRegionSearchPerformance.ps1": {
+      "bytes": 14576,
+      "sha256": "5c37e672aff64fde0d37e5fe836173092e600209c9021d5c463ca6fb0d51f326"
+    },
+    "tools/testing/Invoke-WarmOutgoingProofPerformance.ps1": {
+      "bytes": 13886,
+      "sha256": "835b92523bd3c9caf6a2c3195de47980dfd9bc2e481c1a4f9c6a6ebc9d3c7e21"
+    }
+  },
+  "helper": {
+    "bytes": 11413,
+    "sha256": "01e388eccf7d72ca0aa563a10e628b092ad2811c440d3de03ec98e2018739b9b"
+  },
+  "limits": [
+    "Historical226/5c local trees are not materialized. Static reconstruction uses exact pinned frozen methods and source7 parent capture, reproducing unchanged historical whole-file hashes.",
+    "Cloud guard still reads and verifies actual historical Git blobs; this static check does not replace PowerShell execution.",
+    "No runtime/control behavior, timing scope, retention/hash invariant, production GDScript, or frozen historical constant changed.",
+    "Require new-head Day7 producer/consumer provenance and complete warm/region benchmark execution; broad1 remains failed evidence."
+  ]
+}

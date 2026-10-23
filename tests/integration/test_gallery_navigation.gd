@@ -1,5 +1,7 @@
 extends GutTest
 
+const FIXTURE_ENTRY_CATALOG := preload("res://tests/support/GalleryEndingFixtureCatalog.gd")
+
 const GALLERY := preload("res://scenes/menu/GalleryScene.tscn")
 const PROFILE := preload("res://autoload/ProfileManager.gd")
 const LOCALIZATION := preload("res://autoload/LocalizationManager.gd")
@@ -329,7 +331,12 @@ func test_overflow_loss_repairs_focus_and_pointer_selection_has_no_keyboard_ring
 	assert_eq(paper.scroll_offset, 0.0)
 	assert_true(_selected_row().has_focus(), "loss of overflow repairs focus to its selected record")
 	_replay().grab_focus()
-	var point := _selected_row().global_position + Vector2(32, 32)
+	# The long row remains taller than the clipped index after the paper shrinks.
+	# Its origin can be scrolled offscreen; click its actual visible intersection.
+	var index: Control = _gallery.get_node("%IndexViewport")
+	var visible_row := _selected_row().get_global_rect().intersection(index.get_global_rect())
+	assert_true(visible_row.has_area(), "selected row has a visible pointer target")
+	var point := visible_row.get_center()
 	await _move(point)
 	await _mouse(point, true)
 	await _mouse(point, false)
@@ -385,6 +392,7 @@ func _mount(long_record := false) -> void:
 	assert_true(_gallery.configure_title_host(_home, _localization, _profile).get("ok", false))
 	_bridge = ReplayBridge.new()
 	assert_true(_gallery.configure_replay(_bridge).get("ok", false))
+	_gallery._replay_owner.set("_entry_catalog", FIXTURE_ENTRY_CATALOG)
 	host.add_child(_gallery)
 	_gallery.open_in_title_host()
 	await _settle()

@@ -13,6 +13,13 @@ const RULES := preload("res://scripts/domain/relationship/ProvisionalProgression
 
 signal progress_ready()
 signal presentation_failed(failure: Dictionary)
+const HOSPITAL_CONTEXT := preload("res://scripts/narrative/HospitalFrozenContext.gd")
+var _frozen_hospital_contexts_enabled := false
+
+func configure_frozen_hospital_contexts() -> Dictionary:
+	if _game == null: return _fail(&"condition_hospital_adapter_unconfigured")
+	_frozen_hospital_contexts_enabled = true
+	return _ok({})
 
 var _game: Object
 var _issuer: Object
@@ -97,12 +104,21 @@ func prepare_stage(plan: Dictionary, stage_id: String) -> Dictionary:
 				var pair_candidate := _prepare_pair_candidate(prepared.owner_candidate)
 				if not pair_candidate.ok: return pair_candidate
 				prepared["owner_candidate"] = pair_candidate.value
+			if _frozen_hospital_contexts_enabled:
+				var captured := preload("res://scripts/narrative/ContactsFrozenContext.gd").capture_candidate(
+					_game.contacts, closed.value.contacts, prepared.owner_candidate.gameplay, int(plan.source_day))
+				if not captured.ok: return captured
+				prepared.owner_candidate.gameplay = captured.value
 			for source: Dictionary in plan.accepted_sources: inputs.append(str(source.receipt_id))
 		"present_hospital":
 			var closure: Dictionary = plan.stages[0].receipt.output
 			var context := {"kind": "hospital", "day": int(plan.source_day),
 				"source_entry_ids": closure.source_receipt_ids.duplicate(true),
 				"miss_receipt_ids": closure.miss_receipt_ids.duplicate(true)}
+			if _frozen_hospital_contexts_enabled:
+				var frozen := HOSPITAL_CONTEXT.from_condition(context, _game.contacts, closure)
+				if not frozen.get("ok", false): return frozen
+				context = frozen.value
 			var request := _presentation_request(plan, stage_id, context, "hospital.faint", _hospital)
 			if not request.get("ok", false): return request
 			prepared["presentation_request"] = request.value.request
@@ -140,6 +156,9 @@ func execute_stage(_plan: Dictionary, stage: Dictionary) -> Dictionary:
 			var pair_ready: Dictionary = _pair_deck.prepare_condition(true)
 			if not pair_ready.get("ok", false): return pair_ready
 		var request: Dictionary = prepared.presentation_request
+		if stage_id == "present_hospital" and _frozen_hospital_contexts_enabled:
+			var frozen := HOSPITAL_CONTEXT.validate(request.get("context"))
+			if not frozen.get("ok", false): return frozen
 		var key := str(request.completion_transaction_id)
 		if _completions.has(key):
 			return _ok({"output": {"presented": true, "presentation_completion_receipt": _completions[key].duplicate(true)},

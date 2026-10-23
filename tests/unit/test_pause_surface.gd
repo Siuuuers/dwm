@@ -3,9 +3,9 @@ extends GutTest
 const SCENE := preload("res://scenes/overlay/PauseSurface.tscn")
 const PAUSE_THEME := preload("res://scripts/ui/pause/PauseTheme.gd")
 const COPY := {
-	"en":{"continue":"Continue","backup":"Backup","settings":"Settings","return":"Return to Title","title":"Pause","question":"Return to title?","warning":"No new save will be made. Unsaved progress will be left behind.","cancel":"Cancel"},
-	"zh-CN":{"continue":"继续","backup":"备份","settings":"设定","return":"返回标题","title":"暂停","question":"返回标题？","warning":"不会创建新存档。未保存的进度将被舍弃。","cancel":"取消"},
-	"zh-HK":{"continue":"繼續","backup":"備份","settings":"設定","return":"返回標題","title":"暫停","question":"返回標題？","warning":"不會建立新存檔。未儲存的進度將被捨棄。","cancel":"取消"},
+	"en":{"continue":"Continue","backup":"Backup","settings":"Settings","return":"Return to Title","title":"Pause","question":"Return to title?","warning":"No new save will be made. Unsaved progress will be left behind.","cancel":"Cancel","back":"Back"},
+	"zh-CN":{"continue":"继续","backup":"备份","settings":"设定","return":"返回标题","title":"暂停","question":"返回标题？","warning":"不会创建新存档。未保存的进度将被舍弃。","cancel":"取消","back":"返回"},
+	"zh-HK":{"continue":"繼續","backup":"備份","settings":"設定","return":"返回標題","title":"暫停","question":"返回標題？","warning":"不會建立新存檔。未儲存的進度將被捨棄。","cancel":"取消","back":"返回"},
 }
 
 class ChildHost extends Control:
@@ -65,6 +65,8 @@ func test_all_locales_scales_and_target_modes_keep_full_copy_and_exact_geometry(
 			for large: bool in [false,true]:
 				assert_true(surface.configure_presentation(locale,percent,"AfterHours",false,"standard",large))
 				assert_true(surface.configure_copy(COPY[locale]))
+				assert_eq(surface._sheet_back.text, COPY[locale].back)
+				assert_eq(surface._sheet_back.accessibility_name, COPY[locale].back)
 				surface.open_surface()
 				assert_eq(surface.size,Vector2(1280,720))
 				assert_eq(surface.context_strip.position,Vector2(480,0))
@@ -147,6 +149,32 @@ func test_injected_host_enters_on_right_and_back_performs_one_retreat() -> void:
 	_tap(surface,KEY_ESCAPE)
 	assert_signal_emit_count(surface,"continue_requested",1)
 	assert_true(surface.visible,"only the admitted owner may close the Pause surface")
+
+func test_backup_preview_never_prepares_and_refused_activation_keeps_root_custody() -> void:
+	var surface := _surface()
+	var host := ChildHost.new()
+	assert_true(surface.set_host(&"backup", host))
+	var requested: Array[StringName] = []
+	var admission := {"ok": false}
+	surface.entry_admission = func(action: StringName) -> bool:
+		requested.append(action)
+		return admission.ok
+	surface.open_surface()
+	watch_signals(surface)
+	_tap(surface, KEY_DOWN)
+	assert_eq(requested, [], "focusing Backup remains a pure preview")
+	_tap(surface, KEY_RIGHT)
+	assert_eq(requested, [&"backup"])
+	assert_eq(surface.entered_action, &"")
+	assert_true(surface.rows[&"backup"].has_focus())
+	assert_false(host.is_processing_input())
+	assert_signal_emit_count(surface, "enter_requested", 0)
+	admission.ok = true
+	_tap(surface, KEY_RIGHT)
+	assert_eq(requested, [&"backup", &"backup"])
+	assert_eq(surface.entered_action, &"backup")
+	assert_true(host.entry.has_focus())
+	assert_signal_emit_count(surface, "enter_requested", 1)
 
 func test_released_pointer_enters_once_and_return_cancel_restores_exact_row() -> void:
 	var surface := _surface()

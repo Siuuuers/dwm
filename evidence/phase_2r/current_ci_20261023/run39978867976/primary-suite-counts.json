@@ -1,0 +1,171 @@
+{
+  "source_sha": "e5cf80a5417c05bd0bb7fa2f60f59e8905e839a6",
+  "run_id": 39978867976,
+  "scope": "CLOUD_GUT_RESULT primary-suite counts; connected second-process witnesses are separately checked by their jobs",
+  "test_cases": 2366,
+  "passed": 2366,
+  "skipped": 0,
+  "suites": [
+    {
+      "suite": "minesweeper",
+      "test_cases": 213,
+      "passed": 213,
+      "skipped": 0,
+      "requested_scripts": 23,
+      "reported_scripts": 23
+    },
+    {
+      "suite": "endings",
+      "test_cases": 169,
+      "passed": 169,
+      "skipped": 0,
+      "requested_scripts": 20,
+      "reported_scripts": 20
+    },
+    {
+      "suite": "shop",
+      "test_cases": 171,
+      "passed": 171,
+      "skipped": 0,
+      "requested_scripts": 10,
+      "reported_scripts": 10
+    },
+    {
+      "suite": "checkpoint_diagnostics",
+      "test_cases": 22,
+      "passed": 22,
+      "skipped": 0,
+      "requested_scripts": 4,
+      "reported_scripts": 4
+    },
+    {
+      "suite": "reading_delivery",
+      "test_cases": 647,
+      "passed": 647,
+      "skipped": 0,
+      "requested_scripts": 44,
+      "reported_scripts": 44
+    },
+    {
+      "suite": "scene_story_localization",
+      "test_cases": 1,
+      "passed": 1,
+      "skipped": 0,
+      "requested_scripts": 1,
+      "reported_scripts": 1
+    },
+    {
+      "suite": "localization",
+      "test_cases": 153,
+      "passed": 153,
+      "skipped": 0,
+      "requested_scripts": 17,
+      "reported_scripts": 17
+    },
+    {
+      "suite": "new_account",
+      "test_cases": 181,
+      "passed": 181,
+      "skipped": 0,
+      "requested_scripts": 15,
+      "reported_scripts": 15
+    },
+    {
+      "suite": "scene_shop_checkpoint",
+      "test_cases": 1,
+      "passed": 1,
+      "skipped": 0,
+      "requested_scripts": 1,
+      "reported_scripts": 1
+    },
+    {
+      "suite": "scene_controls_localization",
+      "test_cases": 4,
+      "passed": 4,
+      "skipped": 0,
+      "requested_scripts": 1,
+      "reported_scripts": 1
+    },
+    {
+      "suite": "persistence",
+      "test_cases": 248,
+      "passed": 248,
+      "skipped": 0,
+      "requested_scripts": 24,
+      "reported_scripts": 24
+    },
+    {
+      "suite": "current_title",
+      "test_cases": 1,
+      "passed": 1,
+      "skipped": 0,
+      "requested_scripts": 1,
+      "reported_scripts": 1
+    },
+    {
+      "suite": "scene_five_outcomes",
+      "test_cases": 6,
+      "passed": 6,
+      "skipped": 0,
+      "requested_scripts": 1,
+      "reported_scripts": 1
+    },
+    {
+      "suite": "authored_week",
+      "test_cases": 1,
+      "passed": 1,
+      "skipped": 0,
+      "requested_scripts": 1,
+      "reported_scripts": 1
+    },
+    {
+      "suite": "audio",
+      "test_cases": 44,
+      "passed": 44,
+      "skipped": 0,
+      "requested_scripts": 2,
+      "reported_scripts": 2
+    },
+    {
+      "suite": "scene_backup_inspection",
+      "test_cases": 2,
+      "passed": 2,
+      "skipped": 0,
+      "requested_scripts": 1,
+      "reported_scripts": 1
+    },
+    {
+      "suite": "scene_apps",
+      "test_cases": 1,
+      "passed": 1,
+      "skipped": 0,
+      "requested_scripts": 1,
+      "reported_scripts": 1
+    },
+    {
+      "suite": "dating",
+      "test_cases": 175,
+      "passed": 175,
+      "skipped": 0,
+      "requested_scripts": 12,
+      "reported_scripts": 12
+    },
+    {
+      "suite": "scene_round_checkpoint",
+      "test_cases": 1,
+      "passed": 1,
+      "skipped": 0,
+      "requested_scripts": 1,
+      "reported_scripts": 1
+    },
+    {
+      "suite": "desktop",
+      "test_cases": 325,
+      "passed": 325,
+      "skipped": 0,
+      "requested_scripts": 24,
+      "reported_scripts": 24
+    }
+  ],
+  "excluded": "Settings remains unqualified; renderer was requalified separately by run39981619080."
+}

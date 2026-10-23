@@ -22,18 +22,23 @@ const _ACTIVE_SUSPENDED := &"ACTIVE_SUSPENDED"
 const _PREPARING := &"PREPARING"
 const _PREPARED_UNSTARTED := &"PREPARED_UNSTARTED"
 
+var _scene_mode := false
 var _current_day: int = 0
 var _active_app_id: StringName = &""
 var _cached_app_ids: Array[StringName] = []
 
 
 func reset(current_day: int) -> void:
+	_scene_mode = false
 	_current_day = current_day
 	_active_app_id = &""
 	_cached_app_ids = []
 
 
 func open_app(app_id: StringName, current_day: int, board_phase: StringName = &"NONE") -> Dictionary:
+	if _scene_mode: return {"ok": false, "code": &"scene_calendar_command_forbidden"}
+	if app_id == &"logout":
+		return {"ok": false, "code": &"desktop_action_not_workspace", "message": "Logout is launcher consent, not a workspace"}
 	if not REGISTRY.new().has_app(app_id):
 		return {"ok": false, "code": &"unknown_app_id", "message": "app_id is not a registered desktop app"}
 	_current_day = current_day
@@ -60,6 +65,7 @@ func open_app(app_id: StringName, current_day: int, board_phase: StringName = &"
 ## (ACTIVE_VISIBLE) is suspended before the active app is hidden; any other phase, or no active
 ## app, just hides whatever was showing (or emits no commands at all).
 func go_home(current_day: int, board_phase: StringName) -> Dictionary:
+	if _scene_mode: return {"ok": false, "code": &"scene_calendar_command_forbidden"}
 	_current_day = current_day
 	var previous_app_id: StringName = _active_app_id
 	var commands: Array[Dictionary] = []
@@ -81,6 +87,7 @@ func close_app() -> Dictionary:
 
 
 func change_day(new_day: int, board_phase: StringName = &"NONE") -> Dictionary:
+	if _scene_mode: return {"ok": false, "code": &"scene_calendar_command_forbidden"}
 	if new_day <= 0:
 		return {"ok": false, "code": &"invalid_day", "message": "day must be positive"}
 	if new_day <= _current_day:
@@ -108,6 +115,8 @@ func change_day(new_day: int, board_phase: StringName = &"NONE") -> Dictionary:
 
 
 func get_state() -> Dictionary:
+	if _scene_mode:
+		return {"active_app_id": _active_app_id if _active_app_id != &"" else null, "cached_app_ids": _cached_app_ids.duplicate(true)}
 	return {
 		"current_day": _current_day,
 		"active_app_id": _active_app_id if _active_app_id != &"" else null,
@@ -116,6 +125,8 @@ func get_state() -> Dictionary:
 
 
 func capture_persistent_state() -> Dictionary:
+	if _scene_mode:
+		return {"active_app_id": String(_active_app_id) if _active_app_id != &"" else null}
 	return {"active_app_id": _active_app_id if _active_app_id != &"" else null}
 
 
@@ -130,6 +141,8 @@ func prepare_restore(active_app_id: Variant, current_day: int) -> Dictionary:
 			saved_id = StringName(active_app_id)
 		else:
 			return {"ok": false, "code": &"invalid_active_app_id", "message": "active_app_id must be a registered ID or null"}
+		if saved_id == &"logout":
+			return {"ok": false, "code": &"desktop_action_not_workspace", "message": "Logout cannot be restored as a workspace"}
 		if not REGISTRY.new().has_app(saved_id):
 			return {"ok": false, "code": &"unknown_app_id", "message": "saved active_app_id is not a registered desktop app"}
 	var candidate_state := {
@@ -153,6 +166,8 @@ func prepare_restore(active_app_id: Variant, current_day: int) -> Dictionary:
 
 ## Installs a prepared restore or a captured rollback snapshot. Preparation never edits the host.
 func commit_restore(candidate: Dictionary) -> Dictionary:
+	if candidate.size() == 2 and candidate.has("active_app_id") and candidate.has("cached_app_ids"):
+		return _commit_scene_restore(candidate)
 	var keys: Array = candidate.keys()
 	keys.sort()
 	if keys != ["active_app_id", "cached_app_ids", "current_day"] \
@@ -160,16 +175,17 @@ func commit_restore(candidate: Dictionary) -> Dictionary:
 			or typeof(candidate.get("cached_app_ids")) != TYPE_ARRAY:
 		return {"ok": false, "code": &"invalid_desktop_restore", "message": "invalid host snapshot"}
 	var active: Variant = candidate["active_app_id"]
-	if active != null and (typeof(active) not in [TYPE_STRING, TYPE_STRING_NAME] or not REGISTRY.new().has_app(StringName(active))):
+	if active != null and (typeof(active) not in [TYPE_STRING, TYPE_STRING_NAME] or active == &"logout" or not REGISTRY.new().has_app(StringName(active))):
 		return {"ok": false, "code": &"invalid_desktop_restore", "message": "unknown active app"}
 	var cached: Array[StringName] = []
 	for id: Variant in candidate["cached_app_ids"]:
-		if typeof(id) not in [TYPE_STRING, TYPE_STRING_NAME] or not REGISTRY.new().has_app(StringName(id)) or cached.has(StringName(id)):
+		if typeof(id) not in [TYPE_STRING, TYPE_STRING_NAME] or id == &"logout" or not REGISTRY.new().has_app(StringName(id)) or cached.has(StringName(id)):
 			return {"ok": false, "code": &"invalid_desktop_restore", "message": "invalid cached app"}
 		cached.append(StringName(id))
 	# Day zero is only the pristine host before Bootstrap initializes it.
 	if int(candidate["current_day"]) == 0 and (active != null or not cached.is_empty()):
 		return {"ok": false, "code": &"invalid_desktop_restore", "message": "uninitialized host cannot contain apps"}
+	_scene_mode = false
 	_current_day = int(candidate["current_day"])
 	_active_app_id = StringName(active) if active != null else &""
 	_cached_app_ids = cached
@@ -178,8 +194,8 @@ func commit_restore(candidate: Dictionary) -> Dictionary:
 
 ## Reopening the already-active app neither hides nor suspends itself. Switching away from a
 ## visible board suspends it before hiding minesweeper; opening minesweeper while its board is
-## suspended resumes it. open_app never blocks Contacts, Schedule, Shop, Backup, Settings, or
-## Logout regardless of board_phase -- only minesweeper's own open/leave ever touches the board.
+## suspended resumes it. open_app admits the six content apps regardless of board_phase.
+## Only minesweeper's own open/leave ever touches the board.
 func _open_app_commands(previous_app_id: StringName, app_id: StringName, board_phase: StringName) -> Array[Dictionary]:
 	var commands: Array[Dictionary] = []
 	if previous_app_id != &"" and previous_app_id != app_id:
@@ -201,3 +217,58 @@ func _change_day_commands(board_phase: StringName) -> Array[Dictionary]:
 	if board_phase in [&"PAID_UNSTARTED", _ACTIVE_VISIBLE, _ACTIVE_SUSPENDED]:
 		return [{"kind": "forfeit_board"}]
 	return []
+
+
+
+## Scene cache state has no calendar or fabricated compatibility day.
+func prepare_scene_restore(active_app_id: Variant) -> Dictionary:
+	if active_app_id != null and (typeof(active_app_id) not in [TYPE_STRING, TYPE_STRING_NAME] or active_app_id in ["logout", "schedule"] or not REGISTRY.new().has_app(StringName(active_app_id))):
+		return {"ok": false, "code": &"invalid_scene_active_app"}
+	var instantiate_command: Variant = null
+	if active_app_id != null:
+		var record: Dictionary = REGISTRY.new().get_record(StringName(active_app_id))
+		instantiate_command = {"ok": true, "instantiate": true, "hide_app_id": null,
+			"show_app_id": StringName(active_app_id), "focus_target": record.get("focus_target", NodePath())}
+	return {"ok": true, "value": {"candidate_state": {"active_app_id": active_app_id,
+		"cached_app_ids": []}, "instantiate_command": instantiate_command}}
+
+func _commit_scene_restore(candidate: Dictionary) -> Dictionary:
+	var admitted := prepare_scene_restore(candidate.active_app_id)
+	if not admitted.get("ok", false): return admitted
+	if typeof(candidate.cached_app_ids) != TYPE_ARRAY:
+		return {"ok": false, "code": &"invalid_scene_cached_apps"}
+	var cached: Array[StringName] = []
+	for app_id: Variant in candidate.cached_app_ids:
+		if app_id == null or not prepare_scene_restore(app_id).get("ok", false) or cached.has(StringName(app_id)):
+			return {"ok": false, "code": &"invalid_scene_cached_apps"}
+		cached.append(StringName(app_id))
+	_scene_mode = true
+	_current_day = 0
+	_active_app_id = StringName(candidate.active_app_id) if candidate.active_app_id != null else &""
+	_cached_app_ids = cached
+	return {"ok": true, "value": {"state": get_state()}}
+
+## Explicit scene navigation reuses the app registry and board command ordering.
+func open_scene_app(app_id: StringName, board_phase: StringName = &"NONE") -> Dictionary:
+	if not _scene_mode: return {"ok": false, "code": &"scene_desktop_not_installed"}
+	var admitted := prepare_scene_restore(app_id)
+	if not admitted.get("ok", false): return admitted
+	var previous := _active_app_id
+	var was_cached := _cached_app_ids.has(app_id)
+	if not was_cached: _cached_app_ids.append(app_id)
+	_active_app_id = app_id
+	var record: Dictionary = REGISTRY.new().get_record(app_id)
+	return {"ok": true, "instantiate": not was_cached,
+		"hide_app_id": previous if previous != &"" else null, "show_app_id": app_id,
+		"focus_target": record.get("focus_target", NodePath()),
+		"value": {"state": get_state(), "commands": _open_app_commands(previous, app_id, board_phase)}}
+
+func scene_go_home(board_phase: StringName = &"NONE") -> Dictionary:
+	if not _scene_mode: return {"ok": false, "code": &"scene_desktop_not_installed"}
+	var commands: Array[Dictionary] = []
+	if _active_app_id != &"":
+		if _active_app_id == _MINESWEEPER_ID and board_phase == _ACTIVE_VISIBLE:
+			commands.append({"kind": "suspend_board"})
+		commands.append({"kind": "hide_app", "app_id": String(_active_app_id)})
+	_active_app_id = &""
+	return {"ok": true, "value": {"state": get_state(), "commands": commands}}

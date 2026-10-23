@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="1" >
+  <testsuite name="tests/integration/authored_week_replay.gd" tests="1" failures="0" skipped="0" time="1677.981959" >
+      <testcase name="test_replay_authored_ending" assertions="300" status="pass" classname="tests/integration/authored_week_replay.gd" time="1677.981959" >
+      </testcase>
+  </testsuite>
+</testsuites>

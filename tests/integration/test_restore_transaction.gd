@@ -9,6 +9,14 @@ const STORAGE_PATH := "res://scripts/infrastructure/storage/JsonFileStorage.gd"
 const GATE_PATH := "res://scripts/application/transaction/ApplicationMutationGate.gd"
 const FAKE_PARTICIPANT := "res://tests/support/FakeRestoreParticipant.gd"
 const CALL_LOG := "res://tests/support/RestoreCallLog.gd"
+const AUDIO_MANAGER := preload("res://autoload/AudioManager.gd")
+const AUDIO_PARTICIPANT := preload("res://scripts/application/restore/AudioRestoreParticipant.gd")
+const AUDIO_PLAYBACK := preload("res://tests/support/FakeAudioPlaybackPort.gd")
+
+
+class AudioProfile extends Node:
+	func get_preference(path: StringName, default_value: Variant = null) -> Variant:
+		return AUDIO_MANAGER.AUDIO_DEFAULTS.get(String(path).trim_prefix("preferences.audio."), default_value)
 
 ## Plan 02 Task 6 (dwm-p2r.32), Phase C2: widened from 6 to the full 8-item
 ## DesktopContinuationOperationJournal.PARTICIPANT_ORDER (forced ripple -- SaveManager's
@@ -113,6 +121,96 @@ func test_rollback_failure_latches_shared_gate() -> void:
 	assert_eq(result["details"]["failure"]["source"], "restore")
 
 
+func _attach_real_audio(wired: Dictionary) -> Dictionary:
+	var playback := AUDIO_PLAYBACK.new()
+	var profile := AudioProfile.new()
+	var audio: Node = AUDIO_MANAGER.new(playback)
+	autofree(profile)
+	autofree(audio)
+	assert_true(audio.configure_mutation_gate(wired.gate).get("ok", false))
+	assert_true(audio.initialize(profile).get("ok", false))
+	assert_true(audio.set_music_context("menu").get("ok", false))
+	assert_true(audio.set_ambience_context("rain").get("ok", false))
+	playback.players[&"MusicB"]["playback_position"] = 42.75
+	playback.players[&"AmbienceB"]["playback_position"] = 13.125
+	playback.players[&"AmbienceB"]["stream_paused"] = true
+	wired.participants.audio = AUDIO_PARTICIPANT.new(audio)
+	assert_true(wired.manager.configure_restore_participants(wired.participants).get("ok", false))
+	var prepared := _prepared()
+	prepared.participant_plans.audio = {"snapshot": {
+		"music_context_id": "hospital", "music_context": {},
+		"ambience_context_id": "room", "ambience_context": {},
+	}, "audio": AUDIO_MANAGER.AUDIO_DEFAULTS.duplicate(true)}
+	prepared.participant_plans.audio.audio.output_mode = "mono"
+	return {"audio": audio, "playback": playback, "prepared": prepared}
+
+
+func test_later_route_refusal_restores_real_audio_exactly() -> void:
+	_assert_later_refusal_preserves_audio(&"apply_silent")
+
+
+func test_later_route_finalization_refusal_preserves_audio_after_audio_finalize() -> void:
+	_assert_later_refusal_preserves_audio(&"finalize")
+
+
+func _assert_later_refusal_preserves_audio(stage: StringName) -> void:
+	var log: RefCounted = load(CALL_LOG).new()
+	var wired := _manager(log)
+	if wired.is_empty(): return
+	var real := _attach_real_audio(wired)
+	var before: Dictionary = real.audio.capture_restore_state()["value"]
+	watch_signals(real.audio)
+	watch_signals(wired.manager)
+	wired.participants.route.set_failure(stage)
+	var result: Dictionary = wired.manager.commit_prepared_restore(real.prepared)
+	assert_false(result.get("ok", true))
+	assert_eq(result.get("code"), &"forced_apply_failure" if stage == &"apply_silent" else &"forced_finalize_failure")
+	assert_eq(real.audio.capture_restore_state()["value"], before,
+		"Failed Load restores physical streams, playheads, crossfades, outputs and manager identities")
+	assert_same(real.playback.players[&"MusicB"].stream, before.runtime.players[&"MusicB"].stream)
+	assert_false(wired.manager.is_save_locked())
+	assert_false(wired.gate.is_active())
+	assert_false(wired.gate.is_fatal_latched())
+	assert_signal_not_emitted(wired.manager, "run_restored")
+	for signal_name: String in ["music_context_changed", "ambience_context_changed", "audio_settings_applied"]:
+		assert_signal_not_emitted(real.audio, signal_name)
+	assert_true(real.audio.set_music_context("menu").get("unchanged", false))
+	assert_true(real.audio.set_music_context("contacts").get("ok", false))
+	assert_eq(real.audio._active_players[&"music"], &"MusicA")
+	assert_eq(real.playback.players[&"MusicB"].playback_position, 42.75)
+
+
+func test_real_audio_capture_refusal_precedes_all_participant_mutation() -> void:
+	var log: RefCounted = load(CALL_LOG).new()
+	var wired := _manager(log)
+	if wired.is_empty(): return
+	var real := _attach_real_audio(wired)
+	var before: Dictionary = real.audio.capture_restore_state()["value"]
+	real.playback.fail_next(&"capture_runtime")
+	var result: Dictionary = wired.manager.commit_prepared_restore(real.prepared)
+	assert_eq(result.get("code"), &"injected_audio_failure")
+	assert_eq(real.audio.capture_restore_state()["value"], before)
+	for entry: String in log.entries:
+		assert_false(entry.ends_with(".apply_silent"), "No owner applies before every capture succeeds")
+	assert_false(wired.manager.is_save_locked())
+	assert_false(wired.gate.is_active())
+	assert_false(wired.gate.is_fatal_latched())
+
+
+func test_real_audio_failed_compensation_latches_shared_restore_gate() -> void:
+	var log: RefCounted = load(CALL_LOG).new()
+	var wired := _manager(log)
+	if wired.is_empty(): return
+	var real := _attach_real_audio(wired)
+	wired.participants.route.set_failure(&"apply_silent")
+	real.playback.fail_next(&"restore_runtime")
+	var result: Dictionary = wired.manager.commit_prepared_restore(real.prepared)
+	assert_false(result.get("ok", true))
+	assert_eq(result.get("code"), &"APPLICATION_FATAL")
+	assert_true(wired.gate.is_fatal_latched())
+	assert_eq(real.audio.set_music_context("menu").get("code"), &"audio_runtime_indeterminate")
+
+
 # ---- dwm-p2r.8 (Plan-05 Task 2 Step 2.4): newest-to-oldest content-incompatible fallback ----
 # A typed recoverable narrative incompatibility must advance selection to an earlier whole bundle,
 # while fail-closed corruption must stop instead of being relabelled as incompatibility.
@@ -191,3 +289,39 @@ func test_failed_restore_finalization_restores_prior_journal_and_releases_save_l
 	assert_false(wired.gate.is_fatal_latched())
 	assert_true(restored.is_empty(),"No successful restore is published")
 	assert_false(log.entries.has("route.finalize"),"Narrative failure cannot dispatch the scene")
+
+
+class SparseRollbackFailure extends RefCounted:
+	func rollback_silent(_backup: Dictionary) -> Dictionary:
+		return {"ok": false, "code": &"TEST.rollback_refused", "message": "owner could not restore"}
+
+func test_failed_rollback_preserves_sparse_owner_and_original_refusals() -> void:
+	var log: RefCounted = load(CALL_LOG).new()
+	var wired := _manager(log)
+	if wired.is_empty(): return
+	var manager: Node = wired.manager
+	manager._restore_participants["run"] = SparseRollbackFailure.new()
+	var acquired: Dictionary = wired.gate.acquire(&"restore")
+	assert_true(acquired.ok, str(acquired))
+	if not acquired.ok: return
+	assert_true(manager.acquire_save_lock(&"restore").ok)
+	var original := {"ok": false, "code": &"TEST.original_refusal", "message": "initial owner refusal"}
+	var before := original.duplicate(true)
+	var applied: Array[String] = ["run"]
+	var result: Dictionary = manager._rollback_transaction(&"restore", applied, {"run": {}},
+		acquired.value.token, true, original)
+	assert_eq(result.get("code"), &"APPLICATION_FATAL")
+	assert_true(wired.gate.is_fatal_latched())
+	assert_true(manager.is_save_locked(), "uncertain compensation retains save custody")
+	assert_eq(original, before, "diagnostic projection cannot change owner evidence")
+	var diagnostics: Array = result.details.failure.details.diagnostics
+	assert_eq(diagnostics.size(), 2)
+	assert_eq(diagnostics[0].owner_id, "run")
+	assert_eq(diagnostics[0].operation, "rollback_silent")
+	assert_eq(diagnostics[0].code, "TEST.rollback_refused")
+	assert_eq(diagnostics[0].message, "owner could not restore")
+	assert_eq(diagnostics[0].details, {})
+	assert_eq(diagnostics[1].operation, "original_failure")
+	assert_eq(diagnostics[1].code, "TEST.original_refusal")
+	assert_eq(diagnostics[1].message, "initial owner refusal")
+	assert_eq(diagnostics[1].details, {})
