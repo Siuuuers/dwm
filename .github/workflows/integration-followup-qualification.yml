@@ -1,8 +1,6 @@
 name: Integration followup qualification
 on:
-  pull_request:
-    paths:
-      - '.github/workflows/integration-followup-qualification.yml'
+  workflow_dispatch:
 permissions:
   contents: read
   actions: read
