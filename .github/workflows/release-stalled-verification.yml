@@ -1,0 +1,20 @@
+name: Release stalled superseded verification
+on:
+  push:
+    branches: [codex/release-stalled-verification-20261023]
+permissions:
+  actions: write
+  contents: read
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const owner=context.repo.owner, repo=context.repo.repo, run_id=39974551776;
+            const r=await github.rest.actions.getWorkflowRun({owner,repo,run_id});
+            if(r.data.head_sha !== 'c779e352a257fe49a225bfa47fedabb1e1420e40') throw new Error('Unexpected source');
+            if(r.data.status === 'completed') { core.info('Already complete'); return; }
+            await github.request('POST /repos/{owner}/{repo}/actions/runs/{run_id}/force-cancel',{owner,repo,run_id});
