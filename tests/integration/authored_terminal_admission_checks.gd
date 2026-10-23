@@ -5,6 +5,7 @@ const TERMINAL_CONTRACT := preload("res://scripts/domain/narrative/SceneEventCon
 const TERMINAL_TIMING := preload("res://scripts/narrative/SceneValidationTiming.gd")
 const TERMINAL_ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
 const OTHER_ROOT := preload("res://tests/support/FakeDesktopIssuerRootStore.gd")
+const TERMINAL_FROZEN := preload("res://scripts/narrative/FrozenRunContext.gd")
 var _profile_bytes := PackedByteArray()
 
 func _selected(record: Dictionary, receipts: Dictionary, contacts: Dictionary) -> Dictionary:
@@ -21,6 +22,49 @@ func _restore_profile_bytes() -> bool:
 
 func after_all() -> void:
 	assert_true(_restore_profile_bytes(), "restore original Profile bytes even after an early test return")
+
+func _frozen_checks(source: Dictionary) -> Dictionary:
+	assert_true(TERMINAL_FROZEN.scene_validation_uses(game._identity_issuer, saves))
+	assert_false(source.narrative_checkpoint.is_empty(), "saved ending exercises the nonempty checkpoint branch")
+	assert_true(TERMINAL_TIMING.begin_scope("terminal_frozen_full", "ENDING", "PRIMARY_PENDING", 0))
+	var full: Dictionary = TERMINAL_FROZEN.validate(source)
+	var full_counts: Dictionary = TERMINAL_TIMING._record.duplicate(true)
+	TERMINAL_TIMING.end_scope(bool(full.get("ok", false)))
+	if not _ok(full): return {}
+	assert_true(TERMINAL_TIMING.begin_scope("terminal_frozen_checkpoint", "ENDING", "PRIMARY_PENDING", 0))
+	var checkpoint: Dictionary = TERMINAL_FROZEN.validate_reading_checkpoint(source.narrative_checkpoint, source)
+	var checkpoint_counts: Dictionary = TERMINAL_TIMING._record.duplicate(true)
+	TERMINAL_TIMING.end_scope(bool(checkpoint.get("ok", false)))
+	if not _ok(checkpoint): return {}
+	assert_eq(full, checkpoint, "both public paths admit the same ending frames")
+	assert_eq(full_counts.receipt_validation_calls, checkpoint_counts.receipt_validation_calls,
+		"full validation authenticates terminal authority once, like direct checkpoint validation")
+	assert_eq(full_counts.physical_proof_calls, checkpoint_counts.physical_proof_calls)
+	assert_gt(int(full_counts.physical_proof_calls), 0, "same-call reuse still proves current physical Profile")
+
+	var changed: Dictionary = source.duplicate(true)
+	changed.lifecycle.ending_plan.source_reading_checkpoint = {}
+	assert_false(TERMINAL_FROZEN.validate(changed).ok, "full validation rechecks later source history")
+	assert_false(TERMINAL_FROZEN.validate_reading_checkpoint(changed.narrative_checkpoint, changed).ok,
+		"public checkpoint validation independently rechecks later source history")
+	changed = source.duplicate(true)
+	changed.command_receipts.erase(source.lifecycle.ending_plan.admission.trigger_command_id)
+	assert_false(TERMINAL_FROZEN.validate(changed).ok, "full validation rechecks later receipts")
+	assert_false(TERMINAL_FROZEN.validate_reading_checkpoint(changed.narrative_checkpoint, changed).ok,
+		"public checkpoint validation independently rechecks later receipts")
+	changed = source.duplicate(true)
+	changed.narrative_checkpoint = {}
+	assert_true(TERMINAL_FROZEN.validate(changed).ok, "initial terminal admission retains its allowed empty checkpoint")
+	assert_eq(TERMINAL_FROZEN.validate_reading_checkpoint({}, changed).code, &"reading_session_invalid",
+		"standalone checkpoint API still requires a checkpoint envelope")
+	changed.narrative_checkpoint = null
+	assert_eq(TERMINAL_FROZEN.validate(changed).code, &"reading_session_invalid")
+	changed.lifecycle.ending_plan.admission.trigger_sha256 = "f".repeat(64)
+	assert_eq(TERMINAL_FROZEN.validate(changed).code, &"scene_terminal_admission_mismatch",
+		"terminal authority refusal precedes malformed current checkpoint")
+	assert_eq(TERMINAL_FROZEN.validate_reading_checkpoint({}, changed).code, &"scene_terminal_admission_mismatch",
+		"standalone checkpoint preserves the same terminal-first error order")
+	return {"full_counts": full_counts, "checkpoint_counts": checkpoint_counts}
 
 func test_selected_terminal_admission_rechecks_genuine_saved_authority() -> void:
 	_phase = "terminal-admission"
@@ -61,6 +105,8 @@ func test_selected_terminal_admission_rechecks_genuine_saved_authority() -> void
 	assert_eq(selected_counts.receipt_validation_calls, generic_counts.receipt_validation_calls)
 	assert_eq(selected_counts.physical_proof_calls, generic_counts.physical_proof_calls)
 	assert_gt(int(selected_counts.physical_proof_calls), 0, "actual current Profile proof is exercised")
+	var frozen_counts := _frozen_checks(source)
+	if frozen_counts.is_empty(): return
 
 	var changed: Dictionary = receipts.duplicate(true)
 	changed.erase(record.trigger_command_id)
@@ -92,15 +138,21 @@ func test_selected_terminal_admission_rechecks_genuine_saved_authority() -> void
 	file.store_string("{}")
 	file.close()
 	var physical_refusal := _selected(record, receipts, contacts)
+	var full_physical_refusal: Dictionary = TERMINAL_FROZEN.validate(source)
+	var checkpoint_physical_refusal: Dictionary = TERMINAL_FROZEN.validate_reading_checkpoint(source.narrative_checkpoint, source)
 	var restored := _restore_profile_bytes()
 	assert_true(restored, "original Profile bytes restored immediately")
 	assert_false(physical_refusal.ok, "later changed physical Profile is not replaced by cached proof")
+	assert_false(full_physical_refusal.ok, "full validation rechecks physical Profile on each call")
+	assert_false(checkpoint_physical_refusal.ok, "standalone checkpoint validation rechecks physical Profile on each call")
 	if not restored: return
 	assert_true(_selected(record, receipts, contacts).ok, "original valid inputs remain admissible after all mutations")
+	assert_true(TERMINAL_FROZEN.validate(source).ok, "valid full context recovers after physical bytes are restored")
 	assert_eq(profile.get_profile_snapshot(), live_profile, "boundary checks do not adopt Profile changes")
 	assert_eq(FileAccess.get_sha256("user://saves/slot_2.json"), slot_hash, "saved source remains untouched")
 	_write_json("res://.godot/ci/authored-terminal-admission-checks.json", {
 		"process_id": OS.get_process_id(), "slot_sha256": slot_hash,
 		"generic_counts": generic_counts, "selected_counts": selected_counts,
+		"frozen_counts": frozen_counts,
 		"physical_refusal_code": str(physical_refusal.get("code", "")),
 		"profile_restored": restored})

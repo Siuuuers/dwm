@@ -51,7 +51,7 @@ static func validate(snapshot: Dictionary, require_complete: bool = false) -> Di
 			return _ok() if lifecycle.state == "ENDING" and lifecycle.ending_plan.next_step_index == 0 \
 				and lifecycle.ending_plan.playback_stage == "PRIMARY_PENDING" else _fail(&"reading_physical_boundary_mismatch")
 		if not checkpoint is Dictionary: return _fail(&"reading_session_invalid")
-		return validate_reading_checkpoint(checkpoint, snapshot)
+		return _validate_reading_checkpoint_body(checkpoint, snapshot)
 	# Scene reading must never enter the historical day/Contacts owner branches.
 	# This nonwired slice deliberately cannot establish G's issuer/NewRun/trigger
 	# authority from presentation copies or a caller-provided success Boolean.
@@ -95,6 +95,10 @@ static func validate_reading_checkpoint(checkpoint: Dictionary, snapshot: Dictio
 	if _scene_terminal_plan(snapshot):
 		var terminal := _validate_scene_terminal(snapshot)
 		if not terminal.ok: return terminal
+	return _validate_reading_checkpoint_body(checkpoint, snapshot)
+
+## Both entry points authenticate terminal authority before this synchronous body.
+static func _validate_reading_checkpoint_body(checkpoint: Dictionary, snapshot: Dictionary) -> Dictionary:
 	# Save capture reaches this pure boundary before a Run is serialized, while
 	# restore also has the participant's exact envelope checks. Both paths must
 	# refuse bytes that would be unwritable by the versioned reading producer.
