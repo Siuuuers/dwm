@@ -68,6 +68,46 @@ func test_registered_issuer_receipt_and_completion_child_rebuild_exactly() -> vo
 	result.value.commands[event.command_id].scene_event.result.target_id = "TEST.changed"
 	assert_eq(receipt.scene_event.result.target_id, "TEST.target")
 
+func test_receipt_validation_rechecks_nested_bundle_and_issuer_after_success() -> void:
+	var receipt := _receipt()
+	if receipt.is_empty(): return
+	var bag := _bag(receipt)
+	assert_true(CONTRACT.validate_scene_receipts(bag, bundle, issuer).ok)
+	bundle.caption_registry.TEST = "changed installed bundle"
+	assert_false(CONTRACT.validate_scene_receipts(bag, bundle, issuer).ok,
+		"a prior successful validation cannot authorize changed registration")
+	bundle.caption_registry.TEST = "captions"
+	assert_true(CONTRACT.validate_scene_receipts(bag, bundle, issuer).ok)
+	var foreign := ISSUER.new()
+	assert_true(foreign.configure(ROOT.new("cd".repeat(32), 1)).ok)
+	assert_false(CONTRACT.validate_scene_receipts(bag, bundle, foreign).ok,
+		"structural reuse must not replace fresh issuer proof")
+	bundle.scene_programme.entries[0].markers[0].payload.target_id = "TEST.missing"
+	bag[event.command_id].scene_event.result = []
+	assert_eq(CONTRACT.validate_scene_receipts(bag, bundle, issuer).code, &"scene_target_unregistered",
+		"bundle refusal still precedes receipt reconstruction")
+
+func test_receipt_validation_outputs_cannot_mutate_inputs_or_later_proof() -> void:
+	var receipt := _receipt()
+	if receipt.is_empty(): return
+	var bag := _bag(receipt)
+	var original_bag: Dictionary = bag.duplicate(true)
+	var original_bundle: Dictionary = bundle.duplicate(true)
+	var checked: Dictionary = CONTRACT.validate_scene_receipts(bag, bundle, issuer)
+	assert_true(checked.ok, str(checked))
+	if not checked.ok: return
+	checked.value.commands[event.command_id].scene_event.semantic.payload.target_id = "TEST.changed"
+	checked.value.admissions[admission.transaction_id].source_checkpoint.checkpoint_id = "TEST.changed"
+	checked.value.occurrences.values()[0].receipts[0].scene_event.result.target.entry_id = "TEST.changed"
+	assert_eq(bag, original_bag)
+	assert_eq(bundle, original_bundle)
+	assert_true(CONTRACT.validate_scene_receipts(bag, bundle, issuer).ok)
+	bag[event.command_id].scene_event.result.target.entry_id = "TEST.changed"
+	assert_false(CONTRACT.validate_scene_receipts(bag, bundle, issuer).ok)
+	bag = original_bag.duplicate(true)
+	bag[admission.transaction_id].scene_admission.provenance.source_ids[0] = "TEST.forged"
+	assert_false(CONTRACT.validate_scene_receipts(bag, bundle, issuer).ok)
+
 func test_unissued_command_and_completion_child_forgery_refuse() -> void:
 	var receipt := _receipt()
 	if receipt.is_empty(): return

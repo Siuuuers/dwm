@@ -710,7 +710,7 @@ static func _validate_scene_receipts_observed_body(receipts: Dictionary, bundle:
 			if receipt.get("scene_admission") is Dictionary and receipt.scene_admission.get("schema_version") == 3:
 				admitted = _validate_committed_initial_admission(receipt, bundle, issuer, creation_owner)
 			else:
-				admitted = _validate_scene_admission_receipt(receipt, bundle, issuer)
+				admitted = _validate_scene_admission_receipt(receipt, registered, issuer)
 			if not admitted.ok: return admitted
 			admissions[command] = receipt.scene_admission.result.duplicate(true)
 			admission_receipts[command] = receipt.duplicate(true)
@@ -725,7 +725,12 @@ static func _validate_scene_receipts_observed_body(receipts: Dictionary, bundle:
 			return _fail(&"scene_receipt_invalid")
 		var envelope: Dictionary = saved.semantic.duplicate(true)
 		envelope["playback_token"] = "receipt.validation"
-		var rebuilt := make_scene_receipt(envelope, saved.reading_anchor, saved.result, bundle)
+		# This call already admitted the bundle; only the receipt's envelope is new.
+		var shaped := _inspect_scene_versioned_shape(envelope)
+		if not shaped.ok: return shaped
+		var context := _bind_scene_context(envelope, shaped, registered)
+		if not context.ok: return context
+		var rebuilt := _make_scene_receipt_from_context(envelope, saved.reading_anchor, saved.result, context)
 		if not rebuilt.ok: return rebuilt
 		if not _equal(receipt, rebuilt.value): return _fail(&"scene_receipt_mismatch")
 		var issued: Dictionary = issuer.call(&"verify_issued", envelope.issuer_receipt.duplicate(true), &"transaction_id")
@@ -893,6 +898,16 @@ static func _validate_scene_receipts_observed_body(receipts: Dictionary, bundle:
 static func make_scene_admission(identity: Dictionary, root_issuer_receipt: Dictionary,
 		target_id: String, source_checkpoint: Dictionary, trigger_command_id: Variant,
 		return_to: Variant, bundle: Dictionary, issuer: Object) -> Dictionary:
+	var identity_ok := _validate_scene_admission_identity(identity, root_issuer_receipt, issuer)
+	if not identity_ok.ok: return identity_ok
+	var registered := validate_bundle_structure(bundle)
+	if not registered.ok: return registered
+	return _make_scene_admission_registered(identity, root_issuer_receipt, target_id,
+		source_checkpoint, trigger_command_id, return_to, registered, issuer)
+
+
+static func _validate_scene_admission_identity(identity: Dictionary,
+		root_issuer_receipt: Dictionary, issuer: Object) -> Dictionary:
 	if issuer == null or issuer.get_script() != SCENE_RECEIPT_ISSUER:
 		return _fail(&"scene_receipt_issuer_unbound")
 	if not _json_data(identity) or not _keys(identity, ["run_id", "branch_id",
@@ -910,8 +925,13 @@ static func make_scene_admission(identity: Dictionary, root_issuer_receipt: Dict
 	if not causal.get("ok", false): return causal
 	var allocated := _scene_admission_identity_proof(identity, issuer)
 	if not allocated.ok: return allocated
-	var registered := validate_bundle_structure(bundle)
-	if not registered.ok: return registered
+	return {"ok": true}
+
+
+## Call-local structural tables; identity proofs remain freshly checked by both callers.
+static func _make_scene_admission_registered(identity: Dictionary, root_issuer_receipt: Dictionary,
+		target_id: String, source_checkpoint: Dictionary, trigger_command_id: Variant,
+		return_to: Variant, registered: Dictionary, issuer: Object) -> Dictionary:
 	if not registered.value.targets.has(target_id): return _fail(&"scene_target_unregistered")
 	var target: Dictionary = registered.value.targets[target_id].target
 	if target.kind not in ["scene", "contact"]: return _fail(&"scene_admission_invalid")
@@ -940,7 +960,7 @@ static func make_scene_admission(identity: Dictionary, root_issuer_receipt: Dict
 			"provenance": child.value.provenance.duplicate(true), "result": result}}}
 
 
-static func _validate_scene_admission_receipt(receipt: Dictionary, bundle: Dictionary, issuer: Object) -> Dictionary:
+static func _validate_scene_admission_receipt(receipt: Dictionary, registered: Dictionary, issuer: Object) -> Dictionary:
 	if not _keys(receipt, ["transaction_id", "request_fingerprint", "kind", "source_id", "scene_admission"]):
 		return _fail(&"scene_admission_receipt_invalid")
 	var saved: Variant = receipt.scene_admission
@@ -950,10 +970,12 @@ static func _validate_scene_admission_receipt(receipt: Dictionary, bundle: Dicti
 			or not saved.provenance is Dictionary or not saved.result is Dictionary:
 		return _fail(&"scene_admission_receipt_invalid")
 	var result: Dictionary = saved.result
-	var result_ok := validate_scene_admission(result, bundle)
+	var result_ok := _validate_scene_admission_registered(result, registered)
 	if not result_ok.ok: return result_ok
-	var rebuilt := make_scene_admission(saved.source_identity, saved.issuer_receipt, result.target_id,
-		result.source_checkpoint, result.trigger_command_id, result.return_to, bundle, issuer)
+	var identity_ok := _validate_scene_admission_identity(saved.source_identity, saved.issuer_receipt, issuer)
+	if not identity_ok.ok: return identity_ok
+	var rebuilt := _make_scene_admission_registered(saved.source_identity, saved.issuer_receipt, result.target_id,
+		result.source_checkpoint, result.trigger_command_id, result.return_to, registered, issuer)
 	if not rebuilt.ok: return rebuilt
 	if not _equal(receipt, rebuilt.value): return _fail(&"scene_admission_receipt_mismatch")
 	var proven: Dictionary = issuer.validate_child(saved.provenance, &"continuation_operation")
