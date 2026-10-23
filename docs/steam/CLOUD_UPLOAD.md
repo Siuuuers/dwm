@@ -51,7 +51,7 @@ files. If login expires, authenticate privately and update the secret.
 
 A successful upload reports a Steam BuildID. If a run finishes without a confirmed
 BuildID, inspect Steamworks Builds before retrying; do not assume no upload occurred.
-After upload, configure DWM.exe as the Windows launch executable, include depot
+After the renamed build upload, configure game.exe as the Windows launch executable, include depot
 5199121 in the testing package, select the build for a protected test branch,
 and test installation and Save/Load through Steam with fresh saves.
 
@@ -118,3 +118,25 @@ New cloud export/upload is pending. No replacement BuildID has been reported.
 Start a NEW Run workflow on master with mode upload. There is no rebuild input.
 The GitHub connector has no workflow-dispatch operation, so the owner must click
 Run workflow. This uploads a build without setting any Steam branch live.
+
+## Startup report and executable rename — 2026-10-24
+
+Integrated run https://github.com/Siuuuers/dwm/actions/runs/39990090541 passed
+fresh export, headless startup, package checks and upload: BuildID 26165878.
+Source remains e5cf80a5417c05bd0bb7fa2f60f59e8905e839a6. The owner subsequently
+reported startup failure; its exact error and Windows versus Winlator environment
+are not yet known. Headless startup does not establish graphical/client startup.
+
+The owner requested game.exe. The workflow now patches only the disposable export
+helper to export game.exe and game.pck together, then runs its existing startup
+and pack checks on those final names. Receipt hashes and both staging/upload gates
+require the renamed pair. The DWM application/profile directory is unchanged.
+Static YAML/Python and helper filename checks pass; cloud execution is pending.
+The rename is not yet a confirmed fix for the reported startup failure.
+
+Run a NEW workflow on master with mode upload. After success, select the new
+BuildID on the testing branch and update Steamworks General Installation's
+Windows executable to game.exe (root relative), saving and publishing the app
+configuration changes. Update the client installation before testing.
+Do not point the client at game.exe while still using old BuildID 26165878,
+which contains DWM.exe/DWM.pck. No Steam branch or configuration was changed here.
