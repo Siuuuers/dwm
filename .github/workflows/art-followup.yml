@@ -16,14 +16,14 @@ jobs:
       with:
         fetch-depth: 2
         persist-credentials: true
-        ref: 473cdc819a03bf13f9e8cd8855e83aa2893affd8
+        ref: db9b896ba54f792f14d157f0dec2b38f2cb5c729
     - name: Record pinned source
       run: |
         $ErrorActionPreference = 'Stop'
-        if ((git rev-parse HEAD) -cne '473cdc819a03bf13f9e8cd8855e83aa2893affd8') { throw 'Candidate mismatch' }
-        if ((git rev-parse 'HEAD^{tree}') -cne 'cd06440eccb09ffd120ad42535e3e34e607b730b') { throw 'Candidate tree mismatch' }
+        if ((git rev-parse HEAD) -cne 'db9b896ba54f792f14d157f0dec2b38f2cb5c729') { throw 'Candidate mismatch' }
+        if ((git rev-parse 'HEAD^{tree}') -cne 'd9309c97e5f0b2c9731381801ad6cb8a673a91be') { throw 'Candidate tree mismatch' }
         New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-        @{candidate='473cdc819a03bf13f9e8cd8855e83aa2893affd8'; tree=(git rev-parse 'HEAD^{tree}'); controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+        @{candidate='db9b896ba54f792f14d157f0dec2b38f2cb5c729'; tree=(git rev-parse 'HEAD^{tree}'); controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
     - name: Prepare disposable checkout for credential cleanup
       run: |
         $ErrorActionPreference = 'Stop'
@@ -73,29 +73,36 @@ jobs:
         # Execute the committed configuration with the freshly imported assets.
         git restore -- project.godot
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    - name: Verify artwork publication and native activation protocols
-      timeout-minutes: 12
+    - name: Verify art-day-reading in its own fresh process
       run: |-
-        ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'art-protocol' -LogName 'art-protocol.log' -EvidenceLogPath '.godot/ci/art-protocol.jsonl' -TimeoutSeconds 600 -KeepRoot -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_scene_day_reading.gd,res://tests/integration/test_scene_native_activation.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/art-protocol.xml')
+        ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'art-day-reading' -LogName 'art-day-reading.log' -EvidenceLogPath '.godot/ci/art-day-reading.jsonl' -TimeoutSeconds 600 -KeepRoot -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_scene_day_reading.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/art-day-reading.xml')
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    - name: Render shipped Title New Acc artwork and fresh Load
-      timeout-minutes: 23
+      timeout-minutes: 12
+    - name: Verify art-native-activation in its own fresh process
       run: |-
+        ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'art-native-activation' -LogName 'art-native-activation.log' -EvidenceLogPath '.godot/ci/art-native-activation.jsonl' -TimeoutSeconds 600 -KeepRoot -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_scene_native_activation.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/art-native-activation.xml')
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      timeout-minutes: 12
+    - name: Render shipped Title New Acc artwork and fresh Load
+      run: |-
+        Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue
+        Remove-Item Env:DWM_RETAINED_CONTRACT_FIXTURE -ErrorAction SilentlyContinue
         ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'current-title' -LogName 'current-title-create.log' -NextLogName 'current-title-load.log' -EvidenceLogPath '.godot/ci/current-title.jsonl' -TimeoutSeconds 600 -Rendered -KeepRoot -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_current_title_scene_create.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/current-title-create.xml') -NextGodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_current_title_scene_load.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/current-title-load.xml')
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      timeout-minutes: 23
     - name: Refresh and independently check native caller inventories
-      timeout-minutes: 12
       run: |-
         ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      timeout-minutes: 12
     - name: Verify exact protocol census native artwork proof and inventories
       run: |
         $ErrorActionPreference = 'Stop'
         @'
         import collections,json,pathlib,re,struct,subprocess,xml.etree.ElementTree as ET,zlib
         out=pathlib.Path('.godot/ci')
-        assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='473cdc819a03bf13f9e8cd8855e83aa2893affd8'
-        assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()=='cd06440eccb09ffd120ad42535e3e34e607b730b'
+        assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='db9b896ba54f792f14d157f0dec2b38f2cb5c729'
+        assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()=='d9309c97e5f0b2c9731381801ad6cb8a673a91be'
         assert json.loads((out/'import-process.json').read_text(encoding='utf-8-sig'))['exit_code']==0
         reports=[]
         def tests(path):
@@ -129,12 +136,16 @@ jobs:
             if dimensions is not None: assert actual==tuple(dimensions),(str(path),actual,dimensions)
             return {'path':str(path),'dimensions':actual,'bytes':len(data)}
 
-        junit('art-protocol',['tests/integration/test_scene_day_reading.gd', 'tests/integration/test_scene_native_activation.gd'])
+        junit('art-day-reading',['tests/integration/test_scene_day_reading.gd'])
+        junit('art-native-activation',['tests/integration/test_scene_native_activation.gd'])
 
         junit('current-title-create',['tests/integration/test_current_title_scene_create.gd'])
         junit('current-title-load',['tests/integration/test_current_title_scene_load.gd'])
-        processes('art-protocol',1)
+        day_process=processes('art-day-reading',1)[0]
+        native_process=processes('art-native-activation',1)[0]
+        assert day_process['test_root']!=native_process['test_root'] and day_process['user_dir']!=native_process['user_dir']
         pair=processes('current-title',2)
+        assert pair[0]['test_root'] not in [day_process['test_root'],native_process['test_root']]
         assert pair[0]['test_root']==pair[1]['test_root'] and pair[0]['user_dir']==pair[1]['user_dir']
         created=json.loads((out/'current-title-scene-create-proof.json').read_text(encoding='utf-8-sig'))
         loaded=json.loads((out/'current-title-scene-load-proof.json').read_text(encoding='utf-8-sig'))
@@ -181,7 +192,7 @@ jobs:
         assert not changed-allowed,changed
         untracked=subprocess.check_output(['git','ls-files','--others','--exclude-standard','--','autoload','scripts','scenes','tests'],text=True).splitlines()
         assert not [p for p in untracked if pathlib.Path(p).suffix in {'.gd','.tscn'}],untracked
-        (out/'qualification-gate.json').write_text(json.dumps({'source':'473cdc819a03bf13f9e8cd8855e83aa2893affd8','tree':'cd06440eccb09ffd120ad42535e3e34e607b730b','reports':reports,'pngs':pngs,'changed':sorted(changed)},indent=2))
+        (out/'qualification-gate.json').write_text(json.dumps({'source':'db9b896ba54f792f14d157f0dec2b38f2cb5c729','tree':'d9309c97e5f0b2c9731381801ad6cb8a673a91be','reports':reports,'pngs':pngs,'changed':sorted(changed)},indent=2))
         print(json.dumps(reports))
         '@ | python -
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -214,7 +225,7 @@ jobs:
         for p in pathlib.Path('tests/integration').glob('authored_week*.gd.uid'):
             target=out/'native-uids'/p.name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(p.read_bytes())
             tracked=subprocess.run(['git','ls-files','--error-unmatch','--',str(p)],capture_output=True).returncode==0
-            records.append({'path':p.as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'provenance':'candidate_tracked' if tracked else 'cloud_editor_import','source':'473cdc819a03bf13f9e8cd8855e83aa2893affd8','source_tree':'cd06440eccb09ffd120ad42535e3e34e607b730b'})
+            records.append({'path':p.as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'provenance':'candidate_tracked' if tracked else 'cloud_editor_import','source':'db9b896ba54f792f14d157f0dec2b38f2cb5c729','source_tree':'d9309c97e5f0b2c9731381801ad6cb8a673a91be'})
         (out/'uid-provenance.json').write_text(json.dumps(records,indent=2))
         (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
         manifest_source=subprocess.check_output(['git','ls-tree','-r','HEAD'],text=True)
@@ -238,7 +249,7 @@ jobs:
         name: art-followup-${{ github.run_id }}-${{ github.run_attempt }}
         path: .godot/ci/original-evidence.zip
         retention-days: 30
-    timeout-minutes: 60
+    timeout-minutes: 75
 name: Artwork hydration followup
 'on':
   pull_request:
