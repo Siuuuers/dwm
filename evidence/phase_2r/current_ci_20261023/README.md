@@ -28,3 +28,17 @@ Opening the ending Backup surface was 46.14% faster in this single matched pair;
 Inspection calls fell from 65 to 56, exactly one per each of nine locators; restore preparations 23 to 20; document parses 834 to 757. Both native checks passed 1 case / 112 assertions. Candidate host + public-surface + native checks passed 76 cases / 2094 assertions with no skips. The native completion flag here covers boot/load/save only, not completion of the full authored week.
 
 The earlier candidate preflight failure was not accepted. Diagnostic controllers remain outside the product branch. The combined inventory archive is provenance for the initial generated surfaces; later source changes require another native regeneration before acceptance.
+
+## Completion and visual qualification
+
+[Run 39973922887](https://github.com/Siuuuers/dwm/actions/runs/39973922887) passed the uninterrupted default authored week: 836 captions, 835 transitions, 7615 assertions, durable completion, exactly one Gallery receipt, and return to Title. Its original archive and selected summary are in `run39973922887/`. Elapsed time was 45m55.8s, with a worst transition of 216.631s; correctness does not establish acceptable responsiveness.
+
+[Run 39977776938](https://github.com/Siuuuers/dwm/actions/runs/39977776938) passed 43 cases / 2030 assertions across the repaired fixtures and regenerated/verified native inventories, subsequently adopted by `e5cf80a5`.
+
+[Run 39981619080](https://github.com/Siuuuers/dwm/actions/runs/39981619080), source `d2e737d2`, passed all 133 captures: desktop 38, delivery 25, HUD 10, Japanese/Korean 30, fonts 30. `run39981619080/` retains every artifact's metadata, JSON reports, and the original delivery ZIP. The change corrected the test's transparent-pixel boundary; it changed no game runtime.
+
+## Seed preparation diagnostic
+
+[Run 39979681421](https://github.com/Siuuuers/dwm/actions/runs/39979681421) uses the same forty-file root and helpers, with instrumentation only. Its 112-assertion native journey passed. Twenty seed preparations across 57 bundles consumed 180.881935s inclusive: 111.575281s during Load and 69.306654s during Save. These figures include required work and do not predict an optimization's savings. The archive and summary are retained in `run39979681421/`.
+
+These completed diagnostics do not qualify the pending Settings suite or the separate, unaccepted scene-seed reuse experiment. No master merge is established by this evidence directory.
