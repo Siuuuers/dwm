@@ -229,6 +229,23 @@ func snapshot() -> Dictionary:
 	if _scene: result["schema_version"] = 2
 	return result
 
+## Private owner copy for a fully admitted reading. Payloads were recursively
+## frozen at admission; mutable containers and publication records are detached.
+func _detached_copy() -> NarrativeCaptionLedger:
+	var copied := NarrativeCaptionLedger.new()
+	copied._scene = _scene
+	copied._session_token = _session_token
+	copied._frozen_context = _frozen_context
+	copied._entry_contexts_required = _entry_contexts_required
+	copied._entry_contexts = _entry_contexts.duplicate()
+	copied._registered = _registered.duplicate()
+	copied._registered_entries = _registered_entries.duplicate()
+	copied._by_line = _by_line.duplicate()
+	for key: String in _published: copied._published[key] = _published[key].duplicate()
+	for row: Dictionary in _sequence: copied._sequence.append(row.duplicate())
+	copied._publication_serial = _publication_serial
+	return copied
+
 ## These helpers validate representation, not issuer authority. The reading/save
 ## owner supplies independently authenticated frames before ledger admission.
 static func scene_frame_key(occurrence_id: String, entry_id: String) -> String:

@@ -32,6 +32,10 @@ var scene_occurrence := ""
 var scene_index := 0
 var _scene_nodes: Dictionary = {}
 
+const _SCENE_READING_CACHE_LIMIT := 3
+const _SCENE_READING_CACHE_BYTES := 2 * 1024 * 1024
+static var _scene_reading_cache: Array[Dictionary] = []
+
 func configure_scene() -> Dictionary:
 	var timing := preload("res://scripts/narrative/SceneValidationTiming.gd")
 	var started_us: int = timing.start_sample()
@@ -162,6 +166,47 @@ func _validate_scene_base(saved: Dictionary, entry_id: String) -> Dictionary:
 	return {"ok": true, "value": candidate}
 
 func _validate_scene_saved(saved: Dictionary, entry_id: String) -> Dictionary:
+	var timing := preload("res://scripts/narrative/SceneValidationTiming.gd")
+	var started_us: int = timing.start_sample()
+	var kind := "reading_cache_bypass"
+	var inputs := [manifest, registry, _scene_nodes, fingerprint, saved, entry_id]
+	# Eligibility only: ineligible types still reach the unchanged validator and
+	# retain its refusal order. Verify native encoding preserves types and strings,
+	# including malformed internal Unicode that a byte encoder could normalize.
+	if get_script() == load("res://scripts/narrative/SoloReadingSession.gd") and FROZEN._primitive(inputs):
+		var key := var_to_bytes(inputs)
+		var exact := not key.is_empty() and key.size() <= _SCENE_READING_CACHE_BYTES \
+			and TRAVERSAL._same(inputs, bytes_to_var(key))
+		timing.finish_sample("reading_cache_key", started_us, exact)
+		if exact:
+			var retained_bytes := 0
+			for index: int in _scene_reading_cache.size():
+				var retained: Dictionary = _scene_reading_cache[index]
+				if retained.key == key:
+					_scene_reading_cache.remove_at(index)
+					_scene_reading_cache.append(retained)
+					var hit := {"ok": true, "value": retained.ledger._detached_copy()}
+					timing.finish_sample("reading_cache_hit", started_us, true)
+					return hit
+				retained_bytes += (retained.key as PackedByteArray).size()
+			var checked := _validate_scene_saved_uncached(saved, entry_id)
+			if checked.ok:
+				while not _scene_reading_cache.is_empty() and (
+						_scene_reading_cache.size() >= _SCENE_READING_CACHE_LIMIT \
+						or retained_bytes + key.size() > _SCENE_READING_CACHE_BYTES):
+					var oldest: Dictionary = _scene_reading_cache.pop_front()
+					retained_bytes -= (oldest.key as PackedByteArray).size()
+				_scene_reading_cache.append({"key": key, "ledger": checked.value._detached_copy()})
+			timing.finish_sample("reading_cache_miss", started_us, checked.ok)
+			return checked
+		kind = "reading_cache_oversize" if key.size() > _SCENE_READING_CACHE_BYTES else kind
+	var uncached := _validate_scene_saved_uncached(saved, entry_id)
+	timing.finish_sample(kind, started_us, uncached.ok)
+	return uncached
+
+## Only this complete pure result is memoized. Configuration still recompiles
+## physical programmes; receipt, issuer and Profile proofs remain with their owners.
+func _validate_scene_saved_uncached(saved: Dictionary, entry_id: String) -> Dictionary:
 	var checked := _validate_scene_base(saved, entry_id)
 	if not checked.ok: return checked
 	if saved.next_operation == null: return checked
