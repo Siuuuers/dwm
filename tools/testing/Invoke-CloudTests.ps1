@@ -496,8 +496,8 @@ if ($Suite -eq 'persistence') {
 if ($Suite -eq 'backup_current_build') {
     # These standalone scene scripts require a dependency-only project without
     # application autoloads. Reuse the existing isolated fixture runner.
-    python -c "import runpy; runpy.run_path('tools/backup_ui/verify.py', init_globals={'TEST_SCRIPT':'tests/backup_operations/test_backup_operations.gd','PASS_MARKER':'BACKUP_OPERATIONS_PASS','SCRATCH_PREFIX':'backup-operations-','EVIDENCE_DIR':'.godot/ci/backup-operations','SCOPE':'Real Backup operations over isolated FileOps and diagnostic restore owners.'})"
+    python -c "import runpy; from pathlib import Path; runpy.run_path(str(Path('tools/backup_ui/verify.py').resolve()), init_globals={'TEST_SCRIPT':'tests/backup_operations/test_backup_operations.gd','PASS_MARKER':'BACKUP_OPERATIONS_PASS','SCRATCH_PREFIX':'backup-operations-','EVIDENCE_DIR':'.godot/ci/backup-operations','SCOPE':'Real Backup operations over isolated FileOps and diagnostic restore owners.'})"
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    python -c "import runpy; runpy.run_path('tools/backup_ui/verify.py', init_globals={'EVIDENCE_DIR':'.godot/ci/backup-ui'})"
+    python -c "import runpy; from pathlib import Path; runpy.run_path(str(Path('tools/backup_ui/verify.py').resolve()), init_globals={'EVIDENCE_DIR':'.godot/ci/backup-ui'})"
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
