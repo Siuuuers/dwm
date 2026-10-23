@@ -454,7 +454,9 @@ func test_full_run_validation_stays_closed_without_scene_receipt_owner() -> void
 	var before := var_to_bytes(snapshot)
 	var checked := RUN.validate(snapshot, true)
 	assert_false(checked.ok)
-	assert_eq(checked.code, &"scene_owner_validation_unavailable")
+	# A detached checkpoint is rejected before receipt-owner validation.
+	assert_eq(checked.code, &"reading_saved_run_required")
+	assert_eq(checked.details.phase, "scene_envelope")
 	assert_eq(var_to_bytes(snapshot), before)
 
 func test_actual_dialogic_resource_compiles_to_registered_finite_programmes() -> void:
