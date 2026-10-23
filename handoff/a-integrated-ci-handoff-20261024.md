@@ -1,5 +1,9 @@
 # Integrated game and CI handoff — 2026-10-24 (Hong Kong)
 
+## Latest decision and continuation
+
+Continue from the [startup/Load handoff and approved save policy](a-startup-load-handoff-20261024.md#latest-approved-policy--implementation-pending). The user now requires only valid current-build saves for the unshipped game: no backward compatibility, migration, repair, recovery or older-checkpoint fallback. Backup listing, Save and Delete must not perform full restoration checks; Load still applies the selected saved state correctly. This approved simplification is **not yet implemented**. It supersedes earlier compatibility/recovery-preservation guidance and the pending full-check timing question. The source descriptions and acceptance evidence below remain historical records, not proof of the new design.
+
 ## Publication and acceptance
 
 PR #52 merged as `5e3f1e0bb3ac251e88ea8a7b87c5a0616e3f7d5a`, tree `edbb28ef90f0e111e325e898be98e0464a8c153f`. Composed acceptance passed: **22 primary suites, 2,739 executed cases and 154,403 assertions, zero failures/errors/skips**. Exported startup and rendered desktop/Gallery checks also passed. Settings adds its separately recorded storage-refusal and 61,180-assertion manual checks. This handoff and its evidence are documentation-only descendants of that merge.
