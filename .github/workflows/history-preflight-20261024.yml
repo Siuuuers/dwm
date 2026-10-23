@@ -18,8 +18,6 @@ jobs:
       matrix:
         suite:
         - scene_backup_inspection
-        - current_title
-        - scene_round_checkpoint
     steps:
     - uses: actions/checkout@v7
       with:

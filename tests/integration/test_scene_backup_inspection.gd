@@ -222,7 +222,7 @@ func test_new_scene_writes_omit_fallback_snapshots_without_changing_admitted_his
 	var admitted: Dictionary = ADMISSION.migrate_document(source, {"kind": "autosave", "slot_id": null})
 	assert_true(admitted.ok, str(admitted))
 	if not admitted.ok: return
-	var unchanged := admitted.value.document.duplicate(true)
+	var unchanged: Dictionary = admitted.value.document.duplicate(true)
 	var journal := preload("res://scripts/infrastructure/save/CheckpointJournal.gd").new()
 	var seeded: Dictionary = journal.prepare_seed(admitted.value.document, admitted.value.document.current_snapshot)
 	assert_true(seeded.ok, str(seeded))
