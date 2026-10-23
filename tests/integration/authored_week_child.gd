@@ -238,6 +238,8 @@ func load_authored_week() -> void:
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.slot_sha256)
 	assert_eq(FileAccess.get_sha256("user://saves/slot_2.json"), ending_proof.slot_sha256)
 	_write_json("res://.godot/ci/authored-week-load.json", {"process_id": OS.get_process_id(),
+		"window_size": [get_window().size.x, get_window().size.y],
+		"viewport_size": [get_viewport().get_visible_rect().size.x, get_viewport().get_visible_rect().size.y],
 		"creator_process_id": proof.process_id, "ready_native": _ready_observation,
 		"registration_sha256": AUTHORED_MANIFEST.scene_registration_fingerprint(),
 		"observed_lines": observed_lines, "timings": _timings, "day_elapsed_ms": _day_timings(), "completed_lifecycle": finished,
@@ -272,6 +274,8 @@ func replay_authored_ending() -> void:
 	assert_eq(FileAccess.get_sha256("user://saves/slot_2.json"), proof.slot_sha256)
 	await _screenshot("authored-fresh-day1")
 	_write_json("res://.godot/ci/authored-week-replay.json", {"process_id": OS.get_process_id(),
+		"window_size": [get_window().size.x, get_window().size.y],
+		"viewport_size": [get_viewport().get_visible_rect().size.x, get_viewport().get_visible_rect().size.y],
 		"creator_process_id": proof.process_id,
 		"registration_sha256": AUTHORED_MANIFEST.scene_registration_fingerprint(), "observed_lines": observed_lines, "timings": _timings, "day_elapsed_ms": _day_timings(),
 		"completed_lifecycle": finished, "fresh_lifecycle": fresh.lifecycle,
