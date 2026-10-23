@@ -67,6 +67,8 @@ jobs:
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
         '
+    - name: Verify real-owner Backup suite
+      run: ./tools/testing/Invoke-CloudTests.ps1 -Suite backup_current_build
     - name: Regenerate and verify canonical inventories
       run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate
     - name: Upload regenerated inventories and logs

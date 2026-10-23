@@ -72,7 +72,7 @@ var bridge: Node
 var participants: Dictionary = {}
 var original_owners: Dictionary = {}
 
-func setup(scene_tree: SceneTree, shared_root: String = "", save_manager: Node = null) -> Dictionary:
+func setup(scene_tree: SceneTree, shared_root: String = "") -> Dictionary:
 	tree = scene_tree
 	var checked: Dictionary = _install_registration()
 	if not checked.ok: return checked
@@ -105,7 +105,7 @@ func setup(scene_tree: SceneTree, shared_root: String = "", save_manager: Node =
 	if checked.ok: checked = profile.configure_new_run_storage(storage)
 	if checked.ok: checked = profile.configure_mutation_gate(gate)
 	if not checked.ok: return checked
-	manager = save_manager if save_manager != null else SAVE.new()
+	manager = SAVE.new()
 	_replace_owner("ProfileManager", profile)
 	_replace_owner("SaveManager", manager)
 	game = GAME.new()
