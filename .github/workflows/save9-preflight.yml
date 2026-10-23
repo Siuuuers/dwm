@@ -1,7 +1,5 @@
 name: Save9 admission preflight
 on:
-  push:
-    branches: [codex/save9-only-admission-20261024]
   workflow_dispatch:
 permissions:
   contents: read
