@@ -1,0 +1,181 @@
+{
+  "mode": "preparation-not-release-acceptance",
+  "source": "d69a61a3afa37272b1cab17fd7400ea3a1543538",
+  "processes": [
+    {
+      "suite_id": "cloud-public-surface-game_state-generate",
+      "argv": [
+        "--headless",
+        "--path",
+        "D:\\a\\dwm\\dwm",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public-surface-game_state-generate.log",
+        "-s",
+        "res://tools/runtime/generate_public_surface_inventory.gd",
+        "--",
+        "--script=res://autoload/GameState.gd",
+        "--required=res://evidence/phase_2r/runtime/game_state_required_surface.json",
+        "--output=res://evidence/phase_2r/runtime/game_state_surface.json",
+        "--search-root=res://autoload",
+        "--search-root=res://scripts",
+        "--search-root=res://scenes",
+        "--search-root=res://tests"
+      ],
+      "exit_code": 0,
+      "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public-surface-game_state-generate.log",
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\0fffd40e-e732-465e-a27c-9e9bc14bf5a5",
+      "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\0fffd40e-e732-465e-a27c-9e9bc14bf5a5\\appdata\\Godot\\app_userdata\\DWM",
+      "started_at_utc": "2026-10-23T00:52:35.7546048Z",
+      "ended_at_utc": "2026-10-23T00:52:53.6077473Z"
+    },
+    {
+      "suite_id": "cloud-public-surface-game_state-check",
+      "argv": [
+        "--headless",
+        "--path",
+        "D:\\a\\dwm\\dwm",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public-surface-game_state-check.log",
+        "-s",
+        "res://tools/runtime/generate_public_surface_inventory.gd",
+        "--",
+        "--script=res://autoload/GameState.gd",
+        "--required=res://evidence/phase_2r/runtime/game_state_required_surface.json",
+        "--output=res://evidence/phase_2r/runtime/game_state_surface.json",
+        "--search-root=res://autoload",
+        "--search-root=res://scripts",
+        "--search-root=res://scenes",
+        "--search-root=res://tests",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public-surface-game_state-check.log",
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\a0e16b05-2203-4770-b4f0-1eb5cd2e91da",
+      "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\a0e16b05-2203-4770-b4f0-1eb5cd2e91da\\appdata\\Godot\\app_userdata\\DWM",
+      "started_at_utc": "2026-10-23T00:52:59.4550036Z",
+      "ended_at_utc": "2026-10-23T00:53:17.0174444Z"
+    },
+    {
+      "suite_id": "cloud-public-surface-save_manager-generate",
+      "argv": [
+        "--headless",
+        "--path",
+        "D:\\a\\dwm\\dwm",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public-surface-save_manager-generate.log",
+        "-s",
+        "res://tools/runtime/generate_public_surface_inventory.gd",
+        "--",
+        "--script=res://autoload/SaveManager.gd",
+        "--required=res://evidence/phase_2r/runtime/save_manager_required_surface.json",
+        "--output=res://evidence/phase_2r/runtime/save_manager_surface.json",
+        "--search-root=res://autoload",
+        "--search-root=res://scripts",
+        "--search-root=res://scenes",
+        "--search-root=res://tests"
+      ],
+      "exit_code": 0,
+      "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public-surface-save_manager-generate.log",
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\e85a1725-6651-49b5-ae30-d7b5da79079a",
+      "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\e85a1725-6651-49b5-ae30-d7b5da79079a\\appdata\\Godot\\app_userdata\\DWM",
+      "started_at_utc": "2026-10-23T00:53:22.9032721Z",
+      "ended_at_utc": "2026-10-23T00:53:32.7567710Z"
+    },
+    {
+      "suite_id": "cloud-public-surface-save_manager-check",
+      "argv": [
+        "--headless",
+        "--path",
+        "D:\\a\\dwm\\dwm",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public-surface-save_manager-check.log",
+        "-s",
+        "res://tools/runtime/generate_public_surface_inventory.gd",
+        "--",
+        "--script=res://autoload/SaveManager.gd",
+        "--required=res://evidence/phase_2r/runtime/save_manager_required_surface.json",
+        "--output=res://evidence/phase_2r/runtime/save_manager_surface.json",
+        "--search-root=res://autoload",
+        "--search-root=res://scripts",
+        "--search-root=res://scenes",
+        "--search-root=res://tests",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public-surface-save_manager-check.log",
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\a5f1303c-d862-424d-b78f-db7c56173b84",
+      "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\a5f1303c-d862-424d-b78f-db7c56173b84\\appdata\\Godot\\app_userdata\\DWM",
+      "started_at_utc": "2026-10-23T00:53:38.5608903Z",
+      "ended_at_utc": "2026-10-23T00:53:48.0448580Z"
+    },
+    {
+      "suite_id": "cloud-public_surfaces",
+      "argv": [
+        "--headless",
+        "--path",
+        "D:\\a\\dwm\\dwm",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public_surfaces.log",
+        "-s",
+        "res://addons/gut/gut_cmdln.gd",
+        "-gconfig=",
+        "-gtest=res://tests/unit/tooling/test_public_surface_inventory.gd",
+        "-gexit",
+        "-glog=2",
+        "-gjunit_xml_file=res://.godot/ci/public_surfaces.xml"
+      ],
+      "exit_code": 0,
+      "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public_surfaces.log",
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\bc00c915-27db-483e-a44a-bc31e8340587",
+      "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\bc00c915-27db-483e-a44a-bc31e8340587\\appdata\\Godot\\app_userdata\\DWM",
+      "started_at_utc": "2026-10-23T00:53:54.2406868Z",
+      "ended_at_utc": "2026-10-23T00:54:40.8845474Z"
+    }
+  ],
+  "test_cases": 11,
+  "assertions": 352,
+  "native_uid_sidecars": [
+    {
+      "path": "tests\\integration\\current_title_scene_child.gd.uid",
+      "bytes": 20,
+      "sha256": "06cb0a8e94b6edb9f33ed50ff5219688540c848a154ec61557d4682fdc928e96",
+      "source_sha256": "b96403d27921c924f0959a170b753133a5a60b41bf93b9d0e0f7f6b13a5bd972",
+      "provenance": "cloud_editor_import",
+      "source": "d69a61a3afa37272b1cab17fd7400ea3a1543538",
+      "source_tree": "de453ce4084cff924294e3fccd71f56a960224a3"
+    },
+    {
+      "path": "tests\\integration\\test_current_title_scene_create.gd.uid",
+      "bytes": 19,
+      "sha256": "307474a20b2eee1484cd5826350db8968417ff1a3322ace94cc15bbeecababd9",
+      "source_sha256": "80ba61a3711b80352ef7e401b3f5a554fc1deb3b7c3160e24c0ec0bb322d457c",
+      "provenance": "cloud_editor_import",
+      "source": "d69a61a3afa37272b1cab17fd7400ea3a1543538",
+      "source_tree": "de453ce4084cff924294e3fccd71f56a960224a3"
+    },
+    {
+      "path": "tests\\integration\\test_current_title_scene_load.gd.uid",
+      "bytes": 20,
+      "sha256": "56dd59d64d2ef52e4163a0c3139a0dc014da3460c9f27fc7890c21eea8904e45",
+      "source_sha256": "73c6e21a4ec2f932c7735363562d79ed242853d844a806e0db0fabd21fdc4245",
+      "provenance": "cloud_editor_import",
+      "source": "d69a61a3afa37272b1cab17fd7400ea3a1543538",
+      "source_tree": "de453ce4084cff924294e3fccd71f56a960224a3"
+    },
+    {
+      "path": "tests\\support\\SceneValidationScope.gd.uid",
+      "bytes": 19,
+      "sha256": "f2cff22b9a5ef71e0298854e955ed261648160365c13b594fa7982efed7be25c",
+      "source_sha256": "b586783fca3b8a69801453191f4f4ae9628619c84e92ee2a58acb467d6ffb052",
+      "provenance": "cloud_editor_import",
+      "source": "d69a61a3afa37272b1cab17fd7400ea3a1543538",
+      "source_tree": "de453ce4084cff924294e3fccd71f56a960224a3"
+    }
+  ],
+  "changed": [
+    ".claude/skills/godot-prompter/1.10.0",
+    ".claude/skills/superpowers/6.1.1",
+    "evidence/phase_2r/runtime/game_state_surface.json",
+    "evidence/phase_2r/runtime/save_manager_surface.json"
+  ]
+}

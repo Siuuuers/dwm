@@ -66,7 +66,7 @@ func test_authored_caption_languages_preserve_checkpoint_and_load() -> void:
 				if character.unicode_at(0) > 32: codepoints[character] = true
 		for style: String in ["pixel", "readable"]:
 			for percent: int in [100, 125, 150]:
-				var font: Font = TYPOGRAPHY.font(language, percent, style)
+				var font: Font = TYPOGRAPHY.story_font(language, percent, style)
 				for character: String in codepoints:
 					if not font.has_char(character.unicode_at(0)): missing[character] = true
 		assert_true(missing.is_empty(), language + " missing glyphs: " + str(missing.keys()))
@@ -86,7 +86,7 @@ func test_authored_caption_languages_preserve_checkpoint_and_load() -> void:
 			var specimen := RichTextLabel.new()
 			specimen.position = Vector2(40, 32)
 			specimen.size = Vector2(1200, 176)
-			specimen.add_theme_font_override("normal_font", TYPOGRAPHY.font(language, 150, "pixel"))
+			specimen.add_theme_font_override("normal_font", TYPOGRAPHY.story_font(language, 150, "pixel"))
 			specimen.add_theme_font_size_override("normal_font_size", 36)
 			specimen.bbcode_enabled = true
 			specimen.text = "FONT SAMPLE / " + language + " / 150%\n" + STORY.display_markup(STORY.catalog(language)["line.Day6.098"]) + "\nș 唾"

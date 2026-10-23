@@ -498,7 +498,7 @@ class RecoveryProfile extends Node:
 		return {"ok": true}
 	func configure_line_registry(registry: Dictionary) -> Dictionary:
 		trace.append("bind_line_registry")
-		registry_bound = registry.get("reply_lines") is Array and registry.get("atoms") is Array
+		registry_bound = preload("res://scripts/narrative/DialogicEntryManifest.gd").validate_ids_document(registry).get("ok", false)
 		return {"ok": registry_bound}
 	func initialize(storage: RefCounted) -> Dictionary:
 		trace.append("initialize_profile")

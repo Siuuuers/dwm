@@ -84,7 +84,7 @@ func test_every_theme_uses_requested_style_and_all_caption_font_slots() -> void:
 					assert_eq(theme.default_font_size, expected_size)
 				var caption: Theme = themes[6]
 				for slot: StringName in [&"normal_font", &"bold_font", &"italics_font", &"bold_italics_font", &"mono_font"]:
-					assert_same(caption.get_font(slot, &"RichTextLabel"), font)
+					assert_same(caption.get_font(slot, &"RichTextLabel"), TYPOGRAPHY.story_font(locale, percent, style))
 
 func test_interleaved_styles_do_not_change_another_fixture_or_shared_fallbacks() -> void:
 	var pixel := SETTINGS.build("en", 150)
@@ -131,6 +131,22 @@ func test_readable_gallery_rows_and_record_paper_measure_real_font_height() -> v
 				assert_false(label.clip_text)
 			assert_lte(paper.title_label.position.y + paper.title_label.size.y, paper.sentence_label.position.y)
 			assert_gte(paper.content_extent, paper.sentence_label.position.y + paper.sentence_label.size.y)
+
+func test_story_fallbacks_preserve_shared_primary_faces() -> void:
+	for locale: String in LOCALES:
+		for percent: int in PERCENTS:
+			for style: String in STYLES:
+				var primary := TYPOGRAPHY.font(locale, percent, style) as FontFile
+				var size := GALLERY_TYPE.font_size(percent)
+				var metrics := Vector2(primary.get_ascent(size), primary.get_descent(size))
+				var story := TYPOGRAPHY.story_font(locale, percent, style) as FontFile
+				assert_not_same(story, primary)
+				assert_true(story.data == primary.data)
+				assert_false(story.allow_system_fallback)
+				assert_true(story.has_char(0x0219))
+				assert_true(primary.fallbacks.is_empty())
+				assert_eq(Vector2(primary.get_ascent(size), primary.get_descent(size)), metrics)
+				assert_same(TYPOGRAPHY.story_font(locale, percent, style), story)
 
 func test_invalid_font_tuple_is_refused_without_changing_default_selection() -> void:
 	var before: Font = TYPOGRAPHY.font("en", 100)

@@ -7,6 +7,11 @@ const TITLE_PROOF := "user://current-title-scene-proof.json"
 const TITLE_SLOT := "user://saves/slot_1.json"
 const FIRST_LINE := "line.Day1.one"
 
+func _screenshot(label: String) -> void:
+	var overlay := get_tree().root.find_child("GutLayer", true, false)
+	if overlay is CanvasLayer: overlay.hide()
+	await super._screenshot(label)
+
 func _install_content_registration() -> Dictionary:
 	for flag: String in ["DWM_SCENE_READING_FIXTURE", "DWM_RETAINED_CONTRACT_FIXTURE"]:
 		if OS.get_environment(flag) == "1":
@@ -65,6 +70,8 @@ func _current_proof() -> Dictionary:
 	if not _ok(reading): return {}
 	var snapshot: Dictionary = game.capture_run_snapshot_input()
 	return {"scope": "current_shipped_title_authored_day1", "process_id": OS.get_process_id(),
+		"window_size": [get_window().size.x, get_window().size.y],
+		"viewport_size": [get_viewport().get_visible_rect().size.x, get_viewport().get_visible_rect().size.y],
 		"user_dir": ProjectSettings.globalize_path("user://"),
 		"registration_sha256": CURRENT_MANIFEST.scene_registration_fingerprint(),
 		"entry_id": "Day1", "line_id": FIRST_LINE,

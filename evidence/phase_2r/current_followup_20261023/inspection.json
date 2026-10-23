@@ -1,0 +1,180 @@
+{
+  "source": "d69a61a3afa37272b1cab17fd7400ea3a1543538",
+  "tree": "de453ce4084cff924294e3fccd71f56a960224a3",
+  "runs": [
+    {
+      "run_id": 39880558787,
+      "artifact_id": 12471086430,
+      "transport_sha256": "a95d10ac93942e2bd88512b6f2de78eb6b2c0881323115f2825e5a9a439fa04f",
+      "original_sha256": "d839f69ff798ea929a745fcb085cd5e53e326cad4eed49cb521817388565e9c8",
+      "retained_members": 737,
+      "reports": [
+        {
+          "suite": "current-title-create",
+          "tests": 1,
+          "assertions": 40,
+          "failures": []
+        },
+        {
+          "suite": "current-title-load",
+          "tests": 1,
+          "assertions": 49,
+          "failures": []
+        },
+        {
+          "suite": "display",
+          "tests": 65,
+          "assertions": 4359,
+          "failures": []
+        },
+        {
+          "suite": "fixture-scope",
+          "tests": 41,
+          "assertions": 930,
+          "failures": [
+            {
+              "script": "tests/integration/test_application_bootstrap.gd",
+              "test": "test_new_acc_storage_settles_before_profile_and_failure_stops_all_consumers"
+            },
+            {
+              "script": "tests/integration/test_cold_run_rollback.gd",
+              "test": "test_scene_install_compensation_preserves_cold_state_and_configured_owners"
+            },
+            {
+              "script": "tests/integration/test_desktop_bootstrap_wiring.gd",
+              "test": "test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge"
+            },
+            {
+              "script": "tests/integration/test_desktop_bootstrap_wiring.gd",
+              "test": "test_fresh_graph_keeps_prior_day_two_autosave_after_failed_completion"
+            },
+            {
+              "script": "tests/integration/test_desktop_bootstrap_wiring.gd",
+              "test": "test_fresh_graph_keeps_prior_autosave_after_failed_condition_departure"
+            },
+            {
+              "script": "tests/integration/test_desktop_bootstrap_wiring.gd",
+              "test": "test_shop_purchase_saves_authored_effects_and_retries_without_a_second_charge"
+            },
+            {
+              "script": "tests/integration/test_desktop_bootstrap_wiring.gd",
+              "test": "test_fresh_graph_keeps_prior_autosave_after_failed_ordinary_purchase"
+            },
+            {
+              "script": "tests/integration/test_desktop_bootstrap_wiring.gd",
+              "test": "test_fresh_graph_keeps_prior_autosave_after_failed_special_purchase"
+            },
+            {
+              "script": "tests/integration/test_desktop_bootstrap_wiring.gd",
+              "test": "test_shop_batch_and_public_gift_alias_commit_authored_values_and_inventory"
+            }
+          ]
+        },
+        {
+          "suite": "geometry",
+          "tests": 42,
+          "assertions": 29291,
+          "failures": [
+            {
+              "script": "tests/unit/test_japanese_korean_ui.gd",
+              "test": "test_draft_story_resolution_retains_exact_english_locators_and_correspondence"
+            },
+            {
+              "script": "tests/unit/test_japanese_korean_ui.gd",
+              "test": "test_fusion_fonts_contain_every_catalog_glyph_without_system_or_font_fallback"
+            },
+            {
+              "script": "tests/unit/test_gallery_typography.gd",
+              "test": "test_gallery_theme_uses_the_exact_regular_proportional_face_and_metrics_for_all_nine_tuples"
+            },
+            {
+              "script": "tests/unit/test_font_styles.gd",
+              "test": "test_explicit_style_resolves_locale_correct_faces_and_size_contracts"
+            },
+            {
+              "script": "tests/unit/test_font_styles.gd",
+              "test": "test_interleaved_styles_do_not_change_another_fixture_or_shared_fallbacks"
+            }
+          ]
+        },
+        {
+          "suite": "negative",
+          "tests": 13,
+          "assertions": 321,
+          "failures": []
+        },
+        {
+          "suite": "pause-load",
+          "tests": 1,
+          "assertions": 56,
+          "failures": []
+        },
+        {
+          "suite": "pause-quick-load",
+          "tests": 1,
+          "assertions": 70,
+          "failures": []
+        },
+        {
+          "suite": "pause-write-refusal",
+          "tests": 1,
+          "assertions": 37,
+          "failures": []
+        }
+      ],
+      "matched_source_files": 594,
+      "native_generated_files": [
+        "tests/integration/current_title_scene_child.gd.uid",
+        "tests/integration/test_current_title_scene_create.gd.uid",
+        "tests/integration/test_current_title_scene_load.gd.uid",
+        "tests/support/SceneValidationScope.gd.uid"
+      ]
+    },
+    {
+      "run_id": 39880558846,
+      "artifact_id": 12471010111,
+      "transport_sha256": "208fd0e65247cf097802db23d4f3f04b7edff6cc9c5e67f3b1d2b77846685e81",
+      "original_sha256": "64e48c39a9776e73d197f53120e2cda329bd287662e3fe78234714bf37d85908",
+      "retained_members": 45,
+      "reports": [
+        {
+          "suite": "public_surfaces",
+          "tests": 11,
+          "assertions": 352,
+          "failures": []
+        }
+      ],
+      "matched_source_files": 15,
+      "native_generated_files": [
+        "evidence/phase_2r/runtime/save_manager_surface.json",
+        "evidence/phase_2r/runtime/game_state_surface.json",
+        "tests/integration/current_title_scene_child.gd.uid",
+        "tests/integration/test_current_title_scene_create.gd.uid",
+        "tests/integration/test_current_title_scene_load.gd.uid",
+        "tests/support/SceneValidationScope.gd.uid"
+      ]
+    },
+    {
+      "run_id": 39882273467,
+      "artifact_id": 12470773983,
+      "transport_sha256": "b596c113c42cbaa2ee590cf981f739144091d93fa601eecf19500a7ca693a490",
+      "original_sha256": "6d582bcdc513795d772cc7e6c02412baca434e9006892d57ec73dcf02b4f71e0",
+      "retained_members": 20,
+      "reports": [
+        {
+          "suite": "contracts",
+          "tests": 70,
+          "assertions": 1994,
+          "failures": []
+        },
+        {
+          "suite": "controls",
+          "tests": 8,
+          "assertions": 1376,
+          "failures": []
+        }
+      ]
+    }
+  ],
+  "historical_source_blobs_verified": 11392
+}

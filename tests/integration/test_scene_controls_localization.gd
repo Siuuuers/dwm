@@ -89,6 +89,7 @@ func test_committed_typography_refresh_is_scoped_and_keeps_controls_live() -> vo
 			assert_true(_profile.set_preference(&"preferences.accessibility.text_size", percent).get("ok", false))
 			assert_same(computer.get_theme_font("font"), TYPOGRAPHY.font("ja", percent, style))
 			assert_eq(computer.get_theme_font_size("font_size"), TYPOGRAPHY.font_size("ja", percent, 24, style))
+			assert_same(_host.get_node("SceneControlsLayer/Surface/ThoughtOptions").theme.default_font, TYPOGRAPHY.story_font("ja", percent, style))
 			assert_eq(mount.theme, mount_theme, "chrome does not install a Challenge theme")
 			assert_true(computer.has_focus())
 			assert_false(computer.disabled)

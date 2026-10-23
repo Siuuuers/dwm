@@ -94,7 +94,9 @@ func _refresh_presentation(_locale_id: String = "") -> void:
 	var controls: VBoxContainer = $SceneControlsLayer/Surface/Controls
 	controls.theme = presentation
 	$SceneControlsLayer/Surface/ThoughtYes.theme = presentation
-	$SceneControlsLayer/Surface/ThoughtOptions.theme = presentation
+	var story_presentation := presentation.duplicate() as Theme
+	story_presentation.default_font = TYPOGRAPHY.story_font(locale, percent, font_style)
+	$SceneControlsLayer/Surface/ThoughtOptions.theme = story_presentation
 	$SceneControlsLayer/Surface/ThoughtYes.text = _localization.t("scene.thought.yes")
 	$SceneControlsLayer/Surface/ThoughtYes.accessibility_name = $SceneControlsLayer/Surface/ThoughtYes.text
 	for control_name: String in CONTROL_KEYS:

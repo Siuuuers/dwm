@@ -7,6 +7,7 @@ const RUN := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 const FROZEN := preload("res://scripts/narrative/FrozenRunContext.gd")
 const MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
+const PRESENTATION := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 var _saved: Dictionary = {}
 
 func install(select_registration: bool = false) -> void:
@@ -15,8 +16,11 @@ func install(select_registration: bool = false) -> void:
 		"frozen": [FROZEN._scene_issuer, FROZEN._scene_creation_owner],
 		"manifest": [MANIFEST._scene_bundle, MANIFEST._scene_bundle_fingerprint, MANIFEST._registration_used,
 			MANIFEST._startup_selection_checked, MANIFEST._startup_selection_error, MANIFEST._first_target_id],
-		"signatures": SIGNATURE._entries}
+		"signatures": SIGNATURE._entries,
+		"presentation": [PRESENTATION._schemas, PRESENTATION._ids]}
 	SIGNATURE._entries = SIGNATURE._entries.duplicate(true)
+	PRESENTATION._schemas = PRESENTATION._schemas.duplicate(true)
+	PRESENTATION._ids = PRESENTATION._ids.duplicate(true)
 	clear_validation_bindings()
 	if select_registration:
 		MANIFEST._scene_bundle = {}
@@ -26,6 +30,8 @@ func install(select_registration: bool = false) -> void:
 		MANIFEST._startup_selection_error = {}
 		MANIFEST._first_target_id = ""
 		SIGNATURE._entries = {}
+		PRESENTATION._schemas = {}
+		PRESENTATION._ids = {}
 
 func clear_validation_bindings() -> void:
 	assert(not _saved.is_empty())
@@ -51,4 +57,6 @@ func restore() -> void:
 	MANIFEST._startup_selection_error = _saved.manifest[4]
 	MANIFEST._first_target_id = _saved.manifest[5]
 	SIGNATURE._entries = _saved.signatures
+	PRESENTATION._schemas = _saved.presentation[0]
+	PRESENTATION._ids = _saved.presentation[1]
 	_saved.clear()

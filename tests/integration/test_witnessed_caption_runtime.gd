@@ -1522,7 +1522,7 @@ func test_real_profile_font_style_preserves_live_caption_and_retires_old_pointer
 		var projection: Dictionary = caption.get_caption_projection()
 		assert_eq(projection.font_style, style)
 		assert_eq(projection.font_size, 20 if style == "readable" else 24)
-		assert_same(native.get_theme_font("normal_font"), preload("res://scripts/ui/UiTypography.gd").font("en", 100, style))
+		assert_same(native.get_theme_font("normal_font"), preload("res://scripts/ui/UiTypography.gd").story_font("en", 100, style))
 		assert_same(caption.caption_text, native)
 		assert_true(native.has_focus())
 		assert_eq(projection.retained_captions, ["Older caption.", "Previous caption."])

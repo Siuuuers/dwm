@@ -19,8 +19,9 @@ static func build(locale: String, text_percent: int, palette: String,
 	result.default_font_size = TYPOGRAPHY.font_size(locale, text_percent, 20, font_style)
 	for role: StringName in roles:
 		result.set_color(role, &"WitnessedCaption", roles[role])
+	var story_font := TYPOGRAPHY.story_font(locale, text_percent, font_style)
 	for font_name: StringName in [&"normal_font", &"bold_font", &"italics_font", &"bold_italics_font", &"mono_font"]:
-		result.set_font(font_name, &"RichTextLabel", result.default_font)
+		result.set_font(font_name, &"RichTextLabel", story_font)
 		result.set_font_size(StringName(str(font_name) + "_size"), &"RichTextLabel", result.default_font_size)
 	result.set_color(&"default_color", &"RichTextLabel", Color.WHITE)
 	result.set_color(&"font_shadow_color", &"RichTextLabel", Color.TRANSPARENT)

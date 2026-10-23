@@ -37,6 +37,7 @@ const _PIXEL_FONTS := {
 }
 
 static var _loaded: Dictionary = {}
+static var _story_loaded: Dictionary = {}
 
 
 static func supports(locale: String) -> bool:
@@ -51,14 +52,6 @@ static func font(locale: String, percent: int, font_style: String = "pixel") -> 
 	if not _loaded.has(path):
 		var face := load(path) as FontFile
 		if face == null: return null
-		# The authored week includes Romanian and a combining crossed-out word.
-		# Bundle deterministic fallback faces rather than relying on installed fonts.
-		var marks := load("res://assets/ui/contacts/fonts/dejavu-sans-fallback.ttf") as FontFile
-		face.fallbacks = [marks]
-		if font_style == "pixel":
-			face.fallbacks.append(load(_READABLE_FONTS[locale_key]) as FontFile)
-		if font_style == "readable" and locale_key in ["ja", "ko"]:
-			face.fallbacks.append(TRADITIONAL)
 		if font_style == "pixel":
 			face.allow_system_fallback = false
 			face.antialiasing = TextServer.FONT_ANTIALIASING_NONE
@@ -67,6 +60,24 @@ static func font(locale: String, percent: int, font_style: String = "pixel") -> 
 			face.oversampling = 1.0
 		_loaded[path] = face
 	return _loaded[path] as Font
+
+
+## Story glyph coverage must not mutate shared UI/Gallery primary faces.
+static func story_font(locale: String, percent: int, font_style: String = "pixel") -> Font:
+	var primary := font(locale, percent, font_style) as FontFile
+	if primary == null: return null
+	var key := primary.resource_path
+	if not _story_loaded.has(key):
+		var face := primary.duplicate() as FontFile
+		var fallbacks: Array[Font] = [load("res://assets/ui/contacts/fonts/dejavu-sans-fallback.ttf") as FontFile]
+		if font_style == "pixel":
+			fallbacks.append(font(locale, percent, "readable"))
+		if _locale_key(locale) in ["ja", "ko"]:
+			fallbacks.append(TRADITIONAL)
+		face.fallbacks = fallbacks
+		face.allow_system_fallback = false
+		_story_loaded[key] = face
+	return _story_loaded[key] as Font
 
 
 static func font_size(locale: String, percent: int, existing_base_size: int = 24, font_style: String = "pixel") -> int:
