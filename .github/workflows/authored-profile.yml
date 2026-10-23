@@ -124,9 +124,7 @@ jobs:
     timeout-minutes: 25
 name: Bounded authored progression profile
 'on':
-  pull_request:
-    paths:
-    - .github/workflows/authored-profile.yml
+  workflow_dispatch:
 permissions:
   actions: read
   contents: read
