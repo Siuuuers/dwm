@@ -16,19 +16,19 @@ jobs:
       with:
         fetch-depth: 2
         persist-credentials: true
-        ref: b996ea473a7058a4ed65f1a787dc66f7d778f979
+        ref: a1f2062e24312502aaaecc74bd92d173b50137ad
     - name: Record pinned source
       run: '$ErrorActionPreference = ''Stop''
 
-        if ((git rev-parse HEAD) -cne ''b996ea473a7058a4ed65f1a787dc66f7d778f979'')
+        if ((git rev-parse HEAD) -cne ''a1f2062e24312502aaaecc74bd92d173b50137ad'')
         { throw ''Candidate mismatch'' }
 
-        if ((git rev-parse ''HEAD^{tree}'') -cne ''8d6e288b1327634d09d9cc8bb248e15bae679575'')
+        if ((git rev-parse ''HEAD^{tree}'') -cne ''e619b4600a96e7ece26547777d526874061c274c'')
         { throw ''Candidate tree mismatch'' }
 
         New-Item -ItemType Directory -Force ''.godot/ci'' | Out-Null
 
-        @{candidate=''b996ea473a7058a4ed65f1a787dc66f7d778f979''; tree=(git rev-parse
+        @{candidate=''a1f2062e24312502aaaecc74bd92d173b50137ad''; tree=(git rev-parse
         ''HEAD^{tree}''); controller=''${{ github.event.pull_request.head.sha }}'';
         workflow=''${{ github.workflow_sha }}''; event=''${{ github.sha }}''; run_id=''${{
         github.run_id }}''; attempt=''${{ github.run_attempt }}''} | ConvertTo-Json
@@ -95,7 +95,7 @@ jobs:
       run: './tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''receipt-contract''
         -LogName ''receipt-contract.log'' -EvidenceLogPath ''.godot/ci/receipt-contract.jsonl''
         -TimeoutSeconds 600 -KeepRoot -GodotArgs @(''-s'', ''res://addons/gut/gut_cmdln.gd'',
-        ''-gconfig='', ''-gtest=res://tests/unit/test_scene_event_contract.gd,res://tests/unit/test_scene_receipt_validation.gd'',
+        ''-gconfig='', ''-gtest=res://tests/unit/test_scene_event_contract.gd,res://tests/unit/test_scene_receipt_validation.gd,res://tests/integration/test_scene_initial_admission.gd,res://tests/integration/test_scene_initial_candidate.gd,res://tests/integration/test_scene_joint_new_run.gd'',
         ''-gexit'', ''-glog=2'', ''-gjunit_xml_file=res://.godot/ci/receipt-contract.xml'')
 
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }'
@@ -146,7 +146,7 @@ jobs:
 
         unit=ET.parse(p/''receipt-contract.xml'').getroot(); cases=list(unit.iter(''testcase''))
 
-        assert len(cases)==40 and all(c.attrib[''status'']==''pass'' for c in cases)
+        assert len(cases)==52 and all(c.attrib[''status'']==''pass'' for c in cases)
 
         assert not any(list(unit.iter(t)) for t in [''failure'',''error'',''skipped''])
 
@@ -184,7 +184,7 @@ jobs:
         \    target=out/'native-uids'/p.name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(p.read_bytes())\n\
         \    tracked=subprocess.run(['git','ls-files','--error-unmatch','--',str(p)],capture_output=True).returncode==0\n\
         \    records.append({'path':p.as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'provenance':'candidate_tracked'\
-        \ if tracked else 'cloud_editor_import','source':'b996ea473a7058a4ed65f1a787dc66f7d778f979','source_tree':'8d6e288b1327634d09d9cc8bb248e15bae679575'})\n\
+        \ if tracked else 'cloud_editor_import','source':'a1f2062e24312502aaaecc74bd92d173b50137ad','source_tree':'e619b4600a96e7ece26547777d526874061c274c'})\n\
         (out/'uid-provenance.json').write_text(json.dumps(records,indent=2))\n(out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))\n\
         manifest_source=subprocess.check_output(['git','ls-tree','-r','HEAD'],text=True)\n\
         (out/'source-tree.txt').write_text(manifest_source)\nfiles=[p for p in out.rglob('*')\
@@ -208,6 +208,9 @@ jobs:
 name: Bounded authored progression profile
 'on':
   workflow_dispatch:
+  pull_request:
+    types: [synchronize]
+    paths: ['.github/workflows/authored-receipts-profile.yml']
 permissions:
   actions: read
   contents: read
