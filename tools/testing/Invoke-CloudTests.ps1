@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build')]
+    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission')]
     [string]$Suite
 )
 
@@ -10,6 +10,9 @@ $ErrorActionPreference = 'Stop'
 # Deliberate, bounded UI and input regression coverage. Each path must actually
 # execute; Invoke-IsolatedGodot also rejects GUT's silent suite-load failures.
 $suites = @{
+    terminal_admission = @(
+        'tests/integration/authored_terminal_admission_checks.gd'
+    )
     backup_current_build = @(
         'tests/integration/test_backup_current_build.gd'
     )
@@ -357,14 +360,58 @@ if ($loadScripts.ContainsKey($Suite)) {
 $primaryReport = Join-Path $output "$Suite.xml"
 if (Test-Path -LiteralPath $primaryReport) { Remove-Item -LiteralPath $primaryReport -Force }
 $logName = "cloud-$Suite.log"
+$initialLogName = $logName
+$terminalProfileBefore = [Environment]::GetEnvironmentVariable('DWM_SCENE_VALIDATION_PROFILE')
+if ($Suite -eq 'terminal_admission') {
+    # Reuse the pinned genuine ending root; this test never authors a replacement save.
+    $archive = Join-Path $repositoryRoot 'evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip'
+    if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne
+        'c49053565e4b9430f2e9f0157eea9c1602898156de13df2837ca714235279670') {
+        throw 'Retained terminal archive checksum mismatch.'
+    }
+    $retained = Join-Path $output 'terminal-admission-input'
+    if (Test-Path -LiteralPath $retained) { throw 'Terminal input already exists; refusing stale evidence.' }
+    Expand-Archive -LiteralPath $archive -DestinationPath $retained
+    $helperHashes = Get-Content -LiteralPath (Join-Path $retained 'helper-hashes.json') -Raw | ConvertFrom-Json -AsHashtable
+    # seed.gd checks discovery of pair-next/replay, whose imports also need pair.gd.
+    foreach ($helper in @('seed.gd', 'pair.gd', 'pair-next.gd', 'replay.gd')) {
+        $source = Join-Path $retained $helper
+        if ((Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash.ToLowerInvariant() -ne $helperHashes[$helper]) {
+            throw "Retained terminal helper checksum mismatch: $helper"
+        }
+        Copy-Item -LiteralPath $source -Destination (Join-Path $output $helper)
+    }
+    $inputHashes = Get-Content -LiteralPath (Join-Path $retained 'terminal-root-hashes.json') -Raw | ConvertFrom-Json -AsHashtable
+    if ($inputHashes.Count -ne 40) { throw 'Terminal admission requires exactly 40 retained input files.' }
+    foreach ($relative in $inputHashes.Keys) {
+        $file = Join-Path (Join-Path $retained 'terminal-root') $relative
+        if ((Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant() -ne $inputHashes[$relative]) {
+            throw "Retained terminal input checksum mismatch: $relative"
+        }
+    }
+    Copy-Item -LiteralPath (Join-Path $retained 'terminal-root-hashes.json') -Destination $output
+    Copy-Item -LiteralPath (Join-Path $retained 'terminal-root') -Destination $output -Recurse
+    $extra.Rendered = $true
+    $extra.NextLogName = $logName
+    $extra.NextGodotArgs = $arguments
+    $arguments = @('-s', 'res://.godot/ci/seed.gd')
+    $initialLogName = "cloud-$Suite-seed.log"
+    $env:DWM_SCENE_VALIDATION_PROFILE = '1'
+}
 if ($Suite -eq 'settings') { Write-Host "SETTINGS_PHASE $([DateTime]::UtcNow.ToString('o')) primary.begin" }
-& (Join-Path $PSScriptRoot 'Invoke-IsolatedGodot.ps1') `
-    -SuiteId "cloud-$Suite" `
-    -LogName $logName `
-    -EvidenceLogPath ".godot/ci/$Suite.jsonl" `
-    -TimeoutSeconds 480 `
-    -GodotArgs $arguments @extra
-$result = $LASTEXITCODE
+try {
+    & (Join-Path $PSScriptRoot 'Invoke-IsolatedGodot.ps1') `
+        -SuiteId "cloud-$Suite" `
+        -LogName $initialLogName `
+        -EvidenceLogPath ".godot/ci/$Suite.jsonl" `
+        -TimeoutSeconds 480 `
+        -GodotArgs $arguments @extra
+    $result = $LASTEXITCODE
+} finally {
+    if ($Suite -eq 'terminal_admission') {
+        [Environment]::SetEnvironmentVariable('DWM_SCENE_VALIDATION_PROFILE', $terminalProfileBefore)
+    }
+}
 if ($Suite -eq 'settings') { Write-Host "SETTINGS_PHASE $([DateTime]::UtcNow.ToString('o')) primary.end exit=$result" }
 $logPath = Join-Path $repositoryRoot ".godot/phase2r_logs/$logName"
 if ($result -ne 0) {
@@ -422,7 +469,7 @@ if (-not (Test-Path -LiteralPath $report)) { throw 'GUT did not produce its JUni
 $executed = $xml.SelectNodes('//testcase').Count
 if ($executed -eq 0) { throw 'GUT did not report any executed tests.' }
 if ($xml.SelectNodes('//failure | //error').Count -ne 0) { throw 'GUT reported test failures.' }
-if ($Suite -in @('scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build')) {
+if ($Suite -in @('scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission')) {
     foreach ($case in $xml.SelectNodes('//testcase')) {
         if ($case.GetAttribute('classname') -cnotin $suites[$Suite] -or
             $case.GetAttribute('status') -cne 'pass' -or [int]$case.GetAttribute('assertions') -le 0) {
@@ -430,6 +477,18 @@ if ($Suite -in @('scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_
         }
     }
     if ($xml.SelectNodes('//skipped').Count -ne 0) { throw 'Selected scene coverage was skipped.' }
+}
+if ($Suite -eq 'terminal_admission') {
+    $cases = @($xml.SelectNodes('//testcase'))
+    if ($cases.Count -ne 1 -or $cases[0].GetAttribute('name') -cne 'test_selected_terminal_admission_rechecks_genuine_saved_authority') {
+        throw 'Terminal admission did not execute its exact authored boundary case.'
+    }
+    $seedLog = Join-Path $repositoryRoot ".godot/phase2r_logs/$initialLogName"
+    $seedMarkers = @(Get-Content -LiteralPath $seedLog | Where-Object { $_ -cmatch '^TERMINAL_SEED_COMPLETE process_id=[0-9]+ files=40$' })
+    if ($seedMarkers.Count -ne 1) { throw 'Terminal admission did not seed its exact genuine root.' }
+    if (Select-String -LiteralPath $logPath -Pattern 'SCRIPT ERROR:|ERROR: Failed to load' -Quiet) {
+        throw 'Terminal admission reported a script error.'
+    }
 }
 Write-Host "${Suite}: $executed test cases completed across $($testPaths.Count) requested scripts."
 # Keep actual per-script results observable when the JUnit artifact is unavailable.
