@@ -1,4 +1,13 @@
 extends GutTest
+
+# These retained contract fixtures choose their own historical registration scope.
+var _retained_scope := preload("res://tests/support/SceneValidationScope.gd").new()
+
+func before_each() -> void:
+	_retained_scope.install(true)
+
+func after_each() -> void:
+	_retained_scope.restore()
 ## Bootstrap composition only: all output owners are real; window pixels remain modeled.
 
 const PROFILE := preload("res://autoload/ProfileManager.gd")
