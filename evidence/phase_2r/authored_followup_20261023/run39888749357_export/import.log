@@ -1,0 +1,2279 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+[   0% ] first_scan_filesystem | Started Project initialization (5 steps)
+[  16% ] first_scan_filesystem | Loading global class names...
+[  33% ] first_scan_filesystem | Verifying GDExtensions...
+[  50% ] first_scan_filesystem | Creating autoload scripts...
+[  66% ] first_scan_filesystem | Initializing plugins...
+[  83% ] first_scan_filesystem | Starting file scan...
+[ DONE ] first_scan_filesystem
+
+[   0% ] update_scripts_classes | Started Registering global classes... (1619 steps)
+[   0% ] update_scripts_classes | DialogicGameHandler
+[   0% ] update_scripts_classes | DialogicResourceUtil
+[   0% ] update_scripts_classes | DialogicUtil
+[   0% ] update_scripts_classes | DialogicSubsystem
+[   0% ] update_scripts_classes | DialogicIndexer
+[   0% ] update_scripts_classes | 
+[   0% ] update_scripts_classes | DialogicCharacterEditorMainSection
+[   0% ] update_scripts_classes | DialogicCharacterEditorPortraitSection
+[   0% ] update_scripts_classes | 
+[   0% ] update_scripts_classes | DialogicCharacterPrefixSuffixSection
+[   0% ] update_scripts_classes | 
+[   0% ] update_scripts_classes | 
+[   0% ] update_scripts_classes | 
+[   0% ] update_scripts_classes | 
+[   0% ] update_scripts_classes | 
+[   0% ] update_scripts_classes | 
+[   0% ] update_scripts_classes | 
+[   1% ] update_scripts_classes | 
+[   1% ] update_scripts_classes | 
+[   1% ] update_scripts_classes | DCSS
+[   1% ] update_scripts_classes | 
+[   1% ] update_scripts_classes | 
+[   1% ] update_scripts_classes | 
+[   1% ] update_scripts_classes | 
+[   1% ] update_scripts_classes | DialogicSidebar
+[   1% ] update_scripts_classes | 
+[   1% ] update_scripts_classes | 
+[   1% ] update_scripts_classes | 
+[   1% ] update_scripts_classes | 
+[   1% ] update_scripts_classes | 
+[   1% ] update_scripts_classes | 
+[   1% ] update_scripts_classes | 
+[   1% ] update_scripts_classes | 
+[   2% ] update_scripts_classes | 
+[   2% ] update_scripts_classes | 
+[   2% ] update_scripts_classes | 
+[   2% ] update_scripts_classes | 
+[   2% ] update_scripts_classes | 
+[   2% ] update_scripts_classes | 
+[   2% ] update_scripts_classes | 
+[   2% ] update_scripts_classes | 
+[   2% ] update_scripts_classes | 
+[   2% ] update_scripts_classes | 
+[   2% ] update_scripts_classes | 
+[   2% ] update_scripts_classes | DialogicVisualEditorFieldNumber
+[   2% ] update_scripts_classes | 
+[   2% ] update_scripts_classes | 
+[   2% ] update_scripts_classes | 
+[   2% ] update_scripts_classes | 
+[   3% ] update_scripts_classes | 
+[   3% ] update_scripts_classes | 
+[   3% ] update_scripts_classes | 
+[   3% ] update_scripts_classes | DialogicVisualEditorFieldVector
+[   3% ] update_scripts_classes | 
+[   3% ] update_scripts_classes | DialogicVisualEditorField
+[   3% ] update_scripts_classes | 
+[   3% ] update_scripts_classes | 
+[   3% ] update_scripts_classes | 
+[   3% ] update_scripts_classes | DialogicCsvFile
+[   3% ] update_scripts_classes | 
+[   3% ] update_scripts_classes | 
+[   3% ] update_scripts_classes | 
+[   3% ] update_scripts_classes | 
+[   3% ] update_scripts_classes | 
+[   3% ] update_scripts_classes | 
+[   4% ] update_scripts_classes | 
+[   4% ] update_scripts_classes | 
+[   4% ] update_scripts_classes | DialogicSettingsPage
+[   4% ] update_scripts_classes | 
+[   4% ] update_scripts_classes | 
+[   4% ] update_scripts_classes | 
+[   4% ] update_scripts_classes | 
+[   4% ] update_scripts_classes | 
+[   4% ] update_scripts_classes | 
+[   4% ] update_scripts_classes | 
+[   4% ] update_scripts_classes | 
+[   4% ] update_scripts_classes | 
+[   4% ] update_scripts_classes | DialogicEditor
+[   4% ] update_scripts_classes | 
+[   4% ] update_scripts_classes | 
+[   4% ] update_scripts_classes | DialogicRichTextTransitionEffect
+[   5% ] update_scripts_classes | 
+[   5% ] update_scripts_classes | 
+[   5% ] update_scripts_classes | 
+[   5% ] update_scripts_classes | 
+[   5% ] update_scripts_classes | DialogicAudioEvent
+[   5% ] update_scripts_classes | 
+[   5% ] update_scripts_classes | 
+[   5% ] update_scripts_classes | 
+[   5% ] update_scripts_classes | 
+[   5% ] update_scripts_classes | 
+[   5% ] update_scripts_classes | 
+[   5% ] update_scripts_classes | 
+[   5% ] update_scripts_classes | 
+[   5% ] update_scripts_classes | 
+[   5% ] update_scripts_classes | 
+[   5% ] update_scripts_classes | 
+[   5% ] update_scripts_classes | 
+[   6% ] update_scripts_classes | DialogicBackgroundTransition
+[   6% ] update_scripts_classes | 
+[   6% ] update_scripts_classes | 
+[   6% ] update_scripts_classes | DialogicBackground
+[   6% ] update_scripts_classes | DialogicBackgroundEvent
+[   6% ] update_scripts_classes | 
+[   6% ] update_scripts_classes | DialogicNode_BackgroundHolder
+[   6% ] update_scripts_classes | 
+[   6% ] update_scripts_classes | DialogicCallEvent
+[   6% ] update_scripts_classes | 
+[   6% ] update_scripts_classes | 
+[   6% ] update_scripts_classes | 
+[   6% ] update_scripts_classes | 
+[   6% ] update_scripts_classes | 
+[   6% ] update_scripts_classes | 
+[   6% ] update_scripts_classes | 
+[   7% ] update_scripts_classes | 
+[   7% ] update_scripts_classes | 
+[   7% ] update_scripts_classes | 
+[   7% ] update_scripts_classes | 
+[   7% ] update_scripts_classes | 
+[   7% ] update_scripts_classes | 
+[   7% ] update_scripts_classes | 
+[   7% ] update_scripts_classes | 
+[   7% ] update_scripts_classes | 
+[   7% ] update_scripts_classes | 
+[   7% ] update_scripts_classes | DialogicAnimation
+[   7% ] update_scripts_classes | 
+[   7% ] update_scripts_classes | DialogicPortraitAnimationUtil
+[   7% ] update_scripts_classes | DialogicPortrait
+[   7% ] update_scripts_classes | DialogicCharacterEvent
+[   7% ] update_scripts_classes | 
+[   8% ] update_scripts_classes | DialogicNode_PortraitContainer
+[   8% ] update_scripts_classes | 
+[   8% ] update_scripts_classes | 
+[   8% ] update_scripts_classes | 
+[   8% ] update_scripts_classes | DialogicChoiceEvent
+[   8% ] update_scripts_classes | 
+[   8% ] update_scripts_classes | DialogicNode_ButtonSound
+[   8% ] update_scripts_classes | DialogicNode_ChoiceButton
+[   8% ] update_scripts_classes | 
+[   8% ] update_scripts_classes | 
+[   8% ] update_scripts_classes | 
+[   8% ] update_scripts_classes | DialogicClearEvent
+[   8% ] update_scripts_classes | 
+[   8% ] update_scripts_classes | DialogicCommentEvent
+[   8% ] update_scripts_classes | 
+[   8% ] update_scripts_classes | DialogicConditionEvent
+[   9% ] update_scripts_classes | 
+[   9% ] update_scripts_classes | 
+[   9% ] update_scripts_classes | DialogicEndBranchEvent
+[   9% ] update_scripts_classes | 
+[   9% ] update_scripts_classes | 
+[   9% ] update_scripts_classes | 
+[   9% ] update_scripts_classes | 
+[   9% ] update_scripts_classes | 
+[   9% ] update_scripts_classes | 
+[   9% ] update_scripts_classes | 
+[   9% ] update_scripts_classes | 
+[   9% ] update_scripts_classes | 
+[   9% ] update_scripts_classes | 
+[   9% ] update_scripts_classes | 
+[   9% ] update_scripts_classes | 
+[   9% ] update_scripts_classes | 
+[  10% ] update_scripts_classes | 
+[  10% ] update_scripts_classes | 
+[  10% ] update_scripts_classes | 
+[  10% ] update_scripts_classes | 
+[  10% ] update_scripts_classes | 
+[  10% ] update_scripts_classes | 
+[  10% ] update_scripts_classes | 
+[  10% ] update_scripts_classes | 
+[  10% ] update_scripts_classes | DialogicEndTimelineEvent
+[  10% ] update_scripts_classes | 
+[  10% ] update_scripts_classes | DialogicGlossaryEvent
+[  10% ] update_scripts_classes | 
+[  10% ] update_scripts_classes | DialogicGlossary
+[  10% ] update_scripts_classes | 
+[  10% ] update_scripts_classes | 
+[  10% ] update_scripts_classes | 
+[  10% ] update_scripts_classes | 
+[  11% ] update_scripts_classes | DialogicHistoryEvent
+[  11% ] update_scripts_classes | 
+[  11% ] update_scripts_classes | 
+[  11% ] update_scripts_classes | 
+[  11% ] update_scripts_classes | DialogicJumpEvent
+[  11% ] update_scripts_classes | DialogicLabelEvent
+[  11% ] update_scripts_classes | DialogicReturnEvent
+[  11% ] update_scripts_classes | 
+[  11% ] update_scripts_classes | 
+[  11% ] update_scripts_classes | 
+[  11% ] update_scripts_classes | 
+[  11% ] update_scripts_classes | 
+[  11% ] update_scripts_classes | DialogicSaveEvent
+[  11% ] update_scripts_classes | 
+[  11% ] update_scripts_classes | 
+[  11% ] update_scripts_classes | 
+[  12% ] update_scripts_classes | DialogicSettingEvent
+[  12% ] update_scripts_classes | 
+[  12% ] update_scripts_classes | 
+[  12% ] update_scripts_classes | DialogicSignalEvent
+[  12% ] update_scripts_classes | 
+[  12% ] update_scripts_classes | 
+[  12% ] update_scripts_classes | DialogicStylesUtil
+[  12% ] update_scripts_classes | DialogicStyleEvent
+[  12% ] update_scripts_classes | 
+[  12% ] update_scripts_classes | DialogicNode_StyleLayer
+[  12% ] update_scripts_classes | 
+[  12% ] update_scripts_classes | 
+[  12% ] update_scripts_classes | 
+[  12% ] update_scripts_classes | 
+[  12% ] update_scripts_classes | 
+[  12% ] update_scripts_classes | 
+[  13% ] update_scripts_classes | 
+[  13% ] update_scripts_classes | 
+[  13% ] update_scripts_classes | 
+[  13% ] update_scripts_classes | DialogicAutoAdvance
+[  13% ] update_scripts_classes | DialogicAutoSkip
+[  13% ] update_scripts_classes | DialogicTextEvent
+[  13% ] update_scripts_classes | 
+[  13% ] update_scripts_classes | DialogicManualAdvance
+[  13% ] update_scripts_classes | DialogicNode_DialogText
+[  13% ] update_scripts_classes | DialogicNode_Input
+[  13% ] update_scripts_classes | DialogicNode_NameLabel
+[  13% ] update_scripts_classes | DialogicNode_NextIndicator
+[  13% ] update_scripts_classes | DialogicNode_TypeSounds
+[  13% ] update_scripts_classes | 
+[  13% ] update_scripts_classes | 
+[  13% ] update_scripts_classes | DialogicTextInputEvent
+[  14% ] update_scripts_classes | 
+[  14% ] update_scripts_classes | DialogicNode_TextInput
+[  14% ] update_scripts_classes | 
+[  14% ] update_scripts_classes | 
+[  14% ] update_scripts_classes | 
+[  14% ] update_scripts_classes | DialogicVariableEvent
+[  14% ] update_scripts_classes | 
+[  14% ] update_scripts_classes | 
+[  14% ] update_scripts_classes | DialogicVoiceEvent
+[  14% ] update_scripts_classes | 
+[  14% ] update_scripts_classes | 
+[  14% ] update_scripts_classes | DialogicWaitEvent
+[  14% ] update_scripts_classes | 
+[  14% ] update_scripts_classes | DialogicWaitInputEvent
+[  14% ] update_scripts_classes | 
+[  14% ] update_scripts_classes | DialogicCharacter
+[  15% ] update_scripts_classes | DialogicCharacterFormatLoader
+[  15% ] update_scripts_classes | DialogicCharacterFormatSaver
+[  15% ] update_scripts_classes | 
+[  15% ] update_scripts_classes | DialogicLayoutBase
+[  15% ] update_scripts_classes | DialogicLayoutLayer
+[  15% ] update_scripts_classes | DialogicStyle
+[  15% ] update_scripts_classes | DialogicStyleLayer
+[  15% ] update_scripts_classes | DialogicEvent
+[  15% ] update_scripts_classes | DialogicTimeline
+[  15% ] update_scripts_classes | DialogicTimelineFormatLoader
+[  15% ] update_scripts_classes | DialogicTimelineFormatSaver
+[  15% ] update_scripts_classes | 
+[  15% ] update_scripts_classes | 
+[  15% ] update_scripts_classes | 
+[  15% ] update_scripts_classes | 
+[  15% ] update_scripts_classes | 
+[  15% ] update_scripts_classes | 
+[  16% ] update_scripts_classes | 
+[  16% ] update_scripts_classes | 
+[  16% ] update_scripts_classes | 
+[  16% ] update_scripts_classes | 
+[  16% ] update_scripts_classes | 
+[  16% ] update_scripts_classes | 
+[  16% ] update_scripts_classes | 
+[  16% ] update_scripts_classes | 
+[  16% ] update_scripts_classes | 
+[  16% ] update_scripts_classes | AllOfGuard
+[  16% ] update_scripts_classes | AnimationPlayerState
+[  16% ] update_scripts_classes | AnimationTreeState
+[  16% ] update_scripts_classes | AnyOfGuard
+[  16% ] update_scripts_classes | AtomicState
+[  16% ] update_scripts_classes | CompoundState
+[  16% ] update_scripts_classes | 
+[  17% ] update_scripts_classes | ExpressionGuard
+[  17% ] update_scripts_classes | 
+[  17% ] update_scripts_classes | 
+[  17% ] update_scripts_classes | Guard
+[  17% ] update_scripts_classes | HistoryState
+[  17% ] update_scripts_classes | NotGuard
+[  17% ] update_scripts_classes | ParallelState
+[  17% ] update_scripts_classes | SavedState
+[  17% ] update_scripts_classes | SerializedStateChart
+[  17% ] update_scripts_classes | SerializedStateChartState
+[  17% ] update_scripts_classes | StateChart
+[  17% ] update_scripts_classes | StateChartSerializer
+[  17% ] update_scripts_classes | StateChartState
+[  17% ] update_scripts_classes | StateIsActiveGuard
+[  17% ] update_scripts_classes | Transition
+[  17% ] update_scripts_classes | 
+[  18% ] update_scripts_classes | 
+[  18% ] update_scripts_classes | 
+[  18% ] update_scripts_classes | 
+[  18% ] update_scripts_classes | 
+[  18% ] update_scripts_classes | 
+[  18% ] update_scripts_classes | 
+[  18% ] update_scripts_classes | 
+[  18% ] update_scripts_classes | 
+[  18% ] update_scripts_classes | 
+[  18% ] update_scripts_classes | 
+[  18% ] update_scripts_classes | 
+[  18% ] update_scripts_classes | 
+[  18% ] update_scripts_classes | 
+[  18% ] update_scripts_classes | 
+[  18% ] update_scripts_classes | 
+[  18% ] update_scripts_classes | 
+[  19% ] update_scripts_classes | 
+[  19% ] update_scripts_classes | 
+[  19% ] update_scripts_classes | 
+[  19% ] update_scripts_classes | 
+[  19% ] update_scripts_classes | 
+[  19% ] update_scripts_classes | 
+[  19% ] update_scripts_classes | 
+[  19% ] update_scripts_classes | 
+[  19% ] update_scripts_classes | 
+[  19% ] update_scripts_classes | 
+[  19% ] update_scripts_classes | 
+[  19% ] update_scripts_classes | 
+[  19% ] update_scripts_classes | 
+[  19% ] update_scripts_classes | 
+[  19% ] update_scripts_classes | 
+[  19% ] update_scripts_classes | 
+[  20% ] update_scripts_classes | 
+[  20% ] update_scripts_classes | 
+[  20% ] update_scripts_classes | 
+[  20% ] update_scripts_classes | 
+[  20% ] update_scripts_classes | 
+[  20% ] update_scripts_classes | 
+[  20% ] update_scripts_classes | GutErrorTracker
+[  20% ] update_scripts_classes | 
+[  20% ] update_scripts_classes | 
+[  20% ] update_scripts_classes | GutMain
+[  20% ] update_scripts_classes | 
+[  20% ] update_scripts_classes | 
+[  20% ] update_scripts_classes | 
+[  20% ] update_scripts_classes | 
+[  20% ] update_scripts_classes | 
+[  20% ] update_scripts_classes | 
+[  20% ] update_scripts_classes | 
+[  21% ] update_scripts_classes | 
+[  21% ] update_scripts_classes | GutTrackedError
+[  21% ] update_scripts_classes | 
+[  21% ] update_scripts_classes | GutHookScript
+[  21% ] update_scripts_classes | 
+[  21% ] update_scripts_classes | GutInputFactory
+[  21% ] update_scripts_classes | GutInputSender
+[  21% ] update_scripts_classes | 
+[  21% ] update_scripts_classes | 
+[  21% ] update_scripts_classes | 
+[  21% ] update_scripts_classes | 
+[  21% ] update_scripts_classes | 
+[  21% ] update_scripts_classes | 
+[  21% ] update_scripts_classes | 
+[  21% ] update_scripts_classes | 
+[  21% ] update_scripts_classes | 
+[  22% ] update_scripts_classes | 
+[  22% ] update_scripts_classes | 
+[  22% ] update_scripts_classes | 
+[  22% ] update_scripts_classes | 
+[  22% ] update_scripts_classes | 
+[  22% ] update_scripts_classes | GutStringUtils
+[  22% ] update_scripts_classes | 
+[  22% ] update_scripts_classes | 
+[  22% ] update_scripts_classes | 
+[  22% ] update_scripts_classes | 
+[  22% ] update_scripts_classes | GutTest
+[  22% ] update_scripts_classes | 
+[  22% ] update_scripts_classes | 
+[  22% ] update_scripts_classes | 
+[  22% ] update_scripts_classes | 
+[  22% ] update_scripts_classes | GutUtils
+[  23% ] update_scripts_classes | 
+[  23% ] update_scripts_classes | 
+[  23% ] update_scripts_classes | 
+[  23% ] update_scripts_classes | 
+[  23% ] update_scripts_classes | 
+[  23% ] update_scripts_classes | 
+[  23% ] update_scripts_classes | 
+[  23% ] update_scripts_classes | 
+[  23% ] update_scripts_classes | 
+[  23% ] update_scripts_classes | 
+[  23% ] update_scripts_classes | 
+[  23% ] update_scripts_classes | 
+[  23% ] update_scripts_classes | 
+[  23% ] update_scripts_classes | 
+[  23% ] update_scripts_classes | 
+[  23% ] update_scripts_classes | 
+[  24% ] update_scripts_classes | 
+[  24% ] update_scripts_classes | SystemTtsPort
+[  24% ] update_scripts_classes | BackupPresentationPort
+[  24% ] update_scripts_classes | ContactCommandPort
+[  24% ] update_scripts_classes | ContactsPresentationPort
+[  24% ] update_scripts_classes | 
+[  24% ] update_scripts_classes | ProvisionalCorrespondenceCatalog
+[  24% ] update_scripts_classes | DesktopCausalSequencePort
+[  24% ] update_scripts_classes | DesktopColdRecoveryPreparation
+[  24% ] update_scripts_classes | DesktopConditionPolicyPort
+[  24% ] update_scripts_classes | DesktopConsequenceCoordinator
+[  24% ] update_scripts_classes | DesktopConsequenceSourcePort
+[  24% ] update_scripts_classes | DesktopIdentityNonceIssuer
+[  24% ] update_scripts_classes | GameStateDesktopConditionContextPort
+[  24% ] update_scripts_classes | LogoutCoordinator
+[  24% ] update_scripts_classes | SessionExitCoordinator
+[  25% ] update_scripts_classes | Day7ConditionEndingSource
+[  25% ] update_scripts_classes | DialogicEndingPlaybackPort
+[  25% ] update_scripts_classes | 
+[  25% ] update_scripts_classes | 
+[  25% ] update_scripts_classes | 
+[  25% ] update_scripts_classes | 
+[  25% ] update_scripts_classes | DesktopBoardFatePort
+[  25% ] update_scripts_classes | DesktopFirstRevealSnapshotComposer
+[  25% ] update_scripts_classes | GameStateDesktopBoardPort
+[  25% ] update_scripts_classes | GameStateMinesweeperPort
+[  25% ] update_scripts_classes | MinesweeperAssignmentsQuery
+[  25% ] update_scripts_classes | MinesweeperBoardGenerationPort
+[  25% ] update_scripts_classes | 
+[  25% ] update_scripts_classes | MinesweeperPanelPort
+[  25% ] update_scripts_classes | MinesweeperPresentationPort
+[  25% ] update_scripts_classes | MinesweeperRegisterQuery
+[  25% ] update_scripts_classes | 
+[  26% ] update_scripts_classes | SaveManagerDesktopBoardPort
+[  26% ] update_scripts_classes | SaveManagerMinesweeperPort
+[  26% ] update_scripts_classes | DialogicPlaybackCompletionPort
+[  26% ] update_scripts_classes | 
+[  26% ] update_scripts_classes | DialogicSignalCommandPort
+[  26% ] update_scripts_classes | SaveManagerNarrativeCheckpointPort
+[  26% ] update_scripts_classes | SceneEventCommandPort
+[  26% ] update_scripts_classes | AudioRestoreParticipant
+[  26% ] update_scripts_classes | DesktopBoardRestoreParticipant
+[  26% ] update_scripts_classes | DesktopConsequenceRestoreParticipant
+[  26% ] update_scripts_classes | DesktopIdentityAllocationRestoreParticipant
+[  26% ] update_scripts_classes | LocalizationRestoreParticipant
+[  26% ] update_scripts_classes | NarrativeRestoreParticipant
+[  26% ] update_scripts_classes | ProfileRestoreParticipant
+[  26% ] update_scripts_classes | RouteRestoreParticipant
+[  26% ] update_scripts_classes | RunRestoreParticipant
+[  27% ] update_scripts_classes | ScheduleViewRestoreParticipant
+[  27% ] update_scripts_classes | CausalDayAdvanceIdentityPort
+[  27% ] update_scripts_classes | ConditionHospitalContactsAdapter
+[  27% ] update_scripts_classes | ConditionHospitalCoordinator
+[  27% ] update_scripts_classes | 
+[  27% ] update_scripts_classes | 
+[  27% ] update_scripts_classes | 
+[  27% ] update_scripts_classes | DatingPhysicalOwner
+[  27% ] update_scripts_classes | 
+[  27% ] update_scripts_classes | DatingRehearsalOwner
+[  27% ] update_scripts_classes | DayResolutionCoordinator
+[  27% ] update_scripts_classes | 
+[  27% ] update_scripts_classes | GameStateConditionHospitalPort
+[  27% ] update_scripts_classes | GameStateDayResolutionPort
+[  27% ] update_scripts_classes | 
+[  27% ] update_scripts_classes | PairDeckDrawPort
+[  28% ] update_scripts_classes | SaveManagerCheckpointPort
+[  28% ] update_scripts_classes | GameStateScheduleCommitPort
+[  28% ] update_scripts_classes | GameStateScheduleWarningContextPort
+[  28% ] update_scripts_classes | ScheduleCommandPort
+[  28% ] update_scripts_classes | ScheduleDepartureViewPort
+[  28% ] update_scripts_classes | ScheduleDoneDispatcher
+[  28% ] update_scripts_classes | ScheduleDownstreamContractGuard
+[  28% ] update_scripts_classes | SchedulePresentationPort
+[  28% ] update_scripts_classes | ScheduleSourceQuery
+[  28% ] update_scripts_classes | ScheduleViewController
+[  28% ] update_scripts_classes | ScheduleWarningCommandPort
+[  28% ] update_scripts_classes | 
+[  28% ] update_scripts_classes | GameStateMinesweeperShopPort
+[  28% ] update_scripts_classes | MinesweeperShopPurchaseParticipant
+[  28% ] update_scripts_classes | ShopPresentationPort
+[  28% ] update_scripts_classes | ApplicationMutationGate
+[  29% ] update_scripts_classes | FatalDiagnosticProjector
+[  29% ] update_scripts_classes | ListeningComfortNoticeCoordinator
+[  29% ] update_scripts_classes | AudioPlaybackPort
+[  29% ] update_scripts_classes | SystemTtsDuckPort
+[  29% ] update_scripts_classes | ArtManifest
+[  29% ] update_scripts_classes | AudioManifest
+[  29% ] update_scripts_classes | DataCatalog
+[  29% ] update_scripts_classes | DialogicTimelineCatalog
+[  29% ] update_scripts_classes | WindowModePort
+[  29% ] update_scripts_classes | ContactInvitationState
+[  29% ] update_scripts_classes | Day7FollowupState
+[  29% ] update_scripts_classes | OrdinaryReplyEchoState
+[  29% ] update_scripts_classes | SevenDayCalendar
+[  29% ] update_scripts_classes | DesktopActionReceipt
+[  29% ] update_scripts_classes | DesktopAppHostState
+[  29% ] update_scripts_classes | DesktopAppRegistry
+[  30% ] update_scripts_classes | DesktopConsequenceState
+[  30% ] update_scripts_classes | DesktopContinuationRemapper
+[  30% ] update_scripts_classes | DesktopIdentity
+[  30% ] update_scripts_classes | LogoutPolicy
+[  30% ] update_scripts_classes | 
+[  30% ] update_scripts_classes | DatingEndingRules
+[  30% ] update_scripts_classes | HospitalRules
+[  30% ] update_scripts_classes | 
+[  30% ] update_scripts_classes | DesktopBoardState
+[  30% ] update_scripts_classes | DeterministicRng32
+[  30% ] update_scripts_classes | MinesweeperBoardCatalog
+[  30% ] update_scripts_classes | MinesweeperBoardGenerator
+[  30% ] update_scripts_classes | MinesweeperBoardReducer
+[  30% ] update_scripts_classes | MinesweeperBoardSchema
+[  30% ] update_scripts_classes | MinesweeperCapabilityRules
+[  30% ] update_scripts_classes | MinesweeperGeneratorKernel
+[  30% ] update_scripts_classes | MinesweeperNoGuessVerifier
+[  31% ] update_scripts_classes | MinesweeperPreparationState
+[  31% ] update_scripts_classes | MinesweeperRoundContract
+[  31% ] update_scripts_classes | MinesweeperRoundCoordinator
+[  31% ] update_scripts_classes | DatingRehearsalAdmission
+[  31% ] update_scripts_classes | PresentationSignature
+[  31% ] update_scripts_classes | SceneDayProgression
+[  31% ] update_scripts_classes | SceneEventContract
+[  31% ] update_scripts_classes | PairDeckDraw
+[  31% ] update_scripts_classes | ProvisionalProgressionRules
+[  31% ] update_scripts_classes | ConditionHospitalPlan
+[  31% ] update_scripts_classes | ConditionHospitalState
+[  31% ] update_scripts_classes | DayResolutionPlan
+[  31% ] update_scripts_classes | RunLifecycle
+[  31% ] update_scripts_classes | RunSnapshotSchema
+[  31% ] update_scripts_classes | 
+[  31% ] update_scripts_classes | ScheduleActionRegistry
+[  32% ] update_scripts_classes | ScheduleRules
+[  32% ] update_scripts_classes | ScheduleStateSchema
+[  32% ] update_scripts_classes | ScheduleViewState
+[  32% ] update_scripts_classes | ScheduleWarningPolicy
+[  32% ] update_scripts_classes | MinesweeperShopRegistry
+[  32% ] update_scripts_classes | 
+[  32% ] update_scripts_classes | 
+[  32% ] update_scripts_classes | CryptoDesktopNamespaceSource
+[  32% ] update_scripts_classes | DesktopIssuerRootStore
+[  32% ] update_scripts_classes | CheckpointJournal
+[  32% ] update_scripts_classes | DesktopContinuationOperationJournal
+[  32% ] update_scripts_classes | DesktopPublicationLedger
+[  32% ] update_scripts_classes | NewRunMaterials
+[  32% ] update_scripts_classes | SaveDocumentSchema
+[  32% ] update_scripts_classes | SaveMigrations
+[  32% ] update_scripts_classes | ScheduleFoundationPublicationLedger
+[  33% ] update_scripts_classes | FileOps
+[  33% ] update_scripts_classes | JsonFileStorage
+[  33% ] update_scripts_classes | StorageAdapter
+[  33% ] update_scripts_classes | LocalizationCatalog
+[  33% ] update_scripts_classes | LocalizationSchema
+[  33% ] update_scripts_classes | 
+[  33% ] update_scripts_classes | ContactsFrozenContext
+[  33% ] update_scripts_classes | DialogicEntryManifest
+[  33% ] update_scripts_classes | DialogicPreferenceAdapter
+[  33% ] update_scripts_classes | DialogicRuntimeAdapter
+[  33% ] update_scripts_classes | EndingFrozenContext
+[  33% ] update_scripts_classes | FrozenPresentationContext
+[  33% ] update_scripts_classes | FrozenReplayContext
+[  33% ] update_scripts_classes | FrozenRunContext
+[  33% ] update_scripts_classes | HospitalFrozenContext
+[  33% ] update_scripts_classes | NarrativeCaptionLedger
+[  34% ] update_scripts_classes | NarrativeCaptionRegistry
+[  34% ] update_scripts_classes | NarrativeCheckpointSchema
+[  34% ] update_scripts_classes | 
+[  34% ] update_scripts_classes | 
+[  34% ] update_scripts_classes | SkipPolicy
+[  34% ] update_scripts_classes | 
+[  34% ] update_scripts_classes | 
+[  34% ] update_scripts_classes | CaptionWitnessLedger
+[  34% ] update_scripts_classes | 
+[  34% ] update_scripts_classes | 
+[  34% ] update_scripts_classes | ProfileMigration
+[  34% ] update_scripts_classes | ProfileSchema
+[  34% ] update_scripts_classes | AudioCueData
+[  34% ] update_scripts_classes | BgmTrackData
+[  34% ] update_scripts_classes | ChatMessageData
+[  34% ] update_scripts_classes | EffectData
+[  35% ] update_scripts_classes | FriendData
+[  35% ] update_scripts_classes | InvitationData
+[  35% ] update_scripts_classes | MinesweeperTaskData
+[  35% ] update_scripts_classes | ScheduleActionData
+[  35% ] update_scripts_classes | ShopItemData
+[  35% ] update_scripts_classes | StatValue
+[  35% ] update_scripts_classes | 
+[  35% ] update_scripts_classes | 
+[  35% ] update_scripts_classes | 
+[  35% ] update_scripts_classes | 
+[  35% ] update_scripts_classes | 
+[  35% ] update_scripts_classes | SettingsOutputTransactions
+[  35% ] update_scripts_classes | 
+[  35% ] update_scripts_classes | SettingsPreferenceRegistry
+[  35% ] update_scripts_classes | 
+[  35% ] update_scripts_classes | 
+[  35% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | DesktopPanelSplit
+[  36% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | DesktopTouchNavigation
+[  36% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | GalleryRecordPaper
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | ShopCatalogProjection
+[  39% ] update_scripts_classes | ShopCopy
+[  39% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | WitnessedSpeechStatus
+[  40% ] update_scripts_classes | WitnessedTransportButton
+[  40% ] update_scripts_classes | 
+[  41% ] update_scripts_classes | WitnessedTransportRecovery
+[  41% ] update_scripts_classes | AccessibleButton
+[  41% ] update_scripts_classes | AppWindowBase
+[  41% ] update_scripts_classes | BackupApp
+[  41% ] update_scripts_classes | BoxMeter
+[  41% ] update_scripts_classes | ChatBubble
+[  41% ] update_scripts_classes | ComputerDesktop
+[  41% ] update_scripts_classes | ContactBox
+[  41% ] update_scripts_classes | ContactListApp
+[  41% ] update_scripts_classes | DatingScene
+[  41% ] update_scripts_classes | 
+[  41% ] update_scripts_classes | DialogueBox
+[  41% ] update_scripts_classes | EndingScene
+[  41% ] update_scripts_classes | FocusGrid
+[  41% ] update_scripts_classes | GalleryScene
+[  41% ] update_scripts_classes | HospitalScene
+[  42% ] update_scripts_classes | IconButton
+[  42% ] update_scripts_classes | LocalePresentationRoot
+[  42% ] update_scripts_classes | LocalizedBinding
+[  42% ] update_scripts_classes | LogOutApp
+[  42% ] update_scripts_classes | MainGameScene
+[  42% ] update_scripts_classes | MenuScene
+[  42% ] update_scripts_classes | MinesweeperApp
+[  42% ] update_scripts_classes | MinesweeperChallengeOverlay
+[  42% ] update_scripts_classes | SafeImage
+[  42% ] update_scripts_classes | SaveSlotRow
+[  42% ] update_scripts_classes | 
+[  42% ] update_scripts_classes | 
+[  42% ] update_scripts_classes | ScheduleApp
+[  42% ] update_scripts_classes | ScheduleEntryBox
+[  42% ] update_scripts_classes | Setting
+[  42% ] update_scripts_classes | SettingsApp
+[  43% ] update_scripts_classes | SettingsContent
+[  43% ] update_scripts_classes | 
+[  43% ] update_scripts_classes | SettingsPanelController
+[  43% ] update_scripts_classes | 
+[  43% ] update_scripts_classes | SettingsTheme
+[  43% ] update_scripts_classes | ShopApp
+[  43% ] update_scripts_classes | ShopItemBox
+[  43% ] update_scripts_classes | 
+[  43% ] update_scripts_classes | CanonicalJsonWriter
+[  43% ] update_scripts_classes | JsonSchemaValidator
+[  43% ] update_scripts_classes | StrictJson
+[  43% ] update_scripts_classes | 
+[  43% ] update_scripts_classes | 
+[  43% ] update_scripts_classes | 
+[  43% ] update_scripts_classes | 
+[  43% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | DayResolutionReceiptFixtures
+[  64% ] update_scripts_classes | 
+[  65% ] update_scripts_classes | DynamicScriptProbe
+[  65% ] update_scripts_classes | 
+[  65% ] update_scripts_classes | 
+[  65% ] update_scripts_classes | 
+[  65% ] update_scripts_classes | 
+[  65% ] update_scripts_classes | FakeApplicationMutationGate
+[  65% ] update_scripts_classes | FakeAudioPlaybackPort
+[  65% ] update_scripts_classes | FakeCheckpointPort
+[  65% ] update_scripts_classes | 
+[  65% ] update_scripts_classes | 
+[  65% ] update_scripts_classes | FakeDayResolutionStatePort
+[  65% ] update_scripts_classes | FakeDesktopBoardStatePort
+[  65% ] update_scripts_classes | FakeDesktopConditionPolicyPort
+[  65% ] update_scripts_classes | FakeDesktopConsequenceCheckpointPort
+[  65% ] update_scripts_classes | 
+[  65% ] update_scripts_classes | FakeDesktopContinuationJournalStorage
+[  65% ] update_scripts_classes | FakeDesktopEvictionPort
+[  66% ] update_scripts_classes | FakeDesktopIssuerRootStore
+[  66% ] update_scripts_classes | FakeDesktopNamespaceSource
+[  66% ] update_scripts_classes | 
+[  66% ] update_scripts_classes | 
+[  66% ] update_scripts_classes | 
+[  66% ] update_scripts_classes | FakeFileOps
+[  66% ] update_scripts_classes | 
+[  66% ] update_scripts_classes | FakeMinesweeperCheckpointPort
+[  66% ] update_scripts_classes | FakeMinesweeperGenerationPort
+[  66% ] update_scripts_classes | FakeMinesweeperSavePort
+[  66% ] update_scripts_classes | FakeMinesweeperShopStatePort
+[  66% ] update_scripts_classes | FakeMinesweeperStatePort
+[  66% ] update_scripts_classes | 
+[  66% ] update_scripts_classes | 
+[  66% ] update_scripts_classes | 
+[  66% ] update_scripts_classes | FakeRestoreParticipant
+[  67% ] update_scripts_classes | FakeScheduleDepartureViewPort
+[  67% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | RestoreCallLog
+[  67% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | ScheduleRegistryFixtures
+[  69% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | TemporaryStorage
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  88% ] update_scripts_classes | 
+[  88% ] update_scripts_classes | 
+[  88% ] update_scripts_classes | 
+[  88% ] update_scripts_classes | 
+[  88% ] update_scripts_classes | 
+[  88% ] update_scripts_classes | 
+[  88% ] update_scripts_classes | 
+[  88% ] update_scripts_classes | 
+[  88% ] update_scripts_classes | 
+[  88% ] update_scripts_classes | 
+[  88% ] update_scripts_classes | 
+[  88% ] update_scripts_classes | 
+[  88% ] update_scripts_classes | 
+[  88% ] update_scripts_classes | 
+[  88% ] update_scripts_classes | 
+[  88% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | 
+[  91% ] update_scripts_classes | 
+[  91% ] update_scripts_classes | 
+[  91% ] update_scripts_classes | 
+[  91% ] update_scripts_classes | 
+[  91% ] update_scripts_classes | 
+[  91% ] update_scripts_classes | 
+[  91% ] update_scripts_classes | 
+[  91% ] update_scripts_classes | 
+[  91% ] update_scripts_classes | 
+[  91% ] update_scripts_classes | 
+[  91% ] update_scripts_classes | 
+[  91% ] update_scripts_classes | 
+[  91% ] update_scripts_classes | 
+[  91% ] update_scripts_classes | 
+[  91% ] update_scripts_classes | 
+[  91% ] update_scripts_classes | 
+[  92% ] update_scripts_classes | 
+[  92% ] update_scripts_classes | 
+[  92% ] update_scripts_classes | 
+[  92% ] update_scripts_classes | 
+[  92% ] update_scripts_classes | 
+[  92% ] update_scripts_classes | 
+[  92% ] update_scripts_classes | 
+[  92% ] update_scripts_classes | 
+[  92% ] update_scripts_classes | 
+[  92% ] update_scripts_classes | 
+[  92% ] update_scripts_classes | 
+[  92% ] update_scripts_classes | 
+[  92% ] update_scripts_classes | 
+[  92% ] update_scripts_classes | 
+[  92% ] update_scripts_classes | 
+[  92% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  94% ] update_scripts_classes | 
+[  94% ] update_scripts_classes | 
+[  94% ] update_scripts_classes | 
+[  94% ] update_scripts_classes | 
+[  94% ] update_scripts_classes | 
+[  94% ] update_scripts_classes | 
+[  94% ] update_scripts_classes | 
+[  94% ] update_scripts_classes | 
+[  94% ] update_scripts_classes | 
+[  94% ] update_scripts_classes | 
+[  94% ] update_scripts_classes | 
+[  94% ] update_scripts_classes | 
+[  94% ] update_scripts_classes | 
+[  94% ] update_scripts_classes | 
+[  94% ] update_scripts_classes | 
+[  94% ] update_scripts_classes | 
+[  95% ] update_scripts_classes | 
+[  95% ] update_scripts_classes | 
+[  95% ] update_scripts_classes | 
+[  95% ] update_scripts_classes | 
+[  95% ] update_scripts_classes | 
+[  95% ] update_scripts_classes | 
+[  95% ] update_scripts_classes | 
+[  95% ] update_scripts_classes | 
+[  95% ] update_scripts_classes | 
+[  95% ] update_scripts_classes | 
+[  95% ] update_scripts_classes | 
+[  95% ] update_scripts_classes | 
+[  95% ] update_scripts_classes | 
+[  95% ] update_scripts_classes | 
+[  95% ] update_scripts_classes | 
+[  95% ] update_scripts_classes | 
+[  95% ] update_scripts_classes | 
+[  96% ] update_scripts_classes | 
+[  96% ] update_scripts_classes | 
+[  96% ] update_scripts_classes | 
+[  96% ] update_scripts_classes | 
+[  96% ] update_scripts_classes | 
+[  96% ] update_scripts_classes | 
+[  96% ] update_scripts_classes | 
+[  96% ] update_scripts_classes | 
+[  96% ] update_scripts_classes | 
+[  96% ] update_scripts_classes | 
+[  96% ] update_scripts_classes | 
+[  96% ] update_scripts_classes | 
+[  96% ] update_scripts_classes | ProjectConfigGuard
+[  96% ] update_scripts_classes | 
+[  96% ] update_scripts_classes | 
+[  96% ] update_scripts_classes | DtlStructureValidator
+[  97% ] update_scripts_classes | 
+[  97% ] update_scripts_classes | 
+[  97% ] update_scripts_classes | 
+[  97% ] update_scripts_classes | 
+[  97% ] update_scripts_classes | 
+[  97% ] update_scripts_classes | WriteDialogicGateSummary
+[  97% ] update_scripts_classes | AgentWorkflowAuthorityResolver
+[  97% ] update_scripts_classes | AgentWorkflowValidator
+[  97% ] update_scripts_classes | DesignAuthorityRegistry
+[  97% ] update_scripts_classes | DocFrontmatter
+[  97% ] update_scripts_classes | DocIndexGenerator
+[  97% ] update_scripts_classes | DocValidator
+[  97% ] update_scripts_classes | 
+[  97% ] update_scripts_classes | ImplementationPlanSuite
+[  97% ] update_scripts_classes | 
+[  97% ] update_scripts_classes | 
+[  98% ] update_scripts_classes | 
+[  98% ] update_scripts_classes | DesktopAmendmentContractEvidence
+[  98% ] update_scripts_classes | DesktopAmendmentEvidenceGit
+[  98% ] update_scripts_classes | DesktopContractEvidence
+[  98% ] update_scripts_classes | EvidenceValidator
+[  98% ] update_scripts_classes | 
+[  98% ] update_scripts_classes | 
+[  98% ] update_scripts_classes | 
+[  98% ] update_scripts_classes | 
+[  98% ] update_scripts_classes | 
+[  98% ] update_scripts_classes | MinesweeperAmendmentContractEvidence
+[  98% ] update_scripts_classes | MinesweeperContractEvidence
+[  98% ] update_scripts_classes | Phase2RCloseoutInventory
+[  98% ] update_scripts_classes | Phase2RScheduleDesktopHandoffGuard
+[  98% ] update_scripts_classes | 
+[  98% ] update_scripts_classes | 
+[  99% ] update_scripts_classes | 
+[  99% ] update_scripts_classes | 
+[  99% ] update_scripts_classes | 
+[  99% ] update_scripts_classes | 
+[  99% ] update_scripts_classes | 
+[  99% ] update_scripts_classes | 
+[  99% ] update_scripts_classes | 
+[  99% ] update_scripts_classes | 
+[  99% ] update_scripts_classes | MinesweeperGeneratorToolingLimits
+[  99% ] update_scripts_classes | 
+[  99% ] update_scripts_classes | PublicSurfaceInventory
+[  99% ] update_scripts_classes | 
+[  99% ] update_scripts_classes | ScheduleActionManifestValidator
+[  99% ] update_scripts_classes | 
+[  99% ] update_scripts_classes | UnconditionalPassAudit
+[ DONE ] update_scripts_classes
+
+[   0% ] _update_scan_actions | Started Scanning actions... (251 steps)
+[   0% ] _update_scan_actions | icon_bg.png
+[   0% ] _update_scan_actions | default.svg
+[   0% ] _update_scan_actions | divide.svg
+[   1% ] _update_scan_actions | join.svg
+[   1% ] _update_scan_actions | leave.svg
+[   1% ] _update_scan_actions | minus.svg
+[   2% ] _update_scan_actions | multiply.svg
+[   2% ] _update_scan_actions | plus.svg
+[   3% ] _update_scan_actions | set.svg
+[   3% ] _update_scan_actions | update.svg
+[   3% ] _update_scan_actions | decrement_icon.svg
+[   4% ] _update_scan_actions | increment_icon.svg
+[   4% ] _update_scan_actions | add-folder.svg
+[   5% ] _update_scan_actions | close-icon.svg
+[   5% ] _update_scan_actions | closed-icon.svg
+[   5% ] _update_scan_actions | expand-icon.svg
+[   6% ] _update_scan_actions | open-icon.svg
+[   6% ] _update_scan_actions | variable.svg
+[   7% ] _update_scan_actions | variable_icon.png
+[   7% ] _update_scan_actions | warning.svg
+[   7% ] _update_scan_actions | character.svg
+[   8% ] _update_scan_actions | icon_character.png
+[   8% ] _update_scan_actions | portrait.svg
+[   9% ] _update_scan_actions | timeline.svg
+[   9% ] _update_scan_actions | add-character.svg
+[   9% ] _update_scan_actions | add-timeline.svg
+[  10% ] _update_scan_actions | dialogic-logo.svg
+[  10% ] _update_scan_actions | plugin-icon.svg
+[  11% ] _update_scan_actions | preview_character.png
+[  11% ] _update_scan_actions | preview_character_speaker.png
+[  11% ] _update_scan_actions | Unknown.png
+[  12% ] _update_scan_actions | BubbleEnd.png
+[  12% ] _update_scan_actions | rpg_box.webp
+[  13% ] _update_scan_actions | Roboto-Bold.ttf
+[  13% ] _update_scan_actions | Roboto-Italic.ttf
+[  13% ] _update_scan_actions | Roboto-Regular.ttf
+[  14% ] _update_scan_actions | next-indicator-dialogic-1.png
+[  14% ] _update_scan_actions | next-indicator.png
+[  15% ] _update_scan_actions | pl5 blink.png
+[  15% ] _update_scan_actions | pl5 doubt.png
+[  15% ] _update_scan_actions | pl5 hate.png
+[  16% ] _update_scan_actions | pl5 plot.png
+[  16% ] _update_scan_actions | pl5 sad.png
+[  17% ] _update_scan_actions | pl5 scoff.png
+[  17% ] _update_scan_actions | pl5 shy.png
+[  17% ] _update_scan_actions | pl5 surprise.png
+[  18% ] _update_scan_actions | pl5.png
+[  18% ] _update_scan_actions | pl3 avoid.png
+[  19% ] _update_scan_actions | pl3 blink.png
+[  19% ] _update_scan_actions | pl3 concept.png
+[  19% ] _update_scan_actions | pl3 confusion.png
+[  20% ] _update_scan_actions | pl3 doubt.png
+[  20% ] _update_scan_actions | pl3 happy.png
+[  21% ] _update_scan_actions | pl3 plot.png
+[  21% ] _update_scan_actions | pl3 sad.png
+[  21% ] _update_scan_actions | pl3 shy.png
+[  22% ] _update_scan_actions | pl3 surprise.png
+[  22% ] _update_scan_actions | anger.png
+[  23% ] _update_scan_actions | frown.png
+[  23% ] _update_scan_actions | joy.png
+[  23% ] _update_scan_actions | neutral.png
+[  24% ] _update_scan_actions | princess_blank.png
+[  24% ] _update_scan_actions | shock.png
+[  25% ] _update_scan_actions | smile.png
+[  25% ] _update_scan_actions | base1.png
+[  25% ] _update_scan_actions | base2.png
+[  26% ] _update_scan_actions | base3.png
+[  26% ] _update_scan_actions | base4.png
+[  26% ] _update_scan_actions | Portrait1.png
+[  27% ] _update_scan_actions | Portrait2.png
+[  27% ] _update_scan_actions | typing1.wav
+[  28% ] _update_scan_actions | typing2.wav
+[  28% ] _update_scan_actions | typing3.wav
+[  28% ] _update_scan_actions | typing4.wav
+[  29% ] _update_scan_actions | typing5.wav
+[  29% ] _update_scan_actions | icon_music.png
+[  30% ] _update_scan_actions | icon_sound.png
+[  30% ] _update_scan_actions | icon.png
+[  30% ] _update_scan_actions | icon.png
+[  31% ] _update_scan_actions | custom_portrait_thumbnail.png
+[  31% ] _update_scan_actions | default_portrait_thumbnail.png
+[  32% ] _update_scan_actions | icon.svg
+[  32% ] _update_scan_actions | icon_position.png
+[  32% ] _update_scan_actions | portrait_position.svg
+[  33% ] _update_scan_actions | simple_image_portrait_thumbnail.png
+[  33% ] _update_scan_actions | update_mirror.svg
+[  34% ] _update_scan_actions | update_portrait.svg
+[  34% ] _update_scan_actions | update_position.svg
+[  34% ] _update_scan_actions | update_position.svg.2023_09_23_08_37_47.0.svg
+[  35% ] _update_scan_actions | update_z_index.svg
+[  35% ] _update_scan_actions | icon.svg
+[  36% ] _update_scan_actions | clear_background.svg
+[  36% ] _update_scan_actions | clear_characters.svg
+[  36% ] _update_scan_actions | clear_music.svg
+[  37% ] _update_scan_actions | clear_positions.svg
+[  37% ] _update_scan_actions | clear_style.svg
+[  38% ] _update_scan_actions | clear_textbox.svg
+[  38% ] _update_scan_actions | icon.png
+[  38% ] _update_scan_actions | icon.png
+[  39% ] _update_scan_actions | icon.svg
+[  39% ] _update_scan_actions | icon.png
+[  40% ] _update_scan_actions | background_layer_icon.svg
+[  40% ] _update_scan_actions | preview.png
+[  40% ] _update_scan_actions | popup_glossary_layer_icon.svg
+[  41% ] _update_scan_actions | preview.png
+[  41% ] _update_scan_actions | history_icon.svg
+[  42% ] _update_scan_actions | preview.png
+[  42% ] _update_scan_actions | input_layer_icon.svg
+[  42% ] _update_scan_actions | preview.png
+[  43% ] _update_scan_actions | preview.png
+[  43% ] _update_scan_actions | speaker-textbox-icon.svg
+[  44% ] _update_scan_actions | preview.png
+[  44% ] _update_scan_actions | text_bubble_layer_icon.svg
+[  44% ] _update_scan_actions | preview.png
+[  45% ] _update_scan_actions | text_input_layer_icon.svg
+[  45% ] _update_scan_actions | choices_layer_icon.svg
+[  46% ] _update_scan_actions | preview.png
+[  46% ] _update_scan_actions | portrait_layer_icon.svg
+[  46% ] _update_scan_actions | preview.png
+[  47% ] _update_scan_actions | next.svg
+[  47% ] _update_scan_actions | preview.png
+[  48% ] _update_scan_actions | textbox_layer_icon.svg
+[  48% ] _update_scan_actions | preview.png
+[  48% ] _update_scan_actions | preview.png
+[  49% ] _update_scan_actions | preview.png
+[  49% ] _update_scan_actions | icon.png
+[  50% ] _update_scan_actions | add-glossary.svg
+[  50% ] _update_scan_actions | icon.svg
+[  50% ] _update_scan_actions | highlight_portrait_thumbnail.png
+[  51% ] _update_scan_actions | definition.svg
+[  51% ] _update_scan_actions | icon.svg
+[  51% ] _update_scan_actions | icon_jump.png
+[  52% ] _update_scan_actions | icon_label.png
+[  52% ] _update_scan_actions | icon_return.svg
+[  53% ] _update_scan_actions | layered_portrait_thumbnail.png
+[  53% ] _update_scan_actions | icon.svg
+[  53% ] _update_scan_actions | icon.svg
+[  54% ] _update_scan_actions | icon.png
+[  54% ] _update_scan_actions | icon.png
+[  55% ] _update_scan_actions | styles_icon.svg
+[  55% ] _update_scan_actions | icon.svg
+[  55% ] _update_scan_actions | node_dialog_text_icon.svg
+[  56% ] _update_scan_actions | node_name_label_icon.svg
+[  56% ] _update_scan_actions | node_next_indicator_icon.svg
+[  57% ] _update_scan_actions | icon.png
+[  57% ] _update_scan_actions | add-variable.svg
+[  57% ] _update_scan_actions | icon.png
+[  58% ] _update_scan_actions | variable.svg
+[  58% ] _update_scan_actions | icon.png
+[  59% ] _update_scan_actions | icon.svg
+[  59% ] _update_scan_actions | icon.svg
+[  59% ] _update_scan_actions | state_chart_debugger.svg
+[  60% ] _update_scan_actions | all_of_guard.svg
+[  60% ] _update_scan_actions | animation_player_state.svg
+[  61% ] _update_scan_actions | animation_tree_state.svg
+[  61% ] _update_scan_actions | any_of_guard.svg
+[  61% ] _update_scan_actions | atomic_state.svg
+[  62% ] _update_scan_actions | compound_state.svg
+[  62% ] _update_scan_actions | expression_guard.svg
+[  63% ] _update_scan_actions | guard.svg
+[  63% ] _update_scan_actions | history_state.svg
+[  63% ] _update_scan_actions | not_guard.svg
+[  64% ] _update_scan_actions | parallel_state.svg
+[  64% ] _update_scan_actions | state_chart.svg
+[  65% ] _update_scan_actions | state_is_active_guard.svg
+[  65% ] _update_scan_actions | toggle_sidebar.svg
+[  65% ] _update_scan_actions | transition.svg
+[  66% ] _update_scan_actions | AnonymousPro-Bold.ttf
+[  66% ] _update_scan_actions | AnonymousPro-BoldItalic.ttf
+[  67% ] _update_scan_actions | AnonymousPro-Italic.ttf
+[  67% ] _update_scan_actions | AnonymousPro-Regular.ttf
+[  67% ] _update_scan_actions | CourierPrime-Bold.ttf
+[  68% ] _update_scan_actions | CourierPrime-BoldItalic.ttf
+[  68% ] _update_scan_actions | CourierPrime-Italic.ttf
+[  69% ] _update_scan_actions | CourierPrime-Regular.ttf
+[  69% ] _update_scan_actions | LobsterTwo-Bold.ttf
+[  69% ] _update_scan_actions | LobsterTwo-BoldItalic.ttf
+[  70% ] _update_scan_actions | LobsterTwo-Italic.ttf
+[  70% ] _update_scan_actions | LobsterTwo-Regular.ttf
+[  71% ] _update_scan_actions | arrow.png
+[  71% ] _update_scan_actions | play.png
+[  71% ] _update_scan_actions | eyey.png
+[  72% ] _update_scan_actions | Folder.svg
+[  72% ] _update_scan_actions | green.png
+[  73% ] _update_scan_actions | GutIconV2_base.png
+[  73% ] _update_scan_actions | GutIconV2_no_shine.png
+[  73% ] _update_scan_actions | HSplitContainer.svg
+[  74% ] _update_scan_actions | red.png
+[  74% ] _update_scan_actions | Script.svg
+[  75% ] _update_scan_actions | VSplitContainer.svg
+[  75% ] _update_scan_actions | yellow.png
+[  75% ] _update_scan_actions | icon.png
+[  76% ] _update_scan_actions | source_code_pro.fnt
+[  76% ] _update_scan_actions | contact.png
+[  76% ] _update_scan_actions | scene.png
+[  77% ] _update_scan_actions | contact.png
+[  77% ] _update_scan_actions | scene.png
+[  78% ] _update_scan_actions | contact.png
+[  78% ] _update_scan_actions | scene.png
+[  78% ] _update_scan_actions | degas_frieze_rehearsal.jpg
+[  79% ] _update_scan_actions | gwen_john_interior.jpg
+[  79% ] _update_scan_actions | hammershoi_interior_easel.jpg
+[  80% ] _update_scan_actions | monet_red_kerchief_window.jpg
+[  80% ] _update_scan_actions | morisot_reading_field.jpg
+[  80% ] _update_scan_actions | vuillard_at_the_cafe.jpg
+[  81% ] _update_scan_actions | picture1.jpg
+[  81% ] _update_scan_actions | picture2.jpg
+[  82% ] _update_scan_actions | picture3.jpg
+[  82% ] _update_scan_actions | picture4.jpg
+[  82% ] _update_scan_actions | picture5.jpg
+[  83% ] _update_scan_actions | background.png
+[  83% ] _update_scan_actions | asset-paths.csv
+[  84% ] _update_scan_actions | scene-map.csv
+[  84% ] _update_scan_actions | dejavu-sans-fallback.ttf
+[  84% ] _update_scan_actions | source-han-sans-hc-regular.otf
+[  85% ] _update_scan_actions | source-han-sans-jp-regular.otf
+[  85% ] _update_scan_actions | source-han-sans-kr-regular.otf
+[  86% ] _update_scan_actions | source-han-sans-sc-regular.otf
+[  86% ] _update_scan_actions | source-sans-3-regular.ttf.woff2
+[  86% ] _update_scan_actions | fusion-pixel-8px-proportional-ja.otf.woff2
+[  87% ] _update_scan_actions | fusion-pixel-8px-proportional-ko.otf.woff2
+[  87% ] _update_scan_actions | fusion-pixel-8px-proportional-latin.otf.woff2
+[  88% ] _update_scan_actions | fusion-pixel-8px-proportional-zh_hans.otf.woff2
+[  88% ] _update_scan_actions | fusion-pixel-8px-proportional-zh_hant.otf.woff2
+[  88% ] _update_scan_actions | fusion-pixel-10px-proportional-ja.otf.woff2
+[  89% ] _update_scan_actions | fusion-pixel-10px-proportional-ko.otf.woff2
+[  89% ] _update_scan_actions | fusion-pixel-10px-proportional-latin.otf.woff2
+[  90% ] _update_scan_actions | fusion-pixel-10px-proportional-zh_hans.otf.woff2
+[  90% ] _update_scan_actions | fusion-pixel-10px-proportional-zh_hant.otf.woff2
+[  90% ] _update_scan_actions | fusion-pixel-12px-proportional-ja.otf.woff2
+[  91% ] _update_scan_actions | fusion-pixel-12px-proportional-ko.otf.woff2
+[  91% ] _update_scan_actions | fusion-pixel-12px-proportional-latin.otf.woff2
+[  92% ] _update_scan_actions | fusion-pixel-12px-proportional-zh_hans.otf.woff2
+[  92% ] _update_scan_actions | fusion-pixel-12px-proportional-zh_hant.otf.woff2
+[  92% ] _update_scan_actions | neutral-ticket-compact.svg
+[  93% ] _update_scan_actions | neutral-ticket-folio.svg
+[  93% ] _update_scan_actions | menu_theme.ogg
+[  94% ] _update_scan_actions | story_theme.ogg
+[  94% ] _update_scan_actions | gallery-258x78.svg
+[  94% ] _update_scan_actions | placement-background.svg
+[  95% ] _update_scan_actions | placement-cg.svg
+[  95% ] _update_scan_actions | placement-portrait-left.svg
+[  96% ] _update_scan_actions | placement-portrait-right.svg
+[  96% ] _update_scan_actions | ui-28.svg
+[  96% ] _update_scan_actions | ui-32x64.svg
+[  97% ] _update_scan_actions | ui-48.svg
+[  97% ] _update_scan_actions | ui-56.svg
+[  98% ] _update_scan_actions | ui-480x504.svg
+[  98% ] _update_scan_actions | ui-800x656.svg
+[  98% ] _update_scan_actions | ui-960x656.svg
+[  99% ] _update_scan_actions | icon.svg
+[ DONE ] _update_scan_actions
+
+[   0% ] reimport | Started (Re)Importing Assets (185 steps)
+[   0% ] reimport | Preparing files to reimport...
+[   0% ] reimport | Preparing files to reimport...
+[   1% ] reimport | Preparing files to reimport...
+[   1% ] reimport | Preparing files to reimport...
+[   2% ] reimport | Preparing files to reimport...
+[   2% ] reimport | Preparing files to reimport...
+[   3% ] reimport | Preparing files to reimport...
+[   3% ] reimport | Preparing files to reimport...
+[   4% ] reimport | Preparing files to reimport...
+[   4% ] reimport | Preparing files to reimport...
+[   5% ] reimport | Preparing files to reimport...
+[   5% ] reimport | Preparing files to reimport...
+[   6% ] reimport | Preparing files to reimport...
+[   6% ] reimport | Preparing files to reimport...
+[   7% ] reimport | Preparing files to reimport...
+[   8% ] reimport | Preparing files to reimport...
+[   8% ] reimport | Preparing files to reimport...
+[   9% ] reimport | Preparing files to reimport...
+[   9% ] reimport | Preparing files to reimport...
+[  10% ] reimport | Preparing files to reimport...
+[  10% ] reimport | Preparing files to reimport...
+[  11% ] reimport | Preparing files to reimport...
+[  11% ] reimport | Preparing files to reimport...
+[  12% ] reimport | Preparing files to reimport...
+[  12% ] reimport | Preparing files to reimport...
+[  13% ] reimport | Preparing files to reimport...
+[  13% ] reimport | Preparing files to reimport...
+[  14% ] reimport | Preparing files to reimport...
+[  15% ] reimport | Preparing files to reimport...
+[  15% ] reimport | Preparing files to reimport...
+[  16% ] reimport | Preparing files to reimport...
+[  16% ] reimport | Preparing files to reimport...
+[  17% ] reimport | Preparing files to reimport...
+[  17% ] reimport | Preparing files to reimport...
+[  18% ] reimport | Preparing files to reimport...
+[  18% ] reimport | Preparing files to reimport...
+[  19% ] reimport | Preparing files to reimport...
+[  19% ] reimport | Preparing files to reimport...
+[  20% ] reimport | Preparing files to reimport...
+[  20% ] reimport | Preparing files to reimport...
+[  21% ] reimport | Preparing files to reimport...
+[  22% ] reimport | Preparing files to reimport...
+[  22% ] reimport | Preparing files to reimport...
+[  23% ] reimport | Preparing files to reimport...
+[  23% ] reimport | Preparing files to reimport...
+[  24% ] reimport | Preparing files to reimport...
+[  24% ] reimport | Preparing files to reimport...
+[  25% ] reimport | Preparing files to reimport...
+[  25% ] reimport | Preparing files to reimport...
+[  26% ] reimport | Preparing files to reimport...
+[  26% ] reimport | Preparing files to reimport...
+[  27% ] reimport | Preparing files to reimport...
+[  27% ] reimport | Preparing files to reimport...
+[  28% ] reimport | Preparing files to reimport...
+[  29% ] reimport | Preparing files to reimport...
+[  29% ] reimport | Preparing files to reimport...
+[  30% ] reimport | Preparing files to reimport...
+[  30% ] reimport | Preparing files to reimport...
+[  31% ] reimport | Preparing files to reimport...
+[  31% ] reimport | Preparing files to reimport...
+[  32% ] reimport | Preparing files to reimport...
+[  32% ] reimport | Preparing files to reimport...
+[  33% ] reimport | Preparing files to reimport...
+[  33% ] reimport | Preparing files to reimport...
+[  34% ] reimport | Preparing files to reimport...
+[  34% ] reimport | Preparing files to reimport...
+[  35% ] reimport | Preparing files to reimport...
+[  36% ] reimport | Preparing files to reimport...
+[  36% ] reimport | Preparing files to reimport...
+[  37% ] reimport | Preparing files to reimport...
+[  37% ] reimport | Preparing files to reimport...
+[  38% ] reimport | Preparing files to reimport...
+[  38% ] reimport | Preparing files to reimport...
+[  39% ] reimport | Preparing files to reimport...
+[  39% ] reimport | Preparing files to reimport...
+[  40% ] reimport | Preparing files to reimport...
+[  40% ] reimport | Preparing files to reimport...
+[  41% ] reimport | Preparing files to reimport...
+[  41% ] reimport | Preparing files to reimport...
+[  42% ] reimport | Preparing files to reimport...
+[  43% ] reimport | Preparing files to reimport...
+[  43% ] reimport | Preparing files to reimport...
+[  44% ] reimport | Preparing files to reimport...
+[  44% ] reimport | Preparing files to reimport...
+[  45% ] reimport | Preparing files to reimport...
+[  45% ] reimport | Preparing files to reimport...
+[  46% ] reimport | Preparing files to reimport...
+[  46% ] reimport | Preparing files to reimport...
+[  47% ] reimport | Preparing files to reimport...
+[  47% ] reimport | Preparing files to reimport...
+[  48% ] reimport | Preparing files to reimport...
+[  48% ] reimport | Preparing files to reimport...
+[  49% ] reimport | Preparing files to reimport...
+[  50% ] reimport | Preparing files to reimport...
+[  50% ] reimport | Preparing files to reimport...
+[  51% ] reimport | Preparing files to reimport...
+[  51% ] reimport | Preparing files to reimport...
+[  52% ] reimport | Preparing files to reimport...
+[  52% ] reimport | Preparing files to reimport...
+[  53% ] reimport | Preparing files to reimport...
+[  53% ] reimport | Preparing files to reimport...
+[  54% ] reimport | Preparing files to reimport...
+[  54% ] reimport | Preparing files to reimport...
+[  55% ] reimport | Preparing files to reimport...
+[  55% ] reimport | Preparing files to reimport...
+[  56% ] reimport | Preparing files to reimport...
+[  56% ] reimport | Preparing files to reimport...
+[  57% ] reimport | Preparing files to reimport...
+[  58% ] reimport | Preparing files to reimport...
+[  58% ] reimport | Preparing files to reimport...
+[  59% ] reimport | Preparing files to reimport...
+[  59% ] reimport | Preparing files to reimport...
+[  60% ] reimport | Preparing files to reimport...
+[  60% ] reimport | Preparing files to reimport...
+[  61% ] reimport | Preparing files to reimport...
+[  61% ] reimport | Preparing files to reimport...
+[  62% ] reimport | Preparing files to reimport...
+[  62% ] reimport | Preparing files to reimport...
+[  63% ] reimport | Preparing files to reimport...
+[  63% ] reimport | Preparing files to reimport...
+[  64% ] reimport | Preparing files to reimport...
+[  65% ] reimport | Preparing files to reimport...
+[  65% ] reimport | Preparing files to reimport...
+[  66% ] reimport | Preparing files to reimport...
+[  66% ] reimport | Preparing files to reimport...
+[  67% ] reimport | Preparing files to reimport...
+[  67% ] reimport | Preparing files to reimport...
+[  68% ] reimport | Preparing files to reimport...
+[  68% ] reimport | Preparing files to reimport...
+[  69% ] reimport | Preparing files to reimport...
+[  69% ] reimport | Preparing files to reimport...
+[  70% ] reimport | Preparing files to reimport...
+[  70% ] reimport | Preparing files to reimport...
+[  71% ] reimport | Preparing files to reimport...
+[  72% ] reimport | Preparing files to reimport...
+[  72% ] reimport | Preparing files to reimport...
+[  73% ] reimport | Preparing files to reimport...
+[  73% ] reimport | Preparing files to reimport...
+[  74% ] reimport | Preparing files to reimport...
+[  74% ] reimport | Preparing files to reimport...
+[  75% ] reimport | Preparing files to reimport...
+[  75% ] reimport | Preparing files to reimport...
+[  76% ] reimport | Preparing files to reimport...
+[  76% ] reimport | Preparing files to reimport...
+[  77% ] reimport | Preparing files to reimport...
+[  77% ] reimport | Preparing files to reimport...
+[  78% ] reimport | Preparing files to reimport...
+[  79% ] reimport | Preparing files to reimport...
+[  79% ] reimport | Preparing files to reimport...
+[  80% ] reimport | Preparing files to reimport...
+[  80% ] reimport | Preparing files to reimport...
+[  81% ] reimport | Preparing files to reimport...
+[  81% ] reimport | Preparing files to reimport...
+[  82% ] reimport | Preparing files to reimport...
+[  82% ] reimport | Preparing files to reimport...
+[  83% ] reimport | Preparing files to reimport...
+[  83% ] reimport | Preparing files to reimport...
+[  84% ] reimport | Preparing files to reimport...
+[  84% ] reimport | Preparing files to reimport...
+[  85% ] reimport | Preparing files to reimport...
+[  86% ] reimport | Preparing files to reimport...
+[  86% ] reimport | Preparing files to reimport...
+[  87% ] reimport | Preparing files to reimport...
+[  87% ] reimport | Preparing files to reimport...
+[  88% ] reimport | Preparing files to reimport...
+[  88% ] reimport | Preparing files to reimport...
+[  89% ] reimport | Preparing files to reimport...
+[  89% ] reimport | Preparing files to reimport...
+[  90% ] reimport | Preparing files to reimport...
+[  90% ] reimport | Preparing files to reimport...
+[  91% ] reimport | Preparing files to reimport...
+[  91% ] reimport | Preparing files to reimport...
+[  92% ] reimport | Preparing files to reimport...
+[  93% ] reimport | Preparing files to reimport...
+[  93% ] reimport | Preparing files to reimport...
+[  94% ] reimport | Preparing files to reimport...
+[  94% ] reimport | Preparing files to reimport...
+[  95% ] reimport | Preparing files to reimport...
+[  95% ] reimport | Preparing files to reimport...
+[  96% ] reimport | Preparing files to reimport...
+[  96% ] reimport | Preparing files to reimport...
+[  97% ] reimport | Preparing files to reimport...
+[  97% ] reimport | Preparing files to reimport...
+[  98% ] reimport | Preparing files to reimport...
+[  98% ] reimport | Preparing files to reimport...
+[   0% ] reimport | Executing pre-reimport operations...
+[   0% ] reimport | source_code_pro.fnt
+[   0% ] reimport | source_code_pro.fnt
+[   1% ] reimport | fusion-pixel-12px-proportional-latin.otf.woff2
+[   1% ] reimport | fusion-pixel-12px-proportional-ko.otf.woff2
+[   2% ] reimport | fusion-pixel-12px-proportional-ja.otf.woff2
+[   2% ] reimport | Roboto-Bold.ttf
+[   3% ] reimport | Roboto-Italic.ttf
+res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-zh_hant.otf.woff2: Pixel font detected, disabling subpixel positioning.
+[   3% ] reimport | Roboto-Regular.ttf
+res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-zh_hans.otf.woff2: Pixel font detected, disabling subpixel positioning.
+[   4% ] reimport | fusion-pixel-10px-proportional-zh_hant.otf.woff2
+[   4% ] reimport | fusion-pixel-10px-proportional-zh_hans.otf.woff2
+[   5% ] reimport | fusion-pixel-10px-proportional-latin.otf.woff2
+res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-latin.otf.woff2: Pixel font detected, disabling subpixel positioning.
+[   5% ] reimport | fusion-pixel-10px-proportional-ko.otf.woff2
+res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-latin.otf.woff2: Pixel font detected, disabling subpixel positioning.
+[   6% ] reimport | fusion-pixel-10px-proportional-ja.otf.woff2
+res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-zh_hant.otf.woff2: Pixel font detected, disabling subpixel positioning.
+[   6% ] reimport | fusion-pixel-8px-proportional-zh_hant.otf.woff2
+[   7% ] reimport | fusion-pixel-8px-proportional-zh_hans.otf.woff2
+[   8% ] reimport | fusion-pixel-8px-proportional-latin.otf.woff2
+res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-zh_hans.otf.woff2: Pixel font detected, disabling subpixel positioning.
+[   8% ] reimport | fusion-pixel-8px-proportional-ko.otf.woff2
+[   9% ] reimport | fusion-pixel-8px-proportional-ja.otf.woff2
+[   9% ] reimport | source-han-sans-kr-regular.otf
+[  10% ] reimport | source-han-sans-jp-regular.otf
+[  10% ] reimport | LobsterTwo-Regular.ttf
+[  11% ] reimport | LobsterTwo-Italic.ttf
+[  11% ] reimport | LobsterTwo-BoldItalic.ttf
+[  12% ] reimport | LobsterTwo-Bold.ttf
+[  12% ] reimport | CourierPrime-Italic.ttf
+[  13% ] reimport | CourierPrime-BoldItalic.ttf
+[  13% ] reimport | CourierPrime-Bold.ttf
+[  14% ] reimport | AnonymousPro-Italic.ttf
+[  15% ] reimport | AnonymousPro-BoldItalic.ttf
+[  15% ] reimport | AnonymousPro-Bold.ttf
+res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2: Pixel font detected, disabling subpixel positioning.
+[  16% ] reimport | dejavu-sans-fallback.ttf
+res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2: Pixel font detected, disabling subpixel positioning.
+[  16% ] reimport | fusion-pixel-12px-proportional-zh_hant.otf.woff2
+res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2: Pixel font detected, disabling subpixel positioning.
+[  17% ] reimport | source_code_pro.fnt
+[  17% ] reimport | fusion-pixel-12px-proportional-latin.otf.woff2
+[  18% ] reimport | source_code_pro.fnt
+[  18% ] reimport | fusion-pixel-12px-proportional-latin.otf.woff2
+[  19% ] reimport | fusion-pixel-12px-proportional-ko.otf.woff2
+[  19% ] reimport | fusion-pixel-12px-proportional-ja.otf.woff2
+[  20% ] reimport | Roboto-Bold.ttf
+[  20% ] reimport | Roboto-Italic.ttf
+[  21% ] reimport | Roboto-Regular.ttf
+[  22% ] reimport | fusion-pixel-10px-proportional-zh_hant.otf.woff2
+[  22% ] reimport | fusion-pixel-10px-proportional-zh_hans.otf.woff2
+[  23% ] reimport | fusion-pixel-10px-proportional-latin.otf.woff2
+[  23% ] reimport | fusion-pixel-10px-proportional-ko.otf.woff2
+[  24% ] reimport | fusion-pixel-10px-proportional-ja.otf.woff2
+[  24% ] reimport | fusion-pixel-8px-proportional-zh_hant.otf.woff2
+[  25% ] reimport | fusion-pixel-8px-proportional-zh_hans.otf.woff2
+[  25% ] reimport | fusion-pixel-8px-proportional-latin.otf.woff2
+[  26% ] reimport | fusion-pixel-8px-proportional-ko.otf.woff2
+[  26% ] reimport | fusion-pixel-8px-proportional-ja.otf.woff2
+[  27% ] reimport | source-han-sans-kr-regular.otf
+[  27% ] reimport | source-han-sans-jp-regular.otf
+[  28% ] reimport | LobsterTwo-Regular.ttf
+[  29% ] reimport | LobsterTwo-Italic.ttf
+[  29% ] reimport | LobsterTwo-BoldItalic.ttf
+[  30% ] reimport | LobsterTwo-Bold.ttf
+[  30% ] reimport | CourierPrime-Italic.ttf
+[  31% ] reimport | CourierPrime-BoldItalic.ttf
+[  31% ] reimport | CourierPrime-Bold.ttf
+[  32% ] reimport | AnonymousPro-Italic.ttf
+[  32% ] reimport | AnonymousPro-BoldItalic.ttf
+[  33% ] reimport | AnonymousPro-Bold.ttf
+[  33% ] reimport | dejavu-sans-fallback.ttf
+[  34% ] reimport | fusion-pixel-12px-proportional-zh_hant.otf.woff2
+[  34% ] reimport | fusion-pixel-12px-proportional-zh_hans.otf.woff2
+[  35% ] reimport | story_theme.ogg
+[  36% ] reimport | menu_theme.ogg
+[  36% ] reimport | any_of_guard.svg
+[  37% ] reimport | expression_guard.svg
+[  37% ] reimport | all_of_guard.svg
+[  38% ] reimport | guard.svg
+[  38% ] reimport | not_guard.svg
+[  39% ] reimport | state_is_active_guard.svg
+[  39% ] reimport | Folder.svg
+[  40% ] reimport | choices_layer_icon.svg
+[  40% ] reimport | preview.png
+[  41% ] reimport | portrait_layer_icon.svg
+[  41% ] reimport | preview.png
+[  42% ] reimport | next.svg
+[  43% ] reimport | preview.png
+[  43% ] reimport | textbox_layer_icon.svg
+[  44% ] reimport | preview.png
+[  44% ] reimport | preview.png
+[  45% ] reimport | preview.png
+[  45% ] reimport | highlight_portrait_thumbnail.png
+[  46% ] reimport | definition.svg
+[  46% ] reimport | layered_portrait_thumbnail.png
+[  47% ] reimport | node_dialog_text_icon.svg
+[  47% ] reimport | node_name_label_icon.svg
+[  48% ] reimport | node_next_indicator_icon.svg
+[  48% ] reimport | add-variable.svg
+[  49% ] reimport | state_chart_debugger.svg
+[  50% ] reimport | picture5.jpg
+[  50% ] reimport | background.png
+[  51% ] reimport | neutral-ticket-compact.svg
+[  51% ] reimport | neutral-ticket-folio.svg
+[  52% ] reimport | gallery-258x78.svg
+[  52% ] reimport | placement-background.svg
+[  53% ] reimport | placement-cg.svg
+[  53% ] reimport | placement-portrait-left.svg
+[  54% ] reimport | placement-portrait-right.svg
+[  54% ] reimport | ui-28.svg
+[  55% ] reimport | ui-32x64.svg
+[  55% ] reimport | ui-48.svg
+[  56% ] reimport | ui-56.svg
+[  56% ] reimport | ui-480x504.svg
+[  57% ] reimport | ui-800x656.svg
+[  58% ] reimport | ui-960x656.svg
+[  58% ] reimport | icon.svg
+[  59% ] reimport | GutIconV2_no_shine.png
+[  59% ] reimport | Script.svg
+[  60% ] reimport | contact.png
+[  60% ] reimport | scene.png
+[  61% ] reimport | contact.png
+[  61% ] reimport | scene.png
+[  62% ] reimport | contact.png
+[  62% ] reimport | scene.png
+[  63% ] reimport | degas_frieze_rehearsal.jpg
+[  63% ] reimport | gwen_john_interior.jpg
+[  64% ] reimport | hammershoi_interior_easel.jpg
+[  65% ] reimport | monet_red_kerchief_window.jpg
+[  65% ] reimport | morisot_reading_field.jpg
+[  66% ] reimport | vuillard_at_the_cafe.jpg
+[  66% ] reimport | picture1.jpg
+[  67% ] reimport | picture2.jpg
+[  67% ] reimport | picture3.jpg
+[  68% ] reimport | picture4.jpg
+[  68% ] reimport | next-indicator.png
+[  69% ] reimport | pl5 blink.png
+[  69% ] reimport | pl5 doubt.png
+[  70% ] reimport | pl5 hate.png
+[  70% ] reimport | pl5 plot.png
+[  71% ] reimport | pl5 sad.png
+[  72% ] reimport | pl5 scoff.png
+[  72% ] reimport | pl5 shy.png
+[  73% ] reimport | pl5 surprise.png
+[  73% ] reimport | pl5.png
+[  74% ] reimport | pl3 avoid.png
+[  74% ] reimport | pl3 blink.png
+[  75% ] reimport | pl3 concept.png
+[  75% ] reimport | pl3 confusion.png
+[  76% ] reimport | pl3 doubt.png
+[  76% ] reimport | pl3 happy.png
+[  77% ] reimport | pl3 plot.png
+[  77% ] reimport | pl3 sad.png
+[  78% ] reimport | pl3 shy.png
+[  79% ] reimport | pl3 surprise.png
+[  79% ] reimport | anger.png
+[  80% ] reimport | frown.png
+[  80% ] reimport | default.svg
+[  81% ] reimport | divide.svg
+[  81% ] reimport | join.svg
+[  82% ] reimport | leave.svg
+[  82% ] reimport | minus.svg
+[  83% ] reimport | multiply.svg
+[  83% ] reimport | plus.svg
+[  84% ] reimport | set.svg
+[  84% ] reimport | update.svg
+[  85% ] reimport | close-icon.svg
+[  86% ] reimport | closed-icon.svg
+[  86% ] reimport | expand-icon.svg
+[  87% ] reimport | open-icon.svg
+[  87% ] reimport | variable.svg
+[  88% ] reimport | variable_icon.png
+[  88% ] reimport | warning.svg
+[  89% ] reimport | icon_character.png
+[  89% ] reimport | preview_character.png
+[  90% ] reimport | preview_character_speaker.png
+[  90% ] reimport | Unknown.png
+[  91% ] reimport | BubbleEnd.png
+[  91% ] reimport | rpg_box.webp
+[  92% ] reimport | next-indicator-dialogic-1.png
+[  93% ] reimport | update_position.svg.2023_09_23_08_37_47.0.svg
+[  93% ] reimport | update_z_index.svg
+[  94% ] reimport | clear_background.svg
+[  94% ] reimport | clear_characters.svg
+[  95% ] reimport | clear_music.svg
+[  95% ] reimport | clear_positions.svg
+[  96% ] reimport | clear_style.svg
+[  96% ] reimport | clear_textbox.svg
+[  97% ] reimport | icon.png
+[  97% ] reimport | source_code_pro.fnt
+[  98% ] reimport | fusion-pixel-12px-proportional-latin.otf.woff2
+[  98% ] reimport | fusion-pixel-12px-proportional-ko.otf.woff2
+[  99% ] reimport | Finalizing Asset Import...
+[ DONE ] reimport
+
+[   0% ] reimport | Started (Re)Importing Assets (185 steps)
+[   0% ] reimport | Executing post-reimport operations...
+[ DONE ] reimport
+
+[   0% ] loading_editor_layout | Started Loading editor (5 steps)
+[   0% ] loading_editor_layout | Loading editor layout...
+[  16% ] loading_editor_layout | Loading docks...
+[ DONE ] loading_editor_layout
+

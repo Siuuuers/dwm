@@ -1,0 +1,30 @@
+[
+  {
+    "path": "tests/integration/authored_week_child.gd.uid",
+    "sha256": "26a07eb1a8b8bcb11f34f35f50a8f6991cabfcec4284123256b710978b3c4512",
+    "provenance": "candidate_tracked",
+    "source": "caaf565a892fba89f6336c967ff69d06bee5cac3",
+    "source_tree": "750c15dbd27fe21c9aa50579e1e58b6b64989e94"
+  },
+  {
+    "path": "tests/integration/authored_week_create.gd.uid",
+    "sha256": "efaa90685c346674983f2d245919b662c600ee8e8438a9130b8d79df5c310ad9",
+    "provenance": "candidate_tracked",
+    "source": "caaf565a892fba89f6336c967ff69d06bee5cac3",
+    "source_tree": "750c15dbd27fe21c9aa50579e1e58b6b64989e94"
+  },
+  {
+    "path": "tests/integration/authored_week_load.gd.uid",
+    "sha256": "0807c4e888870ae647e6a62fe9cad1d383fe0b815c92906731ad067bd3bded09",
+    "provenance": "candidate_tracked",
+    "source": "caaf565a892fba89f6336c967ff69d06bee5cac3",
+    "source_tree": "750c15dbd27fe21c9aa50579e1e58b6b64989e94"
+  },
+  {
+    "path": "tests/integration/authored_week_replay.gd.uid",
+    "sha256": "67e7d792639072893c0af6ab932f72a9e7c9ae49a00e21ea5c2129ca503961f6",
+    "provenance": "candidate_tracked",
+    "source": "caaf565a892fba89f6336c967ff69d06bee5cac3",
+    "source_tree": "750c15dbd27fe21c9aa50579e1e58b6b64989e94"
+  }
+]

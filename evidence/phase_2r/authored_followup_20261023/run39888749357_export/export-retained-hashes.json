@@ -1,0 +1,54 @@
+{
+  "audit-origin.json": {
+    "bytes": 343,
+    "sha256": "e485f15dd7200c4ac1e6570e28bbd0aa392eaa9b38f1cd1e4c8fb055086c00bf"
+  },
+  "import-process.json": {
+    "bytes": 24,
+    "sha256": "75876e0e3f497cad271143ba85bd4f36569cd81195509043f860dab14265b716"
+  },
+  "import.log": {
+    "bytes": 96271,
+    "sha256": "36a8994f595d4cc30b9fbbb474a43dfed4d2d3d99e2caae44b3e726b5164abbd"
+  },
+  "windows-export/DWM-windows-x86_64-validation.zip": {
+    "bytes": 110911888,
+    "sha256": "6af5ffd81c8e343b2f7b032e7eb11e08ae46cdfc585507355196f2e3ef3c5289"
+  },
+  "windows-export/export.console.log": {
+    "bytes": 264712,
+    "sha256": "bf75fe999c1dd77ba1f749b36c27d31b4767a2931ba769274a1ab434a77505df"
+  },
+  "windows-export/export.log": {
+    "bytes": 212980,
+    "sha256": "0b98a4d76e47bef10fc1e9ad9fad6006a27bcb7dac17b7bd1081f7a853d5983a"
+  },
+  "windows-export/pack-audit.console.log": {
+    "bytes": 18002,
+    "sha256": "55a0677be6f4a53d448feb90d334886e56379d01c376255e17b03745473da73c"
+  },
+  "windows-export/pack-audit.log": {
+    "bytes": 17615,
+    "sha256": "899a355d6f21350fe06d6c514016423f987b071e60b0d6cfb0afa3639d683b53"
+  },
+  "windows-export/SHA256SUMS.txt": {
+    "bytes": 101,
+    "sha256": "c79c1c00017c73a2f8f798af85bbbc61a61146dec828c8934385d4b327ecd732"
+  },
+  "windows-export/smoke.console.log": {
+    "bytes": 18706,
+    "sha256": "080b1254302f0553093e35ed47701da2e979bd269443df9aba13346bb5373029"
+  },
+  "windows-export/smoke.log": {
+    "bytes": 18310,
+    "sha256": "dd03d304a0f3438fef0159101f43794cb64aa9e5645d20ccdb1f182495a8d6b9"
+  },
+  "windows-export/validation.json": {
+    "bytes": 5206,
+    "sha256": "a7c838926e0fbddc319af9a4be0cae47cc6ee791f540dc1f0b1936bf830e54ab"
+  },
+  "windows-export/version.console.log": {
+    "bytes": 36,
+    "sha256": "6d2a9f11b6335c8a0993001cd37c40be7d7b46037f6dcbc4a8ee4883f7bb4852"
+  }
+}
