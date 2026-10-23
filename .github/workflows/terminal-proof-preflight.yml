@@ -1,4 +1,4 @@
-name: Terminal reading proof preflight
+name: Terminal fresh Save Load comparison
 on:
   push:
     branches: [codex/terminal-reading-proof-20261024]
@@ -49,31 +49,6 @@ jobs:
           "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           & $console --version
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Import project
-        timeout-minutes: 8
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
-          $env:APPDATA = Join-Path $output 'import-user/appdata'
-          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
-          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
-          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
-          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
-            throw 'Project import reported script errors; inspect import.log.'
-          }
-      - name: Restore committed project settings after editor import
-        run: |
-          # Dialogic's editor scan rewrites its timeline lookup during import.
-          # Execute the committed configuration with the freshly imported assets.
-          git restore -- project.godot
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Generate current caller inventories
-        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
-      - name: Verify terminal admission boundaries
-        timeout-minutes: 15
-        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite terminal_admission
       - name: Compare fresh Save and fresh-process Load
         timeout-minutes: 45
         run: ./tools/testing/Invoke-FreshSaveLoadComparison.ps1 -BaseRef 869fcef537167f84e1b534324daaabdc3d715fb0

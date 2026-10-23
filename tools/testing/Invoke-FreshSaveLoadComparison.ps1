@@ -9,7 +9,7 @@ $ErrorActionPreference = 'Stop'
 $BaseRef = $BaseRef.ToLowerInvariant()
 $repositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $output = Join-Path $repositoryRoot '.godot/ci/fresh-save-load-comparison'
-$temporaryRoot = Join-Path ([IO.Path]::GetTempPath()) ('dwm-fresh-pair-' + [Guid]::NewGuid().ToString('N'))
+$temporaryRoot = Join-Path ([IO.Path]::GetTempPath()) ('df-' + [Guid]::NewGuid().ToString('N').Substring(0, 12))
 $runtimeRoots = @('autoload', 'scripts', 'scenes', 'dialogic', 'localization', 'project.godot')
 $measurementPaths = @('tools/testing/Invoke-FreshSaveLoad.ps1', 'tools/testing/Invoke-IsolatedGodot.ps1',
     'tests/integration/fresh_save_load_child.gd', 'tests/integration/authored_week_child.gd')
@@ -58,9 +58,9 @@ try {
     foreach ($variant in @('baseline', 'candidate')) {
         $ref = if ($variant -eq 'baseline') { $BaseRef } else { $comparison.candidate_ref }
         $worktree = Join-Path $temporaryRoot $variant
-        git -c core.autocrlf=false worktree add --detach $worktree $ref
-        if ($LASTEXITCODE -ne 0) { throw "Cannot create $variant worktree." }
         $worktrees[$variant] = $worktree
+        git -c core.autocrlf=false -c core.longpaths=true worktree add --detach $worktree $ref
+        if ($LASTEXITCODE -ne 0) { throw "Cannot create $variant worktree." }
         if ((git -C $worktree rev-parse HEAD).Trim() -cne $ref) { throw "$variant checkout does not match its source pin." }
         $hashes = @{}
         foreach ($path in $measurementPaths + @($archivePath)) { $hashes[$path] = Get-Sha256 (Join-Path $worktree $path) }
