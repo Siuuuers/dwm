@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [minesweeper, shop, desktop, settings, checkpoint_diagnostics, new_account, reading_delivery, localization, dating, persistence, endings, audio, scene_round_checkpoint, scene_shop_checkpoint, scene_story_localization, scene_controls_localization, scene_apps, current_title, scene_backup_inspection, authored_week, scene_five_outcomes]
+        suite: [minesweeper, shop, desktop, settings, checkpoint_diagnostics, new_account, reading_delivery, localization, dating, persistence, endings, audio, scene_desktop_first_reveal, scene_round_checkpoint, scene_shop_checkpoint, scene_story_localization, scene_controls_localization, scene_apps, current_title, scene_backup_inspection, authored_week, scene_five_outcomes]
     defaults:
       run:
         shell: pwsh

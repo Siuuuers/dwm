@@ -1,5 +1,14 @@
 extends "res://addons/gut/test.gd"
 
+# These retained contract fixtures choose their own historical registration scope.
+var _retained_scope := preload("res://tests/support/SceneValidationScope.gd").new()
+
+func before_each() -> void:
+	_retained_scope.install(true)
+
+func after_each() -> void:
+	_retained_scope.restore()
+
 const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 # The six real restore adapters over failure-injectable manager ports, exercising
 # prepare_restore -> commit end to end

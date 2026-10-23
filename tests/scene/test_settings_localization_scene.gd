@@ -5,7 +5,7 @@ const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.g
 const FAKE_OPS := preload("res://tests/support/FakeFileOps.gd")
 const MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const REGISTRY_PATH := "res://scripts/settings/SettingsPreferenceRegistry.gd"
-const RESET_LINE_ID := "line.contact.ordinary.lavinia.day1.reply.a"
+const RESET_LINE_ID := "line.Day1.002"
 
 var _surface: SubViewport
 

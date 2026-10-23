@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes')]
+    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes')]
     [string]$Suite
 )
 
@@ -10,6 +10,9 @@ $ErrorActionPreference = 'Stop'
 # Deliberate, bounded UI and input regression coverage. Each path must actually
 # execute; Invoke-IsolatedGodot also rejects GUT's silent suite-load failures.
 $suites = @{
+    scene_desktop_first_reveal = @(
+        'tests/integration/test_scene_desktop_first_reveal_create.gd'
+    )
     # Physical scene registrations own a fresh process; never group these fixtures.
     scene_round_checkpoint = @(
         'tests/integration/test_scene_round_checkpoint_transaction.gd'
@@ -204,7 +207,8 @@ $suites = @{
         'tests/integration/test_restore_preserves_current_profile.gd'
         'tests/integration/test_restore_production_adapters.gd'
         'tests/integration/test_desktop_board_persistence.gd'
-        'tests/integration/test_minesweeper_first_reveal_transaction.gd'
+        # Retired motivation transactions remain in the original fixture; current scene create/Load has its own paired suite.
+        'tests/integration/test_desktop_first_reveal_adapter.gd'
         'tests/unit/test_save_manager_checkpoint_port.gd'
         'tests/unit/test_checkpoint_validation_reuse.gd'
         'tests/unit/test_checkpoint_preparation_retry.gd'
@@ -315,11 +319,12 @@ $arguments = @(
 )
 # Creator and loader must share storage but never a process/registration registry.
 $loadScripts = @{
+    scene_desktop_first_reveal = 'tests/integration/test_scene_desktop_first_reveal_load.gd'
     scene_apps = 'tests/integration/test_scene_apps_connected_load.gd'
     current_title = 'tests/integration/test_current_title_scene_load.gd'
 }
 $extra = @{}
-if ($Suite -in @('scene_story_localization', 'scene_apps', 'current_title')) { $extra.Rendered = $true }
+if ($Suite -in @('scene_story_localization', 'scene_apps', 'current_title', 'scene_desktop_first_reveal')) { $extra.Rendered = $true }
 if ($loadScripts.ContainsKey($Suite)) {
     $loadScript = $loadScripts[$Suite]
     if (-not (Test-Path -LiteralPath (Join-Path $repositoryRoot $loadScript))) { throw "Requested test does not exist: $loadScript" }
@@ -398,7 +403,7 @@ if (-not (Test-Path -LiteralPath $report)) { throw 'GUT did not produce its JUni
 $executed = $xml.SelectNodes('//testcase').Count
 if ($executed -eq 0) { throw 'GUT did not report any executed tests.' }
 if ($xml.SelectNodes('//failure | //error').Count -ne 0) { throw 'GUT reported test failures.' }
-if ($Suite -in @('scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes')) {
+if ($Suite -in @('scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes')) {
     foreach ($case in $xml.SelectNodes('//testcase')) {
         if ($case.GetAttribute('classname') -cne $suites[$Suite][0] -or
             $case.GetAttribute('status') -cne 'pass' -or [int]$case.GetAttribute('assertions') -le 0) {
