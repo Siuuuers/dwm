@@ -1701,9 +1701,21 @@ func test_first_backup_root_preview_populates_without_entry_and_activation_reads
 	assert_eq(saves.writes, 0)
 	controller.surface._preview(&"backup")
 	assert_eq(saves.inspections, 9, "repeated preview keeps the existing presentation")
+	controller.surface._preview(&"continue")
+	assert_false(backup.is_visible_in_tree())
+	saves.populated = false
+	controller._backup_port._queue_projection_changed()
+	await get_tree().process_frame
+	assert_eq(saves.inspections, 9, "hidden invalidation does not inspect slots")
+	assert_false(backup._projection_valid)
+	controller.surface._preview(&"backup")
+	assert_eq(saves.inspections, 18, "the next root preview refreshes its invalidated snapshot")
+	assert_false(backup._records["slot:1"].actions.load)
+	assert_eq(controller.surface.entered_action, &"")
+	assert_same(get_viewport().gui_get_focus_owner(), origin)
 	saves.populated = false
 	controller.surface._activate(&"backup")
-	assert_eq(saves.inspections, 18, "explicit activation reads once despite its preview signal")
+	assert_eq(saves.inspections, 27, "explicit activation reads once despite its preview signal")
 	assert_eq(controller.surface.entered_action, &"backup")
 	assert_false(backup._records["slot:1"].actions.load, "entry observes the changed slot")
 	assert_true(saves.pending.is_empty())

@@ -14,15 +14,76 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  test-scope:
+    name: Select current change coverage
+    runs-on: ubuntu-24.04
+    outputs:
+      focused: ${{ steps.scope.outputs.focused }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+          persist-credentials: true
+      - name: Prepare disposable checkout for credential cleanup
+        run: |
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          git submodule foreach --recursive 'true'
+      - name: Select narrow runtime coverage or full validation
+        id: scope
+        shell: python
+        run: |
+          import json, os, re, subprocess
+          event = json.load(open(os.environ["GITHUB_EVENT_PATH"]))
+          base = event.get("pull_request", {}).get("base", {}).get("sha") or event.get("before", "")
+          allowed = {
+              "scripts/narrative/DialogicRuntimeAdapter.gd",
+              "scripts/ui/BackupApp.gd",
+              "tests/unit/test_scene_compiler_cache.gd",
+              "tests/unit/test_backup_presentation.gd",
+              "tests/unit/test_production_pause_controller.gd",
+              "tools/testing/Invoke-CloudTests.ps1",
+              "tools/testing/Invoke-StartupLoadComparison.ps1",
+              ".github/workflows/windows-tests.yml",
+          }
+          methods = {
+              "scripts/narrative/DialogicRuntimeAdapter.gd": "_compile_scene_programme_observed_body",
+              "scripts/ui/BackupApp.gd": "_on_projection_changed",
+          }
+          def unchanged_outside_method(path, method):
+              bodies = []
+              pattern = rb"(?ms)^(?:static )?func " + method.encode() + rb"\([^\n]*\n.*?(?=^(?:static )?func |\Z)"
+              for ref in (base, "HEAD"):
+                  source = subprocess.run(["git", "show", ref + ":" + path], capture_output=True)
+                  if source.returncode != 0:
+                      return False
+                  rest, count = re.subn(pattern, b"", source.stdout)
+                  if count != 1:
+                      return False
+                  bodies.append(rest)
+              return bodies[0] == bodies[1]
+          focused = False
+          if os.environ["GITHUB_EVENT_NAME"] != "workflow_dispatch" and base and set(base) != {"0"}:
+              diff = subprocess.run(["git", "diff", "--name-only", "-z", base, "HEAD"], capture_output=True)
+              if diff.returncode == 0:
+                  paths = set(diff.stdout.decode().strip("\0").split("\0"))
+                  focused = bool(paths) and "" not in paths and paths <= allowed
+                  if focused:
+                      focused = all(unchanged_outside_method(path, method)
+                                    for path, method in methods.items() if path in paths)
+          print("Selected " + ("runtime resource/Backup coverage" if focused else "full validation"))
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write("focused=" + str(focused).lower() + "\n")
+
   focused-tests:
-    needs: public-surfaces
+    needs: [test-scope, public-surfaces]
+    if: ${{ always() && needs.test-scope.result == 'success' && (needs.public-surfaces.result == 'success' || needs.test-scope.outputs.focused == 'true') }}
     name: Windows / ${{ matrix.suite }}
     runs-on: windows-2022
     timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
-        suite: [minesweeper, shop, desktop, settings, checkpoint_diagnostics, new_account, reading_delivery, localization, dating, persistence, endings, audio, scene_desktop_first_reveal, scene_round_checkpoint, scene_shop_checkpoint, scene_story_localization, scene_controls_localization, scene_apps, current_title, scene_backup_inspection, authored_week, scene_five_outcomes]
+        suite: ${{ fromJSON(needs.test-scope.outputs.focused == 'true' && '["timeline_resources","backup_presentation","authored_week","scene_backup_inspection","current_title"]' || '["minesweeper","shop","desktop","settings","checkpoint_diagnostics","new_account","reading_delivery","localization","dating","persistence","endings","audio","scene_desktop_first_reveal","scene_round_checkpoint","scene_shop_checkpoint","scene_story_localization","scene_controls_localization","scene_apps","current_title","scene_backup_inspection","authored_week","scene_five_outcomes","timeline_resources"]') }}
     defaults:
       run:
         shell: pwsh
@@ -117,8 +178,90 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
+  startup-load-comparison:
+    needs: test-scope
+    # PR evidence already covers this source; do not repeat the slow matched run after merging.
+    if: github.event_name == 'pull_request' && needs.test-scope.outputs.focused == 'true'
+    name: Windows / matched startup and Load
+    runs-on: windows-2022
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+          # Defer credential removal until the post-job cleanup, after the
+          # malformed gitlinks are removed from this disposable runner's index.
+          persist-credentials: true
+      - name: Prepare disposable checkout for credential cleanup
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
+          # submodule foreach reads the index even with sparse checkout.
+          # The source commit and working files remain unchanged.
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git submodule foreach --recursive 'true'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Install Godot 4.6.3 standard
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
+          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
+          # SHA256 published with the official 4.6.3-stable release asset.
+          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
+            throw 'Godot archive checksum mismatch.'
+          }
+          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
+          Expand-Archive -LiteralPath $archive -DestinationPath $editor
+          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
+          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
+          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          & $console --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Import project
+        timeout-minutes: 8
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
+          $env:APPDATA = Join-Path $output 'import-user/appdata'
+          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
+          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
+          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
+          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
+            throw 'Project import reported script errors; inspect import.log.'
+          }
+      - name: Restore committed project settings after editor import
+        run: |
+          # Dialogic's editor scan rewrites its timeline lookup during import.
+          # Execute the committed configuration with the freshly imported assets.
+          git restore -- project.godot
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Compare baseline and candidate readiness
+        timeout-minutes: 35
+        env:
+          DWM_BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: ./tools/testing/Invoke-StartupLoadComparison.ps1 -BaseRef $env:DWM_BASE_REF
+      - name: Upload matched readiness evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: startup-load-comparison-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .godot/ci/startup-load-comparison/
+            .godot/phase2r_logs/startup-load-*.log
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+
   windows-export:
-    needs: public-surfaces
+    needs: [test-scope, public-surfaces]
+    if: needs.test-scope.outputs.focused != 'true'
     name: Windows / exported release startup
     runs-on: windows-2022
     timeout-minutes: 35
@@ -221,6 +364,8 @@ jobs:
           retention-days: 7
 
   public-surfaces:
+    needs: test-scope
+    if: needs.test-scope.outputs.focused != 'true'
     name: Windows / public API surface contracts
     runs-on: windows-2022
     timeout-minutes: 20
@@ -362,7 +507,8 @@ jobs:
           retention-days: 7
 
   rendered-journeys:
-    needs: public-surfaces
+    needs: [test-scope, public-surfaces]
+    if: needs.test-scope.outputs.focused != 'true'
     name: Rendered current Gallery components
     runs-on: ubuntu-24.04
     timeout-minutes: 25
@@ -462,7 +608,8 @@ jobs:
           if-no-files-found: error
           retention-days: 7
   rendered-desktop:
-    needs: public-surfaces
+    needs: [test-scope, public-surfaces]
+    if: needs.test-scope.outputs.focused != 'true'
     name: Rendered desktop and dialogue / Linux software OpenGL
     runs-on: ubuntu-24.04
     timeout-minutes: 20
