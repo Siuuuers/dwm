@@ -1,0 +1,217 @@
+{
+  "run_id": 39992202440,
+  "head": "3e016116ecac40ea5ce8186332261927a4959d16",
+  "tested_merge": "0646d42ef054318c18863fee087c19b3efdad476",
+  "tested_tree": "2321e4bc8ab0157101275e0a491aaac20bc1ee0e",
+  "status": "25 jobs passed; Settings failed due two stale test-double signatures; replacement check tracked separately",
+  "jobs": [
+    {
+      "id": 120546512244,
+      "name": "Windows / public API surface contracts",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/39992202440/job/120546512244",
+      "started_at": "2026-10-23T17:05:29Z",
+      "completed_at": "2026-10-23T17:10:24Z"
+    },
+    {
+      "id": 120548839690,
+      "name": "Windows / exported release startup",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/39992202440/job/120548839690",
+      "started_at": "2026-10-23T17:10:27Z",
+      "completed_at": "2026-10-23T17:13:08Z"
+    },
+    {
+      "id": 120548839948,
+      "name": "Rendered desktop and dialogue / Linux software OpenGL",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/39992202440/job/120548839948",
+      "started_at": "2026-10-23T17:10:27Z",
+      "completed_at": "2026-10-23T17:15:05Z"
+    },
+    {
+      "id": 120548839979,
+      "name": "Rendered current Gallery components",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/39992202440/job/120548839979",
+      "started_at": "2026-10-23T17:10:27Z",
+      "completed_at": "2026-10-23T17:15:37Z"
+    },
+    {
+      "id": 120548840640,
+      "name": "Windows / localization",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/39992202440/job/120548840640",
+      "started_at": "2026-10-23T17:10:27Z",
+      "completed_at": "2026-10-23T17:12:21Z"
+    },
+    {
+      "id": 120548840643,
+      "name": "Windows / endings",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/39992202440/job/120548840643",
+      "started_at": "2026-10-23T17:10:27Z",
+      "completed_at": "2026-10-23T17:12:17Z"
+    },
+    {
+      "id": 120548840655,
+      "name": "Windows / settings",
+      "conclusion": "failure",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/39992202440/job/120548840655",
+      "started_at": "2026-10-23T17:10:26Z",
+      "completed_at": "2026-10-23T17:14:13Z"
+    },
+    {
+      "id": 120548840657,
+      "name": "Windows / scene_controls_localization",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/39992202440/job/120548840657",
+      "started_at": "2026-10-23T17:10:27Z",
+      "completed_at": "2026-10-23T17:11:34Z"
+    },
+    {
+      "id": 120548840675,
+      "name": "Windows / desktop",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/39992202440/job/120548840675",
+      "started_at": "2026-10-23T17:10:26Z",
+      "completed_at": "2026-10-23T17:13:48Z"
+    },
+    {
+      "id": 120548840692,
+      "name": "Windows / scene_backup_inspection",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/39992202440/job/120548840692",
+      "started_at": "2026-10-23T17:10:28Z",
+      "completed_at": "2026-10-23T17:11:51Z"
+    },
+    {
+      "id": 120548840698,
+      "name": "Windows / checkpoint_diagnostics",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/39992202440/job/120548840698",
+      "started_at": "2026-10-23T17:10:27Z",
+      "completed_at": "2026-10-23T17:11:48Z"
+    },
+    {
+      "id": 120548840701,
+      "name": "Windows / scene_story_localization",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/39992202440/job/120548840701",
+      "started_at": "2026-10-23T17:10:27Z",
+      "completed_at": "2026-10-23T17:13:07Z"
+    },
+    {
+      "id": 120548840710,
+      "name": "Windows / new_account",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/39992202440/job/120548840710",
+      "started_at": "2026-10-23T17:10:27Z",
+      "completed_at": "2026-10-23T17:12:22Z"
+    },
+    {
+      "id": 120548840752,
+      "name": "Windows / minesweeper",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/39992202440/job/120548840752",
+      "started_at": "2026-10-23T17:11:36Z",
+      "completed_at": "2026-10-23T17:13:49Z"
+    },
+    {
+      "id": 120548840758,
+      "name": "Windows / scene_shop_checkpoint",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/39992202440/job/120548840758",
+      "started_at": "2026-10-23T17:10:27Z",
+      "completed_at": "2026-10-23T17:11:53Z"
+    },
+    {
+      "id": 120548840763,
+      "name": "Windows / scene_apps",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/39992202440/job/120548840763",
+      "started_at": "2026-10-23T17:10:26Z",
+      "completed_at": "2026-10-23T17:12:14Z"
+    },
+    {
+      "id": 120548840795,
+      "name": "Windows / scene_desktop_first_reveal",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/39992202440/job/120548840795",
+      "started_at": "2026-10-23T17:10:27Z",
+      "completed_at": "2026-10-23T17:11:43Z"
+    },
+    {
+      "id": 120548840799,
+      "name": "Windows / audio",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/39992202440/job/120548840799",
+      "started_at": "2026-10-23T17:10:27Z",
+      "completed_at": "2026-10-23T17:12:22Z"
+    },
+    {
+      "id": 120548840815,
+      "name": "Windows / scene_round_checkpoint",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/39992202440/job/120548840815",
+      "started_at": "2026-10-23T17:10:27Z",
+      "completed_at": "2026-10-23T17:11:50Z"
+    },
+    {
+      "id": 120548840832,
+      "name": "Windows / shop",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/39992202440/job/120548840832",
+      "started_at": "2026-10-23T17:11:52Z",
+      "completed_at": "2026-10-23T17:13:09Z"
+    },
+    {
+      "id": 120548840843,
+      "name": "Windows / persistence",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/39992202440/job/120548840843",
+      "started_at": "2026-10-23T17:10:27Z",
+      "completed_at": "2026-10-23T17:12:53Z"
+    },
+    {
+      "id": 120548840864,
+      "name": "Windows / current_title",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/39992202440/job/120548840864",
+      "started_at": "2026-10-23T17:10:26Z",
+      "completed_at": "2026-10-23T17:13:18Z"
+    },
+    {
+      "id": 120548840919,
+      "name": "Windows / reading_delivery",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/39992202440/job/120548840919",
+      "started_at": "2026-10-23T17:11:44Z",
+      "completed_at": "2026-10-23T17:16:04Z"
+    },
+    {
+      "id": 120548840924,
+      "name": "Windows / authored_week",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/39992202440/job/120548840924",
+      "started_at": "2026-10-23T17:10:27Z",
+      "completed_at": "2026-10-23T17:11:57Z"
+    },
+    {
+      "id": 120548840925,
+      "name": "Windows / scene_five_outcomes",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/39992202440/job/120548840925",
+      "started_at": "2026-10-23T17:11:50Z",
+      "completed_at": "2026-10-23T17:13:09Z"
+    },
+    {
+      "id": 120548841034,
+      "name": "Windows / dating",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/39992202440/job/120548841034",
+      "started_at": "2026-10-23T17:11:53Z",
+      "completed_at": "2026-10-23T17:14:33Z"
+    }
+  ]
+}

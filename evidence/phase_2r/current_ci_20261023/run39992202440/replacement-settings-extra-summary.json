@@ -1,0 +1,51 @@
+{
+  "run_id": 39993602893,
+  "job_id": 120551305436,
+  "artifact_id": 12519501708,
+  "original_artifact_sha256": "e570121ea38bce27133877d7c6f7a1b4ed4ab90afdbd3142b4348002f9bfb71b",
+  "original_artifact_bytes": 2975392,
+  "zip_crc_verified": true,
+  "source": "69cca3f965e065c708eac87b5723d744e2be7787",
+  "source_tree": "b1b980b548e88e424f356b96bcdd06fb998f6af6",
+  "controller": "d8677751b96dfb239f4944785cb285595e8e8171",
+  "manual_witness": {
+    "assertions": 61180,
+    "distinct_snapshots": 94,
+    "failures": [],
+    "refusal_pairs": 30,
+    "restart_fault_pairs": 1604,
+    "restart_pairs": 2218,
+    "write_fault_pairs": 154,
+    "write_pairs": 14
+  },
+  "storage_refusals": [
+    {
+      "case": "empty",
+      "exit_code": 1,
+      "tests": 83,
+      "expected_root_refusals": 80,
+      "storage_free_passes": 3,
+      "user_dir": "D:\\a\\dwm\\dwm\\.godot\\ci\\storage-refusal\\empty\\appdata\\Godot\\app_userdata\\DWM\\",
+      "snapshots_byte_equal": true,
+      "all_80_failures_test_root_missing": true,
+      "assertions": 99
+    },
+    {
+      "case": "whitespace",
+      "exit_code": 1,
+      "tests": 83,
+      "expected_root_refusals": 80,
+      "storage_free_passes": 3,
+      "user_dir": "D:\\a\\dwm\\dwm\\.godot\\ci\\storage-refusal\\whitespace\\appdata\\Godot\\app_userdata\\DWM\\",
+      "snapshots_byte_equal": true,
+      "all_80_failures_test_root_missing": true,
+      "assertions": 99
+    }
+  ],
+  "render": {
+    "captures": 3,
+    "ok": true,
+    "failure": "",
+    "scope": "Actual Pause Settings keyboard journey with real Profile/Localization/Input and in-memory marker-cleanup refusal after durable promotion; no physical disk or OS-crash claim."
+  }
+}

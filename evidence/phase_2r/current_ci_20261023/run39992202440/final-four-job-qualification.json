@@ -1,0 +1,230 @@
+{
+  "run_id": 39992202440,
+  "head_sha": "3e016116ecac40ea5ce8186332261927a4959d16",
+  "tested_merge_sha": "0646d42ef054318c18863fee087c19b3efdad476",
+  "tested_tree": "2321e4bc8ab0157101275e0a491aaac20bc1ee0e",
+  "candidate_tree_equals_tested_tree": true,
+  "jobs": [
+    {
+      "id": 120546512244,
+      "name": "Windows / public API surface contracts",
+      "conclusion": "success"
+    },
+    {
+      "id": 120548839690,
+      "name": "Windows / exported release startup",
+      "conclusion": "success"
+    },
+    {
+      "id": 120548839948,
+      "name": "Rendered desktop and dialogue / Linux software OpenGL",
+      "conclusion": "success"
+    },
+    {
+      "id": 120548839979,
+      "name": "Rendered current Gallery components",
+      "conclusion": "success"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 12519470279,
+      "name": "angela-overlay-render-39992202440-1",
+      "sha256": "c93a506764fa555601e8c9c053e67807675f1507079d645bcd93c8cbe4a41097",
+      "bytes": 3575481,
+      "sha256_and_crc_verified": true,
+      "png_captures": 10,
+      "render": {
+        "captures": 10,
+        "failures": [],
+        "ok": true,
+        "renderer": "X11",
+        "samples": 10
+      }
+    },
+    {
+      "id": 12519201282,
+      "name": "gallery-version-register-39992202440-1",
+      "sha256": "533cddb2af0a1cc643aa1795797b822100d42d990574969ccac7e4ce03607366",
+      "bytes": 85691,
+      "sha256_and_crc_verified": true,
+      "png_captures": 18,
+      "render": {
+        "checks": 403,
+        "failures": [],
+        "ok": true,
+        "samples": 18
+      }
+    },
+    {
+      "id": 12519101784,
+      "name": "font-choices-render-39992202440-1",
+      "sha256": "88945c9bfd8280e47c7d69eb4d18f896ee60070fbcc61b3a0e69476eddee479e",
+      "bytes": 7078197,
+      "sha256_and_crc_verified": true,
+      "png_captures": 30,
+      "render": {
+        "captures": 30,
+        "failures": [],
+        "ok": true,
+        "renderer": "X11",
+        "samples": 30
+      }
+    },
+    {
+      "id": 12518986631,
+      "name": "gallery-caption-collection-39992202440-1",
+      "sha256": "c91150b00c503cf83ed486437700f3f7b45ae503bcbdfa66eb7cce41407793ae",
+      "bytes": 8843209,
+      "sha256_and_crc_verified": true,
+      "png_captures": 95,
+      "render": {
+        "checks": 726,
+        "failures": [],
+        "ok": true,
+        "samples": 95
+      }
+    },
+    {
+      "id": 12518906503,
+      "name": "japanese-korean-ui-render-39992202440-1",
+      "sha256": "daf5124109cc744c8dfcd5f7c2b53064ba96452f459b8cca47a91bcef38ef54f",
+      "bytes": 8399338,
+      "sha256_and_crc_verified": true,
+      "png_captures": 30,
+      "render": {
+        "captures": 30,
+        "failures": [],
+        "ok": true,
+        "renderer": "X11",
+        "samples": 30
+      }
+    },
+    {
+      "id": 12518606818,
+      "name": "cloud-speech-rendered-desktop-39992202440-1",
+      "sha256": "318283aef2b5776ebe6e240373a53e9b00a68cefe18acdda0cc28f6b2a116c47",
+      "bytes": 385449,
+      "verified": "API metadata only"
+    },
+    {
+      "id": 12518522424,
+      "name": "cloud-speech-rendered-journeys-39992202440-1",
+      "sha256": "5e6eeefb53f33a0acb397b3dd2e627f0c36e63e148eece1fdc23c0025ba276fa",
+      "bytes": 385285,
+      "verified": "API metadata only"
+    },
+    {
+      "id": 12518203031,
+      "name": "ui-literal-audit-39992202440-1",
+      "sha256": "03c35479a8829fa8962eac10eaccffdf9f6aa58b3d6a86c39c76db7a7dc14bd1",
+      "bytes": 30766,
+      "sha256_and_crc_verified": true,
+      "png_captures": 0,
+      "ui_audit_failures": {
+        "script_ui_disposition.json": 0,
+        "ui_literal_disposition.json": 0
+      }
+    },
+    {
+      "id": 12518048672,
+      "name": "windows-export-39992202440-1",
+      "sha256": "303885c63d63a343a2cfff4bd541c7487d65d8e89c3b2b4f49ae5b6ca6170aca",
+      "bytes": 110870559,
+      "sha256_and_crc_verified": true,
+      "png_captures": 0,
+      "export": {
+        "ok": true,
+        "commit": "0646d42ef054318c18863fee087c19b3efdad476",
+        "engine": "4.6.3.stable",
+        "architecture": "x86_64",
+        "signed": false,
+        "scope": "Unsigned Windows release export, packaged data audit, isolated headless startup",
+        "limitations": [
+          "No graphical rendering, UI Automation, screen-reader, or full release acceptance claim"
+        ],
+        "smoke": {
+          "ok": true,
+          "headless": true,
+          "executable": "DWM.exe",
+          "iterations": 240,
+          "isolated_profile_created": true
+        },
+        "pack_audit": {
+          "runtime_data_files_verified": 136,
+          "ok": true
+        },
+        "archive": {
+          "sha256": "be255c6b1ec31c2716903fc6cbccba6b86ec04283c43b99aa2c85eeb03b9c610",
+          "file": "DWM-windows-x86_64-validation.zip",
+          "bytes": 110921998
+        },
+        "inner_archive_crc_and_all_file_hashes_verified": true
+      }
+    },
+    {
+      "id": 12518038044,
+      "name": "public-surfaces-39992202440-1",
+      "sha256": "84e4f17e80400fe14e691fd0dc4d5a61a3f642a4b71d1aa6a90f2aefe2a54a8d",
+      "bytes": 241317,
+      "sha256_and_crc_verified": true,
+      "png_captures": 15,
+      "native_caption": {
+        "ok": true,
+        "native_invocations": 9,
+        "checkout": "0646d42ef054318c18863fee087c19b3efdad476"
+      },
+      "tests": {
+        "cases": 11,
+        "assertions": 352,
+        "failures": 0
+      }
+    },
+    {
+      "id": 12517729480,
+      "name": "desktop-scaling-render-39992202440-1",
+      "sha256": "ff179e607d3ac2b25f8f44187ec64dc2812880d37d995acb94155ccdd9bb5536",
+      "bytes": 13180529,
+      "sha256_and_crc_verified": true,
+      "png_captures": 38,
+      "render": {
+        "captures": 38,
+        "failures": [],
+        "ok": true,
+        "renderer": "X11",
+        "samples": 38
+      }
+    },
+    {
+      "id": 12517604953,
+      "name": "delivery-dialogue-render-39992202440-1",
+      "sha256": "1be04c301d075c00ae9a0302db3d02770ae1caea897e20cbbf1de574a98d8aec",
+      "bytes": 15066381,
+      "sha256_and_crc_verified": true,
+      "png_captures": 25,
+      "render": {
+        "captures": 25,
+        "failures": [],
+        "ok": true,
+        "renderer": "X11",
+        "samples": 25
+      }
+    }
+  ],
+  "limits": [
+    "Export is unsigned isolated headless startup, not graphical or full release acceptance.",
+    "Rendered reports verify automated fixture geometry and captures; no new human accessibility acceptance claim.",
+    "Original binary archives remain Actions artifacts; this package retains exact selected report bytes with provenance."
+  ],
+  "desktop_captures": 133,
+  "gallery_captures": 113,
+  "public_inventory_validation": {
+    "mode": "--check; no regeneration",
+    "game_state_exit_code": 0,
+    "save_manager_exit_code": 0,
+    "drift_readonly_cases": 11,
+    "drift_readonly_assertions": 352,
+    "drift_readonly_failures": 0
+  },
+  "catalog_and_ui_literal_audits": "passed; both disposition reports contain no failures"
+}
