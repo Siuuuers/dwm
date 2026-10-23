@@ -1,8 +1,6 @@
 name: Settings rendered followup
 'on':
-  pull_request:
-    paths:
-    - .github/workflows/settings-render-followup.yml
+  workflow_dispatch:
 permissions:
   contents: read
   actions: read
