@@ -148,8 +148,9 @@ static func validate_scene_new_run_candidate(document: Dictionary, allocation_ca
 	if not checked.ok: return checked
 	return {"ok": true, "code": &"ok", "value": {"candidate": document.duplicate(true)}}
 
-static func validate(document: Dictionary, profile: Dictionary = {}) -> Dictionary:
-	return _validate_document(document, [], false, profile)
+static func validate(document: Dictionary, profile: Dictionary = {},
+		scene_seed_receiver: Callable = Callable()) -> Dictionary:
+	return _validate_document(document, [], false, profile, false, scene_seed_receiver)
 
 ## `validate()` for an outgoing document whose `recovery_journal` bytes are NOT being emitted from
 ## the document itself. The checkpoint port splices each journal entry's bytes from the text its own
@@ -189,7 +190,8 @@ static func _validate_outgoing_document_proofs(document: Dictionary, proven_jour
 	return validate_outgoing(document, proven_journal, profile)
 
 static func _validate_document(document: Dictionary, proven_journal: Array,
-		use_proven_journal: bool, profile: Dictionary = {}, normalized_proofs: bool = false) -> Dictionary:
+		use_proven_journal: bool, profile: Dictionary = {}, normalized_proofs: bool = false,
+		scene_seed_receiver: Callable = Callable()) -> Dictionary:
 	var type_guard := _validate_initial_types_before_normalization(document)
 	if not type_guard.ok: return type_guard
 	if use_proven_journal:
@@ -291,8 +293,14 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 	var family_error := _journal_family_error(candidate.schema_version, candidate.recovery_journal)
 	if not family_error.is_empty(): return _fail(&"invalid_recovery_journal", family_error)
 	if candidate.schema_version == SCENE_DOCUMENT_VERSION:
-		var scene_error := _scene_journal_error(candidate.current_snapshot, candidate.recovery_journal)
+		var admitted_bundles: Array = [candidate.current_snapshot]
+		var scene_error := _scene_journal_error(candidate.current_snapshot, candidate.recovery_journal,
+			{}, "", admitted_bundles if scene_seed_receiver.is_valid() else null)
 		if not scene_error.is_empty(): return _fail(&"invalid_recovery_journal", scene_error)
+		# Admission detaches the receiver material from its public candidate.
+		# Legacy admission does not prove complete journal snapshots.
+		if scene_seed_receiver.is_valid():
+			scene_seed_receiver.call(candidate.duplicate(true), admitted_bundles.duplicate(true))
 	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
 
 static func _validate_initial_types_before_normalization(document: Dictionary) -> Dictionary:
@@ -321,7 +329,7 @@ static func _journal_family_error(version: int, journal: Array) -> String:
 	return ""
 
 static func _scene_journal_error(current: Dictionary, journal: Array,
-		profile: Dictionary = {}, phase: String = "") -> String:
+		profile: Dictionary = {}, phase: String = "", admitted_bundles: Variant = null) -> String:
 	var source: Dictionary = current.snapshot
 	var seen := {source.checkpoint_id: true}
 	for raw: Variant in journal:
@@ -338,6 +346,8 @@ static func _scene_journal_error(current: Dictionary, journal: Array,
 		if saved.checkpoint_sequence >= source.checkpoint_sequence:
 			return "scene recovery must precede the current checkpoint"
 		seen[saved.checkpoint_id] = true
+		if admitted_bundles != null:
+			admitted_bundles.append({"checkpoint_kind": str(raw.checkpoint_kind), "snapshot": saved})
 	return ""
 
 static func _scene_proof_error(journal: Array, proofs: Array) -> String:

@@ -286,6 +286,12 @@ func prepare_seed(document: Dictionary, selected_bundle: Dictionary) -> Dictiona
 			"checkpoint_kind": str(bundle.get("checkpoint_kind", "")),
 			"snapshot": validated["value"]["candidate"],
 		})
+	return _prepare_seed_from_valid_bundles(valid_bundles, selected_bundle, diagnostics)
+
+## Internal composition seam. Callers own exact normalized admission material;
+## arbitrary documents must enter through prepare_seed().
+func _prepare_seed_from_valid_bundles(valid_bundles: Array, selected_bundle: Dictionary,
+		diagnostics: Array[Dictionary]) -> Dictionary:
 	var selected_id := ""
 	if typeof(selected_bundle.get("snapshot")) == TYPE_DICTIONARY:
 		selected_id = str((selected_bundle["snapshot"] as Dictionary).get("checkpoint_id", ""))

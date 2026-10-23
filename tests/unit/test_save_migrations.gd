@@ -208,3 +208,12 @@ func test_current_document_does_not_repair_missing_dark_or_old_embedded_snapshot
 	var bad_reason := _document()
 	bad_reason.save_reason = "quick"
 	_assert_refused_unchanged(bad_reason, {"kind": "slot", "slot_id": 1})
+
+func test_legacy_admission_never_offers_scene_seed_material() -> void:
+	var raw := _document()
+	var calls: Array = []
+	var admitted: Dictionary = ADMISSION.migrate_document(raw, {"kind": "slot", "slot_id": 1},
+		func(document: Dictionary, bundles: Array) -> void: calls.append([document, bundles]))
+	assert_true(admitted.ok, str(admitted))
+	assert_eq(calls, [], "legacy journal admission proves primitive shape, not complete snapshots")
+	assert_eq(admitted, ADMISSION.migrate_document(raw, {"kind": "slot", "slot_id": 1}))
