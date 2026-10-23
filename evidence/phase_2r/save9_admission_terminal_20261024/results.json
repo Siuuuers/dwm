@@ -1,0 +1,157 @@
+{
+  "object_count": 605,
+  "unique_object_bytes": 42327794,
+  "included_member_count": 850,
+  "omitted_member_count": 1065,
+  "junit_groups": {
+    "failed_full63.fresh_process_load": {
+      "reports": 3,
+      "cases": 3,
+      "assertions": 206,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "failed_full63.native": {
+      "reports": 2,
+      "cases": 2,
+      "assertions": 224,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "failed_full63.primary": {
+      "reports": 28,
+      "cases": 2830,
+      "assertions": 155901,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    },
+    "final63.fresh_process_load": {
+      "reports": 3,
+      "cases": 3,
+      "assertions": 206,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "final63.intentional_storage_refusal": {
+      "reports": 2,
+      "cases": 166,
+      "assertions": 198,
+      "failures": 160,
+      "errors": 0,
+      "skipped": 0
+    },
+    "final63.primary": {
+      "reports": 28,
+      "cases": 2830,
+      "assertions": 155928,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "final64.fresh_process_load": {
+      "reports": 3,
+      "cases": 3,
+      "assertions": 206,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "final64.intentional_storage_refusal": {
+      "reports": 2,
+      "cases": 166,
+      "assertions": 198,
+      "failures": 160,
+      "errors": 0,
+      "skipped": 0
+    },
+    "final64.primary": {
+      "reports": 28,
+      "cases": 2830,
+      "assertions": 155910,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "preflight.historical_input": {
+      "reports": 1,
+      "cases": 1,
+      "assertions": 112,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "preflight.native": {
+      "reports": 2,
+      "cases": 2,
+      "assertions": 213,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "preflight.primary": {
+      "reports": 3,
+      "cases": 13,
+      "assertions": 316,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "terminal_comparison.native_baseline": {
+      "reports": 2,
+      "cases": 2,
+      "assertions": 213,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "terminal_comparison.native_candidate": {
+      "reports": 2,
+      "cases": 2,
+      "assertions": 213,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "terminal_failed_preflight.historical_input": {
+      "reports": 1,
+      "cases": 1,
+      "assertions": 112,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "terminal_failed_preflight.primary": {
+      "reports": 1,
+      "cases": 1,
+      "assertions": 141,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "sha256": "266f77f1d5fbcaea096d7241abba45ae10649aad62c7eb07270dd4a246ac7f43",
+  "bytes": 7089539,
+  "archive": "exact-evidence.zip",
+  "source_archive_count": 121,
+  "notes": [
+    "Execution counts, not unique behavior counts.",
+    "Failed diagnostic runs, historical inputs, intentional refusals and passing final runs are separate.",
+    "Exact source/head/merge tree proofs are in archive supplements."
+  ],
+  "accepted": {
+    "63": {
+      "head": "f50ed34bf9edd4423a567cd157b2164bb097e217",
+      "merge": "469e0d68f6d42bf36a0d00e9fe5f437fa79df600",
+      "run": 40026669085
+    },
+    "64": {
+      "head": "31059f4204c62debd2140b865d8fdefc74f341ac",
+      "merge": "de5a92e35754762ab8ecad7eb5230bcaa74864d1",
+      "run": 40026684924
+    }
+  }
+}
