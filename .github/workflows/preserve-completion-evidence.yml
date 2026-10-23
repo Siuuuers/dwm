@@ -1,0 +1,57 @@
+name: Preserve completed week and focused repair evidence
+on:
+  push:
+    branches: [codex/preserve-completion-evidence-20261023]
+permissions:
+  actions: read
+  contents: write
+jobs:
+  preserve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: d2e737d2da04db29c410d0a13e9ca369d32b91b8
+          persist-credentials: true
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const fs=require('fs'),crypto=require('crypto');
+            const items=[
+              [39977776938,12511743877,'7c12d05f84c5ddf6876b7d8001eba5c6823e9453f60a77c64f5a2909e7f8f823'],
+              [39973922887,12514125048,'d1d7d8c5c31d29f1b3ae22ad420101a7ec4f80b2d96f7aa9809df82b936c8a9d']
+            ];
+            for(const [run,id,hash] of items){
+              const a=await github.rest.actions.downloadArtifact({owner:context.repo.owner,repo:context.repo.repo,artifact_id:id,archive_format:'zip'});
+              const bytes=Buffer.from(a.data);
+              if(crypto.createHash('sha256').update(bytes).digest('hex')!==hash)throw new Error('Hash mismatch');
+              const dir='evidence/phase_2r/current_ci_20261023/run'+run;
+              fs.mkdirSync(dir,{recursive:true});
+              fs.writeFileSync(dir+'/original.zip',bytes);
+              fs.writeFileSync(dir+'/inspection.json',JSON.stringify({run_id:String(run),artifact_id:id,archive_sha256:hash,archive_bytes:bytes.length,zip_crc:'passed'},null,2)+'\n');
+            }
+      - name: Verify and retain evidence
+        run: |
+          python - <<'PY'
+          import pathlib,zipfile,json,xml.etree.ElementTree as ET
+          root=pathlib.Path('evidence/phase_2r/current_ci_20261023')
+          for run in [39977776938,39973922887]:
+              p=root/('run'+str(run))
+              with zipfile.ZipFile(p/'original.zip') as z:
+                  assert z.testzip() is None
+                  origin=next(n for n in z.namelist() if n.endswith('audit-origin.json'))
+                  (p/'audit-origin.json').write_bytes(z.read(origin))
+                  if run==39973922887:
+                      d=json.loads(z.read('authored-week-uninterrupted.json'))
+                      cs=list(ET.fromstring(z.read('authored-uninterrupted.xml')).iter('testcase'))
+                      assert len(cs)==1 and cs[0].get('status')=='pass'
+                      summary={'observed_lines':len(d['observed_lines']),'transitions':len(d['timings']),'elapsed_ms':d['elapsed_ms'],'assertions':int(cs[0].get('assertions')),'lifecycle':d['completed_lifecycle']['state'],'playback_stage':d['completed_lifecycle']['ending_plan']['playback_stage'],'gallery_receipts':len(d['gallery_receipts']),'day_elapsed_ms':d['day_elapsed_ms']}
+                      assert summary['observed_lines']==836 and summary['transitions']==835 and summary['lifecycle']=='COMPLETED' and summary['gallery_receipts']==1
+                      (p/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add evidence/phase_2r/current_ci_20261023
+          git commit -m 'Retain completed authored week and focused repair cloud evidence [skip ci]'
+          git push origin HEAD:refs/heads/codex/completion-evidence-result-20261023
