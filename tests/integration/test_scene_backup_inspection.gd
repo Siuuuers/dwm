@@ -209,3 +209,51 @@ func test_scene_restore_participant_edit_reenters_generic_seed_validation() -> v
 	assert_eq(refused.get("code"), &"selected_bundle_missing", str(refused))
 	assert_eq(fixture.manager._scene_restore_preparations.keys(), retained_before)
 	assert_eq(_observed(), before, "a callback edit cannot install a seed or change stored/live state")
+
+func test_new_scene_writes_omit_fallback_snapshots_without_changing_admitted_history() -> void:
+	assert_true(fixture_ready)
+	if not fixture_ready: return
+	var before := _observed()
+	var source: Dictionary = fixture.read_autosave().value
+	var original: Dictionary = source.current_snapshot.duplicate(true)
+	source.recovery_journal = [original]
+	source.current_snapshot.snapshot.checkpoint_sequence = 2
+	source.current_snapshot.snapshot.checkpoint_id = original.snapshot.run_id + ":2"
+	var admitted: Dictionary = ADMISSION.migrate_document(source, {"kind": "autosave", "slot_id": null})
+	assert_true(admitted.ok, str(admitted))
+	if not admitted.ok: return
+	var unchanged := admitted.value.document.duplicate(true)
+	var journal := preload("res://scripts/infrastructure/save/CheckpointJournal.gd").new()
+	var seeded: Dictionary = journal.prepare_seed(admitted.value.document, admitted.value.document.current_snapshot)
+	assert_true(seeded.ok, str(seeded))
+	if not seeded.ok: return
+	assert_true(journal.commit_prepared(seeded.value.candidate).ok)
+	var rollback: Dictionary = journal.capture_state().value.backup
+	assert_eq(rollback.earlier, [original], "existing source history is still admitted and retained for rollback")
+	assert_eq(journal.get_bundles_for_disk(), [], "a new direct Save omits existing fallback history")
+	for kind: StringName in [&"autosave", &"quick", &"slot"]:
+		var reason: StringName = &"automatic" if kind == &"autosave" else (&"quick" if kind == &"quick" else &"manual")
+		var slot: Variant = 1 if kind == &"slot" else null
+		var built: Dictionary = preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd").build(
+			kind, slot, reason, journal.get_current_bundle().value.bundle, journal.get_bundles_for_disk())
+		assert_true(built.ok, str(built))
+		if not built.ok: return
+		assert_eq(built.value.recovery_journal, [])
+		assert_eq(built.value.current_snapshot, unchanged.current_snapshot,
+			"writing preserves the complete selected snapshot, including receipts and creation authority")
+	for kind: StringName in [&"line", &"manual_save", &"safe_marker"]:
+		var next: Dictionary = journal.get_current_bundle().value.bundle.snapshot
+		next.checkpoint_sequence = journal.peek_next_sequence(next.run_id).value.checkpoint_sequence
+		next.checkpoint_id = next.run_id + ":" + str(next.checkpoint_sequence)
+		var prepared: Dictionary = journal.prepare_record(next, kind)
+		assert_true(prepared.ok, str(prepared))
+		if not prepared.ok: return
+		assert_eq(prepared.value.candidate.earlier, [], "all new scene checkpoint kinds discard full fallback copies")
+		assert_true(journal.commit_prepared(prepared.value.candidate).ok)
+		assert_eq(journal.get_current_bundle().value.bundle.snapshot, next)
+		assert_eq(journal.peek_next_sequence(next.run_id).value.checkpoint_sequence, next.checkpoint_sequence + 1)
+		assert_false(journal.commit_prepared(prepared.value.candidate).ok, "duplicate commit remains refused")
+	assert_true(journal.restore_state(rollback).ok)
+	assert_eq(journal.capture_state().value.backup, rollback, "rollback restores prior cursor and admitted history exactly")
+	assert_eq(admitted.value.document, unchanged, "new writing never edits the admitted source document")
+	assert_eq(_observed(), before, "isolated journal writes do not alter live or durable creation owners")

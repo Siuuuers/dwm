@@ -95,6 +95,9 @@ func test_scene_round_physical_refusal_retry_conflict_and_uncertain_acknowledgme
 	assert_eq(after.contacts, before.contacts)
 	assert_eq(bridge.capture_reading_checkpoint(false), reading)
 	var accepted_disk: Dictionary = saves._storage.read_text("autosave.json")
+	var written: Dictionary = JSON.parse_string(str(accepted_disk.value))
+	assert_eq(written.schema_version, 9)
+	assert_eq(written.recovery_journal, [], "the real round checkpoint emits no fallback snapshots")
 	if not _ok(owner.complete_round(request)): return
 	assert_eq(game.capture_run_snapshot_input(), after)
 	assert_eq(saves._storage.read_text("autosave.json"), accepted_disk)
