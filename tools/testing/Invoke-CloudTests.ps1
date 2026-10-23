@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces')]
+    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title')]
     [string]$Suite
 )
 
@@ -10,6 +10,26 @@ $ErrorActionPreference = 'Stop'
 # Deliberate, bounded UI and input regression coverage. Each path must actually
 # execute; Invoke-IsolatedGodot also rejects GUT's silent suite-load failures.
 $suites = @{
+    # Physical scene registrations own a fresh process; never group these fixtures.
+    scene_round_checkpoint = @(
+        'tests/integration/test_scene_round_checkpoint_transaction.gd'
+    )
+    scene_shop_checkpoint = @(
+        'tests/integration/test_scene_shop_checkpoint_transaction.gd'
+    )
+    scene_story_localization = @(
+        'tests/integration/test_story_localization.gd'
+    )
+    scene_controls_localization = @(
+        'tests/integration/test_scene_controls_localization.gd'
+    )
+    scene_apps = @(
+        'tests/integration/test_scene_apps_connected_create.gd'
+    )
+    current_title = @(
+        'tests/integration/test_current_title_scene_create.gd'
+    )
+
     public_surfaces = @(
         'tests/unit/tooling/test_public_surface_inventory.gd'
     )
@@ -110,7 +130,6 @@ $suites = @{
         'tests/scene/test_minesweeper_challenge_controls.gd'
         'tests/integration/test_minesweeper_desktop_host.gd'
         'tests/unit/test_scene_round_completion.gd'
-        'tests/integration/test_scene_round_checkpoint_transaction.gd'
     )
     shop = @(
         'tests/unit/test_shop_app_purchase_bridge.gd'
@@ -118,7 +137,6 @@ $suites = @{
         'tests/unit/test_shop_presentation_port.gd'
         'tests/unit/test_scene_shop_purchase_rules.gd'
         'tests/unit/test_scene_shop_checkpoint_custody.gd'
-        'tests/integration/test_scene_shop_checkpoint_transaction.gd'
         'tests/scene/test_shop_card.gd'
         'tests/scene/test_shop_plate.gd'
         'tests/integration/test_shop_desktop_host.gd'
@@ -255,7 +273,6 @@ $suites = @{
         'tests/unit/test_locale_font_preparation.gd'
         'tests/unit/test_gallery_typography.gd'
         'tests/unit/test_font_styles.gd'
-        'tests/unit/test_ordinary_reply_echo_state.gd'
         'tests/unit/test_provisional_correspondence_catalog.gd'
         'tests/unit/test_system_tts_coordinator.gd'
         'tests/unit/test_witnessed_transport_rail.gd'
@@ -287,18 +304,53 @@ $arguments = @(
     '-glog=2'
     "-gjunit_xml_file=res://.godot/ci/$Suite.xml"
 )
+# Creator and loader must share storage but never a process/registration registry.
+$loadScripts = @{
+    scene_apps = 'tests/integration/test_scene_apps_connected_load.gd'
+    current_title = 'tests/integration/test_current_title_scene_load.gd'
+}
+$extra = @{}
+if ($Suite -in @('scene_story_localization', 'scene_apps', 'current_title')) { $extra.Rendered = $true }
+if ($loadScripts.ContainsKey($Suite)) {
+    $loadScript = $loadScripts[$Suite]
+    if (-not (Test-Path -LiteralPath (Join-Path $repositoryRoot $loadScript))) { throw "Requested test does not exist: $loadScript" }
+    $loadReport = Join-Path $output "$Suite-load.xml"
+    if (Test-Path -LiteralPath $loadReport) { Remove-Item -LiteralPath $loadReport -Force }
+    $extra.NextLogName = "cloud-$Suite-load.log"
+    $extra.NextGodotArgs = @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=',
+        "-gtest=res://$loadScript", '-gexit', '-glog=2', "-gjunit_xml_file=res://.godot/ci/$Suite-load.xml")
+}
+# Refuse stale reports if a child exits before writing its result.
+$primaryReport = Join-Path $output "$Suite.xml"
+if (Test-Path -LiteralPath $primaryReport) { Remove-Item -LiteralPath $primaryReport -Force }
 $logName = "cloud-$Suite.log"
 & (Join-Path $PSScriptRoot 'Invoke-IsolatedGodot.ps1') `
     -SuiteId "cloud-$Suite" `
     -LogName $logName `
     -EvidenceLogPath ".godot/ci/$Suite.jsonl" `
     -TimeoutSeconds 480 `
-    -GodotArgs $arguments
+    -GodotArgs $arguments @extra
 $result = $LASTEXITCODE
 $logPath = Join-Path $repositoryRoot ".godot/phase2r_logs/$logName"
 if ($result -ne 0) {
     if (Test-Path -LiteralPath $logPath) { Get-Content -LiteralPath $logPath }
     exit $result
+}
+if ($loadScripts.ContainsKey($Suite)) {
+    if (-not (Test-Path -LiteralPath $loadReport)) { throw 'Load child did not produce its JUnit report.' }
+    [xml]$loadXml = Get-Content -LiteralPath $loadReport -Raw
+    $loadCases = @($loadXml.SelectNodes('//testcase'))
+    if ($loadCases.Count -ne 1 -or $loadCases[0].GetAttribute('classname') -cne $loadScript -or
+        $loadCases[0].GetAttribute('status') -cne 'pass' -or
+        [int]$loadCases[0].GetAttribute('assertions') -le 0 -or
+        $loadXml.SelectNodes('//failure | //error | //skipped').Count -ne 0) {
+        throw 'Load child did not pass its selected fresh-process restoration case.'
+    }
+    $loadLog = Join-Path $repositoryRoot ".godot/phase2r_logs/cloud-$Suite-load.log"
+    if (Select-String -LiteralPath $loadLog -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
+        throw 'Load child reported script or Unicode errors.'
+    }
+    Write-Host "${Suite}: fresh-process load case passed ($loadScript)."
 }
 $sourceTestScript = ''
 $sourceTestName = ''
@@ -335,6 +387,15 @@ if (-not (Test-Path -LiteralPath $report)) { throw 'GUT did not produce its JUni
 $executed = $xml.SelectNodes('//testcase').Count
 if ($executed -eq 0) { throw 'GUT did not report any executed tests.' }
 if ($xml.SelectNodes('//failure | //error').Count -ne 0) { throw 'GUT reported test failures.' }
+if ($Suite -in @('scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title')) {
+    foreach ($case in $xml.SelectNodes('//testcase')) {
+        if ($case.GetAttribute('classname') -cne $suites[$Suite][0] -or
+            $case.GetAttribute('status') -cne 'pass' -or [int]$case.GetAttribute('assertions') -le 0) {
+            throw 'Selected scene case did not execute and pass its assertions.'
+        }
+    }
+    if ($xml.SelectNodes('//skipped').Count -ne 0) { throw 'Selected scene coverage was skipped.' }
+}
 Write-Host "${Suite}: $executed test cases completed across $($testPaths.Count) requested scripts."
 # Keep actual per-script results observable when the JUnit artifact is unavailable.
 $scriptResults = @($xml.SelectNodes('//testsuite') | ForEach-Object {
@@ -392,38 +453,5 @@ if ($Suite -eq 'persistence') {
     Write-Host $markers[0]
 }
 
-if ($Suite -eq 'new_account') {
-    # Measure the real title-button flow in a fresh isolated process. Correctness
-    # gates this job; machine-dependent timings are evidence, not a fixed budget.
-    $latencyLogName = 'cloud-new-account-latency.log'
-    & (Join-Path $PSScriptRoot 'Invoke-IsolatedGodot.ps1') `
-        -SuiteId 'cloud-new-account-latency' `
-        -LogName $latencyLogName `
-        -EvidenceLogPath '.godot/ci/new-account-latency.jsonl' `
-        -GodotArgs @('-s', 'res://tests/integration/verify_new_acc_latency.gd', '--', '--phase2r-bootstrap-mode=final')
-    $result = $LASTEXITCODE
-    $latencyLog = Join-Path $repositoryRoot ".godot/phase2r_logs/$latencyLogName"
-    if ($result -ne 0) {
-        if (Test-Path -LiteralPath $latencyLog) { Get-Content -LiteralPath $latencyLog }
-        exit $result
-    }
-    $prefix = 'NEW_ACC_LATENCY_VERIFIED '
-    $markers = @(Get-Content -LiteralPath $latencyLog | Where-Object { $_.StartsWith($prefix, [StringComparison]::Ordinal) })
-    if ($markers.Count -ne 1) { throw 'New Account latency probe did not report verified results.' }
-    if (Select-String -LiteralPath $latencyLog -Pattern 'SCRIPT ERROR:|ERROR: Failed to load' -Quiet) {
-        throw 'New Account latency probe reported script errors.'
-    }
-    $timingJson = $markers[0].Substring($prefix.Length)
-    $timing = $timingJson | ConvertFrom-Json
-    if ($timing.ok -ne $true -or @($timing.samples).Count -ne 2 -or
-        (@($timing.samples.case | Sort-Object) -join ',') -cne 'fresh,replacement') {
-        throw 'New Account latency probe did not verify both account creation cases.'
-    }
-    foreach ($sample in $timing.samples) {
-        if ($sample.button_to_desktop_us -le 0 -or $sample.max_frame_gap_us -lt 0) {
-            throw 'New Account latency probe returned invalid measurements.'
-        }
-    }
-    Set-Content -LiteralPath (Join-Path $output 'new-account-latency.json') -Value $timingJson -Encoding utf8
-    Write-Host "$prefix$timingJson"
-}
+# The retired desktop-startup latency probe is retained on the pinned historical
+# source in canonical-test-disposition.json; current_title covers authored startup.

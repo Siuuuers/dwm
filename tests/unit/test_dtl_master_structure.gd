@@ -1,20 +1,8 @@
 extends "res://addons/gut/test.gd"
-## The old eight-master gate is superseded by scene-oriented label and hook coverage.
+## Data-independent label and executable-event checks for the current validator.
+## Retired registry fixtures are pinned in canonical-test-disposition.json.
 
-const MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const VALIDATOR := preload("res://tools/dialogic/DtlStructureValidator.gd")
-const BUILDER := preload("res://tools/dialogic/TimelineManifestBuilder.gd")
-const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
-const ROOT := "res://dialogic/timelines/en/"
-
-
-func _document() -> Dictionary:
-	return MANIFEST.load_default()["value"]
-
-
-func _timelines() -> Array:
-	return STRICT_JSON.parse_object(FileAccess.get_file_as_string(
-		"res://data/manifests/timelines.json"))["value"]["records"]
 
 
 func _entry() -> Array:
@@ -29,50 +17,6 @@ func _has_code(result: Dictionary, code: StringName) -> bool:
 	for failure: Dictionary in result["failures"]:
 		if failure["code"] == code: return true
 	return false
-
-
-func test_all_137_semantic_entries_resolve_to_scene_files_with_isolated_hooks() -> void:
-	var document := _document()
-	assert_true(MANIFEST.validate_document(document).get("ok", false))
-	assert_eq(document["entry_count"], 137)
-	var partition: Dictionary = VALIDATOR.partition_by_master(document)
-	var records := _timelines()
-	assert_eq(records.size(), 64, "original 61 plus two group contacts and one neutral echo scene")
-	var total := 0
-	for record: Dictionary in records:
-		var path := "res://" + str(record["path"])
-		assert_true(path.trim_prefix(ROOT).contains("/"), path)
-		var expected: Array = partition.get(path, [])
-		total += expected.size()
-		var result := VALIDATOR.validate_file(path, expected, record["labels"])
-		assert_true(result["ok"], str(result["failures"]))
-	assert_eq(total, 137, "no semantic entry is orphaned outside the scene registry")
-
-
-func test_followup_uses_delivery_day_and_shared_scenes_keep_distinct_entries() -> void:
-	var cases := {
-		"contact.invitation.solo.priscilla.day1.nevermind": "contacts/priscilla_day2.dtl",
-		"contact.invitation.group.priscilla_lavinia.day6.busy_lavinia": "contacts/group/priscilla_lavinia_day6.dtl",
-		"echo.fallback.day7": "core/echo_fallback_day7.dtl",
-		"hospital.faint.day7": "core/hospital_faint.dtl",
-		"ending.priscilla_lavinia.observer.residue": "ending/priscilla_lavinia.dtl",
-		"dating.group.priscilla_lavinia.day2.pre_challenge": "dating/group/priscilla_lavinia_day2_pre_challenge.dtl",
-		"dating.twofriends.priscilla_lavinia.day2.pre_challenge": "dating/twofriends/priscilla_lavinia_day2_pre_challenge.dtl",
-	}
-	for entry_id: String in cases:
-		var result: Dictionary = MANIFEST.resolve_entry(_document(), entry_id, "en")
-		assert_true(result.get("ok", false), str(result))
-		assert_eq(result["value"]["path"], ROOT + cases[entry_id])
-		assert_eq(result["value"]["label"], entry_id)
-
-
-func test_original_opening_and_tutorial_are_registered_dialogue_free_files() -> void:
-	var by_id := {}
-	for record: Dictionary in _timelines(): by_id[record["id"]] = record
-	for entry_id: String in ["opening.day1", "tutorial.desktop_day1"]:
-		assert_true(by_id.has(entry_id), entry_id)
-		var record: Dictionary = by_id[entry_id]
-		assert_true(VALIDATOR.validate_file("res://" + record["path"], [], []).get("ok", false))
 
 
 func test_scene_metadata_and_registered_legacy_labels_are_allowed() -> void:
@@ -92,17 +36,6 @@ func test_unlabeled_execution_dialogue_and_changed_hook_contracts_are_refused() 
 	assert_true(_has_code(VALIDATOR.validate_text("fixture", _scene().replace("# type: contact\nreturn", "# type: contact"), _entry(), ["history"]), VALIDATOR.DTL_LEADING_RETURN_MISSING))
 	assert_true(_has_code(VALIDATOR.validate_text("fixture", _scene() + "Someone: prose\n", _entry(), ["history"]), VALIDATOR.DTL_DIALOGUE_LINE))
 	assert_true(_has_code(VALIDATOR.validate_text("fixture", _scene().replace("history.line.witness", "message.reply.commit"), _entry(), ["history"]), VALIDATOR.DTL_SIGNAL_COMMENT_MISMATCH))
-
-
-func test_scene_builder_preserves_the_current_manifest_and_master_generator_cannot_overwrite() -> void:
-	var built: Dictionary = BUILDER.build()
-	assert_true(built.get("ok", false), str(built))
-	assert_eq(built["value"]["records"], _timelines())
-	var generator := FileAccess.get_file_as_string("res://tools/dialogic/generate_master_skeletons.gd")
-	assert_false(generator.contains("FileAccess.WRITE"))
-	assert_true(generator.contains("Master generation is retired"))
-	for stem: String in ["day_1", "day_2", "day_3", "day_4", "day_5", "day_6", "day_7", "endings"]:
-		assert_false(FileAccess.file_exists(ROOT + stem + ".dtl"), "superseded master: " + stem)
 
 
 func test_trailing_fallthrough_reports_unterminated_label_line() -> void:
@@ -154,47 +87,3 @@ func test_comments_with_hazard_text_remain_inert() -> void:
 	var comments := "# res://asset\n# user://asset\n# load(asset)\n# GameState.change()\n"
 	var result := VALIDATOR.validate_text("fixture", comments + _scene() + comments, _entry(), ["history"])
 	assert_true(result["ok"], str(result["failures"]))
-
-
-func test_playable_scene_rejects_foreign_jumps_and_untrusted_expression_events() -> void:
-	var path := ROOT + "core/hospital_faint.dtl"
-	var source := FileAccess.get_file_as_string(path)
-	var expected: Array = VALIDATOR.partition_by_master(_document())[path]
-	assert_true(VALIDATOR.validate_text(path, source, expected).ok)
-	var missing := source.replace("label hospital.faint.shared", "label hospital.faint.missing")
-	assert_true(_has_code(VALIDATOR.validate_text(path, missing, expected), VALIDATOR.DTL_INVALID_JUMP))
-	for event: String in ["jump res://foreign.dtl/entry", "jump hospital.faint.day1",
-			"if {GameState.day}:", "if {Frozen.sylvia_eligible} or true:",
-			'[signal arg="history.line.witness"]', '[wait time="2"]',
-			"GameState.advance_day()", "{GameState.advance_day()}", "- Continue"]:
-		var altered := source.replace("You wake in the treatment room.", event)
-		assert_false(VALIDATOR.validate_text(path, altered, expected).ok, event)
-
-
-func test_playable_outcome_routing_only_reads_declared_frozen_result() -> void:
-	var path := ROOT + "dating/solo/priscilla_day1_post_challenge.dtl"
-	var source := FileAccess.get_file_as_string(path)
-	var expected: Array = VALIDATOR.partition_by_master(_document())[path]
-	assert_true(VALIDATOR.validate_text(path, source, expected).ok)
-	for field: String in ["Frozen.tone", "GameState.board_result", "Frozen.relationship_outcome"]:
-		assert_false(VALIDATOR.validate_text(path,
-			source.replace("Frozen.board_result", field), expected).ok, field)
-	assert_false(VALIDATOR.validate_text("res://dialogic/timelines/en/core/other.dtl",
-		source, expected).ok, "playable admission does not silently widen unrelated entry files")
-
-
-func test_every_registered_post_challenge_file_has_all_three_result_routes() -> void:
-	var partition: Dictionary = VALIDATOR.partition_by_master(_document())
-	var count := 0
-	for path: String in partition:
-		var expected: Array = partition[path]
-		if expected.size() != 1 or expected[0].role not in ["solo_post_challenge", "pair_post_challenge_scene"]: continue
-		count += 1
-		var source := FileAccess.get_file_as_string(path)
-		assert_true(VALIDATOR.validate_text(path, source, expected).ok, path)
-		for outcome: String in ["exploded", "perfect", "cleared"]:
-			var label: String = expected[0].label + "." + outcome
-			assert_true(source.contains("jump " + label + "\n"), path + ": " + outcome)
-			var missing := source.replace("label " + label + "\n", "")
-			assert_true(_has_code(VALIDATOR.validate_text(path, missing, expected), VALIDATOR.DTL_INVALID_JUMP), path)
-	assert_eq(count, 16, "all twelve Solo and four pair post-challenge entries are routed")

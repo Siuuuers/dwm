@@ -1,5 +1,6 @@
 extends "res://addons/gut/test.gd"
-## Draft UI languages use real catalog/profile transactions; narrative stays English.
+## Draft UI languages use real catalog/profile transactions.
+## Authored story language coverage lives in test_story_localization.gd.
 const MANAGER := preload("res://autoload/LocalizationManager.gd")
 const PROFILE := preload("res://autoload/ProfileManager.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
@@ -10,9 +11,6 @@ const ROOT := preload("res://scripts/ui/LocalePresentationRoot.gd")
 const FIXTURES := preload("res://tests/unit/test_localization.gd")
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const GALLERY := preload("res://scripts/ui/gallery/GalleryTypography.gd")
-const TIMELINES := preload("res://scripts/data/DialogicTimelineCatalog.gd")
-const REPLIES := preload("res://scripts/domain/contact/OrdinaryReplyEchoState.gd")
-const CORRESPONDENCE := preload("res://scripts/application/contact/ProvisionalCorrespondenceCatalog.gd")
 const WARNING_SHEET := preload("res://scripts/ui/schedule/ScheduleWarningSheet.gd")
 const SCHEDULE_COPY := preload("res://scripts/ui/schedule/ScheduleCopy.gd")
 const LOCALES := ["en", "zh_CN", "zh_HK", "ja", "ko"]
@@ -139,31 +137,6 @@ func test_five_language_round_trip_updates_real_presentation_without_losing_pref
 	assert_eq(manager.get_locale(), "ja")
 	assert_eq(target.theme.default_font.get_font_name(), before_face, "real root rolls back its font when another root refuses")
 
-func test_draft_story_resolution_retains_exact_english_locators_and_correspondence() -> void:
-	var entries: Array[String] = TIMELINES.get_required_entry_ids()
-	assert_false(entries.is_empty())
-	for entry: String in entries:
-		var english: Dictionary = TIMELINES.get_entry(entry, "en")
-		for language: String in ["ja", "ko"]:
-			var resolved: Dictionary = TIMELINES.get_entry(entry, language)
-			assert_true(resolved.get("ok", false), entry)
-			if not resolved.get("ok", false): continue
-			assert_eq([resolved.value.path, resolved.value.label], [english.value.path, english.value.label])
-			assert_eq([resolved.value.locale, resolved.value.requested_locale, resolved.value.used_fallback], ["en", language, true])
-	for language: String in ["ja", "ko"]:
-		for choice: String in ["a", "b", "c"]:
-			var id := "reply.ordinary.lavinia.day1." + choice
-			var english: Dictionary = REPLIES.reply_definition(id, "en")
-			var draft: Dictionary = REPLIES.reply_definition(id, language)
-			assert_true(draft.get("ok", false))
-			if not draft.get("ok", false): continue
-			assert_eq(draft.value.locale, language)
-			for key: String in ["text", "incoming_text", "response_text"]:
-				assert_eq(draft.value[key], english.value[key])
-		for message: Dictionary in CORRESPONDENCE.build().values():
-			assert_eq(message.texts[language], message.texts.en)
-			for followup: Dictionary in message.get("hospital_followup", {}).values():
-				assert_eq(followup.texts[language], followup.texts.en)
 
 func test_fusion_fonts_contain_every_catalog_glyph_without_system_or_font_fallback() -> void:
 	var loaded: Dictionary = CATALOG.load_bundle("res://localization/manifest.json")
