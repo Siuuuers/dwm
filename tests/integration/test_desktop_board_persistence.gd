@@ -163,7 +163,7 @@ func test_restore_remaps_board_identity_and_command_receipt_keys() -> void:
 	var manager: Node = wired["manager"]
 	_seed_and_save(manager, "run-remap-a", 1)
 
-	var prepared: Dictionary = manager.prepare_restore_slot(1)
+	var prepared: Dictionary = preload("res://tests/support/RetainedLegacyRestore.gd").prepare(manager, &"slot", 1)
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
 	var value: Dictionary = prepared["value"]["prepared"]
 	assert_true(value.has("source_locator"), "a real restore always carries an identity-continuation locator")
@@ -198,7 +198,7 @@ func test_restore_remaps_consequence_causal_day_pair() -> void:
 	var manager: Node = wired["manager"]
 	_seed_and_save(manager, "run-remap-b", 2)
 
-	var prepared: Dictionary = manager.prepare_restore_slot(2)
+	var prepared: Dictionary = preload("res://tests/support/RetainedLegacyRestore.gd").prepare(manager, &"slot", 2)
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
 	var committed: Dictionary = manager.commit_prepared_restore(prepared["value"]["prepared"])
 	assert_true(committed.get("ok", false), JSON.stringify(committed))
@@ -248,7 +248,7 @@ func test_restore_rejects_a_corrupted_consequence_receipt_before_live_mutation()
 		JSON.stringify(document) + "\n", func(_t: String) -> Dictionary: return {"ok": true, "code": &"ok", "value": {}})
 	assert_true(rewritten.get("ok", false))
 
-	var prepared: Dictionary = manager.prepare_restore_slot(3)
+	var prepared: Dictionary = preload("res://tests/support/RetainedLegacyRestore.gd").prepare(manager, &"slot", 3)
 	assert_false(prepared.get("ok", true), "a tampered issuer-receipt/token pairing must fail prepare, not silently restore")
 	var still_live: Dictionary = manager._journal.get_current_bundle()
 	assert_true(still_live.get("ok", false))
@@ -270,7 +270,7 @@ func test_a_completed_restore_leaves_no_incomplete_continuation() -> void:
 		return
 	var manager: Node = wired["manager"]
 	_seed_and_save(manager, "run-reconcile", 4)
-	var prepared: Dictionary = manager.prepare_restore_slot(4)
+	var prepared: Dictionary = preload("res://tests/support/RetainedLegacyRestore.gd").prepare(manager, &"slot", 4)
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
 	assert_true(manager.commit_prepared_restore(prepared["value"]["prepared"]).get("ok", false))
 

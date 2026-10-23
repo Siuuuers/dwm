@@ -281,9 +281,9 @@ func test_old_v6_load_refusal_preserves_run_files_and_profile_v9_history() -> vo
 	assert_eq(before_profile.reached_presentation_chronology.first_witnessed.size(), 2,
 		"the refusal proof retains actual nonempty first-witness order")
 	var prepared: Dictionary = f.manager.prepare_restore_slot(1)
-	assert_eq(prepared.get("code"), &"unsupported_run_configuration_schema", str(prepared))
+	assert_eq(prepared.get("code"), &"unsupported_save_format", str(prepared))
 	assert_false(prepared.has("value"), "no prepared Run or Profile patch escapes refusal")
-	assert_eq(f.manager.load_slot(1).get("code"), &"unsupported_run_configuration_schema")
+	assert_eq(f.manager.load_slot(1).get("code"), &"unsupported_save_format")
 	assert_eq(f.ops.snapshot_persisted(), before_files, "all saved and Profile bytes stay exact")
 	assert_eq(f.gs.capture_restore_state(), before_run)
 	assert_eq(f.gs.capture_live_session(), before_session)

@@ -1,7 +1,8 @@
 extends GutTest
-## Actual Desktop input, shared confirmation/status, Backup port and SaveManager transactions.
-## The confirmed-load row composes all eight production restore participants over real owners;
-## only storage, native audio/window-independent playback, and the live capture adapter are bounded.
+## Actual Desktop input, Backup status and SaveManager transactions. Legacy Quick Load
+## is refused; current scene Quick Load consent is covered by test_scene_pause_quick_load.
+## The fixture configures the production restore graph; legacy Load must refuse before it runs.
+## Storage, native audio/window-independent playback, and the live capture adapter are bounded.
 
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const DESKTOP := preload("res://scenes/desktop/ComputerDesktop.tscn")
@@ -292,7 +293,8 @@ func test_f5_commits_current_quick_through_real_owner_without_displacing_backup_
 		"the shell voice does not change Backup's selected record, mode, or local status")
 	var inspected: Dictionary = _manager.inspect_backup("quick")
 	assert_true(inspected.ok)
-	assert_eq(inspected.value.state, "occupied")
+	assert_eq(inspected.value.state, "unavailable")
+	assert_eq(inspected.value.reason, "older_version")
 	var edge: Label = _desktop._quick_commands.edge
 	edge.set_process(false)
 	watch_signals(edge)
@@ -309,65 +311,41 @@ func test_f5_commits_current_quick_through_real_owner_without_displacing_backup_
 	assert_signal_not_emitted(edge,"status_announced")
 
 
-func test_f9_uses_shared_confirmation_and_escape_consumes_the_real_token() -> void:
+func test_f9_refuses_legacy_quick_without_displacing_backup_or_focus() -> void:
 	_seed_quick()
 	var journal: Dictionary = _manager._journal.capture_state().duplicate(true)
 	var backup: Control = _desktop._cached_app_windows[&"backup"]
 	backup.action_buttons["save"].grab_focus()
 	var before := _backup_presentation()
-	var changed: Dictionary = _profile.prepare_font_style_preference("readable")
-	assert_true(changed.ok,JSON.stringify(changed))
-	assert_true(_profile.commit_prepared_profile(changed.value).ok)
 	_tap(KEY_F9)
-	assert_not_null(_desktop._confirmation)
-	assert_same(_desktop._confirmation.theme.default_font,TYPOGRAPHY.font("en",100,"readable"))
-	assert_eq(_desktop._quick_commands.edge.key, &"")
-	var token: String = _desktop._quick_commands._pending_token
-	assert_false(token.is_empty())
-	assert_true(_localization.set_locale("zh_HK").ok)
-	var resized: Dictionary = _profile.prepare_preferences({&"preferences.accessibility.text_size": 125})
-	assert_true(resized.ok)
-	assert_true(_profile.commit_prepared_profile(resized.value).ok)
-	_viewport.size = Vector2i(800, 720)
-	_tap(KEY_ESCAPE)
 	assert_null(_desktop._confirmation)
 	assert_eq(_desktop._quick_commands._pending_token, "")
-	assert_true(backup.action_buttons["save"].has_focus(),
-		"Cancel restores the semantic dock focus after real locale/text-size reflow and resize")
-	assert_false(_port.commit_action(token).get("ok", false), "cancelled consent cannot replay")
+	assert_true(_manager._backup_actions.is_empty())
+	assert_true(backup.action_buttons["save"].has_focus())
 	assert_eq(_manager._journal.capture_state(), journal)
 	assert_eq(_backup_presentation(), before)
 
 
-func test_confirmed_f9_load_runs_the_real_eight_participant_restore_graph() -> void:
+func test_enter_after_refused_f9_cannot_apply_legacy_snapshot() -> void:
 	_seed_quick()
-	assert_ne(str(_game_state.capture_restore_state().value.backup.lifecycle.run_id), "fixture-run-1")
+	var before: Dictionary = _game_state.capture_restore_state().duplicate(true)
 	_tap(KEY_F9)
-	var sheet: Control = _desktop._confirmation
-	assert_not_null(sheet)
-	if sheet == null: return
-	sheet.confirm_button.grab_focus()
+	assert_null(_desktop._confirmation)
+	assert_eq(_desktop._quick_commands._pending_token, "")
 	_tap(KEY_ENTER)
-	assert_true(_desktop._quick_commands.last_result.get("ok", false),
-		JSON.stringify(_desktop._quick_commands.last_result))
-	assert_eq(str(_game_state.capture_restore_state().value.backup.lifecycle.run_id), "fixture-run-1",
-		"the production RunRestoreParticipant applied the selected Quick snapshot")
-	assert_eq(_manager.get_latest_stable_checkpoint().value.bundle.snapshot.active_app_id, "backup")
+	assert_eq(_game_state.capture_restore_state(), before)
 
 
-func test_changed_capture_after_f9_prepare_cancels_without_restore_or_replay() -> void:
+func test_changed_capture_does_not_enable_refused_legacy_quick_load() -> void:
 	_seed_quick()
 	var run_before: Dictionary = _game_state.capture_restore_state().duplicate(true)
 	_tap(KEY_F9)
-	assert_not_null(_desktop._confirmation)
-	var token: String = _desktop._quick_commands._pending_token
 	_source.inputs.content_version = 2
-	_desktop._confirmation.confirm_button.grab_focus()
-	_tap(KEY_ENTER)
+	_tap(KEY_F9)
 	assert_null(_desktop._confirmation)
 	assert_eq(_desktop._quick_commands._pending_token, "")
 	assert_eq(_game_state.capture_restore_state(), run_before)
-	assert_false(_port.commit_action(token).get("ok", false), "changed-source consent is consumed")
+	assert_true(_manager._backup_actions.is_empty())
 
 
 func test_source_admission_lost_inside_prepare_cancels_the_real_owner_token() -> void:
@@ -394,8 +372,8 @@ func test_profile_rebound_keyboard_and_controller_drive_the_same_real_commands()
 	_tap_joy(JOY_BUTTON_RIGHT_STICK)
 	assert_null(_desktop._confirmation, "the replaced controller button is inert")
 	_tap_joy(JOY_BUTTON_PADDLE1)
-	assert_not_null(_desktop._confirmation)
-	_tap(KEY_ESCAPE)
+	assert_null(_desktop._confirmation, "rebound Quick Load still refuses the legacy fixture")
+	assert_eq(_desktop._quick_commands._pending_token, "")
 
 
 func test_duplicate_echo_and_pause_held_contact_do_not_repeat_quick_save() -> void:
@@ -427,9 +405,9 @@ func test_duplicate_echo_and_pause_held_contact_do_not_repeat_quick_save() -> vo
 func test_existing_backup_confirmation_and_token_are_not_displaced_by_f5() -> void:
 	_seed_quick()
 	var backup: Control = _desktop._cached_app_windows[&"backup"]
-	backup._set_mode("load")
+	backup._set_mode("save")
 	backup._select_drawer("quick")
-	backup._action_pressed("load")
+	backup._action_pressed("save")
 	var sheet: Control = _desktop._confirmation
 	var token: String = str(backup._pending_token)
 	assert_not_null(sheet)
@@ -480,7 +458,7 @@ func test_inherited_focus_custody_blocks_quick_input_and_explicit_desktop_overri
 		"the closest explicit desktop override restores its admitted focus subtree")
 
 
-func test_contacts_refusal_and_real_load_consent_preserve_live_app_and_focus() -> void:
+func test_contacts_save_and_legacy_load_refusal_preserve_live_app_and_focus() -> void:
 	_seed_quick()
 	var revision: Dictionary = _storage.inspect_revision("quicksave.json")
 	_source.available = false # The production capture boundary only accepts Backup.
@@ -496,14 +474,8 @@ func test_contacts_refusal_and_real_load_consent_preserve_live_app_and_focus() -
 	assert_same(_viewport.gui_get_focus_owner(), focused)
 	assert_eq(_storage.inspect_revision("quicksave.json"), revision)
 	_tap(KEY_F9)
-	var sheet: Control = _desktop._confirmation
-	assert_not_null(sheet, "Load remains available through the real owner despite capture refusal")
-	if sheet == null: return
-	assert_true(sheet.cancel_button.has_focus(), "Replacement consent starts on Cancel")
-	var token: String = _desktop._quick_commands._pending_token
-	_tap(KEY_ESCAPE)
-	assert_null(_desktop._confirmation)
-	assert_false(_port.commit_action(token).get("ok", false))
+	assert_null(_desktop._confirmation, "legacy Quick Load remains unavailable despite capture refusal")
+	assert_eq(_desktop._quick_commands._pending_token, "")
 	assert_eq(_host.get_state().active_app_id, &"contacts")
 	assert_true(app.is_visible_in_tree())
 	assert_same(_viewport.gui_get_focus_owner(), focused)
@@ -597,22 +569,21 @@ func test_quick_rejects_unsupported_modifier_binding_and_preserves_default() -> 
 	assert_true(_storage.exists("quicksave.json"), JSON.stringify(_desktop._quick_commands.last_result))
 
 
-func test_focus_out_and_in_before_a_frame_consumes_quick_load_consent() -> void:
+func test_focus_cycle_cannot_revive_refused_legacy_quick_load() -> void:
 	_seed_quick()
 	var focused := _viewport.gui_get_focus_owner()
 	_tap(KEY_F9)
-	assert_not_null(_desktop._confirmation)
-	var token: String = _desktop._quick_commands._pending_token
+	assert_null(_desktop._confirmation)
 	_desktop._quick_commands.notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
 	_desktop._quick_commands.notification(NOTIFICATION_APPLICATION_FOCUS_IN)
 	assert_null(_desktop._confirmation)
 	assert_eq(_desktop._quick_commands._pending_token, "")
-	assert_false(_port.commit_action(token).get("ok", false))
+	assert_true(_manager._backup_actions.is_empty())
 	await get_tree().process_frame
 	assert_same(_viewport.gui_get_focus_owner(), focused)
 
 
-func test_focused_live_minesweeper_gets_owner_refusal_and_load_consent_without_board_actions() -> void:
+func test_focused_live_minesweeper_refuses_save_and_legacy_load_without_board_actions() -> void:
 	_seed_quick()
 	assert_true(_desktop.return_home().ok)
 	var issuer := ISSUER.new()
@@ -641,10 +612,8 @@ func test_focused_live_minesweeper_gets_owner_refusal_and_load_consent_without_b
 	assert_true(_desktop._quick_commands.edge.visible)
 	assert_true(grid.has_focus())
 	_tap(KEY_F9)
-	assert_not_null(_desktop._confirmation)
-	if _desktop._confirmation == null: return
-	assert_true(_desktop._confirmation.cancel_button.has_focus())
-	_tap(KEY_ESCAPE)
+	assert_null(_desktop._confirmation)
+	assert_eq(_desktop._quick_commands._pending_token, "")
 	assert_true(grid.has_focus())
 	assert_eq(grid.focused_index, 0)
 	assert_eq(coordinator.get_state(), board)

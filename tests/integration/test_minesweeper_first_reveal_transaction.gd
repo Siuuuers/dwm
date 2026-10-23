@@ -216,7 +216,7 @@ class _RestoreOwner extends RefCounted:
 
 ## Everything _wired() builds, PLUS the crash-injecting proxies wired into the coordinator instead
 ## of the real ports directly, PLUS the full 8-participant restore stack configured on the SAME
-## SaveManager so a genuine prepare_restore_autosave()/commit_prepared_restore() cycle can run
+## SaveManager so a retained internal preparation/commit_prepared_restore() cycle can run
 ## against the SAME live gs/consequence_state/board_state a crashed reveal() never touched.
 func _wired_for_recovery() -> Dictionary:
 	var result: Dictionary = TEMPORARY_STORAGE.create("first-reveal-recovery")
@@ -422,7 +422,7 @@ func test_adapter_rejects_an_extra_desktop_key() -> void:
 
 ## IMPORTANT 6 / brief Step 6.10: drive the durable first-Reveal until the checkpoint is committed
 ## to disk, crash-inject strictly before the live GameState/board commits, then run a genuine
-## restore cycle (prepare_restore_autosave + commit_prepared_restore) and prove disk truth alone is
+## restore cycle (retained internal preparation + commit_prepared_restore) and prove disk truth alone is
 ## adopted -- exactly one paid first Reveal, decremented round, charged motivation, materialized
 ## board, matching consequence revision, and no second charge on a retried request after restore.
 func test_restore_after_a_crash_between_checkpoint_commit_and_live_adoption_recovers_the_paid_first_reveal() -> void:
@@ -461,7 +461,7 @@ func test_restore_after_a_crash_between_checkpoint_commit_and_live_adoption_reco
 	save_manager._journal.commit_prepared(save_manager._journal.prepare_reset_with_initial(
 		_different_live_run_snapshot("run-recovery-elsewhere", 1), &"day_start")["value"]["candidate"])
 
-	var prepared: Dictionary = save_manager.prepare_restore_autosave()
+	var prepared: Dictionary = preload("res://tests/support/RetainedLegacyRestore.gd").prepare(save_manager, &"autosave")
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
 	var committed: Dictionary = save_manager.commit_prepared_restore(prepared["value"]["prepared"])
 	assert_true(committed.get("ok", false), JSON.stringify(committed))

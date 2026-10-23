@@ -302,7 +302,8 @@ func test_warm_inspection_does_not_accept_a_changed_external_target() -> void:
 func test_warm_cache_keeps_storage_refusals_absence_and_schema_validation() -> void:
 	var f := _fixture()
 	if f.is_empty(): return
-	assert_eq(f.manager.inspect_backup("slot:1").value.state, "occupied")
+	assert_eq(f.manager.inspect_backup("slot:1").value.state, "unavailable")
+	assert_eq(f.manager.inspect_backup("slot:1").value.reason, "older_version")
 	var validated: Dictionary = f.manager._document_text_validator(f.text)
 	assert_true(validated.get("ok", false))
 	validated.value.schema_version = -1
@@ -320,11 +321,15 @@ func test_warm_cache_keeps_storage_refusals_absence_and_schema_validation() -> v
 	assert_true(f.manager._parse_document_text(invalid).get("ok", false))
 	assert_false(f.manager._document_text_validator(invalid).get("ok", true))
 	_replace(f, "parse-cache/slot_1.json", invalid)
-	assert_eq(f.manager.inspect_backup("slot:1").value.reason, "unreadable")
+	assert_eq(f.manager.inspect_backup("slot:1").value.reason, "newer_version")
 
 func test_warm_inspection_skips_participants_and_keeps_current_guard() -> void:
 	var f := _fixture()
 	if f.is_empty(): return
+	# Metadata-only input, deliberately not a complete/restorable Run9. This
+	# proves listing stays independent of full validation and participants.
+	_replace(f, "parse-cache/slot_1.json",
+		'{"schema_version":9,"current_snapshot":{"snapshot":{"schema_version":9}},"saved_time":{"hhmm":"10:30"}}')
 	var participants := {}
 	for pair: Array in [["run", "run_plan"], ["desktop_consequence", "consequence_plan"],
 		["desktop_board", "board_plan"], ["schedule_view", "schedule_view_plan"],

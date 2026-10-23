@@ -152,7 +152,7 @@ func _reload(tree: SceneTree, game: Node, exact: Dictionary) -> Node:
 	var profile: Node = tree.root.get_node("ProfileManager")
 	var profile_before: Dictionary = profile.get_profile_snapshot()
 	var saves: Node = tree.root.get_node("SaveManager")
-	var prepared: Dictionary = saves.prepare_restore_autosave()
+	var prepared: Dictionary = preload("res://tests/support/RetainedLegacyRestore.gd").prepare(saves, &"autosave")
 	if not _check(tree, prepared.get("ok", false), "full Autosave Load prepares: " + str(prepared.get("code", ""))): return null
 	var mount_events: Array = []
 	var mount_signal := {"scene_changed": false}

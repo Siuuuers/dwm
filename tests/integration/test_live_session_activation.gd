@@ -199,7 +199,7 @@ func _start_and_save(fixture: Dictionary) -> Dictionary:
 
 
 func _prepared_slot(fixture: Dictionary) -> Dictionary:
-	var prepared: Dictionary = fixture.manager.prepare_restore_slot(1)
+	var prepared: Dictionary = preload("res://tests/support/RetainedLegacyRestore.gd").prepare(fixture.manager, &"slot", 1)
 	assert_true(prepared.get("ok", false), str(prepared))
 	return (prepared.get("value", {}) as Dictionary).get("prepared", {}).duplicate(true)
 

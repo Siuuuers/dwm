@@ -193,7 +193,7 @@ func test_legacy_prepare_keeps_source_validation_plans_and_commits() -> void:
 	# A different game is live when the player loads.
 	m._journal.reset("run-live")
 	m._journal.commit_prepared(m._journal.prepare_record(_snapshot("run-live", 1), &"day_start")["value"]["candidate"])
-	var prepared: Dictionary = m.prepare_restore_slot(1)
+	var prepared: Dictionary = preload("res://tests/support/RetainedLegacyRestore.gd").prepare(m, &"slot", 1)
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
 	var value: Dictionary = prepared["value"]["prepared"]
 	for key: String in ["run", "desktop_consequence", "desktop_board", "schedule_view", "profile", "localization", "audio", "route", "narrative"]:
@@ -230,18 +230,17 @@ func _destination_plan_fixture() -> Dictionary:
 	return {"manager": m, "consequence": consequence, "board": board,
 		"events": events, "snapshot": snapshot}
 
-func test_cancelled_legacy_load_validates_source_without_applying_plans() -> void:
+func test_player_legacy_load_refuses_before_preparing_or_applying_plans() -> void:
 	var f := _destination_plan_fixture()
 	if f.is_empty(): return
 	var before_file: Dictionary = f.manager._storage.read_text("slot_1.json")
 	var before_run: Dictionary = f.manager.get_meta("run_owner").capture_restore_state()
 	var prepared: Dictionary = f.manager.prepare_backup_action("load", "slot:1")
-	assert_true(prepared.get("ok", false), str(prepared))
-	if not prepared.get("ok", false): return
-	f.manager.cancel_backup_action(prepared.value.token)
-	assert_eq(f.consequence.inputs.size(), 1)
-	assert_eq(f.board.inputs.size(), 1)
-	assert_true(f.events.is_empty(), "cancelled preparation never applies owners")
+	assert_eq(prepared.get("code"), &"unsupported_save_format", str(prepared))
+	assert_false(prepared.has("value"), "legacy refusal creates no consent token")
+	assert_eq(f.consequence.inputs.size(), 0)
+	assert_eq(f.board.inputs.size(), 0)
+	assert_true(f.events.is_empty(), "legacy refusal never applies owners")
 	assert_eq(f.manager._storage.read_text("slot_1.json"), before_file)
 	assert_eq(f.manager.get_meta("run_owner").capture_restore_state(), before_run)
 	assert_true(f.manager._continuation_journal.list_incomplete().value.is_empty())
@@ -249,7 +248,7 @@ func test_cancelled_legacy_load_validates_source_without_applying_plans() -> voi
 func test_legacy_commit_replaces_source_plans_and_applies_consequence_before_board() -> void:
 	var f := _destination_plan_fixture()
 	if f.is_empty(): return
-	var prepared: Dictionary = f.manager.prepare_restore_slot(1)
+	var prepared: Dictionary = preload("res://tests/support/RetainedLegacyRestore.gd").prepare(f.manager, &"slot", 1)
 	assert_true(prepared.get("ok", false), str(prepared))
 	if not prepared.get("ok", false): return
 	assert_eq(f.consequence.inputs.size(), 1)
@@ -277,7 +276,7 @@ func test_legacy_destination_prepare_failure_applies_nothing_and_remains_retryab
 		var before_run: Dictionary = f.manager.get_meta("run_owner").capture_restore_state()
 		var before_journal: Dictionary = f.manager._journal.capture_state()
 		f[failed_owner].refuse_prepare_call = 2
-		var prepared: Dictionary = f.manager.prepare_restore_slot(1)
+		var prepared: Dictionary = preload("res://tests/support/RetainedLegacyRestore.gd").prepare(f.manager, &"slot", 1)
 		assert_true(prepared.get("ok", false), str(prepared))
 		if not prepared.get("ok", false): return
 		var failed: Dictionary = f.manager.commit_prepared_restore(prepared.value.prepared)
@@ -310,7 +309,7 @@ func _prepared_restore_with_stray_key(m: Node, slot_id: int, key: String, value:
 	# A different game is live when the player loads, matching this file's own established pattern.
 	m._journal.reset("run-stray-%s-live" % key)
 	m._journal.commit_prepared(m._journal.prepare_record(_snapshot("run-stray-%s-live" % key, 1), &"day_start")["value"]["candidate"])
-	var prepared: Dictionary = m.prepare_restore_slot(slot_id)
+	var prepared: Dictionary = preload("res://tests/support/RetainedLegacyRestore.gd").prepare(m, &"slot", slot_id)
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
 	var stray: Dictionary = (prepared["value"]["prepared"] as Dictionary).duplicate(true)
 	stray[key] = value
@@ -372,7 +371,7 @@ func test_late_narrative_failure_does_not_substitute_earlier_bundle() -> void:
 	var before_journal: Dictionary = m._journal.capture_state()
 	var before_file: Dictionary = m._storage.read_text("slot_2.json")
 	var before_continuations: Dictionary = m._continuation_journal.list_incomplete()
-	var prepared: Dictionary = m.prepare_restore_slot(2)
+	var prepared: Dictionary = preload("res://tests/support/RetainedLegacyRestore.gd").prepare(m, &"slot", 2)
 	assert_false(prepared.get("ok", true), "a failed current snapshot cannot select its compatible earlier snapshot")
 	assert_eq(prepared.get("code"), &"NARRATIVE_CONTENT_UNAVAILABLE")
 	assert_false(prepared.has("value"), "failure exposes no substitute restore plan")
@@ -390,7 +389,7 @@ func test_profile_prepare_failure_is_structural_not_content() -> void:
 	m._journal.reset("run-c")
 	m._journal.commit_prepared(m._journal.prepare_record(_snapshot("run-c", 1), &"day_start")["value"]["candidate"])
 	assert_true(m.save_latest_to_slot(3)["ok"])
-	var prepared: Dictionary = m.prepare_restore_slot(3)
+	var prepared: Dictionary = preload("res://tests/support/RetainedLegacyRestore.gd").prepare(m, &"slot", 3)
 	assert_false(prepared.get("ok", true), "a hard participant failure fails prepare, never a silent fallback")
 	assert_ne(prepared.get("code"), &"NO_COMPATIBLE_BUNDLE")
 

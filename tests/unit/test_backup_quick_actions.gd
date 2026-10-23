@@ -8,13 +8,34 @@ const GATE := preload("res://scripts/application/transaction/ApplicationMutation
 const SNAPSHOT_FIXTURE := preload("res://tests/support/BackupSnapshotFixture.gd")
 const CANONICAL := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
-# Only restore preparation/execution is doubled. Journal, file revision, token
-# custody, Quick policy and atomic writes remain the production SaveManager.
+# These policy fixtures explicitly double admission as well as restoration.
+# Their retained Save8 payload exercises token/capture/write behavior only;
+# test_scene_backup_inspection owns real Save9 player admission.
+class AdmittedRecord extends RefCounted:
+	static func project(manager: Node, locator_id: String, result: Dictionary) -> Dictionary:
+		if not result.get("ok", false) or result.value.get("reason") != "older_version": return result
+		var locator: Dictionary = manager._backup_locator(locator_id)
+		var read: Dictionary = manager._storage.inspect_revision(locator.relative_path)
+		var parsed: Dictionary = manager.STRICT_JSON.parse_object(read.get("value", {}).get("text", ""))
+		if not parsed.get("ok", false) or parsed.value.get("schema_version") != 8: return result
+		var record: Dictionary = result.value
+		record.state = "occupied"
+		record.reason = ""
+		record.family = "legacy_day"
+		record.day = int(parsed.value.current_snapshot.snapshot.lifecycle.day)
+		record.saved_time = parsed.value.saved_time.hhmm
+		record.loadable = true
+		record.load_family = record.family
+		record.load_day = record.day
+		record.load_saved_time = record.saved_time
+		return result
 class RestoreFixture extends "res://autoload/SaveManager.gd":
 	var restore_unavailable := false
 	var restore_failure_code := &"fixture_restore_unavailable"
 	var restore_prepares := 0
 	var restore_commits := 0
+	func _inspect_backup_profiled(locator_id: String, profile: Dictionary) -> Dictionary:
+		return AdmittedRecord.project(self, locator_id, super._inspect_backup_profiled(locator_id, profile))
 	func _prepare_restore(locator: Dictionary, _expected_revision: String = "") -> Dictionary:
 		var read: Dictionary = _storage.read_text(str(locator["relative_path"]))
 		if not read.get("ok", false): return read
@@ -51,6 +72,8 @@ class QuickWriteProbe extends "res://tests/support/ManualSaveWitnessPort.gd":
 		if result.get("ok", false) and result.get("value") is Dictionary and result.value.is_empty():
 			compact_successes += 1
 		return result
+	func _inspect_backup_profiled(locator_id: String, profile: Dictionary) -> Dictionary:
+		return AdmittedRecord.project(self, locator_id, super._inspect_backup_profiled(locator_id, profile))
 	func _prepare_restore(locator: Dictionary, _expected_revision: String = "") -> Dictionary:
 		var read: Dictionary = _storage.read_text(str(locator["relative_path"]))
 		if not read.get("ok", false): return read
@@ -439,7 +462,7 @@ func test_legacy_slot_is_replaceable_only_after_explicit_overwrite_confirmation(
 	files._persisted["memory/quick-actions/slot_1.json"] = legacy
 	var records: Array = port.get_projection().value.records
 	var record: Dictionary = records[2]
-	assert_eq(record.reason, "unreadable")
+	assert_eq(record.reason, "older_version")
 	assert_false(record.actions.load)
 	assert_true(record.actions.save)
 	var prepared: Dictionary = port.prepare_action("save", "slot:1")
