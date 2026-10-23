@@ -7,7 +7,7 @@ jobs:
       run:
         shell: pwsh
     if: github.head_ref == 'codex/story-day-qualification-20261023' || github.ref == 'refs/heads/codex/story-day-qualification-20261023'
-    name: Windows / Genuine authored Day2 recovery
+    name: Windows / Native projection and genuine authored Day2 recovery
     runs-on: windows-2022
     steps:
     - name: Preserve source bytes
@@ -16,14 +16,14 @@ jobs:
       with:
         fetch-depth: 2
         persist-credentials: true
-        ref: 2e5ab55cdb5dc48298dea4af8341605d247b9aba
+        ref: 27afc7ba0e8becb739aa948c1dc8f28ec48f1518
     - name: Record pinned source
       run: |
         $ErrorActionPreference = 'Stop'
-        if ((git rev-parse HEAD) -cne '2e5ab55cdb5dc48298dea4af8341605d247b9aba') { throw 'Candidate mismatch' }
-        if ((git rev-parse 'HEAD^{tree}') -cne '00fb66e69dcda7e0cfc9df04af4f003b75caa6bb') { throw 'Candidate tree mismatch' }
+        if ((git rev-parse HEAD) -cne '27afc7ba0e8becb739aa948c1dc8f28ec48f1518') { throw 'Candidate mismatch' }
+        if ((git rev-parse 'HEAD^{tree}') -cne '048344b6491616675941eb331074d5f0f2413e85') { throw 'Candidate tree mismatch' }
         New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-        @{candidate='2e5ab55cdb5dc48298dea4af8341605d247b9aba'; tree=(git rev-parse 'HEAD^{tree}'); controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+        @{candidate='27afc7ba0e8becb739aa948c1dc8f28ec48f1518'; tree=(git rev-parse 'HEAD^{tree}'); controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
     - name: Prepare disposable checkout for credential cleanup
       run: |
         $ErrorActionPreference = 'Stop'
@@ -73,15 +73,39 @@ jobs:
         # Execute the committed configuration with the freshly imported assets.
         git restore -- project.godot
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    - name: Verify anchor-membership
-      timeout-minutes: 12
+    - name: Verify exact focused source and test census
       run: |
-        ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'anchor-membership' -LogName 'anchor-membership.log' -EvidenceLogPath '.godot/ci/anchor-membership.jsonl' -TimeoutSeconds 600 -KeepRoot -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_scene_event_anchor_membership.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/anchor-membership.xml')
+        $ErrorActionPreference = 'Stop'
+        @'
+        import hashlib,json,pathlib,re
+        expected = {'playable-native-control': {'path': 'tests/integration/test_scene_playable_native_control.gd', 'tests': ['test_real_caption_installs_exact_control_without_replay_and_consumes_source_once', 'test_unheld_and_forged_tokens_cannot_install_or_consume_the_real_source', 'test_malformed_projection_and_valid_but_unplanned_control_refuse_without_consuming', 'test_end_control_is_not_playable_adoption_authority', 'test_contact_return_control_is_not_playable_adoption_authority', 'test_changed_candidate_and_stale_native_identity_refuse_before_consumption', 'test_callback_input_mutation_is_refused_without_consuming_source', 'test_callback_candidate_mutation_is_refused_before_native_adoption', 'test_callback_reentrant_install_refuses_without_consuming_outer_custody'], 'sha256': 'aa8bc22e557b786def16cb3d38d49bc7e0d19da9f4758d93974c353c089bab0d'}, 'native-activation': {'path': 'tests/integration/test_scene_native_activation_runtime.gd', 'tests': ['test_real_native_restores_saved_second_caption_without_executing_end_or_republishing', 'test_real_native_restores_control_as_held_predecessor_and_consumes_source_once', 'test_held_control_projection_is_detached_and_does_not_capture_or_copy_history', 'test_held_control_projection_refuses_replaced_session_and_stale_native_source', 'test_held_control_actions_revalidate_history_and_preserve_read_only_custody'], 'sha256': '158842525c3e481e8c3d4ef0c877c29868e75db378d01515e1879ddce0ce431b'}, 'caption-challenge-create': {'path': 'tests/integration/test_scene_caption_challenge.gd', 'tests': ['test_computer_admits_current_cue_and_continue_closes_without_an_extra_caption'], 'sha256': '0d214e94c64d0ea8fa3a44e364ea67003ddb1d7d930af9768f0e1837c9f69425'}, 'caption-challenge-load': {'path': 'tests/integration/test_scene_caption_challenge_load.gd', 'tests': ['test_fresh_process_restores_cue_and_closed_save_without_duplicate_closure'], 'sha256': 'd30d7915f409c0a089c833110bb406607a823f430fd86db0542929d0343e6fb4'}, 'multiple-thoughts-create': {'path': 'tests/integration/test_scene_multiple_thoughts_create.gd', 'tests': ['test_multiple_thoughts_create_refusal_retry_and_selection'], 'sha256': '0c9f75457f6dd0e52af5e9f47b17536fc739af68dd55c3205917e2e3eb79c6c4'}, 'authored-recovery': {'path': 'tests/integration/authored_week_recovery.gd', 'tests': ['test_recover_interrupted_authored_day2'], 'sha256': '7c99a64aa1a588456e3b17607844106f73a92f60c66485320b9d46da777df8c6'}}
+        for suite,row in expected.items():
+            raw=pathlib.Path(row['path']).read_bytes()
+            assert hashlib.sha256(raw).hexdigest()==row['sha256'],(suite,'source changed after workflow generation')
+            assert re.findall(r'^func (test_[A-Za-z0-9_]+)\(',raw.decode('utf-8'),re.M)==row['tests'],suite
+        pathlib.Path('.godot/ci/focused-source-census.json').write_text(json.dumps(expected,indent=2),encoding='utf-8')
+        print('Pinned source census: 18 cases across 6 test scripts')
+        '@ | python -
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    - name: Verify saved-event-anchor
+    - name: Verify playable-native-control
       timeout-minutes: 12
       run: |
-        ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'saved-event-anchor' -LogName 'saved-event-anchor.log' -EvidenceLogPath '.godot/ci/saved-event-anchor.jsonl' -TimeoutSeconds 600 -KeepRoot -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_scene_saved_event_anchor.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/saved-event-anchor.xml')
+        ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'playable-native-control' -LogName 'playable-native-control.log' -EvidenceLogPath '.godot/ci/playable-native-control.jsonl' -TimeoutSeconds 600 -KeepRoot -Rendered -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_scene_playable_native_control.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/playable-native-control.xml')
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Verify native-activation
+      timeout-minutes: 12
+      run: |
+        ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'native-activation' -LogName 'native-activation.log' -EvidenceLogPath '.godot/ci/native-activation.jsonl' -TimeoutSeconds 600 -KeepRoot -Rendered -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_scene_native_activation_runtime.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/native-activation.xml')
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Verify caption challenge in fresh creator and loader processes
+      timeout-minutes: 22
+      run: |
+        ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'caption-challenge' -LogName 'caption-challenge-create.log' -EvidenceLogPath '.godot/ci/caption-challenge.jsonl' -TimeoutSeconds 600 -KeepRoot -Rendered -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_scene_caption_challenge.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/caption-challenge-create.xml') -NextLogName 'caption-challenge-load.log' -NextGodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_scene_caption_challenge_load.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/caption-challenge-load.xml')
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Verify multiple-thoughts-create
+      timeout-minutes: 12
+      run: |
+        ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'multiple-thoughts-create' -LogName 'multiple-thoughts-create.log' -EvidenceLogPath '.godot/ci/multiple-thoughts-create.jsonl' -TimeoutSeconds 600 -KeepRoot -Rendered -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_scene_multiple_thoughts_create.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/multiple-thoughts-create.xml')
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     - name: Generate current public surface inventories
       timeout-minutes: 4
@@ -135,7 +159,7 @@ jobs:
       run: |
         ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'authored-recovery' -LogName 'authored-recovery-seed.log' -EvidenceLogPath '.godot/ci/authored-recovery.jsonl' -TimeoutSeconds 600 -KeepRoot -Rendered -GodotArgs @('-s', 'res://.godot/ci/seed-authored-recovery.gd') -NextLogName 'authored-recovery.log' -NextGodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gprefix=authored_week_', '-gtest=res://tests/integration/authored_week_recovery.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/authored-recovery.xml')
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    - name: Verify genuine recovery and bounded diagnostic census
+    - name: Verify exact native, paired-process and recovery evidence
       run: |
         $ErrorActionPreference = 'Stop'
         @'
@@ -156,18 +180,79 @@ jobs:
         assert log.count('DWM_SCENE_VALIDATION_PROFILE {')==8
         assert not any(s in log for s in ['SCRIPT ERROR:', 'ERROR: Failed to load', '[Failed]'])
         print('Genuine Day2 recovery and bounded continuation passed; not whole-week acceptance')
-        for suite,expected in [('anchor-membership',3),('saved-event-anchor',10)]:
+        import hashlib
+        expected=json.loads((p/'focused-source-census.json').read_text(encoding='utf-8'))
+        total=0
+        for suite,row in expected.items():
             report=ET.parse(p/(suite+'.xml')).getroot(); cases=list(report.iter('testcase'))
-            assert len(cases)==expected and all(c.attrib['status']=='pass' for c in cases),suite
+            assert sorted(c.attrib['name'] for c in cases)==sorted(row['tests']),suite
+            assert all(c.attrib['status']=='pass' for c in cases),suite
             assert not any(list(report.iter(t)) for t in ['failure','error','skipped']),suite
-            events=[json.loads(s) for s in (p/(suite+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
-            assert len(events)==1 and events[0]['exit_code']==0,suite
-            log=pathlib.Path('.godot/phase2r_logs',suite+'.log').read_text(encoding='utf-8-sig')
-            assert not any(s in log for s in ['SCRIPT ERROR:', 'ERROR: Failed to load','[Failed]']),suite
-        events=[json.loads(s) for s in (p/'public-inventory.jsonl').read_text(encoding='utf-8-sig').splitlines() if s.strip()]
-        assert len(events)==2 and all(e['exit_code']==0 for e in events)
+            text=pathlib.Path('.godot/phase2r_logs',suite+'.log').read_text(encoding='utf-8-sig')
+            assert not any(s in text for s in ['SCRIPT ERROR:', 'ERROR: Failed to load','[Failed]']),suite
+            assert hashlib.sha256(pathlib.Path(row['path']).read_bytes()).hexdigest()==row['sha256'],suite
+            total+=len(cases)
+        assert total==18,total
+
+        process_groups={
+            'playable-native-control':['playable-native-control'],
+            'native-activation':['native-activation'],
+            'caption-challenge':['caption-challenge-create','caption-challenge-load'],
+            'multiple-thoughts-create':['multiple-thoughts-create'],
+            'public-inventory':['game-state-inventory','save-manager-inventory'],
+            'authored-recovery':['authored-recovery-seed','authored-recovery'],
+        }
+        group_events={}; roots=[]; process_count=0
+        for group,logs in process_groups.items():
+            rows=[json.loads(s) for s in (p/(group+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
+            assert len(rows)==len(logs) and all(row['exit_code']==0 for row in rows),group
+            assert all(row['suite_id']==group for row in rows),group
+            assert [pathlib.Path(row['log_path']).name for row in rows]==[name+'.log' for name in logs],group
+            assert len({row['test_root'] for row in rows})==1,group
+            assert len({row['user_dir'] for row in rows})==1,group
+            for row,suite in zip(rows,logs):
+                if suite in expected:
+                    assert '-gtest=res://'+expected[suite]['path'] in row['argv'],suite
+                    assert '--headless' not in row['argv'] and '--rendering-method' in row['argv'],suite
+                if group=='public-inventory':
+                    assert '--headless' in row['argv'],group
+            roots.append(rows[0]['test_root']); process_count+=len(rows); group_events[group]=rows
+        assert process_count==9 and len(set(roots))==6,(process_count,roots)
+
+        creator=json.loads((p/'caption-challenge-create-proof.json').read_text(encoding='utf-8-sig'))
+        loader=json.loads((p/'caption-challenge-load-proof.json').read_text(encoding='utf-8-sig'))
+        assert loader['creator_process_id']==creator['creator_process_id']!=loader['loader_process_id']
+        assert loader['ready_count']==2
+        assert all(loader[key]==value for key,value in creator.items())
+        pair_root=pathlib.Path(group_events['caption-challenge'][0]['user_dir'])
+        assert pathlib.Path(creator['user_dir']).resolve()==pair_root.resolve()
+        for filename,key in [('slot_1.json','cue_sha256'),('slot_2.json','closed_sha256')]:
+            assert hashlib.sha256((pair_root/'saves'/filename).read_bytes()).hexdigest()==creator[key],filename
+        multiple_root=pathlib.Path(group_events['multiple-thoughts-create'][0]['user_dir'])
+        assert (multiple_root/'multiple-thought-proof.json').is_file()
+
+        assert pathlib.Path(proof['user_dir']).resolve()==pathlib.Path(group_events['authored-recovery'][0]['user_dir']).resolve()
+        phases=['boot','title_backup','select_autosave','load','control_departure','ordinary_caption_291','ordinary_caption_292','caption_memory']
+        assert [row['phase'] for row in proof['phases']]==phases
+        scene_rows=[json.loads(line.split('DWM_SCENE_VALIDATION_PROFILE ',1)[1]) for line in log.splitlines() if line.startswith('DWM_SCENE_VALIDATION_PROFILE ')]
+        assert [row['operation'] for row in scene_rows]==['authored_recovery_'+phase for phase in phases]
+        assert all(row['ok'] for row in scene_rows)
+        def phase_records(phase):
+            body=log.split('AUTHORED_RECOVERY_BEGIN '+phase+' ticks_us=',1)[1].split('AUTHORED_RECOVERY_TIMING ',1)[0]
+            return [json.loads(line.split('DWM_SAVE_LOAD_PROFILE ',1)[1]) for line in body.splitlines() if line.startswith('DWM_SAVE_LOAD_PROFILE ')]
+        title_inspections=[row for row in phase_records('title_backup') if row['scope']=='backup_inspection']
+        assert [row['locator'] for row in title_inspections]==['autosave','quick']+['slot:'+str(i) for i in range(1,8)]
+        load_records=phase_records('load')
+        assert any(row['scope']=='backup_inspection' and row['locator']=='autosave' for row in load_records)
+        assert any(row['scope']=='backup_prepare' and row['action']=='load' and row['locator']=='autosave' for row in load_records)
         for facade in ['game_state','save_manager']:
             assert (p/'generated'/(facade+'_surface.json')).is_file()
+        summary={'testcases':total,'requested_child_exits':process_count,'isolated_roots':len(set(roots)),
+                 'caption_pair_process_ids':[creator['creator_process_id'],loader['loader_process_id']],
+                 'recovery_process_ids':[proof['seed_process_id'],proof['process_id']],
+                 'recovery_phases':phases,'title_inspection_count':len(title_inspections)}
+        (p/'projection-verification.json').write_text(json.dumps(summary,indent=2),encoding='utf-8')
+        print('Native/control checks and genuine recovery passed: 18 cases, 9 requested child exits, 6 isolated roots; not whole-week acceptance')
         '@ | python -
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     - if: always()
@@ -196,10 +281,18 @@ jobs:
         import hashlib,json,pathlib,subprocess,zipfile
         out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
         records=[]
-        for p in pathlib.Path('tests/integration').glob('authored_week*.gd.uid'):
-            target=out/'native-uids'/p.name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(p.read_bytes())
+        uid_paths=set(pathlib.Path('tests/integration').glob('authored_week*.gd.uid'))
+        for source_path in ['tests/integration/test_scene_playable_native_control.gd', 'tests/integration/test_scene_native_activation_runtime.gd', 'tests/integration/test_scene_caption_challenge.gd', 'tests/integration/test_scene_caption_challenge_load.gd', 'tests/integration/test_scene_multiple_thoughts_create.gd', 'tests/integration/authored_week_recovery.gd', 'autoload/DialogicBridge.gd', 'autoload/GameState.gd', 'scripts/narrative/DialogicRuntimeAdapter.gd', 'scripts/ui/SceneHost.gd', 'scripts/ui/BackupApp.gd', 'scripts/ui/MenuScene.gd']:
+            uid=pathlib.Path(source_path+'.uid')
+            if uid.is_file(): uid_paths.add(uid)
+        changed=subprocess.check_output(['git','diff-tree','--no-commit-id','--name-only','-r','HEAD'],text=True).splitlines()
+        for source_path in changed:
+            uid=pathlib.Path(source_path+'.uid')
+            if source_path.endswith('.gd') and uid.is_file(): uid_paths.add(uid)
+        for p in sorted(uid_paths):
+            target=out/'native-uids'/(pathlib.Path(p.name) if p.parent==pathlib.Path('tests/integration') else p);target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(p.read_bytes())
             tracked=subprocess.run(['git','ls-files','--error-unmatch','--',str(p)],capture_output=True).returncode==0
-            records.append({'path':p.as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'provenance':'candidate_tracked' if tracked else 'cloud_editor_import','source':'2e5ab55cdb5dc48298dea4af8341605d247b9aba','source_tree':'00fb66e69dcda7e0cfc9df04af4f003b75caa6bb'})
+            records.append({'path':p.as_posix(),'retained_path':target.relative_to(out).as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'provenance':'candidate_tracked' if tracked else 'cloud_editor_import','source':'27afc7ba0e8becb739aa948c1dc8f28ec48f1518','source_tree':'048344b6491616675941eb331074d5f0f2413e85'})
         (out/'uid-provenance.json').write_text(json.dumps(records,indent=2))
         (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
         manifest_source=subprocess.check_output(['git','ls-tree','-r','HEAD'],text=True)
@@ -223,8 +316,8 @@ jobs:
         name: authored-recovery-${{ github.run_id }}-${{ github.run_attempt }}
         path: .godot/ci/original-evidence.zip
         retention-days: 30
-    timeout-minutes: 25
-name: Bounded genuine authored save recovery
+    timeout-minutes: 35
+name: Bounded native projection and genuine authored save recovery
 'on':
   workflow_dispatch: null
   pull_request:
