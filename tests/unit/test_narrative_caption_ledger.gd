@@ -62,6 +62,11 @@ func test_scene_requires_explicit_occurrence_and_immutable_exact_frame() -> void
 	assert_true(resolved.ok)
 	resolved.value.presentation.fields.admission_receipt_id = "changed"
 	assert_eq(ledger.snapshot(), admitted)
+	var owned := ledger.check_session(TOKEN, ENTRY, "visit:1")
+	assert_true(owned.ok)
+	owned.value.presentation.fields.admission_receipt_id = "changed-owned-result"
+	assert_eq(ledger.check_session(TOKEN, ENTRY, "visit:1").value,
+		admitted.entry_contexts[LEDGER.scene_frame_key("visit:1", ENTRY)])
 
 func test_scene_restore_rejects_duplicate_rows_and_noncanonical_keys_atomically() -> void:
 	var fixture := _fixture()
@@ -94,6 +99,11 @@ func test_scene_restore_rejects_duplicate_rows_and_noncanonical_keys_atomically(
 	assert_eq(restored.allocate_publication(TOKEN, ENTRY, "visit:1").value, "caption:3",
 		"allocator skips retained publication even when count differs from suffix")
 	assert_true(restored.publish_caption(TOKEN, "caption:2", saved.captions[0].beat, "visit:1").value["duplicate"])
+	var owned := restored.check_session(TOKEN, ENTRY, "visit:1")
+	assert_true(owned.ok)
+	owned.value.presentation.fields.occurrence_id = "changed-return"
+	assert_eq(restored.check_session(TOKEN, ENTRY, "visit:1").value, saved.entry_contexts[key])
+	assert_eq(restored.check_session(TOKEN, ENTRY, "absent").code, &"caption_entry_context_missing")
 
 func test_scene_snapshot_cannot_downgrade_or_accept_foreign_row_occurrence() -> void:
 	var fixture := _fixture()

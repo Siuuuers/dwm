@@ -478,6 +478,38 @@ func test_scene_restore_still_refuses_invalid_opposite_endpoint_without_installi
 		assert_false(session.restore(selected.value, FIXTURE.A).ok, phase)
 		assert_eq(session.ledger.snapshot(), before, "failed opposite endpoint never installs a prefix")
 
+func test_scene_shape_rechecks_frames_and_keeps_source_suffix_publications_unique() -> void:
+	var created := FIXTURE.create_session()
+	assert_true(created.ok, str(created))
+	if not created.ok: return
+	var session: RefCounted = created.value
+	assert_true(FIXTURE.enter(session, FIXTURE.A, "a:1").ok)
+	var planned: Dictionary = session.prepare_next(FIXTURE.frontier(session),
+		func(_beat: Dictionary) -> bool: return true)
+	assert_true(planned.ok, str(planned))
+	if not planned.ok: return
+	var plan: Dictionary = planned.value
+	assert_eq(plan.traversed_captions.size(), 1)
+	assert_true(OP.project(plan, "destination").ok)
+	var source: Dictionary = plan.source_reading.duplicate(true)
+	assert_true(OP.valid_scene_reading_shape(source))
+	var key := LEDGER.scene_frame_key("a:1", FIXTURE.A)
+	source.ledger.entry_contexts[key].transaction_id = ""
+	assert_false(OP.valid_scene_reading_shape(source), "a prior call never lends frame proof to changed input")
+	var changed: Dictionary = plan.duplicate(true)
+	changed.source_reading = source
+	assert_eq(OP.project(changed, "source").code, &"reading_next_source_invalid")
+	for location: String in ["source", "suffix", "destination"]:
+		changed = plan.duplicate(true)
+		match location:
+			"source": changed.source_reading.ledger.captions.append(changed.source_reading.ledger.captions[0].duplicate(true))
+			"suffix": changed.traversed_captions[0].publication_id = changed.source_reading.ledger.captions[0].publication_id
+			"destination": changed.destination.caption.publication_id = changed.traversed_captions[0].publication_id
+		var code := &"reading_next_source_invalid" if location == "source" else (
+			&"reading_next_sequence_invalid" if location == "suffix" else &"reading_next_destination_invalid")
+		assert_eq(OP.project(changed, "destination").code, code, location)
+	assert_true(OP.project(plan, "destination").ok, "failed calls cannot contaminate the next validation")
+
 func test_forged_path_and_historical_frame_refuse_without_installation() -> void:
 	var created := FIXTURE.create_session()
 	assert_true(created.ok, str(created))

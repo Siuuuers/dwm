@@ -155,7 +155,11 @@ func check_session(session_token: String, entry_id: String, occurrence_id: Strin
 	if session_token != _session_token: return _fail(&"caption_foreign_session")
 	if not _has_registered_entry(entry_id): return _fail(&"caption_entry_unregistered")
 	if _scene:
-		return resolve_scene_frame(_entry_contexts, occurrence_id, entry_id)
+		# These frames were admitted, detached and recursively frozen by this owner.
+		# Arbitrary saved frames still go through resolve_scene_frame's full proof.
+		var key := scene_frame_key(occurrence_id, entry_id)
+		if key.is_empty() or not _entry_contexts.has(key): return _fail(&"caption_entry_context_missing")
+		return {"ok": true, "value": _entry_contexts[key].duplicate(true)}
 	if not occurrence_id.is_empty(): return _fail(&"caption_entry_context_invalid")
 	if _entry_contexts_required and not _entry_contexts.has(entry_id):
 		return _fail(&"caption_entry_context_missing")

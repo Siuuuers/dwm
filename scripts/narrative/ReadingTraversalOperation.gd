@@ -289,6 +289,12 @@ const SCENE_READING_KEYS := ["schema_version", "registration_sha256", "entry_id"
 	"program_index", "boundary", "ledger", "frontier", "next_operation"]
 
 static func valid_scene_reading_shape(reading: Dictionary) -> bool:
+	return _valid_scene_reading_shape(reading, {}, {})
+
+## The maps belong to this validation only. A plan can continue the freshly
+## checked source's publication set through its suffix without scanning it again.
+static func _valid_scene_reading_shape(reading: Dictionary, publications: Dictionary,
+		checked_frames: Dictionary) -> bool:
 	if not FROZEN._exact(reading, SCENE_READING_KEYS) or not FROZEN._primitive(reading) \
 			or typeof(reading.schema_version) != TYPE_INT or reading.schema_version != 5 \
 			or not _hash(reading.registration_sha256) or not _id(reading.entry_id) or not _id(reading.occurrence_id) \
@@ -301,10 +307,9 @@ static func valid_scene_reading_shape(reading: Dictionary) -> bool:
 			or typeof(retained.schema_version) != TYPE_INT or retained.schema_version != 2 \
 			or not _id(retained.session_token) or not retained.frozen_context is Dictionary \
 			or not retained.entry_contexts is Dictionary or not retained.captions is Array: return false
-	if not SCENE_LEDGER.resolve_scene_frame(retained.entry_contexts, reading.occurrence_id, reading.entry_id).ok: return false
-	var publications := {}
+	if not _scene_frame_available(retained.entry_contexts, reading.occurrence_id, reading.entry_id, checked_frames): return false
 	for row: Variant in retained.captions:
-		if not _scene_row(row, publications, retained.entry_contexts): return false
+		if not _scene_row(row, publications, retained.entry_contexts, checked_frames): return false
 	if reading.boundary == "line":
 		if retained.captions.is_empty(): return false
 		var tail: Dictionary = retained.captions.back()
@@ -312,11 +317,20 @@ static func valid_scene_reading_shape(reading: Dictionary) -> bool:
 			and _same(reading.frontier, {"line_id": tail.beat.line_id, "publication_id": tail.publication_id})
 	return reading.frontier.is_empty()
 
-static func _scene_row(row: Variant, publications: Dictionary, frames: Dictionary) -> bool:
+static func _scene_frame_available(frames: Dictionary, occurrence_id: String, entry_id: String,
+		checked_frames: Dictionary) -> bool:
+	if checked_frames.has(occurrence_id) and checked_frames[occurrence_id].has(entry_id): return true
+	if not SCENE_LEDGER.resolve_scene_frame(frames, occurrence_id, entry_id).ok: return false
+	if not checked_frames.has(occurrence_id): checked_frames[occurrence_id] = {}
+	checked_frames[occurrence_id][entry_id] = true
+	return true
+
+static func _scene_row(row: Variant, publications: Dictionary, frames: Dictionary,
+		checked_frames: Dictionary) -> bool:
 	if not row is Dictionary or not FROZEN._exact(row, ["publication_id", "occurrence_id", "beat"]) \
 			or not _id(row.publication_id) or not _id(row.occurrence_id) or not row.beat is Dictionary \
 			or not REGISTRY.valid_beat(row.beat) or publications.has(row.publication_id): return false
-	if not SCENE_LEDGER.resolve_scene_frame(frames, row.occurrence_id, row.beat.owning_entry_id).ok: return false
+	if not _scene_frame_available(frames, row.occurrence_id, row.beat.owning_entry_id, checked_frames): return false
 	publications[row.publication_id] = true
 	return true
 
@@ -339,7 +353,9 @@ static func _validate_scene_plan_shape(plan: Dictionary) -> Dictionary:
 			or not plan.path is Array or plan.path.is_empty() or not plan.traversed_captions is Array \
 			or not plan.destination is Dictionary: return _fail(&"reading_next_plan_invalid")
 	var source: Dictionary = plan.source_reading
-	if not valid_scene_reading_shape(source) or source.next_operation != null \
+	var publications := {}
+	var checked_frames := {}
+	if not _valid_scene_reading_shape(source, publications, checked_frames) or source.next_operation != null \
 			or source.entry_id != plan.entry_id or source.boundary not in ["line", "control"]: return _fail(&"reading_next_source_invalid")
 	if source.boundary == "control" and (plan.path.size() != 1 or not plan.traversed_captions.is_empty() \
 			or plan.destination.get("kind") != "line"):
@@ -350,18 +366,15 @@ static func _validate_scene_plan_shape(plan: Dictionary) -> Dictionary:
 				or typeof(edge.from) != TYPE_INT or typeof(edge.to) != TYPE_INT \
 				or edge.from != previous or edge.to < 0: return _fail(&"reading_next_path_invalid")
 		previous = edge.to
-	var publications := {}
-	for row: Variant in source.ledger.captions:
-		if not _scene_row(row, publications, source.ledger.entry_contexts): return _fail(&"reading_next_sequence_invalid")
 	for row: Variant in plan.traversed_captions:
-		if not _scene_row(row, publications, source.ledger.entry_contexts) \
+		if not _scene_row(row, publications, source.ledger.entry_contexts, checked_frames) \
 				or row.occurrence_id != source.occurrence_id or row.beat.owning_entry_id != plan.entry_id: return _fail(&"reading_next_sequence_invalid")
 	var target: Dictionary = plan.destination
 	if not FROZEN._exact(target, ["kind", "program_index", "caption"]) \
 			or target.kind not in ["line", "control", "completion"] \
 			or typeof(target.program_index) != TYPE_INT or target.program_index != previous: return _fail(&"reading_next_destination_invalid")
 	if target.kind == "line":
-		if not _scene_row(target.caption, publications, source.ledger.entry_contexts) \
+		if not _scene_row(target.caption, publications, source.ledger.entry_contexts, checked_frames) \
 				or target.caption.occurrence_id != source.occurrence_id \
 				or target.caption.beat.owning_entry_id != plan.entry_id: return _fail(&"reading_next_destination_invalid")
 	elif target.caption != null: return _fail(&"reading_next_destination_invalid")
