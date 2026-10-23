@@ -418,6 +418,7 @@ func _adopt_scene_target() -> Dictionary:
 		"label": target.label, "used_fallback": false, "content_locale": "en", "suppress_first_speech": false}
 	_scene_stage.clear()
 	_scene_stage_fatal = false
+	scene_art_changed.emit()
 	reading_session_changed.emit()
 	return {"ok": true}
 
@@ -3221,6 +3222,7 @@ func publish_scene_activation(operation_id: String) -> Dictionary:
 	if not checked.ok: return checked
 	if _scene_restore.get("published", false): return {"ok": true}
 	_scene_restore["published"] = true
+	scene_art_changed.emit()
 	reading_session_changed.emit()
 	return {"ok": true}
 

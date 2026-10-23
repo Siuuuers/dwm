@@ -122,6 +122,8 @@ func test_participant_holds_native_until_completion_and_subscribes_before_sync_s
 	assert_true(participant.finalize().ok)
 	assert_eq(native.starts, 0)
 	var publications: Array = []
+	var art_publications: Array[Dictionary] = []
+	bridge.scene_art_changed.connect(func() -> void: art_publications.append(bridge.get_current_scene_art()))
 	bridge.reading_session_changed.connect(func() -> void: publications.append(true))
 	var seen: Array = []
 	participant.scene_activation_confirmed.connect(func(id: String) -> void: seen.append(id))
@@ -134,9 +136,12 @@ func test_participant_holds_native_until_completion_and_subscribes_before_sync_s
 	assert_eq(seen.size(), 1)
 	assert_eq(native.starts, 1)
 	assert_eq(publications, [], "native proof is not publication permission")
+	assert_eq(art_publications.size(), 0, "native proof cannot publish restored artwork")
 	assert_true(participant.publish_scene_activation("restore.current").ok)
 	assert_true(participant.publish_scene_activation("restore.current").ok)
 	assert_eq(publications.size(), 1)
+	assert_eq(art_publications, [{"entry_id": checkpoint.entry_id, "show_portraits": true}],
+		"durable activation publishes restored art once, including duplicate publication requests")
 
 func test_participant_rejects_changed_checkpoint_or_missing_private_operation() -> void:
 	var participant := PARTICIPANT.new(bridge)

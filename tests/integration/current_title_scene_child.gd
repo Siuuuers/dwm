@@ -3,6 +3,7 @@ extends "res://tests/integration/scene_computer_child.gd"
 ## with inspection of the shipped registration; no test registration is installed.
 const CURRENT_MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const STORY_TEXT := preload("res://scripts/localization/StoryLocalization.gd")
+const CURRENT_ART := preload("res://scripts/data/ArtManifest.gd")
 const TITLE_PROOF := "user://current-title-scene-proof.json"
 const TITLE_SLOT := "user://saves/slot_1.json"
 const FIRST_LINE := "line.Day1.one"
@@ -65,6 +66,51 @@ func _title_menu() -> Node:
 	assert_not_null(menu, "production title must mount")
 	return menu
 
+func _current_art_proof() -> Dictionary:
+	var caption: Node = _caption()
+	var art_layer: Node
+	for sibling: Node in caption.get_parent().get_children():
+		if sibling.get_script() != null and sibling.get_script().resource_path == "res://scripts/ui/witnessed/WitnessedArtLayer.gd":
+			art_layer = sibling
+			break
+	assert_not_null(art_layer, "shipped Dialogic layout mounts artwork")
+	if art_layer == null: return {}
+	var view: Control = art_layer._view
+	assert_not_null(view)
+	if view == null: return {}
+	var placement: Dictionary = CURRENT_ART.get_scene_art("Day1")
+	var expected_background := CURRENT_ART.get_asset_path(str(placement.background))
+	var actual_background: Texture2D = view._background.texture
+	assert_false(expected_background.is_empty(), "Day1 has authored background")
+	assert_not_null(actual_background, "New Acc/Load hydrates art without a Settings change")
+	if actual_background == null: return {}
+	assert_eq(view._entry_id, "Day1", "art observes the adopted entry")
+	assert_eq(actual_background.resource_path, expected_background)
+	assert_true(view.is_visible_in_tree())
+	assert_true(view._background.is_visible_in_tree())
+	assert_gt(view._background.size.x, 0.0)
+	assert_gt(view._background.size.y, 0.0)
+	assert_true(view._dating_split, "shipped Day1 split panels are active")
+	assert_true(caption._dating_overlay, "caption follows the same art publication")
+	var portraits: Array[Dictionary] = []
+	assert_eq(view._portrait_count, placement.portraits.size())
+	for index: int in placement.portraits.size():
+		var expected_path := CURRENT_ART.get_asset_path(str(placement.portraits[index]))
+		var portrait: TextureRect = view._portraits[index]
+		assert_not_null(portrait.texture, "Day1 portrait hydrates with background")
+		if portrait.texture == null: return {}
+		assert_eq(portrait.texture.resource_path, expected_path)
+		assert_true(portrait.is_visible_in_tree())
+		assert_gt(portrait.size.x, 0.0)
+		assert_gt(portrait.size.y, 0.0)
+		portraits.append({"expected_path": expected_path, "texture_path": portrait.texture.resource_path,
+			"visible": portrait.is_visible_in_tree(), "size": [portrait.size.x, portrait.size.y]})
+	return {"entry_id": view._entry_id, "expected_background": expected_background,
+		"background_texture": actual_background.resource_path, "visible": view.is_visible_in_tree(),
+		"background_visible": view._background.is_visible_in_tree(),
+		"background_size": [view._background.size.x, view._background.size.y],
+		"split_panels": view._dating_split, "caption_overlay": caption._dating_overlay, "portraits": portraits}
+
 func _current_proof() -> Dictionary:
 	var reading: Dictionary = bridge.capture_reading_checkpoint(false)
 	if not _ok(reading): return {}
@@ -76,6 +122,7 @@ func _current_proof() -> Dictionary:
 		"registration_sha256": CURRENT_MANIFEST.scene_registration_fingerprint(),
 		"entry_id": "Day1", "line_id": FIRST_LINE,
 		"visible_text": _caption().caption_text.get_parsed_text(), "reading": reading.value,
+		"art": _current_art_proof(),
 		"gameplay": snapshot.gameplay, "scene": snapshot.scene,
 		"command_receipts": snapshot.command_receipts,
 		"profile": profile.get_profile_snapshot(),
@@ -86,7 +133,7 @@ func _current_proof() -> Dictionary:
 func _assert_same_state(witness: Dictionary) -> void:
 	var actual: Dictionary = _current_proof()
 	for key: String in ["registration_sha256", "visible_text", "reading", "gameplay", "scene",
-			"command_receipts", "profile", "slot_sha256", "source_run", "ready_count"]:
+			"command_receipts", "profile", "slot_sha256", "source_run", "ready_count", "art"]:
 		assert_eq(actual.get(key), witness.get(key), "current title preserves " + key)
 
 func create_current_title_scene() -> void:
@@ -129,7 +176,7 @@ func create_current_title_scene() -> void:
 	assert_false(get_tree().paused)
 	if not await _wait_first_caption(): return
 	var proof: Dictionary = _current_proof()
-	for key: String in ["reading", "gameplay", "scene", "command_receipts", "profile"]:
+	for key: String in ["reading", "gameplay", "scene", "command_receipts", "profile", "art"]:
 		assert_eq(proof[key], before[key], "manual Save cannot change " + key)
 	assert_eq(str(proof.slot_sha256).length(), 64)
 	if not _write_json(TITLE_PROOF, proof): return

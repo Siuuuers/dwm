@@ -195,6 +195,8 @@ func test_simulated_checkpoint_authority_binds_private_candidate_and_call_phase(
 
 func test_simulated_staging_requires_exact_candidate_and_confirmation_then_installs_once() -> void:
 	var fixture := _staged_fixture()
+	var art_publications: Array[Dictionary] = []
+	fixture.bridge.scene_art_changed.connect(func() -> void: art_publications.append(fixture.bridge.get_current_scene_art()))
 	var prepared: Dictionary = fixture.bridge.prepare_day_entry(FIXTURE.A, FIXTURE.frame(FIXTURE.A, "a:1"))
 	assert_true(prepared.ok, str(prepared))
 	if not prepared.ok: return
@@ -207,6 +209,7 @@ func test_simulated_staging_requires_exact_candidate_and_confirmation_then_insta
 	assert_false(fixture.bridge.commit_day_entry(prepared.value).ok)
 	assert_false(fixture.bridge.has_reading_session())
 	assert_eq(fixture.native.installations, 0)
+	assert_eq(art_publications.size(), 0, "unconfirmed target cannot publish artwork")
 	fixture.port.confirmed = true
 	var committed: Dictionary = fixture.bridge.commit_day_entry(prepared.value)
 	assert_true(committed.ok, str(committed))
@@ -215,6 +218,8 @@ func test_simulated_staging_requires_exact_candidate_and_confirmation_then_insta
 	assert_eq(fixture.bridge._reading_session.ledger.snapshot().captions.size(), 1)
 	assert_false(fixture.bridge.commit_day_entry(prepared.value).ok)
 	assert_eq(fixture.native.installations, 1, "consumed transport never installs twice")
+	assert_eq(art_publications, [{"entry_id": FIXTURE.A, "show_portraits": true}],
+		"adoption publishes the selected art exactly once; retry cannot republish")
 
 func test_simulated_wrong_acknowledgement_and_uncertainty_keep_fatal_custody() -> void:
 	for failure: String in ["hash", "uncertain"]:
