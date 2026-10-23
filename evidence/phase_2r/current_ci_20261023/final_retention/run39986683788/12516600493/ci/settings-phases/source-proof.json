@@ -1,0 +1,10 @@
+{
+  "source_sha": "e5cf80a5417c05bd0bb7fa2f60f59e8905e839a6",
+  "source_tree": "6afbf06d54923667a9faed51ec198b6496c1dbd8",
+  "controller_sha": "10e575924a794cc790e98ae55371ee8e579f0c83",
+  "scope": "diagnostic dispatch split only; primary tests and phase assertions unchanged",
+  "anchor_count": 1,
+  "original_sha256": "306441284e9220547ce9d7674285722acc8b308beb188d0d2a9e9e41e19a55e9",
+  "patched_sha256": "f9f4dab2d776213cbd556ca009387968a63277229fe901326f298ca7caa1b866",
+  "manual_sha256": "a753755ff2424e50918d89644e3c622a82c3c9fe6b097a9f8e75cbf180fd81f1"
+}

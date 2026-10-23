@@ -1,0 +1,100 @@
+{
+  "decision": "accept_for_integration",
+  "candidate_run": "39988834004",
+  "candidate_source": "8ced88776993efecf3229b603dbd9671d7584549",
+  "controller": "0cb92e4b9356e06d0aae1beccd1d80c2f19244a7",
+  "baseline_run": "39972595648",
+  "baseline_source": "3ce24fffcae5f235af935fc484615206f813d99a",
+  "artifact_sha256": "c49053565e4b9430f2e9f0157eea9c1602898156de13df2837ca714235279670",
+  "artifact_crc_ok": true,
+  "native_tests": 1,
+  "native_assertions": 112,
+  "native_status": "pass",
+  "focused_tests": 55,
+  "focused_assertions": 1836,
+  "inventory_tests": 11,
+  "inventory_assertions": 352,
+  "matched_root_files": 40,
+  "root_manifest_equal": true,
+  "helper_hashes": {
+    "pair.gd": "387f335b758d06ac1762302423151d47d57aa1df90adc933cdee3855cf04ff65",
+    "pair-next.gd": "ebf4e9380066cd769c10c64ae21bddf605c972a5955324c445654d8d959540c7",
+    "seed.gd": "1eeae3d5a83dc645758def40e371408187bca8009e5ef9c0916b3d489f36be3d",
+    "replay.gd": "945a7a75a9cae6e14e2e70e9b99866a929ba1cbe36d8249bb9f177f9b3026a20"
+  },
+  "helper_bytes_equal": true,
+  "source_slot_sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c",
+  "source_slot_equal": true,
+  "ui_timing_scope": "Press-return includes the existing five frame waits; Load Ready is the existing owner signal. No added validation, screenshot or wait.",
+  "ui_timing_scope_equal": true,
+  "observed_lines": [
+    "line.ending.alone.normal.001"
+  ],
+  "complete": true,
+  "phases": [
+    {
+      "phase": "boot",
+      "baseline_seconds": 67.238331,
+      "candidate_seconds": 60.130351,
+      "reduction_percent": 10.571321289935053
+    },
+    {
+      "phase": "load",
+      "baseline_seconds": 543.462862,
+      "candidate_seconds": 397.534697,
+      "reduction_percent": 26.851543169476045
+    },
+    {
+      "phase": "save",
+      "baseline_seconds": 363.537523,
+      "candidate_seconds": 246.436326,
+      "reduction_percent": 32.2115846621973
+    }
+  ],
+  "ui_timings": [
+    {
+      "operation": "title_backup_open_press_return",
+      "baseline_seconds": 77.726042,
+      "candidate_seconds": 49.360686
+    },
+    {
+      "operation": "load_slot_select_press_return",
+      "baseline_seconds": 0.079667,
+      "candidate_seconds": 0.07986
+    },
+    {
+      "operation": "load_action_to_ready",
+      "baseline_seconds": 383.108364,
+      "candidate_seconds": 294.227519
+    },
+    {
+      "operation": "load_action_press_return",
+      "baseline_seconds": 464.914922,
+      "candidate_seconds": 347.373305
+    },
+    {
+      "operation": "ending_backup_open_press_return",
+      "baseline_seconds": 92.852614,
+      "candidate_seconds": 59.768309
+    },
+    {
+      "operation": "save_slot_select_press_return",
+      "baseline_seconds": 0.142743,
+      "candidate_seconds": 0.095288
+    },
+    {
+      "operation": "save_action_press_return",
+      "baseline_seconds": 268.560588,
+      "candidate_seconds": 184.837711
+    },
+    {
+      "operation": "continue_press_return",
+      "baseline_seconds": 0.110675,
+      "candidate_seconds": 0.095013
+    }
+  ],
+  "limits": [
+    "One matched run per revision; evidence supports improvement for this recorded workload, not a statistical or universal speed guarantee.",
+    "Final integration source inventory/run qualification is separate from this isolated experiment."
+  ]
+}

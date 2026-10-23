@@ -1,0 +1,111 @@
+[
+  {
+    "run": 39989387087,
+    "id": 12516783463,
+    "controller": "15f55f3569467fdcbfc3ebac3f4cf9d8887c6b16",
+    "sha": "6d3f4f27869f0befdf63c764b8ecce9185403ec9564e211c6b5d223a6f1fb61d",
+    "size": 2958631,
+    "reports": [
+      "ci/manual-witness-revision-storage.jsonl",
+      "ci/settings.jsonl",
+      "ci/settings.xml",
+      "ci/storage-refusal/empty/repository-after.json",
+      "ci/storage-refusal/empty/repository-before.json",
+      "ci/storage-refusal/empty/tests.xml",
+      "ci/storage-refusal/results.json",
+      "ci/storage-refusal/whitespace/repository-after.json",
+      "ci/storage-refusal/whitespace/repository-before.json",
+      "ci/storage-refusal/whitespace/tests.xml",
+      "ci/targeted-source-proof.json"
+    ]
+  },
+  {
+    "run": 39989387087,
+    "id": 12517690807,
+    "controller": "15f55f3569467fdcbfc3ebac3f4cf9d8887c6b16",
+    "sha": "4d73b83023ba9923afbd8c4b979ec41acb0cd916a2bbc117a02dd456dcf4269b",
+    "size": 19904,
+    "reports": [
+      "ci/scene-desktop-first-reveal-load-proof.json",
+      "ci/scene-desktop-first-reveal-create-proof.json",
+      "ci/scene_desktop_first_reveal-load.xml",
+      "ci/scene_desktop_first_reveal.jsonl",
+      "ci/scene_desktop_first_reveal.xml",
+      "ci/targeted-source-proof.json"
+    ]
+  },
+  {
+    "run": 39988834004,
+    "id": 12516632644,
+    "controller": "0cb92e4b9356e06d0aae1beccd1d80c2f19244a7",
+    "sha": "5fd0cf26a311dcc13c9d662274b44730a44cb620ae8782ff70b4137188aeb067",
+    "size": 3432023,
+    "reports": [
+      ".godot/ci/audit-origin.json",
+      ".godot/ci/import-process.json",
+      ".godot/ci/public-surfaces/game_state-check.jsonl",
+      ".godot/ci/public-surfaces/game_state-generate.jsonl",
+      ".godot/ci/public-surfaces/game_state_surface.json",
+      ".godot/ci/public-surfaces/retirement-audit.json",
+      ".godot/ci/public-surfaces/save_manager-check.jsonl",
+      ".godot/ci/public-surfaces/save_manager-generate.jsonl",
+      ".godot/ci/public-surfaces/save_manager_surface.json",
+      ".godot/ci/public_surfaces.jsonl",
+      ".godot/ci/public_surfaces.xml",
+      ".godot/ci/scene-seed-legacy.xml",
+      ".godot/ci/scene-seed-scene.jsonl",
+      ".godot/ci/scene-seed-legacy.jsonl",
+      ".godot/ci/scene-seed-scene.xml",
+      "evidence/phase_2r/runtime/game_state_surface.json",
+      "evidence/phase_2r/runtime/save_manager_surface.json"
+    ]
+  },
+  {
+    "run": 39988834004,
+    "id": 12517208437,
+    "controller": "0cb92e4b9356e06d0aae1beccd1d80c2f19244a7",
+    "sha": "c49053565e4b9430f2e9f0157eea9c1602898156de13df2837ca714235279670",
+    "size": 6079431,
+    "reports": [
+      "audit-origin.json",
+      "authored-week-terminal-pair.json",
+      "comparison-origin.json",
+      "helper-hashes.json",
+      "import-process.json",
+      "terminal-candidate.jsonl",
+      "terminal-candidate.xml",
+      "terminal-pair.json",
+      "terminal-root-hashes.json"
+    ]
+  },
+  {
+    "run": 39986683788,
+    "id": 12516600493,
+    "controller": "10e575924a794cc790e98ae55371ee8e579f0c83",
+    "sha": "9d045c1cfefc3ab9884531606196d8045f3efddcbf7886282e8a1ac7c21978b5",
+    "size": 4168614,
+    "reports": [
+      "ci/settings-phases/source-proof.json",
+      "ci/settings-supervised/exit-status.json",
+      "ci/settings-supervised/pwsh-probe.json",
+      "ci/settings-supervised/supervisor-result.json",
+      "ci/settings.jsonl",
+      "ci/settings.xml"
+    ]
+  },
+  {
+    "run": 39987157781,
+    "id": 12516316488,
+    "controller": "01410d6fad798680dc6bc2963e56e0308ef2bb23",
+    "sha": "8d34da6116d1e8d905d18e7dd4c833cfea1341ab95c2f9d72cb5118e2b95f78c",
+    "size": 3193245,
+    "reports": [
+      "ci/settings-phases/source-proof.json",
+      "ci/settings-supervised/exit-status.json",
+      "ci/settings-supervised/pwsh-probe.json",
+      "ci/settings-supervised/supervisor-result.json",
+      "ci/settings.jsonl",
+      "ci/settings.xml"
+    ]
+  }
+]
