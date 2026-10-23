@@ -1,0 +1,104 @@
+name: Preserve final qualified cloud evidence
+'on':
+  push:
+    branches:
+    - codex/final-evidence-controller-20261024
+permissions:
+  actions: read
+  contents: write
+env:
+  SOURCE_SHA: 1ca4b17e49dd487fd57aa80b4a8d7fb3b2c17d1e
+  SOURCE_TREE: 7b509b012731491f92af53cef292b16c3ad173e2
+jobs:
+  preserve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        ref: ${{ env.SOURCE_SHA }}
+        persist-credentials: true
+    - name: Verify source and prepare disposable checkout
+      run: 'test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+
+        test "$(git rev-parse ''HEAD^{tree}'')" = "$SOURCE_TREE"
+
+        git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1'
+    - name: Download and authenticate original evidence
+      uses: actions/github-script@v7
+      with:
+        script: "const fs=require('fs'),crypto=require('crypto');\nconst items=[{\"run\":39989387087,\"id\":12516783463,\"controller\":\"15f55f3569467fdcbfc3ebac3f4cf9d8887c6b16\"\
+          ,\"sha\":\"6d3f4f27869f0befdf63c764b8ecce9185403ec9564e211c6b5d223a6f1fb61d\",\"size\":2958631,\"reports\":[\"ci/manual-witness-revision-storage.jsonl\"\
+          ,\"ci/settings.jsonl\",\"ci/settings.xml\",\"ci/storage-refusal/empty/repository-after.json\",\"ci/storage-refusal/empty/repository-before.json\"\
+          ,\"ci/storage-refusal/empty/tests.xml\",\"ci/storage-refusal/results.json\",\"ci/storage-refusal/whitespace/repository-after.json\"\
+          ,\"ci/storage-refusal/whitespace/repository-before.json\",\"ci/storage-refusal/whitespace/tests.xml\",\"ci/targeted-source-proof.json\"\
+          ]},{\"run\":39989387087,\"id\":12517690807,\"controller\":\"15f55f3569467fdcbfc3ebac3f4cf9d8887c6b16\",\"sha\":\"4d73b83023ba9923afbd8c4b979ec41acb0cd916a2bbc117a02dd456dcf4269b\"\
+          ,\"size\":19904,\"reports\":[\"ci/scene-desktop-first-reveal-load-proof.json\",\"ci/scene-desktop-first-reveal-create-proof.json\",\"\
+          ci/scene_desktop_first_reveal-load.xml\",\"ci/scene_desktop_first_reveal.jsonl\",\"ci/scene_desktop_first_reveal.xml\",\"ci/targeted-source-proof.json\"\
+          ]},{\"run\":39988834004,\"id\":12516632644,\"controller\":\"0cb92e4b9356e06d0aae1beccd1d80c2f19244a7\",\"sha\":\"5fd0cf26a311dcc13c9d662274b44730a44cb620ae8782ff70b4137188aeb067\"\
+          ,\"size\":3432023,\"reports\":[\".godot/ci/audit-origin.json\",\".godot/ci/import-process.json\",\".godot/ci/public-surfaces/game_state-check.jsonl\"\
+          ,\".godot/ci/public-surfaces/game_state-generate.jsonl\",\".godot/ci/public-surfaces/game_state_surface.json\",\".godot/ci/public-surfaces/retirement-audit.json\"\
+          ,\".godot/ci/public-surfaces/save_manager-check.jsonl\",\".godot/ci/public-surfaces/save_manager-generate.jsonl\",\".godot/ci/public-surfaces/save_manager_surface.json\"\
+          ,\".godot/ci/public_surfaces.jsonl\",\".godot/ci/public_surfaces.xml\",\".godot/ci/scene-seed-legacy.xml\",\".godot/ci/scene-seed-scene.jsonl\"\
+          ,\".godot/ci/scene-seed-legacy.jsonl\",\".godot/ci/scene-seed-scene.xml\",\"evidence/phase_2r/runtime/game_state_surface.json\",\"evidence/phase_2r/runtime/save_manager_surface.json\"\
+          ]},{\"run\":39988834004,\"id\":12517208437,\"controller\":\"0cb92e4b9356e06d0aae1beccd1d80c2f19244a7\",\"sha\":\"c49053565e4b9430f2e9f0157eea9c1602898156de13df2837ca714235279670\"\
+          ,\"size\":6079431,\"reports\":[\"audit-origin.json\",\"authored-week-terminal-pair.json\",\"comparison-origin.json\",\"helper-hashes.json\"\
+          ,\"import-process.json\",\"terminal-candidate.jsonl\",\"terminal-candidate.xml\",\"terminal-pair.json\",\"terminal-root-hashes.json\"\
+          ]},{\"run\":39986683788,\"id\":12516600493,\"controller\":\"10e575924a794cc790e98ae55371ee8e579f0c83\",\"sha\":\"9d045c1cfefc3ab9884531606196d8045f3efddcbf7886282e8a1ac7c21978b5\"\
+          ,\"size\":4168614,\"reports\":[\"ci/settings-phases/source-proof.json\",\"ci/settings-supervised/exit-status.json\",\"ci/settings-supervised/pwsh-probe.json\"\
+          ,\"ci/settings-supervised/supervisor-result.json\",\"ci/settings.jsonl\",\"ci/settings.xml\"]},{\"run\":39987157781,\"id\":12516316488,\"\
+          controller\":\"01410d6fad798680dc6bc2963e56e0308ef2bb23\",\"sha\":\"8d34da6116d1e8d905d18e7dd4c833cfea1341ab95c2f9d72cb5118e2b95f78c\"\
+          ,\"size\":3193245,\"reports\":[\"ci/settings-phases/source-proof.json\",\"ci/settings-supervised/exit-status.json\",\"ci/settings-supervised/pwsh-probe.json\"\
+          ,\"ci/settings-supervised/supervisor-result.json\",\"ci/settings.jsonl\",\"ci/settings.xml\"]}];\nfs.mkdirSync('.godot/ci/final-retention',{recursive:true});\n\
+          for(const item of items){\n  const meta=await github.rest.actions.getArtifact({owner:context.repo.owner,repo:context.repo.repo,artifact_id:item.id});\n\
+          \  if(meta.data.workflow_run.id!==item.run || meta.data.workflow_run.head_sha!==item.controller || meta.data.expired || meta.data.size_in_bytes!==item.size\
+          \ || (meta.data.digest && meta.data.digest!=='sha256:'+item.sha)) throw new Error('Artifact metadata mismatch '+item.id);\n  const archive=await\
+          \ github.rest.actions.downloadArtifact({owner:context.repo.owner,repo:context.repo.repo,artifact_id:item.id,archive_format:'zip'});\n\
+          \  const bytes=Buffer.from(archive.data);\n  if(bytes.length!==item.size || crypto.createHash('sha256').update(bytes).digest('hex')!==item.sha)\
+          \ throw new Error('Artifact bytes mismatch '+item.id);\n  fs.writeFileSync('.godot/ci/final-retention/'+item.id+'.zip',bytes);\n}\n\
+          fs.writeFileSync('.godot/ci/final-retention/items.json',JSON.stringify(items));\n"
+    - name: Retain verified archives and summaries
+      run: "python - <<'PYCODE'\nimport base64, hashlib, json, os, pathlib, shutil, subprocess, zipfile\nassert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==os.environ['SOURCE_SHA']\n\
+        assert subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()==os.environ['SOURCE_TREE']\ntmp=pathlib.Path('.godot/ci/final-retention')\n\
+        out=pathlib.Path('evidence/phase_2r/current_ci_20261023/final_retention')\nassert not out.exists(), 'Final evidence destination already\
+        \ exists'\nout.mkdir(parents=True)\nitems=json.loads((tmp/'items.json').read_text())\nfor item in items:\n    archive=tmp/(str(item['id'])+'.zip')\n\
+        \    assert archive.stat().st_size==item['size']\n    assert hashlib.sha256(archive.read_bytes()).hexdigest()==item['sha']\n    target=out/('run'+str(item['run']))\n\
+        \    target.mkdir(exist_ok=True)\n    with zipfile.ZipFile(archive) as z:\n        assert z.testzip() is None\n        for name in item['reports']:\n\
+        \            destination=(target/str(item['id'])/name).resolve()\n            assert destination.is_relative_to((target/str(item['id'])).resolve())\n\
+        \            destination.parent.mkdir(parents=True,exist_ok=True)\n            destination.write_bytes(z.read(name))\n    shutil.copyfile(archive,target/('original-'+str(item['id'])+'.zip'))\n\
+        (out/'artifacts.json').write_text(json.dumps(items,indent=2)+'\\n')\nembedded={'settings-qualified-39989387087-summary.json': {'sha':\
+        \ '5b57b7fe315439669a0973ee0e9c552a8d722f6e2f77e11f1e1f1c5c0d715382', 'base64': 'ewogICJydW5faWQiOiAzOTk4OTM4NzA4NywKICAiam9iX2lkIjogMTIwNTM2ODg4ODE0LAogICJhcnRpZmFjdF9pZCI6IDEyNTE2NzgzNDYzLAogICJhcnRpZmFjdF9uYW1lIjogIndpbmRvd3Mtc2V0dGluZ3MtMzk5ODkzODcwODctMSIsCiAgImFydGlmYWN0X3NoYTI1NiI6ICI2ZDNmNGYyNzg2OWYwYmVmZGY2M2M3NjRiOGVjY2U5MTg1NDAzZWM5NTY0ZTIxMWM2YjVkMjIzYTZmMWZiNjFkIiwKICAiYXJ0aWZhY3RfYnl0ZXMiOiAyOTU4NjMxLAogICJ6aXBfY3JjX3ZlcmlmaWVkIjogdHJ1ZSwKICAic291cmNlIjogImQ3NDY2MzYzNWYwNGY2M2QzYmIzZTEyZjE4MTFmZWUxNzVjYWRiZjciLAogICJzb3VyY2VfdHJlZSI6ICIxMzdhNGQ5OTc2YzI0MzhjODYzODE2NjM0ZDcxYTFkZGE3YTQxODRhIiwKICAiY29udHJvbGxlciI6ICIxNWY1NWYzNTY5NDY3ZmRjYmZjM2ViYWMzZjRjZjlkODg4N2M2YjE2IiwKICAicHJpbWFyeSI6IHsKICAgICJjYXNlcyI6IDM2NiwKICAgICJhc3NlcnRpb25zIjogMjE5MzQsCiAgICAicGFzc2VkIjogMzY2LAogICAgImZhaWx1cmVzIjogMCwKICAgICJza2lwcGVkIjogMCwKICAgICJzY3JpcHRzIjogMzEKICB9LAogICJleHBlY3RlZF9yZWZ1c2FsX2NlbnN1c2VzIjogWwogICAgewogICAgICAiY2FzZSI6ICJlbXB0eSIsCiAgICAgICJleGl0X2NvZGUiOiAxLAogICAgICAidGVzdHMiOiA4MywKICAgICAgImV4cGVjdGVkX3Jvb3RfcmVmdXNhbHMiOiA4MCwKICAgICAgInN0b3JhZ2VfZnJlZV9wYXNzZXMiOiAzLAogICAgICAidXNlcl9kaXIiOiAiRDpcXGFcXGR3bVxcZHdtXFwuZ29kb3RcXGNpXFxzdG9yYWdlLXJlZnVzYWxcXGVtcHR5XFxhcHBkYXRhXFxHb2RvdFxcYXBwX3VzZXJkYXRhXFxEV01cXCIsCiAgICAgICJyZXBvc2l0b3J5X3NuYXBzaG90X3VuY2hhbmdlZCI6IHRydWUsCiAgICAgICJhbGxfcmVmdXNhbHNfdGVzdF9yb290X21pc3NpbmciOiB0cnVlLAogICAgICAiYXNzZXJ0aW9ucyI6IDk5CiAgICB9LAogICAgewogICAgICAiY2FzZSI6ICJ3aGl0ZXNwYWNlIiwKICAgICAgImV4aXRfY29kZSI6IDEsCiAgICAgICJ0ZXN0cyI6IDgzLAogICAgICAiZXhwZWN0ZWRfcm9vdF9yZWZ1c2FscyI6IDgwLAogICAgICAic3RvcmFnZV9mcmVlX3Bhc3NlcyI6IDMsCiAgICAgICJ1c2VyX2RpciI6ICJEOlxcYVxcZHdtXFxkd21cXC5nb2RvdFxcY2lcXHN0b3JhZ2UtcmVmdXNhbFxcd2hpdGVzcGFjZVxcYXBwZGF0YVxcR29kb3RcXGFwcF91c2VyZGF0YVxcRFdNXFwiLAogICAgICAicmVwb3NpdG9yeV9zbmFwc2hvdF91bmNoYW5nZWQiOiB0cnVlLAogICAgICAiYWxsX3JlZnVzYWxzX3Rlc3Rfcm9vdF9taXNzaW5nIjogdHJ1ZSwKICAgICAgImFzc2VydGlvbnMiOiA5OQogICAgfQogIF0sCiAgIm1hbnVhbF93aXRuZXNzIjogewogICAgImFzc2VydGlvbnMiOiA2MTE4MCwKICAgICJkaXN0aW5jdF9zbmFwc2hvdHMiOiA5NCwKICAgICJmYWlsdXJlcyI6IFtdLAogICAgInJlZnVzYWxfcGFpcnMiOiAzMCwKICAgICJyZXN0YXJ0X2ZhdWx0X3BhaXJzIjogMTYwNCwKICAgICJyZXN0YXJ0X3BhaXJzIjogMjIxOCwKICAgICJ3cml0ZV9mYXVsdF9wYWlycyI6IDE1NCwKICAgICJ3cml0ZV9wYWlycyI6IDE0CiAgfSwKICAicmVuZGVyIjogewogICAgImNhcHR1cmVzIjogMywKICAgICJvayI6IHRydWUsCiAgICAiZmFpbHVyZSI6ICIiLAogICAgInNhbXBsZV9zY29wZSI6ICJBZnRlckhvdXJzIFN0YW5kYXJkIG9yZGluYXJ5IHRhcmdldHMgb25seS4iLAogICAgInNjb3BlIjogIkF1dGhvcmVkIGxvY2FsZSBwcmltYXJ5IGZvbnQgcGx1cyBleHBsaWNpdCBjb21wYW5pb24tZm9udCBjb3ZlcmFnZSBhbmQgZnVsbC1zaXplIGdlb21ldHJ5IGNoZWNrczsgbm8gY2xhaW0gb2YgcGVyY2VwdHVhbCBvciBzY3JlZW4tcmVhZGVyIGFjY2VwdGFuY2UuIE9mZnNjcmVlbiBzaGVldCByb3dzIHJlbWFpbiByZWFjaGFibGUgYnkgdmVydGljYWwgc2Nyb2xsLiIKICB9LAogICJ1bmV4cGVjdGVkX3NjcmlwdF9sb2FkX3VuaWNvZGVfZXJyb3JzIjogMCwKICAic2NvcGVfbm90ZSI6ICJSZWZ1c2FsIGNlbnN1cyBpbnRlbnRpb25hbGx5IHJlcG9ydHM4MCB0ZXN0X3Jvb3RfbWlzc2luZyBmYWlsdXJlcyBwZXIgaW52YWxpZC1yb290IG1vZGU7IHRob3NlIGFyZSBleHBlY3RlZCByZWZ1c2FsIGV2aWRlbmNlLCBzZXBhcmF0ZSBmcm9tMzY2IHBhc3NpbmcgcHJpbWFyeSBjYXNlcyBhbmQ2MTE4MCBzdGFuZGFsb25lIG1hbnVhbCBhc3NlcnRpb25zLiIKfQo='},\
+        \ 'scene-first-reveal-39989387087-summary.json': {'sha': '3b2825ab1792bb4ef7894e5f318beec439ae3c56ed25abf1af753a79c1c3a114', 'base64':\
+        \ 'ewogICJydW5faWQiOiAzOTk4OTM4NzA4NywKICAiam9iX2lkIjogMTIwNTM2ODg5MzcxLAogICJhcnRpZmFjdF9pZCI6IDEyNTE3NjkwODA3LAogICJhcnRpZmFjdF9zaGEyNTYiOiAiNGQ3M2I4MzAyM2JhOTkyM2FmYmQ4YzRiOTc5ZWM0MWFjYjBjZDkxNmEyYmJjMTE3YTAyZGQ0NTZkY2Y0MjY5YiIsCiAgImFydGlmYWN0X2J5dGVzIjogMTk5MDQsCiAgInppcF9jcmNfdmVyaWZpZWQiOiB0cnVlLAogICJzb3VyY2UiOiAiZDc0NjYzNjM1ZjA0ZjYzZDNiYjNlMTJmMTgxMWZlZTE3NWNhZGJmNyIsCiAgInNvdXJjZV90cmVlIjogIjEzN2E0ZDk5NzZjMjQzOGM4NjM4MTY2MzRkNzFhMWRkYTdhNDE4NGEiLAogICJjb250cm9sbGVyIjogIjE1ZjU1ZjM1Njk0NjdmZGNiZmMzZWJhYzNmNGNmOWQ4ODg3YzZiMTYiLAogICJyZXBvcnRzIjogWwogICAgewogICAgICAiZmlsZSI6ICJzY2VuZV9kZXNrdG9wX2ZpcnN0X3JldmVhbC54bWwiLAogICAgICAiY2FzZXMiOiAxLAogICAgICAiYXNzZXJ0aW9ucyI6IDkyLAogICAgICAic3RhdHVzIjogInBhc3MiCiAgICB9LAogICAgewogICAgICAiZmlsZSI6ICJzY2VuZV9kZXNrdG9wX2ZpcnN0X3JldmVhbC1sb2FkLnhtbCIsCiAgICAgICJjYXNlcyI6IDEsCiAgICAgICJhc3NlcnRpb25zIjogNTEsCiAgICAgICJzdGF0dXMiOiAicGFzcyIKICAgIH0KICBdLAogICJjcmVhdG9yX3Byb2Nlc3NfaWQiOiAxOTgwLAogICJsb2FkZXJfcHJvY2Vzc19pZCI6IDE2MzIsCiAgInNhbWVfdGVzdF9yb290IjogdHJ1ZSwKICAic2FtZV91c2VyX2RpciI6IHRydWUsCiAgInNvdXJjZV9icmFuY2giOiAiYnJhbmNoX2lkLmMyZGIxYmNkYjQ3MmFlN2RlNGRlYzc0ZjFjY2RlMzhiM2Q4ZDJlNGJlODAxYmI2ZDZkZjliMTFiNGViMGYxOTMiLAogICJkZXN0aW5hdGlvbl9icmFuY2giOiAiYnJhbmNoX2lkLmFmM2M4ZTk0NTc4MzAxNGFkNDRjZjliNjllZTBmZDIzMjVhYjg5MTc3NTNmNGZlNTkyNDgzZWIwYWYwYTk1N2UiLAogICJ2ZXJpZmllZF9zY29wZSI6ICJQYXNzaW5nIGFzc2VydGlvbnMgY292ZXIgcmVhbCBmaWxlc3lzdGVtIHJlZnVzYWwgYW5kIHJldHJ5LCBjb21wbGV0ZSBTYXZlOS9SdW45IHBlcnNpc3RlbmNlLCBmcmVzaCBzZWxlY3RlZCBMb2FkIHJldGFpbmluZyBib2FyZCBhbmQgZ2FtZXBsYXkgd2l0aG91dCByZWNoYXJnZSwgYW5kIG5vIHByZXNlbnRhdGlvbi1vcGVuIGFjY291bnRpbmcgY2hhbmdlcy4gUmVuZGVyZWQgbmF0aXZlIHByb2Nlc3M7IG5vIHNjcmVlbnNob3Qgb3IgcGh5c2ljYWwtaW5wdXQgVUkgY2xhaW0uIExvYWQgcHJvb2YgcnVuIHBheWxvYWQgaXMgdGhlIHJldGFpbmVkIGNyZWF0b3Igd2l0bmVzczsgbGl2ZSBlcXVhbGl0eSBpcyB2ZXJpZmllZCBieSB0aGUgcGFzc2luZyBMb2FkIGFzc2VydGlvbnMuIEhpc3RvcmljYWwgcG9zdC1jaGVja3BvaW50L3ByZS1saXZlLWFkb3B0aW9uIGNyYXNoIGluamVjdGlvbiBtYXRyaXggaXMgbm90IHJlcHJvZHVjZWQuIgp9Cg=='},\
+        \ 'settings-quiet-log-comparison.json': {'sha': '35d3ecac06a5f2a993cff37c353c93f39a9f97d389b444054bdfba9f46eb5568', 'base64': 'ewogICJzY2hlbWFfdmVyc2lvbiI6IDEsCiAgInNjb3BlIjogIkV4aXN0aW5nIFNldHRpbmdzIHByaW1hcnkgcnVuczsgcXVpZXQgb3V0cHV0IHByZXNlcnZlcyBjYXNlIG5hbWVzLCBzdGF0dXNlcywgYXNzZXJ0aW9uIGNvdW50cyBhbmQgZmFpbHVyZSB0ZXh0LiBUaW1pbmcgZmllbGRzIGV4Y2x1ZGVkLiBObyBjbGFpbSB0aGF0IGxvZ2dpbmcgY2F1c2VkIGVhcmxpZXIgYXBwYXJlbnQgc3RhbGxzLiIsCiAgInJlY29yZHMiOiBbCiAgICB7CiAgICAgICJtb2RlIjogInZlcmJvc2UiLAogICAgICAicnVuX2lkIjogMzk5ODY2ODM3ODgsCiAgICAgICJhcnRpZmFjdF9pZCI6IDEyNTE2NjAwNDkzLAogICAgICAiYXJ0aWZhY3Rfc2hhMjU2IjogIjlkMDQ1YzFjZmVmYzNhYjk4ODQ1MzE2MDYxOTZkODA0NWYzZWZkZGNiZjc4ODYyODJlOGExYWM3YzIxOTc4YjUiLAogICAgICAiYXJ0aWZhY3RfYnl0ZXMiOiA0MTY4NjE0LAogICAgICAiemlwX2NyY192ZXJpZmllZCI6IHRydWUsCiAgICAgICJnb2RvdF9sb2dfYnl0ZXMiOiAyMzE4NzA3NCwKICAgICAgImp1bml0X3NoYTI1NiI6ICI4NzFjMzYwNzhmNGNlNDE0NzIxNTUwYTI0OGVlNTgyNWFkOTRmMTRkNTQxZDIwMjZkZDI4ZDVhYTU4OWViNTFhIiwKICAgICAgImNhc2VzIjogMzY5LAogICAgICAiYXNzZXJ0aW9ucyI6IDIyMDA5LAogICAgICAicGFzc2VkIjogMzYxLAogICAgICAiZmFpbGVkIjogOAogICAgfSwKICAgIHsKICAgICAgIm1vZGUiOiAicXVpZXQiLAogICAgICAicnVuX2lkIjogMzk5ODcxNTc3ODEsCiAgICAgICJhcnRpZmFjdF9pZCI6IDEyNTE2MzE2NDg4LAogICAgICAiYXJ0aWZhY3Rfc2hhMjU2IjogIjhkMzRkYTYxMTZkMWU4ZDkwNWQxOGU3ZGQ0YzgzM2NmZWExMzQxYWI5NWMyZjlkNzJjYjUxMThlMmI5NWY3OGMiLAogICAgICAiYXJ0aWZhY3RfYnl0ZXMiOiAzMTkzMjQ1LAogICAgICAiemlwX2NyY192ZXJpZmllZCI6IHRydWUsCiAgICAgICJnb2RvdF9sb2dfYnl0ZXMiOiA1Nzg3OSwKICAgICAgImp1bml0X3NoYTI1NiI6ICJlYzY1MmJhMDM2ZWQ3ZTYyNTNhNDBkMDJiNzkxMWZmYjhhN2E0ZGU2ZjEyNmUzN2VkODViNDQ0NzI5MzFiNDBiIiwKICAgICAgImNhc2VzIjogMzY5LAogICAgICAiYXNzZXJ0aW9ucyI6IDIyMDA5LAogICAgICAicGFzc2VkIjogMzYxLAogICAgICAiZmFpbGVkIjogOAogICAgfQogIF0sCiAgImV4YWN0X2Nhc2Vfb3V0Y29tZV9hc3NlcnRpb25fZmFpbHVyZV9lcXVpdmFsZW5jZSI6IHRydWUsCiAgImNvbXBhcmVkX2Nhc2VfbWFwX3NoYTI1NiI6ICIyNDIyYjc4NGE4OTI4OTgwODA4ODgyZjM2NDE4MDA4OGU2ZGExOGQxNjg2Y2JjZDVjZDM5NjUyMDgxMDU0OTE4Igp9Cg=='},\
+        \ 'seed-native-qualification.json': {'sha': 'efe4c9c7a267898cff36f5e15d982ba150163dfc996a91c417ca6f28a107f96e', 'base64': 'ewogICJkZWNpc2lvbiI6ICJhY2NlcHRfZm9yX2ludGVncmF0aW9uIiwKICAiY2FuZGlkYXRlX3J1biI6ICIzOTk4ODgzNDAwNCIsCiAgImNhbmRpZGF0ZV9zb3VyY2UiOiAiOGNlZDg4Nzc2OTkzZWZlY2YzMjI5YjYwM2RiZDk2NzFkNzU4NDU0OSIsCiAgImNvbnRyb2xsZXIiOiAiMGNiOTJlNGI5MzU2ZTA2ZDBhYWUxYmVjY2QxZDgwYzJmMTkyNDRhNyIsCiAgImJhc2VsaW5lX3J1biI6ICIzOTk3MjU5NTY0OCIsCiAgImJhc2VsaW5lX3NvdXJjZSI6ICIzY2UyNGZmZmNhZTVmMjM1YWY5MzVmYzQ4NDYxNTIwNmY4MTNkOTlhIiwKICAiYXJ0aWZhY3Rfc2hhMjU2IjogImM0OTA1MzU2NWU0Yjk0MzBmMmU5ZjAxNTdlZWE5YzE2MDI4OTgxNTZkZTEzZGYyODM3Y2E3MTQyMzUyNzk2NzAiLAogICJhcnRpZmFjdF9jcmNfb2siOiB0cnVlLAogICJuYXRpdmVfdGVzdHMiOiAxLAogICJuYXRpdmVfYXNzZXJ0aW9ucyI6IDExMiwKICAibmF0aXZlX3N0YXR1cyI6ICJwYXNzIiwKICAiZm9jdXNlZF90ZXN0cyI6IDU1LAogICJmb2N1c2VkX2Fzc2VydGlvbnMiOiAxODM2LAogICJpbnZlbnRvcnlfdGVzdHMiOiAxMSwKICAiaW52ZW50b3J5X2Fzc2VydGlvbnMiOiAzNTIsCiAgIm1hdGNoZWRfcm9vdF9maWxlcyI6IDQwLAogICJyb290X21hbmlmZXN0X2VxdWFsIjogdHJ1ZSwKICAiaGVscGVyX2hhc2hlcyI6IHsKICAgICJwYWlyLmdkIjogIjM4N2YzMzViNzU4ZDA2YWMxNzYyMzAyNDIzMTUxZDQ3ZDU3YWExZGY5MGFkYzkzM2NkZWUzODU1Y2YwNGZmNjUiLAogICAgInBhaXItbmV4dC5nZCI6ICJlYmY0ZTkzODAwNjZjZDc2OWMxMGM2NGFlMjFiZGRmNjA1Yzk3MmE1OTU1MzI0YzQ0NTY1NGQ4ZDk1OTU0MGM3IiwKICAgICJzZWVkLmdkIjogIjFlZWFlM2Q1YTgzZGM2NDU3NThkZWY0MGUzNzE0MDgxODdiY2E4MDA5ZTVlZjljMDkxNmIzZDQ4OWYzNmJlM2QiLAogICAgInJlcGxheS5nZCI6ICI5NDVhN2E3NWE5Y2FlNmUxNGUyZTcwZTliOTk4NjZhOTI5YmExY2JlMzZkODI0OWJiOWYxNzdmOWIzMDI2YTIwIgogIH0sCiAgImhlbHBlcl9ieXRlc19lcXVhbCI6IHRydWUsCiAgInNvdXJjZV9zbG90X3NoYTI1NiI6ICIxNzkzNGM4MTk5YTdkMjVmOTdjNjk4OTBmMGNhNjA5ZTUxMDZjNmJiNmRjMTg3NDY0ZDU4YzQwZDJiYWY5ODdjIiwKICAic291cmNlX3Nsb3RfZXF1YWwiOiB0cnVlLAogICJ1aV90aW1pbmdfc2NvcGUiOiAiUHJlc3MtcmV0dXJuIGluY2x1ZGVzIHRoZSBleGlzdGluZyBmaXZlIGZyYW1lIHdhaXRzOyBMb2FkIFJlYWR5IGlzIHRoZSBleGlzdGluZyBvd25lciBzaWduYWwuIE5vIGFkZGVkIHZhbGlkYXRpb24sIHNjcmVlbnNob3Qgb3Igd2FpdC4iLAogICJ1aV90aW1pbmdfc2NvcGVfZXF1YWwiOiB0cnVlLAogICJvYnNlcnZlZF9saW5lcyI6IFsKICAgICJsaW5lLmVuZGluZy5hbG9uZS5ub3JtYWwuMDAxIgogIF0sCiAgImNvbXBsZXRlIjogdHJ1ZSwKICAicGhhc2VzIjogWwogICAgewogICAgICAicGhhc2UiOiAiYm9vdCIsCiAgICAgICJiYXNlbGluZV9zZWNvbmRzIjogNjcuMjM4MzMxLAogICAgICAiY2FuZGlkYXRlX3NlY29uZHMiOiA2MC4xMzAzNTEsCiAgICAgICJyZWR1Y3Rpb25fcGVyY2VudCI6IDEwLjU3MTMyMTI4OTkzNTA1MwogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogImxvYWQiLAogICAgICAiYmFzZWxpbmVfc2Vjb25kcyI6IDU0My40NjI4NjIsCiAgICAgICJjYW5kaWRhdGVfc2Vjb25kcyI6IDM5Ny41MzQ2OTcsCiAgICAgICJyZWR1Y3Rpb25fcGVyY2VudCI6IDI2Ljg1MTU0MzE2OTQ3NjA0NQogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogInNhdmUiLAogICAgICAiYmFzZWxpbmVfc2Vjb25kcyI6IDM2My41Mzc1MjMsCiAgICAgICJjYW5kaWRhdGVfc2Vjb25kcyI6IDI0Ni40MzYzMjYsCiAgICAgICJyZWR1Y3Rpb25fcGVyY2VudCI6IDMyLjIxMTU4NDY2MjE5NzMKICAgIH0KICBdLAogICJ1aV90aW1pbmdzIjogWwogICAgewogICAgICAib3BlcmF0aW9uIjogInRpdGxlX2JhY2t1cF9vcGVuX3ByZXNzX3JldHVybiIsCiAgICAgICJiYXNlbGluZV9zZWNvbmRzIjogNzcuNzI2MDQyLAogICAgICAiY2FuZGlkYXRlX3NlY29uZHMiOiA0OS4zNjA2ODYKICAgIH0sCiAgICB7CiAgICAgICJvcGVyYXRpb24iOiAibG9hZF9zbG90X3NlbGVjdF9wcmVzc19yZXR1cm4iLAogICAgICAiYmFzZWxpbmVfc2Vjb25kcyI6IDAuMDc5NjY3LAogICAgICAiY2FuZGlkYXRlX3NlY29uZHMiOiAwLjA3OTg2CiAgICB9LAogICAgewogICAgICAib3BlcmF0aW9uIjogImxvYWRfYWN0aW9uX3RvX3JlYWR5IiwKICAgICAgImJhc2VsaW5lX3NlY29uZHMiOiAzODMuMTA4MzY0LAogICAgICAiY2FuZGlkYXRlX3NlY29uZHMiOiAyOTQuMjI3NTE5CiAgICB9LAogICAgewogICAgICAib3BlcmF0aW9uIjogImxvYWRfYWN0aW9uX3ByZXNzX3JldHVybiIsCiAgICAgICJiYXNlbGluZV9zZWNvbmRzIjogNDY0LjkxNDkyMiwKICAgICAgImNhbmRpZGF0ZV9zZWNvbmRzIjogMzQ3LjM3MzMwNQogICAgfSwKICAgIHsKICAgICAgIm9wZXJhdGlvbiI6ICJlbmRpbmdfYmFja3VwX29wZW5fcHJlc3NfcmV0dXJuIiwKICAgICAgImJhc2VsaW5lX3NlY29uZHMiOiA5Mi44NTI2MTQsCiAgICAgICJjYW5kaWRhdGVfc2Vjb25kcyI6IDU5Ljc2ODMwOQogICAgfSwKICAgIHsKICAgICAgIm9wZXJhdGlvbiI6ICJzYXZlX3Nsb3Rfc2VsZWN0X3ByZXNzX3JldHVybiIsCiAgICAgICJiYXNlbGluZV9zZWNvbmRzIjogMC4xNDI3NDMsCiAgICAgICJjYW5kaWRhdGVfc2Vjb25kcyI6IDAuMDk1Mjg4CiAgICB9LAogICAgewogICAgICAib3BlcmF0aW9uIjogInNhdmVfYWN0aW9uX3ByZXNzX3JldHVybiIsCiAgICAgICJiYXNlbGluZV9zZWNvbmRzIjogMjY4LjU2MDU4OCwKICAgICAgImNhbmRpZGF0ZV9zZWNvbmRzIjogMTg0LjgzNzcxMQogICAgfSwKICAgIHsKICAgICAgIm9wZXJhdGlvbiI6ICJjb250aW51ZV9wcmVzc19yZXR1cm4iLAogICAgICAiYmFzZWxpbmVfc2Vjb25kcyI6IDAuMTEwNjc1LAogICAgICAiY2FuZGlkYXRlX3NlY29uZHMiOiAwLjA5NTAxMwogICAgfQogIF0sCiAgImxpbWl0cyI6IFsKICAgICJPbmUgbWF0Y2hlZCBydW4gcGVyIHJldmlzaW9uOyBldmlkZW5jZSBzdXBwb3J0cyBpbXByb3ZlbWVudCBmb3IgdGhpcyByZWNvcmRlZCB3b3JrbG9hZCwgbm90IGEgc3RhdGlzdGljYWwgb3IgdW5pdmVyc2FsIHNwZWVkIGd1YXJhbnRlZS4iLAogICAgIkZpbmFsIGludGVncmF0aW9uIHNvdXJjZSBpbnZlbnRvcnkvcnVuIHF1YWxpZmljYXRpb24gaXMgc2VwYXJhdGUgZnJvbSB0aGlzIGlzb2xhdGVkIGV4cGVyaW1lbnQuIgogIF0KfQo='}}\n\
+        for name, item in embedded.items():\n    data=base64.b64decode(item['base64'])\n    assert hashlib.sha256(data).hexdigest()==item['sha']\n\
+        \    (out/name).write_bytes(data)\n(out/'retention-origin.json').write_text(json.dumps({'source':os.environ['SOURCE_SHA'],'tree':os.environ['SOURCE_TREE'],'controller':os.environ['GITHUB_SHA'],'run':os.environ['GITHUB_RUN_ID']},indent=2)+'\\\
+        n')\nPYCODE\n"
+    - name: Commit evidence only
+      run: 'git reset --mixed HEAD
+
+        git config user.name ''github-actions[bot]''
+
+        git config user.email ''41898282+github-actions[bot]@users.noreply.github.com''
+
+        git add evidence/phase_2r/current_ci_20261023/final_retention
+
+        python - <<''PYCODE''
+
+        import subprocess
+
+        changes=subprocess.check_output([''git'',''diff'',''--cached'',''--name-only''],text=True).splitlines()
+
+        assert changes and all(p.startswith(''evidence/phase_2r/current_ci_20261023/final_retention/'') for p in changes)
+
+        PYCODE
+
+        git commit -m ''Retain final qualified cloud evidence [skip ci]''
+
+        git push origin HEAD:refs/heads/codex/final-evidence-result-20261024
+
+        '
+    - name: Restore disposable index for checkout cleanup
+      if: always()
+      run: git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
