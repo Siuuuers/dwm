@@ -4261,8 +4261,21 @@ func validate_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary)
 	var selected := _SCENE_MANIFEST.scene_registration()
 	if not selected.ok: return selected
 	if not _SCENE_EVENT._equal(bundle, selected.value): return _transaction_failure(&"scene_registration_mismatch", "")
-	var checked: Dictionary = _SCENE_EVENT.validate_scene_receipts(snapshot.command_receipts, bundle, _identity_issuer, get_node_or_null("/root/SaveManager"), snapshot.contacts)
-	if not checked.get("ok", false): return checked
+	var reuse_scene_commands: bool = not _SCENE_FROZEN._scene_terminal_plan(snapshot) \
+		and _SCENE_FROZEN._is_scene_checkpoint(snapshot.get("narrative_checkpoint")) \
+		and _SCENE_FROZEN.scene_validation_uses(_identity_issuer, get_node_or_null("/root/SaveManager"))
+	var commands: Dictionary
+	var frozen: Dictionary
+	if reuse_scene_commands:
+		# The public frame validator also authenticates receipts; consume only its fresh output.
+		# Combined corruption follows frame-validator order: envelope, receipts, frames, then Profile.
+		frozen = _SCENE_FROZEN.validate(snapshot, true)
+		if not frozen.get("ok", false): return frozen
+		commands = frozen.scene_commands
+	else:
+		var checked: Dictionary = _SCENE_EVENT.validate_scene_receipts(snapshot.command_receipts, bundle, _identity_issuer, get_node_or_null("/root/SaveManager"), snapshot.contacts)
+		if not checked.get("ok", false): return checked
+		commands = checked.value.commands
 	var profile: Node = get_node_or_null("/root/ProfileManager")
 	if profile == null or not profile.has_method("get_pair_deck_draw"):
 		return _transaction_failure(&"scene_profile_owner_required", "")
@@ -4272,16 +4285,17 @@ func validate_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary)
 		return _transaction_failure(&"scene_assignment_profile_mismatch", "")
 	var physical := _validate_scene_profile_references(snapshot, profile)
 	if not physical.ok: return physical
-	var frozen: Dictionary = _SCENE_FROZEN.validate(snapshot, true)
-	if not frozen.get("ok", false): return frozen
+	if not reuse_scene_commands:
+		frozen = _SCENE_FROZEN.validate(snapshot, true)
+		if not frozen.get("ok", false): return frozen
 	# Receipt authentication and frozen frame derivation are independent proofs.
 	# Join every authenticated event to the actual retained reading ledger as well:
 	# historical occurrences remain valid, but invented publications never do.
-	if not checked.value.commands.is_empty():
+	if not commands.is_empty():
 		if not is_instance_valid(_scene_event_bridge) \
 				or not _scene_event_bridge.has_method("validate_scene_event_anchor"):
 			return _transaction_failure(&"event_dependency_invalid", "scene reading anchor validator required")
-		for receipt: Dictionary in checked.value.commands.values():
+		for receipt: Dictionary in commands.values():
 			var anchored: Dictionary = _scene_event_bridge.validate_scene_event_anchor(
 				receipt.scene_event.reading_anchor, snapshot.lifecycle.ending_plan.source_reading_checkpoint
 				if snapshot.lifecycle.get("ending_plan") is Dictionary and snapshot.lifecycle.ending_plan.get("source_kind") == "scene" else snapshot.narrative_checkpoint)

@@ -6,6 +6,14 @@ const FIXTURE := preload("res://tests/support/SceneRunSaveFixture.gd")
 const RUN := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 const SAVE := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 const CONTRACT := preload("res://scripts/domain/narrative/SceneEventContract.gd")
+const FROZEN_RUN := preload("res://scripts/narrative/FrozenRunContext.gd")
+class PermissiveSceneAuthority:
+	extends RefCounted
+	var calls := 0
+	func validate_scene_snapshot_semantics(_snapshot: Dictionary, _bundle: Dictionary) -> Dictionary:
+		calls += 1
+		return {"ok": true}
+
 var fixture: RefCounted
 var setup_result: Dictionary = {}
 
@@ -36,6 +44,75 @@ func test_real_issuer_profile_reading_and_storage_pass_full_run_and_save_apis() 
 func test_rebuilt_authenticated_absent_publication_fails_full_run_and_save_anchor_join() -> void:
 	if not _ready_fixture(): return
 	_check_authenticated_anchor_refusal("publication_id", "TEST.publication.not.retained")
+
+func test_frozen_commands_are_authenticated_detached_and_rechecked_on_next_call() -> void:
+	if not _ready_fixture(): return
+	var original: Dictionary = fixture.snapshot.duplicate(true)
+	var before: Dictionary = fixture.observed_state()
+	var result: Dictionary = FROZEN_RUN.validate(fixture.snapshot, true)
+	assert_true(result.ok, str(result))
+	if not result.ok: return
+	assert_has(result, "scene_commands")
+	if not result.has("scene_commands"): return
+	assert_eq(result.scene_commands[fixture.event.command_id], fixture.snapshot.command_receipts[fixture.event.command_id])
+	assert_eq(result.value.entry_contexts, fixture.snapshot.narrative_checkpoint.reading_session.ledger.entry_contexts)
+	result.scene_commands[fixture.event.command_id].scene_event.reading_anchor.publication_id = "TEST.changed"
+	assert_eq(fixture.snapshot, original)
+	assert_true(RUN.validate(fixture.snapshot).ok, "a returned command cannot corrupt later semantic admission")
+	var changed: Dictionary = fixture.snapshot.duplicate(true)
+	changed.command_receipts[fixture.event.command_id].request_fingerprint = "0".repeat(64)
+	assert_false(FROZEN_RUN.validate(changed, true).ok, "each public call authenticates fresh input")
+	assert_false(RUN.validate(changed).ok)
+	assert_true(FROZEN_RUN.validate(fixture.snapshot, true).ok)
+	assert_eq(fixture.observed_state(), before)
+
+func test_semantic_owner_does_not_reuse_another_issuers_frozen_proof() -> void:
+	if not _ready_fixture(): return
+	var foreign := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd").new()
+	var root := preload("res://tests/support/FakeDesktopIssuerRootStore.gd").new("cd".repeat(32), 1)
+	assert_true(foreign.configure(root).ok)
+	assert_false(FROZEN_RUN.scene_validation_uses(foreign, null))
+	var original: Object = fixture.game._identity_issuer
+	fixture.game._identity_issuer = foreign
+	var refused: Dictionary = fixture.game.validate_scene_snapshot_semantics(fixture.snapshot, fixture.bundle)
+	fixture.game._identity_issuer = original
+	assert_false(refused.ok, "a differently bound GameState must still authenticate with its own issuer")
+	assert_true(RUN.validate(fixture.snapshot).ok)
+
+func test_custom_semantic_authority_cannot_bypass_receipt_authentication() -> void:
+	if not _ready_fixture(): return
+	var before: Dictionary = fixture.observed_state()
+	var original_authority: Object = RUN._scene_authority
+	var original_creation_owner: Object = RUN._scene_creation_owner
+	# This older v2 fixture normally omits the schema's creation owner. Align it
+	# explicitly so the positive prerequisite exercises actual receipt deferral.
+	RUN._scene_creation_owner = fixture.game.get_node_or_null("/root/SaveManager")
+	var matched: bool = RUN._scene_semantic_authenticates_receipts()
+	var admitted: Dictionary = RUN.validate(fixture.snapshot)
+	var changed: Dictionary = fixture.snapshot.duplicate(true)
+	changed.command_receipts[fixture.event.command_id].request_fingerprint = "0".repeat(64)
+	var real_refused: Dictionary = RUN.validate(changed)
+	var custom := PermissiveSceneAuthority.new()
+	RUN._scene_authority = custom
+	var custom_matched: bool = RUN._scene_semantic_authenticates_receipts()
+	var custom_admitted: Dictionary = RUN.validate(fixture.snapshot)
+	var calls_before_refusal: int = custom.calls
+	var refused_run: Dictionary = RUN.validate(changed)
+	var refused_save: Dictionary = SAVE.validate(fixture.document_for(changed))
+	var calls_after_refusal: int = custom.calls
+	RUN._scene_authority = original_authority
+	RUN._scene_creation_owner = original_creation_owner
+	assert_true(matched, "same actual owners exercise deferred receipt authentication")
+	assert_true(admitted.ok, str(admitted))
+	assert_false(real_refused.ok, "the real semantic owner still authenticates deferred receipts")
+	assert_false(custom_matched, "a permissive callback cannot select receipt deferral")
+	assert_true(custom_admitted.ok, str(custom_admitted))
+	assert_eq(calls_before_refusal, 1, "valid input reaches the configured custom authority")
+	assert_false(refused_run.ok, "Run independently rejects forged receipts with a custom authority")
+	assert_false(refused_save.ok, "Save preserves the independent receipt refusal")
+	assert_eq(calls_after_refusal, calls_before_refusal, "forged receipts are refused before the permissive callback")
+	assert_true(RUN.validate(fixture.snapshot).ok)
+	assert_eq(fixture.observed_state(), before)
 
 func test_rebuilt_authenticated_wrong_catalogue_fails_full_run_and_save_anchor_join() -> void:
 	if not _ready_fixture(): return

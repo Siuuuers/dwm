@@ -874,8 +874,12 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 		if not ids_error.is_empty(): return _fail(&"invalid_transaction_ids", ids_error)
 	var receipts_error := _validate_scene_receipt_shapes(candidate)
 	if not receipts_error.is_empty(): return _fail(&"invalid_command_receipts", receipts_error)
-	var scene_receipts: Dictionary = SCENE_EVENT_CONTRACT.validate_scene_receipts(candidate.command_receipts, bundle, _scene_issuer, _scene_creation_owner, candidate.contacts)
-	if not scene_receipts.ok: return scene_receipts
+	# The exact live owner authenticates these receipts in the mandatory semantic call below.
+	# Other owners and terminal snapshots retain the independent proof here. On deferral,
+	# combined corruption reports audio/reading errors before receipt-authentication errors.
+	if terminal or not _scene_semantic_authenticates_receipts():
+		var scene_receipts: Dictionary = SCENE_EVENT_CONTRACT.validate_scene_receipts(candidate.command_receipts, bundle, _scene_issuer, _scene_creation_owner, candidate.contacts)
+		if not scene_receipts.ok: return scene_receipts
 	var audio := _validate_scene_audio(candidate, bundle)
 	if not audio.ok: return audio
 	var reading := _validate_scene_reading(candidate)
@@ -901,6 +905,14 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 	if not semantic is Dictionary or semantic.get("ok") != true:
 		return semantic if semantic is Dictionary else _fail(&"scene_validation_invalid_result", "semantic owner must return a result")
 	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
+
+## Identity checks select an existing validator, never a caller-supplied trust assertion.
+static func _scene_semantic_authenticates_receipts() -> bool:
+	if not is_instance_valid(_scene_authority) or _scene_authority.get_script() != load("res://autoload/GameState.gd"):
+		return false
+	var owner := _scene_authority as Node
+	return owner.get("_identity_issuer") == _scene_issuer \
+		and owner.get_node_or_null("/root/SaveManager") == _scene_creation_owner
 
 static func is_scene_terminal(snapshot: Dictionary) -> bool:
 	var lifecycle: Variant = snapshot.get("lifecycle")

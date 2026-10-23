@@ -235,6 +235,34 @@ func test_initial_receipt_rechecks_registration_and_physical_profile_after_succe
 	assert_true(CONTRACT.validate_scene_receipts(bag, bundle, fixture.issuer, fixture.manager).ok,
 		"restoring the actual proof permits validation again")
 
+func test_schema_without_creation_owner_cannot_borrow_semantic_creation_authority() -> void:
+	assert_true(fixture_ready)
+	if not fixture_ready: return
+	var started: Dictionary = fixture.start()
+	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
+	if started.get("code") != &"scene_activation_pending": return
+	fixture.confirm_activation()
+	var original: Dictionary = fixture.read_autosave()
+	assert_true(original.ok, str(original))
+	if not original.ok: return
+	var snapshot: Dictionary = original.value.current_snapshot.snapshot
+	var before: Dictionary = _observed_state(started.transaction_id)
+	assert_true(RUN._scene_semantic_authenticates_receipts(), "joint owners exercise receipt deferral")
+	assert_true(RUN.validate(snapshot).ok)
+	var owner: Object = RUN._scene_creation_owner
+	RUN._scene_creation_owner = null
+	var matched: bool = RUN._scene_semantic_authenticates_receipts()
+	var refused_run: Dictionary = RUN.validate(snapshot)
+	var refused_save: Dictionary = SAVE.validate(original.value)
+	RUN._scene_creation_owner = owner
+	assert_false(matched, "schema and semantic creation owners must be identical")
+	assert_false(refused_run.ok)
+	assert_eq(refused_run.get("code"), &"scene_creation_owner_unbound")
+	assert_false(refused_save.ok)
+	assert_eq(refused_save.get("code"), &"scene_creation_owner_unbound")
+	assert_true(RUN.validate(snapshot).ok, "restoring the bound owner restores admission")
+	assert_eq(_observed_state(started.transaction_id), before)
+
 func _observed_state(transaction: String) -> Dictionary:
 	return {"game": fixture.game.capture_restore_state(), "profile": fixture.profile.get_profile_snapshot(),
 		"profile_revision": fixture.profile.get_profile_revision(), "root": fixture.issuer.capture_root(),

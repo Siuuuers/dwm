@@ -33,6 +33,10 @@ static func configure_scene_validation(issuer: Object, creation_owner: Object = 
 	if creation_owner != null: _scene_creation_owner = creation_owner
 	return {"ok": true}
 
+## Output reuse is valid only for the same already-bound proof owners.
+static func scene_validation_uses(issuer: Object, creation_owner: Object) -> bool:
+	return is_instance_valid(issuer) and _scene_issuer == issuer and _scene_creation_owner == creation_owner
+
 const DATING_KEY := "dating_frozen_contexts_v1"
 const HOSPITAL_KEY := "hospital_frozen_contexts_v1"
 const ENDING_KEY := "ending_frozen_contexts_v1"
@@ -118,6 +122,8 @@ static func validate_reading_checkpoint(checkpoint: Dictionary, snapshot: Dictio
 			return _fail(&"reading_scene_admission_invalid")
 		var frames := derive_scene_frames(receipts.value.admissions, scene_reading)
 		if not frames.ok: return frames
+		# Fresh authenticated output for the semantic owner's anchor joins; never an input bypass.
+		frames["scene_commands"] = receipts.value.commands
 		return frames
 
 	if not snapshot.get("lifecycle") is Dictionary or not snapshot.get("gameplay") is Dictionary \
