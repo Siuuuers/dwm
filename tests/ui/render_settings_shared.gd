@@ -26,6 +26,7 @@ var _profile: Node
 var _localization: Node
 var _input: Node
 var _app: Control
+var _desktop_host: Control
 var _pause: Control
 var _content: Control
 var _folder := ""
@@ -204,9 +205,14 @@ func _mount(locale: String, percent: int, in_pause: bool) -> bool:
 		if not _check(_pause.configure_presentation(LOCALES[locale], percent, "AfterHours") and _pause.configure_copy(copy), "Pause presentation/copy refused"): return false
 		_pause.open_surface()
 	else:
-		_app.position = Vector2(480, 64)
-		_app.size = Vector2(800, 656)
-		_viewport.add_child(_app)
+		# The bare Settings wrapper fills its shell parent in _ready(). Match
+		# the desktop workfield instead of making the viewport itself its host.
+		_desktop_host = Control.new()
+		_desktop_host.name = "DesktopContent"
+		_desktop_host.position = Vector2(480, 64)
+		_desktop_host.size = Vector2(800, 656)
+		_viewport.add_child(_desktop_host)
+		_desktop_host.add_child(_app)
 		_app.show_window()
 	_content = _app.settings_content
 	await _frames()
@@ -215,7 +221,8 @@ func _mount(locale: String, percent: int, in_pause: bool) -> bool:
 func _capture(locale: String, percent: int, state: String) -> bool:
 	await _frames()
 	var expected := Rect2(480, 64, 800, 656)
-	if not _check(_app.get_global_rect() == expected and _content.get_global_rect() == expected, "Settings escaped exact 800x656 workfield"): return false
+	if not _check(_app.get_global_rect() == expected and _content.get_global_rect() == expected,
+		"Settings escaped exact 800x656 workfield: app=%s content=%s expected=%s" % [_app.get_global_rect(), _content.get_global_rect(), expected]): return false
 	if not _check(_content.theme.default_font_size == int(24 * percent / 100.0), "canonical full text size changed"): return false
 	if not _check(_content.current_locale() == locale, "rendered locale differs from canonical owner"): return false
 	var primary: Font = PRESENTATION.TYPOGRAPHY.font(locale, percent, String(_profile.get_preference(&"preferences.accessibility.font_style", "pixel")))
@@ -298,10 +305,13 @@ func _unmount() -> void:
 	if is_instance_valid(_pause):
 		_pause.close_surface()
 		_pause.queue_free()
+	elif is_instance_valid(_desktop_host):
+		_desktop_host.queue_free()
 	elif is_instance_valid(_app):
 		_app.queue_free()
 	await process_frame
 	_pause = null
+	_desktop_host = null
 	_app = null
 	_content = null
 	for owner: Node in [_input, _localization, _profile]:
