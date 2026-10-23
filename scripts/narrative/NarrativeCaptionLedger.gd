@@ -17,6 +17,7 @@ var _frozen_context: Dictionary = {}
 var _entry_contexts_required := false
 var _entry_contexts: Dictionary = {}
 var _registered: Dictionary = {}
+var _registered_entries: Dictionary = {}
 var _by_line: Dictionary = {}
 var _published: Dictionary = {}
 var _sequence: Array[Dictionary] = []
@@ -43,6 +44,7 @@ func initialize(session_token: String, frozen_context: Dictionary,
 	for beat: Dictionary in checked.value.beats:
 		FROZEN._freeze(beat)
 		_registered[beat.beat_id] = beat
+		_registered_entries[beat.owning_entry_id] = true
 		_by_line[beat.line_id] = beat
 	return {"ok": true}
 
@@ -129,6 +131,7 @@ func restore_snapshot(session_token: String, frozen_context: Dictionary,
 	_entry_contexts_required = candidate._entry_contexts_required
 	_entry_contexts = candidate._entry_contexts
 	_registered = candidate._registered
+	_registered_entries = candidate._registered_entries
 	_by_line = candidate._by_line
 	_published = candidate._published
 	_sequence = candidate._sequence
@@ -159,9 +162,8 @@ func check_session(session_token: String, entry_id: String, occurrence_id: Strin
 	return {"ok": true}
 
 func _has_registered_entry(entry_id: String) -> bool:
-	for beat: Dictionary in _registered.values():
-		if beat.owning_entry_id == entry_id: return true
-	return false
+	# Membership comes only from admitted beats, including entries not yet published.
+	return _registered_entries.has(entry_id)
 
 func publish_line(session_token: String, publication_id: String, entry_id: String, line_id: String,
 		occurrence_id: String = "") -> Dictionary:
@@ -302,6 +304,7 @@ func _restore_scene_snapshot(session_token: String, frozen_context: Dictionary,
 	_entry_contexts_required = true
 	_entry_contexts = candidate._entry_contexts
 	_registered = candidate._registered
+	_registered_entries = candidate._registered_entries
 	_by_line = candidate._by_line
 	_published = candidate._published
 	_sequence = candidate._sequence

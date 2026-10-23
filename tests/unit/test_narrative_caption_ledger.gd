@@ -360,3 +360,43 @@ func test_original_unframed_snapshot_and_restore_contract_remains_available() ->
 		fixture.entry_manifest, fixture.registry, saved).ok)
 	assert_eq(restored.snapshot(), saved)
 
+func test_entry_membership_survives_empty_restore_without_admitting_manifest_only_entries() -> void:
+	for scene: bool in [false, true]:
+		var fixture := _fixture()
+		var absent := "fixture.non_canon.no_captions"
+		fixture.entry_manifest.entries.append({"entry_id": absent})
+		var source := LEDGER.new()
+		assert_true(source.initialize(TOKEN, fixture.frozen_context, fixture.entry_manifest,
+			fixture.registry, true, scene).ok)
+		var saved := source.snapshot()
+		var restored := LEDGER.new()
+		assert_true(restored.restore_snapshot(TOKEN, fixture.frozen_context, fixture.entry_manifest,
+			fixture.registry, saved, {}, true, scene).ok)
+		# Neither source has published anything. Membership belongs to the registry,
+		# not the saved captions, the manifest alone, or mutable caller-owned data.
+		fixture.registry.beats.clear()
+		for ledger: NarrativeCaptionLedger in [source, restored]:
+			var occurrence := "visit:empty" if scene else ""
+			var frame: Dictionary = _scene_frame(occurrence) if scene else fixture.entry_contexts[ENTRY]
+			assert_eq(ledger.admit_entry_context(TOKEN, absent, frame, occurrence).code,
+				&"caption_entry_unregistered")
+			assert_true(ledger.admit_entry_context(TOKEN, ENTRY, frame, occurrence).ok)
+			assert_true(ledger.publish_line(TOKEN, "after-empty-restore", ENTRY,
+				"fixture.caption.alpha", occurrence).ok)
+
+func test_failed_restore_cannot_retain_membership_from_rejected_registry() -> void:
+	var fixture := _fixture()
+	var source := _ledger(fixture)
+	assert_true(source.publish_line(TOKEN, "first", ENTRY, "fixture.caption.alpha").ok)
+	var saved := source.snapshot()
+	saved.captions.append(saved.captions[0].duplicate(true))
+	var restored := LEDGER.new()
+	assert_false(restored.restore_snapshot(TOKEN, fixture.frozen_context,
+		fixture.entry_manifest, fixture.registry, saved).ok)
+	# Reuse the still-uninitialized receiver with only the other registered entry.
+	fixture.registry.beats = [fixture.registry.beats[2]]
+	assert_true(restored.initialize(TOKEN, fixture.frozen_context,
+		fixture.entry_manifest, fixture.registry).ok)
+	assert_eq(restored.check_session(TOKEN, ENTRY).code, &"caption_entry_unregistered")
+	assert_true(restored.check_session(TOKEN, "fixture.non_canon.foreign_entry").ok)
+
