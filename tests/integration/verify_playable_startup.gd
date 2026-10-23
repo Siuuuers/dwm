@@ -474,7 +474,7 @@ func _dating_journey(game: Node, desktop: Node) -> void:
 		var before_reload := record.duplicate(true)
 		var prior_session: Dictionary = game.capture_live_session().value
 		var saves: Node = root.get_node("SaveManager")
-		var prepared: Dictionary = saves.prepare_restore_autosave()
+		var prepared: Dictionary = preload("res://tests/support/RetainedLegacyRestore.gd").prepare(saves, &"autosave")
 		if not _check(prepared.get("ok", false), "mid-Dating Autosave prepares: " + JSON.stringify(prepared)): return
 		var restored: Dictionary = saves.commit_prepared_restore(prepared.value.prepared)
 		if not _check(restored.get("ok", false), "mid-Dating Autosave commits: " + JSON.stringify(restored)): return
@@ -972,7 +972,7 @@ func _sylvia_care_journey(game: Node, before: Dictionary) -> void:
 		"rereading Sylvia does not repeat care effects"): return
 	var session: Dictionary = game.capture_live_session().value
 	var saves: Node = root.get_node("SaveManager")
-	var prepared: Dictionary = saves.prepare_restore_autosave()
+	var prepared: Dictionary = preload("res://tests/support/RetainedLegacyRestore.gd").prepare(saves, &"autosave")
 	if not _check(prepared.get("ok", false), "care full Autosave prepares: " + JSON.stringify(prepared)): return
 	var loaded: Dictionary = saves.commit_prepared_restore(prepared.value.prepared)
 	if not _check(loaded.get("ok", false), "care full Autosave loads: " + JSON.stringify(loaded)): return
@@ -1621,7 +1621,7 @@ func _terminal_inspection_journey(game: Node, desktop: Node, app: Node) -> void:
 		"actual New Board dismisses inspection durably"): return
 	var session: Dictionary = game.capture_live_session().value
 	var saves: Node = root.get_node("SaveManager")
-	var prepared: Dictionary = saves.prepare_restore_autosave()
+	var prepared: Dictionary = preload("res://tests/support/RetainedLegacyRestore.gd").prepare(saves, &"autosave")
 	if not _check(prepared.get("ok", false), "dismissed inspection Autosave prepares: " + JSON.stringify(prepared)): return
 	var loaded: Dictionary = saves.commit_prepared_restore(prepared.value.prepared)
 	if not _check(loaded.get("ok", false), "dismissed inspection Autosave loads"): return

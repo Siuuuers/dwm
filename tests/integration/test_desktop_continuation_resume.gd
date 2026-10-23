@@ -39,7 +39,7 @@ const PARTICIPANT_APPLY_ORDER: Array[String] = [
 ## for the participants a scenario never actually restores through), this returns the
 ## production-shaped `prepare()` value each real participant returns (`profile_plan`+`locale_id`,
 ## `localization_plan`, `audio_plan`, `route_plan`, `narrative_plan`) -- required here because these
-## tests exercise a genuine `prepare_restore_slot()`/`_prepare_bundle_with_all_participants()` call,
+## tests exercise retained internal preparation and `_prepare_bundle_with_all_participants()`,
 ## which reads those exact keys. Its content is never validated the way ProfileSchema/
 ## LocalizationManager would (that content-validation gap is gap dwm-p2r.33, explicitly out of this
 ## remediation's scope); this fake only needs to be shape-compatible so the SaveManager/journal/gate
@@ -385,11 +385,11 @@ func test_a_busy_gate_rejects_restore_before_any_identity_is_minted_or_intent_is
 	var manager: Node = wired["manager"]
 	var gate: RefCounted = wired["gate"]
 
-	# Build one real completed run and a real save file so prepare_restore_slot() has something
+	# Build one real completed run and a real save file so retained internal preparation has something
 	# genuine to select, matching production's own restore path (source_locator present).
 	assert_true(manager.start_new_run(_initial_context()).get("ok", false))
 	assert_true(manager.save_latest_to_slot(1).get("ok", false))
-	var prepared_restore: Dictionary = manager.prepare_restore_slot(1)
+	var prepared_restore: Dictionary = preload("res://tests/support/RetainedLegacyRestore.gd").prepare(manager, &"slot", 1)
 	assert_true(prepared_restore.get("ok", false))
 
 	var occupied: Dictionary = gate.acquire(&"causal_transaction")
@@ -523,7 +523,7 @@ func test_a_pre_allocation_restore_source_that_vanishes_aborts_with_a_typed_fail
 
 	assert_true(manager.start_new_run(_initial_context()).get("ok", false))
 	assert_true(manager.save_latest_to_slot(1).get("ok", false))
-	var prepared_restore: Dictionary = manager.prepare_restore_slot(1)
+	var prepared_restore: Dictionary = preload("res://tests/support/RetainedLegacyRestore.gd").prepare(manager, &"slot", 1)
 	assert_true(prepared_restore.get("ok", false))
 	var prepared: Dictionary = prepared_restore["value"]["prepared"]
 	var source_locator: Dictionary = prepared["source_locator"]

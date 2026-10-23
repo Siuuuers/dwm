@@ -1670,6 +1670,20 @@ func _inspect_backup(locator_id: String) -> Dictionary:
 	return _save_load_profile_finish(profile, _inspect_backup_profiled(locator_id, profile))
 
 
+## Player admission only. Pending transactions retain their own internal readers.
+static func _player_save_format_reason(document: Dictionary) -> String:
+	var version: Variant = document.get("schema_version")
+	if typeof(version) == TYPE_FLOAT and is_finite(version) and version == floorf(version):
+		version = int(version)
+	if typeof(version) != TYPE_INT:
+		return "unreadable"
+	if version < SAVE_DOCUMENT_SCHEMA.SCENE_DOCUMENT_VERSION:
+		return "older_version"
+	if version > SAVE_DOCUMENT_SCHEMA.SCENE_DOCUMENT_VERSION:
+		return "newer_version"
+	return ""
+
+
 func _inspect_backup_profiled(locator_id: String, profile: Dictionary) -> Dictionary:
 	var locator := _backup_locator(locator_id)
 	if locator.is_empty():
@@ -1698,6 +1712,9 @@ func _inspect_backup_profiled(locator_id: String, profile: Dictionary) -> Dictio
 	# Current-build saves are the supported input. Read only presentation fields;
 	# Load owns participant preparation after the player chooses a slot.
 	var document: Dictionary = parsed["value"]
+	record["reason"] = _player_save_format_reason(document)
+	if not record["reason"].is_empty():
+		return {"ok": true, "value": record}
 	var bundle: Variant = document.get("current_snapshot")
 	if typeof(bundle) != TYPE_DICTIONARY or typeof(bundle.get("snapshot")) != TYPE_DICTIONARY:
 		record["reason"] = "unreadable"
@@ -1762,6 +1779,8 @@ func _prepare_backup_action_profiled(action: String, locator_id: String, profile
 		_save_load_profile_phase(profile, "stable_hash_us")
 	elif action == "load":
 		if not record["loadable"]:
+			if record["reason"] in ["older_version", "newer_version"]:
+				return _fail(&"unsupported_save_format", "Only current Save9 files can be loaded")
 			return _fail(&"backup_load_unavailable", "")
 		var prepared := _prepare_restore(locator, str(record["revision"]))
 		_save_load_profile_phase(profile, "restore_prepare_us")
@@ -2188,6 +2207,9 @@ func _prepare_restore(locator: Dictionary, expected_revision: String = "") -> Di
 	var parsed: Dictionary = STRICT_JSON.parse_object(str(read["value"]["text"]))
 	if not parsed.get("ok", false):
 		return _fail(&"corrupt_save_document", relative_path)
+
+	if not _player_save_format_reason(parsed["value"]).is_empty():
+		return _fail(&"unsupported_save_format", "Only current Save9 files can be loaded")
 
 	# Normalize the selected current-build document for the existing restore owners.
 	var scene_seed_material := {}

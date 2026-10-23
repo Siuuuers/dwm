@@ -133,7 +133,7 @@ func _initialize_live_autoloads() -> void:
 			"autoload stage %s must initialize: %s" % [str(stage[0]), str(result)])
 
 
-## The participant plans inside a successful prepare_restore_autosave result.
+## The participant plans inside a retained internal Autosave preparation result.
 func _participant_plans(prepared: Dictionary) -> Dictionary:
 	return ((prepared["value"] as Dictionary)["prepared"] as Dictionary)["participant_plans"]
 
@@ -398,7 +398,7 @@ func test_persisted_snapshot_is_restorable_by_the_save_manager() -> void:
 	if text.is_empty():
 		assert_true(false, "no autosave written")
 		return
-	var prepared: Dictionary = _manager.prepare_restore_autosave()
+	var prepared: Dictionary = preload("res://tests/support/RetainedLegacyRestore.gd").prepare(_manager, &"autosave")
 	# dwm-7e6 repair: the earlier version asserted only `prepared.has("ok")`, which is trivially
 	# true even on total failure -- it proved nothing. Asserting real success exposed two genuine
 	# gaps: a restore needs every participant's autoload initialized (ProfileManager ->
@@ -480,7 +480,7 @@ func test_a_day_seven_crash_restores_the_same_run_on_day_seven() -> void:
 	assert_ne(int(GameState._run_lifecycle.to_dict()["day"]), 7,
 		"live Day-7 state is genuinely gone before the restore")
 
-	var prepared: Dictionary = _manager.prepare_restore_autosave()
+	var prepared: Dictionary = preload("res://tests/support/RetainedLegacyRestore.gd").prepare(_manager, &"autosave")
 	assert_true(prepared.get("ok", false), "the Day-7 autosave prepares a restore: " + str(prepared))
 	if not prepared.get("ok", false):
 		return

@@ -121,6 +121,85 @@ func test_unadmitted_scene_shaped_bytes_have_no_family_or_load_permission() -> v
 	assert_eq(fixture.manager._scene_restore_preparations.keys(), retained_before)
 	assert_true(fixture.manager._backup_actions.is_empty())
 
+func test_player_format_check_accepts_only_current_integral_version_without_mutation() -> void:
+	assert_true(fixture_ready)
+	if not fixture_ready: return
+	for version: Variant in [9, 9.0]:
+		assert_eq(fixture.manager._player_save_format_reason({"schema_version": version}), "")
+	for version: Variant in [0, 7, 8, 8.0, 10, 9.5, "9", null, true, {}, [], INF]:
+		var raw := {"schema_version": version}
+		var before := raw.duplicate(true)
+		assert_ne(fixture.manager._player_save_format_reason(raw), "", str(version))
+		assert_eq(raw, before)
+	assert_eq(fixture.manager._player_save_format_reason({}), "unreadable")
+
+func test_player_load_refuses_old_slot_quick_and_autosave_before_restoration() -> void:
+	assert_true(fixture_ready)
+	if not fixture_ready: return
+	for item: Dictionary in [{"locator": "slot:6", "path": "slot_6.json", "method": "prepare_restore_slot"},
+			{"locator": "quick", "path": "quicksave.json", "method": "prepare_restore_quick"},
+			{"locator": "autosave", "path": "autosave.json", "method": "prepare_restore_autosave"}]:
+		var existed: bool = fixture.storage.exists(item.path)
+		var original: Dictionary = fixture.storage.read_text(item.path) if existed else {}
+		# This is a version-boundary diagnostic, not a relabeled valid Run9.
+		var raw := '{"schema_version":8,"current_snapshot":{"snapshot":{"schema_version":8}}}'
+		var written: Dictionary = fixture.storage.write_atomic(item.path, raw,
+			func(_text: String) -> Dictionary: return {"ok": true, "value": {}})
+		assert_true(written.ok, str(written))
+		if not written.ok: continue
+		var before := _observed()
+		var physical: Dictionary = fixture.storage.inspect_revision(item.path)
+		var inspected: Dictionary = fixture.manager.inspect_backup(item.locator)
+		assert_true(inspected.ok, str(inspected))
+		assert_eq(inspected.value.reason, "older_version")
+		assert_false(inspected.value.loadable)
+		assert_null(inspected.value.family)
+		assert_eq(fixture.manager.prepare_backup_action("load", item.locator).get("code"), &"unsupported_save_format")
+		var direct: Dictionary = fixture.manager.call(item.method, 6) if item.locator == "slot:6" \
+			else fixture.manager.call(item.method)
+		assert_eq(direct.get("code"), &"unsupported_save_format", str(direct))
+		assert_eq(fixture.storage.inspect_revision(item.path), physical)
+		assert_eq(_observed(), before, "refusal does not allocate, apply, publish or write")
+		assert_true(fixture.manager._backup_actions.is_empty())
+		if existed:
+			assert_true(fixture.storage.write_atomic(item.path, original.value,
+				func(_text: String) -> Dictionary: return {"ok": true, "value": {}}).ok)
+		else:
+			assert_true(fixture.storage.remove(item.path).ok)
+
+func test_unsupported_slot_can_be_deleted_or_overwritten_with_current_scene() -> void:
+	assert_true(fixture_ready)
+	if not fixture_ready: return
+	var raw := '{"schema_version":8,"current_snapshot":{"snapshot":{"schema_version":8}}}'
+	var before := _observed()
+	for action: String in ["delete", "save"]:
+		assert_true(fixture.storage.write_atomic("slot_6.json", raw,
+			func(_text: String) -> Dictionary: return {"ok": true, "value": {}}).ok)
+		var port := PORT.new()
+		assert_true(port.configure(fixture.manager, "in_run").ok)
+		var projected: Dictionary = port.get_projection()
+		assert_true(projected.ok, str(projected))
+		var record: Dictionary = projected.value.records[7]
+		assert_eq(record.locator, "slot:6")
+		assert_false(record.actions.load)
+		assert_true(record.actions[action], str(record))
+		var prepared: Dictionary = port.prepare_action(action, "slot:6")
+		assert_true(prepared.ok, str(prepared))
+		if not prepared.ok: continue
+		var committed: Dictionary = port.commit_action(prepared.value.token)
+		assert_true(committed.ok, str(committed))
+		if action == "delete":
+			assert_false(fixture.storage.exists("slot_6.json"))
+		else:
+			var saved: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(
+				fixture.storage.read_text("slot_6.json").value)
+			assert_true(saved.ok, str(saved))
+			assert_eq(saved.value.schema_version, 9)
+			assert_eq(saved.value.recovery_journal, [])
+			assert_true(fixture.manager.inspect_backup("slot:6").value.loadable)
+		assert_eq(_observed(), before, "Save/Delete leave current gameplay and its chronology unchanged")
+	assert_true(fixture.storage.remove("slot_6.json").ok)
+
 func _observed() -> Dictionary:
 	return {"autosave": fixture.storage.read_text("autosave.json"),
 		"profile": fixture.storage.read_text("profile.json"), "root": fixture.issuer.capture_root(),
