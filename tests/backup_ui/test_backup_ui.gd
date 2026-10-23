@@ -67,7 +67,7 @@ class FakeBackupPort extends RefCounted:
 		if action == "delete":
 			kind = "delete"
 		elif action == "load":
-			kind = ("fallback" if record.fallback else "none") if title_context else ("replace_progress_fallback" if record.fallback else "replace_progress")
+			kind = "none" if title_context else "replace_progress"
 		elif action == "save" and record.state != "empty" and locator != "quick":
 			kind = "overwrite"
 		var token := "fixture-token-%d" % (prepared.size() + 1)
@@ -339,9 +339,10 @@ func verify_ui(desktop: Control, app: Control, port: FakeBackupPort, locale: Nod
 		await settle()
 		check(port.records[4].state == "empty" and app.selected_locator == "slot:3", "Confirmed Delete preserves drawer identity and selection while publishing Empty")
 		check(app.action_buttons["load"].disabled and app.action_buttons["delete"].disabled, "Deleted Empty drawer disables record operations truthfully")
-	port.records[0].fallback = true
+	port.records[0].fallback = false
 	port.records[0].load_day = 2
 	port.records[0].load_saved_time = "06:12"
+	port.records[0].saved_time = "09:07 ".repeat(120)
 	# Publish the fixture's changed records explicitly; appearance is projection-free.
 	app.refresh_view()
 	profile.change_scale(1.5)
@@ -365,10 +366,11 @@ func verify_ui(desktop: Control, app: Control, port: FakeBackupPort, locale: Nod
 	port.records[0].fallback = false
 	port.records[0].load_day = null
 	port.records[0].load_saved_time = null
+	port.records[0].saved_time = "09:07"
 	app.refresh_view()
 	port.records[7].state = "unavailable"
 	port.records[7].actions.delete = true
-	port.records[7].reason = "older_version"
+	port.records[7].reason = "unreadable"
 	app.refresh_view()
 	for language in ["en", "zh-CN", "zh-HK", "ja", "ko"]:
 		locale.change(language)
@@ -455,10 +457,9 @@ func verify_ui(desktop: Control, app: Control, port: FakeBackupPort, locale: Nod
 	desktop.open_app(&"backup")
 	await settle()
 	check(app.get_instance_id() == old_id and app.active_mode == "load" and app.selected_locator == "slot:2", "Same-day reopen preserves one mode and drawer selection")
-	var reopened_text := ""
-	for label in app.drawer_buttons["slot:2"].find_children("*", "Label", true, false):
-		reopened_text += label.text
-	check(reopened_text.contains("4") and reopened_text.contains("08:31"), "Cached presentation rereads changed owner metadata instead of retaining authority")
+	# This injected row has no family, so the UI must refresh its metadata without
+	# inferring a calendar label from the supplied day.
+	check(app._records["slot:2"].day == 4 and app.drawer_buttons["slot:2"].state_label.text == "08:31", "Cached presentation rereads changed owner metadata without inventing a calendar label")
 	check(app.status_label.text != "Saved" and not is_instance_valid(app.confirmation), "Reopen does not cache transient acknowledgment or consent")
 	app.mode_buttons["load"].grab_focus()
 	await press_key(KEY_ESCAPE)
@@ -495,16 +496,17 @@ func verify_ui(desktop: Control, app: Control, port: FakeBackupPort, locale: Nod
 		check(app.action_buttons["cancel"].has_focus(), "Cancel-only recovery preserves focus on its real action")
 		app.action_buttons["cancel"].pressed.emit()
 	port.allow_actions = true
-	port.records[0].fallback = true
+	port.records[0].fallback = false
 	port.records[0].load_day = 2
 	port.records[0].load_saved_time = "06:12"
+	port.records[0].saved_time = "09:07 ".repeat(120)
 	profile.change_scale(1.5)
 	app.mode_buttons["load"].pressed.emit()
 	app.drawer_buttons["autosave"].pressed.emit()
 	# Open before the deferred overflow measurement gets a frame to run.
 	app.action_buttons["load"].pressed.emit()
 	await settle()
-	check(is_instance_valid(app.confirmation), "Overflowing fallback record opens confirmation")
+	check(is_instance_valid(app.confirmation), "Current record opens confirmation")
 	if is_instance_valid(app.confirmation):
 		check(app.info_scroll.get_focus_mode_with_override() == Control.FOCUS_NONE, "Deferred information measurement cannot reactivate a modal-covered viewport")
 		check(app.confirmation.is_ancestor_of(root.gui_get_focus_owner()), "Modal retains exclusive focus after deferred remeasurement")
@@ -563,7 +565,7 @@ func check_title_login() -> void:
 	await settle()
 	port.records[7].state = "unavailable"
 	port.records[7].actions.delete = true
-	port.records[7].reason = "older_version"
+	port.records[7].reason = "unreadable"
 	app.refresh_view()
 	for language in ["en", "zh-CN", "zh-HK", "ja", "ko"]:
 		locale.change(language)
@@ -597,15 +599,15 @@ func check_title_login() -> void:
 	check(app.selected_locator == "autosave" and app.action_buttons.load.disabled, "No loadable records selects Autosave with disabled Load")
 	check(not app.drawer_buttons.autosave.disabled, "Unavailable action leaves title drawer inspectable")
 	port.records[0].actions.load = true
-	port.records[0].fallback = true
+	port.records[0].fallback = false
 	port.records[0].load_day = 2
 	port.records[0].load_saved_time = "08:12"
 	app.show_window()
 	await settle()
 	app._source_action = "load"
-	app._confirmation_kind = "fallback"
+	app._confirmation_kind = "none"
 	var copy: Dictionary = app._confirmation_copy(port.records[0])
-	check(copy.risk == "neutral" and copy.body.contains(app._t("fallback")) and not copy.body.contains(app._t("replace_progress")), "Title fallback copy discloses only fallback, with neutral final Load")
+	check(copy.risk == "neutral" and copy.body == app._record_time(port.records[0]) and not copy.body.contains(app._t("replace_progress")), "Title uses selected current metadata with neutral Load")
 	app._set_mode("save")
 	check(app.active_mode == "load" and not app.action_buttons.has("save"), "Title cannot switch into Save programmatically")
 	host.queue_free()
@@ -720,7 +722,7 @@ func measure_layout_budget() -> void:
 				var points: int = typography.font_size(language, percent, 20, style)
 				var copy: Dictionary = BackupApp.COPY[language]
 				var texts: Array[String] = [copy.autosave, copy.quick, str(copy.slot).format({"n": 7}),
-					str(copy.day).format({"day": 7, "time": "09:07"}), copy.empty, copy.unavailable, copy.older]
+					str(copy.day).format({"day": 7, "time": "09:07"}), copy.empty, copy.unavailable]
 				for key: String in ["autosave", "quick", "slot"]:
 					if BackupApp.COMPACT_COPY.get(language, {}).has(key):
 						texts.append(str(BackupApp.COMPACT_COPY[language][key]).format({"n": 7}))

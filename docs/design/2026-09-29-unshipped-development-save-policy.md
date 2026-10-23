@@ -1,5 +1,13 @@
 # Unshipped development-save policy — 29 September 2026
 
+## Current amendment — 24 October 2026
+
+The [startup and Load handoff](../../handoff/a-startup-load-handoff-20261024.md) records the latest approved contract and supersedes the compatibility and deterministic-recovery requirements below. Only valid current-build saves are supported; old development saves may be discarded. Malformed/incomplete data, migration, repair and recovery are not product requirements.
+
+Backup lists basic slot metadata without preparing restoration. Save and Delete do not require the existing file to be restorable. Load applies the selected current snapshot; it never substitutes an older compatible checkpoint. Ordinary gameplay correctness still applies: exact board and dialogue state, complete-line presentation, and no repeated rewards or consequences. File-operation failure is reported simply. SaveManager remains the canonical owner.
+
+The remaining sections preserve the earlier decision for provenance. This amendment is a policy record, not test evidence.
+
 ## Owner-confirmed decision
 
 The owner confirmed on 29 September 2026 (Hong Kong) that DWM has not shipped

@@ -320,9 +320,9 @@ func test_warm_cache_keeps_storage_refusals_absence_and_schema_validation() -> v
 	assert_true(f.manager._parse_document_text(invalid).get("ok", false))
 	assert_false(f.manager._document_text_validator(invalid).get("ok", true))
 	_replace(f, "parse-cache/slot_1.json", invalid)
-	assert_eq(f.manager.inspect_backup("slot:1").value.reason, "newer_version")
+	assert_eq(f.manager.inspect_backup("slot:1").value.reason, "unreadable")
 
-func test_warm_inspection_reprepares_participants_and_current_guard() -> void:
+func test_warm_inspection_skips_participants_and_keeps_current_guard() -> void:
 	var f := _fixture()
 	if f.is_empty(): return
 	var participants := {}
@@ -336,9 +336,10 @@ func test_warm_inspection_reprepares_participants_and_current_guard() -> void:
 	assert_true(initial.value.loadable, str(initial))
 	participants.narrative.unavailable = true
 	var changed: Dictionary = f.manager.inspect_backup("slot:1")
-	assert_false(changed.value.loadable)
-	assert_eq(changed.value.reason, "no_compatible_checkpoint")
-	assert_eq(participants.narrative.preparations, 2)
+	assert_true(changed.value.loadable, "metadata availability is independent of restore participants")
+	assert_eq(changed.value.reason, "")
+	for participant: Participant in participants.values():
+		assert_eq(participant.preparations, 0, "listing never prepares restoration")
 	assert_true(f.manager.acquire_save_lock(&"restore").get("ok", false))
 	assert_false(f.manager.inspect_backup("slot:1").value.operation_allowed)
 	assert_true(f.manager.release_save_lock(&"restore").get("ok", false))

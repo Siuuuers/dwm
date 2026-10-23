@@ -3,11 +3,7 @@ extends Label
 signal status_announced(text: String)
 const PRESENTATION := preload("res://scripts/ui/desktop/DesktopTheme.gd")
 const BACKUP := preload("res://scripts/ui/BackupApp.gd")
-# Reuse the inspector's factual copy; a failed compatibility check is never a fallback offer.
-const REASON_COPY_KEYS := {
-	&"older_version": "older_details", &"newer_version": "newer", &"unreadable": "unreadable",
-	&"no_compatible_checkpoint": "no_compatible", &"restore_unavailable": "load_unavailable",
-}
+const REASON_COPY_KEYS := {&"unreadable": "unreadable"}
 const COPY := {
 	"en": {&"saving":"Saving…",&"saved":"Saved",&"unavailable":"Unavailable",&"please_wait":"Please wait",&"no_quick_save":"No Quick Save"},
 	"zh-CN": {&"saving":"正在保存…",&"saved":"已保存",&"unavailable":"不可用",&"please_wait":"请稍候",&"no_quick_save":"没有快速存档"},

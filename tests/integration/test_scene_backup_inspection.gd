@@ -41,7 +41,7 @@ func test_admitted_scene_inspection_and_cancelled_consent_preserve_physical_and_
 	assert_true(inspected.get("ok", false), str(inspected))
 	if not inspected.get("ok", false): return
 	assert_eq(fixture.manager._scene_restore_preparations.keys(), retained_before,
-		"metadata inspection releases its private preparation")
+		"metadata inspection creates no private preparation")
 	var record: Dictionary = inspected.value
 	assert_eq(record.state, "occupied")
 	assert_eq(record.family, "scene")
@@ -78,13 +78,13 @@ func test_admitted_scene_inspection_and_cancelled_consent_preserve_physical_and_
 	assert_true(consent.ok, str(consent))
 	if not consent.ok: return
 	assert_eq(consent.value.record, shown)
-	assert_false(consent.value.confirmation_required, "title nonfallback Load policy is unchanged")
+	assert_false(consent.value.confirmation_required, "Title loads the selected current state without extra confirmation")
 	var held: Dictionary = fixture.manager._backup_actions[consent.value.token].prepared_restore.duplicate(true)
 	var retained: Dictionary = fixture.manager._scene_restore_preparations.duplicate(true)
 	assert_eq(retained.size(), retained_before.size() + 1, "selected Load retains its own preparation")
 	for refresh: int in range(2):
 		assert_eq(fixture.manager.inspect_backup("autosave"), inspected, "inspection metadata stays identical")
-		assert_eq(port.get_projection(), projection, "refreshed slot validity stays identical")
+		assert_eq(port.get_projection(), projection, "refreshed slot metadata stays identical")
 		assert_true(fixture.manager._same_scene_preparation(fixture.manager._scene_restore_preparations, retained),
 			"refresh %d neither grows retained plans nor changes selected custody" % refresh)
 		assert_true(fixture.manager._validate_scene_restore_preparation(held).get("ok", false),
@@ -92,6 +92,7 @@ func test_admitted_scene_inspection_and_cancelled_consent_preserve_physical_and_
 	port.cancel_action(consent.value.token)
 	assert_eq(port.commit_action(consent.value.token).get("code"), &"stale_backup_action")
 	assert_true(fixture.manager._backup_actions.is_empty())
+	assert_eq(fixture.manager._scene_restore_preparations.keys(), retained_before, "cancel releases only the selected Load preparation")
 	assert_eq(_observed(), before, "inspection/prepare/cancel does not write, allocate or publish")
 
 func test_unadmitted_scene_shaped_bytes_have_no_family_or_load_permission() -> void:

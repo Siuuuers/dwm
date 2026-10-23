@@ -41,8 +41,6 @@ class ExternalOwners extends RefCounted:
 	func prepare_locale(locale: String, font_style: String = "pixel", text_size: int = 100) -> Dictionary:
 		return {"ok": true, "value": {"canonical_locale_id": locale, "font_style": font_style, "text_size": text_size}}
 	func prepare_semantic_restore(context: Dictionary, _preferences: Dictionary) -> Dictionary:
-		if context.get("fixture_missing_track", false):
-			return {"ok": false, "code": &"AUDIO_CONTENT_UNAVAILABLE"}
 		return {"ok": true, "value": {"snapshot": context.duplicate(true)}}
 	func prepare_route_restore(route: String, _context: Dictionary) -> Dictionary:
 		return {"ok": true, "value": {"route_ready_token": {"route_id": route, "layout_id": "fixture", "generation": 1}}}
@@ -329,7 +327,7 @@ func _test_unavailable(manager: Node, port: RefCounted, files: RefCounted) -> vo
 	files._persisted["memory/backup/slot_3.json"] = '{"schema_version":999}'.to_utf8_buffer()
 	var records: Array = port.get_projection()["value"]["records"]
 	_check(records[3]["state"] == "unavailable" and records[3]["actions"]["delete"] and records[3]["actions"]["save"], "corrupt remains replaceable/deletable")
-	_check(records[4]["reason"] == "newer_version" and not records[4]["actions"]["load"], "future is not playable")
+	_check(records[4]["reason"] == "unreadable" and not records[4]["actions"]["load"], "missing display metadata is unavailable")
 	var deletion: Dictionary = port.prepare_action("delete", "slot:2")
 	_check(deletion.get("ok", false) and deletion["value"]["confirmation_required"], "corrupt delete confirms")
 	_check(port.commit_action(deletion["value"]["token"]).get("ok", false), "corrupt owner delete")
@@ -340,8 +338,8 @@ func _test_unavailable(manager: Node, port: RefCounted, files: RefCounted) -> vo
 
 func _test_restore(manager: Node, port: RefCounted) -> void:
 	var state: Node = GS.new()
-	# The manager's participant stack is still inspected by _run after this
-	# helper returns; its owner must live until that manager is disposed.
+	# Later Load operations retain the participant stack after this helper
+	# returns; its owner must live until that manager is disposed.
 	restore_state = state
 	state.reset_game()
 	_check(state.configure_mutation_gate(manager._mutation_gate).get("ok", false), "restore GameState shares transaction custody")
@@ -370,20 +368,20 @@ func _test_restore(manager: Node, port: RefCounted) -> void:
 	var newer := earlier.duplicate(true)
 	newer["checkpoint_sequence"] = 2
 	newer["checkpoint_id"] = str(newer["run_id"]) + ":2"
-	newer["audio_context"] = {"fixture_missing_track": true}
-	var fallback_document := SCHEMA.build(&"slot", 4, &"manual", {"checkpoint_kind": "day_start", "snapshot": newer},
+	newer["active_app_id"] = "settings"
+	var current_document := SCHEMA.build(&"slot", 4, &"manual", {"checkpoint_kind": "day_start", "snapshot": newer},
 		[{"checkpoint_kind": "day_start", "snapshot": earlier}])
-	_check(fallback_document.get("ok", false), "whole fallback fixture")
-	_check(manager._storage.write_atomic("slot_4.json", JSON.stringify(fallback_document["value"]), manager._document_text_validator).get("ok", false), "fallback file fixture")
-	var fallback_record: Dictionary = port.get_projection()["value"]["records"][5]
-	_check(fallback_record["fallback"] and fallback_record["actions"]["load"] and fallback_record["load_day"] == 1 and fallback_record["load_saved_time"] == null, "typed current incompatibility selects whole earlier bundle with unknown time")
-	_check(fallback_record["family"] == "legacy_day" and fallback_record["load_family"] == "legacy_day", "fallback preserves explicit admitted and selected families")
-	var fallback_action: Dictionary = port.prepare_action("load", "slot:4")
-	_check(fallback_action.get("ok", false) and fallback_action["value"]["confirmation_kind"] == "replace_progress_fallback", "one combined fallback confirmation")
-	var fallback_committed: Dictionary = port.commit_action(fallback_action["value"]["token"])
-	_check(fallback_committed.get("ok", false), "whole earlier checkpoint actually restores: " + JSON.stringify(fallback_committed))
-	_check(external.route_applies == 1, "fallback routes once")
-	_check(desktop_host.get_state()["active_app_id"] == &"contacts" and desktop_host.get_state()["current_day"] == 1 and desktop_host.get_state()["cached_app_ids"].is_empty(), "actual SaveManager carries saved active app and day through route context")
+	_check(current_document.get("ok", false), "current and earlier snapshot fixture")
+	_check(manager._storage.write_atomic("slot_4.json", JSON.stringify(current_document["value"]), manager._document_text_validator).get("ok", false), "current snapshot file fixture")
+	var current_record: Dictionary = port.get_projection()["value"]["records"][5]
+	_check(not current_record["fallback"] and current_record["actions"]["load"] and current_record["load_day"] == 1 and current_record["load_saved_time"] == null, "metadata describes current snapshot without selecting earlier history")
+	_check(current_record["family"] == "legacy_day" and current_record["load_family"] == "legacy_day", "metadata preserves current snapshot family")
+	var current_action: Dictionary = port.prepare_action("load", "slot:4")
+	_check(current_action.get("ok", false) and current_action["value"]["confirmation_kind"] == "replace_progress", "current snapshot replacement confirmation")
+	var current_committed: Dictionary = port.commit_action(current_action["value"]["token"])
+	_check(current_committed.get("ok", false), "whole current checkpoint actually restores: " + JSON.stringify(current_committed))
+	_check(external.route_applies == 1, "current snapshot routes once")
+	_check(desktop_host.get_state()["active_app_id"] == &"settings" and desktop_host.get_state()["current_day"] == 1 and desktop_host.get_state()["cached_app_ids"].is_empty(), "actual SaveManager carries current saved app rather than the earlier app")
 	manager._journal.reset("second-live-run")
 	var restore: Dictionary = port.prepare_action("load", "slot:1")
 	_check(restore.get("ok", false), "whole owner restore preparation: " + JSON.stringify(restore))
@@ -452,10 +450,10 @@ func _test_title_cold_load(storage: RefCounted) -> void:
 	_check(port.commit_action(load_current["value"]["token"]).get("ok", false), "cold title Load commits through actual owner")
 	_check(manager.get_latest_stable_checkpoint().get("ok", false) and external.route_applies == 1, "cold Load seeds journal and applies route once")
 	_check(not port.prepare_action("save", "slot:6").get("ok", true), "title refuses Save even once a stable checkpoint exists")
-	var fallback := port.prepare_action("load", "slot:4")
-	_check(fallback.get("ok", false) and fallback["value"]["confirmation_required"] and fallback["value"]["confirmation_kind"] == "fallback", "title fallback has disclosure-only confirmation")
-	port.cancel_action(fallback["value"]["token"])
-	_check(not port.commit_action(fallback["value"]["token"]).get("ok", true), "title fallback cancellation consumes admission")
+	var current := port.prepare_action("load", "slot:4")
+	_check(current.get("ok", false) and not current["value"]["confirmation_required"], "title current snapshot Load needs no fallback disclosure")
+	port.cancel_action(current["value"]["token"])
+	_check(not port.commit_action(current["value"]["token"]).get("ok", true), "title cancellation consumes admission")
 	var deletion := port.prepare_action("delete", "slot:4")
 	_check(deletion.get("ok", false) and deletion["value"]["confirmation_kind"] == "delete", "title Delete retains confirmation")
 	port.cancel_action(deletion["value"]["token"])

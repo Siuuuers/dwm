@@ -103,7 +103,7 @@ func prepare_quick_action(action: String) -> Dictionary:
 	var record := _project_record(value["record"], _owner.get_backup_save_capability(), true)
 	var kind := "none"
 	if action == "load":
-		kind = "replace_progress_fallback" if record["fallback"] else "replace_progress"
+		kind = "replace_progress"
 	_pending[token] = {"action": action, "locator": "quick", "quick": true}
 	return {"ok": true, "value": {"token": token, "record": record,
 		"confirmation_required": action == "load", "confirmation_kind": kind,
@@ -120,7 +120,7 @@ func _quick_available(action: String) -> bool:
 static func _quick_refusal(capability: Dictionary) -> Dictionary:
 	var value: Dictionary = capability.get("value", {})
 	var status := str(value.get("status_key", "unavailable"))
-	if status not in ["please_wait", "no_quick_save", "older_version", "newer_version", "unreadable", "no_compatible_checkpoint", "restore_unavailable"]:
+	if status not in ["please_wait", "no_quick_save", "unreadable"]:
 		status = "unavailable"
 	return {"ok": false, "code": &"backup_action_unavailable",
 		"status_key": status,
@@ -138,8 +138,7 @@ func prepare_action(action: String, locator: String) -> Dictionary:
 		return admitted
 	for pending_token: String in _pending.keys():
 		cancel_action(pending_token)
-	# Preparation already inspects and freezes the selected file. A preliminary full
-	# inspection repeated every restore participant without adding custody evidence.
+	# SaveManager prepares only the work required by the selected operation.
 	var prepared: Dictionary = _owner.prepare_backup_action(action, locator)
 	if not prepared.get("ok", false):
 		return prepared
@@ -152,12 +151,12 @@ func prepare_action(action: String, locator: String) -> Dictionary:
 	var confirmation_kind := "none"
 	if action == "load":
 		if _context == "title":
-			confirmation_kind = "fallback" if record["fallback"] else "none"
+			confirmation_kind = "none"
 		else:
-			confirmation_kind = "replace_progress_fallback" if record["fallback"] else "replace_progress"
+			confirmation_kind = "replace_progress"
 	elif action == "delete":
 		confirmation_kind = "delete"
-	elif record["state"] != "empty" and (locator != "quick" or record["state"] == "unavailable" or record["fallback"]):
+	elif record["state"] != "empty" and (locator != "quick" or record["state"] == "unavailable"):
 		confirmation_kind = "overwrite"
 	_pending[token] = {"action": action, "locator": locator}
 	return {"ok": true, "value": {"confirmation_required": confirmation_kind != "none",

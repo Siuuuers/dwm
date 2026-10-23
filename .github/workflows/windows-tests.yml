@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       focused: ${{ steps.scope.outputs.focused }}
+      comparison: ${{ steps.scope.outputs.comparison }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -72,10 +73,21 @@ jobs:
                   bodies.append(rest)
               return bodies[0] == bodies[1]
           focused = False
+          comparison = False
+          previous = ""
           if os.environ["GITHUB_EVENT_NAME"] != "workflow_dispatch" and base and set(base) != {"0"}:
               diff = subprocess.run(["git", "diff", "--name-only", "-z", base, "HEAD"], capture_output=True)
               if diff.returncode == 0:
                   paths = set(diff.stdout.decode().strip("\0").split("\0"))
+                  comparison_paths = paths
+                  previous = event.get("before", "") if event.get("action") == "synchronize" else ""
+                  if re.fullmatch(r"[0-9a-f]{40}", previous):
+                      available = subprocess.run(["git", "cat-file", "-e", previous], capture_output=True)
+                      if available.returncode != 0:
+                          subprocess.run(["git", "fetch", "--no-tags", "--depth=1", "origin", previous], check=True)
+                      changed = subprocess.run(["git", "diff", "--name-only", "-z", previous, "HEAD"], capture_output=True, check=True)
+                      comparison_paths = set(changed.stdout.decode().strip("\0").split("\0"))
+                  comparison = bool(comparison_paths & {"autoload/SaveManager.gd", "autoload/ProfileManager.gd", "scripts/narrative/DialogicRuntimeAdapter.gd", "scripts/application/backup/BackupPresentationPort.gd", "scripts/ui/BackupApp.gd", "scripts/ui/desktop/DesktopQuickCommands.gd", "scripts/ui/desktop/QuickStatusEdge.gd", "scripts/ui/dating/DatingQuickCommands.gd", "scripts/ui/pause/PauseQuickCommands.gd"})
                   focused = bool(paths) and "" not in paths and paths <= allowed
                   if focused:
                       focused = all(unchanged_outside_method(path, method)
@@ -83,6 +95,7 @@ jobs:
           print("Selected " + ("runtime resource/Backup coverage" if focused else "full validation"))
           with open(os.environ["GITHUB_OUTPUT"], "a") as output:
               output.write("focused=" + str(focused).lower() + "\n")
+              output.write("comparison=" + str(comparison or (focused and not previous)).lower() + "\n")
 
   focused-tests:
     needs: [test-scope, public-surfaces]
@@ -93,7 +106,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: ${{ fromJSON(needs.test-scope.outputs.focused == 'true' && '["timeline_resources","backup_presentation","profile_parse","authored_week","scene_backup_inspection","current_title"]' || '["minesweeper","shop","desktop","settings","checkpoint_diagnostics","new_account","reading_delivery","localization","dating","persistence","endings","audio","scene_desktop_first_reveal","scene_round_checkpoint","scene_shop_checkpoint","scene_story_localization","scene_controls_localization","scene_apps","current_title","scene_backup_inspection","authored_week","scene_five_outcomes","timeline_resources","profile_parse"]') }}
+        suite: ${{ fromJSON(needs.test-scope.outputs.focused == 'true' && '["timeline_resources","backup_presentation","profile_parse","authored_week","scene_backup_inspection","current_title"]' || '["minesweeper","shop","desktop","settings","checkpoint_diagnostics","new_account","reading_delivery","localization","dating","persistence","endings","audio","scene_desktop_first_reveal","scene_round_checkpoint","scene_shop_checkpoint","scene_story_localization","scene_controls_localization","scene_apps","current_title","scene_backup_inspection","authored_week","scene_five_outcomes","timeline_resources","profile_parse","backup_current_build"]') }}
     defaults:
       run:
         shell: pwsh
@@ -183,6 +196,8 @@ jobs:
             .godot/ci/*.xml
             .godot/ci/storage-refusal/
             .godot/ci/settings-failure-render/
+            .godot/ci/backup-operations/
+            .godot/ci/backup-ui/
             .godot/phase2r_logs/cloud-*.log
           include-hidden-files: true
           if-no-files-found: warn
@@ -191,7 +206,7 @@ jobs:
   startup-load-comparison:
     needs: test-scope
     # PR evidence already covers this source; do not repeat the slow matched run after merging.
-    if: github.event_name == 'pull_request' && needs.test-scope.outputs.focused == 'true'
+    if: github.event_name == 'pull_request' && needs.test-scope.outputs.comparison == 'true'
     name: Windows / matched startup and Load
     runs-on: windows-2022
     timeout-minutes: 45

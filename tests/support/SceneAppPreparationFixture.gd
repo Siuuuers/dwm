@@ -119,16 +119,16 @@ static func backup_owner() -> RefCounted:
 		"saved_time": "11:05", "load_family": "legacy_day", "load_day": 2,
 		"load_saved_time": "11:05", "loadable": true}, true)
 	owner.rows["slot:1"].merge({"state": "occupied", "family": "scene", "saved_time": "13:57",
-		"fallback": true, "load_family": "scene", "loadable": true}, true)
+		"fallback": false, "load_family": "scene", "loadable": true}, true)
 	owner.rows["slot:2"].merge({"state": "occupied", "family": "legacy_day", "day": 6,
-		"saved_time": "14:30", "fallback": true, "load_family": "legacy_day",
+		"saved_time": "14:30", "fallback": false, "load_family": "legacy_day",
 		"load_day": 3, "loadable": true}, true)
-	owner.rows["slot:3"].merge({"state": "unavailable", "family": "scene", "reason": "restore_unavailable"}, true)
+	owner.rows["slot:3"].merge({"state": "unavailable", "family": "scene", "reason": "unreadable"}, true)
 	owner.rows["slot:4"].merge({"state": "unavailable", "reason": "unreadable"}, true)
 	# Deliberately old injected metadata: the real port must project null families.
 	# Neither the view's mode nor these unclassified days may supply a family.
 	owner.rows["slot:5"].merge({"state": "occupied", "day": 77, "saved_time": "12:34", "load_day": 88}, true)
 	owner.rows["slot:5"].erase("family")
 	owner.rows["slot:5"].erase("load_family")
-	owner.rows["slot:7"].merge({"state": "unavailable", "family": "legacy_day", "reason": "no_compatible_checkpoint"}, true)
+	owner.rows["slot:7"].merge({"state": "unavailable", "family": "legacy_day", "reason": "unreadable"}, true)
 	return owner

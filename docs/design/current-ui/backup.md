@@ -29,6 +29,8 @@ scope: ["backup_authority_and_custody","truthful_archive_character","record_regi
 
 # Backup Current-UI Canonical Dossier
 
+> **24 October 2026 amendment:** The [current-build save contract](../2026-09-29-unshipped-development-save-policy.md) supersedes compatibility certification and fallback-checkpoint behavior in this historical dossier. List current slot metadata; Load the selected saved snapshot; report file failures simply. Save/Delete do not prepare restoration.
+
 > **Accepted exact writing; not yet cut over.** This dossier is accepted as an
 > exact written design artifact but remains nonbinding until every current
 > Backup consumer is repointed or deliberately retained as provenance, machine
