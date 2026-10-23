@@ -64,7 +64,7 @@ try {
     $env:DWM_SAVE_LOAD_PROFILE = '1'
     $env:DWM_TERMINAL_COMPLETE = '0'
 
-    foreach ($variant in @('baseline', 'candidate')) {
+    foreach ($variant in @('candidate', 'baseline')) {
         if ($variant -eq 'baseline') {
             git restore --source=$BaseRef --worktree -- @runtimePaths
             if ($LASTEXITCODE -ne 0) { throw 'Could not install baseline runtime files.' }
