@@ -2321,7 +2321,12 @@ func _prepare_bundle_with_all_participants(bundle: Dictionary, migration_output:
 		return _content_incompatible_or_fail("narrative", sequence, narr_prep)
 	plans["narrative"] = narr_prep["value"]["narrative_plan"]
 
+	var seed_profile := _save_load_profile_begin("restore_journal_seed", "", locator)
+	if not seed_profile.is_empty():
+		seed_profile["bundle_count"] = 1 + document["recovery_journal"].size()
+		seed_profile["selected_checkpoint_sequence"] = sequence
 	var seed: Dictionary = _journal.prepare_seed(document, bundle)
+	_save_load_profile_finish(seed_profile, seed)
 	if not seed.get("ok", false):
 		return seed
 
