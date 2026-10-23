@@ -1,8 +1,5 @@
 name: Current scene CI selection qualification
 'on':
-  push:
-    branches:
-    - codex/current-ci-controller-20261023
   workflow_dispatch: null
 permissions:
   contents: read
