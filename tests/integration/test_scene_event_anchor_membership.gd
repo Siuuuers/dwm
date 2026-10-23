@@ -65,11 +65,13 @@ func test_batch_checks_later_anchors_and_keeps_occurrences_distinct() -> void:
 	assert_true(bridge.validate_scene_event_anchors(anchors, later.value).ok)
 	var wrong_occurrence: Dictionary = anchors[1].duplicate(true)
 	wrong_occurrence.session_id = anchors[0].session_id
-	assert_eq(bridge.validate_scene_event_anchors([anchors[0], wrong_occurrence], later.value).get("code"),
+	var wrong_occurrence_anchors: Array[Dictionary] = [anchors[0], wrong_occurrence]
+	assert_eq(bridge.validate_scene_event_anchors(wrong_occurrence_anchors, later.value).get("code"),
 		&"event_anchor_invalid", "a valid first anchor cannot hide a wrong later occurrence")
 	var absent: Dictionary = anchors[1].duplicate(true)
 	absent.publication_id = "TEST.absent"
-	assert_eq(bridge.validate_scene_event_anchors([anchors[0], absent], later.value).get("code"),
+	var absent_anchors: Array[Dictionary] = [anchors[0], absent]
+	assert_eq(bridge.validate_scene_event_anchors(absent_anchors, later.value).get("code"),
 		&"event_anchor_invalid", "every anchor needs its retained publication")
 	assert_eq(later.value, before, "batch admission leaves the saved checkpoint unchanged")
 	assert_eq(anchors, anchors_before, "batch admission leaves caller anchors unchanged")
