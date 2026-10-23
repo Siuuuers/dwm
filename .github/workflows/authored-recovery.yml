@@ -1,0 +1,209 @@
+concurrency:
+  cancel-in-progress: false
+  group: authored-recovery-${{ github.event.pull_request.number || github.ref }}
+jobs:
+  authored-recovery:
+    defaults:
+      run:
+        shell: pwsh
+    if: github.head_ref == 'codex/story-day-qualification-20261023' || github.ref == 'refs/heads/codex/story-day-qualification-20261023'
+    name: Windows / Genuine authored Day2 recovery
+    runs-on: windows-2022
+    steps:
+    - name: Preserve source bytes
+      run: git config --global core.autocrlf false
+    - uses: actions/checkout@v7
+      with:
+        fetch-depth: 2
+        persist-credentials: true
+        ref: 21bb2f3ba91e92534192d963a20df713838b8367
+    - name: Record pinned source
+      run: |
+        $ErrorActionPreference = 'Stop'
+        if ((git rev-parse HEAD) -cne '21bb2f3ba91e92534192d963a20df713838b8367') { throw 'Candidate mismatch' }
+        if ((git rev-parse 'HEAD^{tree}') -cne '318c61a0b2e1ae5320397489591bcec1c04f9134') { throw 'Candidate tree mismatch' }
+        New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
+        @{candidate='21bb2f3ba91e92534192d963a20df713838b8367'; tree=(git rev-parse 'HEAD^{tree}'); controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+    - name: Prepare disposable checkout for credential cleanup
+      run: |
+        $ErrorActionPreference = 'Stop'
+        # These legacy tooling gitlinks have no .gitmodules URLs. Git's
+        # submodule foreach reads the index even with sparse checkout.
+        # The source commit and working files remain unchanged.
+        git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        git submodule foreach --recursive 'true'
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Install Godot 4.6.3 standard
+      run: |
+        $ErrorActionPreference = 'Stop'
+        $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
+        Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
+        # SHA256 published with the official 4.6.3-stable release asset.
+        $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
+        if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
+          throw 'Godot archive checksum mismatch.'
+        }
+        $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
+        Expand-Archive -LiteralPath $archive -DestinationPath $editor
+        $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
+        if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
+        "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+        & $console --version
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Import project
+      run: |
+        $ErrorActionPreference = 'Stop'
+        $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
+        $env:APPDATA = Join-Path $output 'import-user/appdata'
+        $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
+        $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
+        New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
+        & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
+        $importExit = $LASTEXITCODE
+        @{exit_code=$importExit} | ConvertTo-Json | Set-Content "$output/import-process.json"
+        if ($importExit -ne 0) { exit $importExit }
+        if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
+          throw 'Project import reported script errors; inspect import.log.'
+        }
+      timeout-minutes: 8
+    - name: Restore committed project settings after editor import
+      run: |
+        # Dialogic's editor scan rewrites its timeline lookup during import.
+        # Execute the committed configuration with the freshly imported assets.
+        git restore -- project.godot
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Authenticate and stage the genuine interrupted Day2 root
+      run: |
+        $ErrorActionPreference = 'Stop'
+        @'
+        import hashlib,io,json,pathlib,zipfile
+        archive=pathlib.Path('evidence/phase_2r/authored_followup_20261023/run39888749357_journey/original-artifact.zip')
+        raw=archive.read_bytes()
+        assert hashlib.sha256(raw).hexdigest()=='2ef29456bcb6482c2206f530e286ff3973552eaba00c473efb7b4dcca4c7fdac'
+        with zipfile.ZipFile(io.BytesIO(raw)) as outer:
+            assert outer.testzip() is None
+            inner_raw=outer.read('original-evidence.zip')
+        assert hashlib.sha256(inner_raw).hexdigest()=='f8349e2e332036f76b68c3dccb5d56da6e14bb90eafcfc5c0e9d43d4e3b34570'
+        out=pathlib.Path('.godot/ci'); root=out/'recovery-source'; root.mkdir(parents=True,exist_ok=True)
+        prefix='ci/native/authored-week/0/appdata/Godot/app_userdata/DWM/'
+        files={}
+        with zipfile.ZipFile(io.BytesIO(inner_raw)) as inner:
+            assert inner.testzip() is None
+            manifest=json.loads(inner.read('ci/retained-hashes.json'))
+            for name,row in manifest.items():
+                data=inner.read(name)
+                assert len(data)==row['bytes'] and hashlib.sha256(data).hexdigest()==row['sha256'],name
+            for item in inner.infolist():
+                if not item.filename.startswith(prefix) or item.is_dir(): continue
+                relative=item.filename[len(prefix):]; destination=(root/relative).resolve()
+                assert destination.is_relative_to(root.resolve()),relative
+                assert item.filename in manifest,relative
+                data=inner.read(item.filename); destination.parent.mkdir(parents=True,exist_ok=True); destination.write_bytes(data)
+                files[relative]=hashlib.sha256(data).hexdigest()
+        assert len(files)==37,len(files)
+        proof={'source_run':39888749357,'outer_sha256':hashlib.sha256(raw).hexdigest(),
+               'inner_sha256':hashlib.sha256(inner_raw).hexdigest(),'files':files}
+        (out/'recovery-source.json').write_text(json.dumps(proof,indent=2),encoding='utf-8')
+
+        (out/"seed-authored-recovery.gd").write_text('extends SceneTree\n\nfunc _initialize() -> void:\n\tvar parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://.godot/ci/recovery-source.json"))\n\tif not parsed is Dictionary or OS.get_environment("DWM_TEST_ROOT").is_empty():\n\t\tprinterr("RECOVERY_SEED_INVALID")\n\t\tquit(1)\n\t\treturn\n\tvar source: Dictionary = parsed\n\tfor relative: String in source.files:\n\t\tvar destination := ProjectSettings.globalize_path("user://" + relative)\n\t\tvar parent_error := DirAccess.make_dir_recursive_absolute(destination.get_base_dir())\n\t\tvar copied := DirAccess.copy_absolute(ProjectSettings.globalize_path("res://.godot/ci/recovery-source/" + relative), destination)\n\t\tif parent_error != OK or copied != OK or FileAccess.get_sha256(destination) != source.files[relative]:\n\t\t\tprinterr("RECOVERY_SEED_COPY_FAILED " + relative)\n\t\t\tquit(1)\n\t\t\treturn\n\tvar proof := {"process_id": OS.get_process_id(), "user_dir": ProjectSettings.globalize_path("user://"),\n\t\t"source_run": source.source_run, "files": source.files}\n\tvar output := FileAccess.open("res://.godot/ci/authored-recovery-seed.json", FileAccess.WRITE)\n\tif output == null:\n\t\tquit(1)\n\t\treturn\n\toutput.store_string(JSON.stringify(proof))\n\toutput.close()\n\tprint("RECOVERY_SEED_COMPLETE files=" + str(source.files.size()))\n\tquit(0)\n',encoding="utf-8")
+        '@ | python -
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Recover and continue the genuine interrupted Day2 save
+      env:
+        DWM_SCENE_VALIDATION_PROFILE: '1'
+        DWM_SAVE_LOAD_PROFILE: '1'
+      timeout-minutes: 12
+      run: |
+        ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'authored-recovery' -LogName 'authored-recovery-seed.log' -EvidenceLogPath '.godot/ci/authored-recovery.jsonl' -TimeoutSeconds 600 -KeepRoot -Rendered -GodotArgs @('-s', 'res://.godot/ci/seed-authored-recovery.gd') -NextLogName 'authored-recovery.log' -NextGodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gprefix=authored_week_', '-gtest=res://tests/integration/authored_week_recovery.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/authored-recovery.xml')
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Verify genuine recovery and bounded diagnostic census
+      run: |
+        $ErrorActionPreference = 'Stop'
+        @'
+        import json,pathlib,xml.etree.ElementTree as ET
+        p=pathlib.Path('.godot/ci')
+        report=ET.parse(p/'authored-recovery.xml').getroot(); cases=list(report.iter('testcase'))
+        assert len(cases)==1 and cases[0].attrib['name']=='test_recover_interrupted_authored_day2'
+        assert cases[0].attrib['status']=='pass' and not any(list(report.iter(t)) for t in ['failure','error','skipped'])
+        events=[json.loads(s) for s in (p/'authored-recovery.jsonl').read_text(encoding='utf-8-sig').splitlines() if s.strip()]
+        assert len(events)==2 and all(e['exit_code']==0 for e in events)
+        assert events[0]['test_root']==events[1]['test_root']
+        proof=json.loads((p/'authored-recovery.json').read_text(encoding='utf-8-sig'))
+        assert proof['source_run']==39888749357 and proof['complete'] and proof['pending_phase']==''
+        assert proof['process_id']!=proof['seed_process_id']
+        assert proof['observed_lines']==['line.Day2.answer.019','line.Day2.result.A.001','line.Day2.result.A.002','line.Day2.result.A.003']
+        assert len(proof['timings'])==3 and len(proof['phases'])==8 and all(row['ok'] for row in proof['phases'])
+        log=pathlib.Path('.godot/phase2r_logs/authored-recovery.log').read_text(encoding='utf-8-sig')
+        assert log.count('DWM_SCENE_VALIDATION_PROFILE {')==8
+        assert not any(s in log for s in ['SCRIPT ERROR:', 'ERROR: Failed to load', '[Failed]'])
+        print('Genuine Day2 recovery and bounded continuation passed; not whole-week acceptance')
+        '@ | python -
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - if: always()
+      name: Retain native evidence from isolated roots
+      run: |
+        $ErrorActionPreference = 'Stop'
+        @'
+        import json,pathlib,shutil
+        out=pathlib.Path('.godot/ci')
+        for p in sorted(out.glob('*.jsonl')):
+            events=[json.loads(x) for x in p.read_text(encoding='utf-8-sig').splitlines() if x.strip()]
+            for i,event in enumerate(events):
+                source=pathlib.Path(event['test_root']).resolve()
+                assert source.is_relative_to(pathlib.Path('.godot').resolve()),str(source)
+                if source.is_dir():
+                    destination=out/'native'/p.stem/str(i)
+                    if i and events[i-1]['test_root']==event['test_root']: continue
+                    shutil.copytree(source,destination,dirs_exist_ok=True)
+        '@ | python -
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - if: always()
+      name: Retain original evidence and native UID provenance
+      run: |
+        $ErrorActionPreference = 'Stop'
+        @'
+        import hashlib,json,pathlib,subprocess,zipfile
+        out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
+        records=[]
+        for p in pathlib.Path('tests/integration').glob('authored_week*.gd.uid'):
+            target=out/'native-uids'/p.name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(p.read_bytes())
+            tracked=subprocess.run(['git','ls-files','--error-unmatch','--',str(p)],capture_output=True).returncode==0
+            records.append({'path':p.as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'provenance':'candidate_tracked' if tracked else 'cloud_editor_import','source':'21bb2f3ba91e92534192d963a20df713838b8367','source_tree':'318c61a0b2e1ae5320397489591bcec1c04f9134'})
+        (out/'uid-provenance.json').write_text(json.dumps(records,indent=2))
+        (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
+        manifest_source=subprocess.check_output(['git','ls-tree','-r','HEAD'],text=True)
+        (out/'source-tree.txt').write_text(manifest_source)
+        files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts and p.name not in ['original-evidence.zip','retained-hashes.json']]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))
+        manifest={p.relative_to('.godot').as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in files}
+        retained=out/'retained-hashes.json';retained.write_text(json.dumps(manifest,indent=2));files.append(retained)
+        archive=out/'original-evidence.zip'
+        with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z:
+            for p in files:z.write(p,p.relative_to('.godot').as_posix())
+        with zipfile.ZipFile(archive) as z:assert z.testzip() is None
+        print(json.dumps({'bytes':archive.stat().st_size,'sha256':hashlib.sha256(archive.read_bytes()).hexdigest()}))
+        '@ | python -
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - if: always()
+      name: Upload original evidence
+      uses: actions/upload-artifact@v4
+      with:
+        if-no-files-found: error
+        include-hidden-files: true
+        name: authored-recovery-${{ github.run_id }}-${{ github.run_attempt }}
+        path: .godot/ci/original-evidence.zip
+        retention-days: 30
+    timeout-minutes: 25
+name: Bounded genuine authored save recovery
+'on':
+  workflow_dispatch: null
+  pull_request:
+    types:
+    - opened
+    - synchronize
+    - reopened
+    paths:
+    - .github/workflows/authored-recovery.yml
+permissions:
+  actions: read
+  contents: read
