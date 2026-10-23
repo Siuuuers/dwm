@@ -147,7 +147,9 @@ jobs:
         '@ | Set-Content (Join-Path $folder 'primary.ps1') -Encoding utf8
         $env:SETTINGS_PWSH_PATH = (Get-Command pwsh).Source
         @'
-        import datetime,hashlib,json,os,pathlib,subprocess,time,xml.etree.ElementTree as ET
+        import datetime,hashlib,json,os,pathlib,subprocess,sys,time,xml.etree.ElementTree as ET
+        sys.stdout.reconfigure(encoding='utf-8',errors='backslashreplace')
+        sys.stderr.reconfigure(encoding='utf-8',errors='backslashreplace')
         root=pathlib.Path(os.environ['GITHUB_WORKSPACE']);folder=root/'.godot/ci/settings-supervised'
         started=time.monotonic();deadline=started+600
         pwsh=os.environ['SETTINGS_PWSH_PATH']
@@ -165,7 +167,7 @@ jobs:
            # Read only a bounded trailing window, retaining the complete on-disk logs.
            with path.open('rb') as stream:
             stream.seek(max(0,path.stat().st_size-65536));tail=stream.read().decode('utf-8',errors='replace').splitlines()[-20:]
-           print('SETTINGS_LOG_TAIL '+str(path)+'\n'+'\n'.join(tail),flush=True)
+           print('SETTINGS_LOG_TAIL '+str(path)+'\n'+'\n'.join(line[-2000:] for line in tail),flush=True)
         try:
          # Capture executable startup evidence before running any product tests.
          probe=subprocess.run([pwsh,'-NoLogo','-NoProfile','-NonInteractive','-Command',"Write-Output 'SETTINGS_PWSH_READY'"],
